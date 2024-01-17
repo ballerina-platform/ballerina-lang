@@ -118,7 +118,7 @@ function testIsolatedInference() {
 
     ClassWithInitMethodWithWorkers e = new;
     assertFalse(<any> e is isolated object {});
-    assertFalse(isMethodIsolated(e, "init"));
+    assertTrue(isMethodIsolated(e, "init"));
 
     ClassWithDefaultValueAccessingImmutableVar f = new;
     assertFalse(<any> f is isolated object {});

@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
@@ -26,16 +26,27 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import static org.objectweb.asm.Opcodes.AALOAD;
+import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FRAME_CLASS_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_LOCAL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -62,29 +73,34 @@ public class MethodGenUtils {
         return func.name.value.equals(encodeModuleSpecialFuncName(INIT_FUNCTION_SUFFIX));
     }
 
-    static void submitToScheduler(MethodVisitor mv, String moduleClassName,
-                                   String workerName, AsyncDataCollector asyncDataCollector) {
-        String metaDataVarName = JvmCodeGenUtil.getStrandMetadataVarName("main");
-        asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo("main"));
+    static void submitToScheduler(MethodVisitor mv, String moduleClassName, String workerName,
+                                  AsyncDataCollector asyncDataCollector) {
+        String metaDataVarName = JvmCodeGenUtil.getStrandMetadataVarName(MAIN_METHOD);
+        asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo(MAIN_METHOD));
         mv.visitLdcInsn(workerName);
         mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, GET_STRAND_METADATA);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
                 SCHEDULE_LOCAL, false);
     }
 
-    static void visitReturn(MethodVisitor mv) {
+    static void visitReturn(MethodVisitor mv, String funcName, String className) {
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, className);
         mv.visitEnd();
     }
 
     public static String encodeModuleSpecialFuncName(String funcSuffix) {
-        return IdentifierUtils.encodeFunctionIdentifier(funcSuffix);
+        return Utils.encodeFunctionIdentifier(funcSuffix);
     }
 
     static String calculateLambdaStopFuncName(PackageID id) {
         String orgName = id.orgName.value;
-        String moduleName = id.name.value;
+        String moduleName;
+        if (id.isTestPkg) {
+            moduleName = id.name.value + Names.TEST_PACKAGE;
+        } else {
+            moduleName = id.name.value;
+        }
         String version = getMajorVersion(id.version.value);
         String funcSuffix = MethodGenUtils.STOP_FUNCTION_SUFFIX;
 
@@ -101,22 +117,33 @@ public class MethodGenUtils {
             funcName = orgName + "/" + funcName;
         }
 
-        return "$lambda$" + IdentifierUtils.encodeFunctionIdentifier(funcName);
+        return LAMBDA_PREFIX + Utils.encodeFunctionIdentifier(funcName);
+    }
+
+    static void callSetDaemonStrand(MethodVisitor mv) {
+        // set daemon strand
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
+        mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "setDaemonStrand", SET_STRAND, false);
     }
 
     private MethodGenUtils() {
     }
 
     static String getFrameClassName(String pkgName, String funcName, BType attachedType) {
-        String frameClassName = pkgName;
+        String frameClassName = pkgName + FRAME_CLASS_PREFIX;
         if (isValidType(attachedType)) {
             frameClassName += JvmCodeGenUtil.toNameString(attachedType) + "_";
         }
 
-        return frameClassName + funcName + "Frame";
+        return frameClassName + funcName;
     }
 
     private static boolean isValidType(BType attachedType) {
-        return attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD);
+        BType referredAttachedType = JvmCodeGenUtil.getImpliedType(attachedType);
+        return attachedType != null && (referredAttachedType.tag == TypeTags.OBJECT
+                || referredAttachedType.tag == TypeTags.RECORD);
     }
 }

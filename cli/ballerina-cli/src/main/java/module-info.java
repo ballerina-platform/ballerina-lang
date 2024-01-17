@@ -1,7 +1,10 @@
 module io.ballerina.cli {
+    uses io.ballerina.cli.BLauncherCmd;
     exports io.ballerina.cli;
     exports io.ballerina.cli.launcher;
     exports io.ballerina.cli.utils;
+    exports io.ballerina.cli.cmd;
+    exports io.ballerina.cli.tool;
 
     requires io.ballerina.runtime;
     requires io.ballerina.lang;
@@ -15,8 +18,10 @@ module io.ballerina.cli {
     requires io.ballerina.central.client;
     requires io.ballerina.docerina;
     requires jdk.httpserver;
-    requires io.ballerina.core;
-    requires slf4j.api;
+    requires org.slf4j;
     requires io.ballerina.shell.cli;
     requires io.ballerina.toml;
+    requires io.ballerina.identifier;
+    requires org.objectweb.asm;
+    requires org.apache.commons.io;
 }

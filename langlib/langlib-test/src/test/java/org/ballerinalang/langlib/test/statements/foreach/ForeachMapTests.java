@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -47,30 +47,33 @@ public class ForeachMapTests {
         values.put("d", "4D");
     }
 
+    @AfterClass
+    public void tearDown() {
+        program = null;
+        values = null;
+    }
+
     @Test
     public void testMapWithArityOne() {
         StringBuilder sb = new StringBuilder();
         values.forEach((key, value) -> sb.append(value).append(" "));
-        BValue[] returns = BRunUtil.invoke(program, "testMapWithArityOne");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), sb.toString());
+        Object returns = BRunUtil.invoke(program, "testMapWithArityOne");
+        Assert.assertEquals(returns.toString(), sb.toString());
     }
 
     @Test
     public void testMapWithArityTwo() {
         StringBuilder sb = new StringBuilder();
         values.forEach((key, value) -> sb.append(value).append(" "));
-        BValue[] returns = BRunUtil.invoke(program, "testMapWithArityTwo");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), sb.toString());
+        Object returns = BRunUtil.invoke(program, "testMapWithArityTwo");
+        Assert.assertEquals(returns.toString(), sb.toString());
     }
 
     @Test
     public void testDeleteWhileIteration() {
         String result = "1A 2B ";
-        BValue[] returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Object returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test
@@ -78,9 +81,12 @@ public class ForeachMapTests {
         String result = "1A 1A 2B 3C 1A1A \n" +
                         "2B 1A 2B 3C 1A1A 2B2B \n" +
                         "3C 1A 2B 3C 1A1A 2B2B 3C3C \n";
-        BValue[] returns = BRunUtil.invoke(program, "testAddWhileIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Object returns = BRunUtil.invoke(program, "testAddWhileIteration");
+        Assert.assertEquals(returns.toString(), result);
     }
 
+    @Test
+    public void testWildcardBindingPatternInForeachStatement() {
+        BRunUtil.invoke(program, "testWildcardBindingPatternInForeachStatement");
+    }
 }

@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BIteratorType} represents the type of iterator in ballerina.
+ * {@code IteratorType} represents the type of iterator in ballerina.
  *
  * @since 2.0.0
  */

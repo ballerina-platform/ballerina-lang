@@ -165,12 +165,12 @@ function recordTest() returns [int, string[]] {
 function testIgnoredValue() returns (string) {
     string str = "The start-";
     string[] s = ["abc", "cde", "pqr", "xy"];
-    string [] filteredArr = s.filter(function (string s) returns boolean {
-            return s.length() == 3;
+    string [] filteredArr = s.filter(function (string s1) returns boolean {
+            return s1.length() == 3;
           })
-         .'map(function (string s) returns string {
-            str = str + " hello " + s + " :) bye :) ";
-            return (str + s);
+         .'map(function (string s1) returns string {
+            str = str + " hello " + s1 + " :) bye :) ";
+            return (str + s1);
           });
     str = str + "-The end";
     return str.trim();
@@ -190,10 +190,10 @@ function testInExpression() returns [string, int] {
         strArr[4] = "mno";
     };
 
-    x("total count " + strArr.filter(function (string str) returns boolean {
+    x("total count " + strArr.filter(function (string str1) returns boolean {
                                                 // Add a new element to the array
                                                 strArr[5] = "stu";
-                                                return str.length() == 3;
+                                                return str1.length() == 3;
                                             })
                                   .length().toString());
 

@@ -1,9 +1,9 @@
-import ballerina/http;
+import ballerina/httpx;
 
-@http:ServiceConfig {
+@httpx:ServiceConfig {
     basePath: "/testPath"
 }
-service helloService on new http:Listener(8080) {
-    resource function helloResource(http:Caller caller, http:Request request) {
+service helloService on new httpx:Listener(8080) {
+    resource function helloResource(http:Caller caller, httpx:Request request) {
     }
 }

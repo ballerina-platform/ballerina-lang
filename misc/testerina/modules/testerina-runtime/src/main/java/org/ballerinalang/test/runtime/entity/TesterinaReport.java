@@ -65,9 +65,11 @@ public class TesterinaReport {
                 outStream.println("\n\t\t    " + TesterinaUtils.formatError(failedResult.getAssertFailureMessage()));
             }
         }
-        if (!testSummary.passedTests.isEmpty()) {
-            for (TesterinaResult passedResult : testSummary.passedTests) {
-                outStream.println("\t\t[pass] " + passedResult.getTestFunctionName());
+        if (System.console() == null) {
+            if (!testSummary.passedTests.isEmpty()) {
+                for (TesterinaResult passedResult : testSummary.passedTests) {
+                    outStream.println("\t\t[pass] " + passedResult.getTestFunctionName());
+                }
             }
         }
 

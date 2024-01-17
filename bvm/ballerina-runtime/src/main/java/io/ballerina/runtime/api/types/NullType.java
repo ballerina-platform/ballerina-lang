@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BNullType} represents the type of a {@code NullLiteral}.
+ * {@code NullType} represents the type of a {@code null} literal.
  *
  * @since 2.0.0
  */

@@ -20,12 +20,16 @@ package org.wso2.ballerinalang.compiler.tree.types;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.StreamTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * @since 1.2.0
  */
 public class BLangStreamType extends BLangType implements StreamTypeNode {
+
+    // BLangNodes
     public BLangType type;
     public BLangType constraint;
     public BLangType error;
@@ -57,6 +61,16 @@ public class BLangStreamType extends BLangType implements StreamTypeNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

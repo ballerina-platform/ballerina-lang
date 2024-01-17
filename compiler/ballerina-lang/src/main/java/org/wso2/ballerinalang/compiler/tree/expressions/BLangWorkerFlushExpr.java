@@ -22,8 +22,9 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.WorkerFlushExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +36,13 @@ import java.util.List;
  */
 public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlushExpressionNode {
 
+    // BLangNodes
     public BLangIdentifier workerIdentifier;
+
+    // Semantic Data
     public BSymbol workerSymbol;
     public List<BLangIdentifier> workerIdentifierList = new ArrayList<>();
-    public List<BLangWorkerSend> cachedWorkerSendStmts = new ArrayList<>();
+    public List<BLangWorkerAsyncSendExpr> cachedWorkerSendStmts = new ArrayList<>();
 
     @Override
     public NodeKind getKind() {
@@ -51,9 +55,19 @@ public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlush
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
+    }
+
+    @Override
     public String toString() {
         if (workerIdentifier != null) {
-            return "flush " + String.valueOf(workerIdentifier);
+            return "flush " + workerIdentifier;
         }
         return "flush";
     }

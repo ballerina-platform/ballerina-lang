@@ -198,3 +198,135 @@ function testLastIndexOf() {
     function (int) returns (int) d;
     int? i3 = sd.indexOf(d);
 }
+
+function func1(int val) returns boolean {
+    return val > 2;
+}
+
+function testSomeNegative1() {
+    _ = [1, 2].som(func1); // error
+}
+
+function func2(int val) returns int {
+    return val + 1;
+}
+
+function testSomeNegative2() {
+    _ = [1, 2].some(func2); // error
+}
+
+function testSomeNegative3() {
+    int _ = [1, 2].some(func1); // error
+}
+
+function testSomeNegative4() {
+    string[] arr = ["str1", "str2"];
+    _ = arr.some(func1); // error
+}
+
+function testSomeNegative5() {
+    string[] arr = ["str1", "str2"];
+    _ = arr.some(val => val > 5); // error
+}
+
+function testEveryNegative1() {
+    _ = [1, 2].ever(func1); // error
+}
+
+function testEveryNegative2() {
+    _ = [1, 2].every(func2); // error
+}
+
+function testEveryNegative3() {
+    int _ = [1, 2].every(func1); // error
+}
+
+function testEveryNegative4() {
+    string[] arr = ["str1", "str2"];
+    _ = arr.every(func1); // error
+}
+
+function testEveryNegative5() {
+    string[] arr = ["str1", "str2"];
+    _ = arr.every(val => val > 5); // error
+}
+
+type T string|int;
+
+function testArrSortWithNamedArgs1() {
+    [string, T][] arr = [["a", "100"], ["b", "100"], ["d", "10"], ["c", "100"], ["e", "100"]];
+    [string, T][] sortedArr = arr.sort(direction = array:DESCENDING);
+    sortedArr = array:sort(arr, direction = array:DESCENDING);
+
+    sortedArr = array:sort(arr, direction = array:DESCENDING, key = isolated function([string, T] e) returns [string, T] {
+        return e;
+    });
+    sortedArr = arr.sort(key = isolated function([string, T] e) returns [string, T] {
+        return e;
+    });
+
+    sortedArr = array:sort(arr, direction = array:DESCENDING, key = ());
+}
+
+class Obj {
+    int i;
+    int j;
+
+    function init(int i, int j) {
+        self.i = i;
+        self.j = j;
+    }
+}
+
+function testPushWithObjectConstructorExprNegative() {
+    Obj[] arr = [];
+    arr.push(
+        object { // OK
+            int i = 123;
+            int j = 234;
+        },
+        object { // error
+            int i = 123;
+        }
+    );
+}
+
+type Template object {
+    *object:RawTemplate;
+
+    public (readonly & string[]) strings;
+    public int[] insertions;
+};
+
+function testPushWithRawTemplateExprNegative() {
+    Template[] arr = [];
+    string i = "12345";
+    arr.push(
+        `number ${i}`, // error
+        `second number ${1 + 3} third ${i + "1"}` // error for second interpolations
+    );
+}
+
+type Department record {|
+    readonly string name;
+    int empCount;
+|};
+
+function testPushWithTableConstructorExprNegative() {
+    (table<Department> key(name))[] arr = [];
+    arr.push(
+        table [{name: "finance"}] // error for missing `empCount`
+    );
+}
+
+function testPushWithNewExprNegative() {
+    Obj[] arr = [];
+    arr.push(new (1)); // error for missing argument
+}
+
+type Error error<record {| int code; |}>;
+
+function testPushWithErrorConstructorExprNegative() {
+    Error[] arr = [];
+    arr.push(error("e1")); // error for missing `code`
+}

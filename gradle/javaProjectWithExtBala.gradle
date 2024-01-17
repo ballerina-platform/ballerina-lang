@@ -31,13 +31,10 @@ configurations {
 }
 
 dependencies {
-//    balaCreat project(':lib-creator')
     annotationProcessor project(':ballerina-lang')
 }
 
 compileJava {
-//    sourceCompatibility = '11'
-//    targetCompatibility = '11'
     def generatedSources = "$buildDir/generated-from-annot"
     def generatedOutputDir = file("$generatedSources")
     def pkgName = project.name.replace("ballerina", "").replaceAll("-","")
@@ -54,10 +51,6 @@ compileJava {
         classpath = files()
     }
 }
-
-//tasks.withType(JavaCompile) {
-//    println 'Compiler args: ' + options.compilerArgs
-//}
 
 task createBalHome(type: Copy) {
     dependsOn configurations.balaImplementation
@@ -82,9 +75,6 @@ test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "LANG_REPO_BUILD", "true"
 
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
     minHeapSize = "512m"
     maxHeapSize = "2048m"
 }

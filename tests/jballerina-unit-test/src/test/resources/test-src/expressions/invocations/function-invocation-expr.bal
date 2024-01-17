@@ -343,6 +343,79 @@ function intRestParam(int... i) returns int {
      return tot;
 }
 
+type Tuple [int, string...];
+
+function testTypeRefTypedRestArg() {
+    Tuple f = [1, "hello", "Ballerina"];
+    int i = testFn(...f);
+    assertValueEquality(15, i);
+}
+
+function testFn(int a, string... b) returns int =>
+    b.reduce(function (int tot, string str) returns int => tot + str.length(), a);
+
+function testFuncWithNilReturnTypeWithoutVariableAssignment() {
+    stream<string> testStream = new;
+    testStream.close();
+    f1();
+    f2();
+    f4();
+    f5();
+    f6();
+    f8();
+    f9();
+    f10();
+}
+
+function testFuncWithNeverReturnTypeWithoutVariableAssignment() {
+    var intermediateFunction = function() returns error? {f3();};
+    error err = <error>trap intermediateFunction();
+    assertValueEquality("Invalid return from f3", err.message());
+
+    intermediateFunction = function() returns error? {f7();};
+    err = <error>trap intermediateFunction();
+    assertValueEquality("Invalid return from f7", err.message());
+
+    intermediateFunction = function() returns error? {f11();};
+    err = <error>trap intermediateFunction();
+    assertValueEquality("Invalid return from f11", err.message());
+}
+
+function f1() returns ()|() => ();
+
+function f2() returns never? => ();
+
+function f3() returns never|never {
+    panic error("Invalid return from f3");
+}
+
+function f4() returns null {
+    return null;
+}
+
+function f5() returns () {
+    return ();
+}
+
+function f6() {}
+
+function f7() returns never {
+    panic error("Invalid return from f7");
+}
+
+function f8() returns null|null => null;
+
+type FuncReturnType1 ()|();
+function f9() returns FuncReturnType1 => ();
+
+type FuncReturnType2 null;
+function f10() returns FuncReturnType2 => null;
+
+type FuncReturnType3 never;
+function f11() returns FuncReturnType3 {
+    panic error("Invalid return from f11");
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

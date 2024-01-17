@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigMap;
@@ -291,12 +292,14 @@ public class ObserveUtils {
      * @param observerContext Observer context
      */
     public static void stopObservationWithContext(ObserverContext observerContext) {
-        if (observerContext.isServer()) {
-            observers.forEach(observer -> observer.stopServerObservation(observerContext));
-        } else {
-            observers.forEach(observer -> observer.stopClientObservation(observerContext));
+        if (!observerContext.isFinished()) {
+            if (observerContext.isServer()) {
+                observers.forEach(observer -> observer.stopServerObservation(observerContext));
+            } else {
+                observers.forEach(observer -> observer.stopClientObservation(observerContext));
+            }
+            observerContext.setFinished();
         }
-        observerContext.setFinished();
     }
 
     /**
@@ -376,7 +379,7 @@ public class ObserveUtils {
         }   // Else normal function
 
         if (typeDef != null) {
-            ObjectType type = typeDef.getType();
+            ObjectType type = (ObjectType) TypeUtils.getImpliedType(typeDef.getType());
             Module typeModule = type.getPackage();
             String objectName = typeModule.getOrg() + "/" + typeModule.getName() + "/" + type.getName();
 

@@ -21,11 +21,11 @@ import io.ballerina.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -49,9 +49,9 @@ public class ExpressionFunctionBodyNodeContext extends AbstractCompletionProvide
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> expressionContextEntries = QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef);
+            List<Symbol> expressionContextEntries = QNameRefCompletionUtil.getExpressionContextEntries(ctx, qNameRef);
             completionItems.addAll(this.getCompletionItemList(expressionContextEntries, ctx));
         } else {
             completionItems.addAll(this.actionKWCompletions(ctx));

@@ -4,5 +4,5 @@ import ballerina/jballerina.java;
 const FOO = "foo";
 
 public function main(string a) {
-    string s = FOO;
+    string _ = FOO;
 }

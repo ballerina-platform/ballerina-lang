@@ -13,4 +13,9 @@ public function main() {
     }
 
     int localInt = module1:gInt;
+
+    module2:setName(fname = "John", lname = "Doe");
+    
+    stream<module2:Human> s = new;
+    table<module2:Human> tHuman = table [{id: 1, name: "Jane"}];
 }

@@ -43,3 +43,55 @@ function fn2() {
         }
     }
 }
+
+function fn3() {
+    int[] x = [1, 2];
+
+    match x {
+        [1, 2] if function () { } is isolated function => {
+        }
+    }
+}
+
+function fn4() {
+    int[] x = [1, 2];
+
+    match x {
+        [1, 2] if function (int a, string b) { } is isolated function => {
+        }
+    }
+}
+
+function fn5() {
+    int[] x = [1, 2];
+
+    match x {
+        [1, 2] if function (int a, string b) returns int { return 1; } is isolated function => {
+        }
+    }
+}
+
+function fn6() {
+    int[] x = [1, 2];
+
+    match x {
+        [1, 2] if function () returns int { return 1; } is isolated function => {
+        }
+    }
+}
+
+type Type_T "P1"|"P2"|"P3"|"P4";
+
+function matchTest(Type_T e) returns string {
+    match e {
+        "P1"|"P2" if e is "P2" => {
+            if (e is "P3") { // L = "P1"|"P2", withing block L & "P2"
+                return "P3";
+            }
+            return "p1p2p3p4";
+        }
+        _ => {
+            return "P4";
+        }
+    }
+}

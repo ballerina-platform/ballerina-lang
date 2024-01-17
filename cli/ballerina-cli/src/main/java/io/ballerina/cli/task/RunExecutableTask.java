@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.launcher.RuntimePanicException;
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
@@ -26,8 +27,6 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
@@ -70,23 +69,24 @@ public class RunExecutableTask implements Task {
 
     @Override
     public void execute(Project project) {
+        long start = 0;
+        if (project.buildOptions().dumpBuildTime()) {
+            start = System.currentTimeMillis();
+        }
 
         out.println();
         out.println("Running executable");
         out.println();
 
-        try {
-            ProjectUtils.checkExecutePermission(project.sourceRoot());
-        } catch (ProjectException e) {
-            throw createLauncherException(e.getMessage());
-        }
-
         this.runGeneratedExecutable(project.currentPackage().getDefaultModule(), project);
+        if (project.buildOptions().dumpBuildTime()) {
+            BuildTime.getInstance().runningExecutableDuration = System.currentTimeMillis() - start;
+        }
     }
 
     private void runGeneratedExecutable(Module executableModule, Project project) {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
         String initClassName = JarResolver.getQualifiedClassName(

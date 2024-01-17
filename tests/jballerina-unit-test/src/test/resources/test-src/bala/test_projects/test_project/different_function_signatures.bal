@@ -87,7 +87,7 @@ public function barTwo(int i, string s = "hello", string... t) returns [int, str
 
 // ------------------- Test function signature with 'never' return type ----------------
 public function sigma() returns never {
-    int age = 1;
+    int _ = 1;
     panic error("Error");
 }
 
@@ -143,3 +143,5 @@ public client class FooTwo {
         return [i, s, checkpanic t.cloneWithType(StringArray)];
     }
 }
+
+public isolated function testFunc(string ediText) returns json|error => {};

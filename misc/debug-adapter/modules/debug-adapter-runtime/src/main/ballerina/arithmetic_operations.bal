@@ -15,18 +15,18 @@
 // under the License.
 //
 
-function add(any lhs, any rhs) returns any|error {
+function add(any lhs, any rhs) returns int|float|decimal|string|xml|error {
 
-    any|error result;
-    if (lhs is int && rhs is int) {
+    int|float|decimal|string|xml|error result;
+    if lhs is int && rhs is int {
         result = trap (lhs + rhs); // int + int
-    } else if (lhs is float && rhs is float) {
+    } else if lhs is float && rhs is float {
         result = trap (lhs + rhs); // float + float
-    } else if (lhs is decimal && rhs is decimal) {
+    } else if lhs is decimal && rhs is decimal {
         result = trap (lhs + rhs); // decimal + decimal
-    } else if (lhs is string && rhs is string) {
+    } else if lhs is string && rhs is string {
         result = trap (lhs + rhs); // string + string
-    } else if (lhs is xml && rhs is xml) {
+    } else if lhs is xml && rhs is xml {
         result = trap (lhs + rhs); // xml + xml
     } else {
         result = error("operator '+' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
@@ -34,14 +34,14 @@ function add(any lhs, any rhs) returns any|error {
     return result;
 }
 
-function subtract(any lhs, any rhs) returns any|error {
+function subtract(any lhs, any rhs) returns int|float|decimal|error {
 
-    any|error result;
-    if (lhs is int && rhs is int) {
+    int|float|decimal|error result;
+    if lhs is int && rhs is int {
         result = trap (lhs - rhs); // int - int
-    } else if (lhs is float && rhs is float) {
+    } else if lhs is float && rhs is float {
         result = trap (lhs - rhs); // float - float
-    } else if (lhs is decimal && rhs is decimal) {
+    } else if lhs is decimal && rhs is decimal {
         result = trap (lhs - rhs); // decimal - decimal
     } else {
         result = error("operator '-' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
@@ -49,14 +49,14 @@ function subtract(any lhs, any rhs) returns any|error {
     return result;
 }
 
-function multiply(any lhs, any rhs) returns any|error {
+function multiply(any lhs, any rhs) returns int|float|decimal|error {
 
-    any|error result;
-    if (lhs is int && rhs is int) {
+    int|float|decimal|error result;
+    if lhs is int && rhs is int {
         result = trap (lhs * rhs); // int * int
-    } else if (lhs is float && rhs is float) {
+    } else if lhs is float && rhs is float {
         result = trap (lhs * rhs); // float * float
-    } else if (lhs is decimal && rhs is decimal) {
+    } else if lhs is decimal && rhs is decimal {
         result = trap (lhs * rhs); // decimal * decimal
     } else {
         result = error("operator '*' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
@@ -64,14 +64,14 @@ function multiply(any lhs, any rhs) returns any|error {
     return result;
 }
 
-function divide(any lhs, any rhs) returns any|error {
+function divide(any lhs, any rhs) returns int|float|decimal|error {
 
-    any|error result;
-    if (lhs is int && rhs is int) {
+    int|float|decimal|error result;
+    if lhs is int && rhs is int {
         result = trap (lhs / rhs); // int / int
-    } else if (lhs is float && rhs is float) {
+    } else if lhs is float && rhs is float {
         result = trap (lhs / rhs); // float / float
-    } else if (lhs is decimal && rhs is decimal) {
+    } else if lhs is decimal && rhs is decimal {
         result = trap (lhs / rhs); // decimal / decimal
     } else {
         result = error("operator '/' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
@@ -79,17 +79,17 @@ function divide(any lhs, any rhs) returns any|error {
     return result;
 }
 
-function modulus(any lhs, any rhs) returns any|error {
+function modulus(any lhs, any rhs) returns int|float|decimal|error {
 
-    any|error result;
-    if (lhs is int && rhs is int) {
+    int|float|decimal|error result;
+    if lhs is int && rhs is int {
         result = trap (lhs % rhs); // int % int
-    } else if (lhs is float && rhs is float) {
+    } else if lhs is float && rhs is float {
         result = trap (lhs % rhs); // float % float
-    } else if (lhs is decimal && rhs is decimal) {
+    } else if lhs is decimal && rhs is decimal {
         result = trap (lhs % rhs); // decimal % decimal
     } else {
-        result = error("operator '%' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs)+ "'.");
+        result = error("operator '%' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
     }
     return result;
 }

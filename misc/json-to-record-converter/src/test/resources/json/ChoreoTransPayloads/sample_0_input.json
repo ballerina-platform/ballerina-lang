@@ -1,0 +1,29 @@
+{
+  "Assets":[
+    {
+      "Type":2,
+      "Id":"SAMSUNG"
+    }
+  ],
+  "CreateDate":"2021-11-24T15:46:57.9937068+00:00",
+  "ContentType":"com.trimble.transportation.telematics.inbound.free-form",
+  "Content":{
+    "Message":"hi test message",
+    "Recipients":[
+      {
+        "UserId":"",
+        "Name":"",
+        "EmailAddress":null
+      }
+    ],
+    "TripInformation":null,
+    "HeaderInformation":{
+      "CreateDateUtc":"2021-11-24T15:46:57.9937068+00:00"
+    }
+  },
+  "MessageProperties":{
+    "EventType":"com.trimble.transportation.telematics.inbound.free-form",
+    "AuditId":"{{$guid}}",
+    "MessageId":"{{$guid}}"
+  }
+}

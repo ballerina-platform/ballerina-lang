@@ -1,0 +1,5 @@
+[package]
+org = "adv_res"
+name = "package_r.types.timestamp"
+version = "0.6.0"
+export = ["package_r.types.timestamp"]

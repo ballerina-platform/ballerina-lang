@@ -35,7 +35,7 @@ public class NoOpObservabilitySymbolCollector implements ObservabilitySymbolColl
     }
 
     @Override
-    public void writeToExecutable(Path executableFile) {
+    public void writeToExecutable(Path executableFile, Project project) {
         // Do nothing
     }
 }

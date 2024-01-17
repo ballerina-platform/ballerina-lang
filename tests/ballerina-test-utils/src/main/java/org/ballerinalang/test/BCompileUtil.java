@@ -18,7 +18,6 @@
 package org.ballerinalang.test;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.NullBackend;
@@ -26,6 +25,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -58,8 +58,10 @@ public class BCompileUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(BCompileUtil.class);
 
+    private BCompileUtil() {}
+
     public static Project loadProject(String sourceFilePath) {
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         return loadProject(sourceFilePath, buildOptionsBuilder.build());
     }
 
@@ -70,7 +72,17 @@ public class BCompileUtil {
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
 
-        BuildOptions defaultOptions = new BuildOptionsBuilder().offline(true).dumpBirFile(true).build();
+        BuildOptions defaultOptions;
+        try {
+            defaultOptions = BuildOptions.builder()
+                    .setOffline(true)
+                    .setDumpBirFile(true)
+                    .targetDir(String.valueOf(Files.createTempDirectory("ballerina-cache" + System.nanoTime())))
+                    .build();
+        } catch (IOException e) {
+            throw new ProjectException("Failed to create the temporary target directory: " + e.getMessage());
+        }
+
         BuildOptions mergedOptions = buildOptions.acceptTheirs(defaultOptions);
         return ProjectLoader.loadProject(projectPath, mergedOptions);
     }
@@ -90,8 +102,8 @@ public class BCompileUtil {
     }
 
     public static CompileResult compileOffline(String sourceFilePath) {
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        BuildOptions buildOptions = buildOptionsBuilder.offline(Boolean.TRUE).build();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        BuildOptions buildOptions = buildOptionsBuilder.setOffline(Boolean.TRUE).build();
         Project project = loadProject(sourceFilePath, buildOptions);
 
         Package currentPackage = project.currentPackage();
@@ -143,13 +155,23 @@ public class BCompileUtil {
     }
 
     public static CompileResult compileAndCacheBala(String sourceFilePath, Path repoPath) {
+        return compileAndCacheBala(sourceFilePath, repoPath, getTestProjectEnvironmentBuilder());
+    }
+
+    public static CompileResult compileAndCacheBala(String sourceFilePath, Path repoPath,
+                                             ProjectEnvironmentBuilder projectEnvironmentBuilder) {
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
-
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        BuildOptions defaultOptions = new BuildOptionsBuilder().offline(true).dumpBirFile(true).build();
-        Project project = ProjectLoader.loadProject(projectPath, getTestProjectEnvironmentBuilder(), defaultOptions);
+
+        return compileAndCacheBala(projectPath, repoPath, projectEnvironmentBuilder);
+    }
+
+    public static CompileResult compileAndCacheBala(Path projectPath, Path repoPath,
+                                                    ProjectEnvironmentBuilder projectEnvironmentBuilder) {
+        BuildOptions defaultOptions = BuildOptions.builder().setOffline(true).setDumpBirFile(true).build();
+        Project project = ProjectLoader.loadProject(projectPath, projectEnvironmentBuilder, defaultOptions);
 
         if (isSingleFileProject(project)) {
             throw new RuntimeException("single file project is given for compilation at " + project.sourceRoot());
@@ -189,7 +211,7 @@ public class BCompileUtil {
         if (packageCompilation.diagnosticResult().errorCount() > 0) {
             logger.error("compilation failed with errors: " + currentPackage.project().sourceRoot());
         }
-        return JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        return JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
     }
 
     /**
@@ -207,6 +229,15 @@ public class BCompileUtil {
                                                 String version) throws IOException {
         Path targetPath = balaCachePath(org, pkgName, version, testBuildDirectory.resolve(DIST_CACHE_DIRECTORY))
                 .resolve("any");
+        if (Files.isDirectory(targetPath)) {
+            ProjectUtils.deleteDirectory(targetPath);
+        }
+        ProjectUtils.extractBala(srcPath, targetPath);
+    }
+
+    public static void copyBalaToExtractedDist(Path srcPath, String org, String pkgName, String version,
+                                               Path tempDistPath) throws IOException {
+        Path targetPath = balaCachePath(org, pkgName, version, tempDistPath).resolve("any");
         if (Files.isDirectory(targetPath)) {
             ProjectUtils.deleteDirectory(targetPath);
         }

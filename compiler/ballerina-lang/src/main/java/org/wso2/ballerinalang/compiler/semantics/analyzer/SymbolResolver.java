@@ -19,13 +19,14 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -35,6 +36,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -64,15 +67,19 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -80,6 +87,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReTerm;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -121,6 +133,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 
 import static java.lang.String.format;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
@@ -133,23 +146,23 @@ import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATO
 /**
  * @since 0.94
  */
-public class SymbolResolver extends BLangNodeVisitor {
-    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
+public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.AnalyzerData, BType> {
+    public static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final CompilerContext.Key<SymbolResolver> SYMBOL_RESOLVER_KEY =
             new CompilerContext.Key<>();
 
-    private SymbolTable symTable;
-    private Names names;
-    private BLangDiagnosticLog dlog;
-    private Types types;
+    private final SymbolTable symTable;
+    private final Names names;
+    private final BLangDiagnosticLog dlog;
+    private final Types types;
 
-    private SymbolEnv env;
-    private BType resultType;
-    private DiagnosticCode diagCode;
-    private SymbolEnter symbolEnter;
-    private BLangAnonymousModelHelper anonymousModelHelper;
-    private BLangMissingNodesHelper missingNodesHelper;
-    private Unifier unifier;
+    private final SymbolEnter symbolEnter;
+    private final TypeResolver typeResolver;
+    private final BLangAnonymousModelHelper anonymousModelHelper;
+    private final BLangMissingNodesHelper missingNodesHelper;
+    private final Unifier unifier;
+    private final SemanticAnalyzer semanticAnalyzer;
+    private final Stack<String> anonTypeNameSuffixes;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -169,14 +182,23 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.typeResolver = TypeResolver.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.unifier = new Unifier();
+        this.anonTypeNameSuffixes = new Stack<>();
+    }
+
+    @Override
+    public BType transformNode(BLangNode node, AnalyzerData props) {
+        // Should not reach here
+        return symTable.neverType;
     }
 
     public boolean checkForUniqueSymbol(Location pos, SymbolEnv env, BSymbol symbol) {
         //lookup symbol
         BSymbol foundSym = symTable.notFoundSymbol;
-        int expSymTag = symbol.tag;
+        long expSymTag = symbol.tag;
         if ((expSymTag & SymTag.IMPORT) == SymTag.IMPORT) {
             foundSym = lookupSymbolInPrefixSpace(env, symbol.name);
         } else if ((expSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
@@ -211,8 +233,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (isRedeclaredSymbol(symbol, foundSym)) {
 
             Name name = symbol.name;
-            if (Symbols.isRemote(symbol) && !Symbols.isRemote(foundSym)
-                || !Symbols.isRemote(symbol) && Symbols.isRemote(foundSym)) {
+            if (Symbols.isRemote(symbol) ^ Symbols.isRemote(foundSym)) {
                 dlog.error(pos, DiagnosticErrorCode.UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE, name);
                 return false;
             }
@@ -222,12 +243,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             return false;
         }
 
-        if ((foundSym.tag & SymTag.SERVICE) == SymTag.SERVICE) {
-            // In order to remove duplicate errors.
-            return false;
-        }
-
-        return true;
+        // In order to remove duplicate errors.
+        return (foundSym.tag & SymTag.SERVICE) != SymTag.SERVICE;
     }
 
     private boolean isRedeclaredSymbol(BSymbol symbol, BSymbol foundSym) {
@@ -257,7 +274,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return true if the symbol is unique, false otherwise.
      */
     public boolean checkForUniqueSymbolInCurrentScope(Location pos, SymbolEnv env, BSymbol symbol,
-                                                      int expSymTag) {
+                                                      long expSymTag) {
         //lookup in current scope
         BSymbol foundSym = lookupSymbolInGivenScope(env, symbol.name, expSymTag);
 
@@ -280,10 +297,8 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return true if the symbol is unique, false otherwise.
      */
     private boolean isDistinctSymbol(Location pos, BSymbol symbol, BSymbol foundSym) {
-        int symbolTag = symbol.tag;
-        int foundSymTag = foundSym.tag;
         // It is allowed to have a error constructor symbol with the same name as a type def.
-        if (symbolTag == SymTag.CONSTRUCTOR && foundSymTag == SymTag.ERROR) {
+        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
             return false;
         }
 
@@ -293,27 +308,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         return true;
-    }
-
-    /**
-     * This method will check whether the symbol being defined is unique comparing it with the found symbol
-     * from the scope.
-     *
-     * @param symbol   symbol that is being defined.
-     * @param foundSym symbol that is found from the scope.
-     * @return true if the symbol is unique, false otherwise.
-     */
-    private boolean isDistinctSymbol(BSymbol symbol, BSymbol foundSym) {
-        // It is allowed to have a error constructor symbol with the same name as a type def.
-        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
-            return false;
-        }
-
-        if (isSymbolDefinedInRootPkgLvl(foundSym)) {
-            return false;
-        }
-
-        return !hasSameOwner(symbol, foundSym);
     }
 
     private boolean hasSameOwner(BSymbol symbol, BSymbol foundSym) {
@@ -330,6 +324,23 @@ public class SymbolResolver extends BLangNodeVisitor {
             // If the symbol being defined is inside a let expression and the existing symbol is defined inside a
             // function both symbols are in the same scope.
             return  true;
+        }  else if (((symbol.owner.tag & SymTag.FUNCTION_TYPE) == SymTag.FUNCTION_TYPE) &&
+                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
+            // If the symbol being defined is inside a function type and the existing symbol is defined inside a
+            // function both symbols are in the same scope.
+            return  true;
+        } else if (Symbols.isFlagOn(symbol.owner.flags, Flags.OBJECT_CTOR) &&
+                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
+            // object ctor is using a symbol inside a function masking the symbol in the function scope
+            // This is preventing outer scope variable name crashes with method names inside object ctor
+            if (Symbols.isFlagOn(symbol.flags, Flags.ATTACHED) || Symbols.isFlagOn(foundSym.flags, Flags.ATTACHED)) {
+                return false;
+            }
+            // This prevents `self` symbol crash between multilevel object ctors
+            if (foundSym.name.value.equals(Names.SELF.value) || symbol.name.value.equals(Names.SELF.value)) {
+                return false;
+            }
+            return true;
         }
         return  false;
     }
@@ -354,7 +365,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     private boolean isSymbolDefinedInRootPkgLvl(BSymbol foundSym) {
-        int foundSymTag = foundSym.tag;
+        long foundSymTag = foundSym.tag;
         return symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
                 (foundSymTag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME;
     }
@@ -367,7 +378,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param expSymTag expected tag of the symbol.
      * @return if a symbol is found return it.
      */
-    public BSymbol lookupSymbolInGivenScope(SymbolEnv env, Name name, int expSymTag) {
+    public BSymbol lookupSymbolInGivenScope(SymbolEnv env, Name name, long expSymTag) {
         ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
             if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&
@@ -398,15 +409,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveOperator(names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
     }
 
-    BSymbol createEqualityOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
+    private BSymbol createEqualityOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         BType retType = symTable.booleanType;
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
-    public BSymbol resolveUnaryOperator(Location pos,
-                                        OperatorKind opKind,
+    public BSymbol resolveUnaryOperator(OperatorKind opKind,
                                         BType type) {
         return resolveOperator(names.fromString(opKind.value()), Lists.of(type));
     }
@@ -416,16 +426,22 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveOperator(entry, types);
     }
 
-    BSymbol createBinaryComparisonOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
+    private BSymbol createBinaryComparisonOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         BInvokableType opType = new BInvokableType(paramTypes, symTable.booleanType, null);
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
-    BSymbol createBinaryOperator(OperatorKind opKind, BType lhsType, BType rhsType, BType retType) {
+    private BSymbol createBinaryOperator(OperatorKind opKind, BType lhsType, BType rhsType, BType retType) {
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
+    }
+
+    BSymbol createUnaryOperator(OperatorKind kind, BType type, BType retType) {
+        List<BType> paramTypes = Lists.of(type);
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+        return new BOperatorSymbol(names.fromString(kind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
     public BSymbol resolvePkgSymbol(Location pos, SymbolEnv env, Name pkgAlias) {
@@ -452,14 +468,17 @@ public class SymbolResolver extends BLangNodeVisitor {
         // Lookup for an imported package
         ScopeEntry entry = env.scope.lookup(pkgAlias);
         while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.XMLNS) == SymTag.XMLNS) {
-                return entry.symbol;
+            BSymbol symbol = entry.symbol;
+            long tag = symbol.tag;
+
+            if ((tag & SymTag.XMLNS) == SymTag.XMLNS) {
+                return symbol;
             }
 
-            if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT &&
-                    ((BPackageSymbol) entry.symbol).compUnit.equals(compUnit)) {
-                ((BPackageSymbol) entry.symbol).isUsed = true;
-                return entry.symbol;
+            if ((tag & SymTag.IMPORT) == SymTag.IMPORT &&
+                    ((BPackageSymbol) symbol).compUnit.equals(compUnit)) {
+                ((BPackageSymbol) symbol).isUsed = true;
+                return symbol;
             }
 
             entry = entry.next;
@@ -497,28 +516,43 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
-        return resolveTypeNode(typeNode, env, DiagnosticErrorCode.UNKNOWN_TYPE);
+        AnalyzerData data = new AnalyzerData(env);
+        return resolveTypeNode(typeNode, data, env, DiagnosticErrorCode.UNKNOWN_TYPE);
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env, DiagnosticCode diagCode) {
-        SymbolEnv prevEnv = this.env;
-        DiagnosticCode preDiagCode = this.diagCode;
+        AnalyzerData data = new AnalyzerData(env);
+        return resolveTypeNode(typeNode, data, env, diagCode);
+    }
 
-        this.env = env;
-        this.diagCode = diagCode;
-        typeNode.accept(this);
-        this.env = prevEnv;
-        this.diagCode = preDiagCode;
+    private BType resolveTypeNode(BLangType typeNode, AnalyzerData data, SymbolEnv env) {
+        return resolveTypeNode(typeNode, data, env, DiagnosticErrorCode.UNKNOWN_TYPE);
+    }
 
-        BType refType = types.getReferredType(this.resultType);
+    private BType resolveTypeNode(BLangType typeNode, AnalyzerData data, SymbolEnv env, DiagnosticCode diagCode) {
+        if (typeNode == null) {
+            return symTable.neverType;
+        }
+        SymbolEnv prevEnv = data.env;
+        DiagnosticCode preDiagCode = data.diagCode;
+
+        data.env = env; // TODO: can remove?
+        data.diagCode = diagCode;
+        BType resultType = typeNode.apply(this, data);
+        data.env = prevEnv;
+        data.diagCode = preDiagCode;
+
+        BType refType = Types.getImpliedType(resultType);
         if (refType != symTable.noType) {
             // If the typeNode.nullable is true then convert the resultType to a union type
             // if it is not already a union type, JSON type, or any type
-            if (typeNode.nullable && refType.tag == TypeTags.UNION) {
+            if (typeNode.nullable && resultType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) refType;
                 unionType.add(symTable.nilType);
+            } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
+                resultType = BUnionType.create(null, resultType, symTable.nilType);
             } else if (typeNode.nullable && refType.tag != TypeTags.JSON && refType.tag != TypeTags.ANY) {
-                this.resultType = BUnionType.create(null, this.resultType, symTable.nilType);
+                resultType = BUnionType.create(null, resultType, symTable.nilType);
             }
         }
 
@@ -528,7 +562,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resultType;
     }
 
-    private void validateDistinctType(BLangType typeNode, BType type) {
+    public void validateDistinctType(BLangType typeNode, BType type) {
         if (typeNode.flagSet.contains(Flag.DISTINCT) && !isDistinctAllowedOnType(type)) {
             dlog.error(typeNode.pos, DiagnosticErrorCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
         }
@@ -536,7 +570,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private boolean isDistinctAllowedOnType(BType type) {
         if (type.tag == TypeTags.TYPEREFDESC) {
-            return isDistinctAllowedOnType(types.getReferredType(type));
+            return isDistinctAllowedOnType(Types.getImpliedType(type));
         }
         if (type.tag == TypeTags.INTERSECTION) {
             for (BType constituentType : ((BIntersectionType) type).getConstituentTypes()) {
@@ -574,7 +608,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param expSymTag expected symbol type/tag
      * @return resolved symbol
      */
-    private BSymbol lookupSymbolForDecl(SymbolEnv env, Name name, int expSymTag) {
+    private BSymbol lookupSymbolForDecl(SymbolEnv env, Name name, long expSymTag) {
         ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & expSymTag) == expSymTag) {
@@ -602,7 +636,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param expSymTag expected symbol type/tag
      * @return resolved symbol
      */
-    private BSymbol lookupSymbol(SymbolEnv env, Name name, int expSymTag) {
+    private BSymbol lookupSymbol(SymbolEnv env, Name name, long expSymTag) {
         ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & expSymTag) == expSymTag && !isFieldRefFromWithinARecord(entry.symbol, env)) {
@@ -647,13 +681,13 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupSymbol(env, name, SymTag.CONSTRUCTOR);
     }
 
-    public BSymbol lookupLangLibMethod(BType type, Name name) {
-
+    public BSymbol lookupLangLibMethod(BType type, Name name, SymbolEnv env) {
+        BType referredType = Types.getImpliedType(type);
         if (symTable.langAnnotationModuleSymbol == null) {
             return symTable.notFoundSymbol;
         }
         BSymbol bSymbol;
-        switch (type.tag) {
+        switch (referredType.tag) {
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
                 bSymbol = lookupMethodInModule(symTable.langArrayModuleSymbol, name, env);
@@ -716,61 +750,57 @@ public class SymbolResolver extends BLangNodeVisitor {
                 bSymbol = lookupMethodInModule(symTable.langBooleanModuleSymbol, name, env);
                 break;
             case TypeTags.UNION:
-                Iterator<BType> itr = ((BUnionType) type).getMemberTypes().iterator();
+                Iterator<BType> itr = ((BUnionType) referredType).getMemberTypes().iterator();
 
                 if (!itr.hasNext()) {
                     throw new IllegalArgumentException(
-                            format("Union type '%s' does not have member types", type.toString()));
+                            format("Union type '%s' does not have member types", type));
                 }
 
-                BType member = types.getReferredType(itr.next());
+                BType member = Types.getImpliedType(itr.next());
 
                 if (TypeTags.isIntegerTypeTag(member.tag) || member.tag == TypeTags.BYTE) {
                     member = symTable.intType;
                 } else if (TypeTags.isStringTypeTag(member.tag)) {
                     member = symTable.stringType;
-                } else if (member.tag == TypeTags.INTERSECTION) {
-                    member = ((BIntersectionType) member).effectiveType;
                 }
 
                 if (types.isSubTypeOfBaseType(type, member.tag)) {
-                    bSymbol = lookupLangLibMethod(member, name);
+                    bSymbol = lookupLangLibMethod(member, name, env);
                 } else {
                     bSymbol = symTable.notFoundSymbol;
                 }
                 break;
-            case TypeTags.TYPEREFDESC:
-                bSymbol = lookupLangLibMethod(types.getReferredType(type), name);
-                break;
             case TypeTags.FINITE:
                 if (types.isAssignable(type, symTable.intType)) {
-                    return lookupLangLibMethod(symTable.intType, name);
+                    return lookupLangLibMethod(symTable.intType, name, env);
                 }
 
                 if (types.isAssignable(type, symTable.stringType)) {
-                    return lookupLangLibMethod(symTable.stringType, name);
+                    return lookupLangLibMethod(symTable.stringType, name, env);
                 }
 
                 if (types.isAssignable(type, symTable.decimalType)) {
-                    return lookupLangLibMethod(symTable.decimalType, name);
+                    return lookupLangLibMethod(symTable.decimalType, name, env);
                 }
 
                 if (types.isAssignable(type, symTable.floatType)) {
-                    return lookupLangLibMethod(symTable.floatType, name);
+                    return lookupLangLibMethod(symTable.floatType, name, env);
                 }
 
                 if (types.isAssignable(type, symTable.booleanType)) {
-                    return lookupLangLibMethod(symTable.booleanType, name);
+                    return lookupLangLibMethod(symTable.booleanType, name, env);
                 }
 
                 bSymbol = symTable.notFoundSymbol;
                 break;
-            case TypeTags.INTERSECTION:
-                return lookupLangLibMethod(((BIntersectionType) type).effectiveType, name);
+            case TypeTags.REGEXP:
+                bSymbol = lookupMethodInModule(symTable.langRegexpModuleSymbol, name, env);
+                break;
             default:
                 bSymbol = symTable.notFoundSymbol;
         }
-        if (bSymbol == symTable.notFoundSymbol && type.tag != TypeTags.OBJECT) {
+        if (bSymbol == symTable.notFoundSymbol && referredType.tag != TypeTags.OBJECT) {
             bSymbol = lookupMethodInModule(symTable.langValueModuleSymbol, name, env);
         }
 
@@ -785,18 +815,13 @@ public class SymbolResolver extends BLangNodeVisitor {
      * Recursively analyse the symbol env to find the closure variable symbol that is being resolved.
      *
      * @param env       symbol env to analyse and find the closure variable.
-     * @param name      name of the symbol to lookup
-     * @param expSymTag symbol tag
+     * @param symbol    symbol to lookup
      * @return closure symbol wrapper along with the resolved count
      */
-    public BSymbol lookupClosureVarSymbol(SymbolEnv env, Name name, int expSymTag) {
-        ScopeEntry entry = env.scope.lookup(name);
+    public BSymbol lookupClosureVarSymbol(SymbolEnv env, BSymbol symbol) {
+        ScopeEntry entry = env.scope.lookup(symbol.name);
         while (entry != NOT_FOUND_ENTRY) {
-            if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&
-                    (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
-                return entry.symbol;
-            }
-            if ((entry.symbol.tag & expSymTag) == expSymTag && !isFieldRefFromWithinARecord(entry.symbol, env)) {
+            if (entry.symbol == symbol) {
                 return entry.symbol;
             }
             entry = entry.next;
@@ -806,7 +831,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
 
-        return lookupClosureVarSymbol(env.enclEnv, name, expSymTag);
+        return lookupClosureVarSymbol(env.enclEnv, symbol);
     }
 
     public BSymbol lookupMainSpaceSymbolInPackage(Location pos,
@@ -820,13 +845,17 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
         }
 
         // 3) Look up the package scope.
+        return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, SymTag.MAIN);
+    }
+
+    public BSymbol lookupMainSpaceSymbolInPackage(BSymbol pkgSymbol, Location pos, SymbolEnv env, Name name) {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, SymTag.MAIN);
     }
 
@@ -841,7 +870,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -862,7 +891,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -883,7 +912,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -924,7 +953,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                       Scope scope,
                                       SymbolEnv env,
                                       Name name,
-                                      int expSymTag) {
+                                      long expSymTag) {
         ScopeEntry entry = scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & expSymTag) != expSymTag) {
@@ -950,7 +979,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return Map of namespace symbols visible to the given environment
      */
     public Map<Name, BXMLNSSymbol> resolveAllNamespaces(SymbolEnv env) {
-        Map<Name, BXMLNSSymbol> namespaces = new LinkedHashMap<Name, BXMLNSSymbol>();
+        Map<Name, BXMLNSSymbol> namespaces = new LinkedHashMap<>();
         addNamespacesInScope(namespaces, env);
         return namespaces;
     }
@@ -963,7 +992,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 entry = entry.next;
                 continue;
             }
-            symTable.errorType = (BErrorType) entry.symbol.type;
+            symTable.errorType = (BErrorType) Types.getImpliedType(entry.symbol.type);
             symTable.detailType = (BMapType) symTable.errorType.detailType;
             return;
         }
@@ -981,8 +1010,12 @@ public class SymbolResolver extends BLangNodeVisitor {
                 entry = entry.next;
                 continue;
             }
-            BUnionType type = (BUnionType) entry.symbol.type;
+            BUnionType type = (BUnionType) Types.getImpliedType(entry.symbol.type);
             symTable.anydataType = new BAnydataType(type);
+            Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS, type);
+            if (immutableType.isPresent()) {
+                Types.addImmutableType(symTable, PackageID.ANNOTATIONS, symTable.anydataType, immutableType.get());
+            }
             symTable.anydataOrReadonly = BUnionType.create(null, symTable.anydataType, symTable.readonlyType);
             entry.symbol.type = symTable.anydataType;
             entry.symbol.origin = BUILTIN;
@@ -1001,8 +1034,13 @@ public class SymbolResolver extends BLangNodeVisitor {
                 entry = entry.next;
                 continue;
             }
-            BUnionType type = (BUnionType) entry.symbol.type;
+            BUnionType type = (BUnionType) Types.getImpliedType(entry.symbol.type);
             symTable.jsonType = new BJSONType(type);
+            Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS,
+                                                                               type);
+            if (immutableType.isPresent()) {
+                Types.addImmutableType(symTable, PackageID.ANNOTATIONS, symTable.jsonType, immutableType.get());
+            }
             symTable.jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, PackageID.ANNOTATIONS,
                     symTable.jsonType, symTable.langAnnotationModuleSymbol, symTable.builtinPos, BUILTIN);
             entry.symbol.type = symTable.jsonType;
@@ -1020,7 +1058,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     entry = entry.next;
                     continue;
                 }
-                symTable.cloneableType = (BUnionType) entry.symbol.type;
+                symTable.cloneableType = (BUnionType) Types.getImpliedType(entry.symbol.type);
                 symTable.cloneableType.tsymbol =
                         new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE,
                                 PackageID.VALUE, symTable.cloneableType, symTable.langValueModuleSymbol,
@@ -1065,7 +1103,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 continue;
             }
             symTable.intRangeType = (BObjectType) types
-                    .getReferredType(((BInvokableType) entry.symbol.type).retType);
+                    .getImpliedType(((BInvokableType) entry.symbol.type).retType);
             symTable.defineIntRangeOperations();
             return;
         }
@@ -1080,7 +1118,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 entry = entry.next;
                 continue;
             }
-            symTable.iterableType = (BObjectType) entry.symbol.type;
+            symTable.iterableType = (BObjectType) Types.getImpliedType(entry.symbol.type);
             return;
         }
         throw new IllegalStateException("built-in distinct Iterable type not found ?");
@@ -1101,31 +1139,33 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     // visit type nodes
 
-    public void visit(BLangValueType valueTypeNode) {
-        visitBuiltInTypeNode(valueTypeNode, valueTypeNode.typeKind, this.env);
+    @Override
+    public BType transform(BLangValueType valueTypeNode, AnalyzerData data) {
+        return visitBuiltInTypeNode(valueTypeNode, data, valueTypeNode.typeKind);
     }
 
-    public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        visitBuiltInTypeNode(builtInRefType, builtInRefType.typeKind, this.env);
+    @Override
+    public BType transform(BLangBuiltInRefTypeNode builtInRefType, AnalyzerData data) {
+        return visitBuiltInTypeNode(builtInRefType, data, builtInRefType.typeKind);
     }
 
-    public void visit(BLangArrayType arrayTypeNode) {
+    @Override
+    public BType transform(BLangArrayType arrayTypeNode, AnalyzerData data) {
         // The value of the dimensions field should always be >= 1
         // If sizes is null array is unsealed
-        resultType = resolveTypeNode(arrayTypeNode.elemtype, env, diagCode);
+        BType resultType = resolveTypeNode(arrayTypeNode.elemtype, data, data.env, data.diagCode);
         if (resultType == symTable.noType) {
-            return;
+            return resultType;
         }
         boolean isError = false;
         for (int i = 0; i < arrayTypeNode.dimensions; i++) {
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
-                                                                   env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                   arrayTypeNode.pos, SOURCE);
+                    data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner, arrayTypeNode.pos, SOURCE);
             BArrayType arrType;
-            if (arrayTypeNode.sizes.length == 0) {
+            if (arrayTypeNode.sizes.size() == 0) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
-                BLangExpression size = arrayTypeNode.sizes[i];
+                BLangExpression size = arrayTypeNode.sizes.get(i);
                 if (size.getKind() == NodeKind.LITERAL || size.getKind() == NodeKind.NUMERIC_LITERAL) {
                     Integer sizeIndicator = (Integer) (((BLangLiteral) size).getValue());
                     BArrayState arrayState;
@@ -1136,7 +1176,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     } else {
                         arrayState = BArrayState.CLOSED;
                     }
-                    arrType =  new BArrayType(resultType, arrayTypeSymbol,  sizeIndicator, arrayState);
+                    arrType = new BArrayType(resultType, arrayTypeSymbol, sizeIndicator, arrayState);
                 } else {
                     if (size.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
                         dlog.error(size.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.intType,
@@ -1149,7 +1189,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     Name pkgAlias = names.fromIdNode(sizeReference.pkgAlias);
                     Name typeName = names.fromIdNode(sizeReference.variableName);
 
-                    BSymbol sizeSymbol = lookupMainSpaceSymbolInPackage(size.pos, env, pkgAlias, typeName);
+                    BSymbol sizeSymbol = lookupMainSpaceSymbolInPackage(size.pos, data.env, pkgAlias, typeName);
                     sizeReference.symbol = sizeSymbol;
 
                     if (symTable.notFoundSymbol == sizeSymbol) {
@@ -1165,7 +1205,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     }
 
                     BConstantSymbol sizeConstSymbol = (BConstantSymbol) sizeSymbol;
-                    BType lengthLiteralType = sizeConstSymbol.literalType;
+                    BType lengthLiteralType = Types.getImpliedType(sizeConstSymbol.literalType);
 
                     if (lengthLiteralType.tag != TypeTags.INT) {
                         dlog.error(size.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.intType,
@@ -1180,6 +1220,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                         length = 0;
                         dlog.error(size.pos,
                                 DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
+                    } else if (lengthCheck < 0) {
+                        length = 0;
+                        dlog.error(size.pos, DiagnosticErrorCode.INVALID_ARRAY_LENGTH);
                     } else {
                         length = (int) lengthCheck;
                     }
@@ -1193,39 +1236,42 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (isError) {
             resultType = symTable.semanticError;
         }
+        return resultType;
     }
 
-    public void visit(BLangUnionTypeNode unionTypeNode) {
+    @Override
+    public BType transform(BLangUnionTypeNode unionTypeNode, AnalyzerData data) {
 
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
 
         for (BLangType langType : unionTypeNode.memberTypeNodes) {
-            BType resolvedType = resolveTypeNode(langType, env);
-            if (resolvedType == symTable.noType) {
-                resultType = symTable.noType;
-                return;
-            }
-            memberTypes.add(resolvedType);
+            memberTypes.add(resolveTypeNode(langType, data.env));
+        }
+
+        if (memberTypes.contains(symTable.noType)) {
+            return symTable.noType;
         }
 
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                Names.EMPTY, env.enclPkg.symbol.pkgID, null,
-                env.scope.owner, unionTypeNode.pos, SOURCE);
+                Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
+                data.env.scope.owner, unionTypeNode.pos, SOURCE);
 
         BUnionType unionType = BUnionType.create(unionTypeSymbol, memberTypes);
         unionTypeSymbol.type = unionType;
 
         markParameterizedType(unionType, memberTypes);
 
-        resultType = unionType;
+        return unionType;
     }
 
-    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
+    @Override
+    public BType transform(BLangIntersectionTypeNode intersectionTypeNode, AnalyzerData data) {
 
-        resultType = computeIntersectionType(intersectionTypeNode);
+        return computeIntersectionType(intersectionTypeNode, data);
     }
 
-    public void visit(BLangObjectTypeNode objectTypeNode) {
+    @Override
+    public BType transform(BLangObjectTypeNode objectTypeNode, AnalyzerData data) {
         EnumSet<Flag> flags = EnumSet.copyOf(objectTypeNode.flagSet);
         if (objectTypeNode.isAnonymous) {
             flags.add(Flag.PUBLIC);
@@ -1245,17 +1291,18 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
-                env.enclPkg.symbol.pkgID, null, env.scope.owner, objectTypeNode.pos, SOURCE);
+                data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner, objectTypeNode.pos, SOURCE);
 
         BObjectType objectType = new BObjectType(objectSymbol, typeFlags);
 
         objectSymbol.type = objectType;
         objectTypeNode.symbol = objectSymbol;
 
-        resultType = objectType;
+        return objectType;
     }
 
-    public void visit(BLangRecordTypeNode recordTypeNode) {
+    @Override
+    public BType transform(BLangRecordTypeNode recordTypeNode, AnalyzerData data) {
         // If we cannot resolve a type of a type definition, we create a dummy symbol for it. If the type node is
         // a record, a symbol will be created for it when we define the dummy symbol (from here). When we define the
         // node later, this method will be called again. In such cases, we don't need to create a new symbol here.
@@ -1263,70 +1310,70 @@ public class SymbolResolver extends BLangNodeVisitor {
             EnumSet<Flag> flags = recordTypeNode.isAnonymous ? EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS)
                     : EnumSet.noneOf(Flag.class);
             BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
-                                                                        env.enclPkg.symbol.pkgID, null,
-                                                                        env.scope.owner, recordTypeNode.pos,
-                                                                        recordTypeNode.isAnonymous ? VIRTUAL : SOURCE);
+                    data.env.enclPkg.symbol.pkgID, null,
+                    data.env.scope.owner, recordTypeNode.pos,
+                    recordTypeNode.isAnonymous ? VIRTUAL : SOURCE);
             BRecordType recordType = new BRecordType(recordSymbol);
             recordSymbol.type = recordType;
             recordTypeNode.symbol = recordSymbol;
 
-            if (env.node.getKind() != NodeKind.PACKAGE) {
+            if (data.env.node.getKind() != NodeKind.PACKAGE) {
                 recordSymbol.name = names.fromString(
-                        anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
-                symbolEnter.defineSymbol(recordTypeNode.pos, recordTypeNode.symbol, env);
-                symbolEnter.defineNode(recordTypeNode, env);
+                        anonymousModelHelper.getNextAnonymousTypeKey(data.env.enclPkg.packageID));
+                symbolEnter.defineSymbol(recordTypeNode.pos, recordTypeNode.symbol, data.env);
+                symbolEnter.defineNode(recordTypeNode, data.env);
             }
 
-            resultType = recordType;
-        } else {
-            resultType = recordTypeNode.symbol.type;
+            return recordType;
         }
+        return recordTypeNode.symbol.type;
     }
 
-    public void visit(BLangStreamType streamTypeNode) {
-        BType type = resolveTypeNode(streamTypeNode.type, env);
-        BType constraintType = resolveTypeNode(streamTypeNode.constraint, env);
-        BType error = streamTypeNode.error != null ? resolveTypeNode(streamTypeNode.error, env) : symTable.nilType;
+    @Override
+    public BType transform(BLangStreamType streamTypeNode, AnalyzerData data) {
+        BType type = resolveTypeNode(streamTypeNode.type, data, data.env);
+        BType constraintType = resolveTypeNode(streamTypeNode.constraint, data, data.env);
+        BType error = streamTypeNode.error != null ?
+                resolveTypeNode(streamTypeNode.error, data, data.env) : symTable.nilType;
         // If the constrained type is undefined, return noType as the type.
         if (constraintType == symTable.noType) {
-            resultType = symTable.noType;
-            return;
+            return symTable.noType;
         }
 
         BType streamType = new BStreamType(TypeTags.STREAM, constraintType, error, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                                                      typeSymbol.originalName, typeSymbol.pkgID, streamType,
-                                                      env.scope.owner, streamTypeNode.pos, SOURCE);
+                typeSymbol.originalName, typeSymbol.pkgID, streamType,
+                data.env.scope.owner, streamTypeNode.pos, SOURCE);
 
         markParameterizedType(streamType, constraintType);
         if (error != null) {
             markParameterizedType(streamType, error);
         }
 
-        resultType = streamType;
+        return streamType;
     }
 
-    public void visit(BLangTableTypeNode tableTypeNode) {
-        BType type = resolveTypeNode(tableTypeNode.type, env);
-        BType constraintType = resolveTypeNode(tableTypeNode.constraint, env);
+    @Override
+    public BType transform(BLangTableTypeNode tableTypeNode, AnalyzerData data) {
+        BType type = resolveTypeNode(tableTypeNode.type, data, data.env);
+        BType constraintType = resolveTypeNode(tableTypeNode.constraint, data, data.env);
         // If the constrained type is undefined, return noType as the type.
         if (constraintType == symTable.noType) {
-            resultType = symTable.noType;
-            return;
+            return symTable.noType;
         }
 
         BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
-                                                     typeSymbol.name, typeSymbol.originalName, typeSymbol.pkgID,
-                                                     tableType, env.scope.owner, tableTypeNode.pos, SOURCE);
+                typeSymbol.name, typeSymbol.originalName, typeSymbol.pkgID,
+                tableType, data.env.scope.owner, tableTypeNode.pos, SOURCE);
         tableType.tsymbol.flags = typeSymbol.flags;
         tableType.constraintPos = tableTypeNode.constraint.pos;
         tableType.isTypeInlineDefined = tableTypeNode.isTypeInlineDefined;
 
         if (tableTypeNode.tableKeyTypeConstraint != null) {
-            tableType.keyTypeConstraint = resolveTypeNode(tableTypeNode.tableKeyTypeConstraint.keyType, env);
+            tableType.keyTypeConstraint = resolveTypeNode(tableTypeNode.tableKeyTypeConstraint.keyType, data, data.env);
             tableType.keyPos = tableTypeNode.tableKeyTypeConstraint.pos;
         } else if (tableTypeNode.tableKeySpecifier != null) {
             BLangTableKeySpecifier tableKeySpecifier = tableTypeNode.tableKeySpecifier;
@@ -1338,76 +1385,90 @@ public class SymbolResolver extends BLangNodeVisitor {
             tableType.keyPos = tableKeySpecifier.pos;
         }
 
-        if (types.getReferredType(constraintType).tag == TypeTags.MAP &&
-                (tableType.fieldNameList != null || tableType.keyTypeConstraint != null) &&
+        if (Types.getImpliedType(constraintType).tag == TypeTags.MAP &&
+                (!tableType.fieldNameList.isEmpty() || tableType.keyTypeConstraint != null) &&
                 !tableType.tsymbol.owner.getFlags().contains(Flag.LANG_LIB)) {
             dlog.error(tableType.keyPos,
                     DiagnosticErrorCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
-            resultType = symTable.semanticError;
-            return;
+            return symTable.semanticError;
         }
 
         markParameterizedType(tableType, constraintType);
         tableTypeNode.tableType = tableType;
 
-        resultType = tableType;
+        return tableType;
     }
 
-    public void visit(BLangFiniteTypeNode finiteTypeNode) {
+    @Override
+    public BType transform(BLangFiniteTypeNode finiteTypeNode, AnalyzerData data) {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
-                                                                Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY,
-                                                                env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                finiteTypeNode.pos, SOURCE);
+                Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY,
+                data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
+                finiteTypeNode.pos, SOURCE);
+
+        // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals
+        // Note: calling semanticAnalyzer form symbolResolver is a temporary fix.
+        semanticAnalyzer.analyzeNode(finiteTypeNode, data.env);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        for (BLangExpression literal : finiteTypeNode.valueSpace) {
-            ((BLangLiteral) literal).setBType(symTable.getTypeFromTag(((BLangLiteral) literal).getBType().tag));
-            finiteType.addValue(literal);
+        for (BLangExpression expressionOrLiteral : finiteTypeNode.valueSpace) {
+            finiteType.addValue(expressionOrLiteral);
         }
         finiteTypeSymbol.type = finiteType;
 
-        resultType = finiteType;
+        return finiteType;
     }
 
-    public void visit(BLangTupleTypeNode tupleTypeNode) {
-        List<BType> memberTypes = new ArrayList<>();
-        for (BLangType memTypeNode : tupleTypeNode.memberTypeNodes) {
-            BType type = resolveTypeNode(memTypeNode, env);
-
-            // If at least one member is undefined, return noType as the type.
-            if (type == symTable.noType) {
-                resultType = symTable.noType;
-                return;
+    @Override
+    public BType transform(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
+        List<BLangSimpleVariable> members = new ArrayList<>(tupleTypeNode.members.size());
+        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE,
+                Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
+                data.env.scope.owner, tupleTypeNode.pos, SOURCE);
+        SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(tupleTypeSymbol), data.env);
+        boolean hasUndefinedMember = false;
+        for (BLangSimpleVariable member : tupleTypeNode.members) {
+            BType bType = member.getBType();
+            if (bType == null) {
+                symbolEnter.defineNode(member, tupleEnv);
+            } else if (bType == symTable.noType) {
+                member.setBType(null);
+                symbolEnter.defineNode(member, tupleEnv);
             }
-
-            memberTypes.add(type);
+            if (member.getBType() == symTable.noType) {
+                hasUndefinedMember = true;
+            }
+            members.add(member);
         }
-
-        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                               Names.EMPTY, env.enclPkg.symbol.pkgID, null,
-                                                               env.scope.owner, tupleTypeNode.pos, SOURCE);
-
-        BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
+        // If at least one member is undefined, return noType as the type.
+        if (hasUndefinedMember) {
+            return symTable.noType;
+        }
+        List<BTupleMember> tupleMembers = new ArrayList<>();
+        members.forEach(member -> tupleMembers.add(new BTupleMember(member.getBType(),
+                new BVarSymbol(member.getBType().flags, member.symbol.name, member.symbol.pkgID, member.getBType(),
+                        member.symbol.owner, member.pos, SOURCE))));
+        BTupleType tupleType = new BTupleType(tupleTypeSymbol, tupleMembers);
         tupleTypeSymbol.type = tupleType;
 
         if (tupleTypeNode.restParamType != null) {
-            BType tupleRestType = resolveTypeNode(tupleTypeNode.restParamType, env);
+            BType tupleRestType = resolveTypeNode(tupleTypeNode.restParamType, data, data.env);
             if (tupleRestType == symTable.noType) {
-                resultType = symTable.noType;
-                return;
+                return symTable.noType;
             }
             tupleType.restType = tupleRestType;
             markParameterizedType(tupleType, tupleType.restType);
         }
 
-        markParameterizedType(tupleType, memberTypes);
+        markParameterizedType(tupleType, tupleType.getTupleTypes());
 
-        resultType = tupleType;
+        return tupleType;
     }
 
-    public void visit(BLangErrorType errorTypeNode) {
+    @Override
+    public BType transform(BLangErrorType errorTypeNode, AnalyzerData data) {
         BType detailType = Optional.ofNullable(errorTypeNode.detailType)
-                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.detailType);
+                .map(bLangType -> resolveTypeNode(bLangType, data, data.env)).orElse(symTable.detailType);
 
         if (errorTypeNode.isAnonymous) {
             errorTypeNode.flagSet.add(Flag.PUBLIC);
@@ -1419,21 +1480,19 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         boolean distinctErrorDef = errorTypeNode.flagSet.contains(Flag.DISTINCT);
         if (detailType == symTable.detailType && !distinctErrorDef &&
-                !this.env.enclPkg.packageID.equals(PackageID.ANNOTATIONS)) {
-            resultType = bErrorType;
-            return;
+                !data.env.enclPkg.packageID.equals(PackageID.ANNOTATIONS)) {
+            return bErrorType;
         }
 
         // Define user define error type.
-        BErrorTypeSymbol errorTypeSymbol = Symbols
-                .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, bErrorType.tsymbol.pkgID, null,
-                        bErrorType.tsymbol.owner, errorTypeNode.pos, SOURCE);
+        BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(Flags.asMask(errorTypeNode.flagSet),
+                Names.EMPTY, data.env.enclPkg.packageID, null, data.env.scope.owner, errorTypeNode.pos, SOURCE);
 
-        PackageID packageID = env.enclPkg.packageID;
-        if (env.node.getKind() != NodeKind.PACKAGE) {
+        PackageID packageID = data.env.enclPkg.packageID;
+        if (data.env.node.getKind() != NodeKind.PACKAGE) {
             errorTypeSymbol.name = names.fromString(
                     anonymousModelHelper.getNextAnonymousTypeKey(packageID));
-            symbolEnter.defineSymbol(errorTypeNode.pos, errorTypeSymbol, env);
+            symbolEnter.defineSymbol(errorTypeNode.pos, errorTypeSymbol, data.env);
         }
 
         BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
@@ -1449,19 +1508,19 @@ public class SymbolResolver extends BLangNodeVisitor {
                     BTypeIdSet.from(packageID, anonymousModelHelper.getNextAnonymousTypeId(packageID), true));
         }
 
-        resultType = errorType;
+        return errorType;
     }
 
-    public void visit(BLangConstrainedType constrainedTypeNode) {
-        BType type = resolveTypeNode(constrainedTypeNode.type, env);
-        BType constraintType = resolveTypeNode(constrainedTypeNode.constraint, env);
+    @Override
+    public BType transform(BLangConstrainedType constrainedTypeNode, AnalyzerData data) {
+        BType type = resolveTypeNode(constrainedTypeNode.type, data, data.env);
+        BType constraintType = resolveTypeNode(constrainedTypeNode.constraint, data, data.env);
         // If the constrained type is undefined, return noType as the type.
         if (constraintType == symTable.noType) {
-            resultType = symTable.noType;
-            return;
+            return symTable.noType;
         }
 
-        BType constrainedType = null;
+        BType constrainedType;
         if (type.tag == TypeTags.FUTURE) {
             constrainedType = new BFutureType(TypeTags.FUTURE, constraintType, null);
         } else if (type.tag == TypeTags.MAP) {
@@ -1469,7 +1528,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else if (type.tag == TypeTags.TYPEDESC) {
             constrainedType = new BTypedescType(constraintType, null);
         } else if (type.tag == TypeTags.XML) {
-            if (constraintType.tag == TypeTags.PARAMETERIZED_TYPE) {
+            if (Types.getImpliedType(constraintType).tag == TypeTags.PARAMETERIZED_TYPE) {
                 BType typedescType = ((BParameterizedType) constraintType).paramSymbol.type;
                 BType typedescConstraint = ((BTypedescType) typedescType).constraint;
                 validateXMLConstraintType(typedescConstraint, constrainedTypeNode.pos);
@@ -1478,7 +1537,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
             constrainedType = new BXMLType(constraintType, null);
         } else {
-            return;
+            return symTable.neverType;
         }
 
         BTypeSymbol typeSymbol = type.tsymbol;
@@ -1486,11 +1545,11 @@ public class SymbolResolver extends BLangNodeVisitor {
                 typeSymbol.originalName, typeSymbol.pkgID, constrainedType, typeSymbol.owner,
                 constrainedTypeNode.pos, SOURCE);
         markParameterizedType(constrainedType, constraintType);
-        resultType = constrainedType;
+        return constrainedType;
     }
 
-    private void validateXMLConstraintType(BType type, Location pos) {
-        BType constraintType = types.getReferredType(type);
+    public void validateXMLConstraintType(BType type, Location pos) {
+        BType constraintType = Types.getImpliedType(type);
         int constrainedTag = constraintType.tag;
 
         if (constrainedTag == TypeTags.UNION) {
@@ -1499,33 +1558,40 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (!TypeTags.isXMLTypeTag(constrainedTag) && constrainedTag != TypeTags.NEVER) {
-            dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, constraintType);
+            dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, type);
         }
     }
 
     private void checkUnionTypeForXMLSubTypes(BUnionType constraintUnionType, Location pos) {
         for (BType memberType : constraintUnionType.getMemberTypes()) {
-            memberType = types.getReferredType(memberType);
+            memberType = Types.getImpliedType(memberType);
             if (memberType.tag == TypeTags.UNION) {
                 checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
             }
             if (!TypeTags.isXMLTypeTag(memberType.tag)) {
                 dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType,
-                           constraintUnionType);
+                        constraintUnionType);
             }
         }
     }
 
-    public void visit(BLangUserDefinedType userDefinedTypeNode) {
+    @Override
+    public BType transform(BLangUserDefinedType userDefinedTypeNode, AnalyzerData data) {
+        String name = userDefinedTypeNode.typeName.value;
+        BType type;
+
         // 1) Resolve the package scope using the package alias.
         //    If the package alias is not empty or null, then find the package scope,
         //    if not use the current package scope.
         // 2) lookup the typename in the package scope returned from step 1.
         // 3) If the symbol is not found, then lookup in the root scope. e.g. for types such as 'error'
 
-        Name pkgAlias = names.fromIdNode(userDefinedTypeNode.pkgAlias);
-        Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
+        BLangIdentifier pkgAliasIdentifier = userDefinedTypeNode.pkgAlias;
+        Name pkgAlias = names.fromIdNode(pkgAliasIdentifier);
+        BLangIdentifier typeNameIdentifier = userDefinedTypeNode.typeName;
+        Name typeName = names.fromIdNode(typeNameIdentifier);
         BSymbol symbol = symTable.notFoundSymbol;
+        SymbolEnv env = data.env;
 
         // 1) Resolve ANNOTATION type if and only current scope inside ANNOTATION definition.
         // Only valued types and ANNOTATION type allowed.
@@ -1536,42 +1602,48 @@ public class SymbolResolver extends BLangNodeVisitor {
         // 2) Resolve the package scope using the package alias.
         //    If the package alias is not empty or null, then find the package scope,
         if (symbol == symTable.notFoundSymbol) {
+
             BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName);
 
-            BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ? types.getReferredType(tempSymbol.type).tsymbol
-                    : tempSymbol;
+            BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ?
+                    Types.getImpliedType(tempSymbol.type).tsymbol : tempSymbol;
+            // Tsymbol of the effective type can be null for invalid intersections and `xml & readonly` intersections
+            if (refSymbol == null) {
+                refSymbol = tempSymbol;
+            }
+
+            NodeKind envNodeKind = data.env.node.getKind();
             if ((refSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 symbol = tempSymbol;
-            } else if (Symbols.isTagOn(refSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION) {
-                BLangFunction func = (BLangFunction) env.node;
+            } else if (Symbols.isTagOn(refSymbol, SymTag.VARIABLE) &&
+                    (envNodeKind == NodeKind.FUNCTION || envNodeKind == NodeKind.RESOURCE_FUNC)) {
+                BLangFunction func = (BLangFunction) data.env.node;
                 boolean errored = false;
 
                 if (func.returnTypeNode == null ||
                         (func.hasBody() && func.body.getKind() != NodeKind.EXTERN_FUNCTION_BODY)) {
                     dlog.error(userDefinedTypeNode.pos,
-                               DiagnosticErrorCode.INVALID_NON_EXTERNAL_DEPENDENTLY_TYPED_FUNCTION);
+                            DiagnosticErrorCode.INVALID_NON_EXTERNAL_DEPENDENTLY_TYPED_FUNCTION);
                     errored = true;
                 }
 
-                if (refSymbol.type != null &&
-                        types.getReferredType(refSymbol.type).tag != TypeTags.TYPEDESC) {
+                if (tempSymbol.type != null &&
+                        Types.getImpliedType(tempSymbol.type).tag != TypeTags.TYPEDESC) {
                     dlog.error(userDefinedTypeNode.pos, DiagnosticErrorCode.INVALID_PARAM_TYPE_FOR_RETURN_TYPE,
                             tempSymbol.type);
                     errored = true;
                 }
 
                 if (errored) {
-                    this.resultType = symTable.semanticError;
-                    return;
+                    return symTable.semanticError;
                 }
 
                 ParameterizedTypeInfo parameterizedTypeInfo =
-                        getTypedescParamValueType(func.requiredParams, refSymbol);
+                        getTypedescParamValueType(func.requiredParams, data, refSymbol);
                 BType paramValType = parameterizedTypeInfo == null ? null : parameterizedTypeInfo.paramValueType;
 
                 if (paramValType == symTable.semanticError) {
-                    this.resultType = symTable.semanticError;
-                    return;
+                    return symTable.semanticError;
                 }
 
                 if (paramValType != null) {
@@ -1582,60 +1654,109 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                           tSymbol, tempSymbol.name, parameterizedTypeInfo.index);
                     tSymbol.type.flags |= Flags.PARAMETERIZED;
 
-                    this.resultType = tSymbol.type;
                     userDefinedTypeNode.symbol = tSymbol;
-                    return;
+                    return tSymbol.type;
+                }
+            } else if (Symbols.isTagOn(tempSymbol, SymTag.VARIABLE) && (env.node.getKind() == NodeKind.FUNCTION_TYPE
+                    || env.node.getKind() == NodeKind.TUPLE_TYPE_NODE)) {
+                SymbolEnv symbolEnv = env;
+                BLangFunction func = null;
+                BLangFunctionTypeNode funcTypeNode = null;
+                ParameterizedTypeInfo parameterizedTypeInfo = null;
+                while ((symbolEnv.node.getKind() == NodeKind.FUNCTION_TYPE ||
+                        symbolEnv.node.getKind() == NodeKind.FUNCTION ||
+                        symbolEnv.node.getKind() == NodeKind.TUPLE_TYPE_NODE) && parameterizedTypeInfo == null) {
+                    if (symbolEnv.node.getKind() == NodeKind.FUNCTION_TYPE) {
+                        funcTypeNode = (BLangFunctionTypeNode) symbolEnv.node;
+                        parameterizedTypeInfo = getTypedescParamValueType(funcTypeNode.params, data, tempSymbol);
+                    } else if (symbolEnv.node.getKind() == NodeKind.FUNCTION) {
+                        func = (BLangFunction) symbolEnv.node;
+                        parameterizedTypeInfo = getTypedescParamValueType(func.requiredParams, data, tempSymbol);
+                    }
+                    symbolEnv = symbolEnv.enclEnv;
+                }
+
+                BType paramValType = parameterizedTypeInfo == null ? null : parameterizedTypeInfo.paramValueType;
+
+                if (paramValType == symTable.semanticError) {
+                    return symTable.semanticError;
+                }
+                BSymbol bSymbol = null;
+                if (func != null) {
+                    bSymbol = func.symbol;
+                } else if (funcTypeNode != null) {
+                    bSymbol = funcTypeNode.getBType().tsymbol;
+                }
+
+                if (paramValType != null) {
+                    BTypeSymbol tSymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | tempSymbol.flags,
+                            tempSymbol.name, tempSymbol.pkgID, null, bSymbol,
+                            tempSymbol.pos, VIRTUAL);
+                    tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
+                            tSymbol, tempSymbol.name, parameterizedTypeInfo.index);
+                    tSymbol.type.flags |= Flags.PARAMETERIZED;
+                    userDefinedTypeNode.symbol = tSymbol;
+                    return tSymbol.type;
                 }
             }
         }
 
         if (symbol == symTable.notFoundSymbol) {
             // 3) Lookup the root scope for types such as 'error'
-            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope, this.env, typeName,
-                                        SymTag.VARIABLE_NAME);
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope, env, typeName,
+                    SymTag.VARIABLE_NAME);
         }
 
-        if (this.env.logErrors && symbol == symTable.notFoundSymbol) {
+        if (env.logErrors && symbol == symTable.notFoundSymbol) {
             if (!missingNodesHelper.isMissingNode(pkgAlias) && !missingNodesHelper.isMissingNode(typeName) &&
-                    !symbolEnter.isUnknownTypeRef(userDefinedTypeNode)) {
-                dlog.error(userDefinedTypeNode.pos, diagCode, typeName);
+                    !symbolEnter.isUnknownTypeRef(userDefinedTypeNode)
+                    && typeResolver.isNotUnknownTypeRef(userDefinedTypeNode)) {
+                dlog.error(userDefinedTypeNode.pos, data.diagCode, typeName);
             }
-            resultType = symTable.semanticError;
-            return;
+            return symTable.semanticError;
         }
 
         userDefinedTypeNode.symbol = symbol;
 
-        if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
+        type = symbol.type;
+        boolean isCloneableTypeDef = type.tag == TypeTags.UNION && types.isCloneableType((BUnionType) type);
+
+        if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)
+                && !isCloneableTypeDef) {
             BType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
             referenceType.flags |= symbol.type.flags;
             referenceType.tsymbol.flags |= symbol.type.flags;
-            resultType = referenceType;
-        } else {
-            resultType = symbol.type;
+            return referenceType;
         }
+
+        if (type.getKind() != TypeKind.OTHER) {
+            return type;
+        }
+
+        return typeResolver.validateModuleLevelDef(name, pkgAlias, typeName, userDefinedTypeNode);
     }
 
-    private ParameterizedTypeInfo getTypedescParamValueType(List<BLangSimpleVariable> params, BSymbol varSym) {
+    public ParameterizedTypeInfo getTypedescParamValueType(List<BLangSimpleVariable> params,
+                                                            AnalyzerData data, BSymbol varSym) {
         for (int i = 0; i < params.size(); i++) {
             BLangSimpleVariable param = params.get(i);
 
             if (param.name.value.equals(varSym.name.value)) {
                 if (param.expr == null || param.expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
                     return new ParameterizedTypeInfo(
-                            ((BTypedescType) types.getReferredType(varSym.type)).constraint, i);
+                            ((BTypedescType) Types.getImpliedType(varSym.type)).constraint, i);
                 }
 
                 NodeKind defaultValueExprKind = param.expr.getKind();
 
                 if (defaultValueExprKind == NodeKind.TYPEDESC_EXPRESSION) {
                     return new ParameterizedTypeInfo(
-                            resolveTypeNode(((BLangTypedescExpr) param.expr).typeNode, this.env), i);
+                            resolveTypeNode(((BLangTypedescExpr) param.expr).typeNode, data, data.env), i);
                 }
 
                 if (defaultValueExprKind == NodeKind.SIMPLE_VARIABLE_REF) {
                     Name varName = names.fromIdNode(((BLangSimpleVarRef) param.expr).variableName);
-                    BSymbol typeRefSym = lookupSymbolInMainSpace(this.env, varName);
+                    BSymbol typeRefSym = lookupSymbolInMainSpace(data.env, varName);
                     if (typeRefSym != symTable.notFoundSymbol) {
                         return new ParameterizedTypeInfo(typeRefSym.type, i);
                     }
@@ -1651,112 +1772,47 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFunctionTypeNode functionTypeNode) {
-        List<BLangVariable> params = functionTypeNode.getParams();
-        Location pos = functionTypeNode.pos;
-        BLangType returnTypeNode = functionTypeNode.returnTypeNode;
-        BType invokableType = createInvokableType(params, functionTypeNode.restParam, returnTypeNode,
-                                                  Flags.asMask(functionTypeNode.flagSet), env, pos);
-        resultType = validateInferTypedescParams(pos, params, returnTypeNode == null ?
-                null : returnTypeNode.getBType()) ? invokableType : symTable.semanticError;
-    }
-
-    public BType createInvokableType(List<? extends BLangVariable> paramVars,
-                                     BLangVariable restVariable,
-                                     BLangType retTypeVar,
-                                     long flags,
-                                     SymbolEnv env,
-                                     Location location) {
-        List<BType> paramTypes = new ArrayList<>();
-        List<BVarSymbol> params = new ArrayList<>();
-
-        boolean foundDefaultableParam = false;
-        List<String> paramNames = new ArrayList<>();
-        if (Symbols.isFlagOn(flags, Flags.ANY_FUNCTION)) {
-            BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
-            bInvokableType.flags = flags;
-            BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
-                                                                             env.enclPkg.symbol.pkgID, bInvokableType,
-                                                                             env.scope.owner, location, SOURCE);
-            tsymbol.params = null;
-            tsymbol.restParam = null;
-            tsymbol.returnType = null;
-            bInvokableType.tsymbol = tsymbol;
-            return bInvokableType;
-        }
-
-        for (BLangVariable paramNode : paramVars) {
-            BLangSimpleVariable param = (BLangSimpleVariable) paramNode;
-            Name paramName = names.fromIdNode(param.name);
-            Name paramOrigName = names.originalNameFromIdNode(param.name);
-            if (paramName != Names.EMPTY) {
-                if (paramNames.contains(paramName.value)) {
-                    dlog.error(param.name.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, paramName.value);
-                } else {
-                    paramNames.add(paramName.value);
+    public BType transform(BLangFunctionTypeNode functionTypeNode, AnalyzerData data) {
+        SymbolEnv env = data.env;
+        if (functionTypeNode.getBType() == null) {
+            BInvokableTypeSymbol invokableTypeSymbol;
+            BInvokableType invokableType;
+            if (functionTypeNode.flagSet.contains(Flag.ANY_FUNCTION)) {
+                invokableType = new BInvokableType(null, null, null, null);
+                invokableType.flags = Flags.asMask(functionTypeNode.flagSet);
+                invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                                                                        Flags.asMask(functionTypeNode.flagSet),
+                                                                        env.enclPkg.symbol.pkgID, invokableType,
+                                                                        env.scope.owner, functionTypeNode.pos, VIRTUAL);
+                invokableTypeSymbol.params = null;
+                invokableTypeSymbol.restParam = null;
+                invokableTypeSymbol.returnType = null;
+                invokableType.tsymbol = invokableTypeSymbol;
+            } else {
+                invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                        Flags.asMask(functionTypeNode.flagSet),
+                        env.enclPkg.symbol.pkgID, functionTypeNode.getBType(),
+                        env.scope.owner, functionTypeNode.pos, VIRTUAL);
+                invokableType = new BInvokableType(invokableTypeSymbol);
+                invokableTypeSymbol.type = invokableType;
+                invokableTypeSymbol.name =
+                        Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+                symbolEnter.defineSymbol(functionTypeNode.pos, invokableTypeSymbol, env);
+                if (env.node.getKind() != NodeKind.PACKAGE || !functionTypeNode.inTypeDefinitionContext) {
+                    functionTypeNode.setBType(invokableType);
+                    symbolEnter.defineNode(functionTypeNode, env);
                 }
             }
-            BType type = resolveTypeNode(param.getTypeNode(), env);
-            if (type == symTable.noType) {
-                return symTable.noType;
-            }
-            paramNode.setBType(type);
-            paramTypes.add(type);
-
-            long paramFlags = Flags.asMask(paramNode.flagSet);
-            BVarSymbol symbol = new BVarSymbol(paramFlags, paramName, paramOrigName, env.enclPkg.symbol.pkgID,
-                                               type, env.scope.owner, param.pos, SOURCE);
-            param.symbol = symbol;
-
-            if (param.expr != null) {
-                foundDefaultableParam = true;
-                symbol.isDefaultable = true;
-                symbol.flags |= Flags.OPTIONAL;
-            } else if (foundDefaultableParam) {
-                dlog.error(param.pos, DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
-            }
-
-            params.add(symbol);
+            List<BLangSimpleVariable> params = functionTypeNode.getParams();
+            Location pos = functionTypeNode.pos;
+            BLangType returnTypeNode = functionTypeNode.returnTypeNode;
+            validateInferTypedescParams(pos, params, returnTypeNode == null ? null : invokableType);
+            return invokableType;
+        } else {
+            return functionTypeNode.getBType();
         }
-
-        BType retType = resolveTypeNode(retTypeVar, env);
-        if (retType == symTable.noType) {
-            return symTable.noType;
-        }
-
-        BVarSymbol restParam = null;
-        BType restType = null;
-
-        if (restVariable != null) {
-            restType = resolveTypeNode(restVariable.typeNode, env);
-            if (restType == symTable.noType) {
-                return symTable.noType;
-            }
-            BLangIdentifier id = ((BLangSimpleVariable) restVariable).name;
-            restVariable.setBType(restType);
-            restParam = new BVarSymbol(Flags.asMask(restVariable.flagSet),
-                                       names.fromIdNode(id), names.originalNameFromIdNode(id),
-                                       env.enclPkg.symbol.pkgID, restType, env.scope.owner, restVariable.pos, SOURCE);
-        }
-
-        BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, retType, null);
-        bInvokableType.flags = flags;
-        BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
-                                                                         env.enclPkg.symbol.pkgID, bInvokableType,
-                                                                         env.scope.owner, location, SOURCE);
-
-        tsymbol.params = params;
-        tsymbol.restParam = restParam;
-        tsymbol.returnType = retType;
-        bInvokableType.tsymbol = tsymbol;
-
-        List<BType> allConstituentTypes = new ArrayList<>(paramTypes);
-        allConstituentTypes.add(restType);
-        allConstituentTypes.add(retType);
-        markParameterizedType(bInvokableType, allConstituentTypes);
-
-        return bInvokableType;
     }
+
     /**
      * Lookup all the visible in-scope symbols for a given environment scope.
      *
@@ -1848,15 +1904,12 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return createShiftOperator(opKind, lhsType, rhsType);
                 case BITWISE_RIGHT_SHIFT:
                 case BITWISE_UNSIGNED_RIGHT_SHIFT:
-                    switch (lhsType.tag) {
+                    switch (Types.getImpliedType(lhsType).tag) {
                         case TypeTags.UNSIGNED32_INT:
                         case TypeTags.UNSIGNED16_INT:
                         case TypeTags.UNSIGNED8_INT:
                         case TypeTags.BYTE:
                             return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
-                        case TypeTags.TYPEREFDESC:
-                            return getBitwiseShiftOpsForTypeSets(opKind,
-                                    types.getReferredType(lhsType), rhsType);
                         default:
                             return createShiftOperator(opKind, lhsType, rhsType);
                     }
@@ -1878,15 +1931,16 @@ public class SymbolResolver extends BLangNodeVisitor {
         switch (opKind) {
             case ADD:
                 validNumericOrStringTypeExists = (types.validNumericTypeExists(lhsType) &&
-                        types.validNumericTypeExists(rhsType)) || (types.validStringOrXmlTypeExists(lhsType) &&
-                        types.validStringOrXmlTypeExists(rhsType));
+                                                  types.validNumericTypeExists(rhsType)) ||
+                                                 (types.validStringOrXmlTypeExists(lhsType) &&
+                                                  types.validStringOrXmlTypeExists(rhsType));
                 break;
             case SUB:
             case DIV:
             case MUL:
             case MOD:
                 validNumericOrStringTypeExists = types.validNumericTypeExists(lhsType) &&
-                        types.validNumericTypeExists(rhsType);
+                                                 types.validNumericTypeExists(rhsType);
                 break;
             default:
                 return symTable.notFoundSymbol;
@@ -1907,26 +1961,65 @@ public class SymbolResolver extends BLangNodeVisitor {
                 compatibleType2 = types.findCompatibleType(rhsType);
             }
 
-            if (types.isBasicNumericType(compatibleType1) && compatibleType1 != compatibleType2) {
+            if (compatibleType1 != compatibleType2 && types.isBasicNumericType(compatibleType1) &&
+                    !isIntFloatingPointMultiplication(opKind, compatibleType1, compatibleType2)) {
                 return symTable.notFoundSymbol;
             }
-            if (compatibleType1.tag < compatibleType2.tag) {
-                return createBinaryOperator(opKind, lhsType, rhsType, compatibleType2);
+
+            BType returnType = compatibleType1.tag < compatibleType2.tag ? compatibleType2 : compatibleType1;
+            if (lhsType.isNullable() || rhsType.isNullable()) {
+                returnType = BUnionType.create(null, returnType, symTable.nilType);
             }
-            if (lhsType.isNullable()) {
-                compatibleType1 = BUnionType.create(null, compatibleType1, symTable.nilType);
-                return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
-            }
-            if (rhsType.isNullable()) {
-                compatibleType2 = BUnionType.create(null, compatibleType2, symTable.nilType);
-                return createBinaryOperator(opKind, lhsType, rhsType, compatibleType2);
-            }
-            return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
+
+            return createBinaryOperator(opKind, lhsType, rhsType, returnType);
         }
         return symTable.notFoundSymbol;
     }
 
+    private boolean isIntFloatingPointMultiplication(OperatorKind opKind, BType lhsCompatibleType,
+                                                     BType rhsCompatibleType) {
+        switch (opKind) {
+            case MUL:
+                return lhsCompatibleType.tag == TypeTags.INT && isFloatingPointType(rhsCompatibleType) ||
+                        rhsCompatibleType.tag == TypeTags.INT && isFloatingPointType(lhsCompatibleType);
+            case DIV:
+            case MOD:
+                return isFloatingPointType(lhsCompatibleType) && rhsCompatibleType.tag == TypeTags.INT;
+            default:
+                return false;
+        }
+    }
+
+    private boolean isFloatingPointType(BType type) {
+        return type.tag == TypeTags.DECIMAL || type.tag == TypeTags.FLOAT;
+    }
+
+    public BSymbol getUnaryOpsForTypeSets(OperatorKind opKind, BType type) {
+        boolean validNumericTypeExists;
+        switch (opKind) {
+            case ADD:
+            case SUB:
+                validNumericTypeExists = types.validNumericTypeExists(type);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+        if (!validNumericTypeExists) {
+            return symTable.notFoundSymbol;
+        }
+        if (opKind == OperatorKind.ADD) {
+            return createUnaryOperator(opKind, type, type);
+        }
+        if (type.isNullable()) {
+            BType compatibleType = types.findCompatibleType(types.getSafeType(type, true, false));
+            return createUnaryOperator(opKind, type, BUnionType.create(null, compatibleType, symTable.nilType));
+        }
+        return createUnaryOperator(opKind, type, types.findCompatibleType(type));
+    }
+
     public BSymbol getBinaryBitwiseOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
+        BType referredLhsType = Types.getImpliedType(lhsType);
+        BType referredRhsType = Types.getImpliedType(rhsType);
         boolean validIntTypesExists;
         switch (opKind) {
             case BITWISE_AND:
@@ -1941,40 +2034,30 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (validIntTypesExists) {
             switch (opKind) {
                 case BITWISE_AND:
-                    switch (lhsType.tag) {
+                    switch (referredLhsType.tag) {
                         case TypeTags.UNSIGNED8_INT:
                         case TypeTags.BYTE:
                         case TypeTags.UNSIGNED16_INT:
                         case TypeTags.UNSIGNED32_INT:
                             return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
-                        case TypeTags.TYPEREFDESC:
-                            return getBinaryBitwiseOpsForTypeSets(opKind,
-                                    types.getReferredType(lhsType), rhsType);
-                        case TypeTags.INTERSECTION:
-                            return getBinaryBitwiseOpsForTypeSets(opKind, ((BIntersectionType) lhsType).effectiveType,
-                                    rhsType);
                     }
-                    switch (rhsType.tag) {
+                    
+                    switch (referredRhsType.tag) {
                         case TypeTags.UNSIGNED8_INT:
                         case TypeTags.BYTE:
                         case TypeTags.UNSIGNED16_INT:
                         case TypeTags.UNSIGNED32_INT:
                             return createBinaryOperator(opKind, lhsType, rhsType, rhsType);
-                        case TypeTags.TYPEREFDESC:
-                            return getBinaryBitwiseOpsForTypeSets(opKind, lhsType,
-                                    types.getReferredType(rhsType));
-                        case TypeTags.INTERSECTION:
-                            return getBinaryBitwiseOpsForTypeSets(opKind, lhsType,
-                                    ((BIntersectionType) rhsType).effectiveType);
                     }
-                    if (lhsType.isNullable() || rhsType.isNullable()) {
+                    
+                    if (referredLhsType.isNullable() || referredRhsType.isNullable()) {
                         BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
                         return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
                     }
                     return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
                 case BITWISE_OR:
                 case BITWISE_XOR:
-                    if (lhsType.isNullable() || rhsType.isNullable()) {
+                    if (referredLhsType.isNullable() || referredRhsType.isNullable()) {
                         BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
                         return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
                     }
@@ -2019,6 +2102,27 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
         }
         return symTable.notFoundSymbol;
+    }
+
+    /**
+     * Defines {@code ...} or {@code ..<} operator for int subtypes.
+     *
+     * @param opKind  Binary operator kind
+     * @param lhsType Type of the left-hand side value
+     * @param rhsType Type of the right-hand side value
+     * @return Defined symbol
+     */
+    public BSymbol getRangeOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
+        if (opKind != OperatorKind.CLOSED_RANGE && opKind != OperatorKind.HALF_OPEN_RANGE) {
+            return symTable.notFoundSymbol;
+        }
+
+        boolean validIntTypesExists = types.validIntegerTypeExists(lhsType) && types.validIntegerTypeExists(rhsType);
+        if (!validIntTypesExists) {
+            return symTable.notFoundSymbol;
+        }
+
+        return createBinaryOperator(opKind, lhsType, rhsType, symTable.intRangeType);
     }
 
     public boolean isBinaryShiftOperator(OperatorKind binaryOpKind) {
@@ -2074,14 +2178,14 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (typeList.size() == opType.paramTypes.size()) {
                 boolean match = true;
                 for (int i = 0; i < typeList.size(); i++) {
-                    BType t = this.types.getReferredType(typeList.get(i));
-                    if ((t.getKind() == TypeKind.UNION) &&
-                            (opType.paramTypes.get(i).getKind() == TypeKind.UNION)) {
+                    BType t = Types.getImpliedType(typeList.get(i));
+                    if ((t.getKind() == TypeKind.UNION) && (opType.paramTypes.get(i).getKind() == TypeKind.UNION)) {
                         if (!this.types.isSameType(t, opType.paramTypes.get(i))) {
                             match = false;
                         }
                     } else if (t.tag != opType.paramTypes.get(i).tag) {
                         match = false;
+                        break;
                     }
                 }
 
@@ -2097,16 +2201,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         return foundSymbol;
     }
 
-    private void visitBuiltInTypeNode(BLangType typeNode, TypeKind typeKind, SymbolEnv env) {
+    public BType visitBuiltInTypeNode(BLangType typeNode, AnalyzerData data, TypeKind typeKind) {
         Name typeName = names.fromTypeKind(typeKind);
-        BSymbol typeSymbol = lookupMemberSymbol(typeNode.pos, symTable.rootScope,
-                                                env, typeName, SymTag.TYPE);
+        BSymbol typeSymbol = lookupMemberSymbol(typeNode.pos, symTable.rootScope, data.env, typeName, SymTag.TYPE);
         if (typeSymbol == symTable.notFoundSymbol) {
-            dlog.error(typeNode.pos, diagCode, typeName);
+            dlog.error(typeNode.pos, data.diagCode, typeName);
         }
 
         typeNode.setBType(typeSymbol.type);
-        resultType = typeSymbol.type;
+        return typeSymbol.type;
     }
 
     private void addNamespacesInScope(Map<Name, BXMLNSSymbol> namespaces, SymbolEnv env) {
@@ -2130,7 +2233,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return true;
         }
         if (!Symbols.isPrivate(symbol)) {
-            return env.enclPkg.symbol.pkgID == symbol.pkgID;
+            return env.enclPkg.symbol.pkgID.equals(symbol.pkgID);
         }
         if (env.enclType != null) {
             return env.enclType.getBType().tsymbol == symbol.owner;
@@ -2145,7 +2248,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 || isMemberAllowed(env.enclEnv, symbol));
     }
 
-    private BType computeIntersectionType(BLangIntersectionTypeNode intersectionTypeNode) {
+    private BType computeIntersectionType(BLangIntersectionTypeNode intersectionTypeNode, AnalyzerData data) {
         List<BLangType> constituentTypeNodes = intersectionTypeNode.constituentTypeNodes;
         Map<BType, BLangType> typeBLangTypeMap = new HashMap<>();
 
@@ -2154,7 +2257,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         boolean isAlreadyExistingType = false;
 
         BLangType bLangTypeOne = constituentTypeNodes.get(0);
-        BType typeOne = resolveTypeNode(bLangTypeOne, env);
+        BType typeOne = resolveTypeNode(bLangTypeOne, data, data.env);
         if (typeOne == symTable.noType) {
             return symTable.noType;
         }
@@ -2162,13 +2265,13 @@ public class SymbolResolver extends BLangNodeVisitor {
         typeBLangTypeMap.put(typeOne, bLangTypeOne);
 
         BLangType bLangTypeTwo = constituentTypeNodes.get(1);
-        BType typeTwo = resolveTypeNode(bLangTypeTwo, env);
+        BType typeTwo = resolveTypeNode(bLangTypeTwo, data, data.env);
         if (typeTwo == symTable.noType) {
             return symTable.noType;
         }
 
-        BType typeOneReference = types.getReferredType(typeOne);
-        BType typeTwoReference = types.getReferredType(typeTwo);
+        BType typeOneReference = Types.getImpliedType(typeOne);
+        BType typeTwoReference = Types.getImpliedType(typeTwo);
 
         typeBLangTypeMap.put(typeTwo, bLangTypeTwo);
 
@@ -2181,13 +2284,16 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if (!(hasReadOnlyType || isErrorIntersection)) {
             dlog.error(intersectionTypeNode.pos,
-                    DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION, intersectionTypeNode);
+                    DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION);
+            for (int i = 2; i < constituentTypeNodes.size(); i++) {
+                resolveTypeNode(constituentTypeNodes.get(i), data.env);
+            }
             return symTable.semanticError;
         }
 
         BType potentialIntersectionType = getPotentialIntersection(
                 Types.IntersectionContext.from(dlog, bLangTypeOne.pos, bLangTypeTwo.pos),
-                typeOne, typeTwo, this.env);
+                typeOne, typeTwo, data.env);
         if (typeOne == potentialIntersectionType || typeTwo == potentialIntersectionType) {
             isAlreadyExistingType = true;
         }
@@ -2201,8 +2307,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else {
             for (int i = 2; i < constituentTypeNodes.size(); i++) {
                 BLangType bLangType = constituentTypeNodes.get(i);
-                BType type = resolveTypeNode(bLangType, env);
-                if (type.tag == TypeTags.ERROR) {
+                BType type = resolveTypeNode(bLangType, data, data.env);
+                if (Types.getImpliedType(type).tag == TypeTags.ERROR) {
                     isErrorIntersection = true;
                 }
                 typeBLangTypeMap.put(type, bLangType);
@@ -2217,7 +2323,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 BType tempIntersectionType = getPotentialIntersection(
                         Types.IntersectionContext.from(dlog, bLangTypeOne.pos, bLangTypeTwo.pos),
-                        potentialIntersectionType, type, this.env);
+                        potentialIntersectionType, type, data.env);
                 if (tempIntersectionType == symTable.semanticError) {
                     validIntersection = false;
                     break;
@@ -2244,25 +2350,28 @@ public class SymbolResolver extends BLangNodeVisitor {
 
             boolean existingErrorDetailType = false;
             if (detailType.tsymbol != null) {
-                BSymbol detailTypeSymbol = lookupSymbolInMainSpace(env, detailType.tsymbol.name);
+                BSymbol detailTypeSymbol = lookupSymbolInMainSpace(data.env, detailType.tsymbol.name);
                 if (detailTypeSymbol != symTable.notFoundSymbol) {
                     existingErrorDetailType = true;
                 }
             }
 
             return createIntersectionErrorType((BErrorType) potentialIntersectionType, intersectionTypeNode.pos,
-                                          constituentBTypes, existingErrorDetailType, env);
+                    constituentBTypes, existingErrorDetailType, data.env);
         }
 
         if (types.isInherentlyImmutableType(potentialIntersectionType) ||
                 (Symbols.isFlagOn(potentialIntersectionType.flags, Flags.READONLY) &&
                         // For objects, a new type has to be created.
                         !types.isSubTypeOfBaseType(potentialIntersectionType, TypeTags.OBJECT))) {
-            return potentialIntersectionType;
+            BTypeSymbol effectiveTypeTSymbol = potentialIntersectionType.tsymbol;
+            return createIntersectionType(potentialIntersectionType, constituentBTypes, effectiveTypeTSymbol.pkgID, 
+                    effectiveTypeTSymbol.owner, intersectionTypeNode.pos);
         }
 
-        if (!types.isSelectivelyImmutableType(potentialIntersectionType, false)) {
-            if (types.isSelectivelyImmutableType(potentialIntersectionType)) {
+        PackageID packageID = data.env.enclPkg.packageID;
+        if (!types.isSelectivelyImmutableType(potentialIntersectionType, false, packageID)) {
+            if (types.isSelectivelyImmutableType(potentialIntersectionType, packageID)) {
                 // This intersection would have been valid if not for `readonly object`s.
                 dlog.error(intersectionTypeNode.pos, DiagnosticErrorCode.INVALID_READONLY_OBJECT_INTERSECTION_TYPE);
             } else {
@@ -2279,15 +2388,16 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else if (typeNode.getKind() == NodeKind.OBJECT_TYPE) {
             flagSet = ((BLangObjectTypeNode) typeNode).flagSet;
         } else if (typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-            flagSet = ((BLangUserDefinedType) typeNode).flagSet;
+            flagSet = typeNode.flagSet;
         } else {
             flagSet = new HashSet<>();
         }
         return ImmutableTypeCloner.getImmutableIntersectionType(intersectionTypeNode.pos, types,
-                potentialIntersectionType, env, symTable, anonymousModelHelper, names, flagSet);
+                        potentialIntersectionType,
+                data.env, symTable, anonymousModelHelper, names, flagSet);
     }
 
-    private BIntersectionType createIntersectionErrorType(BErrorType intersectionErrorType,
+    public BIntersectionType createIntersectionErrorType(BErrorType intersectionErrorType,
                                                           Location pos,
                                                           LinkedHashSet<BType> constituentBTypes,
                                                           boolean isAlreadyDefinedDetailType, SymbolEnv env) {
@@ -2296,10 +2406,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         PackageID pkgId = intersectionErrorType.tsymbol.pkgID;
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
 
-        if (!isAlreadyDefinedDetailType && intersectionErrorType.detailType.tag == TypeTags.RECORD) {
-            defineErrorDetailRecord((BRecordType) intersectionErrorType.detailType, pos, pkgEnv);
+        BType detailType = Types.getImpliedType(intersectionErrorType.detailType);
+        if (!isAlreadyDefinedDetailType && detailType.tag == TypeTags.RECORD) {
+            defineErrorDetailRecord((BRecordType) detailType, pos, pkgEnv);
         }
-        return createIntersectionErrorType(intersectionErrorType, constituentBTypes, pkgId, owner, pos);
+        return createIntersectionType(intersectionErrorType, constituentBTypes, pkgId, owner, pos);
     }
 
     private void defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
@@ -2312,27 +2423,25 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BLangRecordTypeNode detailRecordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(),
                                                                                              detailRecord, pos);
-        TypeDefBuilderHelper.createInitFunctionForRecordType(detailRecordTypeNode, env, names, symTable);
         BLangTypeDefinition detailRecordTypeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(
                 detailRecord, detailRecordSymbol, detailRecordTypeNode, env);
         detailRecordTypeDefinition.pos = pos;
     }
 
-    private BIntersectionType createIntersectionErrorType(IntersectableReferenceType effectiveType,
-                                                          LinkedHashSet<BType> constituentBTypes, PackageID pkgId,
-                                                          BSymbol owner, Location pos) {
+    private BIntersectionType createIntersectionType(BType effectiveType,
+                                                     LinkedHashSet<BType> constituentBTypes, PackageID pkgId,
+                                                     BSymbol owner, Location pos) {
 
         BTypeSymbol intersectionTypeSymbol =
-                Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY,
-                        pkgId, null, owner, pos, VIRTUAL);
+                Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE, 0, Names.EMPTY, pkgId, null, owner, pos, VIRTUAL);
 
         BIntersectionType intersectionType =
-                new BIntersectionType(intersectionTypeSymbol, constituentBTypes, effectiveType);
+                new BIntersectionType(intersectionTypeSymbol, constituentBTypes, effectiveType, effectiveType.flags);
         intersectionTypeSymbol.type = intersectionType;
         return intersectionType;
     }
 
-    private BType getPotentialIntersection(Types.IntersectionContext intersectionContext,
+    public BType getPotentialIntersection(Types.IntersectionContext intersectionContext,
                                            BType lhsType, BType rhsType, SymbolEnv env) {
         if (lhsType == symTable.readonlyType) {
             return rhsType;
@@ -2351,7 +2460,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         Location inferDefaultLocation = null;
 
         for (BLangVariable parameter : parameters) {
-            BType type = parameter.getBType();
+            BType type = Types.getImpliedType(parameter.getBType());
             BLangExpression expr = parameter.expr;
             if (type != null && type.tag == TypeTags.TYPEDESC && expr != null &&
                     expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
@@ -2372,7 +2481,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if (retType == null) {
             dlog.error(inferDefaultLocation,
-                       DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
+                    DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
             return false;
         }
 
@@ -2381,12 +2490,86 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         dlog.error(inferDefaultLocation,
-                   DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
+                DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
         return false;
     }
 
     private boolean isModuleLevelVar(BSymbol symbol) {
         return symbol.getKind() == SymbolKind.VARIABLE && symbol.owner.getKind() == SymbolKind.PACKAGE;
+    }
+
+    public void populateAnnotationAttachmentSymbol(BLangAnnotationAttachment annotationAttachment, SymbolEnv env,
+                                                   ConstantValueResolver constantValueResolver) {
+        populateAnnotationAttachmentSymbol(annotationAttachment, env, constantValueResolver, new Stack<>());
+    }
+    public void populateAnnotationAttachmentSymbol(BLangAnnotationAttachment annotationAttachment, SymbolEnv env,
+                                                   ConstantValueResolver constantValueResolver,
+                                                   Stack<String> anonTypeNameSuffixes) {
+        BAnnotationSymbol annotationSymbol = annotationAttachment.annotationSymbol;
+
+        if (annotationSymbol == null) {
+            return;
+        }
+
+        if (!Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
+            annotationAttachment.annotationAttachmentSymbol =
+                    new BAnnotationAttachmentSymbol(annotationSymbol, env.enclPkg.packageID, env.scope.owner,
+                                                    annotationAttachment.pos, SOURCE, annotationSymbol.attachedType);
+            return;
+        }
+
+        BLangExpression expr = annotationAttachment.expr;
+
+        BType attachedType = annotationAttachment.annotationSymbol.attachedType;
+        if (attachedType == null) {
+            attachedType = symTable.trueType;
+        } else {
+            attachedType = Types.getImpliedType(attachedType);
+            attachedType = attachedType.tag == TypeTags.ARRAY ? ((BArrayType) attachedType).eType : attachedType;
+        }
+        boolean isSourceOnlyAnon = isSourceAnonOnly(annotationSymbol.points);
+        BConstantSymbol constantSymbol = new BConstantSymbol(0, Names.EMPTY, Names.EMPTY, env.enclPkg.packageID,
+                                                             attachedType, attachedType, env.scope.owner,
+                                                             annotationAttachment.pos, VIRTUAL);
+
+        BLangConstantValue constAnnotationValue;
+
+        if (expr == null) {
+            if (types.isAssignable(attachedType, symTable.trueType)) {
+                // https://github.com/ballerina-platform/ballerina-lang/issues/35127
+                constAnnotationValue = new BLangConstantValue(true, symTable.booleanType);
+                constantSymbol.value = constAnnotationValue;
+            } else {
+                // TODO: 2022-03-06 Need to handle defaults coming from records.
+                BLangRecordLiteral mappingConstructor = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+                mappingConstructor.setBType(attachedType);
+                mappingConstructor.typeChecked = true;
+
+                constAnnotationValue = constantValueResolver.constructBLangConstantValueWithExactType(
+                        mappingConstructor, constantSymbol, env);
+            }
+        } else {
+            constAnnotationValue = constantValueResolver.constructBLangConstantValueWithExactType(expr, constantSymbol,
+                    env, anonTypeNameSuffixes, isSourceOnlyAnon);
+        }
+
+        constantSymbol.type = constAnnotationValue.type;
+
+        annotationAttachment.annotationAttachmentSymbol =
+                new BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol(annotationSymbol,
+                                                                                 env.enclPkg.packageID,
+                                                                                 env.scope.owner,
+                                                                                 annotationAttachment.pos, SOURCE,
+                                                                                 constantSymbol);
+    }
+
+    private boolean isSourceAnonOnly(Set<AttachPoint> attachPoints) {
+        for (AttachPoint attachPoint : attachPoints) {
+            if (!attachPoint.source) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public Set<BVarSymbol> getConfigVarSymbolsIncludingImportedModules(BPackageSymbol packageSymbol) {
@@ -2402,15 +2585,71 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private void populateConfigurableVars(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {
         for (Scope.ScopeEntry entry : pkgSymbol.scope.entries.values()) {
-            BSymbol symbol = entry.symbol.tag == SymTag.TYPE_DEF ? entry.symbol.type.tsymbol : entry.symbol;
-            int symbolTag = symbol.tag;
-            if (symbol != null && symbolTag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
-                configVars.add((BVarSymbol) symbol);
+            BSymbol symbol = entry.symbol;
+            if (symbol != null) {
+                if (symbol.tag == SymTag.TYPE_DEF) {
+                    symbol = symbol.type.tsymbol;
+                }
+                if (symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+                    configVars.add((BVarSymbol) symbol);
+                }
             }
         }
     }
 
-    private static class ParameterizedTypeInfo {
+    public BAnnotationSymbol getStrandAnnotationSymbol() {
+        return (BAnnotationSymbol) lookupSymbolInAnnotationSpace(
+                symTable.pkgEnvMap.get(symTable.rootPkgSymbol), names.fromString("strand"));
+    }
+
+    public BPackageSymbol getModuleForPackageId(PackageID packageID) {
+        return symTable.pkgEnvMap.keySet().stream()
+                .filter(moduleSymbol -> packageID.equals(moduleSymbol.pkgID))
+                .findFirst()
+                .get();
+    }
+
+    public List<BLangExpression> getListOfInterpolations(List<BLangExpression> sequenceList) {
+        List<BLangExpression> interpolationsList = new ArrayList<>();
+        for (BLangExpression seq : sequenceList) {
+            if (seq.getKind() != NodeKind.REG_EXP_SEQUENCE) {
+                continue;
+            }
+            BLangReSequence sequence = (BLangReSequence) seq;
+            for (BLangReTerm term : sequence.termList) {
+                if (term.getKind() != NodeKind.REG_EXP_ATOM_QUANTIFIER) {
+                    continue;
+                }
+                BLangExpression atom = ((BLangReAtomQuantifier) term).atom;
+                NodeKind kind = atom.getKind();
+                if (!isReAtomNode(kind)) {
+                    interpolationsList.add(atom);
+                    continue;
+                }
+                if (kind == NodeKind.REG_EXP_CAPTURING_GROUP) {
+                    interpolationsList.addAll(
+                            getListOfInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList));
+                }
+            }
+        }
+        return interpolationsList;
+    }
+
+    public boolean isReAtomNode(NodeKind kind) {
+        switch (kind) {
+            case REG_EXP_ATOM_CHAR_ESCAPE:
+            case REG_EXP_CHARACTER_CLASS:
+            case REG_EXP_CAPTURING_GROUP:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * @since 2.0.0
+     */
+    public static class ParameterizedTypeInfo {
         BType paramValueType;
         int index = -1;
 
@@ -2421,6 +2660,18 @@ public class SymbolResolver extends BLangNodeVisitor {
         private ParameterizedTypeInfo(BType paramValueType, int index) {
             this.paramValueType = paramValueType;
             this.index = index;
+        }
+    }
+
+    /**
+     * @since 2.0.0
+     */
+    public static class AnalyzerData {
+        SymbolEnv env;
+        DiagnosticCode diagCode;
+
+        public AnalyzerData(SymbolEnv env) {
+            this.env = env;
         }
     }
 }

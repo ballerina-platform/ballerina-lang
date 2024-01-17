@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (\"http\"://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *    \"http\"://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,15 +18,13 @@
 
 package org.ballerinalang.test.bala.record;
 
-import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.annotations.AfterClass;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertEquals;
 
 /**
  * BALA test cases for records.
@@ -35,31 +33,42 @@ import static org.testng.Assert.assertEquals;
  */
 public class RecordInBalaTest {
 
-    private CompileResult result;
-
     @BeforeClass
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
-        result = BCompileUtil.compile("test-src/record/rest_in_bala.bal");
     }
 
     @Test
     public void testRestFieldTypeDefAfterRecordDef() {
-        BValue[] returns = BRunUtil.invoke(result, "testORRestFieldInOR");
-        assertEquals(returns[0].stringValue(), "{name:\"Open Foo\", ob:{x:1.0}}");
-
-        returns = BRunUtil.invoke(result, "testORRestFieldInCR");
-        assertEquals(returns[0].stringValue(), "{name:\"Closed Foo\", ob:{x:2.0}}");
-
-        returns = BRunUtil.invoke(result, "testCRRestFieldInOR");
-        assertEquals(returns[0].stringValue(), "{name:\"Open Foo\", cb:{x:3.0}}");
-
-        returns = BRunUtil.invoke(result, "testCRRestFieldInCR");
-        assertEquals(returns[0].stringValue(), "{name:\"Closed Foo\", cb:{x:4.0}}");
+        CompileResult result = BCompileUtil.compile("test-src/record/rest_in_bala.bal");
+        BRunUtil.invoke(result, "testORRestFieldInOR");
+        BRunUtil.invoke(result, "testORRestFieldInCR");
+        BRunUtil.invoke(result, "testCRRestFieldInOR");
+        BRunUtil.invoke(result, "testCRRestFieldInCR");
     }
 
-    @AfterClass
-    public void tearDown() {
-        result = null;
+    @Test
+    public void negativeTests() {
+        CompileResult result = BCompileUtil.compile("test-src/record/record_negative_bala.bal");
+        int count = 0;
+        BAssertUtil.validateError(result, count++, "incompatible types: expected '(testorg/foo.records:1.0.0:" +
+                "Interceptor & readonly)', found 'PersonInterceptor'", 26, 40);
+        BAssertUtil.validateError(result, count++, "incompatible types: expected 'testorg/foo.records:1.0.0:Foo'" +
+                ", found '[Bar]'", 26, 71);
+        BAssertUtil.validateError(result, count++, "missing non-defaultable required record field 'x'", 30, 33);
+        BAssertUtil.validateError(result, count++, "missing non-defaultable required record field 'x'", 34, 33);
+        BAssertUtil.validateError(result, count++, "missing non-defaultable required record field 'y'", 34, 33);
+        Assert.assertEquals(result.getErrorCount(), count);
+    }
+
+    @Test
+    public void testComplexCyclicRecordTypeResolution() {
+        CompileResult typeResolution =
+                BCompileUtil.compile("test-src/record/complex_record_resolution.bal");
+        BRunUtil.invoke(typeResolution, "testCreatingAComplexRecordWithIncludingType");
+        BRunUtil.invoke(typeResolution, "testCreatingComplexRecordWithIncludedType");
+        BRunUtil.invoke(typeResolution, "testCreatingComplexRecWithIncTypeWithActualTypes");
+        BRunUtil.invoke(typeResolution, "testCreatingComplexRecWithIncTypeFromBala");
+        BRunUtil.invoke(typeResolution, "testCreatingComplexRecWithIncTypeFromBalaWithCM");
     }
 }

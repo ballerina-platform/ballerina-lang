@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
+import org.ballerinalang.model.tree.BlockNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRLockDetailsHolder;
@@ -59,9 +59,9 @@ class BIRGenEnv {
     BIRBasicBlock enclOnFailEndBB;
     BIRBasicBlock enclInnerOnFailEndBB;
 
-    List<BIRAnnotationAttachment> enclAnnotAttachments;
-
     Stack<List<BIRBasicBlock>> trapBlocks = new Stack<>();
+
+    Map<BlockNode, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
 
     // This is to hold variables to unlock in each scope
     // for example when we are to return from somewhere, we need to unlock all the
@@ -73,13 +73,15 @@ class BIRGenEnv {
     // A function can have only one basic block that has a return instruction.
     BIRBasicBlock returnBB;
 
+    // This is to hold whether a NewArray or NewStructure instruction is being constructed
+    int isInArrayOrStructure = 0;
+
     BIRGenEnv(BIRPackage birPkg) {
         this.enclPkg = birPkg;
     }
 
-    Name nextBBId(Names names) {
-        currentBBId++;
-        return names.merge(Names.BIR_BASIC_BLOCK_PREFIX, names.fromString(Integer.toString(currentBBId)));
+    int nextBBId() {
+        return ++currentBBId;
     }
 
     Name nextLocalVarId(Names names) {
@@ -100,5 +102,7 @@ class BIRGenEnv {
         this.enclBB = null;
         this.returnBB = null;
         this.enclFunc = null;
+        this.varDclsByBlock.clear();
+        this.unlockVars.clear();
     }
 }

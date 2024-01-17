@@ -18,8 +18,6 @@
 
 package org.ballerinalang.test.statements.variabledef;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -56,12 +54,10 @@ public class VariableScopeTest {
     }
 
     private void scopeValue(CompileResult result, String functionName, int a, int b, int c, int expected) {
-        BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c)};
-        BValue[] returns = BRunUtil.invoke(result, functionName, args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        long actual = ((BInteger) returns[0]).intValue();
+        Object[] args = {(a), (b), (c)};
+        Object returns = BRunUtil.invoke(result, functionName, args);
+        Assert.assertEquals(returns.getClass(), Long.class);
+        long actual = (long) returns;
         Assert.assertEquals(actual, expected);
     }
 

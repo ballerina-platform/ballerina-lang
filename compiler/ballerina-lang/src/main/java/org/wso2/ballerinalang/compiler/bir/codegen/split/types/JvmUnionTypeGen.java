@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
@@ -41,8 +42,9 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_UNION_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -73,12 +75,12 @@ public class JvmUnionTypeGen {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
         this.unionTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        this.unionTypesCw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, unionTypesClass, null, OBJECT, null);
+        this.unionTypesCw.visit(V17, ACC_PUBLIC + ACC_SUPER, unionTypesClass, null, OBJECT, null);
     }
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {
         unionTypesCw.visitEnd();
-        jarEntries.put(unionTypesClass + ".class", jvmPackageGen.getBytes(unionTypesCw, module));
+        jarEntries.put(unionTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(unionTypesCw, module));
     }
 
 
@@ -118,14 +120,15 @@ public class JvmUnionTypeGen {
         }
     }
 
-    public void populateUnion(ClassWriter cw, MethodVisitor mv, BUnionType bType, String className, String name) {
+    public void populateUnion(ClassWriter cw, MethodVisitor mv, BUnionType bType, String className, String name,
+                              SymbolTable symbolTable) {
         mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
 
         // populate member fields
         addUnionMembers(cw, mv, bType, className, name);
-        jvmCreateTypeGen.addImmutableType(mv, bType);
+        jvmCreateTypeGen.addImmutableType(mv, bType, symbolTable);
     }
 
     /**

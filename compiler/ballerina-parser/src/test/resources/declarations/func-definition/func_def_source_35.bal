@@ -1,0 +1,2 @@
+function testFunction2() {
+;

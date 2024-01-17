@@ -30,7 +30,7 @@
                     </And>
                     <And>
                         <Bug pattern="DE_MIGHT_IGNORE"/>
-                        <Method name="terminateServer"/>
+                        <Method name="terminateDebugServer"/>
                     </And>
                     <And>
                         <Bug pattern="BC_UNCONFIRMED_CAST"/>
@@ -58,6 +58,17 @@
                 <Class name="org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator"/>
                 <Method name="invokeObjectMethod"/>
             </And>
+            <And>
+                <Bug pattern="BC_UNCONFIRMED_CAST"/>
+                <Class name="org.ballerinalang.debugadapter.completion.CompletionGenerator"/>
+            </And>
         </Or>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugadapter.completion.util.CompletionUtil"/>
+        <Bug pattern="MS_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
 </FindBugsFilter>

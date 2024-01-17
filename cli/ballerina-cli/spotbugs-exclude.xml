@@ -18,6 +18,14 @@
 
 <FindBugsFilter>
     <Match>
+        <Class name="io.ballerina.cli.cmd.PullCommand"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.PullCommand"/>
+        <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.cli.cmd.BuildCommand"/>
         <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
@@ -45,6 +53,10 @@
         <Class name="io.ballerina.cli.task.RunTestsTask"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.cli.task.RunNativeImageTestTask"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
 
     <Match>
         <Package name="io.ballerina.cli.launcher.util" />
@@ -57,7 +69,33 @@
         <Class name="io.ballerina.cli.utils.BuildTime"/>
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.CommandUtil" />
+        <Method name="addModules" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
+    </Match>
     <Match>>
         <Package name="io.ballerina.cli.launcher"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.CommandUtil" />
+        <Method name="copyIcon" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.CommandUtil" />
+        <Method name="checkTemplateFilesExists" />
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.ToolCommand" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.ToolCommand" />
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
 </FindBugsFilter>

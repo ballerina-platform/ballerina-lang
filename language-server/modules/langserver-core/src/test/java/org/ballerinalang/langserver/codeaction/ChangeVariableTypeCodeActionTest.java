@@ -37,30 +37,53 @@ public class ChangeVariableTypeCodeActionTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @Test(dataProvider = "negative-test-data-provider")
     @Override
-    public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.negativeTest(config, source);
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"changeVarType1.json", "changeVarType.bal"},
-                {"changeVarType2.json", "changeVarType.bal"},
+                {"changeVarType1.json"},
+                {"changeVarType2.json"},
+                {"changeVarType3.json"},
+                {"changeVarType4.json"},
+                {"changeVarType3.json"},
+                {"changeVarType5.json"},
+                {"changeVarType6.json"},
+                {"changeVarType_int_to_float.json"},
+                {"changeVarType_int_to_float_in_constant.json"},
+                {"changeVarTypeInObjectFields1.json"},
+                {"changeVarTypeInObjectFields2.json"},
+                {"changeVarTypeInObjectFields3.json"},
+                {"changeVarType_in_let_clause.json"},
+                {"changeVarType_in_select_clause.json"},
+                {"changeVarType_in_collect_clause.json"},
+                {"changeVarType_in_collect_clause2.json"},
+                {"changeVarBasedOnLetExpr1.json"},
+                {"changeVarBasedOnLetExpr2.json"},
+                {"changeVarBasedOnLetExpr3.json"},
+                {"changeVarBasedOnLetExpr4.json"},
+                {"changeVarBasedOnLetExpr5.json"},
+                {"changeVarBasedOnLetExpr6.json"},
+                {"changeVarBasedOnLetExpr7.json"},
         };
     }
 
     @DataProvider(name = "negative-test-data-provider")
     public Object[][] negativeTestDataProvider() {
         return new Object[][]{
-                {"negative_changeVarType1.json", "negative_changeVarType1.bal"},
-                {"negative_changeVarType2.json", "negative_changeVarType2.bal"},
+                {"negative_changeVarType1.json"},
+                {"negative_changeVarType2.json"},
+                {"negative_changeVarType3.json"},
+                {"negative_changeVarTypeWithBase16.json"},
         };
     }
 }

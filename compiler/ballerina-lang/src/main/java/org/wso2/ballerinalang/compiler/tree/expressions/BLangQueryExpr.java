@@ -21,6 +21,8 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 
@@ -34,16 +36,32 @@ import java.util.stream.Collectors;
  * @since 1.2.0
  */
 public class BLangQueryExpr extends BLangExpression implements QueryExpressionNode {
+
+    // BLangNodes
     public List<BLangNode> queryClauseList = new ArrayList<>();
     public List<IdentifierNode> fieldNameIdentifierList = new ArrayList<>();
+
+    // Parser Flags and Data
     public boolean isStream = false;
     public boolean isTable = false;
+    public boolean isMap = false;
 
     @Override
     public BLangSelectClause getSelectClause() {
         for (BLangNode clause : queryClauseList) {
             if (clause.getKind() == NodeKind.SELECT) {
                 return (BLangSelectClause) clause;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public BLangNode getFinalClause() {
+        for (BLangNode clause : queryClauseList) {
+            NodeKind kind = clause.getKind();
+            if (kind == NodeKind.SELECT || kind == NodeKind.COLLECT) {
+                return clause;
             }
         }
         return null;
@@ -97,6 +115,16 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

@@ -6,10 +6,10 @@ int attachCount = -2;
 service on ep, new PQR("pqr") {
 
 
-    resource function get foo(string b) {
+    resource function get foo(string b = "") {
     }
 
-    resource function get bar(string b) {
+    resource function get bar(string b = "") {
     }
 }
 

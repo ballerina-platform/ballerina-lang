@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 29,
+    "character": 55
+  },
+  "source": "action_node_context/source/remote_method_call_source2.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "name = ...",
+      "kind": "Snippet",
+      "detail": "name = \"\"",
+      "sortText": "AR",
+      "filterText": "name",
+      "insertText": "name = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "id = ...",
+      "kind": "Snippet",
+      "detail": "id = 0",
+      "sortText": "AR",
+      "filterText": "id",
+      "insertText": "id = ${1:0}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

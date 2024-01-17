@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.utils;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.CompilationCache;
 import io.ballerina.projects.CompilerBackend;
 import io.ballerina.projects.JBallerinaBackend;
@@ -88,11 +87,11 @@ public class BuildLangLib {
             Path pkgTargetPath = targetPath.resolve(pkgName);
             ProjectEnvironmentBuilder environmentBuilder = createProjectEnvBuilder(pkgTargetPath);
 
-            BuildOptions defaultOptions = new BuildOptionsBuilder().offline(true).dumpBirFile(true).build();
+            BuildOptions defaultOptions = BuildOptions.builder().setOffline(true).setDumpBirFile(true).build();
             Project project = BuildProject.load(environmentBuilder, projectDir, defaultOptions);
             Package pkg = project.currentPackage();
             PackageCompilation packageCompilation = pkg.getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
             if (jBallerinaBackend.diagnosticResult().hasErrors()) {
                 out.println("Error building Ballerina package: " + pkg.packageName());
                 jBallerinaBackend.diagnosticResult().diagnostics().forEach(d -> out.println(d.toString()));

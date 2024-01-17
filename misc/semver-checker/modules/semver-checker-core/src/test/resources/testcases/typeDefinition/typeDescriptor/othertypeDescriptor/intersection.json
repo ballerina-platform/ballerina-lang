@@ -1,0 +1,98 @@
+[
+  {
+    "description": "Add a Intersection type descriptor\n",
+    "oldCode": "public type Person int;\n",
+    "newCode": "public type Person int&readonly;\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "type descriptor",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "type descriptor is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change a Union type descriptor\n",
+    "oldCode": "public type Person int&readonly;\n",
+    "newCode": "public type Person string&readonly;\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "type descriptor",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "type descriptor is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the order of Union type descriptor\n",
+    "oldCode": "public type Person int&readonly;",
+    "newCode": "public type Person readonly&int;\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "type descriptor",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "type descriptor is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -188,3 +188,21 @@ type Bar record {|
 type Baz2 record {|
     int id;
 |};
+
+readonly class ReadOnlyClass {
+    int[] x = [1, 2, 3];
+}
+
+public type Qux readonly & record {|
+    string a;
+    ReadOnlyClass b;
+|};
+
+type Quux record {|
+    anydata body;
+|};
+
+public type Corge record {|
+    *Quux;
+    Qux body; // error: included field 'body' of type 'anydata' cannot be overridden by a field of type 'Qux': expected a subtype of 'anydata'
+|};

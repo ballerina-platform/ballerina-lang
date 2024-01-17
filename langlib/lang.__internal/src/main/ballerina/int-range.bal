@@ -20,7 +20,7 @@ import ballerina/lang.'object as lang_object;
 #
 # This type is created to have an Iterable object without having to expose actual
 # implementation details with private fields
-type IterableIntegerRange object {
+type IterableIntegerRange isolated object {
     *lang_object:Iterable;
 };
 
@@ -28,22 +28,30 @@ type IterableIntegerRange object {
 #
 # + iStart - start expression of range expression
 # + iEnd - second expression on range expression
+# + iStep - step of range expression
 # + iCurrent - current cursor
-public class __IntRange {
+public isolated class __IntRange {
 
     *IterableIntegerRange;
-    private int iStart;
-    private int iEnd;
+    private final int iStart;
+    private final int iEnd;
+    private final int iStep;
     private int iCurrent;
 
-    public isolated function init(int s, int e) {
+    public isolated function init(int s, int e, int step = 1) {
         self.iStart = s;
         self.iEnd = e;
+        self.iStep = step;
         self.iCurrent = s;
     }
 
-    public isolated function hasNext() returns boolean {
-        return (self.iStart <= self.iCurrent) && (self.iCurrent <= self.iEnd);
+    private isolated function hasNext() returns boolean {
+        int currentVal;
+        lock {
+            currentVal = self.iCurrent;
+        }
+        return self.iStep > 0 ? (self.iStart <= currentVal) && (currentVal <= self.iEnd) :
+                    (self.iStart >= currentVal) && (currentVal >= self.iEnd);
     }
 
     public isolated function next() returns record {|
@@ -51,8 +59,11 @@ public class __IntRange {
     |}? {
 
         if (self.hasNext()) {
-            record {|int value;|} nextVal = {value : self.iCurrent};
-            self.iCurrent += 1;
+            record {|int value;|} nextVal;
+            lock {
+                nextVal = {value : self.iCurrent};
+                self.iCurrent += self.iStep;
+            }
             return nextVal;
         }
 
@@ -60,8 +71,8 @@ public class __IntRange {
     }
 
     public isolated function iterator() returns
-        object {public isolated function next() returns record {|int value;|}?;} {
-            return new __IntRange(self.iStart, self.iEnd);
+        isolated object {public isolated function next() returns record {|int value;|}?;} {
+            return new __IntRange(self.iStart, self.iEnd, self.iStep);
     }
 }
 
@@ -71,10 +82,10 @@ public class __IntRange {
 # + s - The lower bound of the integer range inclusive
 # + e - The upper bound if the integer range inclusive
 # + return - `Iterable<int,()>` object
-public isolated function createIntRange(int s, int e) returns object {
+public isolated function createIntRange(int s, int e) returns isolated object {
                                                                   *IterableIntegerRange;
                                                                   public isolated function iterator()
-                                                                  returns object {
+                                                                  returns isolated object {
                                                                               public isolated function next()
                                                                               returns record {| int value; |}?;
                                                                           };

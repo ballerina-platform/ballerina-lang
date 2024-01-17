@@ -24,7 +24,6 @@ package io.ballerina.projects;
  */
 public class CompilationOptions {
     Boolean offlineBuild;
-    Boolean experimental;
     Boolean observabilityIncluded;
     Boolean dumpBir;
     Boolean dumpBirFile;
@@ -34,13 +33,19 @@ public class CompilationOptions {
     Boolean dumpGraph;
     Boolean dumpRawGraphs;
     Boolean withCodeGenerators;
+    Boolean withCodeModifiers;
+    Boolean configSchemaGen;
+    Boolean exportOpenAPI;
+    Boolean exportComponentModel;
+    Boolean enableCache;
+    Boolean disableSyntaxTree;
 
-    CompilationOptions(Boolean offlineBuild, Boolean experimental,
-                       Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
-                       String cloud, Boolean listConflictedClasses, Boolean sticky,
-                       Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators) {
+    CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
+                       Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
+                       Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
+                       Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
+                       Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree) {
         this.offlineBuild = offlineBuild;
-        this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
         this.dumpBirFile = dumpBirFile;
@@ -50,6 +55,12 @@ public class CompilationOptions {
         this.dumpGraph = dumpGraph;
         this.dumpRawGraphs = dumpRawGraphs;
         this.withCodeGenerators = withCodeGenerators;
+        this.withCodeModifiers = withCodeModifiers;
+        this.configSchemaGen = configSchemaGen;
+        this.exportOpenAPI = exportOpenAPI;
+        this.exportComponentModel = exportComponentModel;
+        this.enableCache = enableCache;
+        this.disableSyntaxTree = disableSyntaxTree;
     }
 
     public boolean offlineBuild() {
@@ -58,10 +69,6 @@ public class CompilationOptions {
 
     boolean sticky() {
         return toBooleanTrueIfNull(this.sticky);
-    }
-
-    boolean experimental() {
-        return toBooleanDefaultIfNull(this.experimental);
     }
 
     boolean observabilityIncluded() {
@@ -96,6 +103,26 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.withCodeGenerators);
     }
 
+    public boolean withCodeModifiers() {
+        return toBooleanDefaultIfNull(this.withCodeModifiers);
+    }
+
+    public Boolean configSchemaGen() {
+        return toBooleanDefaultIfNull(this.configSchemaGen);
+    }
+
+    public boolean exportOpenAPI() {
+        return toBooleanDefaultIfNull(this.exportOpenAPI);
+    }
+
+    public boolean exportComponentModel() {
+        return toBooleanDefaultIfNull(this.exportComponentModel);
+    }
+
+    public boolean enableCache() {
+        return toBooleanDefaultIfNull(this.enableCache);
+    }
+
     /**
      * Merge the given compilation options by favoring theirs if there are conflicts.
      *
@@ -105,61 +132,85 @@ public class CompilationOptions {
     CompilationOptions acceptTheirs(CompilationOptions theirOptions) {
         CompilationOptionsBuilder compilationOptionsBuilder = new CompilationOptionsBuilder();
         if (theirOptions.offlineBuild != null) {
-            compilationOptionsBuilder.offline(theirOptions.offlineBuild);
+            compilationOptionsBuilder.setOffline(theirOptions.offlineBuild);
         } else {
-            compilationOptionsBuilder.offline(this.offlineBuild);
-        }
-        if (theirOptions.experimental != null) {
-            compilationOptionsBuilder.experimental(theirOptions.experimental);
-        } else {
-            compilationOptionsBuilder.experimental(this.experimental);
+            compilationOptionsBuilder.setOffline(this.offlineBuild);
         }
         if (theirOptions.observabilityIncluded != null) {
-            compilationOptionsBuilder.observabilityIncluded(theirOptions.observabilityIncluded);
+            compilationOptionsBuilder.setObservabilityIncluded(theirOptions.observabilityIncluded);
         } else {
-            compilationOptionsBuilder.observabilityIncluded(this.observabilityIncluded);
+            compilationOptionsBuilder.setObservabilityIncluded(this.observabilityIncluded);
         }
         if (theirOptions.dumpBir != null) {
-            compilationOptionsBuilder.dumpBir(theirOptions.dumpBir);
+            compilationOptionsBuilder.setDumpBir(theirOptions.dumpBir);
         } else {
-            compilationOptionsBuilder.dumpBir(this.dumpBir);
+            compilationOptionsBuilder.setDumpBir(this.dumpBir);
         }
         if (theirOptions.dumpBirFile != null) {
-            compilationOptionsBuilder.dumpBirFile(theirOptions.dumpBirFile);
+            compilationOptionsBuilder.setDumpBirFile(theirOptions.dumpBirFile);
         } else {
-            compilationOptionsBuilder.dumpBirFile(this.dumpBirFile);
+            compilationOptionsBuilder.setDumpBirFile(this.dumpBirFile);
         }
         if (theirOptions.dumpGraph != null) {
-            compilationOptionsBuilder.dumpGraph(theirOptions.dumpGraph);
+            compilationOptionsBuilder.setDumpGraph(theirOptions.dumpGraph);
         } else {
-            compilationOptionsBuilder.dumpGraph(this.dumpGraph);
+            compilationOptionsBuilder.setDumpGraph(this.dumpGraph);
         }
         if (theirOptions.dumpRawGraphs != null) {
-            compilationOptionsBuilder.dumpRawGraphs(theirOptions.dumpRawGraphs);
+            compilationOptionsBuilder.setDumpRawGraphs(theirOptions.dumpRawGraphs);
         } else {
-            compilationOptionsBuilder.dumpRawGraphs(this.dumpRawGraphs);
+            compilationOptionsBuilder.setDumpRawGraphs(this.dumpRawGraphs);
         }
         if (theirOptions.cloud != null) {
-            compilationOptionsBuilder.cloud(theirOptions.cloud);
+            compilationOptionsBuilder.setCloud(theirOptions.cloud);
         } else {
-            compilationOptionsBuilder.cloud(this.cloud);
+            compilationOptionsBuilder.setCloud(this.cloud);
         }
         if (theirOptions.listConflictedClasses != null) {
-            compilationOptionsBuilder.listConflictedClasses(theirOptions.listConflictedClasses);
+            compilationOptionsBuilder.setListConflictedClasses(theirOptions.listConflictedClasses);
         } else {
-            compilationOptionsBuilder.listConflictedClasses(this.listConflictedClasses);
+            compilationOptionsBuilder.setListConflictedClasses(this.listConflictedClasses);
         }
         if (theirOptions.sticky != null) {
-            compilationOptionsBuilder.sticky(theirOptions.sticky);
+            compilationOptionsBuilder.setSticky(theirOptions.sticky);
         } else {
-            compilationOptionsBuilder.sticky(this.sticky);
+            compilationOptionsBuilder.setSticky(this.sticky);
         }
         if (theirOptions.withCodeGenerators != null) {
             compilationOptionsBuilder.withCodeGenerators(theirOptions.withCodeGenerators);
         } else {
             compilationOptionsBuilder.withCodeGenerators(this.withCodeGenerators);
         }
+        if (theirOptions.withCodeModifiers != null) {
+            compilationOptionsBuilder.withCodeModifiers(theirOptions.withCodeModifiers);
+        } else {
+            compilationOptionsBuilder.withCodeModifiers(this.withCodeModifiers);
+        }
+        if (theirOptions.configSchemaGen != null) {
+            compilationOptionsBuilder.setConfigSchemaGen(theirOptions.configSchemaGen);
+        } else {
+            compilationOptionsBuilder.setConfigSchemaGen(this.configSchemaGen);
+        }
+        if (theirOptions.exportOpenAPI != null) {
+            compilationOptionsBuilder.setExportOpenAPI(theirOptions.exportOpenAPI);
+        } else {
+            compilationOptionsBuilder.setExportOpenAPI(this.exportOpenAPI);
+        }
+        if (theirOptions.exportComponentModel != null) {
+            compilationOptionsBuilder.setExportComponentModel(theirOptions.exportComponentModel);
+        } else {
+            compilationOptionsBuilder.setExportComponentModel(this.exportComponentModel);
+        }
+        if (theirOptions.enableCache != null) {
+            compilationOptionsBuilder.setEnableCache(theirOptions.enableCache);
+        } else {
+            compilationOptionsBuilder.setEnableCache(this.enableCache);
+        }
         return compilationOptionsBuilder.build();
+    }
+
+    public static CompilationOptionsBuilder builder() {
+        return new CompilationOptionsBuilder();
     }
 
     private boolean toBooleanDefaultIfNull(Boolean bool) {
@@ -181,5 +232,120 @@ public class CompilationOptions {
             return "";
         }
         return value;
+    }
+
+    public boolean disableSyntaxTree() {
+        return toBooleanDefaultIfNull(this.disableSyntaxTree);
+    }
+
+    /**
+     * A builder for the {@code CompilationOptions}.
+     *
+     * @since 2.0.0
+     */
+    public static class CompilationOptionsBuilder {
+        private Boolean offline;
+        private Boolean observabilityIncluded;
+        private Boolean dumpBir;
+        private Boolean dumpBirFile;
+        private String cloud;
+        private Boolean listConflictedClasses;
+        private Boolean sticky;
+        private Boolean dumpGraph;
+        private Boolean dumpRawGraph;
+        private Boolean withCodeGenerators;
+        private Boolean withCodeModifiers;
+        private Boolean configSchemaGen;
+        private Boolean exportOpenAPI;
+        private Boolean exportComponentModel;
+        private Boolean enableCache;
+        private Boolean disableSyntaxTree;
+
+        public CompilationOptionsBuilder setOffline(Boolean value) {
+            offline = value;
+            return this;
+        }
+
+        public CompilationOptionsBuilder setSticky(Boolean value) {
+            sticky = value;
+            return this;
+        }
+
+        CompilationOptionsBuilder setObservabilityIncluded(Boolean value) {
+            observabilityIncluded = value;
+            return this;
+        }
+
+        CompilationOptionsBuilder disableSyntaxTree(Boolean value) {
+            disableSyntaxTree = value;
+            return this;
+        }
+
+        CompilationOptionsBuilder setDumpBir(Boolean value) {
+            dumpBir = value;
+            return this;
+        }
+
+        CompilationOptionsBuilder setCloud(String value) {
+            cloud = value;
+            return this;
+        }
+
+        CompilationOptionsBuilder setDumpBirFile(Boolean value) {
+            dumpBirFile = value;
+            return this;
+        }
+
+        CompilationOptionsBuilder setDumpGraph(Boolean value) {
+            dumpGraph = value;
+            return this;
+        }
+
+        CompilationOptionsBuilder setDumpRawGraphs(Boolean value) {
+            dumpRawGraph = value;
+            return this;
+        }
+
+        public CompilationOptionsBuilder setConfigSchemaGen(Boolean value) {
+            configSchemaGen = value;
+            return this;
+        }
+
+        CompilationOptionsBuilder setListConflictedClasses(Boolean value) {
+            listConflictedClasses = value;
+            return this;
+        }
+
+        CompilationOptionsBuilder withCodeGenerators(Boolean value) {
+            withCodeGenerators = value;
+            return this;
+        }
+
+        CompilationOptionsBuilder withCodeModifiers(Boolean value) {
+            withCodeModifiers = value;
+            return this;
+        }
+
+        CompilationOptionsBuilder setExportOpenAPI(Boolean value) {
+            exportOpenAPI = value;
+            return this;
+        }
+
+        CompilationOptionsBuilder setExportComponentModel(Boolean value) {
+            exportComponentModel = value;
+            return this;
+        }
+
+        public CompilationOptionsBuilder setEnableCache(Boolean value) {
+            enableCache = value;
+            return this;
+        }
+
+        public CompilationOptions build() {
+            return new CompilationOptions(offline, observabilityIncluded, dumpBir,
+                    dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
+                    withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
+                    exportComponentModel, enableCache, disableSyntaxTree);
+        }
     }
 }

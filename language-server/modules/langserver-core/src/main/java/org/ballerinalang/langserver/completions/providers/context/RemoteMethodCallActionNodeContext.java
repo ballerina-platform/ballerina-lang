@@ -22,20 +22,21 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Handles the completions for the {@link RemoteMethodCallActionNode}.
@@ -53,9 +54,20 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, RemoteMethodCallActionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> expressionType = node.expression().apply(resolver);
+        if (onSuggestClients(node, context)) {
+            // Covers following:
+            // 1. cl<cursor>->func()
+            completionItems.addAll(this.expressionCompletions(context));
+            this.sort(context, node, completionItems);
+            return completionItems;
+        }
 
+        Optional<TypeSymbol> expressionType = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.expression().location().lineRange().endLine();
+            expressionType = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
         if (expressionType.isEmpty() || !SymbolUtil.isClient(expressionType.get())) {
             return Collections.emptyList();
         }
@@ -67,20 +79,22 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
              */
             List<Symbol> clientActions = this.getClientActions(expressionType.get());
             completionItems.addAll(this.getCompletionItemList(clientActions, context));
-        } else if (CommonUtil.isInMethodCallParameterContext(context, node)) {
+        } else if (TypeResolverUtil.isInMethodCallParameterContext(node, context.getCursorPositionInTree())) {
             /*
              * Covers the following cases:
              * 1. a->func(<cursor>)
              * 2. a->func(mod1:<cursor>)
              */
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
-                List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+                List<Symbol> exprEntries = QNameRefCompletionUtil.getExpressionContextEntries(context, qNameRef);
                 List<LSCompletionItem> items = this.getCompletionItemList(exprEntries, context);
                 completionItems.addAll(items);
             } else {
-                completionItems.addAll(this.actionKWCompletions(context));
-                completionItems.addAll(this.expressionCompletions(context));
+                if (isNotInNamedArgOnlyContext(context, node.arguments().stream().collect(Collectors.toList()))) {
+                    completionItems.addAll(this.actionKWCompletions(context));
+                    completionItems.addAll(this.expressionCompletions(context));
+                }
                 completionItems.addAll(this.getNamedArgExpressionCompletionItems(context, node));
             }
         }
@@ -110,14 +124,38 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
                 (node.openParenToken().isMissing() || cursor <= node.openParenToken().textRange().startOffset());
     }
 
+    private boolean onSuggestClients(RemoteMethodCallActionNode node, BallerinaCompletionContext context) {
+        int cursor = context.getCursorPositionInTree();
+        return cursor <= node.rightArrowToken().textRange().startOffset();
+    }
+
     @Override
     public void sort(BallerinaCompletionContext context,
                      RemoteMethodCallActionNode node,
                      List<LSCompletionItem> completionItems) {
-        if (!CommonUtil.isInMethodCallParameterContext(context, node)) {
-            SortingUtil.toDefaultSorting(context, completionItems);
+        if (TypeResolverUtil.isInMethodCallParameterContext(node, context.getCursorPositionInTree())) {
+            super.sort(context, node, completionItems);
             return;
         }
-        super.sort(context, node, completionItems);
+
+        // At expression of the remote method call action, suggest clients first
+        if (onSuggestClients(node, context)) {
+            completionItems.forEach(completionItem -> {
+                Optional<TypeSymbol> typeSymbol = SortingUtil.getSymbolFromCompletionItem(completionItem);
+                String sortText;
+                if (typeSymbol.isPresent() && SymbolUtil.isClient(typeSymbol.get())) {
+                    sortText = SortingUtil.genSortText(1);
+                } else {
+                    sortText = SortingUtil.genSortText(2);
+                }
+                sortText += SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
+                completionItem.getCompletionItem().setSortText(sortText);
+            });
+            return;
+        }
+
+        for (LSCompletionItem item : completionItems) {
+            sortByAssignability(context, item, SortingUtil.toRank(context, item));
+        }
     }
 }

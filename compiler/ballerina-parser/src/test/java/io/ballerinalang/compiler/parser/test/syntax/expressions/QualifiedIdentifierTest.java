@@ -62,4 +62,16 @@ public class QualifiedIdentifierTest extends AbstractExpressionsTest {
     public void testIncompleteQualifiedIdent() {
         test("pkg:", "qualified-identifier/qualified_identifier_assert_07.json");
     }
+
+    @Test
+    public void testInterveningWSNotAllowed() {
+        testFile("qualified-identifier/qualified_identifier_source_08.bal",
+                "qualified-identifier/qualified_identifier_assert_08.json");
+    }
+
+    @Test
+    public void testMapTypeAfterColon() {
+        testFile("qualified-identifier/qualified_identifier_source_09.bal",
+                "qualified-identifier/qualified_identifier_assert_09.json");
+    }
 }

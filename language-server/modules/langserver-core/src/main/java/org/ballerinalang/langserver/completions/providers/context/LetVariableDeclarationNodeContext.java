@@ -20,16 +20,20 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.CompleteExpressionValidator;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.context.util.QueryExpressionUtil;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -54,7 +58,22 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, LetVariableDeclarationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         int cursor = context.getCursorPositionInTree();
-        if (node.typedBindingPattern().typeDescriptor().textRange().endOffset() >= cursor) {
+        TypeDescriptorNode typeDescriptor = node.typedBindingPattern().typeDescriptor();
+        if (typeDescriptor.textRange().endOffset() >= cursor) {
+            if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                /*
+                Covers the following context
+                eg: let var x = <cursor>
+                    let var x = h<cursor>
+                    let var x = mod1:<cursor>
+                */
+                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) typeDescriptor;
+                List<Symbol> exprEntries = QNameRefCompletionUtil.getExpressionContextEntries(context, qNameRef);
+
+                completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+                this.sort(context, node, completionItems);
+                return completionItems;
+            }
             /*
             Covers the following context
             eg: let va<cursor>
@@ -65,26 +84,12 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
             for (LSCompletionItem lsCItem : completionItems) {
                 CompletionItem completionItem = lsCItem.getCompletionItem();
                 completionItem.setSortText(SortingUtil.genSortTextForTypeDescContext(context, lsCItem));
-            }            
+            }
             return completionItems;
         }
-        
-        /*
-        Covers the following context
-        eg: let var x = <cursor>
-            let var x = h<cursor>
-            let var x = mod1:<cursor>
-         */
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            /*
-            Covers the cases where the cursor is within the expression context
-             */
-            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-
-            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        if (cursorAtTheEndOfExpression(context, node)) {
+            completionItems.addAll(QueryExpressionUtil.getCommonKeywordCompletions(context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));
         }
@@ -106,14 +111,20 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
         Here at the cursor, it is identified as the binary expression where the operator is missing
          */
         if (!expression.isMissing() && expression.kind() == SyntaxKind.BINARY_EXPRESSION
-                && cursor > ((BinaryExpressionNode) expression).lhsExpr().textRange().endOffset()) {
+                && cursor > ((BinaryExpressionNode) expression).lhsExpr().textRange().endOffset()
+                && ((BinaryExpressionNode) expression).operator().isMissing()) {
             return false;
         } else if (node.typedBindingPattern().typeDescriptor().textRange().endOffset() >= cursor) {
             return true;
         }
+        CompleteExpressionValidator expressionValidator = new CompleteExpressionValidator();
+        boolean completeExpression = !isMissingExpression(expression) && expression.apply(expressionValidator);
         return !equalsToken.isMissing() && equalsToken.textRange().startOffset() < cursor
-                && (expression.isMissing() || cursor <= expression.textRange().endOffset());
+                && ((completeExpression && cursor <= expression.textRange().endOffset())
+                || (!completeExpression
+                && (isMissingExpression(expression) || cursor >= expression.textRange().endOffset())));
     }
+
     @Override
     public void sort(BallerinaCompletionContext context, LetVariableDeclarationNode node,
                      List<LSCompletionItem> completionItems) {
@@ -127,5 +138,17 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
             completionItem.getCompletionItem()
                     .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
+    }
+
+    private boolean isMissingExpression(ExpressionNode expr) {
+        return expr.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
+                && ((SimpleNameReferenceNode) expr).name().text().isEmpty();
+    }
+
+    private boolean cursorAtTheEndOfExpression(BallerinaCompletionContext context, LetVariableDeclarationNode node) {
+        int cursorPosition = context.getCursorPositionInTree();
+        return node.expression().kind() != SyntaxKind.BINARY_EXPRESSION
+                && !PositionUtil.isWithInRange(node, cursorPosition)
+                && node.expression().textRange().startOffset() < cursorPosition;
     }
 }

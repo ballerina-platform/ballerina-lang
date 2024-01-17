@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code {@link FunctionType }} represents a function type in ballerina.
+ * {@code FunctionType} represents a function type in ballerina.
  *
  * @since 2.0.0
  */

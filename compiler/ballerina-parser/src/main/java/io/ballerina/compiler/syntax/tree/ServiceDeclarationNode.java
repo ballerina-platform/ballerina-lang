@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -73,6 +73,10 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         return childInBucket(9);
     }
 
+    public Optional<Token> semicolonToken() {
+        return optionalChildInBucket(10);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -95,7 +99,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
                 "expressions",
                 "openBraceToken",
                 "members",
-                "closeBraceToken"};
+                "closeBraceToken",
+                "semicolonToken"};
     }
 
     public ServiceDeclarationNode modify(
@@ -108,7 +113,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             SeparatedNodeList<ExpressionNode> expressions,
             Token openBraceToken,
             NodeList<Node> members,
-            Token closeBraceToken) {
+            Token closeBraceToken,
+            Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
                 qualifiers.underlyingListNode(),
@@ -119,7 +125,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
                 expressions.underlyingListNode(),
                 openBraceToken,
                 members.underlyingListNode(),
-                closeBraceToken)) {
+                closeBraceToken,
+                semicolonToken)) {
             return this;
         }
 
@@ -133,7 +140,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
                 expressions,
                 openBraceToken,
                 members,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     public ServiceDeclarationNodeModifier modify() {
@@ -157,6 +165,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         private Token openBraceToken;
         private NodeList<Node> members;
         private Token closeBraceToken;
+        private Token semicolonToken;
 
         public ServiceDeclarationNodeModifier(ServiceDeclarationNode oldNode) {
             this.oldNode = oldNode;
@@ -170,6 +179,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             this.openBraceToken = oldNode.openBraceToken();
             this.members = oldNode.members();
             this.closeBraceToken = oldNode.closeBraceToken();
+            this.semicolonToken = oldNode.semicolonToken().orElse(null);
         }
 
         public ServiceDeclarationNodeModifier withMetadata(
@@ -240,6 +250,12 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
+        public ServiceDeclarationNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
         public ServiceDeclarationNode apply() {
             return oldNode.modify(
                     metadata,
@@ -251,7 +267,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
                     expressions,
                     openBraceToken,
                     members,
-                    closeBraceToken);
+                    closeBraceToken,
+                    semicolonToken);
         }
     }
 }

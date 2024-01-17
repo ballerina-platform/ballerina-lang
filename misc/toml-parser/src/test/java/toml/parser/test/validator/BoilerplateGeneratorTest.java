@@ -18,6 +18,7 @@
 
 package toml.parser.test.validator;
 
+import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.validator.BoilerplateGenerator;
 import io.ballerina.toml.validator.schema.Schema;
 import org.testng.Assert;
@@ -35,15 +36,29 @@ import java.nio.file.Paths;
  */
 public class BoilerplateGeneratorTest {
     @Test
-    public void testGen() throws IOException {
-        Path schemaPath = Paths.get("src", "test", "resources", "validator", "boilerplate", "schema.json");
+    public void testC2cSchema() throws IOException {
+        Path schemaPath = Paths.get("src", "test", "resources", "validator", "boilerplate", "c2c-schema.json");
         Schema rootSchema = Schema.from(schemaPath);
         BoilerplateGenerator generator = new BoilerplateGenerator(rootSchema);
         StringBuilder actual = new StringBuilder();
-        for (String s : generator.getOutput()) {
-            actual.append(s);
+        for (DocumentMemberDeclarationNode s : generator.getNodes().values()) {
+            actual.append(s.toSourceCode());
         }
-        Path expectedToml = Paths.get("src", "test", "resources", "validator", "boilerplate", "expected.toml");
+        Path expectedToml = Paths.get("src", "test", "resources", "validator", "boilerplate", "c2c-schema.toml");
+        String expected = Files.readString(expectedToml);
+        Assert.assertEquals(actual.toString(), expected);
+    }
+
+    @Test
+    public void testBasicSchema() throws IOException {
+        Path schemaPath = Paths.get("src", "test", "resources", "validator", "boilerplate", "basic-schema.json");
+        Schema rootSchema = Schema.from(schemaPath);
+        BoilerplateGenerator generator = new BoilerplateGenerator(rootSchema);
+        StringBuilder actual = new StringBuilder();
+        for (DocumentMemberDeclarationNode s : generator.getNodes().values()) {
+            actual.append(s.toSourceCode());
+        }
+        Path expectedToml = Paths.get("src", "test", "resources", "validator", "boilerplate", "basic-schema.toml");
         String expected = Files.readString(expectedToml);
         Assert.assertEquals(actual.toString(), expected);
     }

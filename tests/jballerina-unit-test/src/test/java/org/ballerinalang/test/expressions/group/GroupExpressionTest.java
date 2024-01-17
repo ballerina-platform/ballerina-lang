@@ -17,12 +17,11 @@
  */
 package org.ballerinalang.test.expressions.group;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -43,8 +42,8 @@ public class GroupExpressionTest {
 
     @Test(dataProvider = "GroupExpressionAccessFunctions")
     public void testGroupExpressionAccessFunctions(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "GroupExpressionAccessFunctions")
@@ -61,5 +60,10 @@ public class GroupExpressionTest {
                 {"testNestedGroupedInvocationRef"},
                 {"testGroupedLangLibInvocationRef"}
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

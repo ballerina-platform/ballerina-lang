@@ -1,3 +1,19 @@
+// Copyright (c) 2020, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/jballerina.java;
 
 int a = 0;
@@ -71,7 +87,7 @@ function runParallelUsingLocks() {
         }
     }
 
-    sleep(100);
+    map<()> waitResult = wait {w1, w2, w3, w4, w5, w6, w7};
 
     if (!(a == 1 && b == 1 && c == 1 && d == 1 && e == 1 && f == 0 && g == 1 && h == 1 && i == 1)) {
         panic error("Error in parallel run using locks");
@@ -327,6 +343,39 @@ function testForGlobalRefUpdateInsideConditional() {
     sleep(250);
     if (toBeUpdateRefConditional.length() == 100 && refConditional.length() == 200) {
         panic error("Invalid value 100 recieved in \"testForGlobalRefUpdateInsideConditional\"");
+    }
+}
+
+const rounds = 1000;
+const workers = 200;
+
+int counter = 1;
+
+function testPanicIfInLockConcurrently() {
+    future<()> counterFuture = @strand{thread : "any"} start check_counter();
+
+    foreach int i in 0 ..< workers {
+        _ = @strand{thread : "any"} start increment_counter();
+    }
+
+    error? result = wait counterFuture;
+}
+
+function increment_counter() {
+    foreach int i in 0 ..< rounds {
+        lock {
+            counter += 1;
+        }
+    }
+}
+
+function check_counter() {
+    while (while_condition()) {}
+}
+
+function while_condition() returns boolean {
+    lock {
+        return counter < rounds * workers;
     }
 }
 

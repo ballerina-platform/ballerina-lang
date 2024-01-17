@@ -20,12 +20,12 @@ package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Extern function lang.string:getCodePoint(string, int).
@@ -40,7 +40,7 @@ public class GetCodePoint {
         } catch (IndexOutOfBoundsException e) {
             throw ErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
                                                                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.CODEPOINT_INDEX_OUT_OF_RANGE, i));
+                    ErrorHelper.getErrorDetails(ErrorCodes.CODEPOINT_INDEX_OUT_OF_RANGE, i));
         }
     }
 }

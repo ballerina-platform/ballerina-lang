@@ -29,11 +29,22 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangExprFunctionBody extends BLangFunctionBody implements ExprFunctionBodyNode {
 
+    // BLangNodes
     public BLangExpression expr;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

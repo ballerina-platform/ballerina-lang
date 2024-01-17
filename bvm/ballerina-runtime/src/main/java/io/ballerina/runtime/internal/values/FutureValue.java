@@ -24,6 +24,7 @@
  import io.ballerina.runtime.api.values.BTypedesc;
  import io.ballerina.runtime.internal.scheduling.Strand;
  import io.ballerina.runtime.internal.types.BFutureType;
+ import io.ballerina.runtime.internal.util.StringUtils;
 
  import java.util.Map;
  import java.util.StringJoiner;
@@ -40,7 +41,7 @@
   */
  public class FutureValue implements BFuture, RefValue {
 
-     private final BTypedesc typedesc;
+     private BTypedesc typedesc;
 
      public Strand strand;
 
@@ -61,7 +62,6 @@
          this.strand = strand;
          this.callback = callback;
          this.type = new BFutureType(constraint);
-         this.typedesc = new TypedescValueImpl(this.type);
      }
 
      @Override
@@ -69,7 +69,7 @@
          StringJoiner sj = new StringJoiner(",", "{", "}");
          sj.add("isDone:" + isDone);
          if (isDone) {
-             sj.add("result:" + result.toString());
+             sj.add("result:" + StringUtils.getStringVal(result, parent));
          }
          if (panic != null) {
              sj.add("panic:" + panic.getLocalizedMessage());
@@ -99,6 +99,9 @@
 
      @Override
      public BTypedesc getTypedesc() {
+         if (this.typedesc == null) {
+             this.typedesc = new TypedescValueImpl(this.type);
+         }
          return typedesc;
      }
 

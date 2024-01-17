@@ -17,10 +17,10 @@
 
 package org.ballerinalang.test.javainterop;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -77,9 +77,8 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++,
                       "a function with a non-'external' function body cannot be a dependently-typed function", 115, 45);
         validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 115, 45);
-        validateError(errors, indx++, "unknown type 'td'", 127, 48);
-        validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) returns " +
-                "(other)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 127, 57);
+        validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) " +
+                "returns (string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 126, 61);
         validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
                 "(typedesc<anydata> td) returns (td|error)', found 'public function get(typedesc<anydata> td) returns" +
                 " (other|error)'", 140, 5);
@@ -177,24 +176,27 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 361, 15);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 362, 15);
         validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 363, 18);
+        validateError(errors, indx++, "incompatible type for parameter 't' with inferred typedesc value: expected " +
+                "'typedesc<(int|string)>', found 'typedesc<boolean>'", 369, 17);
+        validateError(errors, indx++, "incompatible types: expected 'TargetType', found 'typedesc<boolean>'", 371, 64);
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
                   " 'map' cannot be cast to 'map<anydata>'.*")
     public void testRuntimeCastError() {
         BRunUtil.invoke(result, "testRuntimeCastError");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
                   " 'Person' cannot be cast to 'int'.*")
     public void testCastingForInvalidValues() {
         BRunUtil.invoke(result, "testCastingForInvalidValues");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
                   " 'string' cannot be cast to 'int'.*")
     public void testFunctionAssignment() {
@@ -213,6 +215,7 @@ public class DependentlyTypedFunctionsTest {
                 {"testVarRefInMapConstraint"},
                 {"testVarRefUseInMultiplePlaces"},
                 {"testSimpleTypes"},
+                {"testReferredTypes"},
                 {"testUnionTypes"},
                 {"testArrayTypes"},
                 {"testXML"},
@@ -230,7 +233,11 @@ public class DependentlyTypedFunctionsTest {
                 {"testArgsForDependentlyTypedFunctionViaTupleRestArg"},
                 {"testArgsForDependentlyTypedFunctionViaArrayRestArg"},
                 {"testArgsForDependentlyTypedFunctionViaRecordRestArg"},
-                {"testDependentlyTypedFunctionWithIncludedRecordParam"}
+                {"testDependentlyTypedFunctionWithIncludedRecordParam"},
+                {"testDependentlyTypedMethodCallOnObjectType"},
+                {"testDependentlyTypedMethodCallOnObjectTypeWithInferredArgument"},
+                {"testDependentlyTypedFunctionWithInferredArgForParamOfTypeReferenceType"},
+                {"testDependentlyTypedResourceMethods"}
         };
     }
 

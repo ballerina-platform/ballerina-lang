@@ -32,6 +32,7 @@ import java.util.List;
  */
 public class BLangExternalFunctionBody extends BLangFunctionBody implements ExternalFunctionBodyNode {
 
+    // BLangNodes
     public List<BLangAnnotationAttachment> annAttachments;
 
     public BLangExternalFunctionBody() {
@@ -41,6 +42,16 @@ public class BLangExternalFunctionBody extends BLangFunctionBody implements Exte
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

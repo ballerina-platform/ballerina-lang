@@ -78,7 +78,6 @@ const int AND = 31 & 1;
 const int OR = 30 | 1;
 const int XOR = 3 ^ 1;
 
-const int WRAP_AROUND_1 = 1 << 63;
 const int WRAP_AROUND_0 = 1 << 62;
 const int WRAP_AROUND_2 = 1 << 64;
 const int WRAP_AROUND_3 = 1 << 65;
@@ -105,7 +104,6 @@ function testBitwiseConstExpressions() {
     assertEqual(XOR, 0x2);
 
     assertEqual(WRAP_AROUND_0, 0x4000000000000000);
-    assertEqual(WRAP_AROUND_1, -0x8000000000000000);
     assertEqual(WRAP_AROUND_2, 0x1);
     assertEqual(WRAP_AROUND_3, 0x2);
 
@@ -130,6 +128,10 @@ const float CUF1 = -(10.0 * 2.0);
 const float CUF2 = +(10.0 + 2.0);
 const decimal CUD = -(11.5 + 4);
 const boolean CUB = !(true);
+const map<int> CUE = {
+    a: -1
+};
+const int CUI5 = -int:MAX_VALUE;
 
 function testConstUnaryExpressions() {
     assertEqual(CUI1, -10);
@@ -140,9 +142,86 @@ function testConstUnaryExpressions() {
     assertEqual(CUF2, 12.0);
     assertEqual(CUD, -15.5d);
     assertEqual(CUB, false);
+    assertEqual(CUE["a"], -1);
+    assertEqual(CUI5, -9223372036854775807);
 }
 
-function assertEqual(int|float|decimal|boolean actual, int|float|decimal|boolean expected) {
+const float X1 = 5.5;
+const float ANS1 = X1 % 0;
+const float ANS2 = X1 % 1.1;  // 1.0999999999999996
+const float ANS3 = 5 % float:NaN;
+const float ANS4 = float:NaN % 5;
+const float ANS5 = float:Infinity % 5;
+const float ANS6 = 5 % float:Infinity;
+
+const decimal ANS7 = 5 % 2;
+const decimal ANS8 = 100 % 9.999999999999999999999999999999999e6144;
+
+function testConstRemainderOperation() {
+    assertEqual(ANS1.toString(), "NaN");
+    assertEqual(ANS2, 1.0999999999999996);
+    assertEqual(ANS3.toString(), "NaN");
+    assertEqual(ANS4.toString(), "NaN");
+    assertEqual(ANS5.toString(), "NaN");
+    assertEqual(ANS6, 5.0);
+
+    assertEqual(ANS7.toString(), "1");
+    assertEqual(ANS8.toString(), "100");
+}
+
+const decimal ANS11 = 1.000000000000000000000000000000000e-6143 * 1e-1;
+const decimal ANS12 = 1.000000000000000000000000000000000e-6143 * 1e-100;
+const decimal ANS13 = -1.000000000000000000000000000000000e-6143 * 1e-1;
+const decimal ANS14 = -1.000000000000000000000000000000000e-6143 * 1e-150;
+
+function testConstDecimalSubnormals() {
+    assertEqual(ANS11.toString(), "0");
+    assertEqual(ANS12.toString(), "0");
+    assertEqual(ANS13.toString(), "0");
+    assertEqual(ANS14.toString(), "0");
+}
+
+const float|decimal CONST11 = 1 + 2.0;
+const int|float|decimal CONST12 = 2 * 2.0;
+const float|decimal CONST13 = 2 * 2.0;
+const float|decimal CONST14 = 10 / 2;
+const int|float|decimal CONST15 = 10.0 / 2;
+
+function testConstExprWithUnionExpectedType() {
+    assertEqual(CONST11, 3.0);
+    assertEqual(CONST12, 4.0);
+    assertEqual(CONST13, 4.0);
+    assertEqual(CONST14, 5.0);
+    assertEqual(CONST15, 5.0);
+}
+
+const CONST21 = 1 + 2;
+const CONST21 CONST22 = 3;
+// const CONST23 = {a : "a", b : 1};
+// const CONST23 CONST24 = {a : "a", b : 1};
+
+function testConstExprWithConstExpectedType() {
+    assertEqual(CONST22, 3);
+    // assertEqual(CONST24.toString(), "{\"a\":\"a\",\"b\":1}");
+}
+
+const byte CONST31 = 300 - 100;
+const byte CONST32 = (700 - 200) - 400;
+const byte CONST33 = 1000 / 2 - 300;
+const byte CONST34 = 10 * 2;
+const byte CONST35 = 500 % 3;
+const byte CONST36 = -(-10);
+
+function testConstExprWithByteExpectedType() {
+    assertEqual(CONST31, 200);
+    assertEqual(CONST32, 100);
+    assertEqual(CONST33, 200);
+    assertEqual(CONST34, 20);
+    assertEqual(CONST35, 2);
+    assertEqual(CONST36, 10);
+}
+
+function assertEqual(int|float|decimal|boolean|string actual, int|float|decimal|boolean|string expected) {
     if (actual != expected) {
         panic error(string `Assertion error: expected ${expected} found ${actual}`);
     }

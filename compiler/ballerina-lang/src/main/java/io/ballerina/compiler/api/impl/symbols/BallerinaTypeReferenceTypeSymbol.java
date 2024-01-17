@@ -17,6 +17,8 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -25,11 +27,13 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -56,11 +60,10 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     public BType referredType;
 
 
-    public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
-                                            BSymbol tSymbol, boolean fromIntersectionType) {
+    public BallerinaTypeReferenceTypeSymbol(CompilerContext context, BType bType, BSymbol tSymbol,
+                                            boolean fromIntersectionType) {
         super(context, TypeDescKind.TYPE_REFERENCE, bType);
-        Types types = Types.getInstance(this.context);
-        referredType =  types.getReferredType(this.getBType());
+        referredType = getReferredType(bType);
         this.definitionName = tSymbol.getOriginalName().getValue();
         this.tSymbol = tSymbol;
         this.fromIntersectionType = fromIntersectionType;
@@ -95,7 +98,24 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         }
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        this.definition = symbolFactory.getBCompiledSymbol(tSymbol, this.name());
+        BType bType = this.getBType();
+        BType referredType = this.getReferredType(bType);
+        if (referredType.tag == TypeTags.PARAMETERIZED_TYPE || bType.tag == TypeTags.PARAMETERIZED_TYPE) {
+            this.definition = symbolFactory.getBCompiledSymbol(((BParameterizedType) this.tSymbol.type).paramSymbol,
+                                                               this.name());
+        } else if (referredType.tag == TypeTags.INTERSECTION) {
+            this.definition = symbolFactory.getBCompiledSymbol(bType.tsymbol,
+                    referredType.tsymbol.getName().getValue());
+        } else {
+            Name name = Names.fromString(this.name());
+            Scope.ScopeEntry scopeEntry = tSymbol.owner.scope.lookup(name);
+            if (scopeEntry.symbol == null) {
+                scopeEntry = tSymbol.owner.scope.lookup(tSymbol.getName());
+            }
+
+            this.definition = symbolFactory.getBCompiledSymbol(scopeEntry.symbol, this.name());
+        }
+
         return this.definition;
     }
 
@@ -111,20 +131,13 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         }
 
         this.moduleEvaluated = true;
-        BSymbol symbol = this.getBType().tsymbol.owner;
-        while (symbol != null) {
-            if (symbol instanceof BPackageSymbol) {
-                break;
-            }
-            symbol = symbol.owner;
-        }
+        Symbol definition = this.definition();
 
-        if (symbol == null) {
+        if (definition.getModule().isEmpty()) {
             return Optional.empty();
         }
 
-        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        this.module = symbolFactory.createModuleSymbol((BPackageSymbol) symbol, symbol.name.value);
+        this.module = definition.getModule().get();
         return Optional.of(this.module);
     }
 
@@ -158,6 +171,8 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
                 (moduleID.moduleName().equals("lang.annotations") && moduleID.orgName().equals("ballerina")) ||
                 this.getBType().tag == TypeTags.PARAMETERIZED_TYPE) {
             this.signature = this.definitionName;
+        } else if (moduleID.moduleName().equals("lang.xml") && moduleID.orgName().equals("ballerina")) {
+            this.signature = "xml:" + this.definitionName;
         } else {
             this.signature = !this.isAnonOrg(moduleID) ? moduleID.orgName() + Names.ORG_NAME_SEPARATOR +
                     moduleID.moduleName() + Names.VERSION_SEPARATOR + moduleID.version() + ":" +
@@ -168,7 +183,33 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         return this.signature;
     }
 
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
     private boolean isAnonOrg(ModuleID moduleID) {
         return ANON_ORG.equals(moduleID.orgName());
+    }
+
+    private BType getReferredType(BType type) {
+        if (type == null) {
+            return null;
+        }
+
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            return ((BTypeReferenceType) type).referredType;
+        }
+
+        if (type.tag == TypeTags.PARAMETERIZED_TYPE) {
+            return ((BParameterizedType) type).paramValueType;
+        }
+
+        return type;
     }
 }

@@ -33,7 +33,7 @@ xml bookstore = xml `<bookstore>
                     </bookstore>`;
 
 string[] titles = ["Everyday Italian", "Harry Potter", "XQuery Kick Start", "Learning XML"];
-string[] titlesOrigin = ["<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>",
+string[] titlesOrigin = ["<root>interpolation1 text1 text2<foo>123</foo><bar/></root>",
     "text2interpolation1", "<!--commentinterpolation1-->", "text3", "<?foo ?>"];
 
 function foreachTest() {
@@ -83,7 +83,7 @@ function mapOpTest() {
     xml elementChildren = seq[0].map(function (xml root) returns xml {
         return root/*;
     });
-    assert(elementChildren.toString(), "interpolation1 text1 text2<foo>123</foo><bar></bar>");
+    assert(elementChildren.toString(), "interpolation1 text1 text2<foo>123</foo><bar/>");
 }
 
 function filterOpTest() {
@@ -177,7 +177,7 @@ function testXmlElementSequenceIteration() {
     foreach 'xml:Element elem in seq {
         concatString(elem.toString());
     }
-    assert(output, "<foo>foo</foo>\n<bar></bar>\n");
+    assert(output, "<foo>foo</foo>\n<bar/>\n");
 
     record {| 'xml:Element value; |}? nextElement1 = seq.iterator().next();
     assert(nextElement1.toString(), "{\"value\":`<foo>foo</foo>`}");
@@ -240,7 +240,7 @@ function testXmlUnionSequenceIteration() {
     foreach 'xml:Element|'xml:Text elem in seq {
         concatString(elem.toString());
     }
-    assert(output, "<foo>foo</foo>\n<bar></bar>\n");
+    assert(output, "<foo>foo</foo>\n<bar/>\n");
 
     record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal1 = seq.iterator().next();
     assert(nextUnionXMLVal1.toString(), "{\"value\":`<foo>foo</foo>`}");
@@ -255,21 +255,98 @@ function testXmlSequenceIteration() {
     foreach 'xml:Element|'xml:Text|'xml:Comment|'xml:ProcessingInstruction  elem in seq {
         concatString(elem.toString());
     }
-    assert(output, "<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>\ntext2interpolation1\n"+
+    assert(output, "<root>interpolation1 text1 text2<foo>123</foo><bar/></root>\ntext2interpolation1\n"+
     "<!--commentinterpolation1-->\ntext3\n<?foo ?>\n");
 
     output = "";
     foreach xml  elem in seq {
             concatString(elem.toString());
     }
-    assert(output, "<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>\ntext2interpolation1\n"+
+    assert(output, "<root>interpolation1 text1 text2<foo>123</foo><bar/></root>\ntext2interpolation1\n"+
         "<!--commentinterpolation1-->\ntext3\n<?foo ?>\n");
 
     record {| 'xml:Element|'xml:Text|'xml:Comment|'xml:ProcessingInstruction value; |}? nextXMLVal1 = seq.iterator().next();
-    assert(nextXMLVal1.toString(), "{\"value\":`<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>`}");
+    assert(nextXMLVal1.toString(), "{\"value\":`<root>interpolation1 text1 text2<foo>123</foo><bar/></root>`}");
 
     record {| xml value; |}? nextXMLVal2 = seq.iterator().next();
-    assert(nextXMLVal2.toString(), "{\"value\":`<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>`}");
+    assert(nextXMLVal2.toString(), "{\"value\":`<root>interpolation1 text1 text2<foo>123</foo><bar/></root>`}");
+}
+
+function xmlTypeParamCommentIter() {
+    'xml:Comment comment2 = xml `<!--I am a comment-->`;
+    record {| 'xml:Comment value; |}? nextComment2 = comment2.iterator().next();
+    assert(nextComment2.toString(), "{\"value\":`<!--I am a comment-->`}");
+}
+
+function xmlTypeParamElementIter() {
+    'xml:Element el2 = xml `<foo>foo</foo>`;
+    record {| 'xml:Element value; |}? nextElement2 = el2.iterator().next();
+    assert(nextElement2.toString(), "{\"value\":`<foo>foo</foo>`}");
+}
+
+function xmlTypeParamPIIter() {
+    'xml:ProcessingInstruction pi2 = xml `<?target data?>`;
+    record {| 'xml:ProcessingInstruction value; |}? nextPI2 = pi2.iterator().next();
+    assert(nextPI2.toString(), "{\"value\":`<?target data?>`}");
+}
+
+type XmlElement xml:Element;
+
+function testSequenceOfSequenceOfXmlElementIteration() {
+    xml<xml<xml:Element>> elements = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    xml:Element[] arr = [];
+    foreach var e1 in elements {
+        arr.push(e1);
+    }
+    validateValues(arr);
+
+    xml<xml<XmlElement>> elements2 = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    arr = [];
+    foreach var e2 in elements2 {
+        arr.push(e2);
+    }
+    validateValues(arr);
+}
+
+function testSequenceOfSequenceOfReadonlyXmlElementIteration() {
+    xml<xml<xml:Element & readonly>> elements = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    xml:Element[] arr = [];
+    foreach var e1 in elements {
+        arr.push(e1);
+    }
+    validateValues(arr);
+
+    xml<xml:Element & readonly> elements2 = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    arr = [];
+    foreach var e2 in elements2 {
+        arr.push(e2);
+    }
+    validateValues(arr);
+}
+
+function testSequenceOfReadOnlyXmlSubTypeUnionIteration() {
+    xml<(xml:Element|xml:Comment) & readonly> elements = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    xml:Element[] arr = [];
+    foreach (xml:Element|xml:Comment) & readonly e1 in elements {
+        arr.push(<xml:Element> e1);
+    }
+    validateValues(arr);
+}
+
+function testSequenceOfReadOnlyXmlSubTypeUnionIteration2() {
+    xml<(xml:Element & readonly|xml:Comment & readonly)> elements = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    xml:Element[] arr = [];
+    foreach var e1 in elements {
+        arr.push(<xml:Element> e1);
+    }
+    validateValues(arr);
+}
+
+function validateValues(xml:Element[] arr) {
+    assert(arr.length(), 3);
+    assert(arr[0], xml `<foo/>`);
+    assert(arr[1], xml `<bar>value</bar>`);
+    assert(arr[2], xml `<baz>1</baz>`);
 }
 
 function assert(anydata actual, anydata expected) {

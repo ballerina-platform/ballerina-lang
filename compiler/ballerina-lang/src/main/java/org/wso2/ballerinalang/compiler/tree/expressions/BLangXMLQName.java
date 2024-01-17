@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLQNameNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -30,9 +32,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 0.94
  */
 public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
-
+    // BLangNodes
     public BLangIdentifier localname;
     public BLangIdentifier prefix;
+
+    // Semantic Data
     public String namespaceURI;
     public BXMLNSSymbol nsSymbol;
     public boolean isUsedInXML = true;
@@ -96,6 +100,16 @@ public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

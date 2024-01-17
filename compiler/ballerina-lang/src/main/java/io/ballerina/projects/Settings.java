@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.model.Central;
 import io.ballerina.projects.internal.model.Proxy;
+import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -34,20 +35,22 @@ import java.util.Collections;
 public class Settings {
     private final Proxy proxy;
     private final Central central;
+    private final Repository[] repositories;
     private final DiagnosticResult diagnostics;
 
-    private Settings(Proxy proxy, Central central, DiagnosticResult diagnostics) {
+    private Settings(Proxy proxy, Central central, DiagnosticResult diagnostics, Repository[] repositories) {
         this.proxy = proxy;
         this.central = central;
         this.diagnostics = diagnostics;
+        this.repositories = repositories;
     }
 
-    public static Settings from(Proxy proxy, Central central, DiagnosticResult diagnostics) {
-        return new Settings(proxy, central, diagnostics);
+    public static Settings from(Proxy proxy, Central central, DiagnosticResult diagnostics, Repository[] repositories) {
+        return new Settings(proxy, central, diagnostics, repositories);
     }
 
     public static Settings from() {
-        return new Settings(Proxy.from(), Central.from(), new DefaultDiagnosticResult(Collections.emptyList()));
+        return new Settings(Proxy.from(), Central.from(), new DefaultDiagnosticResult(Collections.emptyList()), null);
     }
 
     public Proxy getProxy() {
@@ -60,6 +63,13 @@ public class Settings {
 
     public DiagnosticResult diagnostics() {
         return diagnostics;
+    }
+
+    public Repository[] getRepositories() {
+        if (repositories == null) {
+            return new Repository[0];
+        }
+        return repositories;
     }
 
     public String getErrorMessage() {
@@ -75,12 +85,12 @@ public class Settings {
     private String convertDiagnosticToString(Diagnostic diagnostic) {
         LineRange lineRange = diagnostic.location().lineRange();
 
-        LineRange oneBasedLineRange = LineRange.from(lineRange.filePath(), LinePosition
+        LineRange oneBasedLineRange = LineRange.from(lineRange.fileName(), LinePosition
                 .from(lineRange.startLine().line(), lineRange.startLine().offset() + 1), LinePosition
                                                              .from(lineRange.endLine().line(),
                                                                    lineRange.endLine().offset() + 1));
 
-        return diagnostic.diagnosticInfo().severity().toString() + " [" + oneBasedLineRange.filePath() + ":"
+        return diagnostic.diagnosticInfo().severity().toString() + " [" + oneBasedLineRange.fileName() + ":"
                 + oneBasedLineRange + "] " + diagnostic.message();
     }
 }

@@ -18,10 +18,8 @@
 
 package org.ballerinalang.test.types.decimaltype;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BDecimal;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -34,10 +32,10 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 
 /**
- * This class is used to test the behaviours of BDecimal and BFloat types by comparing them.
+ * This class is used to test the behaviours of BDecimal and double types by comparing them.
  * This class contains tests,
  * 1) demonstrating how very large numbers can be represented using BDecimal type.
- * 2) demonstrating how BDecimal type solves the floating point error problem that exists in the BFloat type.
+ * 2) demonstrating how BDecimal type solves the floating point error problem that exists in the double type.
  *
  * @since 0.985.0
  */
@@ -49,38 +47,38 @@ public class BDecimalBFloatComparisonTest {
         result = BCompileUtil.compile("test-src/types/decimal/decimal_float_comparison.bal");
     }
 
-    @Test(description = "Compare the representations of a very large number in BFloat type and BDecimal type")
+    @Test(description = "Compare the representations of a very large number in double type and BDecimal type")
     public void testLargeFloatingPointNumber() {
-        BValue[] returns = BRunUtil.invoke(result, "testLargeFloatingPointNumber", new BValue[]{});
-        Assert.assertEquals(returns.length, 2);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testLargeFloatingPointNumber", new Object[]{});
+        Assert.assertEquals(returns.size(), 2);
 
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        BFloat bFloatVal = (BFloat) returns[0];
-        Assert.assertEquals(bFloatVal.floatValue(), Double.POSITIVE_INFINITY, "Invalid float value returned.");
+        Assert.assertSame(returns.get(0).getClass(), Double.class);
+        double bFloatVal = (double) returns.get(0);
+        Assert.assertEquals(bFloatVal, 4.3534534534534643E92, "Invalid float value returned.");
 
-        Assert.assertSame(returns[1].getClass(), BDecimal.class);
-        BDecimal bDecimalVal = (BDecimal) returns[1];
-        BigDecimal actualDecimalVal = bDecimalVal.decimalValue();
+        Assert.assertTrue(returns.get(1) instanceof BDecimal);
+        BDecimal bDecimalVal = (BDecimal) returns.get(1);
+        BigDecimal actualDecimalVal = bDecimalVal.value();
         BigDecimal expectedDecimalVal = new BigDecimal("4.354224522222222222222222222222889E+384",
                                                        MathContext.DECIMAL128);
         Assert.assertEquals(actualDecimalVal.compareTo(expectedDecimalVal), 0, "Invalid decimal value returned.");
     }
 
-    @Test(description = "Check the precision correctness of BFloat and BDecimal types using the boolean expression " +
+    @Test(description = "Check the precision correctness of double and BDecimal types using the boolean expression " +
             "(0.1 + 0.2 == 0.3)")
     public void testPrecisionCorrectness() {
-        BValue[] returns = BRunUtil.invoke(result, "testPrecisionCorrectness", new BValue[]{});
-        Assert.assertEquals(returns.length, 2);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testPrecisionCorrectness", new Object[]{});
+        Assert.assertEquals(returns.size(), 2);
 
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        BBoolean result1 = (BBoolean) returns[0];
+        Assert.assertSame(returns.get(0).getClass(), Boolean.class);
+        boolean result1 = (boolean) returns.get(0);
         // Expected: false
-        Assert.assertFalse(result1.booleanValue(), "Invalid result returned.");
+        Assert.assertFalse(result1, "Invalid result returned.");
 
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        BBoolean result2 = (BBoolean) returns[1];
+        Assert.assertSame(returns.get(1).getClass(), Boolean.class);
+        boolean result2 = (boolean) returns.get(1);
         // Expected: true
-        Assert.assertTrue(result2.booleanValue(), "Invalid result returned.");
+        Assert.assertTrue(result2, "Invalid result returned.");
     }
 
     @AfterClass

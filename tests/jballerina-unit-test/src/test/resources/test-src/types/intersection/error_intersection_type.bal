@@ -283,6 +283,25 @@ function testMultipleErrorIntersectionWithReadOnly() {
     assertEquality(true, u.detail()["fatal"]);
 }
 
+type ErrorA distinct error;
+type ErrorB distinct error;
+type ErrorC distinct ErrorA & ErrorB;
+type ErrorD distinct ErrorC;
+
+function testErrorIntersectionWithDistinctErrors() {
+    ErrorA a = error ErrorA("a");
+    assertEquality("a", a.message());
+
+    ErrorB b = error ErrorB("b");
+    assertEquality("b", b.message());
+
+    ErrorC c = error ErrorC("c");
+    assertEquality("c", c.message());
+
+    ErrorD d = error ErrorD("d");
+    assertEquality("d", d.message());
+}
+
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

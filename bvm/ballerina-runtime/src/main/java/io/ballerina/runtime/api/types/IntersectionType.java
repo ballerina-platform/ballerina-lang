@@ -20,7 +20,7 @@ package io.ballerina.runtime.api.types;
 import java.util.List;
 
 /**
- * {@code BIntersectionType} represents an intersection type in Ballerina.
+ * {@code IntersectionType} represents an intersection type in Ballerina.
  *
  * @since 2.0.0
  */

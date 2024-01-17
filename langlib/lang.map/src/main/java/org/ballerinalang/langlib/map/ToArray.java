@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -48,7 +49,7 @@ import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
 public class ToArray {
 
     public static BArray toArray(BMap<?, ?> m) {
-        Type mapType = m.getType();
+        Type mapType = TypeUtils.getImpliedType(m.getType());
         Type arrElemType;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
@@ -64,7 +65,7 @@ public class ToArray {
         Collection values = m.values();
         int size = values.size();
         int i = 0;
-        switch (arrElemType.getTag()) {
+        switch (TypeUtils.getImpliedType(arrElemType).getTag()) {
             case TypeTags.INT_TAG:
                 long[] intArr = new long[size];
                 for (Object val : values) {

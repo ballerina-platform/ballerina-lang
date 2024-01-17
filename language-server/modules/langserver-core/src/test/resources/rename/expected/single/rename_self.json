@@ -1,0 +1,15 @@
+{
+  "source": {
+    "file": "renameTest1.bal"
+  },
+  "position": {
+    "line": 38,
+    "character": 10
+  },
+  "prepareRename": {
+    "valid": false
+  },
+  "result": {
+    "changes": {}
+  }
+}

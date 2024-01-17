@@ -29,5 +29,14 @@
     "description": "Define and output boolean variable - get value.",
     "code": "available",
     "expr": "false"
+  },
+  {
+    "description": "define variable moduleVar.",
+    "code": "function multiply(int m, int n) returns int { return m * n;} int moduleVar = 10; public function evaluate() returns int{  int x = multiply(2, 1);    return x;}"
+  },
+  {
+    "description": "check module variable declaration.",
+    "code": "moduleVar",
+    "expr": 10
   }
 ]

@@ -1,0 +1,53 @@
+{
+  "position": {
+    "line": 10,
+    "character": 13
+  },
+  "source": "extractToConstantWithImports3.bal",
+  "expected": [
+    {
+      "title": "Extract to constant",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "const int CONST1 = 0;\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 12
+            },
+            "end": {
+              "line": 10,
+              "character": 13
+            }
+          },
+          "newText": "CONST1"
+        }
+      ],
+      "command": {
+        "title": "Rename constant",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToConstantWithImports3.bal",
+          {
+            "line": 11,
+            "character": 12
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

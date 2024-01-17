@@ -1,0 +1,66 @@
+[
+  {
+    "description": "Remove the qualifier from module constant declarations",
+    "oldCode": "public const int age = 10;",
+    "newCode": "const int age = 10;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "'public' qualifier is removed from module constant 'age'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add the qualifier from module constant declaration",
+    "oldCode": "const int age = 10;",
+    "newCode": "public const int age = 10;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "message": "'public' qualifier is added to module constant 'age'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

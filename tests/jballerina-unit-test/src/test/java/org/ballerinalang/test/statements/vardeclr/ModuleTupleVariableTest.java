@@ -19,6 +19,7 @@ package org.ballerinalang.test.statements.vardeclr;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -81,9 +82,10 @@ public class ModuleTupleVariableTest {
                 "invalid list binding pattern: expected an array or a tuple, but found 'int'",
                 47, 6);
         validateError(compileResultNegative, index++,
-                "invalid error binding pattern with type 'float'", 47, 30);
+                "invalid field binding pattern; can only bind required fields",
+                47, 17);
         validateError(compileResultNegative, index++,
-                "invalid list binding pattern; member variable count mismatch with member type count", 51, 1);
+                "invalid error binding pattern with type 'float'", 47, 30);
         validateError(compileResultNegative, index++,
                 "field binding pattern inside list binding pattern", 51, 8);
         assertEquals(compileResultNegative.getErrorCount(), index);
@@ -115,5 +117,10 @@ public class ModuleTupleVariableTest {
         validateError(compileResult, index++, "variable declaration having binding pattern must be initialized",
                 17, 18);
         assertEquals(compileResult.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

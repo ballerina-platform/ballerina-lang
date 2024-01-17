@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 4,
+    "character": 15
+  },
+  "source": "changeVarType_in_collect_clause.bal",
+  "expected": [
+    {
+      "title": "Change variable 'buyers' type to '[int...]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 7
+            }
+          },
+          "newText": "[int...]"
+        }
+      ]
+    }
+  ]
+}

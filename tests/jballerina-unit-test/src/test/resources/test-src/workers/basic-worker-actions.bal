@@ -1,5 +1,22 @@
+// Copyright (c) 2019, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/jballerina.java;
 import ballerina/lang.'value as value;
+import ballerina/test;
 
 function workerDeclTest() {
     int a = 20;
@@ -348,6 +365,204 @@ function testSimpleSendActionWithListType() {
     assertValueEquality(true, simpleSendActionWithMapTypeResult["w2"]);
 }
 
+function testPanicWithMessagePassing() {
+    foreach int i in 0 ... 100 {
+        foo();
+        bar();
+    }
+}
+
+function bar() {
+    foo();
+}
+
+function foo() {
+    worker w1 {
+        if (1 > 0) {
+            panic error("err");
+        }
+        10 -> w2;
+    }
+
+    worker w2 {
+        int y = <- w1;
+    }
+}
+
+function testWorkerMessagePassingRepeatedly() {
+
+    future<()> futureResult1 = @strand {thread: "any"} start testSyncSendRecursively(0, 10000);
+    future<()> futureResult2;
+    error? unionResult;
+    foreach int i in 1 ... 100 {
+        futureResult2 = @strand {thread: "any"} start testSyncSendIteratively(i, 2 * i);
+        unionResult = wait futureResult2;
+    }
+
+    testSyncSendRecursively(0, 10000);
+    foreach int i in 1 ... 100 {
+        testSyncSendIteratively(i, 2 * i);
+    }
+
+    future<()> futureResult3 = @strand {thread: "any"} start testAsyncSendRecursively(0, 10000);
+    future<()> futureResult4;
+    foreach int i in 1 ... 100 {
+        futureResult4 = @strand {thread: "any"} start testAsyncSendIteratively(i, 2 * i);
+        unionResult = wait futureResult4;
+    }
+
+    testAsyncSendRecursively(0, 10000);
+    foreach int i in 1 ... 100 {
+        testAsyncSendIteratively(i, 2 * i);
+    }
+
+    future<()> futureResult5 = @strand {thread: "any"} start testFlushRecursively(0, 10000);
+    future<()> futureResult6;
+    foreach int i in 1 ... 100 {
+        futureResult6 = @strand {thread: "any"} start testFlushIteratively(i, 2 * i);
+        unionResult = wait futureResult4;
+    }
+
+    testFlushRecursively(0, 10000);
+    foreach int i in 1 ... 100 {
+        testFlushIteratively(i, 2 * i);
+    }
+
+    error? unionResult1 = wait futureResult1;
+    error? unionResult2 = wait futureResult3;
+    error? unionResult3 = wait futureResult5;
+}
+
+function testSyncSendIteratively(int p, int q) {
+
+    @strand {thread: "any"}
+    worker A {
+        p ->> B;
+    }
+
+    @strand {thread: "any"}
+    worker B {
+        int x1 = <- A;
+        test:assertEquals(x1, p);
+        q ->> function;
+    }
+
+    int x2 = <- B;
+    test:assertEquals(x2, q);
+}
+
+function testSyncSendRecursively(int r, int s) {
+
+    @strand {thread: "any"}
+    worker C {
+        r ->> D;
+    }
+
+    @strand {thread: "any"}
+    worker D {
+        int x1 = <- C;
+        test:assertEquals(x1, r);
+        s ->> function;
+    }
+
+    int x2 = <- D;
+    test:assertEquals(x2, s);
+
+    if (r > 100) {
+        return;
+    } else {
+        testSyncSendRecursively(r + 1, s + 1);
+    }
+}
+
+function testAsyncSendIteratively(int p, int q) {
+
+    @strand {thread: "any"}
+    worker A {
+        p -> B;
+    }
+
+    @strand {thread: "any"}
+    worker B {
+        int x1 = <- A;
+        test:assertEquals(x1, p);
+        q -> function;
+    }
+
+    int x2 = <- B;
+    test:assertEquals(x2, q);
+}
+
+function testAsyncSendRecursively(int r, int s) {
+
+    @strand {thread: "any"}
+    worker C {
+        r -> D;
+    }
+
+    @strand {thread: "any"}
+    worker D {
+        int x1 = <- C;
+        test:assertEquals(x1, r);
+        s -> function;
+    }
+
+    int x2 = <- D;
+    test:assertEquals(x2, s);
+
+    if (r > 100) {
+        return;
+    } else {
+        testSyncSendRecursively(r + 1, s + 1);
+    }
+}
+
+function testFlushIteratively(int p, int q) {
+
+    @strand {thread: "any"}
+    worker A {
+        p -> B;
+        error? unionResult1 = flush;
+    }
+
+    @strand {thread: "any"}
+    worker B {
+        int x1 = <- A;
+        test:assertEquals(x1, p);
+        q -> function;
+        error? unionResult2 = flush;
+    }
+
+    int x2 = <- B;
+    test:assertEquals(x2, q);
+}
+
+function testFlushRecursively(int r, int s) {
+
+    @strand {thread: "any"}
+    worker C {
+        r -> D;
+        error? unionResult1 = flush;
+    }
+
+    @strand {thread: "any"}
+    worker D {
+        int x1 = <- C;
+        test:assertEquals(x1, r);
+        s -> function;
+        error? unionResult2 = flush;
+    }
+
+    int x2 = <- D;
+    test:assertEquals(x2, s);
+
+    if (r > 100) {
+        return;
+    } else {
+        testSyncSendRecursively(r + 1, s + 1);
+    }
+}
+
 type AssertionError distinct error;
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -363,6 +578,44 @@ function getCurrentThreadName() returns string {
     handle t = currentThread();
     handle tName = getName(t);
     return java:toString(tName) ?: "";
+}
+
+function basicWorkerTest1() returns error? {
+    string username = "";
+
+    if username == "" {
+        return;
+    }
+
+    int x = 1;
+
+    worker w {
+        int _ = x;
+    }
+
+    function _ = function () {
+        int _ = x;
+    };
+}
+
+function basicWorkerTest2() returns error? {
+    string? username = "ABC";
+
+    if username is () {
+        return;
+    }
+
+    string x = username;
+
+    worker w {
+        string y = x;
+    }
+
+    function _ = function () {
+        string z = x;
+    };
+
+    string _ = x;
 }
 
 function currentThread() returns handle = @java:Method {

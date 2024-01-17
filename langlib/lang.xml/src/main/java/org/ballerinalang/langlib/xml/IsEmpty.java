@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 /**
  * Check whether the XML sequence is empty.
@@ -41,7 +41,7 @@ public class IsEmpty {
         try {
             return xml.isEmpty();
         } catch (Throwable e) {
-            BLangExceptionHelper.handleXMLException(OPERATION, e);
+            ErrorHelper.handleXMLException(OPERATION, e);
         }
 
         return false;

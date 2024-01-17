@@ -1,0 +1,51 @@
+{
+  "dtos":[
+    {
+      "type":"com.trimble.transportation.telematics.inbound.position-status",
+      "data":{
+        "MessageGuid":"372aa943-1a2a-4b47-8394-b5662a620d41",
+        "ParentMessageGuid":"5a7a3edd-e196-4679-b653-4f1d80469892",
+        "MessageContentType":"com.trimble.transportation.telematics.inbound.position-status",
+        "MessageContent":{
+          "Assets":[
+
+          ],
+          "StatusDate":"2021-11-29T13:35:00",
+          "Speed":0,
+          "Heading":0,
+          "Position":{
+            "Latitude":41.495724,
+            "Longitude":-81.54241
+          },
+          "Description":"0 mi WSW of University Heights, OH",
+          "IgnitionStatus":"off",
+          "Odometer":1,
+          "Zip":null,
+          "City":null,
+          "State":null,
+          "Distance":null,
+          "TripInformation":{
+            "TripName":"",
+            "Move":0.0,
+            "Leg":0.0,
+            "Stop":0.0,
+            "OrderHeader":0.0,
+            "Assets":[
+              {
+                "Type":1,
+                "Id":"TheJoshTruck",
+                "Confirmed":false
+              }
+            ],
+            "AdditionalDataElements":[
+
+            ]
+          },
+          "HeaderInformation":{
+            "CreateDateUtc":"2021-11-29T13:35:00+00:00"
+          }
+        }
+      }
+    }
+  ]
+}

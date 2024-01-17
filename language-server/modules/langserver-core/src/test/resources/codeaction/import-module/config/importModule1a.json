@@ -1,32 +1,28 @@
 {
-  "line": 1,
-  "character": 5,
+  "position": {
+    "line": 1,
+    "character": 5
+  },
+  "source": "importModule1.bal",
   "expected": [
     {
-      "title": "Import module 'ballerina/module1'",
+      "title": "Import module \u0027ballerina/module1\u0027",
       "kind": "quickfix",
-      "diagnostics": [],
-      "edit": {
-        "documentChanges": [
-          {
-            "edits": [
-              {
-                "range": {
-                  "start": {
-                    "line": 0,
-                    "character": 0
-                  },
-                  "end": {
-                    "line": 0,
-                    "character": 0
-                  }
-                },
-                "newText": "import ballerina/module1;\n"
-              }
-            ]
-          }
-        ]
-      }
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
+        }
+      ]
     }
   ]
 }

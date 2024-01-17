@@ -439,6 +439,7 @@ public class XMLParser extends AbstractParser {
             case GT_TOKEN:
             case DOUBLE_QUOTE_TOKEN:
             case SINGLE_QUOTE_TOKEN:
+            case IDENTIFIER_TOKEN: // Lexer will return identifier if the start quote is missing    
                 return true;
             default:
                 return false;
@@ -476,7 +477,12 @@ public class XMLParser extends AbstractParser {
      * @return XML char-data token
      */
     private STNode parseCharData() {
-        return consume();
+        STToken token = consume();
+        if (token.kind != SyntaxKind.XML_TEXT_CONTENT) {
+            return STNodeFactory.createLiteralValueToken(SyntaxKind.XML_TEXT_CONTENT, token.text(),
+                    token.leadingMinutiae(), token.trailingMinutiae(), token.diagnostics());
+        }
+        return token;
     }
 
     /**

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.INIT_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.getPackageValidationError;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
 
@@ -40,7 +41,8 @@ import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = INIT_COMMAND, description = "Create a Init Ballerina project")
+@CommandLine.Command(name = INIT_COMMAND, description = "This command is deprecated and will be removed in a future " +
+        "release. Use `bal new .` instead")
 public class InitCommand implements BLauncherCmd {
 
     private Path userDir;
@@ -69,6 +71,8 @@ public class InitCommand implements BLauncherCmd {
 
     @Override
     public void execute() {
+        errStream.println("WARNING: This command is deprecated and will be removed in a future release. " +
+                "Use `bal new .` instead");
         // If help flag is given print the help message.
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(INIT_COMMAND);
@@ -116,7 +120,7 @@ public class InitCommand implements BLauncherCmd {
             if (!ProjectUtils.validatePackageName(packageName)) {
                 CommandUtil.printError(errStream,
                         "invalid package name : '" + packageName + "' :\n" +
-                                "Package name can only contain alphanumerics and underscores.",
+                                getPackageValidationError(packageName),
                         null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -134,24 +138,14 @@ public class InitCommand implements BLauncherCmd {
             return;
         }
 
-        if (!ProjectUtils.validateUnderscoresOfName(packageName)) {
-            CommandUtil.printError(errStream,
-                                   "invalid package name : '" + packageName + "' :\n" +
-                                           ProjectUtils.getValidateUnderscoreError(packageName, "Package"),
-                                   null,
-                                   false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
         if (!ProjectUtils.validatePackageName(packageName)) {
-            errStream.println("unallowed characters in the project name were replaced by " +
-                    "underscores when deriving the package name. Edit the Ballerina.toml to change it.");
+            errStream.println("package name is derived as '" + guessPkgName(packageName, "app")
+                    + "'. Edit the Ballerina.toml to change it.");
             errStream.println();
         }
 
         try {
-            CommandUtil.initPackage(userDir);
+            CommandUtil.initPackage(userDir, packageName);
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
                     "error occurred while initializing project : " + " Access Denied : " + e.getMessage(),
@@ -167,7 +161,7 @@ public class InitCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        errStream.println("Created new Ballerina package '" + guessPkgName(packageName) + "'.");
+        errStream.println("Created new package '" + guessPkgName(packageName, "app") + "'.");
     }
 
     @Override
@@ -177,7 +171,7 @@ public class InitCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Initialize a Ballerina project in current directory");
+        out.append(BLauncherCmd.getCommandUsageInfo(INIT_COMMAND));
     }
 
     @Override

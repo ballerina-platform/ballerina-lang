@@ -20,7 +20,11 @@ package org.ballerinalang.langlib.map;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRecord;
@@ -33,13 +37,17 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRecord;
 public class RemoveAll {
 
     public static void removeAll(BMap<?, ?> m) {
-        checkIsMapOnlyOperation(m.getType(), "removeAll()");
+        checkIsMapOnlyOperation(TypeUtils.getImpliedType(m.getType()), "removeAll()");
         validateRecord(m);
         try {
             m.clear();
-        } catch (io.ballerina.runtime.internal.util.exceptions.BLangFreezeException e) {
-            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
-                                           StringUtils.fromString("Failed to clear map: " + e.getDetail()));
+        } catch (BError e) {
+            String errorMsgDetail = "Failed to clear map";
+            if (ErrorHelper.hasMessageDetail(e)) {
+                errorMsgDetail += ": " +
+                        ((BMap<BString, Object>) e.getDetails()).get(StringUtils.fromString("message")).toString();
+            }
+            throw ErrorCreator.createError(e.getErrorMessage(), StringUtils.fromString(errorMsgDetail));
         }
     }
 }

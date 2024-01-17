@@ -14,6 +14,13 @@
           "message": {
             "pattern": "invalid 'toml-version' under [ballerina]: 'toml-version' should be a string"
           }
+        },
+        "distribution-version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+          "message": {
+            "pattern": "invalid 'distribution-version' under [ballerina]: 'distribution-version' should be compatible with semver rules"
+          }
         }
       },
       "required": [

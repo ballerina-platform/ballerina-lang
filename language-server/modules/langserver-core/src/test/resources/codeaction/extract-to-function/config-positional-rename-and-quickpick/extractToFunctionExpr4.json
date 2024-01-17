@@ -1,0 +1,154 @@
+{
+  "position": {
+    "line": 8,
+    "character": 21
+  },
+  "source": "extract_to_function_exprs_with_quickpick.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "Extract to function",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "Extract to function",
+          "extract_to_function_exprs_with_quickpick.bal",
+          {
+            "10": [
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 37
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 37
+                  }
+                },
+                "newText": "\n\nfunction extracted() returns int {\n    return 10;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 20
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 22
+                  }
+                },
+                "newText": "extracted()"
+              }
+            ],
+            "10 / 2": [
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 37
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 37
+                  }
+                },
+                "newText": "\n\nfunction extracted() returns int {\n    return 10 / 2;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 20
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 26
+                  }
+                },
+                "newText": "extracted()"
+              }
+            ],
+            "10 / 2 + 20": [
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 37
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 37
+                  }
+                },
+                "newText": "\n\nfunction extracted() returns int {\n    return 10 / 2 + 20;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 20
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 31
+                  }
+                },
+                "newText": "extracted()"
+              }
+            ],
+            "10 / 2 + 20 + 30": [
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 37
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 37
+                  }
+                },
+                "newText": "\n\nfunction extracted() returns int {\n    return 10 / 2 + 20 + 30;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 20
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 36
+                  }
+                },
+                "newText": "extracted()"
+              }
+            ]
+          },
+          {
+            "10": {
+              "line": 8,
+              "character": 20
+            },
+            "10 / 2": {
+              "line": 8,
+              "character": 20
+            },
+            "10 / 2 + 20": {
+              "line": 8,
+              "character": 20
+            },
+            "10 / 2 + 20 + 30": {
+              "line": 8,
+              "character": 20
+            }
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

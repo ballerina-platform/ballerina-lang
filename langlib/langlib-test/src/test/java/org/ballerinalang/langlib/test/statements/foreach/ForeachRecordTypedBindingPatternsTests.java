@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -39,57 +39,60 @@ public class ForeachRecordTypedBindingPatternsTests {
         program = BCompileUtil.compile("test-src/statements/foreach/foreach-record-typed-binding-patterns.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        program = null;
+    }
+
     @Test
     public void testSimpleRecordWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testSimpleRecordWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1 1:A 2:1.0 ");
+        Object returns = BRunUtil.invoke(program, "testSimpleRecordWithoutType");
+        Assert.assertEquals(returns.toString(), "0:1 1:A 2:1.0 ");
     }
 
     @Test
     public void testSimpleRecordWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testSimpleRecordWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1 1:A 2:1.0 ");
+        Object returns = BRunUtil.invoke(program, "testSimpleRecordWithType");
+        Assert.assertEquals(returns.toString(), "0:1 1:A 2:1.0 ");
     }
 
     @Test
     public void testRecordInRecordWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testRecordInRecordWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:2 1:B 2:{\"i\":1,\"s\":\"A\",\"f\":1.0} ");
+        Object returns = BRunUtil.invoke(program, "testRecordInRecordWithoutType");
+        Assert.assertEquals(returns.toString(), "0:2 1:B 2:{\"i\":1,\"s\":\"A\",\"f\":1.0} ");
     }
 
     @Test
     public void testRecordInRecordWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testRecordInRecordWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:2 1:B 2:{\"i\":1,\"s\":\"A\",\"f\":1.0} ");
+        Object returns = BRunUtil.invoke(program, "testRecordInRecordWithType");
+        Assert.assertEquals(returns.toString(), "0:2 1:B 2:{\"i\":1,\"s\":\"A\",\"f\":1.0} ");
     }
 
     @Test
     public void testTupleInRecordWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testTupleInRecordWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1 1:[2,\"A\"] ");
+        Object returns = BRunUtil.invoke(program, "testTupleInRecordWithoutType");
+        Assert.assertEquals(returns.toString(), "0:1 1:[2,\"A\"] ");
     }
 
     @Test
     public void testTupleInRecordWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testTupleInRecordWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1 1:[2,\"A\"] ");
+        Object returns = BRunUtil.invoke(program, "testTupleInRecordWithType");
+        Assert.assertEquals(returns.toString(), "0:1 1:[2,\"A\"] ");
     }
 
     @Test
     public void testEmptyRecordIteration() {
-        BValue[] returns = BRunUtil.invoke(program, "testEmptyRecordIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Object returns = BRunUtil.invoke(program, "testEmptyRecordIteration");
+        Assert.assertEquals(returns.toString(), "");
     }
 
     @Test
     public void testForeachWithClosedRecordWithNoFields() {
         BRunUtil.invoke(program, "testForeachWithClosedRecordWithNoFields");
+    }
+
+    @Test
+    public void testDestructuringRecordBindingPatternWithForeach() {
+        BRunUtil.invoke(program, "testDestructuringRecordingBindingPatternWithAnIntersectionTypeInForeach");
     }
 }

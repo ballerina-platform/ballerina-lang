@@ -1,5 +1,10 @@
 Compiling source
 	john/validProjectWithEmptyBallerinaToml:0.1.0
+WARNING [Ballerina.toml:(1:1,1:1)] missing table '[package]' in 'Ballerina.toml'. Defaulting to:
+[package]
+org = "john"
+name = "validProjectWithEmptyBallerinaToml"
+version = "0.1.0"
 
 Generating executable
 	target/bin/validProjectWithEmptyBallerinaToml.jar

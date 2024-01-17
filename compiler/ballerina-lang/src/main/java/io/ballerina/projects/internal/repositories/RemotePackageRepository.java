@@ -19,6 +19,7 @@ import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.model.PackageNameResolutionRequest;
@@ -27,10 +28,12 @@ import org.ballerinalang.central.client.model.PackageResolutionRequest;
 import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.PrintStream;
 import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,7 +49,6 @@ import static io.ballerina.projects.DependencyGraph.DependencyGraphBuilder.getBu
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.getLatest;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
  * This class represents the remote package repository.
@@ -72,8 +74,11 @@ public class RemotePackageRepository implements PackageRepository {
         FileSystemRepository fileSystemRepository = new FileSystemRepository(
                 environment, cacheDirectory, ballerinaShortVersion);
         Proxy proxy = initializeProxy(settings.getProxy());
-        CentralAPIClient client = new CentralAPIClient(repoUrl, proxy, getAccessTokenOfCLI(settings));
-
+        CentralAPIClient client = new CentralAPIClient(repoUrl, proxy, settings.getProxy().username(),
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout());
         return new RemotePackageRepository(fileSystemRepository, client);
     }
 
@@ -88,12 +93,6 @@ public class RemotePackageRepository implements PackageRepository {
 
     @Override
     public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
-        // Avoid resolving from remote repository for lang repo tests
-        String langRepoBuild = System.getProperty("LANG_REPO_BUILD");
-        if (langRepoBuild != null) {
-            return Optional.empty();
-        }
-
         // Check if the package is in cache
         Optional<Package> cachedPackage = this.fileSystemRepo.getPackage(request, options);
         if (cachedPackage.isPresent()) {
@@ -108,12 +107,20 @@ public class RemotePackageRepository implements PackageRepository {
 
         // If environment is online pull from central
         if (!options.offline()) {
-            for (String supportedPlatform : SUPPORTED_PLATFORMS) {
-                try {
-                    this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                            RepoUtils.getBallerinaVersion(), true);
-                } catch (CentralClientException e) {
-                    // ignore when get package fail
+            String supportedPlatform = Arrays.stream(JvmTarget.values())
+                    .map(target -> target.code())
+                    .collect(Collectors.joining(","));
+            try {
+                this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
+                        RepoUtils.getBallerinaVersion(), true);
+            } catch (CentralClientException e) {
+                boolean enableOutputStream =
+                        Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
+                if (enableOutputStream) {
+                    final PrintStream out = System.out;
+                    out.println("Error while pulling package [" + orgName + "/" + packageName + ":" + version +
+                            "]: " + e.getMessage());
+
                 }
             }
         }
@@ -139,10 +146,14 @@ public class RemotePackageRepository implements PackageRepository {
         }
 
         try {
-            for (String version : this.client.getPackageVersions(orgName, packageName, JvmTarget.JAVA_11.code(),
+            String supportedPlatform = Arrays.stream(JvmTarget.values())
+                    .map(target -> target.code())
+                    .collect(Collectors.joining(","));
+            for (String version : this.client.getPackageVersions(orgName, packageName, supportedPlatform,
                     RepoUtils.getBallerinaVersion())) {
                 packageVersions.add(PackageVersion.from(version));
             }
+
         } catch (ConnectionErrorException e) {
             // ignore connect to remote repo failure
             return new ArrayList<>(packageVersions);
@@ -165,18 +176,18 @@ public class RemotePackageRepository implements PackageRepository {
         if (options.offline()) {
             return filesystem;
         }
-        List<ImportModuleResponse> unresolved = filesystem.stream()
-                .filter(r -> r.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED))
-                .collect(Collectors.toList());
 
         try {
-            if (unresolved.size() > 0) {
-                PackageNameResolutionRequest resolutionRequest = toPackageNameResolutionRequest(unresolved);
-                PackageNameResolutionResponse response = this.client.resolvePackageNames(resolutionRequest,
-                        JvmTarget.JAVA_11.code(), RepoUtils.getBallerinaVersion(), true);
-                List<ImportModuleResponse> remote = toImportModuleResponses(unresolved, response);
-                return mergeNameResolution(filesystem, remote);
-            }
+            List<ImportModuleResponse> remote = new ArrayList<>();
+            PackageNameResolutionRequest resolutionRequest = toPackageNameResolutionRequest(requests);
+            String supportedPlatform = Arrays.stream(JvmTarget.values())
+                    .map(target -> target.code())
+                    .collect(Collectors.joining(","));
+            PackageNameResolutionResponse response = this.client.resolvePackageNames(resolutionRequest,
+                    supportedPlatform, RepoUtils.getBallerinaVersion());
+            remote.addAll(toImportModuleResponses(requests, response));
+
+            return mergeNameResolution(filesystem, remote);
         } catch (ConnectionErrorException e) {
             // ignore connect to remote repo failure
             // TODO we need to add diagnostics for resolution errors
@@ -188,29 +199,30 @@ public class RemotePackageRepository implements PackageRepository {
 
     private List<ImportModuleResponse> mergeNameResolution(Collection<ImportModuleResponse> filesystem,
                                                            Collection<ImportModuleResponse> remote) {
-        List<ImportModuleResponse> all = new ArrayList<>();
-        // We assume file system responses will have all module requests
-        for (ImportModuleResponse fileResponse : filesystem) {
-            if (fileResponse.resolutionStatus() == ResolutionResponse.ResolutionStatus.RESOLVED) {
-                all.add(fileResponse);
-            } else {
-                // If remote has resolutions of unresolved we will substitute
-                Optional<ImportModuleResponse> remoteResponse = remote.stream()
-                        .filter(r -> r.importModuleRequest().equals(fileResponse.importModuleRequest())).findFirst();
-                if (remoteResponse.isPresent()) {
-                    all.add(remoteResponse.get());
-                }
-            }
-        }
-        return all;
+        return new ArrayList<>(
+            Stream.of(filesystem, remote)
+                .flatMap(Collection::stream).collect(Collectors.toMap(
+                    ImportModuleResponse::importModuleRequest, Function.identity(),
+                    (ImportModuleResponse x, ImportModuleResponse y) -> {
+                        if (y.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                            return x;
+                        } else if (x.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                            return y;
+                        } else if (getLatest(x.packageDescriptor().version(),
+                                y.packageDescriptor().version()).equals(
+                                y.packageDescriptor().version())) {
+                            return y;
+                        }
+                        return x;
+                    })).values());
     }
 
-    private List<ImportModuleResponse> toImportModuleResponses(List<ImportModuleResponse> requests,
+    private List<ImportModuleResponse> toImportModuleResponses(Collection<ImportModuleRequest> requests,
                                                                PackageNameResolutionResponse response) {
         List<ImportModuleResponse> result = new ArrayList<>();
-        for (ImportModuleResponse module : requests) {
-            PackageOrg packageOrg = module.importModuleRequest().packageOrg();
-            String moduleName = module.importModuleRequest().moduleName();
+        for (ImportModuleRequest module : requests) {
+            PackageOrg packageOrg = module.packageOrg();
+            String moduleName = module.moduleName();
             Optional<PackageNameResolutionResponse.Module> resolvedModule = response.resolvedModules().stream()
                     .filter(m -> m.getModuleName().equals(moduleName)
                             && m.getOrganization().equals(packageOrg.value())).findFirst();
@@ -218,34 +230,32 @@ public class RemotePackageRepository implements PackageRepository {
                 PackageDescriptor packageDescriptor = PackageDescriptor.from(packageOrg,
                         PackageName.from(resolvedModule.get().getPackageName()),
                         PackageVersion.from(resolvedModule.get().getVersion()));
-                ImportModuleResponse importModuleResponse = new ImportModuleResponse(packageDescriptor,
-                        module.importModuleRequest());
+                ImportModuleResponse importModuleResponse = new ImportModuleResponse(packageDescriptor, module);
                 result.add(importModuleResponse);
             } else {
-                result.add(new ImportModuleResponse(module.importModuleRequest()));
+                result.add(new ImportModuleResponse(module));
             }
         }
         return result;
     }
 
-
-    private PackageNameResolutionRequest toPackageNameResolutionRequest(List<ImportModuleResponse> unresolved) {
+    private PackageNameResolutionRequest toPackageNameResolutionRequest(Collection<ImportModuleRequest> unresolved) {
         PackageNameResolutionRequest request = new PackageNameResolutionRequest();
-        for (ImportModuleResponse module : unresolved) {
-            if (module.importModuleRequest().possiblePackages().size() == 0) {
-                request.addModule(module.importModuleRequest().packageOrg().value(),
-                        module.importModuleRequest().moduleName());
+        for (ImportModuleRequest module : unresolved) {
+            if (module.possiblePackages().isEmpty()) {
+                request.addModule(module.packageOrg().value(),
+                        module.moduleName());
                 continue;
             }
             List<PackageNameResolutionRequest.Module.PossiblePackage> possiblePackages = new ArrayList<>();
-            for (PackageDescriptor possiblePackage : module.importModuleRequest().possiblePackages()) {
+            for (PackageDescriptor possiblePackage : module.possiblePackages()) {
                 possiblePackages.add(new PackageNameResolutionRequest.Module.PossiblePackage(
                         possiblePackage.org().toString(),
                         possiblePackage.name().toString(),
                         possiblePackage.version().toString()));
             }
-            request.addModule(module.importModuleRequest().packageOrg().value(),
-                    module.importModuleRequest().moduleName(), possiblePackages, PackageResolutionRequest.Mode.MEDIUM);
+            request.addModule(module.packageOrg().value(),
+                    module.moduleName(), possiblePackages, PackageResolutionRequest.Mode.MEDIUM);
         }
         return request;
     }
@@ -258,6 +268,7 @@ public class RemotePackageRepository implements PackageRepository {
 
         // Resolve all the requests locally
         Collection<PackageMetadataResponse> cachedPackages = fileSystemRepo.getPackageMetadata(requests, options);
+        List<PackageMetadataResponse> deprecatedPackages = new ArrayList<>();
         if (options.offline()) {
             return cachedPackages;
         }
@@ -268,20 +279,22 @@ public class RemotePackageRepository implements PackageRepository {
                     && response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
                 updatedRequests.remove(response.packageLoadRequest());
             }
+            if (response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
+                Optional<Package> pkg = fileSystemRepo.getPackage(response.packageLoadRequest(), options);
+                if (pkg.isPresent() && pkg.get().descriptor().getDeprecated()) {
+                    deprecatedPackages.add(response);
+                }
+            }
         }
         // Resolve the requests from remote repository if there are unresolved requests
         if (!updatedRequests.isEmpty()) {
             try {
                 PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(updatedRequests);
-                PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
-                        packageResolutionRequest, JvmTarget.JAVA_11.code(),
-                        RepoUtils.getBallerinaVersion(), true);
-
                 Collection<PackageMetadataResponse> remotePackages =
-                        fromPackageResolutionResponse(updatedRequests, packageResolutionResponse);
+                        fromPackageResolutionResponse(updatedRequests, packageResolutionRequest);
                 // Merge central requests and local requests
                 // Here we will pick the latest package from remote or local
-                return mergeResolution(remotePackages, cachedPackages);
+                return mergeResolution(remotePackages, cachedPackages, deprecatedPackages);
 
             } catch (ConnectionErrorException e) {
                 // ignore connect to remote repo failure
@@ -295,31 +308,65 @@ public class RemotePackageRepository implements PackageRepository {
     }
 
     private Collection<PackageMetadataResponse> mergeResolution(
-            Collection<PackageMetadataResponse> remoteResolution,
-            Collection<PackageMetadataResponse> filesystem) {
+            Collection<PackageMetadataResponse> remoteResolution, Collection<PackageMetadataResponse> filesystem,
+            List<PackageMetadataResponse> deprecatedPackages) {
         List<PackageMetadataResponse> mergedResults = new ArrayList<>(
                 Stream.of(filesystem, remoteResolution)
                         .flatMap(Collection::stream).collect(Collectors.toMap(
                         PackageMetadataResponse::packageLoadRequest, Function.identity(),
                         (PackageMetadataResponse x, PackageMetadataResponse y) -> {
                             if (y.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                                // filesystem response is resolved &  remote response is unresolved
                                 return x;
                             } else if (x.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                                // filesystem response is unresolved &  remote response is resolved
                                 return y;
-                            } else if (getLatest(x.resolvedDescriptor().version(), y.resolvedDescriptor().version())
-                                    .equals(y.resolvedDescriptor().version())) {
-                                return y;
+                            } else if (x.resolvedDescriptor().version().equals(y.resolvedDescriptor().version())) {
+                                // Both responses have the same version and there is a mismatch in deprecated status,
+                                // we need to update the deprecated status in the file system repo
+                                // to match the remote repo as it is the most up to date.
+                                if (deprecatedPackages != null && y.resolvedDescriptor() != null &&
+                                        deprecatedPackages.contains(x) ^ y.resolvedDescriptor().getDeprecated()) {
+                                    fileSystemRepo.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
+                                }
+                                return x;
                             }
-                            return x;
+                            // x not deprecate & y not deprecate
+                            //      - x is the latest : return x (this will not happen in real)
+                            //      - y is the latest : return y
+                            // x not deprecated & y deprecated
+                            //      - x is the latest : outdated. return y
+                            //      - y is the latest : return y
+                            // x deprecated & y not deprecated
+                            //      - x is the latest : outdated. return y
+                            //      - y is the latest : return y
+                            // x deprecated & y deprecated
+                            //      - x is the latest : not possible
+                            //      - y is the latest : return y
+
+                            // If the equivalent package is available in the file system repo,
+                            // try to update the deprecated status.
+                            // Because if available in cache, it won't be pulled.
+                            fileSystemRepo.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
+                            return y;
                         })).values());
         return mergedResults;
     }
 
     private Collection<PackageMetadataResponse> fromPackageResolutionResponse(
-            Collection<ResolutionRequest> packageLoadRequests, PackageResolutionResponse packageResolutionResponse) {
-        // List<PackageResolutionResponse.Package> resolved = packageResolutionResponse.resolved();
+            Collection<ResolutionRequest> packageLoadRequests, PackageResolutionRequest packageResolutionRequest)
+            throws CentralClientException {
         List<PackageMetadataResponse> response = new ArrayList<>();
+        Set<ResolutionRequest> resolvedRequests = new HashSet<>();
+        String supportedPlatform = Arrays.stream(JvmTarget.values())
+                .map(target -> target.code())
+                .collect(Collectors.joining(","));
+        PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
+                packageResolutionRequest, supportedPlatform, RepoUtils.getBallerinaVersion());
         for (ResolutionRequest resolutionRequest : packageLoadRequests) {
+            if (resolvedRequests.contains(resolutionRequest)) {
+                continue;
+            }
             // find response from server
             // checked in resolved group
             Optional<PackageResolutionResponse.Package> match = packageResolutionResponse.resolved().stream()
@@ -331,16 +378,18 @@ public class RemotePackageRepository implements PackageRepository {
                 DependencyGraph<PackageDescriptor> dependencies = createPackageDependencyGraph(match.get());
                 PackageDescriptor packageDescriptor = PackageDescriptor.from(resolutionRequest.orgName(),
                         resolutionRequest.packageName(),
-                        version);
+                        version, match.get().getDeprecated(), match.get().getDeprecateMessage());
                 PackageMetadataResponse responseDescriptor = PackageMetadataResponse.from(resolutionRequest,
                         packageDescriptor,
                         dependencies);
                 response.add(responseDescriptor);
+                resolvedRequests.add(resolutionRequest);
             } else {
-                // If the package is not in resolved we assume the package is unresolved
+                // If the package is not in resolved for all jvm platforms we assume the package is unresolved
                 response.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
             }
         }
+
         return response;
     }
 

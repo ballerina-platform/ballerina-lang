@@ -1,0 +1,18 @@
+{
+  "range": {
+    "start": {
+      "line": 3,
+      "character": 31
+    },
+    "end": {
+      "line": 3,
+      "character": 37
+    }
+  },
+  "source": "extractToVariableInQueryExpression.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable"
+    }
+  ]
+}

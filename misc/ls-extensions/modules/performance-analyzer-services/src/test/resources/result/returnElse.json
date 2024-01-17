@@ -1,0 +1,255 @@
+{
+  "endpoints": {
+    "0": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://api.chucknorris.io/",
+      "pos": {
+        "fileName": "forEach.bal",
+        "startLine": {
+          "line": 19,
+          "offset": 12
+        },
+        "endLine": {
+          "line": 19,
+          "offset": 24
+        }
+      }
+    },
+    "1": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post1",
+      "pos": {
+        "fileName": "ifElse.bal",
+        "startLine": {
+          "line": 21,
+          "offset": 20
+        },
+        "endLine": {
+          "line": 21,
+          "offset": 28
+        }
+      }
+    },
+    "2": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post2",
+      "pos": {
+        "fileName": "ifElse.bal",
+        "startLine": {
+          "line": 26,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 26,
+          "offset": 33
+        }
+      }
+    },
+    "3": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://api.chucknorris.io/",
+      "pos": {
+        "fileName": "main.bal",
+        "startLine": {
+          "line": 22,
+          "offset": 20
+        },
+        "endLine": {
+          "line": 22,
+          "offset": 32
+        }
+      }
+    },
+    "4": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://api.chucknorris.io/",
+      "pos": {
+        "fileName": "main.bal",
+        "startLine": {
+          "line": 31,
+          "offset": 20
+        },
+        "endLine": {
+          "line": 31,
+          "offset": 32
+        }
+      }
+    },
+    "5": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post",
+      "pos": {
+        "fileName": "return.bal",
+        "startLine": {
+          "line": 24,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 24,
+          "offset": 32
+        }
+      }
+    },
+    "6": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post",
+      "pos": {
+        "fileName": "return.bal",
+        "startLine": {
+          "line": 30,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 30,
+          "offset": 32
+        }
+      }
+    },
+    "7": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://api.chucknorris.io/",
+      "pos": {
+        "fileName": "while.bal",
+        "startLine": {
+          "line": 22,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 22,
+          "offset": 36
+        }
+      }
+    },
+    "8": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post2",
+      "pos": {
+        "fileName": "return.bal",
+        "startLine": {
+          "line": 41,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 41,
+          "offset": 32
+        }
+      }
+    },
+    "9": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post2",
+      "pos": {
+        "fileName": "return.bal",
+        "startLine": {
+          "line": 46,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 46,
+          "offset": 32
+        }
+      }
+    },
+    "10": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post3",
+      "pos": {
+        "fileName": "return.bal",
+        "startLine": {
+          "line": 58,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 58,
+          "offset": 32
+        }
+      }
+    },
+    "11": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post3",
+      "pos": {
+        "fileName": "return.bal",
+        "startLine": {
+          "line": 64,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 64,
+          "offset": 32
+        }
+      }
+    },
+    "12": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post4",
+      "pos": {
+        "fileName": "return.bal",
+        "startLine": {
+          "line": 80,
+          "offset": 28
+        },
+        "endLine": {
+          "line": 80,
+          "offset": 36
+        }
+      }
+    },
+    "13": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post4",
+      "pos": {
+        "fileName": "return.bal",
+        "startLine": {
+          "line": 85,
+          "offset": 28
+        },
+        "endLine": {
+          "line": 85,
+          "offset": 36
+        }
+      }
+    }
+  },
+  "actionInvocations": {
+    "workers": {
+      "mainWorker": {
+        "nextNode": {
+          "ifBody": {
+            "endPointRef": "${json-unit.ignore}",
+            "name": "get",
+            "path": "/",
+            "pos": "return.bal/(42:40,42:58)",
+            "nextNode": null,
+            "hasReturn": false
+          },
+          "elseBody": {
+            "endPointRef": "${json-unit.ignore}",
+            "name": "get",
+            "path": "/",
+            "pos": "return.bal/(47:40,47:58)",
+            "nextNode": null,
+            "hasReturn": true
+          },
+          "nextNode": null
+        }
+      }
+    }
+  },
+  "type": "Success",
+  "message": "Success"
+}

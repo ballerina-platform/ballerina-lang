@@ -17,15 +17,12 @@
  */
 package org.ballerinalang.model.types;
 
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
-
 /**
  * {@code SelectivelyImmutableReferenceType} represents selectively immutable reference types in Ballerina.
  * Namely XML, lists, mappings, tables, and objects.
  *
  * @since 1.3.0
  */
-public interface SelectivelyImmutableReferenceType extends IntersectableReferenceType {
+public interface SelectivelyImmutableReferenceType {
 
-    BIntersectionType getImmutableType();
 }

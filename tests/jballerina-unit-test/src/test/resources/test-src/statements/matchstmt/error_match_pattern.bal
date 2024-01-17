@@ -16,6 +16,11 @@
 
 import ballerina/lang.value;
 
+type CustomError1 distinct error;
+type CustomError2 distinct error;
+type CustomError3 error<record { int x; }>;
+type CustomError4 error<record { int y; }>;
+
 const MSG = "Const Message";
 
 function errorMatchPattern1(any|error e) returns string {
@@ -310,6 +315,16 @@ function testErrorMatchPattern16() {
     errorMatchPattern19(err7));
 }
 
+function testErrorMatchPattern17() {
+    assertEquals("match1", errorMatchPattern20(error CustomError1("error: CustomError1")));
+    assertEquals("match2", errorMatchPattern20(error CustomError2("error: CustomError2")));
+    assertEquals("match3", errorMatchPattern20(error CustomError3("error: CustomError3", x = 1)));
+    assertEquals("match4", errorMatchPattern20(error CustomError4("error: CustomError4", y = 2)));
+    assertEquals("no match", errorMatchPattern20(error("error")));
+    assertEquals("no match", errorMatchPattern20(()));
+    assertEquals("no match", errorMatchPattern20("string"));
+}
+
 function errorMatchPattern16(any|error x) returns string {
     match x {
         error(var m, var c, code1 = var d, code2 = var e) => {
@@ -396,6 +411,24 @@ function errorMatchPattern19(any|error x) returns string {
     }
 
     return "Default";
+}
+
+function errorMatchPattern20(any|error? e) returns string {
+    match e {
+        var errorA if e is CustomError1 => {
+            return "match1";
+        }
+        var errorB if e is CustomError2 => {
+            return "match2";
+        }
+        var errorB if e is CustomError3 => {
+            return "match3";
+        }
+        var errorB if e is CustomError4 => {
+            return "match4";
+        }
+    }
+    return "no match";
 }
 
 function assertEquals(anydata expected, anydata actual) {

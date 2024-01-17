@@ -18,14 +18,12 @@
  */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,13 +45,13 @@ public class ArrayMutabilityTest {
 
     @Test
     public void testValidArrayAssignment() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testValidArrayAssignment");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue(), "Expected value of true but found false");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 100, "Expected value of 100");
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "testValidArrayAssignment");
+        Assert.assertTrue((Boolean) returnValues.get(0), "Expected value of true but found false");
+        Assert.assertEquals(returnValues.get(1), 100L, "Expected value of 100");
     }
 
     @Test(description = "Check if correct type is saved in covariant array with record type",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     ".*error:.*incompatible types: 'Employee' cannot be cast to 'Intern'.*")
     public void testInvalidCast() {
@@ -61,7 +59,7 @@ public class ArrayMutabilityTest {
     }
 
     @Test(description = "Test mutation of record type using covariant array",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     ".*error: \\{ballerina/lang.array\\}InherentTypeViolation " +
                             "\\{\"message\":\"incompatible types: expected 'Employee', found 'Person'.*")
@@ -70,7 +68,7 @@ public class ArrayMutabilityTest {
     }
 
     @Test(description = "Test mutation of record type by assigning invalid record type",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     ".*error:.*incompatible types: expected 'Employee', found 'Student'.*")
     public void testInvalidAssignment() {
@@ -78,7 +76,7 @@ public class ArrayMutabilityTest {
     }
 
     @Test(description = "Test mutation of int array by inserting nil value to int? covariant array",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     ".*error:.*incompatible types: expected 'int', found '\\(\\)'.*")
     public void testCovarianceIntOrNilArray() {
@@ -86,7 +84,7 @@ public class ArrayMutabilityTest {
     }
 
     @Test(description = "Test mutation of arrays which include structural and simple values",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
                             "\\{\"message\":\"incompatible types: expected " +
@@ -96,7 +94,7 @@ public class ArrayMutabilityTest {
     }
 
     @Test(description = "Test mutation of sealed arrays",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     ".*error:.*array index out of range: index: 3, size: 3.*")
     public void testSealedArrays() {
@@ -104,7 +102,7 @@ public class ArrayMutabilityTest {
     }
 
     @Test(description = "Test mutation of multidimensional sealed arrays",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     ".*error:.*array index out of range: index: 3, size: 3.*")
     public void testMultiDimensionalSealedArrays() {
@@ -112,7 +110,7 @@ public class ArrayMutabilityTest {
     }
 
     @Test(description = "Test mutation of openly sealed arrays",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     ".*error:.*array index out of range: index: 4, size: 4.*")
     public void testOpenSealedArrays() {
@@ -120,7 +118,7 @@ public class ArrayMutabilityTest {
     }
 
     @Test(description = "Test mutation of object type",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     ".*error:.*incompatible types: expected 'Dog', found 'Animal'.*")
     public void testObjectTypes() {
@@ -129,12 +127,12 @@ public class ArrayMutabilityTest {
 
     @Test
     public void testUnionOfArrays() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testUnionOfArrays");
-        Assert.assertEquals((returnValues[0]).stringValue(), "BOOL");
+        Object returnValues = BRunUtil.invoke(compileResult, "testUnionOfArrays");
+        Assert.assertEquals((returnValues).toString(), "BOOL");
     }
 
     @Test(description = "Test mutation of boolean array assigned to a union",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     ".*error:.*incompatible types: expected 'boolean', found 'int'.*")
     public void testUnionOfArrays2() {
@@ -142,7 +140,7 @@ public class ArrayMutabilityTest {
     }
 
     @Test(description = "Test mutation of int array assigned to a json array",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     ".*\\{ballerina/lang.array\\}InherentTypeViolation " +
                             "\\{\"message\":\"incompatible types: expected 'int', " +
@@ -152,7 +150,7 @@ public class ArrayMutabilityTest {
     }
 
     @Test(description = "Test mutation of boolean array assigned to a json array",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     ".*\\{ballerina/lang.array\\}InherentTypeViolation " +
                             "\\{\"message\":\"incompatible types: expected " +
@@ -162,7 +160,7 @@ public class ArrayMutabilityTest {
     }
 
     @Test(description = "Test mutation of arrays through chained assignments",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
                             "\\{\"message\":\"incompatible types: expected " +

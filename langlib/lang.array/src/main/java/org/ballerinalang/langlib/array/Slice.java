@@ -25,9 +25,10 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,22 +46,22 @@ public class Slice {
         int size = arr.size();
 
         if (startIndex < 0) {
-            throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, startIndex, size);
+            throw ErrorHelper
+                    .getRuntimeException(ErrorCodes.ARRAY_INDEX_OUT_OF_RANGE, startIndex, size);
         }
 
         if (endIndex > size) {
-            throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, endIndex, size);
+            throw ErrorHelper
+                    .getRuntimeException(ErrorCodes.ARRAY_INDEX_OUT_OF_RANGE, endIndex, size);
         }
 
         long sliceSize = endIndex - startIndex;
         if (sliceSize < 0) {
-            throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, sliceSize, size);
+            throw ErrorHelper
+                    .getRuntimeException(ErrorCodes.ARRAY_INDEX_OUT_OF_RANGE, sliceSize, size);
         }
 
-        Type arrType = arr.getType();
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
         BArray slicedArr;
 
         switch (arrType.getTag()) {
@@ -78,7 +79,7 @@ public class Slice {
                 }
 
                 UnionType unionType = TypeCreator.createUnionType(memTypes);
-                ArrayType slicedArrType = TypeCreator.createArrayType(unionType, (int) (endIndex - startIndex));
+                ArrayType slicedArrType = TypeCreator.createArrayType(unionType);
                 slicedArr = ValueCreator.createArrayValue(slicedArrType);
 
                 for (long i = startIndex, j = 0; i < endIndex; i++, j++) {

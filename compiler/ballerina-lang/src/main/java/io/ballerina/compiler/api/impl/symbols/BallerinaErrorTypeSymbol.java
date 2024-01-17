@@ -17,6 +17,8 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -37,12 +39,13 @@ import java.util.Optional;
  */
 public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements ErrorTypeSymbol {
 
+    private static final String ANON_ORG = "$anon";
     private TypeSymbol detail;
     private String signature;
     private ModuleSymbol module;
     private boolean moduleEvaluated;
 
-    public BallerinaErrorTypeSymbol(CompilerContext context, ModuleID moduleID, BErrorType errorType) {
+    public BallerinaErrorTypeSymbol(CompilerContext context, BErrorType errorType) {
         super(context, TypeDescKind.ERROR, errorType);
     }
 
@@ -104,11 +107,22 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
         if ("lang.annotations".equals(moduleID.moduleName()) && "ballerina".equals(moduleID.orgName())) {
             this.signature = definitionName;
         } else {
-            this.signature = moduleID.orgName() + Names.ORG_NAME_SEPARATOR + moduleID.moduleName() +
-                    Names.VERSION_SEPARATOR + moduleID.version() + ":" + definitionName;
+            this.signature = !this.isAnonOrg(moduleID) ?
+                    moduleID.orgName() + Names.ORG_NAME_SEPARATOR + moduleID.moduleName() +
+                    Names.VERSION_SEPARATOR + moduleID.version() + ":" + definitionName : definitionName;
         }
 
         return this.signature;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     private boolean isDefaultDetailTypeDesc() {
@@ -134,5 +148,9 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
         }
 
         return false;
+    }
+
+    private boolean isAnonOrg(ModuleID moduleID) {
+        return ANON_ORG.equals(moduleID.orgName());
     }
 }

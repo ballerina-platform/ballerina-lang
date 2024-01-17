@@ -52,6 +52,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.REGEXP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
@@ -85,38 +86,40 @@ public class ExpressionTypeTestNew {
     @DataProvider(name = "LiteralPosProvider")
     public Object[][] getLiteralPos() {
         return new Object[][]{
-                {17, 21, 17, 22, INT},
-                {17, 24, 17, 29, FLOAT},
-                {17, 31, 17, 36, DECIMAL},
-                {17, 38, 17, 42, BOOLEAN},
-                {17, 44, 17, 46, NIL},
-                {17, 48, 17, 53, STRING},
-                {18, 13, 18, 17, NIL},
+                {19, 21, 19, 22, INT},
+                {19, 24, 19, 29, FLOAT},
+                {19, 31, 19, 36, DECIMAL},
+                {19, 38, 19, 42, BOOLEAN},
+                {19, 44, 19, 46, NIL},
+                {19, 48, 19, 53, STRING},
+                {20, 13, 20, 17, NIL},
         };
     }
 
     @Test
     public void testByteLiteral() {
-        TypeSymbol type = getExprType(19, 15, 19, 42);
+        TypeSymbol type = getExprType(21, 15, 21, 44);
         assertEquals(type.typeKind(), ARRAY);
         assertEquals(((ArrayTypeSymbol) type).memberTypeDescriptor().typeKind(), BYTE);
     }
 
     @Test
     public void testStringTemplateExpr() {
-        assertType(23, 15, 23, 36, STRING);
+        assertType(25, 15, 25, 36, STRING);
     }
 
     @Test
     public void testXMLTemplateExpr() {
-        TypeSymbol type = getExprType(24, 12, 24, 45);
+        TypeSymbol type = getExprType(26, 12, 26, 45);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
         assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), XML_ELEMENT);
+
+        assertType(371, 8, 371, 14, XML);
     }
 
     @Test
     public void testRawTemplate() {
-        TypeSymbol type = getExprType(25, 29, 25, 50);
+        TypeSymbol type = getExprType(27, 29, 27, 50);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
 
         TypeSymbol objType = ((TypeReferenceTypeSymbol) type).typeDescriptor();
@@ -128,11 +131,32 @@ public class ExpressionTypeTestNew {
 
     @Test
     public void testArrayLiteral() {
-        TypeSymbol type = getExprType(29, 20, 29, 34);
+        TypeSymbol type = getExprType(31, 20, 31, 34);
         assertEquals(type.typeKind(), ARRAY);
 
         TypeSymbol memberType = ((ArrayTypeSymbol) type).memberTypeDescriptor();
         assertEquals(memberType.typeKind(), STRING);
+    }
+
+    @Test(dataProvider = "RegexpTemplateLiteralPosProvider")
+    public void testRegexpTemplateLiteralExpr(int sLine, int sCol, int eLine, int eCol) {
+        TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), REGEXP);
+        assertEquals(type.signature(), "ballerina/lang.regexp:0.0.0:RegExp");
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().signature(), "regexp:RegExp");
+    }
+
+    @DataProvider(name = "RegexpTemplateLiteralPosProvider")
+    private Object[][] getRegexpTemplateLiteralPos() {
+        return new Object[][] {
+                {362, 8, 362, 22},
+                {363, 8, 363, 13},
+                {364, 8, 364, 14},
+                {365, 8, 365, 20},
+                {366, 25, 366, 33},
+                {367, 25, 367, 36},
+        };
     }
 
     @Test(dataProvider = "TupleLiteralPosProvider")
@@ -152,8 +176,8 @@ public class ExpressionTypeTestNew {
     @DataProvider(name = "TupleLiteralPosProvider")
     public Object[][] getTuplePos() {
         return new Object[][]{
-                {30, 15, 30, 27, List.of(INT, INT, INT)},
-                {32, 31, 32, 49, List.of(INT, STRING, FLOAT)},
+                {32, 15, 32, 27, List.of(INT, INT, INT)},
+                {33, 31, 33, 49, List.of(INT, STRING, FLOAT)},
         };
     }
 
@@ -267,7 +291,8 @@ public class ExpressionTypeTestNew {
         return new Object[][]{
                 {72, 12, 15, INT},
                 {73, 12, 23, INT},
-                {73, 17, 23, INT},
+                {73, 12, 19, INT},
+                {73, 17, 23, null},
                 {74, 12, 23, INT},
                 {75, 16, 22, BOOLEAN},
                 {76, 17, 22, STRING},
@@ -309,7 +334,7 @@ public class ExpressionTypeTestNew {
 
     @Test
     public void testInferredRecordTypeForInvalidExprs() {
-        assertType(97, 5, 97, 20, RECORD);
+        assertType(97, 4, 97, 20, RECORD);
     }
 
     @Test
@@ -317,7 +342,17 @@ public class ExpressionTypeTestNew {
         TypeSymbol type = getExprType(101, 4, 101, 21);
         assertEquals(type.typeKind(), FUTURE);
         assertEquals(((FutureTypeSymbol) type).typeParameter().get().typeKind(), NIL);
-//        assertType(101, 10, 101, 21, NIL); TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33016
+        assertType(101, 10, 101, 21, NIL);
+    }
+
+    @Test
+    public void testFutureResultType() {
+        TypeSymbol type = getExprType(350, 31, 350, 38);
+        assertEquals(type.typeKind(), FUTURE);
+        Optional<TypeSymbol> typeParameter = ((FutureTypeSymbol) type).typeParameter();
+        assertTrue(typeParameter.isPresent());
+        assertEquals(typeParameter.get().typeKind(), INT);
+        assertType(354, 17, 354, 24, INT);
     }
 
     @Test(dataProvider = "CallExprPosProvider")
@@ -477,7 +512,7 @@ public class ExpressionTypeTestNew {
                 {209, 16, 209, 68, FUNCTION},
                 {209, 46, 209, 68, STRING},
                 {211, 14, 213, 5, FUNCTION},
-                {211, 27, 213, 5, FUNCTION},
+                {211, 27, 213, 5, null},
                 {211, 51, 211, 52, INT},
                 {216, 42, 216, 61, FUNCTION},
                 {216, 43, 216, 44, null},
@@ -596,13 +631,17 @@ public class ExpressionTypeTestNew {
             return null;
         }
 
+        assertTrue(type.isPresent());
         assertEquals(type.get().typeKind(), kind);
+
         return type.get();
     }
 
     private TypeSymbol getExprType(int sLine, int sCol, int eLine, int eCol) {
         LinePosition start = LinePosition.from(sLine, sCol);
         LinePosition end = LinePosition.from(eLine, eCol);
-        return model.typeOf(LineRange.from("expressions_test.bal", start, end)).get();
+        Optional<TypeSymbol> typeSymbol = model.typeOf(LineRange.from("expressions_test.bal", start, end));
+        assertTrue(typeSymbol.isPresent());
+        return typeSymbol.get();
     }
 }

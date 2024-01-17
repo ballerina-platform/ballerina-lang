@@ -3,6 +3,6 @@ org-name= "wso2"
 version= "0.1.0"
 
 [platform]
-target = "java11"
+target = "java17"
 
     [[platform.libraries]]

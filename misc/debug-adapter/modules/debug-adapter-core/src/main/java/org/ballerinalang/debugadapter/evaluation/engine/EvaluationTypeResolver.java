@@ -154,9 +154,9 @@ public abstract class EvaluationTypeResolver<T> {
             throws EvaluationException {
         Optional<Symbol> typeDefinition = getQualifiedTypeDefinitionSymbol(modulePrefix, typeName);
         if (typeDefinition.isEmpty()) {
-            throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, modulePrefix + ":" + typeName);
+            throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, modulePrefix, typeName);
         } else if (!isPublicSymbol(typeDefinition.get())) {
-            throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, modulePrefix + ":" + typeName);
+            throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, modulePrefix, typeName);
         }
 
         String packageInitClass = constructInitClassNameFrom(typeDefinition.get());

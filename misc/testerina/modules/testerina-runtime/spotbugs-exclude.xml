@@ -18,12 +18,18 @@
 
 <FindBugsFilter>
     <Match>
-        <Class name="org.ballerinalang.test.runtime.Main"/>
+        <Class name="org.ballerinalang.test.runtime.BTestMain"/>
     </Match>
     <Match>
         <Class name="org.ballerinalang.test.runtime.util.CodeCoverageUtils"/>
     </Match>
     <Match>
+        <Class name="org.ballerinalang.test.runtime.util.TesterinaUtils"/>
+    </Match>
+    <Match>
         <Package name="org.ballerinalang.test.runtime.entity"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.test.runtime.util.JacocoInstrumentUtils"/>
     </Match>
 </FindBugsFilter>

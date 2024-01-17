@@ -1,6 +1,6 @@
-import ballerina/http;
+import ballerina/httpx;
 
-service / on new http:Listener(8080) {
+service / on new httpx:Listener(8080) {
     resource function get hello(string page) {
         int pageNumber = page;
     }

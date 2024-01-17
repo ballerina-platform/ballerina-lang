@@ -16,10 +16,9 @@
  */
 package org.ballerinalang.test.expressions.typecast;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -51,57 +50,58 @@ public class TypeCastExpressionsTest {
 
     @Test(dataProvider = "positiveTests")
     public void testCastPositive(String functionName) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected assertion to succeed and return the " +
+        Object returns = BRunUtil.invoke(result, functionName, new Object[0]);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns, "expected assertion to succeed and return the " +
                 "original value");
     }
 
     @Test(dataProvider = "stringAsStringTests")
     public void testStringAsString(String functionName, String s) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BString(s)});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected strings to be the same");
+        Object returns = BRunUtil.invoke(result, functionName, new Object[]{StringUtils.fromString(s)});
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns, "expected strings to be the same");
     }
 
     @Test
     public void testBooleanAsBoolean() {
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanAsBoolean", new BValue[0]);
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "invalid boolean representation as " +
+        Object arr = BRunUtil.invoke(result, "testBooleanAsBoolean", new Object[0]);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertSame(returns.get(0).getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns.get(0), "invalid boolean representation as " +
                 "boolean");
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "invalid boolean representation as " +
+        Assert.assertSame(returns.get(1).getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns.get(1), "invalid boolean representation as " +
                 "boolean");
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue(), "invalid boolean representation as " +
+        Assert.assertSame(returns.get(2).getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns.get(2), "invalid boolean representation as " +
                 "boolean");
-        Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[3]).booleanValue(), "invalid boolean representation as " +
+        Assert.assertSame(returns.get(3).getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns.get(3), "invalid boolean representation as " +
                 "boolean");
     }
 
     @Test
     public void testBooleanInUnionAsBoolean() {
-        BValue[] returns = BRunUtil.invoke(result, "testBooleanInUnionAsBoolean", new BValue[0]);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "invalid boolean representation as " +
+        Object arr = BRunUtil.invoke(result, "testBooleanInUnionAsBoolean", new Object[0]);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertSame(returns.get(0).getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns.get(0), "invalid boolean representation as " +
                 "boolean");
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "invalid boolean representation as " +
+        Assert.assertSame(returns.get(1).getClass(), Boolean.class);
+        Assert.assertFalse((Boolean) returns.get(1), "invalid boolean representation as " +
                 "boolean");
     }
 
     @Test
     public void testTypeCastOnRecordLiterals() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeCastOnRecordLiterals");
-        Assert.assertEquals(returns[0].stringValue(), "Server mode configuration");
-        Assert.assertEquals(returns[1].stringValue(), "Embedded mode configuration");
-        Assert.assertEquals(returns[2].stringValue(), "In-memory mode configuration");
+        Object arr = BRunUtil.invoke(result, "testTypeCastOnRecordLiterals");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.get(0).toString(), "Server mode configuration");
+        Assert.assertEquals(returns.get(1).toString(), "Embedded mode configuration");
+        Assert.assertEquals(returns.get(2).toString(), "In-memory mode configuration");
     }
 
     @Test
@@ -127,6 +127,21 @@ public class TypeCastExpressionsTest {
                 79, 51);
         validateError(resultNegative, errIndex++, "incompatible mapping constructor expression for type '(record {| " +
                 "string[] a; anydata...; |}|record {| string a; anydata...; |})'", 82, 49);
+        validateError(resultNegative, errIndex++, "incompatible types: expected 'Obj', found 'object { int i; }'", 96,
+                      15);
+        // https://github.com/ballerina-platform/ballerina-lang/issues/38104
+        validateError(resultNegative, errIndex++, "incompatible types: expected 'Obj', found 'object { int i; }'", 96,
+                      15);
+        validateError(resultNegative, errIndex++, "incompatible types: expected 'int', found 'string'", 110, 52);
+        validateError(resultNegative, errIndex++, "missing non-defaultable required record field 'empCount'", 119, 46);
+        validateError(resultNegative, errIndex++, "missing required parameter 'j' in call to 'new()'", 123, 15);
+        validateError(resultNegative, errIndex++, "missing error detail arg for error detail field 'code'", 129, 23);
+
+        // https://github.com/ballerina-platform/ballerina-lang/issues/38105
+        validateError(resultNegative, errIndex++, "invalid usage of 'object constructor expression' with type '" +
+                "(int|object { string id; }|object { int id; })'", 135, 52);
+        validateError(resultNegative, errIndex++, "incompatible types: 'object { int index; }' cannot be cast to " +
+                "'int'", 137, 19);
         Assert.assertEquals(resultNegative.getErrorCount(), errIndex);
     }
 
@@ -190,18 +205,18 @@ public class TypeCastExpressionsTest {
 
     @Test
     public void testUntaintedWithoutType() {
-        BValue[] returns = BRunUtil.invoke(result, "testContexuallyExpectedType");
-        Assert.assertSame(returns[0].getClass(), BMap.class);
-        Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Em Zee");
-        Assert.assertEquals(((BMap) returns[0]).get("id").stringValue(), "1100");
+        Object returns = BRunUtil.invoke(result, "testContexuallyExpectedType");
+        Assert.assertTrue(returns instanceof BMap);
+        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("name")).toString(), "Em Zee");
+        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("id")).toString(), "1100");
     }
 
     @Test
     public void testUntaintedWithoutType2() {
-        BValue[] returns = BRunUtil.invoke(result, "testContexuallyExpectedTypeRecContext");
-        Assert.assertSame(returns[0].getClass(), BMap.class);
-        Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Em Zee");
-        Assert.assertEquals(((BMap) returns[0]).get("id").stringValue(), "1100");
+        Object returns = BRunUtil.invoke(result, "testContexuallyExpectedTypeRecContext");
+        Assert.assertTrue(returns instanceof BMap);
+        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("name")).toString(), "Em Zee");
+        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("id")).toString(), "1100");
     }
 
     @DataProvider
@@ -212,7 +227,7 @@ public class TypeCastExpressionsTest {
         };
     }
 
-    @Test(dataProvider = "positiveTests")
+    @Test(dataProvider = "mappingToRecordTests")
     public void testJsonMappingToRecordPositive(String functionName) {
         BRunUtil.invoke(result, functionName);
     }
@@ -241,6 +256,23 @@ public class TypeCastExpressionsTest {
                 "testFiniteTypeToRefTypeCastNegative", "testValueTypeToFiniteTypeCastNegative",
                 "testFiniteTypeToFiniteTypeCastNegative", "testCastOfFiniteTypeWithIntersectingBuiltInSubType",
                 "testFiniteTypeArrayNegative"
+        };
+    }
+
+    @Test(dataProvider = "typeCastWithConstructorTests")
+    public void testTypeCastWithConstructors(String testFuncName) {
+        BRunUtil.invoke(result, testFuncName);
+    }
+
+    @DataProvider
+    public Object[] typeCastWithConstructorTests() {
+        return new Object[]{
+                "testTypeCastWithObjectConstructorExpr",
+                "testTypeCastWithRawTemplateExpr",
+                "testTypeCastWithTableConstructorExpr",
+                "testTypeCastWithNewExpr",
+                "testTypeCastWithErrorConstructorExpr",
+                "testTypeCastWithObjectConstructorExprTemporaryFix"
         };
     }
 

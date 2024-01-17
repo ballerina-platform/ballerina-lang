@@ -1,0 +1,72 @@
+[
+  {
+    "description": "Change object field type",
+    "oldCode": "service /demo on new http:Listener(8080){\npublic int x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic float x=5;\n\t}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "object field type changed from 'int' to 'float'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the object field type",
+    "oldCode": "service /demo on new http:Listener(8080){\nint x = 2;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tstring x = \"2\";\n\t}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "object field type changed from 'int' to 'string'"
+                },
+                {
+                  "kind": "object field expression",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "object field expression is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

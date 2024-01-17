@@ -15,8 +15,13 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.tools.text.LineRange;
+import org.apache.commons.lang3.builder.CompareToBuilder;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Class that contains the util functions used by the formatting tree modifier.
@@ -29,7 +34,7 @@ class FormatterUtils {
 
     static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
 
-    static boolean isInLineRange(Node node, LineRange lineRange) {
+    static boolean isInlineRange(Node node, LineRange lineRange) {
         if (lineRange == null) {
             return true;
         }
@@ -59,5 +64,19 @@ class FormatterUtils {
         }
 
         return true;
+    }
+
+    /**
+     * Sort ImportDeclaration nodes based on orgName and the moduleName in-place.
+     *
+     * @param importDeclarationNodes ImportDeclarations nodes
+     */
+    static void sortImportDeclarations(List<ImportDeclarationNode> importDeclarationNodes) {
+        importDeclarationNodes.sort((node1, node2) -> new CompareToBuilder()
+                .append(node1.orgName().isPresent() ? node1.orgName().get().orgName().text() : "",
+                        node2.orgName().isPresent() ? node2.orgName().get().orgName().text() : "")
+                .append(node1.moduleName().stream().map(node -> node.toString().trim()).collect(Collectors.joining()),
+                        node2.moduleName().stream().map(node -> node.toString().trim()).collect(Collectors.joining()))
+                .toComparison());
     }
 }

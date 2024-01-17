@@ -1,0 +1,79 @@
+[
+  {
+    "description": "Change a class name",
+    "oldCode": "public class Person{}",
+    "newCode": "public class Man{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "new",
+              "versionImpact": "minor"
+            },
+            {
+              "kind": "class",
+              "type": "removed",
+              "versionImpact": "major"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove a class",
+    "oldCode": "public class Person{}",
+    "newCode": "",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "removed",
+              "versionImpact": "major"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add a new class",
+    "oldCode": "",
+    "newCode": "public class Person{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "new",
+              "versionImpact": "minor"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

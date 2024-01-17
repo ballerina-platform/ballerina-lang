@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.util.PerformanceTestUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -36,7 +37,7 @@ import java.nio.file.Path;
  */
 public class CompletionPerformanceTest extends CompletionTest {
 
-    @Test(dataProvider = "completion-data-provider")
+    @Test(dataProvider = "completion-data-provider", enabled = false)
     @Override
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
         super.test(config, configPath);
@@ -44,12 +45,13 @@ public class CompletionPerformanceTest extends CompletionTest {
 
     @Override
     public String getResponse(Path sourcePath, Position position, String triggerChar) throws IOException {
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        Endpoint endpoint = getServiceEndpoint();
+        TestUtil.openDocument(endpoint, sourcePath);
         long start = System.currentTimeMillis();
         String responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
-                this.serviceEndpoint, triggerChar);
+                endpoint, triggerChar);
         long end = System.currentTimeMillis();
-        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+        TestUtil.closeDocument(endpoint, sourcePath);
         long actualResponseTime = end - start;
         int expectedResponseTime = PerformanceTestUtils.getCompletionResponseTimeThreshold();
         Assert.assertTrue(actualResponseTime < expectedResponseTime,

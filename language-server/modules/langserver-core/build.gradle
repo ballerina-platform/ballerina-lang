@@ -39,6 +39,7 @@ configurations {
 }
 
 dependencies {
+    dist project(':ballerina-rt')
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
@@ -68,24 +69,27 @@ dependencies {
     }
     implementation 'org.apache.commons:commons-lang3'
     implementation 'commons-io:commons-io'
-    implementation 'com.google.guava:guava:30.0-jre'
+    implementation "com.google.guava:guava:${project.guavaVersion}"
     implementation 'com.moandjiezana.toml:toml4j'
 
     distributionBala project(path: ':language-server:language-server-stdlib', configuration: 'distributionBala')
 
-    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.12.0'
-    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.12.0'
-    dependency 'commons-io:commons-io:2.7'
-    dependency 'com.google.guava:guava:30.0-jre'
+    dependency "org.eclipse.lsp4j:org.eclipse.lsp4j:${project.eclipseLsp4jVersion}"
+    dependency "org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:${project.eclipseLsp4jJsonrpcVersion}"
+    dependency "commons-io:commons-io:${project.commonsIoVersion}"
+    dependency "com.google.guava:guava:${project.guavaVersion}"
     
-    testCompile 'org.testng:testng'
+    testImplementation 'org.testng:testng'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-testng'
+    testImplementation 'org.awaitility:awaitility'
 }
 
 description = 'Ballerina - Language server - Core'
 
 // Fix for windows class path too long issue
 task pathingJar(type: Jar) {
-    appendix = "pathing"
+    archiveAppendix = "pathing"
     doFirst {
         manifest {
             attributes "Class-Path": sourceSets.main.runtimeClasspath.files.collect {
@@ -104,7 +108,7 @@ task createZip(type: Zip) {
 }
 
 task testJar(type: Jar, dependsOn: testClasses) {
-    baseName = "test-${project.archivesBaseName}"
+    archiveBaseName = "test-${project.archivesBaseName}"
     from sourceSets.test.output
 }
 
@@ -120,8 +124,27 @@ createJavadoc {
     exclude "**"
 }
 
+task deleteGeneratedModules(type:Delete) {
+    delete 'build/resources/test/command/generate-module-for-client-decl/source/client_decl/generated'
+}
+
+// This is need for the run via ls (fast-run) feature to be tested.
+task copyRuntime() {
+    dependsOn configurations.dist
+    doFirst {
+        configurations.dist.each { artifact ->
+            copy {
+                from artifact.getPath()
+                into "$buildDir/bre/lib"
+            }
+        }
+    }
+}
+
 test {
+    dependsOn deleteGeneratedModules
     dependsOn loadDistributionCache
+    dependsOn copyRuntime
     systemProperty "ballerina.home", "$buildDir/"
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
@@ -136,5 +159,7 @@ task buildAndCopy(type: Copy) {
     from 'build/libs/language-server-core-' + project.version + '.jar'
     into project(':jballerina-tools').projectDir.absolutePath +
             '/build/extracted-distributions/jballerina-tools-' + project.version +
-            '/bre/lib';
+            '/bre/lib'
 }
+
+tasks.compileJava.dependsOn(':language-server:language-server-stdlib:copyInteropImports')

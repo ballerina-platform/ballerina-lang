@@ -308,3 +308,69 @@ function testForeachIterationOverReadOnlyArrayMembersOfReadOnlyMapWithVarNegativ
         int|string f = c[0];
     }
 }
+
+type Foo record {|
+    int id;
+|};
+
+type Bar Foo;
+
+type Foo2 readonly & record {|
+    int id;
+|};
+
+type Bar2 Foo2;
+
+function testInvalidTypeInVariableBinding() {
+    Bar[] arr = [];
+    foreach int item in arr {
+
+    }
+
+    Bar2[] arr2 = [];
+    foreach int item in arr2 {
+
+    }
+}
+
+function testInvalidTupleVarRefWithMismatchingTypesInForeach() {
+    [[int, int]] a = [[10, 20]];
+    foreach var [a1, a2, ...a3] in a {
+    }
+
+    [[[int, string], int[]]] b = [[[10, "a"], [20, 30, 40, 50]]];
+    foreach var [b1, b2, ...b3] in b {
+    }
+
+    [[[int, string], int[]]] c = [[[10, "a"], [20, 30, 40, 50]]];
+    foreach var [[c1, c2, ...c3], c4] in c {
+    }
+}
+
+type SampleErrorData record {|
+    int code;
+    string reason;
+|};
+
+type SampleError error<SampleErrorData>;
+
+type SampleComplexErrorData record {|
+    int code;
+    int[2] pos;
+    record {string moreInfo;} infoDetails;
+|};
+
+type SampleComplexError error<SampleComplexErrorData>;
+
+function testOnFailWithMultipleErrors() {
+    boolean isPositiveState = false;
+    int[] nestedData = [1];
+
+    foreach var i in nestedData {
+        if isPositiveState {
+            fail error SampleComplexError("Transaction Failure", code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+        }
+        fail error SampleError("Transaction Failure", code = 50, reason = "deadlock condition");
+    } on fail var error(msg) {
+    }
+}

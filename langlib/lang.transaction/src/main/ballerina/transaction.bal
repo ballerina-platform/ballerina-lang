@@ -42,12 +42,28 @@ public type Info readonly & InfoInternal;
 # An instant in time.
 public type Timestamp readonly & object {
     # Returns milliseconds since 1970-01-01T00:00:00Z, not including leap seconds
+    # + return - milliseconds since 1970-01-01T00:00:00Z, not including leap seconds
     public function toMillisecondsInt() returns int;
     # Returns a string representation of the timestamp in ISO 8601 format
+    # + return - string representation of the timestamp in ISO 8601 format
     public function toString() returns string;
 };
 
 # Returns information about the current transaction.
+#
+# ```ballerina
+# function createEntity() returns error? {
+#     transaction {
+#         transaction:Info info = transaction:info();
+#         check commit;
+#     }
+# }
+#
+# transactional function updateDB() {
+#     transaction:Info info = transaction:info();
+#     info.xid ⇒ [100,102,53,51,97,57,57,51,45]
+# }
+# ```
 #
 # + return - information about the current transaction
 public transactional isolated function info() returns Info = @java:Method {
@@ -56,6 +72,11 @@ public transactional isolated function info() returns Info = @java:Method {
 } external;
 
 # Returns information about the transaction with the specified xid.
+#
+# ```ballerina
+# byte[] xid = [48, 53, 101, 102, 101, 55];
+# transaction:getInfo(xid) ⇒ {"xid":[48, 53, 101, 102, 101, 55],"retryNumber":0,"prevAttempt":null,"startTime":2022-12-20 16:03:37,228}
+# ```
 #
 # + xid - transaction id
 # + return - information about the transaction
@@ -69,7 +90,20 @@ public isolated function getInfo(byte[] xid) returns Info? = @java:Method {
 # This ask the transaction manager that when it makes the decision
 # whether to commit or rollback, it should decide to rollback.
 #
-# + error - the error that caused the rollback or `()`, if there is none
+# ```ballerina
+# function createEntity() returns error? {
+#     transaction {
+#         transaction:setRollbackOnly(error("marked as rollback only"));
+#         check commit;
+#     }
+# }
+#
+# transactional function updateDB() {
+#     transaction:setRollbackOnly(error("marked as rollback only"));
+# }
+# ```
+#
+# + e - the error that caused the rollback or `()`, if there is none
 public transactional isolated function setRollbackOnly(error? e) {
     if(e is error) {
       Error trxError = prepareError(e.message(), e);
@@ -78,6 +112,20 @@ public transactional isolated function setRollbackOnly(error? e) {
 }
 
 # Tells whether it is known that the transaction will be rolled back.
+#
+# ```ballerina
+# function createEntity() returns error? {
+#     transaction {
+#         transaction:setRollbackOnly(error("marked as rollback only"));
+#         transaction:getRollbackOnly() ⇒ true
+#         check commit;
+#     }
+# }
+#
+# transactional function updateDB() {
+#     transaction:getRollbackOnly() ⇒ false
+# }
+# ```
 #
 # + return - true if it is known that the transaction manager will,
 # when it makes the decision whether to commit or rollback, decide
@@ -89,8 +137,21 @@ public transactional isolated function getRollbackOnly() returns boolean = @java
 
 # Associates some data with the current transaction branch.
 #
-# + e - Data to be set
-public transactional isolated function setData((any|error) & readonly e) = @java:Method {
+# ```ballerina
+# function createEntity() returns error? {
+#     transaction {
+#         transaction:setData({accessType: "RO"});
+#         check commit;
+#     }
+# }
+#
+# transactional function updateDB() {
+#     transaction:setData({accessType: "RO"});
+# }
+# ```
+#
+# + data - Data to be set
+public transactional isolated function setData(readonly data) = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.SetData",
     name: "setData"
 } external;
@@ -99,8 +160,23 @@ public transactional isolated function setData((any|error) & readonly e) = @java
 #
 # The data is set using `setData`.
 #
+# ```ballerina
+# function createEntity() returns error? {
+#     transaction {
+#         transaction:setData({accessType: "RO"});
+#         transaction:getData() ⇒ {"accessType":"RO"}
+#         check commit;
+#     }
+# }
+#
+# transactional function updateDB() {
+#     transaction:setData({accessType: "RO"});
+#     transaction:getData() ⇒ {"accessType":"RO"}
+# }
+# ```
+#
 # + return - the data, or `()` if no data has been set.
-public transactional isolated function getData() returns (any|error) & readonly = @java:Method {
+public transactional isolated function getData() returns readonly = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.GetData",
     name: "getData"
 } external;
@@ -119,6 +195,23 @@ public type RollbackHandler isolated function(Info info, error? cause, boolean w
 
 # Adds a handler to be called if and when the global transaction commits.
 #
+# ```ballerina
+# function createEntity() returns error? {
+#     transaction {
+#         transaction:onCommit(onCommitHandle);
+#         check commit;
+#     }
+# }
+#
+# transactional function updateDB() {
+#     transaction:onCommit(onCommitHandle);
+# }
+#
+# isolated function onCommitHandle(transaction:Info info) {
+#     // Include the code to be executed when the transaction commits.
+# }
+# ```
+#
 # + handler - the function to be called on commit
 public transactional isolated function onCommit(CommitHandler handler) = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.OnCommit",
@@ -127,13 +220,30 @@ public transactional isolated function onCommit(CommitHandler handler) = @java:M
 
 # Adds a handler to be called if and when the global transaction rolls back.
 #
+# ```ballerina
+# function createEntity() returns error? {
+#     transaction {
+#         transaction:onRollback(onRollBackHandle);
+#         check commit;
+#     }
+# }
+#
+# transactional function updateDB() {
+#     transaction:onRollback(onRollBackHandle);
+# }
+#
+# isolated function onRollBackHandle(transaction:Info info, error? cause, boolean willRetry) {
+#     // Include the code to be executed when the transaction rollback.
+# }
+# ```
+#
 # + handler - the function to be called on rollback
 public transactional isolated function onRollback(RollbackHandler handler) = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.OnRollback",
     name: "onRollback"
 } external;
 
-function wrapRollbackError(Error? e) = @java:Method {
+isolated function wrapRollbackError(Error? e) = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.WrapRollbackError",
     name: "wrapRollbackError"
 } external;

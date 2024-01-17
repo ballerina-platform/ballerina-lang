@@ -45,6 +45,8 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.WORKER;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBasicsAndGetSymbol;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -88,7 +90,7 @@ public class AnnotationSymbolTest {
     public Object[][] getPos() {
         return new Object[][]{
                 {30, 6, CONSTANT, of("v1")},
-//                {36, 12, TYPE_DEFINITION, of("v1")}, // TODO: Uncomment after fixing #27461
+                {36, 12, TYPE_DEFINITION, of("v1")},
                 {37, 15, RECORD_FIELD, of("v5")},
                 {49, 6, CLASS, of("v1", "v2", "v2")},
                 {50, 15, CLASS_FIELD, of("v5")},
@@ -98,9 +100,9 @@ public class AnnotationSymbolTest {
                 {70, 11, ANNOTATION, of("v1")},
                 {82, 18, CLASS_FIELD, of("v5")},
                 {87, 22, RESOURCE_METHOD, of("v3")},
-//                {96, 11, WORKER, of("v1")} // TODO: Uncomment after fixing #27461
+                {96, 11, WORKER, of("v1")},
                 {105, 5, ENUM, of("v1", "v5")},
-                {109, 4, ENUM_MEMBER, of("v1")}
+                {109, 4, ENUM_MEMBER, of("v1")},
         };
     }
 
@@ -135,6 +137,21 @@ public class AnnotationSymbolTest {
                 {50, 5, "v5",  null},
                 {55, 29, "v4", "Annot"},
                 {115, 5, "v5", null}
+        };
+    }
+
+    @Test(dataProvider = "FunctionAnnotPosProvider")
+    public void functionAnnotationTest(int line, int col, SymbolKind kind) {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), kind);
+    }
+
+    @DataProvider(name = "FunctionAnnotPosProvider")
+    public Object[][] getFunctionAnnotPos() {
+        return new Object[][]{
+                {84, 5, ANNOTATION},
+                {85, 8, RECORD_FIELD}
         };
     }
 }

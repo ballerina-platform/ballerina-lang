@@ -26,9 +26,9 @@ import javax.transaction.xa.Xid;
  */
 public class XATransactionID implements Xid {
 
-    private int formatId;
-    private byte[] branchQualifier;
-    private byte[] globalTransactionId;
+    private final int formatId;
+    private final byte[] branchQualifier;
+    private final byte[] globalTransactionId;
 
     public XATransactionID(int formatId, byte[] branchQualifier, byte[] globalTransactionId) {
         this.formatId = formatId;

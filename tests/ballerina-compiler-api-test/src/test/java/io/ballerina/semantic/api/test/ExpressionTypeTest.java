@@ -33,6 +33,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
@@ -54,6 +55,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Tests for the checking the types of expressions.
@@ -77,38 +79,38 @@ public class ExpressionTypeTest {
     @DataProvider(name = "LiteralPosProvider")
     public Object[][] getLiteralPos() {
         return new Object[][]{
-                {17, 21, 17, 22, INT},
-                {17, 24, 17, 29, FLOAT},
-                {17, 31, 17, 36, DECIMAL},
-                {17, 38, 17, 42, BOOLEAN},
-                {17, 44, 17, 46, NIL},
-                {17, 48, 17, 53, STRING},
-                {18, 13, 18, 17, NIL},
+                {19, 21, 19, 22, INT},
+                {19, 24, 19, 29, FLOAT},
+                {19, 31, 19, 36, DECIMAL},
+                {19, 38, 19, 42, BOOLEAN},
+                {19, 44, 19, 46, NIL},
+                {19, 48, 19, 53, STRING},
+                {20, 13, 20, 17, NIL},
         };
     }
 
     @Test
     public void testByteLiteral() {
-        TypeSymbol type = getExprType(19, 15, 19, 42);
+        TypeSymbol type = getExprType(21, 15, 21, 44);
         assertEquals(type.typeKind(), ARRAY);
         assertEquals(((ArrayTypeSymbol) type).memberTypeDescriptor().typeKind(), BYTE);
     }
 
     @Test
     public void testStringTemplateExpr() {
-        assertType(23, 15, 23, 36, STRING);
+        assertType(25, 15, 25, 36, STRING);
     }
 
     @Test
     public void testXMLTemplateExpr() {
-        TypeSymbol type = getExprType(24, 12, 24, 45);
+        TypeSymbol type = getExprType(26, 12, 26, 45);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
         assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), XML_ELEMENT);
     }
 
     @Test
     public void testRawTemplate() {
-        TypeSymbol type = getExprType(25, 29, 25, 50);
+        TypeSymbol type = getExprType(27, 29, 27, 50);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
 
         TypeSymbol objType = ((TypeReferenceTypeSymbol) type).typeDescriptor();
@@ -120,7 +122,7 @@ public class ExpressionTypeTest {
 
     @Test
     public void testArrayLiteral() {
-        TypeSymbol type = getExprType(29, 20, 29, 34);
+        TypeSymbol type = getExprType(31, 20, 31, 34);
         assertEquals(type.typeKind(), ARRAY);
 
         TypeSymbol memberType = ((ArrayTypeSymbol) type).memberTypeDescriptor();
@@ -144,8 +146,8 @@ public class ExpressionTypeTest {
     @DataProvider(name = "TupleLiteralPosProvider")
     public Object[][] getTuplePos() {
         return new Object[][]{
-                {30, 15, 30, 27, List.of(INT, INT, INT)},
-                {32, 31, 32, 49, List.of(INT, STRING, FLOAT)},
+                {32, 15, 32, 27, List.of(INT, INT, INT)},
+                {33, 31, 33, 49, List.of(INT, STRING, FLOAT)},
         };
     }
 
@@ -254,7 +256,8 @@ public class ExpressionTypeTest {
         return new Object[][]{
                 {72, 12, 72, 15, INT},
                 {73, 12, 73, 23, INT},
-                {73, 17, 73, 23, INT},
+                {73, 12, 73, 19, INT},
+                {73, 17, 73, 23, null},
                 {74, 12, 74, 23, INT},
                 {75, 16, 75, 22, BOOLEAN},
                 {76, 17, 76, 22, STRING},
@@ -296,7 +299,7 @@ public class ExpressionTypeTest {
 
     @Test
     public void testInferredRecordTypeForInvalidExprs() {
-        assertType(97, 5, 97, 20, RECORD);
+        assertType(97, 4, 97, 20, RECORD);
     }
 
     @Test
@@ -316,11 +319,12 @@ public class ExpressionTypeTest {
         return new Object[][]{
                 {109, 4, 109, 10, UNION},
                 {109, 4, 109, 9, UNION},
-                {112, 15, 112, 27, STRING},
+                {112, 15, 112, 27, null},
                 {112, 15, 112, 26, STRING},
                 {127, 4, 127, 35, STRING},
                 {127, 4, 127, 34, STRING},
-                {129, 12, 129, 37, INT},
+                {129, 12, 129, 36, INT},
+                {129, 12, 129, 37, null},
                 {130, 4, 130, 36, BOOLEAN}
         };
     }
@@ -367,8 +371,15 @@ public class ExpressionTypeTest {
     }
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
-        TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
-        assertEquals(type.typeKind(), kind);
+        Optional<TypeSymbol> type = model.type(
+                LineRange.from("expressions_test.bal", LinePosition.from(sLine, sCol), LinePosition.from(eLine, eCol)));
+
+        if (kind == null) {
+            assertTrue(type.isEmpty());
+            return;
+        }
+
+        assertEquals(type.get().typeKind(), kind);
     }
 
     private TypeSymbol getExprType(int sLine, int sCol, int eLine, int eCol) {

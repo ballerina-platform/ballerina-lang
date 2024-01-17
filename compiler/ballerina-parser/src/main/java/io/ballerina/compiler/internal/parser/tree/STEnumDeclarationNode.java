@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -38,6 +38,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
     public final STNode openBraceToken;
     public final STNode enumMemberList;
     public final STNode closeBraceToken;
+    public final STNode semicolonToken;
 
     STEnumDeclarationNode(
             STNode metadata,
@@ -46,7 +47,8 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
             STNode identifier,
             STNode openBraceToken,
             STNode enumMemberList,
-            STNode closeBraceToken) {
+            STNode closeBraceToken,
+            STNode semicolonToken) {
         this(
                 metadata,
                 qualifier,
@@ -55,6 +57,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 openBraceToken,
                 enumMemberList,
                 closeBraceToken,
+                semicolonToken,
                 Collections.emptyList());
     }
 
@@ -66,6 +69,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
             STNode openBraceToken,
             STNode enumMemberList,
             STNode closeBraceToken,
+            STNode semicolonToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.ENUM_DECLARATION, diagnostics);
         this.metadata = metadata;
@@ -75,6 +79,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
         this.openBraceToken = openBraceToken;
         this.enumMemberList = enumMemberList;
         this.closeBraceToken = closeBraceToken;
+        this.semicolonToken = semicolonToken;
 
         addChildren(
                 metadata,
@@ -83,7 +88,8 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 identifier,
                 openBraceToken,
                 enumMemberList,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -95,6 +101,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 this.openBraceToken,
                 this.enumMemberList,
                 this.closeBraceToken,
+                this.semicolonToken,
                 diagnostics);
     }
 
@@ -105,7 +112,8 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
             STNode identifier,
             STNode openBraceToken,
             STNode enumMemberList,
-            STNode closeBraceToken) {
+            STNode closeBraceToken,
+            STNode semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
                 qualifier,
@@ -113,7 +121,8 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 identifier,
                 openBraceToken,
                 enumMemberList,
-                closeBraceToken)) {
+                closeBraceToken,
+                semicolonToken)) {
             return this;
         }
 
@@ -125,6 +134,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 openBraceToken,
                 enumMemberList,
                 closeBraceToken,
+                semicolonToken,
                 diagnostics);
     }
 

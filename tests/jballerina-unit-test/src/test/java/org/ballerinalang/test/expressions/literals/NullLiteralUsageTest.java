@@ -18,9 +18,7 @@
 
 package org.ballerinalang.test.expressions.literals;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -48,94 +46,95 @@ public class NullLiteralUsageTest {
 
     @Test
     public void testNullAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullAssignment");
-        assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "testNullAssignment");
+        assertNull(returns);
     }
 
     @Test
     public void testNullInField() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullInField");
-        assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "testNullInField");
+        assertNull(returns);
     }
 
     @Test
     public void testNullStringRepresentation() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullStringRepresentation");
-        assertEquals(returns[0].stringValue(), "");
+        Object returns = BRunUtil.invoke(result, "testNullStringRepresentation");
+        assertEquals(returns.toString(), "");
     }
 
     @Test
     public void testNullStringRepresentation2() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullStringRepresentation2");
-        assertEquals(returns[0].stringValue(), "null");
+        Object returns = BRunUtil.invoke(result, "testNullStringRepresentation2");
+        assertEquals(returns.toString(), "null");
     }
 
     @Test
     public void testNullStringRepresentation3() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullStringRepresentation3");
-        assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":25,\"location\":null}");
+        Object returns = BRunUtil.invoke(result, "testNullStringRepresentation3");
+        assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25,\"location\":null}");
     }
 
     @Test
     public void testNullStringRepresentation4() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullStringRepresentation4");
-        assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":25,\"location\":null}");
+        Object returns = BRunUtil.invoke(result, "testNullStringRepresentation4");
+        assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25,\"location\":null}");
     }
 
     @Test
     public void testNullStringRepresentation5() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullStringRepresentation5");
-        assertEquals(returns[0].stringValue(), "()");
+        Object returns = BRunUtil.invoke(result, "testNullStringRepresentation5");
+        assertEquals(returns.toString(), "()");
     }
 
     @Test
     public void testNullReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullReturn");
-        assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "testNullReturn");
+        assertNull(returns);
     }
 
     @Test
     public void testNullReturn2() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullReturn2");
-        assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "testNullReturn2");
+        assertNull(returns);
     }
 
     @Test
     public void testNullInFnParams() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullInFnParams");
-        assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "testNullInFnParams");
+        assertNull(returns);
     }
 
     @Test
     public void testNullInATuple() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullInATuple");
-        assertEquals(((BInteger) returns[0]).intValue(), 50);
-        assertNull(returns[1]);
-        assertEquals(returns[2].stringValue(), "foo");
+        Object arr = BRunUtil.invoke(result, "testNullInATuple");
+        BArray returns = (BArray) arr;
+        assertEquals(returns.get(0), 50L);
+        assertNull(returns.get(1));
+        assertEquals(returns.get(2).toString(), "foo");
     }
 
     @Test
     public void testNullWithTypeGuard() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullWithTypeGuard");
-        assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testNullWithTypeGuard");
+        assertTrue((Boolean) returns);
     }
 
     @Test
     public void testNullWithMatch() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullWithMatch");
-        assertEquals(returns[0].stringValue(), "null");
+        Object returns = BRunUtil.invoke(result, "testNullWithMatch");
+        assertEquals(returns.toString(), "null");
     }
 
     @Test
     public void testNullInArray() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullInArray");
-        assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "testNullInArray");
+        assertNull(returns);
     }
 
     @Test
     public void testNullInNestedTernaryExpr() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullInNestedTernaryExpr");
-        assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "testNullInNestedTernaryExpr");
+        assertNull(returns);
     }
 
     @AfterClass

@@ -162,7 +162,7 @@ public class RecordValueTest {
         person.remove(StringUtils.fromString("name"));
     }
 
-    @Test(expectedExceptions = { UnsupportedOperationException.class })
+    @Test(expectedExceptions = {UnsupportedOperationException.class})
     public void testRecordClear() {
         Object result = BRunUtil.invokeAndGetJVMResult(compileResult, "getDefaultPerson");
         Assert.assertTrue(result instanceof MapValue);

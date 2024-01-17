@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -86,4 +87,28 @@ public class JarLibrary extends PlatformLibrary {
     public Optional<String> groupId() {
         return Optional.ofNullable(groupId);
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        JarLibrary that = (JarLibrary) other;
+        if (this.groupId == null || this.artifactId == null || this.version == null) {
+            return Optional.of(this.path().getFileName()).get().equals(Optional.of(that.path().getFileName()).get());
+        }
+        if (that.groupId == null || that.artifactId == null || that.version == null) {
+            return Optional.of(this.path().getFileName()).get().equals(Optional.of(that.path().getFileName()).get());
+        }
+        return groupId.equals(that.groupId) && artifactId.equals(that.artifactId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.artifactId);
+    }
+
 }

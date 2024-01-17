@@ -22,6 +22,8 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,11 +42,6 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
     public BIRTerminator(Location pos, InstructionKind kind) {
         super(pos, kind);
         this.kind = kind;
-    }
-
-    @Override
-    public InstructionKind getKind() {
-        return this.kind;
     }
 
     public abstract BIRBasicBlock[] getNextBasicBlocks();
@@ -83,6 +80,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         }
 
         @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            // do nothing
+        }
+
+        @Override
         public BIRBasicBlock[] getNextBasicBlocks() {
             return new BIRBasicBlock[]{targetBB};
         }
@@ -97,8 +99,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class Call extends BIRTerminator implements BIRAssignInstruction {
         public boolean isVirtual;
-        public boolean transactional;
-        public List<BIRArgument> args;
+        public List<BIROperand> args;
         public Name name;
         public PackageID calleePkg;
         public List<BIRAnnotationAttachment> calleeAnnotAttachments;
@@ -109,7 +110,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                     boolean isVirtual,
                     PackageID calleePkg,
                     Name name,
-                    List<BIRArgument> args,
+                    List<BIROperand> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB,
                     List<BIRAnnotationAttachment> calleeAnnotAttachments,
@@ -117,7 +118,6 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             super(pos, kind);
             this.lhsOp = lhsOp;
             this.isVirtual = isVirtual;
-            this.transactional = calleeFlags.contains(Flag.TRANSACTIONAL);
             this.args = args;
             this.thenBB = thenBB;
             this.name = name;
@@ -131,7 +131,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                     boolean isVirtual,
                     PackageID calleePkg,
                     Name name,
-                    List<BIRArgument> args,
+                    List<BIROperand> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB,
                     List<BIRAnnotationAttachment> calleeAnnotAttachments,
@@ -157,6 +157,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         }
 
         @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            this.args = List.of(operands);
+        }
+
+        @Override
         public BIRBasicBlock[] getNextBasicBlocks() {
             return new BIRBasicBlock[]{thenBB};
         }
@@ -177,7 +182,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                          boolean isVirtual,
                          PackageID calleePkg,
                          Name name,
-                         List<BIRArgument> args,
+                         List<BIROperand> args,
                          BIROperand lhsOp,
                          BIRBasicBlock thenBB,
                          List<BIRAnnotationAttachment> annotAttachments,
@@ -209,14 +214,14 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class FPCall extends BIRTerminator {
         public BIROperand fp;
-        public List<BIRArgument> args;
+        public List<BIROperand> args;
         public boolean isAsync;
-        public boolean transactional;
+        public boolean workerDerivative;
 
         public FPCall(Location pos,
                       InstructionKind kind,
                       BIROperand fp,
-                      List<BIRArgument> args,
+                      List<BIROperand> args,
                       BIROperand lhsOp,
                       boolean isAsync,
                       BIRBasicBlock thenBB,
@@ -233,14 +238,14 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public FPCall(Location pos,
                       InstructionKind kind,
                       BIROperand fp,
-                      List<BIRArgument> args,
+                      List<BIROperand> args,
                       BIROperand lhsOp,
                       boolean isAsync,
-                      boolean transactional,
                       BIRBasicBlock thenBB,
-                      BirScope scope) {
+                      BirScope scope,
+                      boolean workerDerivative) {
             this(pos, kind, fp, args, lhsOp, isAsync, thenBB, scope);
-            this.transactional = transactional;
+            this.workerDerivative = workerDerivative;
         }
 
         @Override
@@ -253,10 +258,17 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             BIROperand[] operands = new BIROperand[args.size() + 1];
             operands[0] = fp;
             int i = 1;
-            for (BIRArgument operand : args) {
+            for (BIROperand operand : args) {
                 operands[i++] = operand;
             }
             return operands;
+        }
+
+        @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            this.fp = operands[0];
+            this.args = new ArrayList<>();
+            this.args.addAll(Arrays.asList(operands).subList(1, operands.length));
         }
 
         @Override
@@ -286,6 +298,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public BIROperand[] getRhsOperands() {
             return new BIROperand[0];
+        }
+
+        @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            // do nothing
         }
 
         @Override
@@ -333,6 +350,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         }
 
         @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            this.op = operands[0];
+        }
+
+        @Override
         public BIRBasicBlock[] getNextBasicBlocks() {
             return new BIRBasicBlock[]{trueBB, falseBB};
         }
@@ -346,7 +368,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      * @since 0.990.4
      */
     public static class Lock extends BIRTerminator {
-        public final BIRBasicBlock lockedBB;
+        public BIRBasicBlock lockedBB;
 
         public Set<BIRGlobalVariableDcl> lockVariables = new HashSet<>();
 
@@ -375,6 +397,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         }
 
         @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            // do nothing
+        }
+
+        @Override
         public BIRBasicBlock[] getNextBasicBlocks() {
             return new BIRBasicBlock[]{lockedBB};
         }
@@ -390,7 +417,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
     public static class FieldLock extends BIRTerminator {
         public BIROperand localVar;
         public String field;
-        public final BIRBasicBlock lockedBB;
+        public BIRBasicBlock lockedBB;
 
         public FieldLock(Location pos, BIROperand localVar, String field, BIRBasicBlock lockedBB) {
             super(pos, InstructionKind.FIELD_LOCK);
@@ -410,6 +437,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         }
 
         @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            this.localVar = operands[0];
+        }
+
+        @Override
         public BIRBasicBlock[] getNextBasicBlocks() {
             return new BIRBasicBlock[]{lockedBB};
         }
@@ -423,7 +455,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      * @since 0.990.4
      */
     public static class Unlock extends BIRTerminator {
-        public final BIRBasicBlock unlockBB;
+        public BIRBasicBlock unlockBB;
 
         public BIRTerminator.Lock relatedLock;
 
@@ -445,6 +477,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public BIROperand[] getRhsOperands() {
             return new BIROperand[0];
+        }
+
+        @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            // do nothing
         }
 
         @Override
@@ -484,6 +521,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public BIROperand[] getRhsOperands() {
             return new BIROperand[]{errorOp};
+        }
+
+        @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            this.errorOp = operands[0];
         }
 
         @Override
@@ -529,6 +571,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         }
 
         @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            this.exprList = new ArrayList<>(Arrays.asList(operands));
+        }
+
+        @Override
         public BIRBasicBlock[] getNextBasicBlocks() {
             return new BIRBasicBlock[]{thenBB};
         }
@@ -568,6 +615,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public BIROperand[] getRhsOperands() {
             return new BIROperand[0];
+        }
+
+        @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            // do nothing
         }
 
         @Override
@@ -614,6 +666,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public BIROperand[] getRhsOperands() {
             return new BIROperand[0];
+        }
+
+        @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            // do nothing
         }
 
         @Override
@@ -670,6 +727,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         }
 
         @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            this.data = operands[0];
+        }
+
+        @Override
         public BIRBasicBlock[] getNextBasicBlocks() {
             return new BIRBasicBlock[]{thenBB};
         }
@@ -704,6 +766,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         @Override
         public BIROperand[] getRhsOperands() {
             return valueExprs.toArray(new BIROperand[0]);
+        }
+
+        @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            this.valueExprs = Arrays.asList(operands);
         }
 
         @Override

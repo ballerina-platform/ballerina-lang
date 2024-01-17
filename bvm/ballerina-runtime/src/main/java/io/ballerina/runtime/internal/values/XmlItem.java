@@ -20,6 +20,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -29,8 +30,9 @@ import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.XmlValidator;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
@@ -55,7 +57,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.api.types.XmlNodeType.ELEMENT;
 import static io.ballerina.runtime.api.types.XmlNodeType.TEXT;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 
 /**
  * {@code XMLItem} represents a single XML element in Ballerina.
@@ -83,7 +84,6 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         probableParents = new ArrayList<>();
         this.type = PredefinedTypes.TYPE_ELEMENT;
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_ELEMENT : PredefinedTypes.TYPE_ELEMENT;
-        setTypedescValue(type);
     }
 
     public XmlItem(QName name, XmlSequence children) {
@@ -98,7 +98,6 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     public XmlItem(QName name) {
         this(name, new XmlSequence(new ArrayList<>()));
         this.type = PredefinedTypes.TYPE_ELEMENT;
-        setTypedescValue(type);
     }
 
     public XmlItem(QName name, boolean readonly) {
@@ -113,7 +112,6 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         probableParents = new ArrayList<>();
 
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_ELEMENT : PredefinedTypes.TYPE_ELEMENT;
-        setTypedescValue(type);
     }
     private void addDefaultNamespaceAttribute(QName name, AttributeMapValueImpl attributes) {
         String namespace = name.getNamespaceURI();
@@ -122,12 +120,13 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         }
 
         String prefix = name.getPrefix();
-        if (prefix == null || prefix.isEmpty()) {
-            prefix = XMLNS;
+        BString xmlnsPrefix;
+        if (prefix == null || prefix.isEmpty() || prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            xmlnsPrefix = XMLNS_PREFIX;
+        } else {
+            xmlnsPrefix = StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix);
         }
-
-        attributes.populateInitialValue(StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix),
-                                        StringUtils.fromString(namespace));
+        attributes.populateInitialValue(xmlnsPrefix, StringUtils.fromString(namespace));
     }
 
     /**
@@ -200,7 +199,13 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     @Override
     public BString getAttribute(String localName, String namespace, String prefix) {
         if (prefix != null && !prefix.isEmpty()) {
-            String ns = attributes.get(StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix)).getValue();
+            BString xmlnsPrefix;
+            if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+                xmlnsPrefix = XMLNS_PREFIX;
+            } else {
+                xmlnsPrefix = StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix);
+            }
+            String ns = attributes.get(xmlnsPrefix).getValue();
             BString attrVal = attributes.get(StringUtils.fromString("{" + ns + "}" + localName));
             if (attrVal != null) {
                 return attrVal;
@@ -371,14 +376,15 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         }
     }
 
-    private BallerinaException createXMLCycleError() {
-        return new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR.getValue(), "Cycle detected");
+    private BError createXMLCycleError() {
+        return ErrorCreator.createError(ErrorReasons.XML_OPERATION_ERROR,
+                StringUtils.fromString("Cycle detected"));
     }
 
     private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXml> appendingList) {
-        XmlPi lastChild = (XmlPi) leftList.get(leftList.size() - 1);
-        String firstChildContent = ((XmlPi) appendingList.get(0)).getData();
-        String mergedTextContent = lastChild.getData() + firstChildContent;
+        XmlText lastChild = (XmlText) leftList.get(leftList.size() - 1);
+        String firstChildContent = appendingList.get(0).getTextValue();
+        String mergedTextContent = lastChild.getTextValue() + firstChildContent;
         XmlText text = new XmlText(mergedTextContent);
         leftList.set(leftList.size() - 1, text);
         for (int i = 1; i < appendingList.size(); i++) {
@@ -435,13 +441,13 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             String xmlStr = this.stringValue(null);
             OMElement omElement = XmlFactory.stringToOM(xmlStr);
             return omElement;
-        } catch (ErrorValue e) {
+        } catch (BError e) {
             throw e;
         } catch (OMException | XMLStreamException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();
             throw ErrorCreator.createError(StringUtils.fromString((cause.getMessage())));
         } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString(("failed to parse xml: " + e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString((XmlFactory.PARSE_ERROR_PREFIX + e.getMessage())));
         }
     }
 
@@ -519,11 +525,14 @@ public final class XmlItem extends XmlValue implements BXmlItem {
      */
     @Override
     public XmlValue getItem(int index) {
-        if (index != 0) {
+        if (index == 0) {
+            return this;
+        }
+        if (index > 0) {
             return new XmlSequence();
         }
-
-        return this;
+        throw ErrorHelper.getRuntimeException(
+                ErrorCodes.XML_SEQUENCE_INDEX_OUT_OF_RANGE, 1, index);
     }
 
     public int size() {
@@ -630,7 +639,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         this.children.freezeDirect();
         this.attributes.freezeDirect();
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = null;
     }
 
     private QName getQName(String localName, String namespaceUri, String prefix) {

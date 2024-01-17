@@ -33,7 +33,7 @@ isolated function testInvalidArgForIsolatedParam() {
     y = 'map:filter(y, val => !val && glob);
 
     map<int> a = {a: 100, b: 200};
-    int v7 = 'map:reduce(a, function (int i, int j) returns int {return i + j + globInt;}, ...[1]);
+    int _ = 'map:reduce(a, function (int i, int j) returns int {return i + j + globInt;}, ...[1]);
 }
 
 boolean glob = true;
@@ -58,3 +58,9 @@ class Bar {
 }
 
 function strMapFilterFunc(string val) returns boolean => val is Greetings;
+
+isolated function testInvalidNonIsolatedFuncArgInFixedLengthArrayRestArg() {
+    int[] marks = [75, 80, 45, 90];
+    (function (int x) returns boolean)[1] fns = [x => x > 79];
+    _ = marks.filter(...fns);
+}

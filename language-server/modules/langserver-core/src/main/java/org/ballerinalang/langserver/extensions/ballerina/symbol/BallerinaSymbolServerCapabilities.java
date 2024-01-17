@@ -28,6 +28,22 @@ public class BallerinaSymbolServerCapabilities extends BallerinaServerCapability
 
     private boolean type;
 
+    private boolean getSymbol;
+
+    private boolean getTypeFromExpression;
+
+    private boolean getTypeFromSymbol;
+
+    private boolean getTypesFromFnDefinition;
+
+    public boolean isGetSymbol() {
+        return getSymbol;
+    }
+
+    public void setGetSymbol(boolean getSymbol) {
+        this.getSymbol = getSymbol;
+    }
+
     public boolean isEndpoints() {
         return endpoints;
     }
@@ -42,6 +58,30 @@ public class BallerinaSymbolServerCapabilities extends BallerinaServerCapability
 
     public void setType(boolean type) {
         this.type = type;
+    }
+
+    public boolean isGetTypeFromExpression() {
+        return getTypeFromExpression;
+    }
+
+    public void setGetTypeFromExpression(boolean getTypeFromExpression) {
+        this.getTypeFromExpression = getTypeFromExpression;
+    }
+
+    public boolean isGetTypeFromSymbol() {
+        return getTypeFromSymbol;
+    }
+
+    public void setGetTypeFromSymbol(boolean getTypeFromSymbol) {
+        this.getTypeFromSymbol = getTypeFromSymbol;
+    }
+
+    public boolean isGetTypesFromFnDefinition() {
+        return getTypesFromFnDefinition;
+    }
+
+    public void setGetTypesFromFnDefinition(boolean getTypesFromFnDefinition) {
+        this.getTypesFromFnDefinition = getTypesFromFnDefinition;
     }
 
     public BallerinaSymbolServerCapabilities() {

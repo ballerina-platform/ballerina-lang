@@ -42,10 +42,10 @@ function redeclaredSymbol() {
 
 function bindingPatternError() {
     Person p1 = {name: "John", married: true, "age": 12};
-    Person {name1: fName1, married: maritalStatus1} = p1;
+    Person {name: fName1, married: maritalStatus1} = p1;
 
     Person p2 = {"name1": "John", married: true, "age": 12};
-    Person {name1: fName2, married: maritalStatus2} = p2;
+    Person {name: fName2, married: maritalStatus2} = p2;
 
     Person p3 = {"name1": "John", married: true, "age": 12};
     Person {name: fName3, married: maritalStatus3} = p3;
@@ -269,7 +269,7 @@ type SchemaA record {|
 type SchemaB record {|
     string name;
     boolean age;
-    boolean married;
+    boolean? married;
     int...;
 |};
 
@@ -284,7 +284,7 @@ function testRestFieldResolving() {
     SchemaA|SchemaB|SchemaC {name, ...rest} = recA;
     map<int|string> extra = rest;
     var extraRec = rest;
-    boolean married = extraRec.married;
+    boolean? married = extraRec.married;
 }
 
 record {|
@@ -299,4 +299,84 @@ var {i, e: _} = n;
 
 function testWildCardBindingAssignability() {
     var {i: i2, e: _} = n;
+}
+
+type EmployeeNew record {
+    string name;
+};
+
+function testInvalidFieldBindingPattern() {
+    EmployeeNew e = {name: ""};
+    var {name, id} = e;
+
+    [record {int i?;}] y = [{}];
+    var [{i: i2}] = y;
+
+    record {| int i; int...; |} a = {i: 1};
+    record {| int i; int...; |} {i: _, j} = a;
+}
+
+type Student1 record {
+    string name;
+    int id;
+    int age?;
+};
+
+function testOptionalFieldsInRecordBindingPattern() {
+    Student1 e = {name: "Jo", id: 1234};
+    var {name: eName, id: eId, age: eAge} = e;
+    int newAge = eAge; // error
+
+    var {name, id: id, age} = e;
+    newAge = age; // error
+}
+
+type Topt1 record {
+    int a;
+    record {
+        int b?;
+    }[1] c?;
+};
+
+function testInvalidOptionalFieldAssignment1() {
+    Topt1 topt = {a: 4, c: [{b: 5}]};
+    var {a, c} = topt;
+    record {int b?;}[1] _ = c; // error
+}
+
+function testInvalidOptionalFieldAssignment2() {
+    Topt1 topt = {a: 4, c: [{b: 5}]};
+    var {a, c: [{b}]} = topt; // error
+}
+
+type Topt2 record {
+   int? x;
+   int? y;
+};
+
+function testRecordDefinitionWithOptionalFieldsNegative1() {
+    int? x = 1;
+    string? y = "2";
+    Topt2 _ = {x, y}; // error
+}
+
+type ReadOnlyRecord readonly & record {|
+    int[] x;
+    string y;
+|};
+
+function testReadOnlyRecordWithMappingBindingPatternInVarDeclNegative1() {
+    ReadOnlyRecord f1 = {x: [1, 2], y: "s1"};
+    readonly & record {|
+        string[] x;
+        string y;
+    |} {x, y} = f1; // error
+}
+
+function testReadOnlyRecordWithMappingBindingPatternInVarDeclNegative2() {
+    ReadOnlyRecord f1 = {x: [1, 2], y: "s1"};
+    ReadOnlyRecord {x, y} = f1;
+
+    int[] a = [];
+    x = a; // error
 }

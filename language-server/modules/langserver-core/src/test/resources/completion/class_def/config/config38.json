@@ -1,0 +1,27 @@
+{
+  "position": {
+    "line": 8,
+    "character": 16
+  },
+  "source": "class_def/source/source36.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "distinct",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "distinct",
+      "insertText": "distinct",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

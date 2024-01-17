@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -39,10 +40,11 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
+import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.StringValue;
 import io.ballerina.runtime.internal.values.TypedescValue;
@@ -130,7 +132,7 @@ public class DebuggerRuntime {
             latch.await();
             return finalResult[0];
         } catch (Exception e) {
-            throw new BallerinaException("invocation failed: " + e.getMessage());
+            throw ErrorCreator.createError(StringUtils.fromString("invocation failed: " + e.getMessage()));
         }
     }
 
@@ -156,7 +158,8 @@ public class DebuggerRuntime {
                 try {
                     return method.invoke(null, args);
                 } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new BallerinaException("'" + methodName + "' function invocation failed: " + e.getMessage());
+                    throw ErrorCreator.createError(StringUtils.fromString(
+                            "'" + methodName + "' function invocation failed: " + e.getMessage()));
                 }
             };
 
@@ -180,7 +183,8 @@ public class DebuggerRuntime {
             latch.await();
             return finalResult[0];
         } catch (Exception e) {
-            throw new BallerinaException("'" + methodName + "' function invocation failed: " + e.getMessage());
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "'" + methodName + "' function invocation failed: " + e.getMessage()));
         }
     }
 
@@ -240,7 +244,7 @@ public class DebuggerRuntime {
         }
 
         ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
-        BMap<BString, Object> errorDetailsMap = ValueCreator.createMapValue(PredefinedTypes.TYPE_ERROR_DETAIL,
+        BMap<BString, Object> errorDetailsMap = ValueCreator.createMapValue((MapType) PredefinedTypes.TYPE_ERROR_DETAIL,
                 errorDetailEntries.toArray(errorDetailEntries.toArray(new BMapInitialValueEntry[0])));
         return ErrorCreator.createError(bErrorType, (StringValue) message, (ErrorValue) cause, errorDetailsMap);
     }
@@ -380,25 +384,20 @@ public class DebuggerRuntime {
      * @param executablePath path of the jar to be classloaded
      * @param mainClass      main class name
      * @param functionName   name of the function to be executed
-     * @param argValues      argument values
+     * @param userArgs       argument values
      * @return result of the function invocation
      */
     public static Object classloadAndInvokeFunction(String executablePath, String mainClass, String functionName,
-                                                    Object... argValues) {
+                                                    Object... userArgs) {
         try {
+            // Need to pass the strand (or null) as the first argument for the generated function.
+            List<Object> functionArgs = new ArrayList<>();
+            functionArgs.add(null);
+            functionArgs.addAll(Arrays.asList(userArgs));
+
             URL pathUrl = Paths.get(executablePath).toUri().toURL();
             URLClassLoader classLoader = AccessController.doPrivileged((PrivilegedAction<URLClassLoader>) () ->
                     new URLClassLoader(new URL[]{pathUrl}, ClassLoader.getSystemClassLoader()));
-
-            List<Object> generatedArgs = new ArrayList<>();
-            generatedArgs.add(null);
-            for (Object arg : argValues) {
-                generatedArgs.add(arg);
-                // since the generated functions will contain an additional boolean flag for each parameter (to indicate
-                // whether its an user provided arg), need to inject additional boolean values.
-                // Todo - remove once https://github.com/ballerina-platform/ballerina-lang/pull/31589 is merged.
-                generatedArgs.add(true);
-            }
 
             // Derives the namespace of the generated classes.
             String[] mainClassNameParts = mainClass.split("\\.");
@@ -410,9 +409,10 @@ public class DebuggerRuntime {
             // Initialize a new scheduler
             Scheduler scheduler = new Scheduler(1, false);
             // Initialize configurations
+            TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
             invokeMethodDirectly(classLoader, String.join(".", packageNameSpace, CONFIGURE_INIT_CLASS_NAME),
                     CONFIGURE_INIT_METHOD_NAME, new Class[]{String[].class, Path[].class, String.class},
-                    new Object[]{new String[]{}, new Path[]{}, null});
+                    new Object[]{new String[]{}, configurationDetails.paths, configurationDetails.configContent});
             // Initialize the module
             invokeFunction(classLoader, scheduler, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
                     MODULE_INIT_METHOD_NAME, new Object[1]);
@@ -420,7 +420,7 @@ public class DebuggerRuntime {
             invokeFunction(classLoader, scheduler, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
                     MODULE_START_METHOD_NAME, new Object[1]);
             // Run the actual method
-            return invokeFunction(classLoader, scheduler, mainClass, functionName, generatedArgs.toArray());
+            return invokeFunction(classLoader, scheduler, mainClass, functionName, functionArgs.toArray());
         } catch (Exception e) {
             return e.getMessage();
         }

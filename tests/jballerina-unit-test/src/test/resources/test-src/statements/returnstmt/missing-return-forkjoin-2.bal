@@ -1,12 +1,12 @@
 function testNullInForkJoin () returns [string, string]|error {
-    string m = "";
+    string _ = "";
     fork {
         worker foo returns int {
-            string resp1 = "";
+            string _ = "";
         }
 
         worker bar returns int {
-            string resp2 = "";
+            string _ = "";
         }
     }
 }

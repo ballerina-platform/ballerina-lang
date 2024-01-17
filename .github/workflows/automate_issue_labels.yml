@@ -1,0 +1,173 @@
+name: Add issue labels
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  Add-label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check for Type label inclusion
+        if: ${{ !(contains(join(github.event.issue.labels.*.name, ','), 'Type/')) }}
+        run: gh issue edit $ISSUE --add-label "needTriage"
+      
+      - name: Check for Compilation related issue
+        if: ${{ contains(github.event.issue.body, '-> Compilation') && !contains(join(github.event.issue.labels.*.name, ','), 'Team/') }}
+        run: |
+          gh issue edit $ISSUE --add-label "needTriage"
+          gh issue edit $ISSUE --add-label "userCategory/Compilation" 
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Run Time related issue
+        if: ${{ contains(github.event.issue.body, '-> Runtime') }}
+        run: gh issue edit $ISSUE --add-label "Team/jBallerina"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Ballerina Library related issue
+        if: ${{ contains(github.event.issue.body, '-> Ballerina Library') }}
+        run: gh issue transfer $ISSUE "ballerina-platform/ballerina-library"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Central related isssue
+        if: ${{ contains(github.event.issue.body, '-> Central') && !contains(join(github.event.issue.labels.*.name, ','), 'Team/') }}
+        run: |
+          gh issue edit $ISSUE --add-label "needTriage"
+          gh issue edit $ISSUE --add-label "userCategory/Central"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Website related issue
+        if: ${{ contains(github.event.issue.body, '-> Website') }}
+        run: gh issue transfer $ISSUE "ballerina-platform/ballerina-dev-website"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for APIDocs related issue
+        if: ${{ contains(github.event.issue.body, '-> API Docs') }}
+        run: gh issue transfer $ISSUE "ballerina-platform/ballerina-dev-tools"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Debugger related issue
+        if: ${{ contains(github.event.issue.body, '-> Debugger') }}
+        run: |
+          gh issue edit $ISSUE --add-label "Team/DevTools"
+          gh issue edit $ISSUE --add-label "Area/Debugger"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Update Tool related issue
+        if: ${{ contains(github.event.issue.body, '-> Update Tool') }}
+        run: gh issue transfer $ISSUE "ballerina-platform/ballerina-update-tool"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for GRPC Tool related issue
+        if: ${{ contains(github.event.issue.body, '-> gRPC Tool') }}
+        run: gh issue transfer $ISSUE "ballerina-platform/ballerina-library"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for AsyncAPI related issue
+        if: ${{ contains(github.event.issue.body, '-> AsyncAPI Tool') }}
+        run: gh issue transfer $ISSUE "ballerina-platform/asyncapi-tools"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for OpenAPI Tool related issue
+        if: ${{ contains(github.event.issue.body, '-> OpenAPI Tool') }}
+        run: gh issue transfer $ISSUE "ballerina-platform/openapi-tools"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Semver Validator Tool related issue
+        if: ${{ contains(github.event.issue.body, '-> SemVer Validator Tool') }}
+        run: |
+          gh issue edit $ISSUE --add-label "Team/DevTools"
+          gh issue edit $ISSUE --add-label "Area/SemverValidator"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Bindgen Tool related issue 
+        if: ${{ contains(github.event.issue.body, '-> Bindgen Tool') }}
+        run: |
+          gh issue edit $ISSUE --add-label "Team/DevTools"
+          gh issue edit $ISSUE --add-label "Area/Bindgen"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Formatter related issue 
+        if: ${{ contains(github.event.issue.body, '-> Formatter') }}
+        run: |
+          gh issue edit $ISSUE --add-label "Team/CompilerFETools"
+          gh issue edit $ISSUE --add-label "Area/Formatter"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Shell related issue 
+        if: ${{ contains(github.event.issue.body, '-> Shell') }}
+        run: |
+          gh issue edit $ISSUE --add-label "Team/CompilerFETools"
+          gh issue edit $ISSUE --add-label "Area/Shell"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Editor related issue 
+        if: ${{ contains(github.event.issue.body, '-> Editor') && !contains(join(github.event.issue.labels.*.name, ','), 'Team/') }}
+        run: |
+          gh issue edit $ISSUE --add-label "needTriage"
+          gh issue edit $ISSUE --add-label "userCategory/Editor"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Test Framework related issue 
+        if: ${{ contains(github.event.issue.body, '-> Test Framework') }}
+        run: |
+          gh issue edit $ISSUE --add-label "Team/DevTools"
+          gh issue edit $ISSUE --add-label "Area/TestFramework"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for Observability related issue 
+        if: ${{ contains(github.event.issue.body, '-> Observability') }}
+        run: gh issue edit $ISSUE --add-label "Team/Observability"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for CICD related issue 
+        if: ${{ contains(github.event.issue.body, '-> CICD') }}
+        run: gh issue edit $ISSUE --add-label "Team/CICD"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+
+      - name: Check for other issues 
+        if: ${{ contains(github.event.issue.body, '-> Other Area') && !contains(join(github.event.issue.labels.*.name, ','), 'Team/') }}
+        run: gh issue edit $ISSUE --add-label "needTriage"
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}

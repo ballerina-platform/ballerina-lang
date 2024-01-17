@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -39,6 +39,7 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
     public final STNode openBrace;
     public final STNode members;
     public final STNode closeBrace;
+    public final STNode semicolonToken;
 
     STClassDefinitionNode(
             STNode metadata,
@@ -48,7 +49,8 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
             STNode className,
             STNode openBrace,
             STNode members,
-            STNode closeBrace) {
+            STNode closeBrace,
+            STNode semicolonToken) {
         this(
                 metadata,
                 visibilityQualifier,
@@ -58,6 +60,7 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
                 openBrace,
                 members,
                 closeBrace,
+                semicolonToken,
                 Collections.emptyList());
     }
 
@@ -70,6 +73,7 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
             STNode openBrace,
             STNode members,
             STNode closeBrace,
+            STNode semicolonToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.CLASS_DEFINITION, diagnostics);
         this.metadata = metadata;
@@ -80,6 +84,7 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
         this.openBrace = openBrace;
         this.members = members;
         this.closeBrace = closeBrace;
+        this.semicolonToken = semicolonToken;
 
         addChildren(
                 metadata,
@@ -89,7 +94,8 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
                 className,
                 openBrace,
                 members,
-                closeBrace);
+                closeBrace,
+                semicolonToken);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -102,6 +108,7 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
                 this.openBrace,
                 this.members,
                 this.closeBrace,
+                this.semicolonToken,
                 diagnostics);
     }
 
@@ -113,7 +120,8 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
             STNode className,
             STNode openBrace,
             STNode members,
-            STNode closeBrace) {
+            STNode closeBrace,
+            STNode semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
@@ -122,7 +130,8 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
                 className,
                 openBrace,
                 members,
-                closeBrace)) {
+                closeBrace,
+                semicolonToken)) {
             return this;
         }
 
@@ -135,6 +144,7 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
                 openBrace,
                 members,
                 closeBrace,
+                semicolonToken,
                 diagnostics);
     }
 

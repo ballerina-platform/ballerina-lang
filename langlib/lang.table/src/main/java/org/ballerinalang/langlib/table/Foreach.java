@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -49,16 +48,10 @@ public class Foreach {
     public static void forEach(BTable tbl, BFunctionPointer<Object, Object> func) {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
-        Strand parentStrand = Scheduler.getStrand();
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{parentStrand,
-                                tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
-                        result -> {
-                        }, () -> null, Scheduler.getStrand().scheduler);
+        Object[] values = tbl.values().toArray();
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                () -> new Object[]{values[index.incrementAndGet()], true}, result -> {
+                }, () -> null, Scheduler.getStrand().scheduler);
     }
 
-    public static void forEach_bstring(Strand strand, BTable tbl, BFunctionPointer<Object, Object> func) {
-        forEach(tbl, func);
-    }
 }

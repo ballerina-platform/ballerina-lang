@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -93,7 +92,7 @@ public class RemotePackageRepositoryTests {
         PackageResolutionResponse response = PackageResolutionResponse.from(Arrays.asList(http122, covid154),
                 Arrays.asList());
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
-                anyString(), anyString(), anyBoolean())).thenReturn(response);
+                anyString(), anyString())).thenReturn(response);
         // Mock response from file system
         when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(fileHttp120, fileCovid159));
@@ -116,9 +115,14 @@ public class RemotePackageRepositoryTests {
         Assert.assertEquals(httpResult.resolvedDescriptor().version().toString(), "1.2.2");
         Assert.assertEquals(httpResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
-        // If the remote repository version is lower than filesystem it should return filesystem version
+        // If the remote repository version is lower than filesystem
+        // This behavior changed with the introduction of deprecated packages
+        // filesystem version not deprecated & remote repository version not deprecate
+        //      - filesystem version is the latest :
+        //      This implies that remote repository has the same version as the filesystem but it is deprecated.
+        //      So, it returns a lower version which is not deprecated. Details in filesystem might not be up to date.
         PackageMetadataResponse covidResult =  resolutionResponseDescriptors.get(1);
-        Assert.assertEquals(covidResult.resolvedDescriptor().version().toString(), "1.5.9");
+        Assert.assertEquals(covidResult.resolvedDescriptor().version().toString(), "1.5.7");
         Assert.assertEquals(covidResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
         // Check if dependencies are populated for two sub levels
@@ -133,7 +137,7 @@ public class RemotePackageRepositoryTests {
         PackageResolutionResponse response = PackageResolutionResponse.from(Arrays.asList(http122),
                 Arrays.asList(covid154, smtp));
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
-                anyString(), anyString(), anyBoolean())).thenReturn(response);
+                anyString(), anyString())).thenReturn(response);
         // Mock response from file system
         when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(PackageMetadataResponse.createUnresolvedResponse(resHttp120),
@@ -179,7 +183,7 @@ public class RemotePackageRepositoryTests {
         PackageResolutionResponse response = PackageResolutionResponse.from(Arrays.asList(http122, covid154),
                 Arrays.asList());
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
-                anyString(), anyString(), anyBoolean()))
+                anyString(), anyString()))
                 .thenThrow(new AssertionError("Client get called in offline mode"));
         // Mock response from file system
         when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
@@ -213,7 +217,7 @@ public class RemotePackageRepositoryTests {
         PackageResolutionResponse response = PackageResolutionResponse.from(Arrays.asList(http122, covid154),
                 Arrays.asList());
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
-                anyString(), anyString(), anyBoolean())).thenThrow(new ConnectionErrorException("500 Error"));
+                anyString(), anyString())).thenThrow(new ConnectionErrorException("500 Error"));
         // Mock response from file system
         when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(fileHttp120, fileCovid159));
@@ -263,7 +267,7 @@ public class RemotePackageRepositoryTests {
                         .Module("ballerina", "unknown", "1.4.5", null, "module not found"))
         );
         when(centralAPIClient.resolvePackageNames(any(PackageNameResolutionRequest.class),
-                anyString(), anyString(), anyBoolean())).thenReturn(centralResponse);
+                anyString(), anyString())).thenReturn(centralResponse);
 
         // Mock response from file system
         when(fileSystemRepository.getPackageNames(anyList(), any(ResolutionOptions.class)))

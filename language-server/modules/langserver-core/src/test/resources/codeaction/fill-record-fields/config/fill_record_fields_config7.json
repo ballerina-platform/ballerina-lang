@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 2,
+    "character": 15
+  },
+  "source": "fill_record_fields_source4.bal",
+  "expected": [
+    {
+      "title": "Fill 'record {|readonly string first; readonly string last; anydata & readonly...;|}' required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 15
+            },
+            "end": {
+              "line": 2,
+              "character": 15
+            }
+          },
+          "newText": "last: \"\", first: \"\""
+        }
+      ]
+    }
+  ],
+  "description": "Fill record fields in list constructor expression"
+}

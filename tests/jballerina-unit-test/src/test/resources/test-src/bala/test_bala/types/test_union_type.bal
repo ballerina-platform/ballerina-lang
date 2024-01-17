@@ -51,22 +51,36 @@ function testUnionRuntimeToString() {
     assertTrue(b is error);
     error err = <error> b;
     assertEquals("{ballerina}TypeCastError", err.message());
-    assertEquals("incompatible types: 'any[]' cannot be cast to 'testorg/foo:1:IntOrString'",
+    assertEquals("incompatible types: '(any|error)[]' cannot be cast to 'testorg/foo:1:IntOrString'",
                  <string> checkpanic err.detail()["message"]);
 
     foo:FooBar|error c = trap <foo:FooBar> a;
     assertTrue(c is error);
     err = <error> c;
     assertEquals("{ballerina}TypeCastError", err.message());
-    assertEquals("incompatible types: 'any[]' cannot be cast to 'testorg/foo:1:FooBar'",
+    assertEquals("incompatible types: '(any|error)[]' cannot be cast to 'testorg/foo:1:FooBar'",
                  <string> checkpanic err.detail()["message"]);
 
     foo:BazQux|error d = trap <foo:BazQux> a;
     assertTrue(d is error);
     err = <error> d;
     assertEquals("{ballerina}TypeCastError", err.message());
-    assertEquals("incompatible types: 'any[]' cannot be cast to 'testorg/foo:1:BazQux'",
+    assertEquals("incompatible types: '(any|error)[]' cannot be cast to 'testorg/foo:1:BazQux'",
                  <string> checkpanic err.detail()["message"]);
+}
+
+function testTernaryWithQueryForModuleImportedVariable() {
+    int|int[] thenResult = foo:IntOrNull is int ?
+        from var _ in [1, 2]
+        where foo:IntOrNull + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = foo:IntOrNull is () ? 2 :
+        from var _ in [1, 2]
+        where foo:IntOrNull + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
 }
 
 function assertTrue(anydata actual) {

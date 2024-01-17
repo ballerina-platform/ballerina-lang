@@ -17,12 +17,12 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="debugger-intg-test-suite">
 
     <!-- Ballerina debug related test cases. -->
-    <test name="debugger-intg-tests" parallel="false">
+    <test name="debugger-intg-tests">
         <parameter name="enableDebuggerTests" value="true"/>
         <groups>
             <run>
@@ -33,16 +33,25 @@ under the License.
             <!--Remote Debugging Tests-->
             <class name="org.ballerinalang.debugger.test.remote.BallerinaRunRemoteDebugTest"/>
             <class name="org.ballerinalang.debugger.test.remote.BallerinaTestRemoteDebugTest"/>
-            <class name="org.ballerinalang.debugger.test.remote.BallerinaBuildRemoteDebugTest"/>
 
             <!--Debug engaging tests for ballerina commands -->
             <class name="org.ballerinalang.debugger.test.adapter.run.SingleBalFileRunDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.ModuleBreakpointTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.run.MultiModuleRunDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.test.MultiModuleTestDebugTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.build.MultiModuleBuildDebugTest"/>
 
-            <!--Breakpoint tests-->
+            <!--Debug Variables Tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.variables.VariableVisibilityTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.variables.VariableQueryTest"/>
+
+            <!--Debugger Expression Evaluation Tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.PackageEvaluationTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.PackageEvaluationNegativeTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.SingleFileEvaluationTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.SingleFileEvaluationNegativeTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.DependencyEvaluationTest"/>
+
+            <!--Other tests-->
             <class name="org.ballerinalang.debugger.test.adapter.ControlFlowDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.CallStackDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.LanguageConstructDebugTest"/>
@@ -53,17 +62,13 @@ under the License.
             <class name="org.ballerinalang.debugger.test.adapter.LogPointTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.run.DebugEngageTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.DebugOutputTest"/>
-
-            <!--Debug Variables Tests-->
-            <class name="org.ballerinalang.debugger.test.adapter.variables.VariableVisibilityTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.variables.VariableQueryTest"/>
-
-            <!--Debugger Expression Evaluation Tests-->
-            <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationNegativeTest"/>
-
-            <!--Debug Completions Tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.RecursiveDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.BreakpointVerificationTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.completions.DebugCompletionTest"/>
+
+            <!--Debugger RunInTerminal Tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.runinterminal.SingleFileRunInTerminalTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.runinterminal.ProjectBasedRunInTerminalTest"/>
         </classes>
     </test>
 </suite>

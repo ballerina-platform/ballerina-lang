@@ -1,0 +1,4 @@
+[package]
+org = "pramjs"
+name = "pkg_a"
+version = "2.0.0"

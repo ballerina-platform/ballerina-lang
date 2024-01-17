@@ -20,6 +20,17 @@
       "sortText": "L",
       "insertText": "ErrorTwo",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ClientError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Defines the possible client error types."
+      },
+      "sortText": "L",
+      "insertText": "ClientError",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

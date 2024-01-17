@@ -118,10 +118,13 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
                 new SnippetCompletionItem(context, Snippet.KW_WHERE.get()),
                 new SnippetCompletionItem(context, Snippet.KW_LET.get()),
                 new SnippetCompletionItem(context, Snippet.CLAUSE_LET.get()),
+                new SnippetCompletionItem(context, Snippet.KW_OUTER.get()),
                 new SnippetCompletionItem(context, Snippet.KW_JOIN.get()),
                 new SnippetCompletionItem(context, Snippet.CLAUSE_JOIN.get()),
                 new SnippetCompletionItem(context, Snippet.KW_ORDERBY.get()),
-                new SnippetCompletionItem(context, Snippet.KW_LIMIT.get())
+                new SnippetCompletionItem(context, Snippet.KW_LIMIT.get()),
+                new SnippetCompletionItem(context, Snippet.KW_GROUPBY.get()),
+                new SnippetCompletionItem(context, Snippet.CLAUSE_GROUPBY.get())
         );
 
         // Need to specifically check if from keyword is missing because from clause can be there in the syntax tree
@@ -132,9 +135,10 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
             completionItems = new ArrayList<>(completionItems);
             /*
              * It is mandatory to have at least one pipeline clause.
-             * Only if that is true we suggest the select clause
+             * Only if that is true we suggest the select and collect clauses
              */
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SELECT.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_COLLECT.get()));
             // Similarly do clause requires at least one query pipeline clause
             completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_DO.get()));
         }

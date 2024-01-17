@@ -17,7 +17,7 @@
 */
 package io.ballerina.runtime.transactions;
 
-import java.util.Random;
+import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -27,12 +27,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class XIDGenerator {
 
-    private static final Random rand = new Random();
+    private static final SecureRandom secureRand = new SecureRandom();
     private static final AtomicInteger formatIdIdGenerator = new AtomicInteger();
 
     private static byte[] randomBytes() {
         final byte[] bytes = new byte[48];
-        rand.nextBytes(bytes);
+        secureRand.nextBytes(bytes);
         return bytes;
     }
 
@@ -40,5 +40,8 @@ public class XIDGenerator {
         final byte[] branchQualifier = randomBytes();
         final byte[] globalTransactionId = randomBytes();
         return new XATransactionID(formatIdIdGenerator.incrementAndGet(), branchQualifier, globalTransactionId);
+    }
+
+    private XIDGenerator() {
     }
 }

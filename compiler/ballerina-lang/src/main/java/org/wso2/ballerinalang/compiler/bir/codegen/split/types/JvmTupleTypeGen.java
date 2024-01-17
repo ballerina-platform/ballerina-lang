@@ -26,14 +26,16 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
@@ -46,9 +48,11 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TUPLE_TYPES_CLASS_NAME;
@@ -60,6 +64,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_J
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TUPLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TUPLE_SET_MEMBERS_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * BIR tuple types to JVM byte code generation class.
@@ -81,12 +86,12 @@ public class JvmTupleTypeGen {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
         this.tupleTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        this.tupleTypesCw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, tupleTypesClass, null, OBJECT, null);
+        this.tupleTypesCw.visit(V17, ACC_PUBLIC + ACC_SUPER, tupleTypesClass, null, OBJECT, null);
     }
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {
         tupleTypesCw.visitEnd();
-        jarEntries.put(tupleTypesClass + ".class", jvmPackageGen.getBytes(tupleTypesCw, module));
+        jarEntries.put(tupleTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(tupleTypesCw, module));
     }
 
     /**
@@ -120,7 +125,7 @@ public class JvmTupleTypeGen {
                 INIT_TUPLE_TYPE_IMPL, false);
     }
 
-    public void populateTuple(MethodVisitor mv, BTupleType bType) {
+    public void populateTuple(MethodVisitor mv, BTupleType bType, SymbolTable symbolTable) {
         mv.visitTypeInsn(CHECKCAST, TUPLE_TYPE_IMPL);
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
@@ -128,7 +133,7 @@ public class JvmTupleTypeGen {
 
         addCyclicFlag(mv, bType);
         addTupleMembers(mv, bType);
-        jvmCreateTypeGen.addImmutableType(mv, bType);
+        jvmCreateTypeGen.addImmutableType(mv, bType, symbolTable);
     }
 
 
@@ -139,7 +144,7 @@ public class JvmTupleTypeGen {
      * @param tupleType   tupleType
      */
     private void addTupleMembers(MethodVisitor mv, BTupleType tupleType) {
-        createTupleMembersList(mv, tupleType.tupleTypes);
+        createTupleMembersList(mv, tupleType.getMembers());
 
         BType restType = tupleType.restType;
         if (restType == null) {
@@ -162,15 +167,15 @@ public class JvmTupleTypeGen {
         mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
     }
 
-    private void createTupleMembersList(MethodVisitor mv, List<BType> members) {
+    private void createTupleMembersList(MethodVisitor mv, List<BTupleMember> members) {
         mv.visitTypeInsn(NEW, ARRAY_LIST);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
 
-        for (BType tupleType : members) {
+        for (BTupleMember tupleType : members) {
             mv.visitInsn(DUP);
-            jvmTypeGen.loadType(mv, tupleType);
-            mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", ANY_TO_JBOOLEAN, true);
+            jvmTypeGen.loadType(mv, tupleType.type);
+            mv.visitMethodInsn(INVOKEINTERFACE, LIST, ADD_METHOD, ANY_TO_JBOOLEAN, true);
             mv.visitInsn(POP);
         }
     }

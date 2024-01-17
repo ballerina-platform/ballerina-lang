@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 23,
+    "character": 3
+  },
+  "source": "createVariable.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 23,
+              "character": 3
+            },
+            "end": {
+              "line": 23,
+              "character": 3
+            }
+          },
+          "newText": "Apple appleResult = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable.bal",
+          {
+            "line": 23,
+            "character": 9
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

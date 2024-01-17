@@ -40,9 +40,14 @@ dependencies {
     implementation project(path: ':language-server:language-server-core', configuration: 'tests')
     implementation project(':ballerina-test-utils')
 
-    testCompile 'org.testng:testng'
+    implementation "com.google.code.gson:gson"
+
+    testImplementation 'org.testng:testng'
+    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+    testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
 
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-codeactions')
+    compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-completion-providers')
 }
 
 description = 'Ballerina - Language Server Integration Tests'

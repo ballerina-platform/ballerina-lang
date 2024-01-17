@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -70,5 +72,15 @@ public class BallerinaClassFieldSymbol extends BallerinaObjectFieldSymbol implem
 
         this.qualifiers = Collections.unmodifiableList(quals);
         return this.qualifiers;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

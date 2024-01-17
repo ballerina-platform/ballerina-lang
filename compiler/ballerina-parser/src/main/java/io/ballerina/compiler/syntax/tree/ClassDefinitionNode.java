@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -65,6 +65,10 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
         return childInBucket(7);
     }
 
+    public Optional<Token> semicolonToken() {
+        return optionalChildInBucket(8);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -85,7 +89,8 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
                 "className",
                 "openBrace",
                 "members",
-                "closeBrace"};
+                "closeBrace",
+                "semicolonToken"};
     }
 
     public ClassDefinitionNode modify(
@@ -96,7 +101,8 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
             Token className,
             Token openBrace,
             NodeList<Node> members,
-            Token closeBrace) {
+            Token closeBrace,
+            Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
@@ -105,7 +111,8 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
                 className,
                 openBrace,
                 members.underlyingListNode(),
-                closeBrace)) {
+                closeBrace,
+                semicolonToken)) {
             return this;
         }
 
@@ -117,7 +124,8 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
                 className,
                 openBrace,
                 members,
-                closeBrace);
+                closeBrace,
+                semicolonToken);
     }
 
     public ClassDefinitionNodeModifier modify() {
@@ -139,6 +147,7 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
         private Token openBrace;
         private NodeList<Node> members;
         private Token closeBrace;
+        private Token semicolonToken;
 
         public ClassDefinitionNodeModifier(ClassDefinitionNode oldNode) {
             this.oldNode = oldNode;
@@ -150,6 +159,7 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
             this.openBrace = oldNode.openBrace();
             this.members = oldNode.members();
             this.closeBrace = oldNode.closeBrace();
+            this.semicolonToken = oldNode.semicolonToken().orElse(null);
         }
 
         public ClassDefinitionNodeModifier withMetadata(
@@ -206,6 +216,12 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
+        public ClassDefinitionNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
         public ClassDefinitionNode apply() {
             return oldNode.modify(
                     metadata,
@@ -215,7 +231,8 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
                     className,
                     openBrace,
                     members,
-                    closeBrace);
+                    closeBrace,
+                    semicolonToken);
         }
     }
 }

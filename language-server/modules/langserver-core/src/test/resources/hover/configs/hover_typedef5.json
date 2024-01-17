@@ -1,16 +1,16 @@
 {
-  "source": {
-    "file": "hover.bal"
-  },
   "position": {
     "line": 215,
     "character": 12
+  },
+  "source": {
+    "file": "hover.bal"
   },
   "expected": {
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Description for TestObjectType1\n  \n  \n---  \n  \n### Fields  \n  \n`int` ***field1*** : Description for the field1  \n  \n---  \n  \n### Methods  \n  \n+ `function () returns ()`  \n  \n+ `function () returns ()`  \n"
+        "value": "Description for TestObjectType1\n  \n  \n---  \n  \n### Fields  \n  \n`int` ***field1*** : Description for the field1  \n  \n---  \n  \n### Methods  \n  \n+ `function methodDecl1()`  \n  \n+ `remote function remoteMethodDecl()`  \n"
       }
     },
     "id": {

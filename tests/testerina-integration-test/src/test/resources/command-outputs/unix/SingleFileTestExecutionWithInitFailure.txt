@@ -1,0 +1,10 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	bal-test-with-init-failure.bal
+
+Running Tests
+
+	bal-test-with-init-failure.bal
+error: {ballerina}DivisionByZero {"message":" / by zero"}
+error: there are test failures

@@ -72,76 +72,85 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "ASSIGNMENT_STATEMENT",
+              "kind": "INVALID_EXPRESSION_STATEMENT",
               "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_EXPRESSION_STATEMENT"
+              ],
               "children": [
                 {
-                  "kind": "INDEXED_EXPRESSION",
+                  "kind": "BINARY_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "FIELD_ACCESS",
+                      "kind": "INDEXED_EXPRESSION",
                       "children": [
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "FIELD_ACCESS",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "model",
-                              "leadingMinutiae": [
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "model",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "    "
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "DOT_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Wine"
                                 }
                               ]
                             }
                           ]
                         },
                         {
-                          "kind": "DOT_TOKEN"
+                          "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN",
+                          "trailingMinutiae": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "Wine"
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ]
                         }
                       ]
                     },
                     {
-                      "kind": "OPEN_BRACKET_TOKEN"
+                      "kind": "PLUS_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_BINARY_OPERATOR"
+                      ]
                     },
                     {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "CLOSE_BRACKET_TOKEN",
-                      "trailingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "wines1"
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_EQUAL_TOKEN"
-                  ]
-                },
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "wines1"
                     }
                   ]
                 },

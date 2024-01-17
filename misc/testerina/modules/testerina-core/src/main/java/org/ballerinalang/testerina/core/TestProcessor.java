@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
@@ -32,21 +33,27 @@ import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -66,6 +73,8 @@ public class TestProcessor {
     private static final String AFTER_SUITE_ANNOTATION_NAME = "AfterSuite";
     private static final String BEFORE_EACH_ANNOTATION_NAME = "BeforeEach";
     private static final String AFTER_EACH_ANNOTATION_NAME = "AfterEach";
+    private static final String TEST_EXECUTE_FILE_PREFIX = "test_execute-generated_";
+    private static final String MOCK_ANNOTATION_NAME = "Mock";
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
@@ -76,8 +85,9 @@ public class TestProcessor {
     private static final String VALUE_FIELD_NAME = "value";
     private static final String BEFORE_GROUPS_ANNOTATION_NAME = "BeforeGroups";
     private static final String AFTER_GROUPS_ANNOTATION_NAME = "AfterGroups";
-    private static final String TEST_PREFIX = "@test:";
+    private static final String TEST_PREFIX = "test";
     private static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
+    private static final String MODULE_DELIMITER = "§";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
@@ -137,9 +147,11 @@ public class TestProcessor {
      * @return TestSuite
      */
     private TestSuite generateTestSuite(Module module, JarResolver jarResolver) {
-        TestSuite testSuite = new TestSuite(module.descriptor().name().toString(),
-                module.descriptor().packageName().toString(),
-                module.descriptor().org().value(), module.descriptor().version().toString());
+        PackageID packageID = module.descriptor().moduleTestCompilationId();
+        String testModuleName = packageID.isTestPkg ? packageID.name.value + Names.TEST_PACKAGE : packageID.name.value;
+        TestSuite testSuite = new TestSuite(module.descriptor().name().toString(), testModuleName,
+                module.descriptor().packageName().toString(), module.descriptor().org().value(),
+                module.descriptor().version().toString(), getExecutePath(module));
         TesterinaRegistry.getInstance().getTestSuites().put(
                 module.descriptor().name().toString(), testSuite);
         testSuite.setPackageName(module.descriptor().packageName().toString());
@@ -153,9 +165,9 @@ public class TestProcessor {
             testSuite.addTestExecutionDependencies(jarPaths);
         }
 
+        // TODO: Remove redundancy in addUtilityFunctions
         addUtilityFunctions(module, testSuite);
-        processAnnotations(module, testSuite);
-        testSuite.sort();
+        populateMockFunctionNamesMap(module, testSuite);
         return testSuite;
     }
 
@@ -203,27 +215,32 @@ public class TestProcessor {
      *
      * @param annotationSymbol AnnotationSymbol
      * @param syntaxTreeMap    Map<String, SyntaxTree>
-     * @param function         String
+     * @param name         String
      * @return AnnotationNode
      */
     private AnnotationNode getAnnotationNode(AnnotationSymbol annotationSymbol, Map<Document, SyntaxTree> syntaxTreeMap,
-                                             String function) {
+                                             String name) {
         for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
             if (syntaxTreeEntry.getValue().containsModulePart()) {
                 ModulePartNode modulePartNode = syntaxTreeMap.get(syntaxTreeEntry.getKey()).rootNode();
                 for (Node node : modulePartNode.members()) {
-                    if ((node.kind() == SyntaxKind.FUNCTION_DEFINITION) && node instanceof FunctionDefinitionNode) {
+                    if (node.kind() == SyntaxKind.FUNCTION_DEFINITION) {
                         String functionName = ((FunctionDefinitionNode) node).functionName().text();
-                        if (functionName.equals(function)) {
+                        if (functionName.equals(name)) {
                             Optional<MetadataNode> optionalMetadataNode = ((FunctionDefinitionNode) node).metadata();
-                            if (optionalMetadataNode.isEmpty()) {
-                                continue;
-                            } else {
+                            if (optionalMetadataNode.isPresent()) {
                                 NodeList<AnnotationNode> annotations = optionalMetadataNode.get().annotations();
                                 for (AnnotationNode annotation : annotations) {
-                                    if ((annotation.toString().trim()).contains(
-                                            TEST_PREFIX + annotationSymbol.getName().get())) {
-                                        return annotation;
+                                    Node annotReference = annotation.annotReference();
+                                    if (annotReference.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                                        QualifiedNameReferenceNode qualifiedNameRef =
+                                                (QualifiedNameReferenceNode) annotReference;
+
+                                        String annotSymbolName = annotationSymbol.getName().get();
+                                        if (qualifiedNameRef.modulePrefix().text().equals(TEST_PREFIX) &&
+                                                qualifiedNameRef.identifier().text().equals(annotSymbolName)) {
+                                            return annotation;
+                                        }
                                     }
                                 }
                             }
@@ -310,16 +327,30 @@ public class TestProcessor {
             }
             if (isUtility) {
                 // Remove the duplicated annotations.
-                String className = pos.lineRange().filePath()
+                boolean testable = functionSymbol.getModule().get().id().isTestable();
+                PackageID moduleTestCompilationId = module.descriptor().moduleTestCompilationId();
+                String testModuleName = testable ? moduleTestCompilationId.name.value + Names.TEST_PACKAGE :
+                        moduleTestCompilationId.name.value;
+                String className = pos.lineRange().fileName()
                         .replace(ProjectConstants.BLANG_SOURCE_EXT, "")
                         .replace(ProjectConstants.DOT, FILE_NAME_PERIOD_SEPARATOR)
                         .replace("/", ProjectConstants.DOT);
                 String functionClassName = JarResolver.getQualifiedClassName(
                         module.descriptor().org().value(),
-                        module.descriptor().name().toString(),
+                        testModuleName,
                         module.descriptor().version().toString(),
                         className);
                 testSuite.addTestUtilityFunction(functionName, functionClassName);
+            }
+        }
+    }
+
+    private void populateMockFunctionNamesMap(Module module, TestSuite testSuite) {
+        Map<String, String> mockFunctionsSourceMap = registry.getMockFunctionSourceMap();
+        for (Map.Entry<String, String> entry : mockFunctionsSourceMap.entrySet()) {
+            String[] entryValues = entry.getKey().split(MODULE_DELIMITER);
+            if (module.moduleName().toString().equals(entryValues[0])) {
+                testSuite.addMockFunction(entryValues[1], entry.getValue());
             }
         }
     }
@@ -366,12 +397,13 @@ public class TestProcessor {
                 mappingNodes.get().fields().forEach(mappingFieldNode -> {
                     if (mappingFieldNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
                         SpecificFieldNode specificField = (SpecificFieldNode) mappingFieldNode;
-                        if (ALWAYS_RUN_FIELD_NAME.equals(specificField.fieldName().toString().trim())) {
+                        if (ALWAYS_RUN_FIELD_NAME.equals(getFieldName(specificField))) {
                             ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
                             if (valueExpr != null) {
 
                                 if (SyntaxKind.BOOLEAN_LITERAL == valueExpr.kind()) {
-                                    if (getStringValue(valueExpr).startsWith(Boolean.TRUE.toString())) {
+                                    String literalText = ((BasicLiteralNode) valueExpr).literalToken().text();
+                                    if (literalText.equals(Boolean.TRUE.toString())) {
                                         alwaysRun.set(true);
                                     }
                                 }
@@ -400,7 +432,7 @@ public class TestProcessor {
                 for (MappingFieldNode mappingFieldNode : mappingNodes.get().fields()) {
                     if (mappingFieldNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
                         SpecificFieldNode specificField = (SpecificFieldNode) mappingFieldNode;
-                        if (VALUE_FIELD_NAME.equals(specificField.fieldName().toString().trim())) {
+                        if (VALUE_FIELD_NAME.equals(getFieldName(specificField))) {
                             ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
                             if (SyntaxKind.LIST_CONSTRUCTOR == valueExpr.kind() &&
                                     valueExpr instanceof ListConstructorExpressionNode) {
@@ -441,12 +473,13 @@ public class TestProcessor {
                 for (MappingFieldNode mappingFieldNode : mappingNodes.get().fields()) {
                     if (mappingFieldNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
                         SpecificFieldNode specificField = (SpecificFieldNode) mappingFieldNode;
-                        String fieldName = specificField.fieldName().toString().trim();
+                        String fieldName = getFieldName(specificField);
                         ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
                         if (valueExpr != null) {
                             if (TEST_ENABLE_ANNOTATION_NAME.equals(fieldName)) {
                                 if (SyntaxKind.BOOLEAN_LITERAL == valueExpr.kind()) {
-                                    if (getStringValue(valueExpr).startsWith(Boolean.FALSE.toString())) {
+                                    String literalText = ((BasicLiteralNode) valueExpr).literalToken().text();
+                                    if (literalText.equals(Boolean.FALSE.toString())) {
                                         shouldSkip.set(true);
                                         break;
                                     }
@@ -518,4 +551,43 @@ public class TestProcessor {
         }
     }
 
+    /**
+     * Get the field name string from {@code SpecificFieldNode}.
+     *
+     * @param specificField SpecificFieldNode
+     * @return String
+     */
+    private String getFieldName(SpecificFieldNode specificField) {
+        Node fieldNameNode = specificField.fieldName();
+
+        if (fieldNameNode.kind() != SyntaxKind.STRING_LITERAL) {
+            return ((Token) fieldNameNode).text();
+        }
+
+        String fieldName = ((BasicLiteralNode) fieldNameNode).literalToken().text();
+        return fieldName.substring(1, fieldName.length() - 1);
+    }
+
+    /**
+     * Get the execution path string from {@code Module}.
+     *
+     * @param module Module
+     * @return String
+     */
+    private String getExecutePath(Module module) {
+        String executePath = "";
+        if (isSingleFileProject(module.project())) {
+            executePath = Optional.of(module.project().sourceRoot().getFileName()).get().toString();
+            return FileUtils.getFileNameWithoutExtension(executePath);
+        }
+        for (DocumentId docId : module.testDocumentIds()) {
+            if (module.document(docId).name().startsWith(
+                    ProjectConstants.TEST_DIR_NAME + "/" + TEST_EXECUTE_FILE_PREFIX)) {
+                executePath = module.document(docId).name().replace("/", ProjectConstants.DOT);
+                return FileUtils.getFileNameWithoutExtension(executePath);
+            }
+        }
+        //TODO: Throw an exception for not generating the test execution file. Currently, this handles at BTestRunner
+        return executePath;
+    }
 }

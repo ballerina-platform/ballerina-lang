@@ -1,0 +1,17 @@
+Compiling source
+	intg_tests/before_each_after_each:0.0.0
+
+Running Tests with Coverage
+
+	before_each_after_each
+		[pass] testFunc
+		[pass] testFunc2
+		[pass] testFunc3
+
+
+		3 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	before-each-after-each/target/report/test_results.json

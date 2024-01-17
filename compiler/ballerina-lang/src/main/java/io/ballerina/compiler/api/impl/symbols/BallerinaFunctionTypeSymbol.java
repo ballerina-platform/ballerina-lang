@@ -16,9 +16,11 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.Annotatable;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
@@ -26,11 +28,11 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -62,8 +64,7 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
     private final BInvokableTypeSymbol typeSymbol;
     private String signature;
 
-    public BallerinaFunctionTypeSymbol(CompilerContext context, ModuleID moduleID,
-                                       BInvokableTypeSymbol invokableSymbol, BType type) {
+    public BallerinaFunctionTypeSymbol(CompilerContext context, BInvokableTypeSymbol invokableSymbol, BType type) {
         super(context, TypeDescKind.FUNCTION, type);
         this.typeSymbol = invokableSymbol;
     }
@@ -155,13 +156,18 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         List<AnnotationSymbol> annots = new ArrayList<>();
+        List<AnnotationAttachmentSymbol> annotationAttachments = new ArrayList<>();
 
-        for (BLangAnnotationAttachment annot : this.typeSymbol.returnTypeAnnots) {
-            annots.add(symbolFactory.createAnnotationSymbol(annot.annotationSymbol));
+        for (BAnnotationAttachmentSymbol annot : this.typeSymbol.returnTypeAnnots) {
+            BallerinaAnnotationAttachmentSymbol annotAttachment =
+                    symbolFactory.createAnnotAttachment(annot);
+            annots.add(annotAttachment.typeDescriptor());
+            annotationAttachments.add(annotAttachment);
         }
 
         AnnotatableReturnType annotatableReturnType = new AnnotatableReturnType();
         annotatableReturnType.setAnnotations(Collections.unmodifiableList(annots));
+        annotatableReturnType.setAnnotAttachments(Collections.unmodifiableList(annotationAttachments));
         this.returnTypeAnnots = annotatableReturnType;
 
         return Optional.of(this.returnTypeAnnots);
@@ -191,17 +197,37 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
         return signature.toString();
     }
 
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
     private static class AnnotatableReturnType implements Annotatable {
 
         private List<AnnotationSymbol> annots;
+        private List<AnnotationAttachmentSymbol> annotAttachments;
 
         @Override
         public List<AnnotationSymbol> annotations() {
             return this.annots;
         }
 
+        @Override
+        public List<AnnotationAttachmentSymbol> annotAttachments() {
+            return this.annotAttachments;
+        }
+
         void setAnnotations(List<AnnotationSymbol> annots) {
             this.annots = annots;
+        }
+
+        public void setAnnotAttachments(List<AnnotationAttachmentSymbol> annotAttachments) {
+            this.annotAttachments = annotAttachments;
         }
     }
 }

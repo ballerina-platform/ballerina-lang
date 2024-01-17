@@ -44,6 +44,38 @@ public function testPublicWithIsolatedObjectType() {
     assertEquality(20, publicVariables:myIsolatedObj.getVal());
 }
 
+public function testOptionalFieldRecordAssignment() {
+    publicVariables:Topt1 topt1 = {a: 4, c: [{b: 5}]};
+    var {a: aa, c: cc} = topt1;
+    var {b: bb} = cc[0];
+    assertEquality(4, aa);
+    assertEquality(5, bb);
+
+    topt1 = {c: [{b: 3}]};
+    var {a, c} = topt1;
+    assertEquality(true, a is ());
+    var {b} = c[0];
+    assertEquality(3, b);
+
+    publicVariables:Topt2 topt2 = {};
+    var {x, y} = topt2;
+    assertEquality(true, x is ());
+    assertEquality(true, y is ());
+}
+
+public function testRecordDefinitionWithPublicOptionalField() {
+    publicVariables:Topt1 topt = {a: publicVariables:x, c: [{b: publicVariables:y}]};
+    assertEquality(4, topt.a);
+    assertEquality((), (topt.c)[0].b);
+}
+
+public function testOptionalFieldAssignment() {
+    publicVariables:Topt2 t = {x: 2, y: 4};
+    t.x = publicVariables:y;
+    assertEquality(t.x, ());
+    assertEquality(t.y, 4);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

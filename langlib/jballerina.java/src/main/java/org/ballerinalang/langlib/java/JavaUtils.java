@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 
 /**
  * This class contains various utility functions required to provide the 'ballerina/jballerina.java' module API.
@@ -59,7 +59,7 @@ public class JavaUtils {
             clazz = Class.forName(name);
             return ValueCreator.createHandleValue(clazz);
         } catch (ClassNotFoundException e) {
-            return ErrorCreator.createDistinctError(BallerinaErrorReasons.JAVA_CLASS_NOT_FOUND_ERROR,
+            return ErrorCreator.createDistinctError(ErrorReasons.JAVA_CLASS_NOT_FOUND_ERROR,
                                                     JAVA_PACKAGE_ID, StringUtils.fromString(name));
         }
     }

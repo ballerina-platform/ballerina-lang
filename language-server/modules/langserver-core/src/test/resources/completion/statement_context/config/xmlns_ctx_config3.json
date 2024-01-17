@@ -4,11 +4,12 @@
     "character": 10
   },
   "source": "statement_context/source/xmlns_ctx_source3.bal",
+  "description": "",
   "items": [
     {
       "label": "CONST1",
       "kind": "Variable",
-      "detail": "http://ballerina.com/",
+      "detail": "\"http://ballerina.com/\"",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -40,11 +41,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -64,11 +65,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -88,11 +89,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -112,11 +113,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -136,65 +137,17 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
           "newText": "import ballerina/lang.runtime;\n"
         }
       ]
-    },
-    {
-      "label": "boolean",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "boolean",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "int",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "map",
@@ -221,14 +174,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "table",
       "kind": "Unit",
       "detail": "type",
@@ -245,19 +190,203 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "typedesc",
-      "kind": "Unit",
-      "detail": "type",
+      "label": "test/project2",
+      "kind": "Module",
+      "detail": "Module",
       "sortText": "R",
-      "insertText": "typedesc",
+      "filterText": "project2",
+      "insertText": "project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "project1",
+      "insertText": "project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "local_project2",
+      "insertText": "local_project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "local_project1",
+      "insertText": "local_project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "regexp",
+      "insertText": "regexp",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ]
+    },
+    {
+      "label": "decimal",
+      "kind": "TypeParameter",
+      "detail": "Decimal",
+      "sortText": "N",
+      "insertText": "decimal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "xml",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
+      "kind": "TypeParameter",
+      "detail": "Xml",
+      "sortText": "N",
       "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "boolean",
+      "kind": "TypeParameter",
+      "detail": "Boolean",
+      "sortText": "N",
+      "insertText": "boolean",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "future",
+      "kind": "TypeParameter",
+      "detail": "Future",
+      "sortText": "N",
+      "insertText": "future",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "int",
+      "kind": "TypeParameter",
+      "detail": "Int",
+      "sortText": "N",
+      "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "float",
+      "kind": "TypeParameter",
+      "detail": "Float",
+      "sortText": "N",
+      "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "TypeParameter",
+      "detail": "Function",
+      "sortText": "N",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string",
+      "kind": "TypeParameter",
+      "detail": "String",
+      "sortText": "N",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typedesc",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "sortText": "N",
+      "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     }
   ]

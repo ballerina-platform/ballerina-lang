@@ -6,11 +6,46 @@
   "source": "source/project2/Ballerina.toml",
   "items": [
     {
+      "label": "platform.java17",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[platform.java17]"
+    },
+    {
+      "label": "platform.java17.dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java17.dependency]]"
+    },
+    {
+      "label": "platform.java17.repository",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java17.repository]]"
+    },
+    {
+      "label": "platform.java11",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[platform.java11]"
+    },
+    {
       "label": "platform.java11.dependency",
       "kind": "Snippet",
       "detail": "Table Array",
       "sortText": "C",
       "insertText": "[[platform.java11.dependency]]"
+    },
+    {
+      "label": "platform.java11.repository",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java11.repository]]"
     },
     {
       "label": "license",
@@ -34,6 +69,14 @@
       "detail": "Array",
       "sortText": "A",
       "insertText": "export=[${1:}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "include",
+      "kind": "Snippet",
+      "detail": "Array",
+      "sortText": "A",
+      "insertText": "include=[${1:}]",
       "insertTextFormat": "Snippet"
     },
     {
@@ -63,6 +106,13 @@
       "detail": "String",
       "sortText": "A",
       "insertText": "icon=\"${1:}\""
+    },
+    {
+      "label": "template",
+      "kind": "Snippet",
+      "detail": "Boolean",
+      "sortText": "A",
+      "insertText": "template=${1:false}"
     }
   ]
 }

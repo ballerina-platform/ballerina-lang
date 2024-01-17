@@ -22,12 +22,16 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.shell.exceptions.InvokerException;
+import io.ballerina.shell.invoker.AvailableVariable;
 import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.invoker.classload.context.StatementContext;
@@ -114,6 +118,31 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      */
     private TypeSymbol anyTypeSymbol;
 
+    private boolean noModuleDeclarations;
+    private boolean noVariableDeclarations;
+    private boolean noExecutables;
+
+    private Map<VariableDeclarationSnippet, Set<Identifier>> variableDeclarations;
+    private Map<Identifier, ModuleMemberDeclarationSnippet> moduleDeclarations;
+    private final Map<Identifier, ModuleMemberDeclarationSnippet> availableModuleDeclarations;
+    private List<ExecutableSnippet> executableSnippets;
+    private List<Identifier> variableNames;
+    private Project project;
+    /**
+     * Stores all the newly found variable names.
+     *
+     * Introduced in order to collect new defined variables to support Ballerina
+     * VSCode Notebook.
+     */
+    private final List<String> newDefinedVariableNames;
+    /**
+     * Stores all the newly found module declarations.
+     *
+     * Introduced in order to collect new module declarations to support Ballerina
+     * VSCode Notebook.
+     */
+    private final List<String> newModuleDeclnNames;
+
     /**
      * Creates a class load invoker from the given ballerina home.
      * Ballerina home should be tha path that contains repo directory.
@@ -127,6 +156,9 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         this.newImports = new HashMap<>();
         this.initialIdentifiers = new HashSet<>();
         this.importsManager = new ImportsManager();
+        this.newDefinedVariableNames = new ArrayList<>();
+        this.newModuleDeclnNames = new ArrayList<>();
+        this.availableModuleDeclarations = new HashMap<>();
     }
 
     /**
@@ -153,7 +185,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
                 anyTypeSymbol = runFunctionType.returnTypeDescriptor().orElseThrow();
             }
         }
-        JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
         this.initialized.set(true);
         addDebugDiagnostic("Added initial identifiers: " + initialIdentifiers);
     }
@@ -168,22 +200,26 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         this.initialIdentifiers.clear();
         this.initialized.set(false);
         this.importsManager.reset();
+        this.availableModuleDeclarations.clear();
     }
 
     @Override
-    public Optional<Object> execute(Collection<Snippet> newSnippets) throws InvokerException {
+    public PackageCompilation getCompilation(Collection<Snippet> newSnippets) throws InvokerException {
         if (!this.initialized.get()) {
             throw new IllegalStateException("Invoker execution not initialized.");
         }
 
         newImports.clear();
+        // As this is a new execution of a code snippet clear out the defined vars and module declarations
+        // stored by the previous execution
+        clearPreviousVariablesAndModuleDclnsNames();
 
         // TODO: (#28036) Fix the closure bug.
 
-        Map<VariableDeclarationSnippet, Set<Identifier>> variableDeclarations = new HashMap<>();
-        Map<Identifier, ModuleMemberDeclarationSnippet> moduleDeclarations = new HashMap<>();
-        List<ExecutableSnippet> executableSnippets = new ArrayList<>();
-        List<Identifier> variableNames = new ArrayList<>();
+        variableDeclarations = new HashMap<>();
+        moduleDeclarations = new HashMap<>();
+        executableSnippets = new ArrayList<>();
+        variableNames = new ArrayList<>();
 
         // Fill the required arrays/maps
         // Only compilation to find import validity.
@@ -203,6 +239,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
                 ModuleMemberDeclarationSnippet moduleDclnSnippet = (ModuleMemberDeclarationSnippet) newSnippet;
                 Identifier moduleDeclarationName = moduleDclnSnippet.name();
                 moduleDeclarations.put(moduleDeclarationName, moduleDclnSnippet);
+                availableModuleDeclarations.put(moduleDeclarationName, moduleDclnSnippet);
                 Set<Identifier> usedPrefixes = newSnippet.usedImports().stream()
                         .map(Identifier::new).collect(Collectors.toSet());
                 newImports.put(moduleDeclarationName, usedPrefixes);
@@ -215,10 +252,34 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             }
         }
 
-        boolean noModuleDeclarations = moduleDeclarations.isEmpty();
-        boolean noVariableDeclarations = variableDeclarations.isEmpty();
-        boolean noExecutables = executableSnippets.isEmpty();
+        noModuleDeclarations = moduleDeclarations.isEmpty();
+        noVariableDeclarations = variableDeclarations.isEmpty();
+        noExecutables = executableSnippets.isEmpty();
+        PackageCompilation compilation = null;
+        if (!(noModuleDeclarations && noVariableDeclarations && noExecutables)) {
+            if (noModuleDeclarations && noVariableDeclarations) {
+                // Compile declaration template if there were declarations
+                ClassLoadContext execContext = createVariablesExecutionContext(List.of(), executableSnippets, Map.of());
+                Project project = getProject(execContext, EXECUTION_TEMPLATE_FILE);
+                compilation = compile(project);
+            } else {
+                ClassLoadContext context = createDeclarationContext(variableDeclarations.keySet(), variableNames,
+                        moduleDeclarations);
+                project = getProject(context, DECLARATION_TEMPLATE_FILE);
+                compilation = compile(project);
+            }
+        }
+        return compilation;
+    }
 
+    @Override
+    public Optional<Object> execute(Optional<PackageCompilation> compilation) throws InvokerException {
+        // Compilation was successful, so we can add the declarations
+        // to the persisted list. Here everything is persisted.
+        // Please note that this would be reversed if something went wrong in execution.
+
+        // Find all the global variables that were defined
+        // and Map all variable names with its global variable
         // If there are only imports (no other snippets), just stop execution.
         if (noModuleDeclarations && noVariableDeclarations && noExecutables) {
             return Optional.empty();
@@ -231,19 +292,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             return Optional.ofNullable(InvokerMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME));
         }
 
-        // Compile declaration template if there were declarations
-        ClassLoadContext context = createDeclarationContext(variableDeclarations.keySet(), variableNames,
-                moduleDeclarations);
-        Project project = getProject(context, DECLARATION_TEMPLATE_FILE);
-        PackageCompilation compilation = compile(project);
-
-        // Compilation was successful, so we can add the declarations
-        // to the persisted list. Here everything is persisted.
-        // Please note that this would be reversed if something went wrong in execution.
-
-        // Find all the global variables that were defined
-        // and Map all variable names with its global variable
-        Collection<GlobalVariableSymbol> globalVariableSymbols = globalVariableSymbols(project, compilation);
+        Collection<GlobalVariableSymbol> globalVariableSymbols = globalVariableSymbols(project, compilation.get());
         Map<Identifier, GlobalVariable> allNewVariables = new HashMap<>();
         for (VariableDeclarationSnippet snippet : variableDeclarations.keySet()) {
             Map<Identifier, GlobalVariable> newVariables = createGlobalVariables(
@@ -251,6 +300,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
                     snippet.isDeclaredWithVar());
             allNewVariables.putAll(newVariables);
         }
+        // put names of new defined vars to list
+        allNewVariables.keySet().forEach(id -> newDefinedVariableNames.add(id.getName()));
         // Persist all data
         globalVars.putAll(allNewVariables);
         newImports.forEach(importsManager::storeImportUsages);
@@ -259,6 +310,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         for (Map.Entry<Identifier, ModuleMemberDeclarationSnippet> dcln : moduleDeclarations.entrySet()) {
             String moduleDclnCode = dcln.getValue().toString();
             moduleDclns.put(dcln.getKey(), moduleDclnCode);
+            newModuleDeclnNames.add(dcln.getKey().getName());
             addDebugDiagnostic("Module dcln name: " + dcln.getKey());
             addDebugDiagnostic("Module dcln code: " + moduleDclnCode);
         }
@@ -279,6 +331,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             allNewVariables.keySet().forEach(id -> identifiersToDelete.add(id.getName()));
             moduleDeclarations.keySet().forEach(id -> identifiersToDelete.add(id.getName()));
             delete(identifiersToDelete);
+            // clear out new declarations
+            clearPreviousVariablesAndModuleDclnsNames();
             throw e;
         }
     }
@@ -466,6 +520,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
         for (GlobalVariableSymbol globalVariableSymbol : globalVarSymbols) {
             Identifier variableName = globalVariableSymbol.getName();
+            Identifier variableNameConverted = new Identifier(variableName.getUnicodeConvertedName());
             TypeSymbol typeSymbol = globalVariableSymbol.getTypeSymbol();
 
             // Is a built-in variable/function
@@ -473,7 +528,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
                 continue;
             }
             // Is not a variable defined by the snippet in question
-            if (!definedVariables.contains(variableName)) {
+            if (!definedVariables.contains(variableName) && !definedVariables.contains(variableNameConverted)) {
                 continue;
             }
 
@@ -554,27 +609,107 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     public List<String> availableVariables() {
         // Available variables and values as string.
         List<String> varStrings = new ArrayList<>();
+        List<String> variablesDeclarations = new ArrayList<>();
+        List<String> finalVariablesDeclarations = new ArrayList<>();
+        List<String> constDeclarations = new ArrayList<>();
+        String varString;
+
         for (GlobalVariable entry : globalVars.values()) {
             Object obj = InvokerMemory.recall(contextId, entry.getVariableName().getName());
             String objStr = StringUtils.getExpressionStringValue(obj);
             String value = StringUtils.shortenedString(objStr);
-            String varString = String.format("(%s) %s %s = %s",
-                    entry.getVariableName(), entry.getType(), entry.getVariableName(), value);
-            varStrings.add(varString);
+            if (!entry.getQualifiersAndMetadata().isEmpty()) {
+                varString = String.format("(%s) %s %s %s = %s",
+                        entry.getVariableName().getUnicodeConvertedName(), entry.getQualifiersAndMetadata().strip(),
+                        entry.getType(), entry.getVariableName().getUnicodeConvertedName(), value);
+                finalVariablesDeclarations.add(varString);
+            } else {
+                varString = String.format("(%s) %s %s = %s",
+                        entry.getVariableName().getUnicodeConvertedName(), entry.getType(),
+                        entry.getVariableName().getUnicodeConvertedName(), value);
+                variablesDeclarations.add(varString);
+            }
         }
+
+        for (Map.Entry<Identifier, ModuleMemberDeclarationSnippet> entry : availableModuleDeclarations.entrySet()) {
+            if (entry.getValue().getRootNode().kind() == SyntaxKind.CONST_DECLARATION) {
+                ConstantDeclarationNode constantDeclarationNode =
+                        (ConstantDeclarationNode) entry.getValue().getRootNode();
+                String varName = StringUtils.convertUnicodeToCharacter(constantDeclarationNode.variableName().text());
+                String constKeyword = constantDeclarationNode.constKeyword().text();
+                String value = constantDeclarationNode.initializer().toString();
+                Optional<TypeDescriptorNode> typeDescriptorNode = constantDeclarationNode.typeDescriptor();
+                if (typeDescriptorNode.isPresent()) {
+                    varString = String.format("(%s) %s %s %s = %s", varName, constKeyword,
+                            typeDescriptorNode.get().toString().strip(), varName, value);
+                } else {
+                    varString = String.format("(%s) %s %s = %s", varName, constKeyword, varName, value);
+                }
+
+                constDeclarations.add(varString);
+            }
+        }
+
+        if (variablesDeclarations.size() > 0) {
+            varStrings.add("Variable declarations");
+            varStrings.addAll(variablesDeclarations);
+        }
+
+        if (finalVariablesDeclarations.size() > 0) {
+            varStrings.add("Final variable declarations");
+            varStrings.addAll(finalVariablesDeclarations);
+        }
+
+        if (constDeclarations.size() > 0) {
+            varStrings.add("Constant declarations");
+            varStrings.addAll(constDeclarations);
+        }
+
         return varStrings;
+    }
+
+    @Override
+    public List<AvailableVariable> availableVariablesAsObjects() {
+        List<AvailableVariable> varMap = new ArrayList<>();
+        for (GlobalVariable entry : globalVars.values()) {
+            String type = entry.getType();
+            Object obj = InvokerMemory.recall(contextId, entry.getVariableName().getName());
+            String objStr = StringUtils.getExpressionStringValue(obj);
+            AvailableVariable varObject = new AvailableVariable(
+                    entry.getVariableName().getUnicodeConvertedName(), type, objStr);
+            varMap.add(varObject);
+        }
+        return varMap;
     }
 
     @Override
     public List<String> availableModuleDeclarations() {
         // Module level dclns.
         List<String> moduleDclnStrings = new ArrayList<>();
-        for (Map.Entry<Identifier, String> entry : moduleDclns.entrySet()) {
-            String varString = String.format("(%s) %s", entry.getKey(),
-                    StringUtils.shortenedString(entry.getValue()));
-            moduleDclnStrings.add(varString);
+        for (Map.Entry<Identifier, ModuleMemberDeclarationSnippet> entry: availableModuleDeclarations.entrySet()) {
+            if (!(entry.getValue().getRootNode().kind() == SyntaxKind.CONST_DECLARATION)) {
+                String varString = String.format("(%s) %s", entry.getKey(),
+                        StringUtils.shortenedString(entry.getValue()));
+                moduleDclnStrings.add(varString);
+            }
         }
         return moduleDclnStrings;
+    }
+
+    @Override
+    public List<String> newVariableNames() {
+        return newDefinedVariableNames;
+    }
+
+    @Override
+    public List<String> newModuleDeclarations() {
+        return newModuleDeclnNames;
+    }
+
+    @Override
+    public void clearPreviousVariablesAndModuleDclnsNames() {
+        newDefinedVariableNames.clear();
+        newModuleDeclnNames.clear();
     }
 
     /**

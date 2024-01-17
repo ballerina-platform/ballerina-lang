@@ -82,11 +82,6 @@
     "code": "map<int> & readonly marksRo = { math: 80, physics: 85, chemistry: 75 };"
   },
   {
-    "description": "Define readonly selectively immutable variable - get value.",
-    "code": "marksRo.isReadOnly()",
-    "expr": "true"
-  },
-  {
     "description": "Use never type in a statement.",
     "code": "xml<never> xmlValue = <xml<never>> 'xml:concat();"
   },

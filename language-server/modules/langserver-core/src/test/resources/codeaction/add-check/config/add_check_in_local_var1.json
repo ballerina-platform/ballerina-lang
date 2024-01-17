@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 7,
+    "character": 18
+  },
+  "source": "add_check_for_var_with_inferred_type_error.bal",
+  "expected": [
+    {
+      "title": "Add 'check' error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 11
+            },
+            "end": {
+              "line": 7,
+              "character": 11
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 23
+            },
+            "end": {
+              "line": 6,
+              "character": 23
+            }
+          },
+          "newText": " returns error?"
+        }
+      ]
+    }
+  ]
+}

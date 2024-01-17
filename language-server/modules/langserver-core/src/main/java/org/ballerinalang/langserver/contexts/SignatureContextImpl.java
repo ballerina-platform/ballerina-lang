@@ -34,11 +34,9 @@ import java.util.Optional;
  *
  * @since 1.2.0
  */
-public class SignatureContextImpl extends AbstractDocumentServiceContext implements SignatureContext {
+public class SignatureContextImpl extends PositionedOperationContextImpl implements SignatureContext {
 
     private final SignatureHelpCapabilities capabilities;
-    private final Position cursorPos;
-    private int cursorPosInTree = -1;
     private NonTerminalNode nodeAtCursor;
 
     SignatureContextImpl(LSOperation operation,
@@ -48,32 +46,13 @@ public class SignatureContextImpl extends AbstractDocumentServiceContext impleme
                          Position cursorPos,
                          LanguageServerContext serverContext,
                          CancelChecker cancelChecker) {
-        super(operation, fileUri, wsManager, serverContext, cancelChecker);
+        super(operation, fileUri, cursorPos, wsManager, serverContext, cancelChecker);
         this.capabilities = capabilities;
-        this.cursorPos = cursorPos;
     }
 
     @Override
     public SignatureHelpCapabilities capabilities() {
         return this.capabilities;
-    }
-
-    @Override
-    public Position getCursorPosition() {
-        return this.cursorPos;
-    }
-
-    @Override
-    public void setCursorPositionInTree(int offset) {
-        if (this.cursorPosInTree > -1) {
-            throw new RuntimeException("Setting the cursor offset more than once is not allowed");
-        }
-        this.cursorPosInTree = offset;
-    }
-
-    @Override
-    public int getCursorPositionInTree() {
-        return this.cursorPosInTree;
     }
 
     @Override
@@ -96,21 +75,12 @@ public class SignatureContextImpl extends AbstractDocumentServiceContext impleme
      */
     protected static class SignatureContextBuilder extends AbstractContextBuilder<SignatureContextBuilder> {
 
-        private SignatureHelpCapabilities capabilities;
+        private final SignatureHelpCapabilities capabilities;
         private Position position;
 
-        public SignatureContextBuilder(LanguageServerContext serverContext) {
+        public SignatureContextBuilder(LanguageServerContext serverContext, SignatureHelpCapabilities capabilities) {
             super(LSContextOperation.TXT_SIGNATURE, serverContext);
-        }
-
-        /**
-         * Setter for the client's signature help capabilities.
-         *
-         * @param capabilities signature capabilities to set
-         */
-        public SignatureContextBuilder withCapabilities(SignatureHelpCapabilities capabilities) {
             this.capabilities = capabilities;
-            return self();
         }
 
         /**

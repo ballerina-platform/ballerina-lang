@@ -35,16 +35,16 @@ public class AddAccessModifierTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"convert_to_public_function_public_config1.json", "convert_to_public_function_public_source1.bal"},
-                {"convert_to_public_function_public_config2.json", "convert_to_public_function_public_source2.bal"},
+                {"convert_to_public_function_public_config1.json"},
+                {"convert_to_public_function_public_config2.json"},
         };
     }
 }

@@ -25,16 +25,16 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -63,17 +63,10 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         }
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, node.expression())) {
-            /*
-            Captures the following cases
-            (1) [module:]TypeName c = module:<cursor>
-            (2) [module:]TypeName c = module:a<cursor>
-             */
-            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.expression();
-            Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
-                    || symbol.kind() == SymbolKind.FUNCTION;
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
-            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, node.expression())) {
+            getQNameRefCompletions((QualifiedNameReferenceNode) node.expression(), context, completionItems);
+        } else if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            getQNameRefCompletions((QualifiedNameReferenceNode) context.getNodeAtCursor(), context, completionItems);
         } else if (onSuggestionsAfterQualifiers(context, node.expression())) {
             /*
             Captures the following case.
@@ -93,6 +86,18 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         }
         this.sort(context, node, completionItems);
         return completionItems;
+    }
+    
+    private void getQNameRefCompletions(QualifiedNameReferenceNode qNameRef, BallerinaCompletionContext context,
+                                        List<LSCompletionItem> completionItems) {
+        /*
+        Captures the following cases
+        (1) [module:]TypeName c = module:<cursor>
+        (2) [module:]TypeName c = module:a<cursor>
+        */
+        Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol || symbol.kind() == SymbolKind.FUNCTION;
+        List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, filter);
+        completionItems.addAll(this.getCompletionItemList(moduleContent, context));
     }
 
     @Override
@@ -119,7 +124,13 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     public void sort(BallerinaCompletionContext context, AssignmentStatementNode node,
                      List<LSCompletionItem> completionItems) {
 
-        Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
+        Optional<TypeSymbol> typeSymbolAtCursor = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition cursorPosition = LinePosition.from(context.getCursorPosition().getLine(),
+                                                                context.getCursorPosition().getCharacter());
+            typeSymbolAtCursor = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), cursorPosition);
+        }
 
         if (typeSymbolAtCursor.isEmpty()) {
             super.sort(context, node, completionItems);
@@ -135,11 +146,17 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     private List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context,
                                                              AssignmentStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        ContextTypeResolver typeResolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> type = node.apply(typeResolver);
+        Optional<TypeSymbol> type = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.expression().location().lineRange().startLine();
+            type = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
+
         if (type.isEmpty()) {
             return completionItems;
         }
+
         TypeSymbol rawType = CommonUtil.getRawType(type.get());
         if (rawType.kind() == SymbolKind.CLASS) {
             completionItems.add(this.getImplicitNewCItemForClass((ClassSymbol) rawType, context));

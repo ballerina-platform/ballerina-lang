@@ -3,18 +3,18 @@
     "file": "repo/bala/ballerina/lang.array/0.0.0/any/modules/lang.array/array.bal"
   },
   "position": {
-    "line": 56,
+    "line": 67,
     "character": 13
   },
   "result": [
     {
       "range": {
         "start": {
-          "line": 55,
+          "line": 66,
           "character": 18
         },
         "end": {
-          "line": 55,
+          "line": 66,
           "character": 29
         }
       },

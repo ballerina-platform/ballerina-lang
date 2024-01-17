@@ -20,9 +20,12 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.WaitForAllExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -37,6 +40,7 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
 
     private static final String WAIT_KEYWORD = "wait";
 
+    // BLangNodes
     public List<BLangWaitKeyValue> keyValuePairs = new ArrayList<>();
 
     public List<BLangWaitKeyValue> getKeyValuePairs() {
@@ -46,6 +50,16 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override
@@ -75,9 +89,12 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
      * @since 0.985
      */
     public static class BLangWaitKeyValue extends BLangNode implements WaitKeyValueNode {
+
+        // BLangNodes
         public BLangIdentifier key;
         public BLangExpression valueExpr;
         public BLangExpression keyExpr;
+        public BVarSymbol keySymbol; // Only applicable when a record type is contextually expected
 
         @Override
         public BLangIdentifier getKey() {
@@ -97,6 +114,16 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 

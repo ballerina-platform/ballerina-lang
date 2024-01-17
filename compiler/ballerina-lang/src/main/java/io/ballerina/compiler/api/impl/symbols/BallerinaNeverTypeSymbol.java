@@ -17,7 +17,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.NeverTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
@@ -30,12 +31,22 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaNeverTypeSymbol extends AbstractTypeSymbol implements NeverTypeSymbol {
 
-    public BallerinaNeverTypeSymbol(CompilerContext context, ModuleID moduleID, BNeverType neverType) {
+    public BallerinaNeverTypeSymbol(CompilerContext context, BNeverType neverType) {
         super(context, TypeDescKind.NEVER, neverType);
     }
 
     @Override
     public String signature() {
         return "never";
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

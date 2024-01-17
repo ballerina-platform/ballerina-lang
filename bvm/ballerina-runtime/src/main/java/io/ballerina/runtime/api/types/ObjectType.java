@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BObjectType} represents a user defined object type in Ballerina.
+ * {@code ObjectType} represents a user defined object type in Ballerina.
  *
  * @since 2.0.0
  */
@@ -29,6 +29,13 @@ public interface ObjectType extends StructureType, SelectivelyImmutableReference
     MethodType[] getMethods();
 
     /**
+     * Get the type of the object init method.
+     *
+     * @return {@link MethodType} of the init method.
+     */
+    MethodType getInitMethod();
+
+    /**
      * Provides given @{@link ObjectType} is isolated.
      *
      * @return true if object is isolated otherwise false.
@@ -37,10 +44,17 @@ public interface ObjectType extends StructureType, SelectivelyImmutableReference
 
     /**
      * Provides given @{@link ObjectType} method is isolated.
+     * We can decide the object method isolation by using both isIsolated() and isIsolated(methodName).
      *
      * @param methodName method name
      * @return true if @{@link ObjectType} method is isolated otherwise false.
      */
     boolean isIsolated(String methodName);
 
+    /**
+     * Provides a copy of type ids of the object.
+     *
+     * @return a copy of type id set.
+     */
+    TypeIdSet getTypeIdSet();
 }

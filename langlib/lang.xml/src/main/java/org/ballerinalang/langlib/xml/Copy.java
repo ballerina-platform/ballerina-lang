@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 import java.util.HashMap;
 
@@ -41,7 +41,7 @@ public class Copy {
         try {
             return (BXml) xml.copy(new HashMap<>());
         } catch (Throwable e) {
-            BLangExceptionHelper.handleXMLException(OPERATION, e);
+            ErrorHelper.handleXMLException(OPERATION, e);
         }
 
         return null;

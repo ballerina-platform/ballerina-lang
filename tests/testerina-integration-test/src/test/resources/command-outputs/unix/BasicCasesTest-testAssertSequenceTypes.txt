@@ -1,0 +1,22 @@
+Compiling source
+	intg_tests/assertions:0.0.0
+
+Running Tests with Coverage
+
+	assertions
+		[pass] testAssertStringEquals
+		[pass] testAssertStringEqualsNegative
+		[pass] testAssertStringNotEquals
+		[pass] testAssertStringNotEqualsNegative
+		[pass] testAssertXmlEquals
+		[pass] testAssertXmlEqualsNegative
+		[pass] testAssertXmlNotEquals
+		[pass] testAssertXmlNotEqualsNegative
+
+
+		8 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	assertions-sequence-types/target/report/test_results.json

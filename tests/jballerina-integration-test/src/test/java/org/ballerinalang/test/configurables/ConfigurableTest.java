@@ -50,14 +50,14 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance = new BMainInstance(balServer);
         // Build and push config Lib project.
         compilePackageAndPushToLocal(Paths.get(testFileLocation, "configLibProject").toString(), "testOrg-configLib" +
-                "-java11-0.1.0");
+                "-java17-0.1.0");
     }
 
     private void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
         LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
         LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
                                                         "'local' repository.");
-        bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
+        bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                               packagPath);
         buildLeecher.waitForText(5000);
         bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
@@ -103,7 +103,7 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
                               new LogLeecher[]{testLog1, testLog2}, testFileLocation + "/testProject");
         testLog1.waitForText(5000);
-        testLog1.waitForText(5000);
+        testLog2.waitForText(5000);
 
         // Testing `bal test` command error log for configurables
         String errorMsg = "error: [Config.toml:(3:1,3:22)] configurable variable 'invalidMap' is expected to be of " +
@@ -117,20 +117,83 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
-    public void testEnvironmentVariableBasedConfigurable() throws BallerinaTestException {
+    public void testConfigurableModuleStructureWithTestAPI() throws BallerinaTestException {
+        LogLeecher testLog1 = new LogLeecher("4 passing");
+        bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
+                new LogLeecher[]{testLog1}, testFileLocation + "/testModuleStructureProject");
+        testLog1.waitForText(5000);
+    }
+
+    @Test
+    public void testFileEnvVariableBasedConfigurable() throws BallerinaTestException {
 
         // test config file location through `BAL_CONFIG_FILES` env variable
         String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml") +
                 File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml");
         executeBalCommand("", "envVarPkg",
-                          addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE,
-                                                                          configFilePaths))));
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePaths))));
+    }
 
+    @Test
+    public void testDataEnvVariableBasedConfigurableNegative() throws BallerinaTestException {
+        LogLeecher errorLeecher1 = new LogLeecher("warning: invalid TOML file :", ERROR);
+        LogLeecher errorLeecher2 = new LogLeecher("[BAL_CONFIG_DATA:(1:11,1:12)] missing new line", ERROR);
+        LogLeecher errorLeecher3 = new LogLeecher("[BAL_CONFIG_DATA:(1:22,1:24)] missing new line", ERROR);
+        LogLeecher errorLeecher4 = new LogLeecher("[BAL_CONFIG_DATA:(1:36,1:39)] missing new line", ERROR);
+        LogLeecher errorLeecher5 = new LogLeecher("[BAL_CONFIG_DATA:(1:52,1:57)] missing new line", ERROR);
+        LogLeecher errorLeecher6 = new LogLeecher("[BAL_CONFIG_DATA:(1:71,1:75)] missing new line", ERROR);
+        LogLeecher errorLeecher7 = new LogLeecher("[BAL_CONFIG_DATA:(1:89,1:94)] missing new line", ERROR);
+        LogLeecher errorLeecher8 = new LogLeecher("[BAL_CONFIG_DATA:(1:104,1:111)] missing new line", ERROR);
+        LogLeecher errorLeecher9 = new LogLeecher("error: value not provided for required configurable variable" +
+                " 'stringVar'", ERROR);
+        LogLeecher errorLeecher10 = new LogLeecher("error: value not provided for required configurable variable" +
+                " 'booleanVar'", ERROR);
+        LogLeecher errorLeecher11 = new LogLeecher("error: value not provided for required configurable variable" +
+                " 'intArr'", ERROR);
+        LogLeecher errorLeecher12 = new LogLeecher("error: value not provided for required configurable variable" +
+                " 'decimalArr'", ERROR);
         // test configuration through `BAL_CONFIG_DATA` env variable
         String configData = "[envVarPkg] intVar = 42 floatVar = 3.5 stringVar = \"abc\" booleanVar = true " +
-                "decimalVar = 24.87 intArr = [1,2,3] floatArr = [9.0, 5.6] " +
-                "stringArr = [\"red\", \"yellow\", \"green\"] booleanArr = [true, false,false, true] " +
+                "decimalVar = 24.87 intArr = [1,2,3] floatArr = [9.0, 5.6]";
+        bMainInstance.runMain(testFileLocation, "envVarPkg", null, new String[]{},
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))), null,
+                new LogLeecher[]{errorLeecher1, errorLeecher2, errorLeecher3, errorLeecher4, errorLeecher5,
+                        errorLeecher6, errorLeecher7, errorLeecher8, errorLeecher9, errorLeecher10,
+                        errorLeecher11, errorLeecher12});
+        errorLeecher1.waitForText(5000);
+        errorLeecher2.waitForText(5000);
+        errorLeecher3.waitForText(5000);
+        errorLeecher4.waitForText(5000);
+        errorLeecher5.waitForText(5000);
+        errorLeecher6.waitForText(5000);
+        errorLeecher7.waitForText(5000);
+        errorLeecher8.waitForText(5000);
+        errorLeecher9.waitForText(5000);
+        errorLeecher10.waitForText(5000);
+        errorLeecher11.waitForText(5000);
+        errorLeecher12.waitForText(5000);
+    }
+
+    @Test
+    public void testDataEnvVariableBasedConfigurableWithNewLine() throws BallerinaTestException {
+        String configData = "[envVarPkg]\nintVar = 42\nfloatVar = 3.5\nstringVar = \"abc\"\nbooleanVar = true\n" +
+                "decimalVar = 24.87\nintArr = [1,2,3]\nfloatArr = [9.0, 5.6]\n" +
+                "stringArr = [\"red\", \"yellow\", \"green\"]\nbooleanArr = [true, false,false, true]\n" +
                 "decimalArr = [8.9, 4.5, 6.2]";
+        executeBalCommand("", "envVarPkg",
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
+
+        configData = "[envVarPkg]\\nintVar = 42\\nfloatVar = 3.5\\nstringVar = \"abc\"\\nbooleanVar = true\\n" +
+                "decimalVar = 24.87\\nintArr = [1,2,3]\\nfloatArr = [9.0, 5.6]\\n" +
+                "stringArr = [\"red\", \"yellow\", \"green\"]\\nbooleanArr = [true, false,false, true]\\n" +
+                "decimalArr = [8.9, 4.5, 6.2]";
+        executeBalCommand("", "envVarPkg",
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
+
+        configData = "[envVarPkg]\\n\\rintVar = 42\\n\\rfloatVar = 3.5\\n\\rstringVar = \"abc\"\\n\\r" +
+                "booleanVar = true\\n\\rdecimalVar = 24.87\\n\\rintArr = [1,2,3]\\n\\r" +
+                "floatArr = [9.0, 5.6]\\n\\rstringArr = [\"red\", \"yellow\", \"green\"]\\n\\r" +
+                "booleanArr = [true, false,false, true]\\n\\rdecimalArr = [8.9, 4.5, 6.2]";
         executeBalCommand("", "envVarPkg",
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
     }
@@ -218,7 +281,7 @@ public class ConfigurableTest extends BaseTest {
     public void testMapVariableAndModuleAmbiguitySubModule() throws BallerinaTestException {
         LogLeecher errorLog = new LogLeecher("[subModuleClash.bal:(19:26,19:30)] configurable variable name 'test' " +
                 "creates an ambiguity with module 'testOrg/subModuleClash.test:0.1.0'", ERROR);
-        bMainInstance.runMain("build", new String[]{"-c"}, null, new String[]{},
+        bMainInstance.runMain("pack", new String[]{}, null, new String[]{},
                 new LogLeecher[]{errorLog},
                 Paths.get(testFileLocation, "testAmbiguousCases", "subModuleClash").toString());
         errorLog.waitForText(5000);
@@ -231,7 +294,7 @@ public class ConfigurableTest extends BaseTest {
                 "ambiguity with module 'testOrg/test:0.1.0'", ERROR);
         compilePackageAndPushToLocal(Paths.get(projectPath, "importedModuleClash", "test").toString(),
                 "testOrg-test-any-0.1.0");
-        bMainInstance.runMain("build", new String[]{"-c", "main"}, null, new String[]{},
+        bMainInstance.runMain("pack", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLog}, projectPath + "/importedModuleClash");
         errorLog.waitForText(5000);
     }
@@ -240,7 +303,7 @@ public class ConfigurableTest extends BaseTest {
     public void testMapVariableAndModuleAmbiguityMultipleSubModule() throws BallerinaTestException {
         LogLeecher errorLog = new LogLeecher("[mod1.bal:(17:26,17:30)] configurable variable name 'test' creates an " +
                 "ambiguity with module 'testOrg/multipleSubModuleClash.mod1.test:0.1.0'", ERROR);
-        bMainInstance.runMain("build", new String[]{"-c"}, null, new String[]{},
+        bMainInstance.runMain("pack", new String[]{}, null, new String[]{},
                 new LogLeecher[]{errorLog},
                 Paths.get(testFileLocation, "testAmbiguousCases", "multipleSubModuleClash").toString());
         errorLog.waitForText(5000);
@@ -269,13 +332,34 @@ public class ConfigurableTest extends BaseTest {
                 {"configRecordArray", "Config_record_arrays.toml"},
                 {"configTableType", "Config_tables.toml"},
                 {"configMapType", "Config_maps.toml"},
-                {"configComplexXml", "Config_xml.toml"}
+                {"configComplexXml", "Config_xml.toml"},
+                {"configTupleType", "Config_tuples.toml"},
+                {"configTableArray", "Config_table_arrays.toml"},
+                {"configRecordType", "Config_records_inline.toml"},
+                {"configOpenRecord", "Config_open_records_inline.toml"},
+                {"defaultValuesRecord", "Config_default_values_inline.toml"},
+                {"configRecordArray", "Config_record_arrays_inline.toml"},
+                {"configTableType", "Config_tables_inline.toml"},
+                {"configMapType", "Config_maps_inline.toml"},
+                {"configComplexXml", "Config_xml_inline.toml"},
+                {"configTupleType", "Config_tuples_inline.toml"},
+
         };
     }
 
     @Test
     public void testLargeNoOfConfigVariables() throws BallerinaTestException {
         executeBalCommand("/largeProject", "main", null);
+    }
+
+    @Test
+    public void testModuleAmbiguityWithModuleNameAsBallerina() throws BallerinaTestException {
+        LogLeecher errorLog = new LogLeecher("error: [Config.toml:(1:1,1:13)] the module name 'ballerina' clashes " +
+                "with an imported organization name. Please provide the module name as '[ballerina.ballerina]'", ERROR);
+        bMainInstance.runMain("run", new String[]{}, null, new String[]{},
+                new LogLeecher[]{errorLog},
+                Paths.get(testFileLocation, "testAmbiguousCases", "moduleNamedBallerina").toString());
+        errorLog.waitForText(5000);
     }
 
     /**
@@ -285,9 +369,7 @@ public class ConfigurableTest extends BaseTest {
      */
     private Map<String, String> addEnvironmentVariables(Map<String, String> pathVariables) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        for (Map.Entry<String, String> pathVariable :pathVariables.entrySet()) {
-            envVariables.put(pathVariable.getKey(), pathVariable.getValue());
-        }
+        envVariables.putAll(pathVariables);
         return envVariables;
     }
 }

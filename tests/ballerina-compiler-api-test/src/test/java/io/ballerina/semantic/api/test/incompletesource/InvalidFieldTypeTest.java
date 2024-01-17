@@ -82,7 +82,7 @@ public class InvalidFieldTypeTest {
         return new Object[][]{
                 {18, 5, "c"},
                 {23, 5, "name"},
-//                {28, 5, "name"}, TODO: due to https://github.com/ballerina-platform/ballerina-lang/issues/29382
+                {28, 5, "name"},
         };
     }
 }

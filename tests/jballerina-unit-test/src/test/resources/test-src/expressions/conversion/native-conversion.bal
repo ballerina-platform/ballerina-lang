@@ -555,11 +555,12 @@ type XmlArray record {|
     xml[] a;
 |};
 
-function testJsonToXmlArray () returns XmlArray {
-    json j = {a:["a", "b", "c"]};
+function testJsonToXmlArray() {
+    json j = {a: ["a", "b", "c"]};
     var a = j.cloneWithType(XmlArray);
+    test:assertTrue(a is XmlArray);
     if (a is XmlArray) {
-        return a;
+        test:assertEquals(a, {"a": [xml `a`, xml `b`, xml `c`]});
     } else {
         panic a;
     }

@@ -52,7 +52,7 @@ function workerActionFirstTest() {
              error err = error("err", message = "err msg");
              return err;
         }
-        Person p2 = <- w1;
+        Person _ = <- w1;
         Person p3 = {};
         p3 = <- w1;
         return;
@@ -111,13 +111,13 @@ function invalidReceiveUsage() {
             a -> w2;
         }
         worker w2 {
-            int a = <- w1;
+            int _ = <- w1;
         }
     }
 }
 
 function print(string str) {
-    string result = str.toUpperAscii();
+    string _ = str.toUpperAscii();
 }
 
 function getId() returns int {
@@ -139,7 +139,7 @@ function getStdId() returns future<int> {
 
 public function workerAsAFutureTest() returns int {
     worker wx returns int {
-        any a = <- wy;
+        any _ = <- wy;
         "h" -> wy;
         future<int> fi = wy; // illegal peer worker ref
         return checkpanic wait fi;
@@ -147,12 +147,12 @@ public function workerAsAFutureTest() returns int {
 
     worker wy returns int {
         "a" -> wx;
-        string k = <- wx;
+        string _ = <- wx;
 
         fork {
             worker wix returns int {
-                int ji = <- wiy;
-                var fwiy = wiy; // illegal peer worker ref within a worker
+                int _ = <- wiy;
+                var _ = wiy; // illegal peer worker ref within a worker
 
                 return 0;
             }
@@ -163,9 +163,9 @@ public function workerAsAFutureTest() returns int {
             }
         }
 
-        future<int>  wixF = wix;
-        int wixK = wait wix;
-        future<int> fn = wx; // illegal peer worker ref within a worker
+        future<int> _ = wix;
+        int _ = wait wix;
+        future<int> _ = wx; // illegal peer worker ref within a worker
         return wait wx; // illegal peer worker ref within a worker
     }
 
@@ -185,7 +185,7 @@ public function workerAsAFutureTest() returns int {
     function () returns int|error lambda1 = function () returns int|error {
         return wait fLambda0;
     };
-    future<int|error> fLambda1 = start lambda1();
+    future<int|error> _ = start lambda1();
 
     return wait wy;
 }
@@ -193,10 +193,10 @@ public function workerAsAFutureTest() returns int {
 class ObjFuncUsingWorkersAsFutureValues {
     function foo() returns int {
         worker wx returns int {
-            any a = <- wy;
+            any _ = <- wy;
             "h" -> wy;
             future<int> fi = wy; // illegal peer worker ref
-            var f = function () {
+            var _ = function () {
                 _ = wait wy; // illegal peer worker ref within a worker
             };
             return checkpanic wait fi;
@@ -204,12 +204,12 @@ class ObjFuncUsingWorkersAsFutureValues {
 
         worker wy returns int {
             "a" -> wx;
-            string k = <- wx;
+            string _ = <- wx;
 
             fork {
                 worker wix returns int {
-                    int ji = <- wiy;
-                    var fwiy = wiy; // illegal peer worker ref within a worker
+                    int _ = <- wiy;
+                    var _ = wiy; // illegal peer worker ref within a worker
 
                     return 0;
                 }
@@ -219,13 +219,13 @@ class ObjFuncUsingWorkersAsFutureValues {
                     _ = wait wx; // illegal peer worker ref within a worker
                     function (future<int>) returns future<int> f = (a) => wx; // illegal peer worker ref within a worker
                     future<int> p = start bar();
-                    future<int> wxRef = f(p);
+                    future<int> _ = f(p);
                 }
             }
 
-            future<int>  wixF = wix;
-            int wixK = wait wix;
-            future<int> fn = wx; // illegal peer worker ref within a worker
+            future<int> _ = wix;
+            int _ = wait wix;
+            future<int> _ = wx; // illegal peer worker ref within a worker
             return wait wx; // illegal peer worker ref within a worker
         }
         return wait wy;
@@ -267,7 +267,7 @@ function testUnsupportedWorkerPosition() {
             }
         }
 
-        function k = function() {
+        function _ = function() {
                          i -> w1;
                      };
     }
@@ -275,12 +275,12 @@ function testUnsupportedWorkerPosition() {
     worker w1 {
         int i = 6;
         foreach var index in 0 ..< i {
-            int k = <- w;
+            int _ = <- w;
         }
     }
 
     if (2 / 2 == 1) {
-        int res = <- w;
+        int _ = <- w;
     }
 }
 
@@ -313,7 +313,7 @@ function f = function() {
                          }
                      }
 
-                     function k = function() {
+                     function _ = function() {
                                       i -> w1;
                                   };
                  }
@@ -321,11 +321,11 @@ function f = function() {
                  worker w1 {
                      int i = 6;
                      foreach var index in 0 ..< i {
-                         int k = <- w;
+                         int _ = <- w;
                      }
                  }
 
                  if (2 / 2 == 1) {
-                     int res = <- w;
+                     int _ = <- w;
                  }
              };

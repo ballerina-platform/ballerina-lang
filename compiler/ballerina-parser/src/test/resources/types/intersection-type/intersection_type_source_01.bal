@@ -5,4 +5,6 @@ public function foo() {
     float? & int a;
     float & () & int a;
     T & A a;
+    -2 & readonly t1;
+    -2 & readonly t2 = -2;
 }

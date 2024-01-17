@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BXml;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.XML_OPERATION_ERROR;
 
 /**
  * Return name of the element if `x` is a element or nil if element name is not set, else error.

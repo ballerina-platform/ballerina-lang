@@ -132,7 +132,7 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
      */
     private DataObject createDataObject(String name, Node node) {
         LineRange lineRange = node.lineRange();
-        return new DataObject(name, lineRange.filePath(), lineRange.startLine().line(), lineRange.startLine().offset(),
+        return new DataObject(name, lineRange.fileName(), lineRange.startLine().line(), lineRange.startLine().offset(),
                 lineRange.endLine().line(), lineRange.endLine().offset());
     }
 }

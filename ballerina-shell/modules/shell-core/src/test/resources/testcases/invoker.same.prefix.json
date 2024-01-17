@@ -1,0 +1,10 @@
+[
+  {
+    "description": "Import with io prefix.",
+    "input": "import ballerina/lang.'int as io;"
+  },
+  {
+    "description": "Import different module with io prefix.",
+    "input": "import ballerina/io;"
+  }
+]

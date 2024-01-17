@@ -18,8 +18,6 @@
 
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -44,11 +42,10 @@ public class AsyncTest {
 
     @Test
     public void testAcceptNothing() {
-        BValue[] returns = BRunUtil.invoke(result, "asyncTest");
+        Object returns = BRunUtil.invoke(result, "asyncTest");
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 42);
+        Assert.assertEquals(returns.getClass(), Long.class);
+        Assert.assertEquals(returns, 42L);
     }
 
     @Test

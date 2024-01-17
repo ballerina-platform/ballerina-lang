@@ -1,0 +1,66 @@
+[
+  {
+    "description": "Add public qualifier",
+    "oldCode": "enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "message": "\u0027public\u0027 qualifier is added to enum \u0027color\u0027"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove public qualifier",
+    "oldCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "\u0027public\u0027 qualifier is removed from enum \u0027color\u0027"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 1,
+    "character": 39
+  },
+  "source": "add_check_with_parantheses_source1.bal",
+  "expected": [
+    {
+      "title": "Add 'check' error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 31
+            },
+            "end": {
+              "line": 1,
+              "character": 31
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 33
+            },
+            "end": {
+              "line": 0,
+              "character": 33
+            }
+          },
+          "newText": " returns error?"
+        }
+      ]
+    }
+  ]
+}

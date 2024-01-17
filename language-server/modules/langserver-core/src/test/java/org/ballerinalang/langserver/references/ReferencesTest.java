@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -40,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -69,7 +71,7 @@ public class ReferencesTest {
         Position position = gson.fromJson(configObject.get("position"), Position.class);
 
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        String actualStr = TestUtil.getReferencesResponse(sourcePath.toString(), position, serviceEndpoint);
+        String actualStr = TestUtil.getReferencesResponse(sourcePath.toUri().toString(), position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");
@@ -89,9 +91,7 @@ public class ReferencesTest {
         Path sourcePath = ballerinaHome.resolve(source.get("file").getAsString());
         Position position = gson.fromJson(configObject.get("position"), Position.class);
 
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
-        String actualStr = TestUtil.getReferencesResponse(sourcePath.toString(), position, serviceEndpoint);
-        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+        String actualStr = getReferencesResponseWithinStdLib(sourcePath, position);
 
         JsonArray expected = configObject.getAsJsonArray("result");
         JsonArray actual = parser.parse(actualStr).getAsJsonObject().get("result").getAsJsonArray();
@@ -99,6 +99,16 @@ public class ReferencesTest {
         this.alterActualStdLibUri(actual);
 
         expected.forEach(jsonElement -> Assert.assertTrue(actual.contains(jsonElement)));
+    }
+    
+    protected String getReferencesResponseWithinStdLib(Path sourcePath, Position position) 
+            throws IOException, URISyntaxException {
+        String fileUri = PathUtil.getUriForPath(sourcePath, getExpectedUriScheme());
+        byte[] encodedContent = Files.readAllBytes(sourcePath);
+        TestUtil.openDocument(serviceEndpoint, fileUri, new String(encodedContent));
+        String actualStr = TestUtil.getReferencesResponse(sourcePath.toUri().toString(), position, serviceEndpoint);
+        TestUtil.closeDocument(serviceEndpoint, fileUri);
+        return actualStr;
     }
 
     @DataProvider
@@ -168,7 +178,7 @@ public class ReferencesTest {
             URI uri = new URI(fileUri);
             Assert.assertEquals(uri.getScheme(), getExpectedUriScheme(), 
                     String.format("Expected %s: URI scheme", getExpectedUriScheme()));
-            fileUri = CommonUtil.convertUriSchemeFromBala(fileUri);
+            fileUri = PathUtil.convertUriSchemeFromBala(fileUri);
             uri = new URI(fileUri);
             Assert.assertEquals(uri.getScheme(), CommonUtil.URI_SCHEME_FILE,
                     "Expected file URI scheme after conversion");

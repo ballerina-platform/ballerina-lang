@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -41,6 +40,7 @@ import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -48,17 +48,19 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
-import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
@@ -76,7 +78,7 @@ public class BuildProject extends Project {
      * @return build project
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
-        return load(environmentBuilder, projectPath, new BuildOptionsBuilder().build());
+        return load(environmentBuilder, projectPath, BuildOptions.builder().build());
     }
 
     /**
@@ -86,7 +88,7 @@ public class BuildProject extends Project {
      * @return BuildProject instance
      */
     public static BuildProject load(Path projectPath) {
-        return load(projectPath, new BuildOptionsBuilder().build());
+        return load(projectPath, BuildOptions.builder().build());
     }
 
     /**
@@ -111,7 +113,8 @@ public class BuildProject extends Project {
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath,
                                     BuildOptions buildOptions) {
-        PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
+        PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath,
+                buildOptions.disableSyntaxTree());
         BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath);
 
         BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions);
@@ -136,16 +139,49 @@ public class BuildProject extends Project {
         return Optional.empty();
     }
 
+    private Optional<Path> generatedModulePath(ModuleId moduleId) {
+        if (currentPackage().moduleIds().contains(moduleId)) {
+            Optional<Path> generatedModulePath = Optional.of(sourceRoot.
+                    resolve(ProjectConstants.GENERATED_MODULES_ROOT));
+            if (currentPackage().getDefaultModule().moduleId() == moduleId && generatedModulePath.isPresent() &&
+                    Files.isDirectory(generatedModulePath.get())) {
+                return generatedModulePath;
+            }
+            String moduleName = currentPackage().module(moduleId).moduleName().moduleNamePart();
+            if (generatedModulePath.isPresent() && Files.isDirectory(generatedModulePath.get())) {
+                Optional<Path> generatedModuleDirPath = Optional.of(generatedModulePath.get().resolve(moduleName));
+                if (generatedModuleDirPath.isPresent() && Files.isDirectory(generatedModuleDirPath.get())) {
+                    return Optional.of(generatedModulePath.get().resolve(moduleName));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
     @Override
     public Optional<Path> documentPath(DocumentId documentId) {
         for (ModuleId moduleId : currentPackage().moduleIds()) {
             Module module = currentPackage().module(moduleId);
             Optional<Path> modulePath = modulePath(moduleId);
             if (module.documentIds().contains(documentId)) {
+                Optional<Path> generatedModulePath = generatedModulePath(moduleId);
+                if (generatedModulePath.isPresent() && Files.exists(
+                        generatedModulePath.get().resolve(module.document(documentId).name()))) {
+                    return Optional.of(generatedModulePath.get().resolve(module.document(documentId).name()));
+                }
                 if (modulePath.isPresent()) {
                     return Optional.of(modulePath.get().resolve(module.document(documentId).name()));
                 }
             } else if (module.testDocumentIds().contains(documentId)) {
+                Optional<Path> generatedModulePath = generatedModulePath(moduleId);
+                if (generatedModulePath.isPresent() && Files.exists(
+                        generatedModulePath.get().resolve(ProjectConstants.TEST_DIR_NAME).
+                                resolve(module.document(documentId).name()
+                                        .split(ProjectConstants.TEST_DIR_NAME + "/")[1]))) {
+                    return Optional.of(generatedModulePath.get().resolve(ProjectConstants.TEST_DIR_NAME).
+                            resolve(module.document(documentId).name()
+                                    .split(ProjectConstants.TEST_DIR_NAME + "/")[1]));
+                }
                 if (modulePath.isPresent()) {
                     return Optional.of(modulePath.get()
                             .resolve(ProjectConstants.TEST_DIR_NAME).resolve(
@@ -157,40 +193,59 @@ public class BuildProject extends Project {
     }
 
     @Override
+    public void clearCaches() {
+        resetPackage(this);
+        this.projectEnvironment = ProjectEnvironmentBuilder.getDefaultBuilder().build(this);
+    }
+
+    @Override
     public Project duplicate() {
-        BuildOptions duplicateBuildOptions = new BuildOptionsBuilder().build().acceptTheirs(buildOptions());
+        BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
         BuildProject buildProject = new BuildProject(
                 ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions);
-        return cloneProject(buildProject);
+        return resetPackage(buildProject);
     }
 
     @Override
     public DocumentId documentId(Path file) {
         if (isFilePathInProject(file)) {
             Path parent = Optional.of(file.toAbsolutePath().getParent()).get();
+            String parentFileName = Optional.of(parent.getFileName()).get().toString();
+            boolean isDefaultModule = false;
             for (ModuleId moduleId : this.currentPackage().moduleIds()) {
                 String moduleDirName;
                 // Check for the module name contains a dot and not being the default module
                 if (!this.currentPackage().getDefaultModule().moduleId().equals(moduleId)) {
-                    moduleDirName = moduleId.moduleName()
+                    moduleDirName = currentPackage().module(moduleId).moduleName().toString()
                             .split(this.currentPackage().packageName().toString() + "\\.")[1];
                 } else {
                     moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();
+                    isDefaultModule = true;
                 }
 
-                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName) || Optional.of(
-                        Optional.of(parent.getParent()).get().getFileName()).get().toString().equals(moduleDirName)) {
-                    Module module = this.currentPackage().module(moduleId);
+                Module module = this.currentPackage().module(moduleId);
+                if (parentFileName.equals(moduleDirName) ||
+                        (isDefaultModule && ProjectConstants.GENERATED_MODULES_ROOT.equals(parentFileName))) {
+                    // this is a source file
                     for (DocumentId documentId : module.documentIds()) {
                         if (module.document(documentId).name().equals(
                                 Optional.of(file.getFileName()).get().toString())) {
                             return documentId;
                         }
                     }
-                    for (DocumentId documentId : module.testDocumentIds()) {
-                        if (module.document(documentId).name().split(ProjectConstants.TEST_DIR_NAME + "/")[1]
-                                .equals(Optional.of(file.getFileName()).get().toString())) {
-                            return documentId;
+                } else if (ProjectConstants.TEST_DIR_NAME.equals(parentFileName)) {
+                    // this is a test file
+                    Path modulePath = Optional.of(parent.getParent()).get();
+                    if (Optional.of(modulePath.getFileName()).get().toString()
+                            .equals(moduleDirName) || Optional.of(Optional.of(modulePath.getParent()).get()
+                            .getFileName()).get().toString().equals(moduleDirName)) {
+                        for (DocumentId documentId : module.testDocumentIds()) {
+                            String[] splitName = module.document(documentId).name()
+                                    .split(ProjectConstants.TEST_DIR_NAME + "/");
+                            if (splitName.length > 1 && splitName[1]
+                                    .equals(Optional.of(file.getFileName()).get().toString())) {
+                                return documentId;
+                            }
                         }
                     }
                 }
@@ -209,10 +264,10 @@ public class BuildProject extends Project {
     }
 
     public void save() {
-        Path buildFilePath = this.sourceRoot.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Path buildFilePath = this.targetDir().resolve(BUILD_FILE);
         boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
-        // if build file does not exists
 
+        // if build file does not exists
         if (!buildFilePath.toFile().exists()) {
             createBuildFile(buildFilePath);
             writeBuildFile(buildFilePath);
@@ -231,6 +286,13 @@ public class BuildProject extends Project {
             // check whether buildJson is null and last updated time has expired
             if (buildJson != null && !shouldUpdate) {
                 buildJson.setLastBuildTime(System.currentTimeMillis());
+
+                Path projectPath = this.currentPackage().project().sourceRoot();
+                Map<String, Long> lastModifiedTime = new HashMap<>();
+                lastModifiedTime.put(this.currentPackage().packageName().value(),
+                        FileUtils.lastModifiedTimeOfBalProject(projectPath));
+                buildJson.setLastModifiedTime(lastModifiedTime);
+
                 writeBuildFile(buildFilePath, buildJson);
             } else {
                 writeBuildFile(buildFilePath);
@@ -407,9 +469,14 @@ public class BuildProject extends Project {
         }
     }
 
-    private static void writeBuildFile(Path buildFilePath) {
+    private void writeBuildFile(Path buildFilePath) {
+        Path projectPath = this.currentPackage().project().sourceRoot();
+        Map<String, Long> lastModifiedTime = new HashMap<>();
+        lastModifiedTime.put(this.currentPackage().packageName().value(),
+                FileUtils.lastModifiedTimeOfBalProject(projectPath));
+
         BuildJson buildJson = new BuildJson(System.currentTimeMillis(), System.currentTimeMillis(),
-                RepoUtils.getBallerinaShortVersion());
+                RepoUtils.getBallerinaShortVersion(), lastModifiedTime);
         writeBuildFile(buildFilePath, buildJson);
     }
 
@@ -427,4 +494,12 @@ public class BuildProject extends Project {
         }
     }
 
+    @Override
+    public Path targetDir() {
+        if (this.buildOptions().getTargetPath() == null) {
+            return this.sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
+        } else {
+            return Paths.get(this.buildOptions().getTargetPath());
+        }
+    }
 }

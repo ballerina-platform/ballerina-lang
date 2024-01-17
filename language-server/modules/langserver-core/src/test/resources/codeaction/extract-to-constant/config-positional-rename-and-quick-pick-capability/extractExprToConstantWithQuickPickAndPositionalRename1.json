@@ -1,0 +1,122 @@
+{
+  "position": {
+    "line": 1,
+    "character": 22
+  },
+  "source": "extractExprToConstantWithQuickPick.bal",
+  "expected": [
+    {
+      "title": "Extract to constant",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "extract to constant",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "extract to constant",
+          "extractExprToConstantWithQuickPick.bal",
+          {
+            "10": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "const int CONST = 10;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 23
+                  }
+                },
+                "newText": "CONST"
+              }
+            ],
+            "10 * 20": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "const int CONST = 10 * 20;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 28
+                  }
+                },
+                "newText": "CONST"
+              }
+            ],
+            "10 * 20 + 30": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "const int CONST = 10 * 20 + 30;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 33
+                  }
+                },
+                "newText": "CONST"
+              }
+            ]
+          },
+          {
+            "10": {
+              "line": 2,
+              "character": 21
+            },
+            "10 * 20": {
+              "line": 2,
+              "character": 21
+            },
+            "10 * 20 + 30": {
+              "line": 2,
+              "character": 21
+            }
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

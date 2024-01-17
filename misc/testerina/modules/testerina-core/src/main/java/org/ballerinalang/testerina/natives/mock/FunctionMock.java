@@ -12,6 +12,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.ballerinalang.testerina.natives.Executor;
 
 import java.lang.reflect.Method;
@@ -21,9 +22,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.test.runtime.Main.getClassLoader;
+import static org.ballerinalang.test.runtime.BTestMain.getClassLoader;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.ballerinalang.testerina.natives.mock.MockConstants.MOCK_STRAND_NAME;
+import static org.ballerinalang.testerina.natives.mock.MockConstants.ORIGINAL_FUNC_NAME_PREFIX;
 
 /**
  * Class that contains inter-op function related to function mocking.
@@ -34,6 +36,7 @@ public class FunctionMock {
         BObject mockFunctionObj = caseObj.getObjectValue(StringUtils.fromString("mockFuncObj"));
         BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
         Object returnVal = caseObj.get(StringUtils.fromString("returnValue"));
+
         MockRegistry.getInstance().registerCase(mockFunctionObj, null, args, returnVal);
         return null;
     }
@@ -54,32 +57,30 @@ public class FunctionMock {
         String originalClass = splitInfo[2];
 
         originalFunctionPackage = getQualifiedClassName(originalOrg, originalPackage, originalVersion, originalClass);
-        Object returnVal = null;
         for (String caseId : caseIds) {
             if (MockRegistry.getInstance().hasCase(caseId)) {
-                returnVal = MockRegistry.getInstance().getReturnValue(caseId);
+                Object returnVal = MockRegistry.getInstance().getReturnValue(caseId);
                 if (returnVal instanceof BString) {
                     if (returnVal.toString().contains(MockConstants.FUNCTION_CALL_PLACEHOLDER)) {
-                        return callMockFunction(originalFunction, originalFunctionPackage,
+                        return callMockFunction(originalFunction.replaceAll("\\\\(.)", "$1"),
+                                originalFunctionPackage,
                                 mockFunctionClasses,
                                 returnVal.toString(), args);
                     } else if (returnVal.toString().equals(MockConstants.FUNCTION_CALLORIGINAL_PLACEHOLDER)) {
-                        return callOriginalFunction(originalFunction, originalFunctionPackage, args);
+                        return callOriginalFunction(ORIGINAL_FUNC_NAME_PREFIX + originalFunction,
+                                originalFunctionPackage, args);
                     }
                 }
-                break;
+                return returnVal;
             }
         }
-        if (returnVal == null) {
-            String message = "no return value or action registered for function";
-            throw ErrorCreator.createError(
-                    MockConstants.TEST_PACKAGE_ID,
-                    MockConstants.FUNCTION_CALL_ERROR,
-                    StringUtils.fromString(message),
-                    null,
-                    new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
-        }
-        return returnVal;
+        String message = "no return value or action registered for function";
+        throw ErrorCreator.createError(
+                MockConstants.TEST_PACKAGE_ID,
+                MockConstants.FUNCTION_CALL_ERROR,
+                StringUtils.fromString(message),
+                null,
+                new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
     private static Object callOriginalFunction(String originalFunction, String originalClassName, Object... args) {
@@ -109,7 +110,11 @@ public class FunctionMock {
         String version;
 
         if (Thread.currentThread().getStackTrace().length >= 5) {
-            String[] projectInfo = Thread.currentThread().getStackTrace()[4].getClassName().split(Pattern.quote("."));
+            String classname = Thread.currentThread().getStackTrace()[4].getClassName();
+            if (classname.contains("/")) {
+                classname = classname.replaceAll("/", ".");
+            }
+            String[] projectInfo = classname.split(Pattern.quote("."));
             // Set project info
             try {
                 orgName = projectInfo[0];
@@ -167,7 +172,7 @@ public class FunctionMock {
 
         return mockMethod;
     }
-
+    //Identify the class with the mockMethod(method within call)
     private static String resolveMockClass(String mockMethodName, String[] mockFunctionClasses, String orgName,
                                            String packageName, String version, ClassLoader classLoader)
             throws ClassNotFoundException {
@@ -200,7 +205,7 @@ public class FunctionMock {
                         MockConstants.TEST_PACKAGE_ID,
                         MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                         StringUtils.fromString("Return type of function " + mockMethod.getName() +
-                                " does not match function" + originalMethod.getName()),
+                                " does not match function " + originalMethod.getName()),
                         null,
                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
             }
@@ -212,7 +217,7 @@ public class FunctionMock {
                         MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                         StringUtils.fromString(
                                 "Parameter types of function " + mockMethod.getName() +
-                                        " does not match function" + originalMethod.getName()),
+                                        " does not match function " + originalMethod.getName()),
                         null,
                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
             }
@@ -225,7 +230,7 @@ public class FunctionMock {
                             MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                             StringUtils.fromString(
                                     "Parameter types of function " + mockMethod.getName() +
-                                            "does not match function" + originalMethod.getName()), null,
+                                            "does not match function " + originalMethod.getName()), null,
                             new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
                 }
             }
@@ -246,7 +251,7 @@ public class FunctionMock {
         Class<?> clazz = classLoader.loadClass(className);
 
         for (Method method : clazz.getDeclaredMethods()) {
-            if (methodName.equals(method.getName())) {
+            if (methodName.equals(TesterinaUtils.decodeIdentifier(method.getName()))) {
                 return method;
             }
         }
@@ -282,4 +287,3 @@ public class FunctionMock {
         return caseIdList;
     }
 }
-

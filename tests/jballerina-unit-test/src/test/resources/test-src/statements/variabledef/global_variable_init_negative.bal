@@ -36,6 +36,18 @@ function foo() returns int {
 }
 
 function testModuleVarDeclNegative() {
-    int x = a; // variable 'a' is not initialized
-    string str = s; // variable 's' is not initialized
+    int _ = a; // variable 'a' is not initialized
+    string _ = s; // variable 's' is not initialized
 }
+
+(function() returns string) func1;
+
+function(int a, string b) returns string func2;
+
+function(int, string) returns string func3;
+
+(function() returns string)? func4;
+
+function(int) func5;
+
+function func6;

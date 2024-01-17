@@ -49,33 +49,34 @@ public class BIREmitter {
 
     private static final CompilerContext.Key<BIREmitter> BIR_EMITTER = new CompilerContext.Key<>();
     private static final PrintStream console = System.out;
-    private boolean dumbBIR;
+    private boolean dumpBIR;
 
     public static BIREmitter getInstance(CompilerContext context) {
-
         BIREmitter birEmitter = context.get(BIR_EMITTER);
         if (birEmitter == null) {
             birEmitter = new BIREmitter(context);
         }
-
         return birEmitter;
     }
 
     private BIREmitter(CompilerContext context) {
-
         context.put(BIR_EMITTER, this);
         CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
-        this.dumbBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
+        this.dumpBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
     }
 
     public BLangPackage emit(BLangPackage bLangPackage) {
-        if (dumbBIR) {
-            console.println(emitModule(bLangPackage.symbol.bir));
-        }
+        emit(bLangPackage.symbol.bir);
         return bLangPackage;
     }
 
-    private String emitModule(BIRNode.BIRPackage mod) {
+    public void emit(BIRNode.BIRPackage birPackage) {
+        if (dumpBIR) {
+            console.println(emitModule(birPackage));
+        }
+    }
+
+    public static String emitModule(BIRNode.BIRPackage mod) {
 
         String modStr = "================ Emitting Module ================";
         modStr += emitLBreaks(1);
@@ -100,7 +101,7 @@ public class BIREmitter {
         return modStr;
     }
 
-    private String emitImports(List<BIRNode.BIRImportModule> impMods) {
+    private static String emitImports(List<BIRNode.BIRImportModule> impMods) {
 
         StringBuilder impStr = new StringBuilder();
         for (BIRNode.BIRImportModule mod : impMods) {
@@ -110,7 +111,7 @@ public class BIREmitter {
         return impStr.toString();
     }
 
-    private String emitImport(BIRNode.BIRImportModule impMod) {
+    private static String emitImport(BIRNode.BIRImportModule impMod) {
 
         String impStr = "import ";
         impStr += emitName(impMod.packageID.orgName) + "/";
@@ -125,7 +126,7 @@ public class BIREmitter {
         return impStr;
     }
 
-    private String emitTypeDefs(List<BIRNode.BIRTypeDefinition> typeDefs) {
+    private static String emitTypeDefs(List<BIRNode.BIRTypeDefinition> typeDefs) {
 
         StringBuilder tDefStr = new StringBuilder();
         for (BIRNode.BIRTypeDefinition tDef : typeDefs) {
@@ -135,7 +136,7 @@ public class BIREmitter {
         return tDefStr.toString();
     }
 
-    private String emitTypeDef(BIRNode.BIRTypeDefinition tDef) {
+    private static String emitTypeDef(BIRNode.BIRTypeDefinition tDef) {
         // Adding the type to global type map
         TypeEmitter.B_TYPES.put(tDef.internalName.value, tDef.type);
 
@@ -163,7 +164,7 @@ public class BIREmitter {
     }
 
     ////////////////////////////////////// Global var emitting ///////////////////
-    private String emitGlobalVars(List<BIRNode.BIRGlobalVariableDcl> globleVars) {
+    private static String emitGlobalVars(List<BIRNode.BIRGlobalVariableDcl> globleVars) {
 
         StringBuilder globalVarStr = new StringBuilder();
         for (BIRNode.BIRGlobalVariableDcl globalVar : globleVars) {
@@ -173,7 +174,7 @@ public class BIREmitter {
         return globalVarStr.toString();
     }
 
-    private String emitGlobalVar(BIRNode.BIRGlobalVariableDcl globalVar) {
+    private static String emitGlobalVar(BIRNode.BIRGlobalVariableDcl globalVar) {
 
         String globalVarStr = "";
         globalVarStr += emitFlags(globalVar.flags);
@@ -187,7 +188,7 @@ public class BIREmitter {
         return globalVarStr;
     }
 
-    private String emitFunctions(List<BIRNode.BIRFunction> funcs, int tabs) {
+    private static String emitFunctions(List<BIRNode.BIRFunction> funcs, int tabs) {
         StringBuilder funcString = new StringBuilder();
         for (BIRNode.BIRFunction func : funcs) {
             funcString.append(emitFunction(func, tabs));
@@ -196,7 +197,7 @@ public class BIREmitter {
         return funcString.toString();
     }
 
-    public String emitFunction(BIRNode.BIRFunction func, int tabs) {
+    public static String emitFunction(BIRNode.BIRFunction func, int tabs) {
         String funcString = "";
         funcString += emitTabs(tabs);
         funcString += emitFlags(func.flags);
@@ -220,7 +221,7 @@ public class BIREmitter {
         return funcString;
     }
 
-    private String emitLocalVars(List<BIRNode.BIRVariableDcl> localVars, int tabs) {
+    private static String emitLocalVars(List<BIRNode.BIRVariableDcl> localVars, int tabs) {
 
         StringBuilder varStr = new StringBuilder();
         for (BIRNode.BIRVariableDcl lVar : localVars) {
@@ -230,7 +231,7 @@ public class BIREmitter {
         return varStr.toString();
     }
 
-    private String emitLocalVar(BIRNode.BIRVariableDcl lVar, int tabs) {
+    private static String emitLocalVar(BIRNode.BIRVariableDcl lVar, int tabs) {
 
         String str = "";
         str += emitTabs(tabs);
@@ -244,7 +245,7 @@ public class BIREmitter {
         return str;
     }
 
-    private String emitBasicBlocks(List<BIRNode.BIRBasicBlock> basicBlocks, int tabs) {
+    private static String emitBasicBlocks(List<BIRNode.BIRBasicBlock> basicBlocks, int tabs) {
 
         StringBuilder bbStr = new StringBuilder();
         for (BIRNode.BIRBasicBlock bb : basicBlocks) {
@@ -254,7 +255,7 @@ public class BIREmitter {
         return bbStr.toString();
     }
 
-    private String emitBasicBlock(BIRNode.BIRBasicBlock basicBlock, int tabs) {
+    private static String emitBasicBlock(BIRNode.BIRBasicBlock basicBlock, int tabs) {
 
         String bbStr = "";
         bbStr += emitTabs(tabs);
@@ -274,19 +275,19 @@ public class BIREmitter {
 // TODO improve this to be able to plug custom error emitters as there may be
 // TODO cnt - custom error entries @platform specific code gen sides
 //
-//   -------------------------------
-//   | trapBB       | errorOp      |
-//   -------------------------------
-//   | bb1          | op1          |
+//   -------------------------------------------------------------
+//   | trapBB       | endBB        | targetBB     | errorOp      |
+//   -------------------------------------------------------------
+//   | bb1          | bb2          | bb3          | %1           |
 
-    private String emitErrorEntries(List<BIRNode.BIRErrorEntry> errorEntries, int tabs) {
+    private static String emitErrorEntries(List<BIRNode.BIRErrorEntry> errorEntries, int tabs) {
 
         StringBuilder str = new StringBuilder();
-        if (errorEntries.size() == 0) {
+        if (errorEntries.isEmpty()) {
             return str.toString();
         }
         str.append(emitTabs(tabs));
-        str.append("---------------------------------------------");
+        str.append("-------------------------------------------------------------");
         str.append(emitLBreaks(1));
         str.append(emitTabs(tabs));
         str.append("|");
@@ -299,23 +300,27 @@ public class BIREmitter {
         str.append(emitSpaces(8));
         str.append("|");
         str.append(emitSpaces(1));
+        str.append("targetBB");
+        str.append(emitSpaces(5));
+        str.append("|");
+        str.append(emitSpaces(1));
         str.append("errorOp");
         str.append(emitSpaces(6));
         str.append("|");
         str.append(emitLBreaks(1));
         str.append(emitTabs(tabs));
-        str.append("---------------------------------------------");
+        str.append("-------------------------------------------------------------");
         str.append(emitLBreaks(1));
         for (BIRNode.BIRErrorEntry err : errorEntries) {
             str.append(emitErrorEntry(err, tabs));
             str.append(emitLBreaks(1));
         }
         str.append(emitTabs(tabs));
-        str.append("---------------------------------------------");
+        str.append("-------------------------------------------------------------");
         return str.toString();
     }
 
-    private String emitErrorEntry(BIRNode.BIRErrorEntry err, int tabs) {
+    private static String emitErrorEntry(BIRNode.BIRErrorEntry err, int tabs) {
 
         String str = "";
         str += emitTabs(tabs);
@@ -333,6 +338,12 @@ public class BIREmitter {
         str += emitSpaces(endBBSpaces);
         str += "|";
         str += emitSpaces(1);
+        String targetBBRef = emitBasicBlockRef(err.targetBB);
+        int targetBBSpaces = calculateSpaces(targetBBRef);
+        str += targetBBRef;
+        str += emitSpaces(targetBBSpaces);
+        str += "|";
+        str += emitSpaces(1);
         String varRef = emitVarRef(err.errorOp);
         int varRefSpaces = calculateSpaces(varRef);
         str += varRef;
@@ -341,8 +352,7 @@ public class BIREmitter {
         return str;
     }
 
-    private int calculateSpaces(String str) {
-
+    private static int calculateSpaces(String str) {
         return 13 - str.length();
     }
 }

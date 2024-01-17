@@ -1,0 +1,60 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 15
+    },
+    "end": {
+      "line": 1,
+      "character": 23
+    }
+  },
+  "source": "extract_to_function_exprs_computed_name_field.bal",
+  "description": "Extract to function for expressions, mapping constructor in module level",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 1
+            },
+            "end": {
+              "line": 2,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns record {|int...;|} {\n    return {[\"name\"]: 1};\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 14
+            },
+            "end": {
+              "line": 1,
+              "character": 27
+            }
+          },
+          "newText": "extracted()"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_computed_name_field.bal",
+          {
+            "line": 1,
+            "character": 14
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

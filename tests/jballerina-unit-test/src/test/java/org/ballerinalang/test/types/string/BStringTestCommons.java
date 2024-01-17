@@ -18,11 +18,10 @@
 
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 
 /**
  * Has utility functions related to the tests.
@@ -30,9 +29,14 @@ import org.testng.Assert;
 public class BStringTestCommons {
     protected CompileResult result;
 
-    protected void testAndAssert(String funcName, int length) {
-        BValue[] returns = BRunUtil.invoke(result, funcName);
-        Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), length);
+    protected void testAndAssert(String funcName, long length) {
+        Object returns = BRunUtil.invoke(result, funcName);
+        Assert.assertEquals(returns.getClass(), Long.class);
+        Assert.assertEquals(returns, length);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

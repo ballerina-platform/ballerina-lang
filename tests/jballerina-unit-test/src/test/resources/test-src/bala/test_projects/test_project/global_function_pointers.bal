@@ -42,3 +42,7 @@ public function concat (string x, int y) returns string {
     string result = x + y.toString();
     return result;
 }
+
+public function (int i = 300, int j = 200) returns int func = (i, j) => i + j;
+
+public function (int i = 300, int j = i + 200) returns int func1 = (i, j) => i + j;

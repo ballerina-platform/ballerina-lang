@@ -89,20 +89,37 @@ public class UnionTypeSymbolTest {
                         List.of(TypeDescKind.SINGLETON, TypeDescKind.SINGLETON, TypeDescKind.SINGLETON,
                                 TypeDescKind.SINGLETON)},
                 {26, 5, "T6",
-                        List.of(TypeDescKind.TYPE_REFERENCE, TypeDescKind.TYPE_REFERENCE)},
+                        List.of(TypeDescKind.INT, TypeDescKind.STRING, TypeDescKind.BOOLEAN,
+                                TypeDescKind.TYPE_REFERENCE)},
                 {28, 5, "T7",
                         List.of(TypeDescKind.TUPLE, TypeDescKind.OBJECT)},
                 {35, 5, "T8",
                         List.of(TypeDescKind.MAP, TypeDescKind.TYPE_REFERENCE)},
                 {37, 5, "T9",
-                        List.of(TypeDescKind.ARRAY, TypeDescKind.TYPE_REFERENCE)},
+                        List.of(TypeDescKind.ARRAY, TypeDescKind.MAP, TypeDescKind.TYPE_REFERENCE)},
         };
     }
 
-    public static void assertList(List<TypeDescKind> actualValues, List<TypeDescKind> expectedValues) {
+    @Test
+    public void testSingletonMembers() {
+        TypeDefinitionSymbol symbol = (TypeDefinitionSymbol) assertBasicsAndGetSymbol(model, srcFile, 39, 5, "Keyword",
+                                                                                      SymbolKind.TYPE_DEFINITION);
+        assertEquals(symbol.typeDescriptor().typeKind(), TypeDescKind.UNION);
+        UnionTypeSymbol typeSymbol = (UnionTypeSymbol) symbol.typeDescriptor();
+
+        List<TypeSymbol> memberTypeDescriptors = typeSymbol.memberTypeDescriptors();
+        List<String> signatures = memberTypeDescriptors
+                                                    .stream()
+                                                    .filter(member -> member.typeKind() == TypeDescKind.SINGLETON)
+                                                    .map(TypeSymbol::signature)
+                                                    .collect(Collectors.toList());
+        assertList(signatures, List.of("\"int\"", "\"string\"", "100", "\"200\"", "true"));
+    }
+
+    public static <T> void assertList(List<T> actualValues, List<T> expectedValues) {
         assertEquals(actualValues.size(), expectedValues.size());
 
-        for (TypeDescKind val : expectedValues) {
+        for (T val : expectedValues) {
             assertTrue(actualValues.stream().anyMatch(val::equals));
         }
     }

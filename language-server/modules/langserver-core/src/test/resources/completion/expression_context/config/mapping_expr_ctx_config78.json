@@ -1,0 +1,69 @@
+{
+  "position": {
+    "line": 66,
+    "character": 71
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source78.bal",
+  "description": "Tests completion in the value expression of a specific field in a record typed named argument",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "privateKey",
+      "kind": "Field",
+      "detail": "Key.privateKey",
+      "sortText": "K",
+      "insertText": "privateKey: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "pubicCert",
+      "kind": "Field",
+      "detail": "Key.pubicCert",
+      "sortText": "K",
+      "insertText": "pubicCert: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Key Required Fields",
+      "kind": "Property",
+      "detail": "Key",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "privateKey: ${1:\"\"},\npubicCert: ${2:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "path",
+      "kind": "Field",
+      "detail": "KeyStore.path",
+      "sortText": "K",
+      "insertText": "path: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "password",
+      "kind": "Field",
+      "detail": "KeyStore.password",
+      "sortText": "K",
+      "insertText": "password: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill KeyStore Required Fields",
+      "kind": "Property",
+      "detail": "KeyStore",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "path: ${1:\"\"},\npassword: ${2:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

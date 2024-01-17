@@ -17,14 +17,17 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -53,10 +56,10 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
     private List<AnnotationSymbol> annots;
     private String signature;
     private boolean deprecated;
-    private String escapedName;
+    private List<io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol> annotAttachments;
 
     public BallerinaObjectFieldSymbol(CompilerContext context, BField bField, SymbolKind kind) {
-        super(bField.name.value, kind, bField.symbol, context);
+        super(bField.symbol.getOriginalName().value, kind, bField.symbol, context);
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
         this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);
@@ -64,15 +67,6 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
     public BallerinaObjectFieldSymbol(CompilerContext context, BField bField) {
         this(context, bField, OBJECT_FIELD);
-    }
-
-    @Override
-    public Optional<String> getName() {
-        if (this.escapedName != null) {
-            return Optional.of(this.escapedName);
-        }
-        this.escapedName = escapeReservedKeyword(this.bField.getName().getValue());
-        return Optional.ofNullable(this.escapedName);
     }
 
     @Override
@@ -93,12 +87,28 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
         List<AnnotationSymbol> annots = new ArrayList<>();
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : bField.symbol.getAnnotations()) {
-            annots.add(symbolFactory.createAnnotationSymbol((BAnnotationSymbol) annot));
+        for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
+            annots.add(symbolFactory.createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
         }
 
         this.annots = Collections.unmodifiableList(annots);
         return this.annots;
+    }
+
+    @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        if (this.annotAttachments != null) {
+            return this.annotAttachments;
+        }
+
+        List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
+            annotAttachments.add(symbolFactory.createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
+        }
+
+        this.annotAttachments = Collections.unmodifiableList(annotAttachments);
+        return this.annotAttachments;
     }
 
     @Override
@@ -140,5 +150,15 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
         this.signature = joiner.add(this.typeDescriptor().signature()).add(this.getName().get()).toString();
         return this.signature;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

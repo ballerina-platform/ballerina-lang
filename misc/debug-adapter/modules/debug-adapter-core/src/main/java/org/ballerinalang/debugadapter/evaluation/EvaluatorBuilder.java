@@ -20,6 +20,7 @@ import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
@@ -63,6 +64,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.expression.AnnotationAcc
 import org.ballerinalang.debugadapter.evaluation.engine.expression.AnonFunctionExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.BasicLiteralEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.BinaryExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.BuiltinSimpleNameReferenceEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.ConditionalExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.ErrorConstructorExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.FieldAccessExpressionEvaluator;
@@ -327,9 +329,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     @Override
     public void visit(TypeTestExpressionNode typeTestExpressionNode) {
         visitSyntaxNode(typeTestExpressionNode);
-        typeTestExpressionNode.expression().accept(this);
-        Evaluator subExprEvaluator = result;
-        result = new TypeTestExpressionEvaluator(context, typeTestExpressionNode, subExprEvaluator);
+        result = new TypeTestExpressionEvaluator(context, typeTestExpressionNode);
     }
 
     @Override
@@ -481,6 +481,12 @@ public class EvaluatorBuilder extends NodeVisitor {
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
         visitSyntaxNode(simpleNameReferenceNode);
         result = new SimpleNameReferenceEvaluator(context, simpleNameReferenceNode);
+    }
+
+    @Override
+    public void visit(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+        visitSyntaxNode(builtinSimpleNameReferenceNode);
+        result = new BuiltinSimpleNameReferenceEvaluator(context, builtinSimpleNameReferenceNode);
     }
 
     @Override
@@ -729,6 +735,42 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addMiscellaneousSyntax() {
+        // typedesc expressions
+        supportedSyntax.add(SyntaxKind.RECORD_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.OBJECT_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.NIL_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.OPTIONAL_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.ARRAY_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.INT_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.BYTE_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.FLOAT_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.DECIMAL_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.STRING_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.BOOLEAN_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.XML_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.JSON_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.HANDLE_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.ANY_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.ANYDATA_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.NEVER_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.VAR_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.SERVICE_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.MAP_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.UNION_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.ERROR_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.STREAM_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.TABLE_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.FUNCTION_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.TUPLE_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.PARENTHESISED_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.READONLY_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.DISTINCT_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.INTERSECTION_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.SINGLETON_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.TYPE_REFERENCE_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.TYPEDESC_TYPE_DESC);
+        supportedSyntax.add(SyntaxKind.FUTURE_TYPE_DESC);
+
         // braced expression
         supportedSyntax.add(SyntaxKind.BRACED_EXPRESSION);
         supportedSyntax.add(SyntaxKind.OPEN_PAREN_TOKEN);

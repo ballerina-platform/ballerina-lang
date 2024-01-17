@@ -24,10 +24,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
-
-import java.util.Optional;
 
 /**
  * {@code BObjectType} represents object type in Ballerina.
@@ -35,7 +34,6 @@ import java.util.Optional;
  * @since 0.971.0
  */
 public class BObjectType extends BStructureType implements ObjectType {
-
     private static final String OBJECT = "object";
     private static final String SPACE = " ";
     private static final String PUBLIC = "public";
@@ -44,11 +42,10 @@ public class BObjectType extends BStructureType implements ObjectType {
     private static final String RIGHT_CURL = "}";
     private static final String SEMI_COLON = ";";
     private static final String READONLY = "readonly";
+    public boolean markedIsolatedness;
 
-    private BIntersectionType intersectionType = null;
-
-    public BIntersectionType immutableType;
     public BObjectType mutableType = null;
+    public BLangClassDefinition classDef = null;
 
     public BTypeIdSet typeIdSet = new BTypeIdSet();
 
@@ -102,11 +99,14 @@ public class BObjectType extends BStructureType implements ObjectType {
             }
             BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) this.tsymbol;
             for (BAttachedFunction fun : objectSymbol.attachedFuncs) {
-                if (Symbols.isFlagOn(fun.symbol.flags, Flags.PUBLIC)) {
-                    sb.append(SPACE).append(PUBLIC);
-                } else if (Symbols.isFlagOn(fun.symbol.flags, Flags.PRIVATE)) {
-                    sb.append(SPACE).append(PRIVATE);
+                if (!Symbols.isResource(fun.symbol)) {
+                    if (Symbols.isFlagOn(fun.symbol.flags, Flags.PUBLIC)) {
+                        sb.append(SPACE).append(PUBLIC);
+                    } else if (Symbols.isFlagOn(fun.symbol.flags, Flags.PRIVATE)) {
+                        sb.append(SPACE).append(PRIVATE);
+                    }
                 }
+
                 sb.append(SPACE).append(fun).append(SEMI_COLON);
             }
             sb.append(SPACE).append(RIGHT_CURL);
@@ -118,20 +118,5 @@ public class BObjectType extends BStructureType implements ObjectType {
             return sb.toString();
         }
         return this.tsymbol.toString();
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 }

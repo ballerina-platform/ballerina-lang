@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.test.expressions.varref;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -42,38 +42,38 @@ public class ArrayDestructureTest {
 
     @Test
     public void testSimpleArrayDestructureBinding() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testSimpleListBindingPattern");
+        Object result = BRunUtil.invoke(compileResult, "testSimpleListBindingPattern");
     }
 
     @Test
     public void testSimpleArrayDestructureWithUndefinedSize() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testSimpleListBindingPatternWithUndefinedSize");
+        Object result = BRunUtil.invoke(compileResult, "testSimpleListBindingPatternWithUndefinedSize");
     }
 
     @Test
     public void testReferenceArrayDestructure() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testReferenceListBindingPattern");
+        Object result = BRunUtil.invoke(compileResult, "testReferenceListBindingPattern");
     }
 
     @Test
     public void testReferenceArrayDestructureWithUndefinedSize() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithUndefinedSize");
+        Object result = BRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithUndefinedSize");
     }
 
     @Test
     public void testReferenceArrayDestructureWithRecordDestructure() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithRecordDestructure");
+        Object result = BRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithRecordDestructure");
     }
 
     @Test
     public void testReferenceArrayDestructureWithUndefinedSizeAndDifferentType() {
-        BValue[] result = BRunUtil.invoke(compileResult
+        Object result = BRunUtil.invoke(compileResult
                 , "testReferenceListBindingPatternForUndefinedSizeWithDifferentType");
     }
 
     @Test
     public void testReferenceListBindingPatternWithTuples() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithTuples");
+        Object result = BRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithTuples");
     }
 
     @Test
@@ -97,6 +97,11 @@ public class ArrayDestructureTest {
 
         BAssertUtil.validateError(negativeTestCompile, index++,
                 "incompatible types: expected '[Bar,Bar]', found 'Foo[2]'", 39, 14);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 
 }

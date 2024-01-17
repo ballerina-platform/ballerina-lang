@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.RecordDestructureNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
@@ -33,9 +35,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
  */
 public class BLangRecordDestructure extends BLangStatement implements RecordDestructureNode {
 
+    // BLangNodes
     public BLangRecordVarRef varRef; // lhs
     public BLangExpression expr; // rhs
-    public boolean declaredWithVar;
 
     public BLangRecordDestructure() {
     }
@@ -66,12 +68,22 @@ public class BLangRecordDestructure extends BLangStatement implements RecordDest
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.RECORD_DESTRUCTURE;
     }
 
     @Override
     public String toString() {
-        return declaredWithVar ? "var " : "" + varRef + " = " + expr;
+        return varRef + " = " + expr;
     }
 }

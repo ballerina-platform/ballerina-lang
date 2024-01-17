@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -33,6 +32,8 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static io.ballerina.compiler.api.impl.util.SymbolUtils.unescapeUnicode;
 
 /**
  * Represents a Ballerina Type Descriptor.
@@ -119,7 +120,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         if (name.equals(symName)) {
             return true;
         }
-        return unescapedUnicode(name).equals(unescapedUnicode(symName));
+        return unescapeUnicode(name).equals(unescapeUnicode(symName));
     }
 
     @Override
@@ -190,12 +191,5 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         }
 
         return ((BallerinaClassSymbol) typeSymbol).getBType();
-    }
-
-    private String unescapedUnicode(String value) {
-        if (value.startsWith("'")) {
-            return IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1));
-        }
-        return IdentifierUtils.unescapeUnicodeCodepoints(value);
     }
 }

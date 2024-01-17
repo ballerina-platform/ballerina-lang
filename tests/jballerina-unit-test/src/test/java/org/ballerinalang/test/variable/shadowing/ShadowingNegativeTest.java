@@ -50,6 +50,7 @@ public class ShadowingNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'x'", 78, 20);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'f'", 79, 20);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'x'", 91, 16);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'x'", 93, 35);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'param'", 105, 12);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Person'", 111, 8);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Student'", 117, 1);
@@ -57,6 +58,7 @@ public class ShadowingNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "unknown type 'Vehicle'", 134, 5);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'returnVal'", 139, 40);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Foo'", 147, 6);
+        BAssertUtil.validateError(compileResult, index++, "function call syntax is not defined for 'string'", 154, 9);
         assertEquals(index, compileResult.getErrorCount());
     }
 }

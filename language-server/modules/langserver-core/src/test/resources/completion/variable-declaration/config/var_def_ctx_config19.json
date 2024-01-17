@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 2,
+    "character": 29
+  },
+  "source": "variable-declaration/source/var_def_ctx_source19.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "StrandData.name",
+      "sortText": "K",
+      "insertText": "name: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "policy",
+      "kind": "Field",
+      "detail": "StrandData.policy",
+      "sortText": "K",
+      "insertText": "policy: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "thread",
+      "kind": "Field",
+      "detail": "StrandData.thread",
+      "sortText": "K",
+      "insertText": "thread: ${1:\"parent\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

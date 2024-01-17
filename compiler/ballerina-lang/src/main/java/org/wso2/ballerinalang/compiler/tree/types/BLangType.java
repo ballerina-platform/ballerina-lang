@@ -31,6 +31,8 @@ import java.util.Set;
  * @since 0.94
  */
 public abstract class BLangType extends BLangNode implements TypeNode {
+
+    // Parser Flags and Data
     public boolean nullable;
     public boolean grouped;
     public Set<Flag> flagSet = EnumSet.noneOf(Flag.class);

@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
@@ -34,9 +35,11 @@ import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -44,12 +47,11 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -79,8 +81,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.J_VOI
  */
 class JMethodResolver {
 
-    private ClassLoader classLoader;
-    private SymbolTable symbolTable;
+    private final ClassLoader classLoader;
+    private final SymbolTable symbolTable;
     private final BType[] definedReadOnlyMemberTypes;
 
     JMethodResolver(ClassLoader classLoader, SymbolTable symbolTable) {
@@ -113,11 +115,11 @@ class JMethodResolver {
         if (jMethods.isEmpty()) {
             if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
                 throw new JInteropException(DiagnosticErrorCode.CONSTRUCTOR_NOT_FOUND,
-                        "No such public constructor found in class '" + jMethodRequest.declaringClass + "'");
+                        "No such public constructor found in class '" + jMethodRequest.declaringClass.getName() + "'");
             } else {
                 throw new JInteropException(DiagnosticErrorCode.METHOD_NOT_FOUND,
                         "No such public method '" + jMethodRequest.methodName + "' found in class '" +
-                                jMethodRequest.declaringClass + "'");
+                                jMethodRequest.declaringClass.getName() + "'");
             }
         }
 
@@ -152,7 +154,7 @@ class JMethodResolver {
     private List<JMethod> resolveByParamCount(List<JMethod> jMethods, JMethodRequest jMethodRequest) {
         List<JMethod> list = new ArrayList<>();
         for (JMethod jMethod : jMethods) {
-            if (hasEqualParamCounts(jMethodRequest, jMethod)) {
+            if (hasEqualParamCounts(jMethodRequest, jMethod) || isAcceptingBundledParams(jMethodRequest, jMethod)) {
                 list.add(jMethod);
             }
         }
@@ -181,29 +183,51 @@ class JMethodResolver {
         return false;
     }
 
+    private boolean isAcceptingBundledParams(JMethodRequest jMethodRequest, JMethod jMethod) {
+        int count = jMethod.getParamTypes().length;
+        if (count < 1) {
+            return false;
+        }
+        int reducedParamCount = getBundledParamCount(jMethodRequest, jMethod);
+        if (count < reducedParamCount || count > reducedParamCount + 2) {
+            return false;
+        }
+        Class<?>[] paramTypes = jMethod.getParamTypes();
+        if (count == reducedParamCount && paramTypes.length > 0 && isParamAssignableToBArray(paramTypes[0])) {
+            return true;
+        } else if ((count == (reducedParamCount + 1)) && paramTypes.length > 1 &&
+                isParamAssignableToBArray(paramTypes[1])) {
+            // This is for object interop functions when self is passed as a parameter
+            jMethod.setReceiverType(jMethodRequest.receiverType);
+            return jMethodRequest.receiverType != null;
+        } else if ((count == (reducedParamCount + 2)) && paramTypes.length > 2 &&
+                isParamAssignableToBArray(paramTypes[2])) {
+            // This is for object interop functions when both BalEnv and self is passed as parameters.
+            if (jMethodRequest.receiverType != null) {
+                jMethod.setReceiverType(jMethodRequest.receiverType);
+            }
+            return jMethod.isBalEnvAcceptingMethod();
+        }
+        return false;
+    }
+
+    private boolean isParamAssignableToBArray(Class<?> paramType) {
+        try {
+            return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(paramType);
+        } catch (ClassNotFoundException e) {
+            throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
+        }
+    }
+
     private JMethod resolve(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
         boolean noConstraints = noConstraintsSpecified(jMethodRequest.paramTypeConstraints);
         if (jMethods.size() == 1 && noConstraints) {
             return jMethods.get(0);
         } else if (noConstraints) {
-            Optional<JMethod> covariantRetTypeMethod = findCovariantReturnTypeMethod(jMethods);
-            if (covariantRetTypeMethod.isPresent()) {
-                return covariantRetTypeMethod.get();
+            if (areAllMethodsOverridden(jMethods, jMethodRequest.declaringClass)) {
+                return jMethods.get(0);
             }
-
-            int paramCount = jMethods.get(0).getParamTypes().length;
-            if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
-                throw new JInteropException(OVERLOADED_METHODS,
-                        "Overloaded constructors with '" + paramCount + "' parameter(s) in class '" +
-                                jMethodRequest.declaringClass + "', please specify class names for each parameter " +
-                                "in 'paramTypes' field in the annotation");
-            } else {
-                throw new JInteropException(OVERLOADED_METHODS,
-                        "Overloaded methods '" + jMethodRequest.methodName + "' with '" + paramCount +
-                                "' parameter(s) in class '" + jMethodRequest.declaringClass +
-                                "', please specify class names for each parameter " +
-                                "with 'paramTypes' field in the annotation");
-            }
+            throwOverloadedMethodError(jMethodRequest, jMethods.get(0).getParamTypes().length);
         }
 
         JMethod jMethod = resolveExactMethod(jMethodRequest.declaringClass, jMethodRequest.methodName,
@@ -214,28 +238,51 @@ class JMethodResolver {
         return jMethod;
     }
 
-    private Optional<JMethod> findCovariantReturnTypeMethod(List<JMethod> jMethods) {
+    private boolean areAllMethodsOverridden(List<JMethod> jMethods, Class<?> clazz) {
+        if (jMethods.get(0).getKind() == JMethodKind.CONSTRUCTOR) {
+            return false;
+        }
         for (int i = 0; i < jMethods.size(); i++) {
+            Method method1 = (Method) jMethods.get(i).getMethod();
             for (int k = i + 1; k < jMethods.size(); k++) {
-                JMethod ithMethod = jMethods.get(i);
-                JMethod kthMethod = jMethods.get(k);
-
-                if (ithMethod.getReturnType().isAssignableFrom(kthMethod.getReturnType()) ||
-                        kthMethod.getReturnType().isAssignableFrom(ithMethod.getReturnType())) {
-                    if (ithMethod.getParamTypes().length != kthMethod.getParamTypes().length) {
-                        // This occurs when there are static methods and instance methods and the static method
-                        // has one more parameter than the instance method. Also this occurs when an interop
-                        // method in an object maps to instance methods of which one accepting self and another
-                        // that doesn't.
-                        throw new JInteropException(
-                                OVERLOADED_METHODS, "Overloaded methods cannot be differentiated. Please specify the " +
-                                "parameterTypes for each parameter in 'paramTypes' field in the annotation");
-                    }
-                    return Optional.of(ithMethod);
+                Method method2 = (Method) jMethods.get(k).getMethod();
+                if (!isOverridden(method1, method2, clazz)) {
+                    return false;
                 }
             }
         }
-        return Optional.empty();
+        return true;
+    }
+
+    private boolean isOverridden(Method method1, Method method2, Class<?> clazz) {
+        if (method1.getParameterCount() != method2.getParameterCount()) {
+            // This occurs when there are static methods and instance methods, and the static method has one more
+            // parameter than the instance method. Additionally, this occurs when an interop method in an object
+            // maps to instance methods, one accepting `self` and another that doesn't.
+            throw new JInteropException(OVERLOADED_METHODS, "Overloaded methods cannot be differentiated. " +
+                    "Please specify the parameter types for each parameter in 'paramTypes' field in the annotation");
+        }
+        // Returns false if return types are not covariant
+        Method currentMethod;
+        Method otherMethod;
+        if (method2.getReturnType().isAssignableFrom(method1.getReturnType())) {
+            currentMethod = method1;
+            otherMethod = method2;
+        } else if (method1.getReturnType().isAssignableFrom(method2.getReturnType())) {
+            currentMethod = method2;
+            otherMethod = method1;
+        } else {
+            return false;
+        }
+
+        try {
+            Method superMethod = clazz.getSuperclass()
+                    .getDeclaredMethod(currentMethod.getName(), currentMethod.getParameterTypes());
+            return Arrays.equals(superMethod.getParameterTypes(), otherMethod.getParameterTypes()) &&
+                    superMethod.getReturnType().equals(otherMethod.getReturnType());
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
     }
 
     private void validateMethodSignature(JMethodRequest jMethodRequest, JMethod jMethod) {
@@ -269,17 +316,61 @@ class JMethodResolver {
             throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
         }
 
-        if ((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
-                (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue)) {
+        BType returnType = jMethodRequest.bReturnType;
+        String expectedRetTypeName;
+        if (throwsCheckedException && !jMethodRequest.returnsBErrorType) {
+            expectedRetTypeName = getExpectedReturnType(returnType);
             throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
-                    "No such Java method '" + jMethodRequest.methodName + "' which throws checked exception " +
-                            "found in class '" + jMethodRequest.declaringClass + "'");
+                    "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
+                            "throws checked exception found in class '" + jMethodRequest.declaringClass.getName() +
+                            "': expected '" + expectedRetTypeName + "', found '" + returnType + "'");
+        } else if (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue) {
+            String errorMsgPart;
+            if (returnType instanceof BUnionType bUnionReturnType) {
+                BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
+                errorMsgPart = "expected '" + modifiedRetType + "', found '" + returnType + "'";
+            } else {
+                errorMsgPart = "no return type expected but found '" + returnType + "'";
+            }
+            throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
+                    "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
+                            "throws 'java.lang.RuntimeException' found in class '" +
+                            jMethodRequest.declaringClass.getName() + "': " + errorMsgPart);
         }
+    }
+
+    private String getExpectedReturnType(BType retType) {
+        if (retType.tag == TypeTags.NIL || (retType instanceof BTypeReferenceType &&
+                ((BTypeReferenceType) retType).referredType.tag == TypeTags.ERROR)) {
+            return "error";
+        } else if (retType instanceof BUnionType bUnionReturnType) {
+            BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
+            return modifiedRetType + "|error";
+        } else {
+            return retType + "|error";
+        }
+    }
+
+    private LinkedHashSet<BType> getNonErrorMembers(BUnionType bUnionReturnType) {
+        LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
+        for (BType bType : bUnionReturnType.getMemberTypes()) {
+            if (bType.tag != TypeTags.ERROR && !(bType instanceof BTypeReferenceType &&
+                    ((BTypeReferenceType) bType).referredType.tag == TypeTags.ERROR)) {
+                memTypes.add(bType);
+            }
+        }
+        return memTypes;
     }
 
     private void validateArgumentTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
 
         Class<?>[] jParamTypes = jMethod.getParamTypes();
+        // Bundle path parameters into an anydata array if the resolved Java method accepts a BArray for path params
+        // and the first path param is not a rest param.
+        if (isAcceptingBundledParams(jMethodRequest, jMethod) &&
+                !isFirstPathParamARestParam(jMethodRequest, jMethod)) {
+            bundlePathParams(jMethodRequest, jMethod);
+        }
         BType[] bParamTypes = jMethodRequest.bParamTypes;
         int bParamCount = bParamTypes.length;
         int i = 0;
@@ -310,18 +401,20 @@ class JMethodResolver {
                 }
             }
 
-            BType receiverType = bParamTypes[0];
-            boolean isLastParam = bParamTypes.length == 1;
-            if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, isLastParam,
-                    jMethodRequest.restParamExist)) {
-                if (jParamTypes.length == 0 || bParamTypes[0].tag != TypeTags.HANDLE) {
-                    throwMethodNotFoundError(jMethodRequest);
-                } else {
-                    throwNoSuchMethodError(jMethodRequest.methodName, jParamTypes[0], receiverType,
-                            jMethodRequest.declaringClass);
-                }
+            int receiverIndex = 0;
+            if (!jMethodRequest.pathParamSymbols.isEmpty()) {
+                receiverIndex = jMethodRequest.pathParamCount;
             }
-            i++;
+            BType receiverType = bParamTypes[receiverIndex];
+            if (receiverType.tag != TypeTags.HANDLE) {
+                throwMethodNotFoundError(jMethodRequest);
+            }
+            for (int k = receiverIndex; k < bParamTypes.length - 1; k++) {
+                bParamTypes[k] = bParamTypes[k + 1];
+            }
+            BType[] bParamTypesWithoutReceiver = new BType[bParamTypes.length - 1];
+            System.arraycopy(bParamTypes, 0, bParamTypesWithoutReceiver, 0, bParamTypesWithoutReceiver.length);
+            bParamTypes = bParamTypesWithoutReceiver;
         } else if (bParamCount != jParamTypes.length) {
             if (jMethod.isBalEnvAcceptingMethod()) {
                 j++;
@@ -339,6 +432,24 @@ class JMethodResolver {
                         jMethodRequest.declaringClass);
             }
         }
+    }
+
+    private void bundlePathParams(JMethodRequest jMethodRequest, JMethod jMethod) {
+
+        List<BVarSymbol> pathParamSymbols = jMethodRequest.pathParamSymbols;
+        if (pathParamSymbols.isEmpty()) {
+            return;
+        }
+        List<BType> paramTypes = new ArrayList<>(Arrays.asList(jMethodRequest.bParamTypes));
+        int initialPathParamIndex = paramTypes.indexOf(pathParamSymbols.get(0).type);
+        for (BVarSymbol param : pathParamSymbols) {
+            paramTypes.remove(param.type);
+        }
+        BArrayType pathParamArrayType = new BArrayType(symbolTable.anydataType);
+        paramTypes.add(initialPathParamIndex, pathParamArrayType);
+        jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
+        jMethodRequest.pathParamCount = 1;
+        jMethod.hasBundledPathParams = true;
     }
 
     private void validateReturnTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
@@ -359,7 +470,7 @@ class JMethodResolver {
     }
 
     private boolean isValidParamBType(Class<?> jType, BType bType, boolean isLastParam, boolean restParamExist) {
-
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         try {
             String jTypeName = jType.getTypeName();
             switch (bType.tag) {
@@ -416,6 +527,7 @@ class JMethodResolver {
                 case TypeTags.RECORD:
                     return this.classLoader.loadClass(BMap.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.JSON:
+                case TypeTags.READONLY:
                     return jTypeName.equals(J_OBJECT_TNAME);
                 case TypeTags.OBJECT:
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
@@ -443,19 +555,13 @@ class JMethodResolver {
                         }
                     }
                     return true;
-                case TypeTags.READONLY:
-                    return jTypeName.equals(J_OBJECT_TNAME);
-                case TypeTags.INTERSECTION:
-                    return isValidParamBType(jType, ((BIntersectionType) bType).effectiveType, isLastParam,
-                            restParamExist);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
 
                     Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
-                    for (Iterator<BLangExpression> iterator = valueSpace.iterator(); iterator.hasNext(); ) {
-                        BLangExpression value = iterator.next();
+                    for (BLangExpression value : valueSpace) {
                         if (!isValidParamBType(jType, value.getBType(), isLastParam, restParamExist)) {
                             return false;
                         }
@@ -473,9 +579,8 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TYPEREFDESC:
-                    return isValidParamBType(jType, JvmCodeGenUtil.getReferredType(bType), isLastParam,
-                            restParamExist);
+                case TypeTags.REGEXP:
+                    return this.classLoader.loadClass(BRegexpValue.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -492,7 +597,7 @@ class JMethodResolver {
 
     private boolean isValidReturnBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest,
                                        LinkedHashSet<Class<?>> visitedSet) {
-
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         try {
             String jTypeName = jType.getTypeName();
             switch (bType.tag) {
@@ -569,11 +674,7 @@ class JMethodResolver {
                         return true;
                     }
 
-                    if (isValidReturnBType(jType, symbolTable.jsonType, jMethodRequest, visitedSet)) {
-                        return true;
-                    }
-
-                    return false;
+                    return isValidReturnBType(jType, symbolTable.jsonType, jMethodRequest, visitedSet);
                 case TypeTags.OBJECT:
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.ERROR:
@@ -606,9 +707,6 @@ class JMethodResolver {
                     return false;
                 case TypeTags.READONLY:
                     return isReadOnlyCompatibleReturnType(jType, jMethodRequest);
-                case TypeTags.INTERSECTION:
-                    return isValidReturnBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest,
-                            visitedSet);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -633,9 +731,6 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TYPEREFDESC:
-                    return isValidReturnBType(jType, JvmCodeGenUtil.getReferredType(bType),
-                            jMethodRequest, visitedSet);
                 default:
                     return false;
             }
@@ -753,12 +848,12 @@ class JMethodResolver {
             if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
                 throw new JInteropException(DiagnosticErrorCode.CONSTRUCTOR_NOT_FOUND,
                         "No such public constructor that matches with parameter types '" + paramTypesSig +
-                                "' found in class '" + jMethodRequest.declaringClass + "'");
+                                "' found in class '" + jMethodRequest.declaringClass.getName() + "'");
             } else {
                 throw new JInteropException(DiagnosticErrorCode.METHOD_NOT_FOUND,
                         "No such public method '" + jMethodRequest.methodName + "' that matches with parameter types " +
-                                "'" +
-                                paramTypesSig + "' found in class '" + jMethodRequest.declaringClass + "'");
+                                "'" + paramTypesSig + "' found in class '" + jMethodRequest.declaringClass.getName() +
+                                "'");
             }
         } else if (resolvedJMethods.size() > 1) {
             if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
@@ -797,6 +892,10 @@ class JMethodResolver {
     private List<Executable> getExecutables(Class<?> clazz, String methodName, JMethodKind kind) {
 
         if (kind == JMethodKind.CONSTRUCTOR) {
+            if (Modifier.isAbstract(clazz.getModifiers())) {
+                throw new JInteropException(DiagnosticErrorCode.INSTANTIATION_ERROR,
+                        "'" + clazz.getName() + "' is abstract, and cannot be instantiated");
+            }
             return Arrays.asList(getConstructors(clazz));
         } else {
             List<Executable> list = new ArrayList<>();
@@ -851,6 +950,19 @@ class JMethodResolver {
         return bFuncParamCount;
     }
 
+    private int getBundledParamCount(JMethodRequest jMethodRequest, JMethod jMethod) {
+        return getBFuncParamCount(jMethodRequest, jMethod) - jMethodRequest.pathParamCount + 1;
+    }
+
+    private boolean isFirstPathParamARestParam(JMethodRequest jMethodRequest, JMethod jMethod) {
+        if (jMethodRequest.kind != JMethodKind.METHOD) {
+            return false;
+        }
+        return jMethod.isStatic() ? jMethodRequest.bParamTypes[0].tag == TypeTags.ARRAY :
+                jMethodRequest.bParamTypes[1].tag == TypeTags.ARRAY &&
+                        jMethodRequest.bParamTypes[0].tag == TypeTags.HANDLE;
+    }
+
     private String getParamTypesAsString(ParamTypeConstraint[] constraints) {
 
         StringJoiner stringJoiner = new StringJoiner(",", "(", ")");
@@ -865,18 +977,18 @@ class JMethodResolver {
         if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
             throw new JInteropException(DiagnosticErrorCode.CONSTRUCTOR_NOT_FOUND,
                     "No such public constructor with '" + jMethodRequest.bFuncParamCount +
-                            "' parameter(s) found in class '" + jMethodRequest.declaringClass + "'");
+                            "' parameter(s) found in class '" + jMethodRequest.declaringClass.getName() + "'");
         } else {
             if (jMethodRequest.bFuncParamCount == 0 || jMethodRequest.bParamTypes[0].tag != TypeTags.HANDLE) {
                 throw new JInteropException(DiagnosticErrorCode.METHOD_NOT_FOUND,
                         "No such public static method '" + jMethodRequest.methodName + "' with '" +
                                 jMethodRequest.bFuncParamCount +
-                                "' parameter(s) found in class '" + jMethodRequest.declaringClass + "'");
+                                "' parameter(s) found in class '" + jMethodRequest.declaringClass.getName() + "'");
             } else {
                 throw new JInteropException(DiagnosticErrorCode.METHOD_NOT_FOUND,
                         "No such public method '" + jMethodRequest.methodName + "' with '" +
                                 jMethodRequest.bFuncParamCount +
-                                "' parameter(s) found in class '" + jMethodRequest.declaringClass + "'");
+                                "' parameter(s) found in class '" + jMethodRequest.declaringClass.getName() + "'");
             }
         }
     }
@@ -895,5 +1007,17 @@ class JMethodResolver {
         throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                 "Parameter count does not match with Java method '" + jMethodRequest.methodName +
                         "' found in class '" + jMethodRequest.declaringClass.getName() + "'");
+    }
+
+    private void throwOverloadedMethodError(JMethodRequest jMethodRequest, int paramCount) throws JInteropException {
+        if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
+            throw new JInteropException(OVERLOADED_METHODS, "Overloaded constructors with '" + paramCount +
+                    "' parameter(s) in class '" + jMethodRequest.declaringClass.getName() +
+                    "', please specify the parameter types for each parameter in 'paramTypes' field in the annotation");
+        } else {
+            throw new JInteropException(OVERLOADED_METHODS, "Overloaded methods '" + jMethodRequest.methodName +
+                    "' with '" + paramCount + "' parameter(s) in class '" + jMethodRequest.declaringClass.getName() +
+                    "', please specify the parameter types for each parameter in 'paramTypes' field in the annotation");
+        }
     }
 }

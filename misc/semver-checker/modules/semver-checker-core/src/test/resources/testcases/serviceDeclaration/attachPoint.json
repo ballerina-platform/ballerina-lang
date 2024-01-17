@@ -1,0 +1,79 @@
+[
+  {
+    "description": "Add attach point in a service declaration",
+    "oldCode": "service  on new http:Listener(8080){}",
+    "newCode": "service /demo on new http:Listener(8080){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "new",
+              "versionImpact": "minor"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify attach point in a service declaration",
+    "oldCode": "service / on new http:Listener(8080){}",
+    "newCode": "service /demo on new http:Listener(8080){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "new",
+              "versionImpact": "minor"
+            },
+            {
+              "kind": "service",
+              "type": "removed",
+              "versionImpact": "major"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove attach point in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){}",
+    "newCode": "service  on new http:Listener(8080){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "removed",
+              "versionImpact": "major"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

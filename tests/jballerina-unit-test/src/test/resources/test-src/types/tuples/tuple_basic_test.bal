@@ -423,7 +423,7 @@ Bar bar = {id: 34, flag: true};
 FooObj fooObj = new ("Fooo", 3.7, 23);
 BarObj barObj = new (true, 56);
 
-function getComplexTuple1() returns [[int], map<int>, error, int...] => [[5], {a: 6}, error("error msg"), 12, 13];
+function getComplexTuple1() returns [[int], record {int a;}, error, int...] => [[5], {a: 6}, error("error msg"), 12, 13];
 
 function getComplexTuple2() returns [string, [Foo, [BarObj, FooObj]], [Bar, int]] =>
                                        [foo.name, [foo, [barObj, fooObj]], [bar, barObj.i]];
@@ -485,6 +485,24 @@ function testTupleToJSONAssignment() {
      assertEquality(false, J is json);
      [string, xml[]|int]|json K = ["text1", [testXml]];
      assertEquality(false, K is json);
+}
+
+public const annotation tup on type;
+public const annotation member on field;
+
+type T1 [int, @member int, string...];
+type T2 [int, @member int, string];
+type T3 [@member int, string];
+
+@tup
+type T4 [@member int, string];
+
+function testTupleMemberAnnotations2() returns [T1, T2, T3, T4] {
+    T1 x1 =  [1, 2, "hello", "world"];
+    T2 x2 =  [1, 2, "a"];
+    T3 x3 =  [1, "hello"];
+    T4 x4 =  [1, "a"];
+    return [x1, x2, x3, x4];
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

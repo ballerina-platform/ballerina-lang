@@ -24,11 +24,11 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,9 +59,9 @@ public class EnumMemberNodeContext extends AbstractCompletionProvider<EnumMember
         if (!inEnumMemberValueContext(ctx, node)) {
             return completionItems;
         }
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            visibleSymbols.addAll(QNameReferenceUtil.getModuleContent(ctx, nameRef, filter));
+            visibleSymbols.addAll(QNameRefCompletionUtil.getModuleContent(ctx, nameRef, filter));
         } else {
             completionItems.addAll(this.getModuleCompletionItems(ctx));
             List<Symbol> filteredSymbols = ctx.visibleSymbols(ctx.getCursorPosition()).stream()

@@ -20,6 +20,7 @@ package io.ballerina.shell.snippet.factory;
 
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.BreakStatementNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
@@ -47,15 +48,19 @@ import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarator;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.PanicStatementNode;
 import io.ballerina.compiler.syntax.tree.RetryStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.RollbackStatementNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
@@ -67,6 +72,8 @@ import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.StatementSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -77,6 +84,7 @@ import java.util.Map;
 public class BasicSnippetFactory extends SnippetFactory {
     // Create a caches of Syntax kind -> Variable types/Sub snippets that are known.
     // These will be used when identifying the variable type/snippet type.
+    private int varFunctionCount = 0;
     protected static final Map<Class<?>, SnippetSubKind> MODULE_MEM_DCLNS = Map.ofEntries(
             Map.entry(FunctionDefinitionNode.class, SnippetSubKind.FUNCTION_DEFINITION),
             Map.entry(ListenerDeclarationNode.class, SnippetSubKind.LISTENER_DECLARATION),
@@ -124,39 +132,83 @@ public class BasicSnippetFactory extends SnippetFactory {
     }
 
     @Override
-    public VariableDeclarationSnippet createVariableDeclarationSnippet(Node node) {
+    public List<VariableDeclarationSnippet> createVariableDeclarationSnippets(Node node) {
         ModuleVariableDeclarationNode dclnNode;
+        ModuleVariableDeclarationNode newDclnNode = null;
+        List<VariableDeclarationSnippet> snippets = new ArrayList<>();
+        if (containsIsolated(node)) {
+            addErrorDiagnostic("Isolation not allowed in the Ballerina shell");
+            return null;
+        }
+
         if (node instanceof ModuleVariableDeclarationNode) {
             dclnNode = (ModuleVariableDeclarationNode) node;
         } else if (node instanceof VariableDeclarationNode) {
             VariableDeclarationNode varNode = (VariableDeclarationNode) node;
+            VariableDeclarationNode newNode = null;
             NodeList<Token> qualifiers = NodeFactory.createEmptyNodeList();
             // Only final qualifier is transferred.
             // It is the only possible qualifier that can be transferred.
             if (varNode.finalKeyword().isPresent()) {
                 qualifiers = NodeFactory.createNodeList(varNode.finalKeyword().get());
             }
+
+            if (((VariableDeclarationNode) node).initializer().get().kind() == SyntaxKind.QUERY_ACTION) {
+                TypedBindingPatternNode typedBindingPatternNode = varNode.typedBindingPattern();
+                TypeDescriptorNode typeDescriptorNode = typedBindingPatternNode.typeDescriptor();
+                BindingPatternNode bindingPatternNode = typedBindingPatternNode.bindingPattern();
+                String functionPart = "function() returns ";
+                String functionBody = varNode.initializer().get().toString();
+                String functionString = "var " + "f_" + varFunctionCount + " = " + functionPart
+                        + typeDescriptorNode.toString() + "{" + typeDescriptorNode + bindingPatternNode.toString()
+                        + " = " + functionBody + ";" + "return " + bindingPatternNode + ";};";
+                varNode = (VariableDeclarationNode) NodeParser.parseStatement(functionString);
+                newNode = (VariableDeclarationNode) NodeParser
+                        .parseStatement(typeDescriptorNode + " " + bindingPatternNode
+                                         + " = f_" + varFunctionCount + "();");
+            }
+
+            varFunctionCount += 1;
             dclnNode = NodeFactory.createModuleVariableDeclarationNode(
                     NodeFactory.createMetadataNode(null, varNode.annotations()), null,
                     qualifiers, varNode.typedBindingPattern(),
                     varNode.equalsToken().orElse(null), varNode.initializer().orElse(null),
                     varNode.semicolonToken()
             );
+            if (newNode != null) {
+                newDclnNode = NodeFactory.createModuleVariableDeclarationNode(
+                        NodeFactory.createMetadataNode(null, newNode.annotations()), null,
+                        qualifiers, newNode.typedBindingPattern(),
+                        newNode.equalsToken().orElse(null), newNode.initializer().orElse(null),
+                        newNode.semicolonToken()
+                );
+            }
         } else {
             return null;
         }
+
         if (dclnNode.initializer().isEmpty()) {
             addErrorDiagnostic("" +
                     "Variables without initializers are not permitted. " +
                     "Give an initial value for your variable.");
             return null;
         }
-        return new VariableDeclarationSnippet(dclnNode);
+
+        snippets.add(new VariableDeclarationSnippet(dclnNode));
+        if (newDclnNode != null) {
+            snippets.add(new VariableDeclarationSnippet(newDclnNode));
+        }
+
+        return snippets;
     }
 
     @Override
     public ModuleMemberDeclarationSnippet createModuleMemberDeclarationSnippet(Node node)
             throws SnippetException {
+        if (containsIsolated(node)) {
+            return null;
+        }
+
         if (node instanceof ModuleMemberDeclarationNode) {
             assert MODULE_MEM_DCLNS.containsKey(node.getClass());
             SnippetSubKind subKind = MODULE_MEM_DCLNS.get(node.getClass());
@@ -195,5 +247,23 @@ public class BasicSnippetFactory extends SnippetFactory {
             return new ExpressionSnippet((ExpressionNode) node);
         }
         return null;
+    }
+
+    /**
+     * Check the input node contains isolated keyword.
+     *
+     * @param node input Node.
+     * @return node contains isolated keyword or not.
+     */
+    private boolean containsIsolated(Node node) {
+        if (node instanceof ModuleVariableDeclarationNode) {
+            NodeList<Token> nodeList = ((ModuleVariableDeclarationNode) node).qualifiers();
+             return nodeList.stream().anyMatch(token -> token.kind() == SyntaxKind.ISOLATED_KEYWORD);
+        } else if (node instanceof FunctionDefinitionNode) {
+            NodeList<Token> nodeList = ((FunctionDefinitionNode) node).qualifierList();
+            return nodeList.stream().anyMatch(token -> token.kind() == SyntaxKind.ISOLATED_KEYWORD);
+        }
+
+        return false;
     }
 }

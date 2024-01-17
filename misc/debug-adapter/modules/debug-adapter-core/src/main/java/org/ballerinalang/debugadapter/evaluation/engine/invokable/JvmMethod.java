@@ -22,18 +22,13 @@ import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
-import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.STRAND_NOT_FOUND;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 
 /**
  * JDI based java method representation for a given ballerina function.
@@ -44,13 +39,11 @@ public abstract class JvmMethod {
 
     protected final SuspendedContext context;
     protected final Method methodRef;
-    protected List<Map.Entry<String, Evaluator>> argEvaluators;
     protected List<Value> argValues;
 
     JvmMethod(SuspendedContext context, Method methodRef) {
         this.context = context;
         this.methodRef = methodRef;
-        this.argEvaluators = null;
         this.argValues = null;
     }
 
@@ -93,30 +86,12 @@ public abstract class JvmMethod {
      */
     protected abstract List<Value> getMethodArgs(JvmMethod method) throws EvaluationException;
 
+    public Method getJDIMethodRef() {
+        return methodRef;
+    }
+
     public void setArgValues(List<Value> argValues) {
         this.argValues = argValues;
-    }
-
-    public void setArgEvaluators(List<Map.Entry<String, Evaluator>> argEvaluators) {
-        this.argEvaluators = argEvaluators;
-    }
-
-    /**
-     * Returns the JDI value of the strand instance that is being used, by visiting visible variables of the given
-     * debug context.
-     *
-     * @return JDI value of the strand instance that is being used
-     */
-    public Value getCurrentStrand() throws EvaluationException {
-        try {
-            Value strand = context.getFrame().getValue(context.getFrame().visibleVariableByName(STRAND_VAR_NAME));
-            if (strand == null) {
-                throw createEvaluationException(STRAND_NOT_FOUND, methodRef.name());
-            }
-            return strand;
-        } catch (JdiProxyException e) {
-            throw createEvaluationException(STRAND_NOT_FOUND, methodRef);
-        }
     }
 
     /**

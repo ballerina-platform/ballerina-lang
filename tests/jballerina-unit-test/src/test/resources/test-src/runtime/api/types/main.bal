@@ -15,15 +15,19 @@
 // under the License.
 
 import ballerina/test;
-import testorg/runtime_api_types.objects;
+import types.objects;
+import types.typeref;
 
 objects:PublicClientObject obj = new ();
 
 public function main() {
+    typeref:validateTypeRef();
     testRemoteFunctionParameters();
     testFunctionToString();
     testParamTypesString();
     testConstituentTypes();
+    testTypeIds();
+    testObjectInitParameters();
 }
 
 function testConstituentTypes() {
@@ -32,6 +36,24 @@ function testConstituentTypes() {
     test:assertEquals(types.length(), 2);
     test:assertEquals(types[0], "int[]");
     test:assertEquals(types[1], "readonly");
+}
+
+function testTypeIds() {
+    // object type
+    objects:Apple apple = new("red");
+    string[] types = objects:getTypeIds(apple);
+    test:assertEquals(types.length(), 3);
+    test:assertEquals(types[0], "Common");
+    test:assertEquals(types[1], "Fruit");
+    test:assertEquals(types[2], "Apple");
+
+    // service type
+    objects:Collection collection = new("waruna");
+    types = objects:getTypeIds(collection);
+    test:assertEquals(types.length(), 3);
+    test:assertEquals(types[0], "Iterable");
+    test:assertEquals(types[1], "Common");
+    test:assertEquals(types[2], "Collection");
 }
 
 function testFunctionToString() {
@@ -54,4 +76,9 @@ function testRemoteFunctionParameters() {
 function testParamTypesString() {
     //Need to be removed after removing getParamTypes() API
     test:assertEquals(objects:getParamTypesString(obj.testFunction), "int decimal string ");
+}
+
+function testObjectInitParameters() {
+    objects:Person person = new(16154, "Tim Cook", 36);
+    test:assertEquals(objects:getParamNamesFromObjectInit(person), ["id", "name", "age"]);
 }

@@ -1,0 +1,67 @@
+{
+  "position": {
+    "line": 11,
+    "character": 15
+  },
+  "description": "Test return raw template when expecting a nil type",
+  "source": "source.bal",
+  "expected": [
+    {
+      "title": "Convert to 'string' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 11
+            },
+            "end": {
+              "line": 11,
+              "character": 22
+            }
+          },
+          "newText": "string `Ballerina`"
+        }
+      ]
+    },
+    {
+      "title": "Convert to 'xml' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 11
+            },
+            "end": {
+              "line": 11,
+              "character": 22
+            }
+          },
+          "newText": "xml `Ballerina`"
+        }
+      ]
+    },
+    {
+      "title": "Convert to 're' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 11
+            },
+            "end": {
+              "line": 11,
+              "character": 22
+            }
+          },
+          "newText": "re `Ballerina`"
+        }
+      ]
+    }
+  ]
+}

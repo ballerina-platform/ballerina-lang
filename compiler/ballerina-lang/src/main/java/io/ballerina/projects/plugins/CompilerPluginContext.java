@@ -18,6 +18,7 @@
 package io.ballerina.projects.plugins;
 
 import io.ballerina.projects.plugins.codeaction.CodeAction;
+import io.ballerina.projects.plugins.completion.CompletionProvider;
 
 /**
  * This class can be used to add various compiler plugin tasks to the current compilation.
@@ -41,6 +42,13 @@ public interface CompilerPluginContext {
     void addCodeGenerator(CodeGenerator codeGenerator);
 
     /**
+     * Add a {@code CodeModifier} instance to the current compilation.
+     *
+     * @param codeModifier the {@code CodeModifier} instance
+     */
+    void addCodeModifier(CodeModifier codeModifier);
+
+    /**
      * Add a {@code CompilerLifecycleListener} instance to the current compilation.
      *
      * @param lifecycleListener the {@code CompilerLifecycleListener} instance
@@ -53,4 +61,11 @@ public interface CompilerPluginContext {
      * @param codeAction the {@link CodeAction} instance
      */
     void addCodeAction(CodeAction codeAction);
+    
+    /**
+     * Add a {@link CompletionProvider} to the current compilation.
+     *
+     * @param completionProvider the {@link CompletionProvider} instance
+     */
+    void addCompletionProvider(CompletionProvider completionProvider);
 }

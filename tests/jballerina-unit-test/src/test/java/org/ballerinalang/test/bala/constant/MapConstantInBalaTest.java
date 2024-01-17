@@ -17,12 +17,7 @@
  */
 package org.ballerinalang.test.bala.constant;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -49,222 +44,230 @@ public class MapConstantInBalaTest {
 
     @Test
     public void testSimpleBooleanConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleBooleanConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":true, \"key2\":false}");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleBooleanConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key1\":true,\"key2\":false}");
     }
 
     @Test
     public void testComplexBooleanConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexBooleanConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":true, \"key2\":false}, " +
-                "\"key6\":{\"key3\":false, \"key4\":true}, \"key7\":{\"key8\":true, \"key9\":false}}");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexBooleanConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":true,\"key2\":false}," +
+                "\"key6\":{\"key3\":false,\"key4\":true},\"key7\":{\"key8\":true,\"key9\":false}}");
     }
 
     @Test
     public void testSimpleIntConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleIntConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":1, \"key2\":2}");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleIntConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key1\":1,\"key2\":2}");
     }
 
     @Test
     public void testComplexIntConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexIntConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":1, \"key2\":2}, \"key6\":{\"key3\":3, " +
-                "\"key4\":4}, \"key7:\":{\"key8\":8, \"key9\":9}}");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexIntConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":1,\"key2\":2},\"key6\":{\"key3\":3," +
+                "\"key4\":4},\"key7:\":{\"key8\":8,\"key9\":9}}");
     }
 
     @Test
     public void testSimpleByteConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleByteConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":10, \"key2\":20}");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleByteConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key1\":10,\"key2\":20}");
     }
 
     @Test
     public void testComplexByteConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexByteConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":10, \"key2\":20}, \"key6\":{\"key3\":30, " +
-                "\"key4\":40}, \"key7\":{\"key8\":80, \"key9\":90}}");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexByteConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":10,\"key2\":20},\"key6\":{\"key3\":30," +
+                "\"key4\":40},\"key7\":{\"key8\":80,\"key9\":90}}");
     }
 
     @Test
     public void testSimpleDecimalConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleDecimalConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":100, \"key2\":200}");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleDecimalConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key1\":100,\"key2\":200}");
     }
 
     @Test
     public void testComplexDecimalConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexDecimalConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":100, \"key2\":200}, " +
-                "\"key6\":{\"key3\":300, \"key4\":400}, \"key7\":{\"key8\":800, \"key9\":900}}");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexDecimalConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":100,\"key2\":200}," +
+                "\"key6\":{\"key3\":300,\"key4\":400},\"key7\":{\"key8\":800,\"key9\":900}}");
     }
 
     @Test
     public void testSimpleFloatConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleFloatConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":1.0, \"key2\":2.0}");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleFloatConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key1\":1.0,\"key2\":2.0}");
     }
 
     @Test
     public void testComplexFloatConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexFloatConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":1.0, \"key2\":2.0}, \"key6\":{\"key3\":3" +
-                ".0, \"key4\":4.0}, \"key7\":{\"key8\":8.0, \"key9\":9.0}}");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexFloatConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":1.0,\"key2\":2.0},\"key6\":{\"key3\":3" +
+                ".0,\"key4\":4.0},\"key7\":{\"key8\":8.0,\"key9\":9.0}}");
     }
 
     @Test
     public void testSimpleStringConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleStringConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":\"value1\", \"key2\":\"value2\"}");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleStringConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key1\":\"value1\",\"key2\":\"value2\"}");
     }
 
     @Test
     public void testComplexStringConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexStringConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":\"value1\", \"key2\":\"value2\"}, " +
-                "\"key6\":{\"key3\":\"value3\", \"key4\":\"value4\"}, \"key7\":{\"key8\":\"value8\", " +
+        Object returns = BRunUtil.invoke(compileResult, "testComplexStringConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":\"value1\",\"key2\":\"value2\"}," +
+                "\"key6\":{\"key3\":\"value3\",\"key4\":\"value4\"},\"key7\":{\"key8\":\"value8\"," +
                 "\"key9\":\"value9\"}}");
     }
 
     @Test
     public void testSimpleNilConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleNilConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":(), \"key2\":()}");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleNilConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key1\":null,\"key2\":null}");
     }
 
     @Test
     public void testComplexNilConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexNilConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key5\":{\"key1\":(), \"key2\":()}, \"key6\":{\"key3\":(), " +
-                "\"key4\":()}, \"key7\":{\"key8\":(), \"key9\":()}}");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexNilConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":null,\"key2\":null},\"key6\":{\"key3\":null," +
+                "\"key4\":null},\"key7\":{\"key8\":null,\"key9\":null}}");
     }
 
     @Test
     public void testComplexConstMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexConstMap");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"k3\":{\"k2\":{\"k1\":\"v1\"}}}");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexConstMap");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"k3\":{\"k2\":{\"k1\":\"v1\"}}}");
     }
 
     @Test
     public void testBooleanConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConstKeyReference");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"bm5kn\":true}");
+        Object returns = BRunUtil.invoke(compileResult, "testBooleanConstKeyReference");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"bm5kn\":true}");
     }
 
     @Test
     public void testIntConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIntConstKeyReference");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"im5kn\":123}");
+        Object returns = BRunUtil.invoke(compileResult, "testIntConstKeyReference");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"im5kn\":123}");
     }
 
     @Test
     public void testByteConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testByteConstKeyReference");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"bytem5kn\":64}");
+        Object returns = BRunUtil.invoke(compileResult, "testByteConstKeyReference");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"bytem5kn\":64}");
     }
 
     @Test
     public void testFloatConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConstKeyReference");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"fm5kn\":12.5}");
+        Object returns = BRunUtil.invoke(compileResult, "testFloatConstKeyReference");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"fm5kn\":12.5}");
     }
 
     @Test
     public void testDecimalConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConstKeyReference");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"dm5kn\":5.56}");
+        Object returns = BRunUtil.invoke(compileResult, "testDecimalConstKeyReference");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"dm5kn\":5.56}");
     }
 
     @Test
     public void testStringConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstKeyReference");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"sm5kn\":\"sm4v\"}");
+        Object returns = BRunUtil.invoke(compileResult, "testStringConstKeyReference");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"sm5kn\":\"sm4v\"}");
     }
 
     @Test
     public void testNullConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNullConstKeyReference");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"nm5kn\":()}");
+        Object returns = BRunUtil.invoke(compileResult, "testNullConstKeyReference");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"nm5kn\":null}");
     }
 
     @Test
     public void testBooleanConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConstKeyReferenceInLocalVar");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testBooleanConstKeyReferenceInLocalVar");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testIntConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIntConstKeyReferenceInLocalVar");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 123);
+        Object returns = BRunUtil.invoke(compileResult, "testIntConstKeyReferenceInLocalVar");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns, 123L);
     }
 
     @Test
     public void testByteConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testByteConstKeyReferenceInLocalVar");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BByte) returns[0]).intValue(), 64);
+        Object returns = BRunUtil.invoke(compileResult, "testByteConstKeyReferenceInLocalVar");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns, 64);
     }
 
     @Test
     public void testFloatConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConstKeyReferenceInLocalVar");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 12.5);
+        Object returns = BRunUtil.invoke(compileResult, "testFloatConstKeyReferenceInLocalVar");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns, 12.5);
     }
 
     @Test
     public void testDecimalConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConstKeyReferenceInLocalVar");
-        Assert.assertNotNull(returns[0]);
+        Object returns = BRunUtil.invoke(compileResult, "testDecimalConstKeyReferenceInLocalVar");
+        Assert.assertNotNull(returns);
         BigDecimal expected = new BigDecimal("5.56", MathContext.DECIMAL128);
-        Assert.assertEquals(((BDecimal) returns[0]).decimalValue().compareTo(expected), 0);
+        Assert.assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
     @Test
     public void testStringConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstKeyReferenceInLocalVar");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "sm4v");
+        Object returns = BRunUtil.invoke(compileResult, "testStringConstKeyReferenceInLocalVar");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "sm4v");
     }
 
     @Test
     public void testNullConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNullConstKeyReferenceInLocalVar");
-        Assert.assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(compileResult, "testNullConstKeyReferenceInLocalVar");
+        Assert.assertNull(returns);
     }
-
-    // Annotation tests
 
     @Test
     public void testConstInAnnotations() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstInAnnotations");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"Ballerina\", i:100, m:{\"mKey\":\"mValue\"}}");
+        Object returns = BRunUtil.invoke(compileResult, "testConstInAnnotations");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"s\":\"Ballerina\",\"i\":100,\"m\":{\"mKey\":\"mValue\"}}");
+    }
+
+    @Test
+    public void testConstTypesInline() {
+        BRunUtil.invoke(compileResult, "testConstTypesInline");
+    }
+
+    @Test
+    public void testInvalidRuntimeUpdateOfConstMaps() {
+        BRunUtil.invoke(compileResult, "testInvalidRuntimeUpdateOfConstMaps");
     }
 
     @AfterClass

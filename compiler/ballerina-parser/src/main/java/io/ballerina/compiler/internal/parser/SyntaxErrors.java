@@ -86,6 +86,10 @@ public class SyntaxErrors {
         return createMissingTokenWithDiagnostics(expectedKind, getDocWarningCode(expectedKind));
     }
 
+    public static STToken createMissingRegExpTokenWithDiagnostics(SyntaxKind expectedKind) {
+        return createMissingTokenWithDiagnostics(expectedKind, getRegExpErrorCode(expectedKind));
+    }
+
     public static STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind,
                                                             DiagnosticCode diagnosticCode) {
         List<STNodeDiagnostic> diagnosticList = new ArrayList<>();
@@ -113,8 +117,6 @@ public class SyntaxErrors {
             case OBJECT_METHOD_THIRD_QUALIFIER:
             case OBJECT_METHOD_FOURTH_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
-            case IMPORT_SUB_VERSION:
-                return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_ATTACH_POINT_NAME;
             case SIMPLE_TYPE_DESCRIPTOR:
@@ -146,7 +148,7 @@ public class SyntaxErrors {
             case QUALIFIED_IDENTIFIER_START_IDENTIFIER:
             case NAMESPACE_PREFIX:
             case IMPLICIT_ANON_FUNC_PARAM:
-            case WORKER_NAME_OR_METHOD_NAME:
+            case METHOD_NAME:
             case PEER_WORKER_NAME:
             case RECEIVE_FIELD_NAME:
             case WAIT_FIELD_NAME:
@@ -178,11 +180,6 @@ public class SyntaxErrors {
             case EXPRESSION:
             case TERMINAL_EXPRESSION:
                 return DiagnosticErrorCode.ERROR_MISSING_EXPRESSION;
-            case VERSION_NUMBER:
-            case MAJOR_VERSION:
-            case MINOR_VERSION:
-            case PATCH_VERSION:
-                return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
             case STRING_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
             case DECIMAL_INTEGER_LITERAL_TOKEN:
@@ -191,6 +188,7 @@ public class SyntaxErrors {
             case HEX_INTEGER_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_HEX_INTEGER_LITERAL;
             case OBJECT_FIELD_RHS:
+            case BINDING_PATTERN_OR_VAR_REF_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case NIL_LITERAL:
             case ERROR_MATCH_PATTERN:
@@ -261,6 +259,8 @@ public class SyntaxErrors {
             case TUPLE_TYPE_DESC_START:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACKET_TOKEN;
             case SLASH:
+            case ABSOLUTE_PATH_SINGLE_SLASH:
+            case RESOURCE_METHOD_CALL_SLASH_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_SLASH_TOKEN;
             case COLON:
             case VAR_REF_COLON:
@@ -374,8 +374,6 @@ public class SyntaxErrors {
             case FIRST_OBJECT_TYPE_QUALIFIER:
             case SECOND_OBJECT_TYPE_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
-            case VERSION_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_VERSION_KEYWORD;
             case AS_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_AS_KEYWORD;
             case ON_KEYWORD:
@@ -474,6 +472,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_ORDER_KEYWORD;
             case BY_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_BY_KEYWORD;
+            case GROUP_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_GROUP_KEYWORD;
             case ORDER_DIRECTION:
                 return DiagnosticErrorCode.ERROR_MISSING_ASCENDING_KEYWORD;
             case JOIN_KEYWORD:
@@ -495,6 +495,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_KEYWORD;
             case XML_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_KEYWORD;
+            case RE_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_KEYWORD;
             case VAR_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_VAR_KEYWORD;
             case MAP_KEYWORD:
@@ -517,6 +519,8 @@ public class SyntaxErrors {
             case THIRD_CLASS_TYPE_QUALIFIER:
             case FOURTH_CLASS_TYPE_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_CLASS_KEYWORD;
+            case COLLECT_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_COLLECT_KEYWORD;
             default:
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }
@@ -546,6 +550,31 @@ public class SyntaxErrors {
                 return DiagnosticWarningCode.WARNING_MISSING_CODE_REFERENCE;
             default:
                 return DiagnosticWarningCode.WARNING_SYNTAX_WARNING;
+        }
+    }
+
+    private static DiagnosticCode getRegExpErrorCode(SyntaxKind expectedKind) {
+        switch (expectedKind) {
+            case CLOSE_PAREN_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN;
+            case CLOSE_BRACKET_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
+            case OPEN_BRACE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
+            case CLOSE_BRACE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
+            case COLON_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
+            case RE_UNICODE_PROPERTY_VALUE:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE;
+            case DIGIT:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_QUANTIFIER_DIGIT;
+            case BITWISE_XOR_TOKEN:
+                return DiagnosticErrorCode.ERROR_INVALID_RE_SYNTAX_CHAR;
+            case BACK_SLASH_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_BACKSLASH;
+            default:
+                return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }
     }
 

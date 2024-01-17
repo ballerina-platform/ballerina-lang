@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 
 public const string LKA = "LKA";
 public const string LK = "LK";
@@ -74,5 +74,11 @@ public class Employee {
 
 # Prints `Hello World`.
 public function main() {
-    io:println("Hello World!");
+    println("Hello World!");
 }
+
+// helper functions
+
+function println(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

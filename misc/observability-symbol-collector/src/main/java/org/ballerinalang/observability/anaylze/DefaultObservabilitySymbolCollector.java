@@ -26,14 +26,14 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.diagramutil.DiagramUtil;
-import org.ballerinalang.observability.anaylze.model.DocumentHolder;
-import org.ballerinalang.observability.anaylze.model.ModuleHolder;
 import org.ballerinalang.observability.anaylze.model.PackageHolder;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -45,6 +45,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 
 /**
  * Default implementation of {@link ObservabilitySymbolCollector}.
@@ -82,26 +86,15 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
         if (!isObservabilityIncluded) {
             return;
         }
-        Package currentPackage = project.currentPackage();
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-        packageCompilation.diagnosticResult();      // Trigger Compilation
 
-        packageHolder.setOrg(currentPackage.packageOrg().toString());
-        packageHolder.setName(currentPackage.packageName().toString());
-        packageHolder.setVersion(currentPackage.packageVersion().toString());
-        for (ModuleId moduleId : currentPackage.moduleIds()) {
-            SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
-            Module module = currentPackage.module(moduleId);
-            for (DocumentId documentId : module.documentIds()) {
-                Document document = module.document(documentId);
-                JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
-                packageHolder.addSyntaxTree(module.descriptor(), document.name(), syntaxTreeJSON);
-            }
+        // Skip this part if project has not updated
+        if (ProjectUtils.isProjectUpdated(project)) {
+            packageHolder.setSyntaxTreeDataString(generateSyntaxTreeJsonString(project));
         }
     }
 
     @Override
-    public void writeToExecutable(Path executableFile) throws IOException {
+    public void writeToExecutable(Path executableFile, Project project) throws IOException {
         if (!isObservabilityIncluded) {
             return;
         }
@@ -111,7 +104,25 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             Files.createDirectories(syntaxTreeDirPath);
 
             // Writing Syntax Tree Json
-            String syntaxTreeDataString = generateCanonicalJsonString(packageHolder);
+            String syntaxTreeDataString;
+            if (ProjectUtils.isProjectUpdated(project)) {
+                syntaxTreeDataString = packageHolder.getSyntaxTreeDataString();
+            } else {
+                // When project is not updated read Syntax Tree Json from Observability Symbols Jar
+                Path observeJarCachePath = project.targetDir()
+                        .resolve(CACHES_DIR_NAME)
+                        .resolve(project.currentPackage().packageOrg().value())
+                        .resolve(project.currentPackage().packageName().value())
+                        .resolve(project.currentPackage().packageVersion().value().toString())
+                        .resolve("observe")
+                        .resolve(project.currentPackage().packageOrg().value() + "-"
+                                + project.currentPackage().packageName().value()
+                                + "-observability-symbols.jar");
+                JarFile observeSymbolsJar = new JarFile(String.valueOf(observeJarCachePath));
+                ZipEntry syntaxTreeJsonEntry = observeSymbolsJar.getEntry("syntax-tree/syntax-tree.json");
+                InputStream syntaxTreeJsonStream = observeSymbolsJar.getInputStream(syntaxTreeJsonEntry);
+                syntaxTreeDataString = new String(syntaxTreeJsonStream.readAllBytes(), StandardCharsets.UTF_8);
+            }
             Files.write(syntaxTreeDirPath.resolve(SYNTAX_TREE_FILE_NAME),
                     syntaxTreeDataString.getBytes(StandardCharsets.UTF_8));
 
@@ -145,7 +156,15 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
         return hexString.toString();
     }
 
-    private String generateCanonicalJsonString(PackageHolder packageHolder) throws IOException {
+    private String generateSyntaxTreeJsonString(Project project) {
+        Package currentPackage = project.currentPackage();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        packageCompilation.diagnosticResult();      // Trigger Compilation
+
+        packageHolder.setOrg(currentPackage.packageOrg().toString());
+        packageHolder.setName(currentPackage.packageName().toString());
+        packageHolder.setVersion(currentPackage.packageVersion().toString());
+
         final String ballerinaVersion = RepoUtils.getBallerinaVersion();
         StringBuilder jsonStringBuilder = new StringBuilder().append("{\"")
                 .append(BALLERINA_VERSION_KEY).append("\":\"").append(ballerinaVersion).append("\",\"")
@@ -154,40 +173,48 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
                 .append(PACKAGE_VERSION_KEY).append("\":\"").append(packageHolder.getVersion()).append("\",\"")
                 .append(PACKAGE_MODULES_KEY).append("\":{");
 
-        String[] moduleKeys = packageHolder.getModules().keySet().toArray(new String[0]);
-        Arrays.sort(moduleKeys);
-        for (int i = 0, packageNamesLength = moduleKeys.length; i < packageNamesLength; i++) {
-            String moduleKey = moduleKeys[i];
-            ModuleHolder moduleHolder = packageHolder.getModules().get(moduleKey);
 
-            if (i != 0) {
-                jsonStringBuilder.append(",");
-            }
+        ModuleId[] moduleIds = currentPackage.moduleIds().toArray(new ModuleId[0]);
+        Arrays.sort(moduleIds, (moduleId1, moduleId2) -> {
+            String moduleName1 = moduleId1.moduleName();
+            String moduleName2 = moduleId2.moduleName();
+            return moduleName1.compareTo(moduleName2);
+        });
 
-            jsonStringBuilder.append("\"").append(moduleKey).append("\":{\"")
-                    .append(MODULE_NAME_KEY).append("\":\"").append(moduleHolder.getName()).append("\",\"")
+        for (ModuleId moduleId : moduleIds) {
+            SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
+            Module module = currentPackage.module(moduleId);
+            String moduleName = module.descriptor().name().toString();
+
+            jsonStringBuilder.append("\"").append(moduleName).append("\":{\"")
+                    .append(MODULE_NAME_KEY).append("\":\"").append(moduleName).append("\",\"")
                     .append(MODULE_DOCUMENTS_KEY).append("\":{");
 
-            String[] documentKeys = moduleHolder.getDocuments().keySet().toArray(new String[0]);
-            Arrays.sort(documentKeys);
-            for (int j = 0, documentNamesLength = documentKeys.length; j < documentNamesLength; j++) {
-                String documentKey = documentKeys[j];
-                DocumentHolder documentHolder = moduleHolder.getDocuments().get(documentKey);
-                String syntaxTreeDataString = JsonCanonicalizer
-                        .getEncodedString(documentHolder.getSyntaxTree().toString());
+            DocumentId[] documentIds = module.documentIds().toArray(new DocumentId[0]);
+            Arrays.sort(documentIds, (documentId1, documentId2) -> {
+                String documentName1 = module.document(documentId1).name();
+                String documentName2 = module.document(documentId2).name();
+                return documentName1.compareTo(documentName2);
+            });
 
-                if (j != 0) {
-                    jsonStringBuilder.append(",");
-                }
-                jsonStringBuilder.append("\"").append(documentKey).append("\":{\"")
+            for (DocumentId documentId : documentIds) {
+                Document document = module.document(documentId);
+                JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
+
+                jsonStringBuilder.append("\"").append(document.name()).append("\":{\"")
                         .append(DOCUMENT_NAME_KEY).append("\":\"")
-                        .append(documentHolder.getDocumentName()).append("\",\"")
+                        .append(document.name()).append("\",\"")
                         .append(DOCUMENT_SYNTAX_TREE_KEY).append("\":")
-                        .append(syntaxTreeDataString)
-                        .append("}");
+                        .append(syntaxTreeJSON.toString())
+                        .append("}")
+                        .append(",");
             }
-            jsonStringBuilder.append("}}");
+            jsonStringBuilder.deleteCharAt(jsonStringBuilder.length() - 1);
+            jsonStringBuilder.append("}}")
+                    .append(",");
         }
+        jsonStringBuilder.deleteCharAt(jsonStringBuilder.length() - 1);
+
         return jsonStringBuilder.append("}}").toString();
     }
 }

@@ -34,8 +34,9 @@ public abstract class BError extends RuntimeException implements BValue {
     public static final String CALL_STACK_ELEMENT = "CallStackElement";
 
     public BError(BString message) {
-        super(message.getValue());
+        super((message == null) ? null : message.getValue());
     }
+
     /**
      * Returns error reason.
      *

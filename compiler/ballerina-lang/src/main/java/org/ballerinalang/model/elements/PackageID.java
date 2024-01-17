@@ -56,6 +56,8 @@ public class PackageID {
             Lists.of(Names.LANG, Names.ERROR), DEFAULT_VERSION);
     public static final PackageID FLOAT = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.FLOAT), DEFAULT_VERSION);
+    public static final PackageID FUNCTION = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.FUNCTION), DEFAULT_VERSION);
     public static final PackageID FUTURE = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.FUTURE), DEFAULT_VERSION);
     public static final PackageID INT = new PackageID(Names.BALLERINA_ORG,
@@ -91,16 +93,21 @@ public class PackageID {
     public static final PackageID OBSERVE_INTERNAL = new PackageID(Names.BALLERINA_INTERNAL_ORG,
             Lists.of(Names.OBSERVE), DEFAULT_VERSION);
 
+    public static final PackageID REGEXP = new PackageID(Names.BALLERINA_ORG, Lists.of(Names.LANG, Names.REGEXP),
+            DEFAULT_VERSION);
+
     public Name orgName;
     // A read-only variable is used to keep track of the Package Name.
     public Name pkgName;
     public Name name;
     public Name version;
 
-    public final boolean isUnnamed;
-    public final Name sourceFileName;
-
     public final List<Name> nameComps;
+    public boolean isUnnamed = false;
+    public boolean skipTests = true;
+    public boolean isTestPkg = false;
+    public Name sourceFileName = null;
+    public String sourceRoot = null;
 
     public PackageID(Name orgName, List<Name> nameComps, Name version) {
         this.orgName = orgName;
@@ -112,8 +119,6 @@ public class PackageID {
         // TODO: The package name should be distinguishable when the pkgName != moduleName
         this.pkgName = name;
         this.version = version;
-        isUnnamed = false;
-        sourceFileName = null;
     }
 
     public PackageID(Name orgName, Name pkgName, Name name, Name version, Name sourceFileName) {
@@ -122,7 +127,6 @@ public class PackageID {
         this.pkgName = pkgName;
         this.version = version;
         this.nameComps = createNameComps(name);
-        isUnnamed = false;
         this.sourceFileName = sourceFileName;
     }
 
@@ -133,19 +137,29 @@ public class PackageID {
         this.pkgName = name;
         this.version = version;
         this.nameComps = createNameComps(name);
-        isUnnamed = false;
-        sourceFileName = null;
     }
 
     public PackageID(Name orgName, Name name, Name version, Name sourceFileName) {
+        this(orgName, name, version);
+        this.sourceFileName = sourceFileName;
+    }
+
+    public PackageID(Name orgName, Name pkgName, Name name, Name version, Name sourceFileName,
+                     boolean isTestPkg, boolean skipTest) {
         this.orgName = orgName;
         this.name = name;
-        // TODO: The package name should be distinguishable when the pkgName != moduleName
-        this.pkgName = name;
+        this.pkgName = pkgName;
         this.version = version;
         this.nameComps = createNameComps(name);
-        isUnnamed = false;
         this.sourceFileName = sourceFileName;
+        this.isTestPkg = isTestPkg;
+        this.skipTests = skipTest;
+    }
+
+    public PackageID(Name orgName, Name pkgName, Name name, Name version, Name sourceFileName, String sourceRoot,
+                     boolean isTestPkg, boolean skipTest) {
+        this(orgName, pkgName, name, version, sourceFileName, isTestPkg, skipTest);
+        this.sourceRoot = sourceRoot;
     }
 
     private List<Name> createNameComps(Name name) {

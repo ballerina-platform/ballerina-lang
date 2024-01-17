@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.internal.repositories;
 
+import com.github.zafarkhaja.semver.UnexpectedCharacterException;
+import com.github.zafarkhaja.semver.Version;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ModuleDescriptor;
@@ -34,6 +36,7 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.repos.FileSystemCache;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -42,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -110,6 +114,26 @@ public class FileSystemRepository extends AbstractPackageRepository {
         return Optional.of(project.currentPackage());
     }
 
+    /**
+     * Update the deprecated status of the package in file system cache.
+     *
+     * @param descriptor Package descriptor
+     */
+    void updateDeprecatedStatusForPackage(PackageDescriptor descriptor) {
+        Path balaPath = getPackagePath(descriptor.org().value(), descriptor.name().value(),
+                descriptor.version().value().toString());
+        if (balaPath != null && Files.exists(balaPath)) {
+            Path deprecateMsgMetaFile = Paths.get(balaPath.toString(), ProjectConstants.DEPRECATED_META_FILE_NAME);
+            if (descriptor.getDeprecated() && !deprecateMsgMetaFile.toFile().exists()) {
+                FileUtils.addDeprecatedMetaFile(deprecateMsgMetaFile, descriptor.getDeprecationMsg());
+            }
+
+            if (!descriptor.getDeprecated() && deprecateMsgMetaFile.toFile().exists()) {
+                FileUtils.deleteDeprecatedMetaFile(deprecateMsgMetaFile);
+            }
+        }
+    }
+
     @Override
     public boolean isPackageExists(PackageOrg org,
                                    PackageName name,
@@ -137,32 +161,41 @@ public class FileSystemRepository extends AbstractPackageRepository {
             return packagesMap;
         }
         for (File file : orgDirs) {
-            if (!file.isDirectory()) {
+            if (!file.isDirectory() || file.isHidden()) {
                 continue;
             }
             String orgName = file.getName();
             File[] filesList = this.bala.resolve(orgName).toFile().listFiles();
-            if (filesList == null) {
-                return packagesMap;
+            if (filesList == null || filesList.length == 0) {
+                continue;
             }
             List<String> pkgList = new ArrayList<>();
             for (File pkgDir : filesList) {
-                if (!pkgDir.isDirectory() || pkgDir.isHidden()) {
+                if (!pkgDir.isDirectory()) {
                     continue;
                 }
                 File[] pkgs = this.bala.resolve(orgName).resolve(pkgDir.getName()).toFile().listFiles();
                 if (pkgs == null) {
                     continue;
                 }
-                String version = "";
+                List<String> versions = new ArrayList<>();
                 for (File listFile : pkgs) {
                     if (listFile.isHidden() || !listFile.isDirectory()) {
                         continue;
                     }
-                    version = listFile.getName();
-                    break;
+                    versions.add(listFile.getName());
                 }
-                pkgList.add(pkgDir.getName() + ":" + version);
+                if (versions.isEmpty()) {
+                    continue;
+                }
+                for (String version : versions) {
+                    try {
+                        PackageVersion.from(version);
+                    } catch (ProjectException ignored) {
+                        continue;
+                    }
+                    pkgList.add(pkgDir.getName() + ":" + version);
+                }
             }
             packagesMap.put(orgName, pkgList);
         }
@@ -209,25 +242,44 @@ public class FileSystemRepository extends AbstractPackageRepository {
         return incompatibleVersions;
     }
 
+    /**
+     * Returns if a package is compatible with the current platform version
+     * (ballerinaShortVersion of the current distribution).
+     *
+     * A package is considered to be compatible with the current platform
+     * if the platform version that the package is built on has the same major
+     * version and is not greater than the version of the current platform.
+     *
+     * slbeta versions are considered compatible which is a special case.
+     * TODO: we can check if this is necessary after the SL GA
+     *
+     * @param pkgBalVer version of the platform that the package is built on
+     * @param distBalVer version of the current platform
+     *
+     * @return true if compatible
+     */
     private boolean isCompatible(String pkgBalVer, String distBalVer) {
-        if (!pkgBalVer.equals(distBalVer)) {
-            String pkgBalVerPrefix = pkgBalVer.substring(0, pkgBalVer.length() - 1);
-            String distBalVerPerfix = distBalVer.substring(0, distBalVer.length() - 1);
+        if (pkgBalVer.equals(distBalVer) || pkgBalVer.startsWith("slbeta")) {
+            return true;
+        }
+        Version pkgSemVer;
+        Version distSemVer;
+        try {
+            pkgSemVer = Version.valueOf(pkgBalVer);
+            distSemVer = Version.valueOf(distBalVer);
 
-            // If the prefixes are equal, we need to check the versions
-            if (pkgBalVerPrefix.equals(distBalVerPerfix)) {
-                String pkgBalVerValue = pkgBalVer.substring(pkgBalVer.length() - 1);
-                String distBalVerValue = distBalVer.substring(distBalVer.length() - 1);
-                // If package version is greater than distribution version
-                if (Integer.parseInt(pkgBalVerValue) > Integer.parseInt(distBalVerValue)) {
-                    return false;
+            if (pkgSemVer.getMajorVersion() == distSemVer.getMajorVersion()) {
+                if (pkgSemVer.getMinorVersion() == distSemVer.getMinorVersion()) {
+                    return true;
                 }
-            } else {
-                return false;
+                return !pkgSemVer.greaterThan(distSemVer);
             }
+        } catch (UnexpectedCharacterException ignore) {
+            // SemVer incompatible versions will throw this exception.
+            // Catching this is mainly to handle slalpha versions
         }
 
-        return true;
+        return false;
     }
 
     @Override
@@ -254,8 +306,12 @@ public class FileSystemRepository extends AbstractPackageRepository {
                 ProjectUtils.getRelativeBalaPath(org, name, version, null));
         if (!Files.exists(balaPath)) {
             // If bala for any platform not exist check for specific platform
-            balaPath = this.bala.resolve(
-                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_11.code()));
+            for (JvmTarget jvmTarget : JvmTarget.values()) {
+                balaPath = this.bala.resolve(ProjectUtils.getRelativeBalaPath(org, name, version, jvmTarget.code()));
+                if (Files.exists(balaPath)) {
+                    break;
+                }
+            }
         }
         return balaPath;
     }

@@ -1,0 +1,11 @@
+[package]
+org = "choreo"
+name = "gsheet_new_row_to_github_new_issue"
+version = "1.0.1"
+export = ["gsheet_new_row_to_github_new_issue"]
+distribution = "slbeta6"
+keywords = ["Type/Webhook","Category/Integration","Internal/http"]
+icon = "docs/icon.png"
+
+[build-options]
+observabilityIncluded = true

@@ -1,6 +1,7 @@
 import ballerina/module1;
 
 function name() {
+    map<RecordName> map1 = {};
     map<map<RecordName>> recMap;
     recMap = {
         "rec1": {

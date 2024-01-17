@@ -20,14 +20,15 @@ package org.ballerinalang.langlib.floatingpoint;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.float:fromString(string).
@@ -46,13 +47,17 @@ public class FromString {
                                                                         NUMBER_PARSING_ERROR_IDENTIFIER);
 
     public static Object fromString(BString s) {
+        String decimalFloatingPointNumber = s.getValue();
         try {
-            return TypeConverter.stringToFloat(s.getValue());
+            return TypeConverter.stringToFloat(decimalFloatingPointNumber);
         } catch (NumberFormatException e) {
-            return ErrorCreator.createError(ERROR_REASON,
-                                            BLangExceptionHelper.getErrorDetails(
-                                                    RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                                    PredefinedTypes.TYPE_STRING, s, PredefinedTypes.TYPE_FLOAT));
+            return getTypeConversionError(decimalFloatingPointNumber);
         }
+    }
+
+    private static BError getTypeConversionError(String value) {
+        return ErrorCreator.createError(ERROR_REASON, ErrorHelper.getErrorDetails(
+                        ErrorCodes.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                        PredefinedTypes.TYPE_STRING, value, PredefinedTypes.TYPE_FLOAT));
     }
 }

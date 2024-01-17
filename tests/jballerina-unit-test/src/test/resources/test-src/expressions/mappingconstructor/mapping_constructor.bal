@@ -16,26 +16,26 @@
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
-const TYPEDESC_MAP_ANY = "typedesc map";
+const TYPEDESC_MAP_ALL = "typedesc map<(any|error)>";
 
 function testMappingConstuctorWithAnyACET() {
     any a = {a: 1, b: 2};
     typedesc<any> ta = typeof a;
     string typedescString = ta.toString();
 
-    if typedescString != TYPEDESC_MAP_ANY {
-        panic getFailureError(TYPEDESC_MAP_ANY, typedescString);
+    if typedescString != TYPEDESC_MAP_ALL {
+        panic getFailureError(TYPEDESC_MAP_ALL, typedescString);
     }
 
-    any|map<any> b = {a: "hello", b: 1};
+    any|map<any|error> b = {a: "hello", b: 1};
     ta = typeof b;
     typedescString = ta.toString();
 
-    if typedescString == TYPEDESC_MAP_ANY {
+    if typedescString == TYPEDESC_MAP_ALL {
         return;
     }
 
-    panic getFailureError(TYPEDESC_MAP_ANY, typedescString);
+    panic getFailureError(TYPEDESC_MAP_ALL, typedescString);
 }
 
 const TYPEDESC_MAP_ANYDATA = "typedesc map<anydata>";
@@ -129,6 +129,16 @@ function testTypeWithReadOnlyInUnionCET() {
     assertEquality(1, mj["b"]["a"]);
     assertEquality((), mj["b"]["b"]);
     assertEquality(m, mj["c"]);
+}
+
+function testFieldsWithEscapeSequences() {
+    map<int> _ = {a\\: 454, "a\\\\": 543};
+    map<int> _ = {a\\: 454, "b\\": 543};
+    
+    string s = "a\\";
+    map<int> m = {a\\: 454, [s]: 543};
+    map<int> n = {"a\\": 543};
+    assertEquality(n, m);
 }
 
 function assertEquality(any|error expected, any|error actual) {

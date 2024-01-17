@@ -17,12 +17,10 @@
  */
 package org.ballerinalang.test.types.bytetype;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,11 +42,11 @@ public class ByteAsJsonTest {
 
     @Test(dataProvider = "byteAsJsonTests")
     public void testByteAsJson(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}InherentTypeViolation " +
                     "\\{\"message\":\"incompatible" +
                     " types: expected 'byte', found 'int'.*")
@@ -56,7 +54,7 @@ public class ByteAsJsonTest {
         BRunUtil.invoke(result, "testInherentTypeViolationForArray");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.map\\}InherentTypeViolation " +
                     "\\{\"message\":\"invalid map insertion: expected value of type 'byte', found 'int'.*")
     public void testInherentTypeViolationForMap() {

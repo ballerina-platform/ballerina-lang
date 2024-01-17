@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -43,18 +43,18 @@ public class BuiltinMethodTest {
 
     @Test(description = "Test clone")
     public void testClone() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testClone");
-        Assert.assertTrue(result[0] instanceof BMap);
-        BMap bMap = (BMap) result[0];
-        Assert.assertEquals(bMap.get("test").stringValue(), "sample");
+        Object result = BRunUtil.invoke(compileResult, "testClone");
+        Assert.assertTrue(result instanceof BMap);
+        BMap bMap = (BMap) result;
+        Assert.assertEquals(bMap.get(StringUtils.fromString("test")).toString(), "sample");
     }
 
     @Test(description = "Test clone any")
     public void testCloneAny() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testCloneAny");
-        Assert.assertTrue(result[0] instanceof BMap);
-        BMap bMap = (BMap) result[0];
-        Assert.assertEquals(bMap.get("test").stringValue(), "sample");
+        Object result = BRunUtil.invoke(compileResult, "testCloneAny");
+        Assert.assertTrue(result instanceof BMap);
+        BMap bMap = (BMap) result;
+        Assert.assertEquals(bMap.get(StringUtils.fromString("test")).toString(), "sample");
     }
 
     @AfterClass

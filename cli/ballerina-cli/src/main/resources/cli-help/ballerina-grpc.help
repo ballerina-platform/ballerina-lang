@@ -3,16 +3,18 @@ NAME
                         definition
 
 SYNOPSIS
-       bal grpc [--input <proto-file-path>] [--output <path>]
-                        [--mode] (client | service | proxy)
+       bal grpc --input <proto-file-path> [--output <path>]
+                        [--mode mode]
+                        [--proto-path <path>]
 
 DESCRIPTION
        Generate the Ballerina gRPC client/service sources for a given
        gRPC protocol buffer (Protobuf) definition.
 
 OPTIONS
-       --input <proto-file-path>
-           Path of the input `.proto` file.
+       --input <path>
+           Path to a '.proto' file or a directory containing multiple '.proto'
+           files.
 
        --output <path>
            Location of the generated Ballerina source files.
@@ -21,20 +23,23 @@ OPTIONS
            definition. If a package is not specified, the output will be written
            to a 'temp' directory in the current location.
 
-       --mode client | service | proxy
-           Set the `client` or `service` mode to generate sample code.
-           Set the `proxy` mode to generate a gateway proxy.
+       --mode mode
+           Set the 'client' or 'service' mode to generate sample code.
            If not specified, only the stub file is generated.
 
+       --proto-path <path>
+            Path to a directory in which to look for '.proto' files when
+            resolving import directives.
+
 EXAMPLES
-       Generate the Ballerina gRPC stub file (for the given `.proto` file) in a
+       Generate the Ballerina gRPC stub file (for the given '.proto' file) in a
        'stub' directory.
-          $ bal grpc --input chat.proto --output stub
+           $ bal grpc --input chat.proto --output stub
 
        Generate the Ballerina gRPC stub file and client sample code (for the
-       given `.proto` file) in a 'client' directory.
-          $ bal grpc --input chat.proto --output client --mode client
+       given '.proto' file) in a 'client' directory.
+           $ bal grpc --input chat.proto --output client --mode client
 
        Generate the Ballerina gRPC stub file and service sample code (for the
-       given `.proto` file) in a 'service' directory.
-          $ bal grpc --input chat.proto --output service --mode service
+       given '.proto' file) in a 'service' directory.
+           $ bal grpc --input chat.proto --output service --mode service

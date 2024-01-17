@@ -1,0 +1,5 @@
+Compiling source
+	foo/winery:0.1.0
+
+Creating bala
+	customTargetDir/bala/foo-winery-any-0.1.0.bala

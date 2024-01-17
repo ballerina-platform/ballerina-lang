@@ -25,7 +25,8 @@ function testLiteralAsKeyValue() {
     ];
 
     tbl.add({k: 13, value: 25});
-    assertEqual(table key(k) [{ k: 12, value: 17 }, {k: 13, value: 25}], tbl);
+    var tbl2 = table key(k) [{ k: 12, value: 17 }, {k: 13, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 13, value: 25};
     assertEqual(row, tbl.get(13));
@@ -49,7 +50,8 @@ function testStringTemplateExprAsKeyValue() {
     ];
 
     tbl.add({k: string `DEF`, value: 25});
-    assertEqual(table key(k) [{ k: string `ABC`, value: 17 }, {k: string `DEF`, value: 25}], tbl);
+    var tbl2 = table key(k) [{ k: string `ABC`, value: 17 }, {k: string `DEF`, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row2 row = {k: string `ABC`, value: 17};
     assertEqual(row, tbl.get(string `ABC`));
@@ -73,7 +75,8 @@ function testXmlTemplateExprAsKeyValue() {
     ];
 
     tbl.add({k: xml `DEF`, value: 25});
-    assertEqual(table key(k) [{ k: xml `ABC`, value: 17 }, {k: xml `DEF`, value: 25}], tbl);
+    var tbl2 = table key(k) [{ k: xml `ABC`, value: 17 }, {k: xml `DEF`, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row3 row = {k: xml `ABC`, value: 17};
     assertEqual(row, tbl.get(xml `ABC`));
@@ -97,7 +100,8 @@ function testListConstructorExprAsKeyValue() {
     ];
 
     tbl.add({k: [13 , 14], value: 25});
-    assertEqual(table key(k) [{ k: [12 , 13], value: 17 }, {k: [13 , 14], value: 25}], tbl);
+    var tbl2 = table key(k) [{ k: [12 , 13], value: 17 }, {k: [13 , 14], value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row4 row = {k: [13 , 14], value: 25};
     assertEqual(row, tbl.get([13 , 14]));
@@ -121,7 +125,8 @@ function testTableConstructorExprAsKeyValue() {
     ];
 
     tbl.add({k: table key(k) [{k: 13, value: 25}], value: 25});
-    assertEqual(table key(k) [{k: table key(k) [{k: 12, value: 17}], value: 17}, {k: table key(k) [{k: 13, value: 25}], value: 25}], tbl);
+    var tbl2 = table key(k) [{k: table key(k) [{k: 12, value: 17}], value: 17}, {k: table key(k) [{k: 13, value: 25}], value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row5 row = {k: table key(k) [{k: 13, value: 25}], value: 25};
     readonly & table<Row1> key(k) keyVal = table [
@@ -148,8 +153,9 @@ function testMappingConstructorExprAsKeyValue() {
     ];
 
     tbl.add({k: {"A": "z", "B": 12, "C": [23.5, 65.3]}, value: 25});
-    assertEqual(table key(k) [{k: {"A": "a", "B": 12, "C": [13.5, 24.3]}, value: 17},
-                {k: {"A": "z", "B": 12, "C": [23.5, 65.3]}, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: {"A": "a", "B": 12, "C": [13.5, 24.3]}, value: 17},
+                               {k: {"A": "z", "B": 12, "C": [23.5, 65.3]}, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row6 row = {k: {"A": "z", "B": 12, "C": [23.5, 65.3]}, value: 25};
     assertEqual(row, tbl.get({"A": "z", "B": 12, "C": [23.5, 65.3]}));
@@ -171,7 +177,8 @@ function testConstRefExprAsKeyValue() {
     ];
 
     tbl.add({k: TWO, value: 25});
-    assertEqual(table key(k) [{k: 1, value: 17}, {k: 2, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 1, value: 17}, {k: 2, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 2, value: 25};
     assertEqual(row, tbl.get(2));
@@ -190,7 +197,8 @@ function testTypeCastExprAsKeyValue() {
     ];
 
     tbl.add({k: <int>2.5, value: 25});
-    assertEqual(table key(k) [{k: 1, value: 17}, {k: 2, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 1, value: 17}, {k: 2, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 2, value: 25};
     assertEqual(row, tbl.get(2));
@@ -209,7 +217,8 @@ function testUnaryExprAsKeyValue() {
     ];
 
     tbl.add({k: +2, value: 25});
-    assertEqual(table key(k) [{k: 1, value: 17}, {k: 2, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 1, value: 17}, {k: 2, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 2, value: 25};
     assertEqual(row, tbl.get(2));
@@ -228,7 +237,8 @@ function testMultiplicativeExprAsKeyValue() {
     ];
 
     tbl.add({k: 2 * 10, value: 25});
-    assertEqual(table key(k) [{k: 10, value: 17}, {k: 20, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 10, value: 17}, {k: 20, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 20, value: 25};
     assertEqual(row, tbl.get(20));
@@ -247,7 +257,8 @@ function testAdditiveExprAsKeyValue() {
     ];
 
     tbl.add({k: 2 + 10, value: 25});
-    assertEqual(table key(k) [{k: 11, value: 17}, {k: 12, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 11, value: 17}, {k: 12, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 12, value: 25};
     assertEqual(row, tbl.get(12));
@@ -266,7 +277,8 @@ function testShiftExprAsKeyValue() {
     ];
 
     tbl.add({k: 1 << 65, value: 25});
-    assertEqual(table key(k) [{k: 1, value: 17}, {k: 2, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 1, value: 17}, {k: 2, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 2, value: 25};
     assertEqual(row, tbl.get(0x2));
@@ -291,7 +303,8 @@ function testRelationalExprAsKeyValue() {
     ];
 
     tbl.add({k: 10 >= 20, m: 30.5, value: 25});
-    assertEqual(table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row7 row = {k: true, m: 20.5, value: 17};
     assertEqual(row, tbl.get([true, 20.5]));
@@ -311,7 +324,8 @@ function testIsExprAsKeyValue() {
     ];
 
     tbl.add({k: a is map<int>, m: 30.5, value: 25});
-    assertEqual(table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row7 row = {k: true, m: 20.5, value: 17};
     assertEqual(row, tbl.get([true, 20.5]));
@@ -332,7 +346,8 @@ function testEqualityExprAsKeyValue() {
     ];
 
     tbl.add({k: a === b, m: 30.5, value: 25});
-    assertEqual(table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row7 row = {k: true, m: 20.5, value: 17};
     assertEqual(row, tbl.get([true, 20.5]));
@@ -351,7 +366,8 @@ function testBinaryBitwiseExprAsKeyValue() {
     ];
 
     tbl.add({k: 100 & 1000, value: 25});
-    assertEqual(table key(k) [{k: 110, value: 17}, {k: 96, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 110, value: 17}, {k: 96, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 96, value: 25};
     assertEqual(row, tbl.get(96));
@@ -372,7 +388,8 @@ function testLogicalExprAsKeyValue() {
     ];
 
     tbl.add({k: a && b, m: 30.5, value: 25});
-    assertEqual(table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row7 row = {k: true, m: 20.5, value: 17};
     assertEqual(row, tbl.get([true, 20.5]));
@@ -392,7 +409,8 @@ function testConditionalExprAsKeyValue() {
     ];
 
     tbl.add({k: a is string ? 30 : 40, value: 25});
-    assertEqual(table key(k) [{k: 10, value: 17}, {k: 40, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 10, value: 17}, {k: 40, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 40, value: 25};
     assertEqual(row, tbl.get(40));
@@ -412,7 +430,8 @@ function testGroupExprAsKeyValue() {
     ];
 
     tbl.add({k: (a is string ? 30 : (<int> 40.5)), value: 25});
-    assertEqual(table key(k) [{k: 10, value: 17}, {k: 40, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 10, value: 17}, {k: 40, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 40, value: 25};
     assertEqual(row, tbl.get(40));
@@ -446,6 +465,276 @@ function testKeyCollision() {
         map<string> msg = {"message":"a value found for key '[{\"a\":1}]'"};
         assertEqual(msg, err.detail());
     }
+}
+
+type Row9 record {
+    readonly string:RegExp k;
+    int value;
+};
+
+function testRegExpAsKeyValue() {
+    table<Row9> key(k) tbl = table [
+       {k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`, value: 17}
+    ];
+
+    tbl.add({k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?i-x:[cdeg-k]??)|)|^|PR?`, value: 25});
+    var tbl2 = table key(k) [{ k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`, value: 17 },
+                             {k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?i-x:[cdeg-k]??)|)|^|PR?`, value: 25}];
+    assertEqual(tbl2, tbl);
+
+    Row9 row = {k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`, value: 17};
+    assertEqual(row, tbl.get(re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`));
+
+    error? err = trap tbl.add({k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`, value: 20});
+    assertEqual(true, err is error);
+    if (err is error) {
+        map<string> msg = {"message":"a value found for key 'AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?'"};
+        assertEqual(msg, err.detail());
+    }
+
+    table<Row9> key(k)|error err2 = trap getTable();
+    assertEqual(true, err2 is error);
+    if (err2 is error) {
+        map<string> msg = {"message":"a value found for key 'AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?'"};
+        assertEqual(msg, err2.detail());
+    }
+
+    table<Row9> key(k) tbl3 = table [
+       {k: re `[a-z]??|(AB)*`, value: 17}
+    ];
+
+    tbl3.add({k: re `[a-z]?|(AC){1}`, value: 25});
+    var tbl4 = table key(k) [{ k: re `[a-z]??|(AB)*`, value: 17 },
+                             {k: re `[a-z]?|(AC){1}`, value: 25}];
+    assertEqual(tbl4, tbl3);
+
+    Row9 row2 = {k: re `[a-z]?|(AC){1}`, value: 25};
+    assertEqual(row2, tbl3.get(re `[a-z]?|(AC){1}`));
+
+    error? err3 = trap tbl3.add({k: re `[a-z]??|(AB)*`, value: 20});
+    assertEqual(true, err3 is error);
+    if (err3 is error) {
+        map<string> msg = {"message":"a value found for key '[a-z]??|(AB)*'"};
+        assertEqual(msg, err3.detail());
+    }
+
+    string a = "ABC";
+    table<Row9> key(k) tbl5 = table [
+       {k: re `[^a-g]??|(${a}DEF(${a+"FGH"})+)*`, value: 17}
+    ];
+
+    tbl5.add({k: re `^${a}*(?i-m:${123*10}{1,5})$${30.toString()}+`, value: 25});
+    var tbl6 = table key(k) [{ k: re `[^a-g]??|(${a}DEF(${a+"FGH"})+)*`, value: 17 },
+                             {k: re `^${a}*(?i-m:${123*10}{1,5})$${30.toString()}+`, value: 25}];
+    assertEqual(tbl6, tbl5);
+
+    Row9 row3 = {k: re `^${a}*(?i-m:${123*10}{1,5})$${30.toString()}+`, value: 25};
+    assertEqual(row3, tbl5.get(re `^${a}*(?i-m:${123*10}{1,5})$${30.toString()}+`));
+
+    error? err4 = trap tbl5.add({k: re `[^a-g]??|(${a}DEF(${a+"FGH"})+)*`, value: 20});
+    assertEqual(true, err4 is error);
+    if (err4 is error) {
+        map<string> msg = {"message":"a value found for key '[^a-g]??|(ABCDEF(ABCFGH)+)*'"};
+        assertEqual(msg, err4.detail());
+    }
+}
+
+function getTable() returns table<Row9> key(k) {
+    return table [{k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`, value: 17},
+                  {k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`, value: 17}];
+}
+
+type Row10 record {
+    readonly string:RegExp|string k;
+    int value;
+};
+
+type RegExpTable table<Row10> key(k);
+
+function testKeyCollisionWithStringAndRegExpAsKeyValues() {
+    table<Row10> key(k) tbl = table [
+       {k: re `AB*(?:[a-f])`, value: 17}
+    ];
+
+    tbl.add({k: string `AB*(?:[a-f])`, value: 17});
+    var tbl2 = table key(k) [{ k: re `AB*(?:[a-f])`, value: 17 },
+                             {k: string `AB*(?:[a-f])`, value: 17}];
+    assertEqual(tbl, tbl2);
+
+    Row10 row = {k: re `AB*(?:[a-f])`, value: 17};
+    assertEqual(row, tbl.get(re `AB*(?:[a-f])`));
+
+    RegExpTable tbl3 = table [
+       {k: re `AB*(?:[a-f])`, value: 17},
+       {k: string `AB*(?:[a-f])`, value: 17}
+    ];
+    assertEqual(tbl, tbl3);
+
+    table<Row10> key(k) tbl4 = table [
+       {k: re `AB*(?:[a-f])`, value: 17},
+       {k: "AB*(?:[a-f])", value: 17}
+    ];
+    assertEqual(tbl, tbl4);
+
+    RegExpTable tbl5 = table [
+       {k: re `AB*(?:[a-f])`, value: 17}
+    ];
+    tbl5.add({k: "AB*(?:[a-f])", value: 17});
+    assertEqual(tbl, tbl5);
+}
+
+type Row12 record {|
+    readonly string key1;
+    readonly string key2;
+    string a;
+|};
+
+function testStringAsKeyValue() {
+    Row12 expectedRec = {key1: "k1", key2: "k2", a: "n2"};
+
+    table<Row12> key(key1) tbl = table [
+        {key1: "k1", key2: "k2", a: "n1"}
+    ];
+    table<Row12> tbl2 = table [
+        {key1: "k1", key2: "k2", a: "n2"}
+    ];
+
+    // Test the put method of the table
+    tbl.put(expectedRec.clone());
+
+    table<Row12> tbl1 = from Row12 r in tbl
+        where r.key1 == "k1" && r.key2 == "k2"
+        select r;
+    assertEqual(tbl2, tbl1);
+
+    // Test the get method of the table
+    readonly & string keyString = "k1";
+    Row12 outputRec = tbl.get(keyString);
+    assertEqual(expectedRec, outputRec);
+
+    // Test the add method of the table
+    error? err = trap tbl.add(expectedRec);
+    assertEqual(err is error, true);
+    assertEqual((<error>err).message(), "{ballerina/lang.table}KeyConstraintViolation");
+
+    // Test the remove method of the table
+    Row12 removedRec = tbl.remove(keyString);
+    assertEqual(expectedRec, removedRec);
+    assertEqual(tbl.length(), 0);
+}
+
+function testStringAsCompositeKeyValue() {
+    Row12 expectedRec = {key1: "k1", key2: "k2", a: "n2"};
+
+    table<Row12> key(key1, key2) tbl = table [
+        {key1: "k1", key2: "k2", a: "n1"}
+    ];
+    table<Row12> tbl2 = table [
+        {key1: "k1", key2: "k2", a: "n2"}
+    ];
+
+    // Test the put method of the table
+    tbl.put(expectedRec.clone());
+
+    table<Row12> tbl1 = from Row12 r in tbl
+        where r.key1 == "k1" && r.key2 == "k2"
+        select r;
+    assertEqual(tbl2, tbl1);
+
+    // Test the get method of the table
+    [string & readonly, string & readonly] keyTuple = ["k1", "k2"];
+    Row12 outputRec = tbl.get(keyTuple);
+    assertEqual(expectedRec, outputRec);
+
+    // Test the add method of the table
+    error? err = trap tbl.add(expectedRec);
+    assertEqual(err is error, true);
+    assertEqual((<error>err).message(), "{ballerina/lang.table}KeyConstraintViolation");
+
+    // Test the remove method of the table
+    Row12 removedRec = tbl.remove(keyTuple);
+    assertEqual(expectedRec, removedRec);
+    assertEqual(tbl.length(), 0);
+}
+
+type Row13 record {|
+    readonly map<string> keys;
+    readonly map<int> values;
+    string a;
+|};
+
+function testMapAsCompositeKeyValue() {
+    Row13 expectedRec = {keys: {"k1": "v1", "k2": "v2"}, values: {"k1": 1, "k2": 2}, a: "n2"};
+
+    table<Row13> key(keys, values) tbl = table [
+        {keys: {"k1": "v1", "k2": "v2"}, values: {"k1": 1, "k2": 2}, a: "n1"}
+    ];
+    table<Row13> tbl2 = table [
+        {keys: {"k1": "v1", "k2": "v2"}, values: {"k1": 1, "k2": 2}, a: "n2"}
+    ];
+
+    // Test the put method of the table
+    tbl.put(expectedRec.clone());
+
+    table<Row13> tbl1 = from Row13 r in tbl
+        where r.keys == {"k1": "v1", "k2": "v2"} && r.values == {"k1": 1, "k2": 2}
+        select r;
+    assertEqual(tbl2, tbl1);
+
+    // Test the get method of the table
+    [map<string> & readonly, map<int> & readonly] keyTuple = [{"k1": "v1", "k2": "v2"}, {"k1": 1, "k2": 2}];
+    Row13 outputRec = tbl.get(keyTuple);
+    assertEqual(expectedRec, outputRec);
+
+    // Test the add method of the table
+    error? err = trap tbl.add(expectedRec);
+    assertEqual(err is error, true);
+    assertEqual((<error>err).message(), "{ballerina/lang.table}KeyConstraintViolation");
+
+    // Test the remove method of the table
+    Row13 removedRec = tbl.remove(keyTuple);
+    assertEqual(expectedRec, removedRec);
+    assertEqual(tbl.length(), 0);
+}
+
+type Row14 record {|
+    readonly string[] keys;
+    readonly int[] values;
+    string a;
+|};
+
+function testArrayAsCompositeKeyValue() {
+    Row14 expectedRec = {keys: ["k1", "k2"], values: [1, 2], a: "n2"};
+
+    table<Row14> key(keys, values) tbl = table [
+        {keys: ["k1", "k2"], values: [1, 2], a: "n1"}
+    ];
+    table<Row14> tbl2 = table [
+        {keys: ["k1", "k2"], values: [1, 2], a: "n2"}
+    ];
+
+    // Test the put method of the table
+    tbl.put(expectedRec.clone());
+
+    table<Row14> tbl1 = from Row14 r in tbl
+        where r.keys == ["k1", "k2"] && r.values == [1, 2]
+        select r;
+    assertEqual(tbl2, tbl1);
+
+    // Test the get method of the table
+    [string[] & readonly, int[] & readonly] keyTuple = [["k1", "k2"], [1, 2]];
+    Row14 outputRec = tbl.get(keyTuple);
+    assertEqual(expectedRec, outputRec);
+
+    // Test the add method of the table
+    error? err = trap tbl.add(expectedRec);
+    assertEqual(err is error, true);
+    assertEqual((<error>err).message(), "{ballerina/lang.table}KeyConstraintViolation");
+
+    // Test the remove method of the table
+    Row14 removedRec = tbl.remove(keyTuple);
+    assertEqual(expectedRec, removedRec);
+    assertEqual(tbl.length(), 0);
 }
 
 function assertEqual(any expected, any actual) {

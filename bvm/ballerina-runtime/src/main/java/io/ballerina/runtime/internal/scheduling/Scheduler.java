@@ -14,6 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -25,21 +26,20 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.io.PrintStream;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -54,7 +54,7 @@ import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
  */
 public class Scheduler {
 
-    private static PrintStream err = System.err;
+    private static final PrintStream err = System.err;
 
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
@@ -64,12 +64,13 @@ public class Scheduler {
     /**
      * Strands that are ready for execution.
      */
-    private BlockingQueue<ItemGroup> runnableList = new LinkedBlockingDeque<>();
+    private final BlockingQueue<ItemGroup> runnableList = new LinkedBlockingDeque<>();
 
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
+    private static final ConcurrentHashMap<Integer, Strand> currentStrands = new ConcurrentHashMap<>();
     private final Strand previousStrand;
 
-    private AtomicInteger totalStrands = new AtomicInteger();
+    private final AtomicInteger totalStrands = new AtomicInteger();
 
     private static String poolSizeConf = System.getenv(RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
 
@@ -82,8 +83,17 @@ public class Scheduler {
     private static int poolSize = Runtime.getRuntime().availableProcessors() * 2;
 
     private Semaphore mainBlockSem;
-    private ListenerRegistry listenerRegistry;
+    private final RuntimeRegistry runtimeRegistry;
     private AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
+    private static Strand daemonStrand = null;
+
+    public static void setDaemonStrand(Strand strand) {
+        daemonStrand = strand;
+    }
+
+    public static Strand getDaemonStrand() {
+        return daemonStrand;
+    }
 
     public Scheduler(boolean immortal) {
         this(getPoolSize(), immortal);
@@ -92,8 +102,10 @@ public class Scheduler {
     public Scheduler(int numThreads, boolean immortal) {
         this.numThreads = numThreads;
         this.immortal = immortal;
-        this.listenerRegistry = new ListenerRegistry();
+        this.runtimeRegistry = new RuntimeRegistry(this);
         this.previousStrand = numThreads == 1 ? strandHolder.get().strand : null;
+        ItemGroup group = new ItemGroup();
+        objectGroup.set(group);
     }
 
     public static Strand getStrand() {
@@ -109,11 +121,15 @@ public class Scheduler {
         return strandHolder.get().strand;
     }
 
+    public static Map<Integer, Strand> getCurrentStrands() {
+        return new HashMap<>(currentStrands);
+    }
+
     /**
      * Schedules given function by creating a new strand group.
      *
      * @param params     parameters to underlying function.
-     * @param fp         function ponter to be executed.
+     * @param fp         function pointer to be executed.
      * @param parent     parent of the new Strand that get created here.
      * @param returnType return type of the function.
      * @param strandName name for new strand
@@ -125,9 +141,9 @@ public class Scheduler {
         return schedule(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
     }
 
-    public FutureValue scheduleTransactionalFunction(Object[] params, BFunctionPointer<?, ?> fp, Strand parent,
-                                                     Type returnType, String strandName, StrandMetadata metadata) {
-        return scheduleTransactional(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
+    public FutureValue scheduleFunction(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
+                                        String strandName, StrandMetadata metadata , Callback callback) {
+        return schedule(params, fp.getFunction(), parent, callback, null, returnType, strandName, metadata);
     }
 
     /**
@@ -153,10 +169,7 @@ public class Scheduler {
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
         future.strand.strandGroup = parent.strandGroup;
-        parent.strandGroup.add(item);
-        if (parent.strandGroup.scheduled.compareAndSet(false, true)) {
-            runnableList.add(future.strand.strandGroup);
-        }
+        addToRunnableList(item, parent.strandGroup);
         return future;
     }
 
@@ -164,28 +177,18 @@ public class Scheduler {
                                              Callback callback, Map<String, Object> properties, Type returnType,
                                              String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
+        return scheduleToObjectGroup(params, function, future);
+    }
+
+    public FutureValue scheduleToObjectGroup(Object[] params, Function function, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
         ItemGroup group = objectGroup.get();
-        if (group == null) {
-            group = new ItemGroup(item);
-            objectGroup.set(group);
-        } else {
-            group.add(item);
-        }
         future.strand.strandGroup = group;
-        if (group.scheduled.compareAndSet(false, true)) {
-            runnableList.add(group);
-        }
+        addToRunnableList(item, group);
         return future;
-    }
-
-    public FutureValue scheduleTransactionalLocal(Object[] params, BFunctionPointer<?, ?> fp, Strand parent,
-                                                  Type returnType, String strandName, StrandMetadata metadata) {
-        FutureValue future = createTransactionalFuture(parent, null, null, returnType, strandName, metadata);
-        return scheduleLocal(params, fp, parent, future);
     }
 
     /**
@@ -208,13 +211,6 @@ public class Scheduler {
         return schedule(params, function, future);
     }
 
-    public FutureValue scheduleTransactional(Object[] params, Function function, Strand parent, Callback callback,
-                                Map<String, Object> properties, Type returnType, String strandName,
-                                StrandMetadata metadata) {
-        FutureValue future = createTransactionalFuture(parent, callback, properties, returnType, strandName, metadata);
-        return schedule(params, function, future);
-    }
-
     /**
      * Add a task to the runnable list, which will eventually be executed by the Scheduler.
      *
@@ -232,7 +228,7 @@ public class Scheduler {
         return schedule(params, function, future);
     }
 
-    private FutureValue schedule(Object[] params, Function function, FutureValue future) {
+    public FutureValue schedule(Object[] params, Function function, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
@@ -312,7 +308,8 @@ public class Scheduler {
                 break;
             }
 
-            while (!group.items.empty()) {
+            boolean isItemsEmpty = group.items.isEmpty();
+            while (!isItemsEmpty) {
                 Object result = null;
                 Throwable panic = null;
 
@@ -337,9 +334,11 @@ public class Scheduler {
                     strandHolder.get().strand = previousStrand;
                 }
                 postProcess(item, result, panic);
-                if (group.items.empty()) {
+                group.lock();
+                if ((isItemsEmpty = group.items.empty())) {
                     group.scheduled.set(false);
                 }
+                group.unlock();
             }
         }
     }
@@ -416,9 +415,7 @@ public class Scheduler {
                     // (number of started stands - finished stands) = 0, all the work is done
                     assert runnableList.isEmpty();
 
-                    if (!immortal) {
-                        poison();
-                    }
+                    gracefulExit();
                 }
                 break;
             default:
@@ -432,11 +429,11 @@ public class Scheduler {
 
     private Throwable createError(Throwable t) {
         if (t instanceof StackOverflowError) {
-            BError error = ErrorCreator.createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
+            BError error = ErrorCreator.createError(ErrorReasons.STACK_OVERFLOW_ERROR);
             error.setStackTrace(t.getStackTrace());
             return error;
         } else if (t instanceof OutOfMemoryError) {
-            BError error = ErrorCreator.createError(BallerinaErrorReasons.JAVA_OUT_OF_MEMORY_ERROR,
+            BError error = ErrorCreator.createError(ErrorReasons.JAVA_OUT_OF_MEMORY_ERROR,
                     StringUtils.fromString(t.getMessage()));
             error.setStackTrace(t.getStackTrace());
             return error;
@@ -461,6 +458,8 @@ public class Scheduler {
         justCompleted.scheduler = null;
         justCompleted.frames = null;
         justCompleted.waitingContexts = null;
+
+        currentStrands.remove(justCompleted.getId());
         //TODO: more cleanup , eg channels
     }
 
@@ -488,34 +487,34 @@ public class Scheduler {
         if (!item.getState().equals(State.RUNNABLE)) {
             ItemGroup group = item.future.strand.strandGroup;
             item.setState(State.RUNNABLE);
-            group.add(item);
-
-            // Group maybe not picked by any thread at the moment because,
-            //  1) All items are blocked.
-            //  2) All others have finished
-            // In this case we need to put it back in the runnable list.
-            if (group.scheduled.compareAndSet(false, true)) {
-                runnableList.add(group);
-            }
+            addToRunnableList(item, group);
         }
+    }
+
+    private void addToRunnableList(SchedulerItem item, ItemGroup group) {
+        group.lock();
+        group.add(item);
+        // Group maybe not picked by any thread at the moment because,
+        //  1) All items are blocked.
+        //  2) All others have finished
+        // In this case we need to put it back in the runnable list.
+        if (group.scheduled.compareAndSet(false, true)) {
+            runnableList.add(group);
+        }
+        group.unlock();
     }
 
     public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
                                     Type constraint, String name, StrandMetadata metadata) {
-        Strand newStrand = new Strand(name, metadata, this, parent, properties);
-        return createFuture(parent, callback, constraint, newStrand);
-    }
-
-    public FutureValue createTransactionalFuture(Strand parent, Callback callback, Map<String, Object> properties,
-                                    Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
                 parent.currentTrxContext : null);
+        currentStrands.put(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
     private FutureValue createFuture(Strand parent, Callback callback, Type constraint, Strand newStrand) {
         FutureValue future = new FutureValue(newStrand, callback, constraint);
-        future.strand.frames = new Object[100];
+        future.strand.frames = new Stack<>();
         return future;
     }
 
@@ -536,8 +535,8 @@ public class Scheduler {
         return listenerDeclarationFound;
     }
 
-    public ListenerRegistry getListenerRegistry() {
-        return listenerRegistry;
+    public RuntimeRegistry getRuntimeRegistry() {
+        return runtimeRegistry;
     }
 
     private static int getPoolSize() {
@@ -553,112 +552,9 @@ public class Scheduler {
         return poolSize;
     }
 
-    /**
-     * The registry for runtime dynamic listeners.
-     */
-    public class ListenerRegistry {
-        private final Set<BObject> listenerSet = new HashSet<>();
-
-        public synchronized void registerListener(BObject listener) {
-            listenerSet.add(listener);
-            setImmortal(true);
+    public void gracefulExit() {
+        if (!this.immortal) {
+            this.poison();
         }
-
-        public synchronized void deregisterListener(BObject listener) {
-            listenerSet.remove(listener);
-            if (!isListenerDeclarationFound() && listenerSet.isEmpty()) {
-                setImmortal(false);
-            }
-        }
-
-        public synchronized void stopListeners(Strand strand) {
-            for (BObject listener : listenerSet) {
-                listener.call(strand, "gracefulStop");
-            }
-        }
-    }
-}
-
-/**
- * Represent an executable item in Scheduler.
- *
- * @since 0.995.0
- */
-class SchedulerItem {
-    private Function function;
-    private Object[] params;
-    final FutureValue future;
-    boolean parked;
-
-    public SchedulerItem(Function function, Object[] params, FutureValue future) {
-        this.future = future;
-        this.function = function;
-        this.params = params;
-    }
-
-    @Deprecated
-    public SchedulerItem(Consumer consumer, Object[] params, FutureValue future) {
-        this.future = future;
-        this.function = val -> {
-            consumer.accept(val);
-            return null;
-        };
-        this.params = params;
-    }
-
-    public Object execute() {
-        return this.function.apply(this.params);
-    }
-
-    public boolean isYielded() {
-        return this.future.strand.isYielded();
-    }
-
-    public State getState() {
-        return this.future.strand.getState();
-    }
-
-    public void setState(State state) {
-        this.future.strand.setState(state);
-    }
-
-    @Override
-    public String toString() {
-        return future == null ? "POISON_PILL" : String.valueOf(future.strand.hashCode());
-    }
-}
-
-/**
- * Represents a group of {@link SchedulerItem} that should run on same thread.
- */
-class ItemGroup {
-
-    /**
-     * Keep the list of items that should run on same thread.
-     * Using a stack to get advantage of the locality.
-     */
-    Stack<SchedulerItem> items = new Stack<>();
-
-    /**
-     * Indicates this item is already in runnable list/executing or not.
-     */
-    AtomicBoolean scheduled = new AtomicBoolean(false);
-
-    public static final ItemGroup POISON_PILL = new ItemGroup();
-
-    public ItemGroup(SchedulerItem item) {
-        items.push(item);
-    }
-
-    private ItemGroup() {
-        items = null;
-    }
-
-    public void add(SchedulerItem item) {
-        items.push(item);
-    }
-
-    public SchedulerItem get() {
-        return items.pop();
     }
 }

@@ -941,11 +941,6 @@ function testCompoundAssignmentBitwiseLeftShift() {
     x5 <<= a4;
     assertEqual(x5, 0x4000000000000000);
 
-    SixtiesConst a5 = 63;
-    int x6 = 1;
-    x6 <<= a5;
-    assertEqual(x6, -0x8000000000000000);
-
     CAI|CAD a7 = 64;
     int x7 = 1;
     x7 <<= a7;
@@ -1041,7 +1036,7 @@ type PanicIndex PANIC_ARITHMETIC_OVERFLOW|PANIC_TYPE_CAST|PANIC_INDEX_OUT_OF_BOU
 
 type Numbers 12|25;
 
-const NEG_THIRTY_TWO = -32;
+const int NEG_THIRTY_TWO = -32;
 const INT_VAL = 25;
 
 function testCompoundAssignmentBitwiseANDOperation() {
@@ -1142,8 +1137,8 @@ function testCompoundAssignmentBitwiseOROperation() {
     a7 |= b;
     assertEqual(a7, 13);
 
-    int:Unsigned32 a8 = 5;
-    int:Unsigned16 a9 = 12;
+    int:Unsigned16 a8 = 5;
+    int:Unsigned32 a9 = 12;
     a9 |= a8;
     assertEqual(a9, 13);
 }
@@ -1190,8 +1185,8 @@ function testCompoundAssignmentBitwiseXOROperation() {
     a9 ^= d;
     assertEqual(a9, 9);
 
-    int:Unsigned32 e = 5;
-    int:Unsigned16 a10 = 12;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 a10 = 12;
     a10 ^= e;
     assertEqual(a10, 9);
 

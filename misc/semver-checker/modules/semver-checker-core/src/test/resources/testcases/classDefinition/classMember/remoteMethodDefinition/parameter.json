@@ -1,0 +1,305 @@
+[
+  {
+    "description": "Change a parameter type in a function",
+    "oldCode": "public class Employee{\nremote function add(int x, int y){}\n}",
+    "newCode": "public class Employee{\nremote function add(int x , string y){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "ambiguous",
+                      "message": "type of parameter 'y' is changed from 'int' to 'string'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change a parameter in a function",
+    "oldCode": "public class Employee{\nremote function add(int x, int y){}\n}",
+    "newCode": "public class Employee{\nremote function add(int x , string z){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "major",
+                      "message": "new required parameter 'z' is added"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "major",
+                      "message": "required parameter 'y' is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove a parameter in a function",
+    "oldCode": "public class Employee{\nremote function add(int x, int y){}\n}",
+    "newCode": "public class Employee{\nremote function add(int x ){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "major",
+                      "message": "required parameter 'y' is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add a new parameter to the function",
+    "oldCode": "public class Employee{\nremote function add(int x, int y){}\n}",
+    "newCode": "public class Employee{\nremote function add(int x , int y , int z){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "major",
+                      "message": "new required parameter 'z' is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the order of a parameter in function",
+    "oldCode": "public class Employee{\nremote function add(int x, string y){}\n}",
+    "newCode": "public class Employee{\nremote function add(string y, int x){}\n}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add a default value for a required parameter in function",
+    "oldCode": "public class Employee{\nremote function add(int x){}\n}",
+    "newCode": "public class Employee{\nremote function add( int x =  7){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "minor",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "minor",
+                      "message": "kind of parameter 'x' is changed from 'REQUIRED_PARAM' to 'DEFAULTABLE_PARAM'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the default value parameter as a required parameter in function",
+    "oldCode": "public class Employee{\nremote function add( int y = 7){}\n}",
+    "newCode": "public class Employee{\nremote function add(int y){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "major",
+                      "message": "kind of parameter 'y' is changed from 'DEFAULTABLE_PARAM' to 'REQUIRED_PARAM'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the default value parameter to another default value in function",
+    "oldCode": "public class Employee{\nremote function add(int y = 7){}\n}",
+    "newCode": "public class Employee{\nremote function add(int y = 5){}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "minor",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "minor",
+                      "message": "default value of parameter 'Optional[y ]' is changed from '7' to '5'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add parameter annotation to a function.",
+    "oldCode": "public class Employee{\nremote function secureFunction(string name){}\n}",
+    "newCode": "public class Employee{\nremote function secureFunction(@untainted string name){}\n}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove parameter annotation to a function.",
+    "oldCode": "public class Employee{\nremote function secureFunction(@untainted string name){}\n}",
+    "newCode": "public class Employee{\nremote function secureFunction(string name){}\n}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Modify parameter annotation in a function.",
+    "oldCode": "public class Employee{\nremote function secureFunction(@untainted string name){}\n}",
+    "newCode": "public class Employee{\nremote function secureFunction(@tainted string name){}\n}",
+    "expectedOutput": {}
+  }
+]

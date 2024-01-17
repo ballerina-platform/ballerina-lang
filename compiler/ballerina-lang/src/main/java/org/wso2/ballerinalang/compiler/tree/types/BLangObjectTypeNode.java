@@ -17,21 +17,20 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.ObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 /**
- * {@code BLangObjectTypeNode} represents a object type node in Ballerina.
+ * {@code BLangObjectTypeNode} represents an object type node in Ballerina.
  * <p>
  * e.g. object { public { int a; } private { string name; }};
  *
@@ -39,16 +38,17 @@ import java.util.Set;
  */
 public class BLangObjectTypeNode extends BLangStructureTypeNode implements ObjectTypeNode {
 
+    // BLangNodes
     public List<BLangFunction> functions;
     public BLangFunction initFunction;
-    public BLangFunction generatedInitFunction;
-    public BLangSimpleVariable receiver;
-
-    public Set<Flag> flagSet;
 
     public BLangObjectTypeNode() {
         this.functions = new ArrayList<>();
-        this.flagSet = EnumSet.noneOf(Flag.class);
+    }
+
+    // This ctor is used in node cloner. Fields being set in node cloner are not initialized here
+    public BLangObjectTypeNode(int includedFieldCount) {
+        super(includedFieldCount);
     }
 
     @Override
@@ -69,6 +69,16 @@ public class BLangObjectTypeNode extends BLangStructureTypeNode implements Objec
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

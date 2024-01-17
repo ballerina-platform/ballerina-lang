@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.XmlComment;
 import io.ballerina.runtime.internal.values.XmlItem;
@@ -65,7 +64,13 @@ import static io.ballerina.runtime.internal.values.XmlItem.createXMLItemWithDefa
  * @since 0.995.0
  */
 public class XmlFactory {
+
     public static final StAXParserConfiguration STAX_PARSER_CONFIGURATION = StAXParserConfiguration.STANDALONE;
+    public static final String PARSE_ERROR = "failed to parse xml";
+    public static final String PARSE_ERROR_PREFIX = PARSE_ERROR + ": ";
+
+    private XmlFactory() {}
+
     /**
      * Create a XML item from string literal.
      *
@@ -77,18 +82,23 @@ public class XmlFactory {
             if (xmlStr.isEmpty()) {
                 return new XmlSequence();
             }
-
             XmlTreeBuilder treeBuilder = new XmlTreeBuilder(xmlStr);
             return treeBuilder.parse();
         } catch (BError e) {
             throw e;
         } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString(("failed to parse xml: " + e.getMessage())));
+            String errorMessage = e.getMessage();
+            if (errorMessage == null) {
+                BError bError = ErrorCreator.createError(StringUtils.fromString(PARSE_ERROR));
+                bError.setStackTrace(e.getStackTrace());
+                throw bError;
+            }
+            throw ErrorCreator.createError(StringUtils.fromString(PARSE_ERROR_PREFIX + errorMessage));
         }
     }
 
     /**
-     * Create a XML sequence from string inputstream.
+     * Create a XML sequence from string input stream.
      *
      * @param xmlStream XML input stream
      * @return XML Sequence
@@ -97,17 +107,19 @@ public class XmlFactory {
         try {
             XmlTreeBuilder treeBuilder = new XmlTreeBuilder(new InputStreamReader(xmlStream));
             return treeBuilder.parse();
+        } catch (BError e) {
+            throw e;
         } catch (DeferredParsingException e) {
-            throw ErrorCreator.createError(StringUtils.fromString((e.getCause().getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString(e.getCause().getMessage()));
         } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString(("failed to create xml: " + e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString(PARSE_ERROR_PREFIX + e.getMessage()));
         }
     }
 
     /**
-     * Create a XML sequence from string inputstream with a given charset.
+     * Create a XML sequence from string input stream with a given charset.
      *
-     * @param xmlStream XML imput stream
+     * @param xmlStream XML input stream
      * @param charset Charset to be used for parsing
      * @return XML Sequence
      */
@@ -115,10 +127,12 @@ public class XmlFactory {
         try {
             XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(new InputStreamReader(xmlStream, charset));
             return xmlTreeBuilder.parse();
+        } catch (BError e) {
+            throw e;
         } catch (DeferredParsingException e) {
-            throw ErrorCreator.createError(StringUtils.fromString((e.getCause().getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString(e.getCause().getMessage()));
         } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString(("failed to create xml: " + e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString(PARSE_ERROR_PREFIX + e.getMessage()));
         }
     }
 
@@ -132,10 +146,12 @@ public class XmlFactory {
         try {
             XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(reader);
             return xmlTreeBuilder.parse();
+        } catch (BError e) {
+            throw e;
         } catch (DeferredParsingException e) {
             throw ErrorCreator.createError(StringUtils.fromString(e.getCause().getMessage()));
         } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString("failed to create xml: " + e.getMessage()));
+            throw ErrorCreator.createError(StringUtils.fromString(PARSE_ERROR_PREFIX + e.getMessage()));
         }
     }
 
@@ -172,7 +188,7 @@ public class XmlFactory {
                     if (firsOfRightSeq.getNodeType() == XmlNodeType.TEXT) {
                         concatenatedList.remove(lastIndexOFLeftChildren); // remove last item, from already copied list
                         concatenatedList.addAll(rightChildren);
-                        String merged = ((XmlText) lastItem).getTextValue() + ((XmlText) firsOfRightSeq).getTextValue();
+                        String merged = lastItem.getTextValue() + firsOfRightSeq.getTextValue();
                         concatenatedList.set(lastIndexOFLeftChildren, new XmlText(merged));
                         return new XmlSequence(concatenatedList);
                     }
@@ -211,7 +227,7 @@ public class XmlFactory {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
             return parse(inputStream);
         } catch (IOException | XMLStreamException e) {
-            throw new BallerinaException(e);
+            throw ErrorCreator.createError(e);
         }
     }
 
@@ -229,8 +245,8 @@ public class XmlFactory {
                 !isEqual(startTagName.getUri(), endTagName.getUri()) ||
                 !isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
             throw ErrorCreator
-                    .createError(StringUtils.fromString(("start and end tag names mismatch: '" + startTagName + "' " +
-                            "and '" + endTagName + "'")));
+                    .createError(StringUtils.fromString("start and end tag names mismatch: '" + startTagName + "' " +
+                            "and '" + endTagName + "'"));
         }
         return createXMLElement(startTagName, defaultNsUri);
     }
@@ -396,24 +412,24 @@ public class XmlFactory {
     /**
      * Create a processing instruction type XMLValue.
      *
-     * @param tartget PI target
+     * @param target PI target
      * @param data    PI data
      * @return XMLValue Processing instruction type XMLValue
      */
     @Deprecated
-    public static XmlValue createXMLProcessingInstruction(String tartget, String data) {
-        return new XmlPi(data, tartget);
+    public static XmlValue createXMLProcessingInstruction(String target, String data) {
+        return new XmlPi(data, target);
     }
 
     /**
      * Create a processing instruction type XMLValue.
      *
-     * @param tartget PI target
+     * @param target PI target
      * @param data    PI data
      * @return XMLValue Processing instruction type XMLValue
      */
-    public static XmlValue createXMLProcessingInstruction(BString tartget, BString data) {
-        return createXMLProcessingInstruction(tartget.getValue(), data.getValue());
+    public static XmlValue createXMLProcessingInstruction(BString target, BString data) {
+        return createXMLProcessingInstruction(target.getValue(), data.getValue());
     }
 
     /**
@@ -491,6 +507,9 @@ public class XmlFactory {
      * @since 1.2
      */
     public static class XMLTextUnescape {
+
+        private XMLTextUnescape() {}
+
         public static String unescape(String str) {
             return unescape(str.getBytes(StandardCharsets.UTF_8));
         }

@@ -62,10 +62,10 @@ public class BindingsGenerator {
     private String mvnGroupId;
     private String mvnArtifactId;
     private String mvnVersion;
-    private PrintStream errStream;
-    private PrintStream outStream;
+    private final PrintStream errStream;
+    private final PrintStream outStream;
     private Set<String> classNames = new HashSet<>();
-    private Path userDir = Paths.get(System.getProperty(USER_DIR));
+    private final Path userDir = Paths.get(System.getProperty(USER_DIR));
 
     BindingsGenerator(PrintStream out, PrintStream err) {
         this.outStream = out;
@@ -74,14 +74,16 @@ public class BindingsGenerator {
     }
 
     void generateJavaBindings() throws BindgenException {
+        outStream.println("\nResolving maven dependencies...");
         // Resolve existing platform.libraries specified in the Ballerina.toml
-        resolvePlatformLibraries();
+        JvmTarget parentJvmTarget = getParentDependencyJvmTarget();
+        resolvePlatformLibraries(parentJvmTarget);
 
         // Resolve the maven dependency received through the tool and update the Ballerina.toml file
         // with the direct and transitive platform.libraries
         if ((mvnGroupId != null) && (mvnArtifactId != null) && (mvnVersion != null)) {
             new BindgenMvnResolver(outStream, env).mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion,
-                    env.getProjectRoot(), true);
+                    env.getProjectRoot(), true, parentJvmTarget);
         }
 
         ClassLoader classLoader = setClassLoader();
@@ -95,7 +97,9 @@ public class BindingsGenerator {
             // Generate bindings for super classes of directly specified Java classes.
             if (!env.getSuperClasses().isEmpty()) {
                 env.setAllJavaClasses(env.getSuperClasses());
-                generateBindings(env.getSuperClasses(), classLoader, modulePath);
+                // Remove the explicitly generated classes from the list of super classes.
+                env.getSuperClasses().removeAll(classNames);
+                generateBindings(new HashSet<>(env.getSuperClasses()), classLoader, modulePath);
             }
 
             // Generate bindings for dependent Java classes.
@@ -137,33 +141,60 @@ public class BindingsGenerator {
         }
     }
 
-    private void resolvePlatformLibraries() throws BindgenException {
+    private void resolvePlatformLibraries(JvmTarget parentJvmTarget) throws BindgenException {
         if (env.getProjectRoot() != null) {
             TomlDocument tomlDocument = env.getTomlDocument();
-            PackageManifest.Platform platform = getPackagePlatform(tomlDocument);
-            if (platform != null && platform.dependencies() != null) {
-                for (Map<String, Object> library : platform.dependencies()) {
-                    if (library.get("path") != null) {
-                        handlePathDependency(library.get("path").toString());
-                    } else if (library.get("groupId") != null && library.get("artifactId") != null &&
-                            library.get("version") != null) {
-                        resolveMvnDependency(library.get("groupId").toString(),
-                                library.get("artifactId").toString(), library.get("version").toString());
+            if (tomlDocument == null) {
+                return;
+            }
+            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null,
+                    env.getProjectRoot()).packageManifest();
+            if (packageManifest == null) {
+                return;
+            }
+            for (JvmTarget jvmTarget : JvmTarget.values()) {
+                PackageManifest.Platform platform = packageManifest.platform(jvmTarget.code());
+                if (platform != null && platform.dependencies() != null) {
+                    for (Map<String, Object> library : platform.dependencies()) {
+                        if (library.get("path") != null) {
+                            handlePathDependency(library.get("path").toString());
+                        } else if (library.get("groupId") != null && library.get("artifactId") != null &&
+                                library.get("version") != null) {
+                            resolveMvnDependency(library.get("groupId").toString(),
+                                    library.get("artifactId").toString(), library.get("version").toString(),
+                                    parentJvmTarget);
+                        }
                     }
                 }
             }
         }
     }
 
-    private PackageManifest.Platform getPackagePlatform(TomlDocument tomlDocument) {
-        if (tomlDocument != null) {
-            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null,
-                    env.getProjectRoot()).packageManifest();
-            if (packageManifest != null) {
-                return packageManifest.platform(JvmTarget.JAVA_11.code());
+    private JvmTarget getParentDependencyJvmTarget() {
+        JvmTarget jvmTarget = JvmTarget.JAVA_17;
+        TomlDocument tomlDocument = env.getTomlDocument();
+        if (tomlDocument == null) {
+            return jvmTarget;
+        }
+        PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null,
+                env.getProjectRoot()).packageManifest();
+        if (packageManifest == null) {
+            return jvmTarget;
+        }
+        for (JvmTarget target : JvmTarget.values()) {
+            PackageManifest.Platform platform = packageManifest.platform(target.code());
+            if (platform == null || platform.dependencies() == null) {
+                continue;
+            }
+            for (Map<String, Object> library : platform.dependencies()) {
+                if (library.get("groupId") != null && library.get("groupId").equals(mvnGroupId) &&
+                        library.get("artifactId") != null && library.get("artifactId").equals(mvnArtifactId) &&
+                        library.get("version") != null && library.get("version").equals(mvnVersion)) {
+                    return target;
+                }
             }
         }
-        return null;
+        return jvmTarget;
     }
 
     private void handlePathDependency(String libPath) {
@@ -176,10 +207,11 @@ public class BindingsGenerator {
         env.addClasspath(libraryPath.toString());
     }
 
-    private void resolveMvnDependency(String mvnGroupId, String mvnArtifactId, String mvnVersion)
+    private void resolveMvnDependency(String mvnGroupId, String mvnArtifactId, String mvnVersion,
+                                      JvmTarget parentJvmTarget)
             throws BindgenException {
         new BindgenMvnResolver(outStream, env).mavenResolver(mvnGroupId, mvnArtifactId, mvnVersion,
-                env.getProjectRoot(), false);
+                env.getProjectRoot(), false, parentJvmTarget);
     }
 
     private ClassLoader setClassLoader() throws BindgenException {
@@ -266,7 +298,7 @@ public class BindingsGenerator {
                         }
                         // Prevent the overwriting of existing class implementations with partially generated classes.
                         if (Files.exists(filePath) && !env.isDirectJavaClass()) {
-                            return;
+                            continue;
                         }
                         outputSyntaxTreeFile(jClass, env, filePath.toString(), false);
                         outStream.println("\t" + c);
@@ -301,5 +333,17 @@ public class BindingsGenerator {
 
     void setProject(Project project) {
         this.env.setProject(project);
+    }
+
+    public void setOptionalTypesFlag() {
+        this.env.setOptionalTypesFlag(true);
+    }
+
+    public void setOptionalParamTypesFlag() {
+        this.env.setOptionalParamTypesFlag(true);
+    }
+
+    public void setOptionalReturnTypesFlag() {
+        this.env.setOptionalReturnTypesFlag(true);
     }
 }

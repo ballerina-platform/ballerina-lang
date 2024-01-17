@@ -1,0 +1,155 @@
+name: CI Full Build Ubuntu
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-lang:
+    name: Build Ballerina Lang
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    concurrency:
+      group: ${{ github.head_ref }}-FBP-lang
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17.0.7'
+
+      - name: Checkout To Lang Branch
+        run: |
+          git checkout ${{ github.event.inputs.ballerina_lang_branch }}
+
+      - name: Get Lang Version
+        id: lang-version
+        run: |
+          VERSION=$((grep -w "version" | cut -d= -f2) < gradle.properties)
+          echo "::set-output name=version::$VERSION"
+
+      - name: Build ballerina-lang
+        run: |
+          ./gradlew clean build -x check publishToMavenLocal --stacktrace --scan
+
+      - name: Archive Lang Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Ballerina Lang Artifacts
+          path: ~/.m2/
+
+    outputs:
+      lang_version: ${{ steps.lang-version.outputs.version }}
+
+  build-stdlib-level:
+    needs: build-lang
+    name: Build Stdlib Level
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    concurrency:
+      group: ${{ github.head_ref }}-FBP-stdlib-${{ matrix.level }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        level: [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17.0.7'
+
+      - name: Setup NodeJs
+        uses: actions/setup-node@v3
+        with:
+          node-version: 10.22.1
+      - name: Download Ballerina Lang Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: Ballerina Lang Artifacts
+          path: ~/.m2/
+
+      - name: Download Module Data
+        run: |
+          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-release/master/dependabot/resources/extensions.json
+          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-distribution/2201.0.x/gradle.properties
+
+      - name: Clone Modules
+        run: |
+          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
+          do git clone https://github.com/ballerina-platform/${module_name}.git; \
+          done
+
+#      - name: Checkout non-default branch
+#        run: |
+#          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
+#          cd $module_name && git fetch origin && git checkout -t origin/java_17_migration && cd ..; \
+#          done
+
+      - name: Update Lang Version in Module
+        run: |
+          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
+          perl -pi -e "s/^\s*ballerinaLangVersion=.*/ballerinaLangVersion=${{ needs.build-lang.outputs.lang_version }}/" ${module_name}/gradle.properties; \
+          done
+
+      - name: Build Module
+        run: |
+          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
+          echo "Building Standard Library: $module_name" && \
+          cd $module_name && ./gradlew clean build --stacktrace --scan && cd ..; \
+          done
+        env:
+          packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          packagePAT: ${{ secrets.GITHUB_TOKEN }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+
+  build-distribution:
+    needs: build-lang
+    name: Build Ballerina Distribution
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    concurrency:
+      group: ${{ github.head_ref }}-FBP-distribution
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          repository: 'ballerina-platform/ballerina-distribution'
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17.0.7'
+
+      - name: Download Ballerina Lang Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: Ballerina Lang Artifacts
+          path: ~/.m2/
+
+      - name: Update Lang Version in Module
+        run: |
+          perl -pi -e "s/^\s*ballerinaLangVersion=.*/ballerinaLangVersion=${{ needs.build-lang.outputs.lang_version }}/" gradle.properties
+
+      - name: Build Module
+        run: ./gradlew clean build --stacktrace --scan --console=plain --no-daemon --continue -x :project-api-tests:test
+        env:
+          packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          packagePAT: ${{ secrets.GITHUB_TOKEN }}
+          devCentralToken: ${{ secrets.BALLERINA_DEV_CENTRAL_ACCESS_TOKEN }}

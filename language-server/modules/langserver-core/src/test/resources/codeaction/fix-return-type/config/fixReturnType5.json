@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 30,
+    "character": 15
+  },
+  "source": "fixReturnType.bal",
+  "expected": [
+    {
+      "title": "Change return type to \u0027string|error\u0027",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 26,
+              "character": 55
+            },
+            "end": {
+              "line": 26,
+              "character": 60
+            }
+          },
+          "newText": "string|error"
+        }
+      ]
+    }
+  ]
+}

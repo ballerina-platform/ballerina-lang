@@ -45,12 +45,11 @@ function testBasicDataTypeMaps() {
     rJson["b"] = {"baz": "qux"};
     assert(<record {| json...; |}>{"a": {"foo": "bar"}, "b": {"baz": "qux"}}, rJson);
 
-    // TODO: disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/22276
-    //map<xml> mXml = {"a": xml `<book>The Lost World</book>`};
-    //record {| xml...; |} rXml = mXml;
-    //rXml["b"] = xml `<book>Sherlock Holmes</book>`;
-    //assert(<record {| xml...; |}>{"a": xml `<book>The Lost World</book>`, "b": xml `<book>Sherlock Holmes</book>`},
-    //       rXml);
+    map<xml> mXml = {"a": xml `<book>The Lost World</book>`};
+    record {| xml...; |} rXml = mXml;
+    rXml["b"] = xml `<book>Sherlock Holmes</book>`;
+    assert(<record {| xml...; |}>{"a": xml `<book>The Lost World</book>`, "b": xml `<book>Sherlock Holmes</book>`},
+           rXml);
 }
 
 function testInclusiveRecordTypes() {
@@ -84,12 +83,11 @@ function testInclusiveRecordTypes() {
     rJson["b"] = <json>{"baz": "qux"};
     assert(<record {}>{"a": {"foo": "bar"}, "b": {"baz": "qux"}}, rJson);
 
-    // TODO: disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/22276
-    //map<xml> mXml = {"a": xml `<book>The Lost World</book>`};
-    //record {} rXml = mXml;
-    //rXml["b"] = xml `<book>Sherlock Holmes</book>`;
-    //assert(<record {}>{"a": xml `<book>The Lost World</book>`, "b": xml `<book>Sherlock Holmes</book>`},
-    //       rXml);
+    map<xml> mXml = {"a": xml `<book>The Lost World</book>`};
+    record {} rXml = mXml;
+    rXml["b"] = xml `<book>Sherlock Holmes</book>`;
+    assert(<record {}>{"a": xml `<book>The Lost World</book>`, "b": xml `<book>Sherlock Holmes</book>`},
+           rXml);
 }
 
 function testInherentTypeViolationInInclusiveRecords() {

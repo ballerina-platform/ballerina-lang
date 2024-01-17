@@ -61,4 +61,9 @@ public class JlineTerminalAdapter extends TerminalAdapter {
         lineReader.getTerminal().writer().println(text);
         lineReader.getTerminal().writer().flush();
     }
+
+    @Override
+    public String readOneLine(String prompt) {
+        return lineReader.readLine(prompt);
+    }
 }

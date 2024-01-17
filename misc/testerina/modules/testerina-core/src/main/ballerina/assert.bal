@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jballerina.java;
-
 const string assertFailureErrorCategory = "assert-failure";
 const string arraysNotEqualMessage = "Arrays are not equal";
 const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
@@ -39,9 +37,8 @@ type AssertError record {
 # + category - Error category
 #
 # + return - An AssertError with custom message and category
-public isolated function createBallerinaError(string errorMessage, string category) returns error {
-    error e = error(errorMessage);
-    return e;
+public isolated function createBallerinaError(string errorMessage, string category) returns TestError {
+    return error(errorMessage);
 }
 
 # Asserts whether the given condition is true. If it is not, a AssertError is thrown with the given errorMessage.
@@ -106,7 +103,7 @@ public isolated function assertFalse(boolean condition, string msg = "Assertion 
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public isolated function assertEquals(anydata|error actual, anydata expected, string msg = "Assertion Failed!") {
+public isolated function assertEquals(any|error actual, anydata expected, string msg = "Assertion Failed!") {
     if (actual is error || actual != expected) {
         string errorMsg = getInequalityErrorMsg(actual, expected, msg);
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
@@ -133,10 +130,9 @@ public isolated function assertEquals(anydata|error actual, anydata expected, st
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public isolated function assertNotEquals(anydata actual, anydata expected, string msg = "Assertion Failed!") {
+public isolated function assertNotEquals(any actual, anydata expected, string msg = "Assertion Failed!") {
     if (actual == expected) {
         string expectedStr = sprintf("%s", expected);
-        string actualStr = sprintf("%s", actual);
         string errorMsg = string `${msg}: expected the actual value not to be '${expectedStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
@@ -204,7 +200,6 @@ public isolated function assertNotExactEquals(any|error actual, any|error expect
     boolean isEqual = (actual === expected);
     if (isEqual) {
         string expectedStr = sprintf("%s", expected);
-        string actualStr = sprintf("%s", actual);
         string errorMsg = string `${msg}: expected the actual value not to be '${expectedStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
@@ -232,7 +227,8 @@ public isolated function assertNotExactEquals(any|error actual, any|error expect
 # ```
 #
 # + msg - Assertion error message
-public isolated function assertFail(string msg = "Test Failed!") {
+# + return - never returns a value
+public isolated function assertFail(string msg = "Test Failed!") returns never {
     panic createBallerinaError(msg, assertFailureErrorCategory);
 }
 
@@ -361,9 +357,7 @@ isolated function getValueComparison(anydata actual, anydata expected, string ke
 
 isolated function compareMapValues(map<anydata> actualMap, map<anydata> expectedMap) returns @tainted string {
     string diff = "";
-    map<string> comparisonMap = {};
     string[] actualKeyArray = actualMap.keys();
-    string[] expectedKeyArray = expectedMap.keys();
     int count = 0;
     foreach string keyVal in actualKeyArray {
         if (expectedMap.hasKey(keyVal)) {
@@ -384,24 +378,3 @@ isolated function compareMapValues(map<anydata> actualMap, map<anydata> expected
     }
     return diff;
 }
-
-isolated function sprintf(string format, (any|error)... args) returns string = @java:Method {
-    name : "sprintf",
-    'class : "org.ballerinalang.testerina.natives.io.Sprintf"
-} external;
-
-isolated function getBallerinaType((any|error) value) returns string = @java:Method {
-    name : "getBallerinaType",
-    'class : "org.ballerinalang.testerina.core.BallerinaTypeCheck"
-} external;
-
-isolated function getStringDiff(string actual, string expected) returns string = @java:Method {
-     name : "getStringDiff",
-     'class : "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
- } external;
-
-
-isolated function getKeysDiff(string[] actualKeys, string[] expectedKeys) returns string = @java:Method {
-    name: "getKeysDiff",
-    'class: "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
-} external;

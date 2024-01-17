@@ -42,3 +42,12 @@ service / on new http:Listener(8080) {
         return "Hello, " + name;
     }
 }
+
+@MyAnnot
+annotation varAnnotation;
+
+# Description
+public const annotation Data MyAnnot;
+
+# Description
+public type Data record {};

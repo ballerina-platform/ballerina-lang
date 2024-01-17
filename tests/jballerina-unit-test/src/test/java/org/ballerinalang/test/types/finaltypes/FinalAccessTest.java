@@ -17,9 +17,8 @@
  */
 package org.ballerinalang.test.types.finaltypes;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -57,104 +56,116 @@ public class FinalAccessTest {
         BAssertUtil.validateError(compileResultNegative, 5, "cannot assign a value to function argument 'j'", 25, 5);
         BAssertUtil.validateError(compileResultNegative, 6, "cannot assign a value to function argument 'a'", 38, 5);
         BAssertUtil.validateError(compileResultNegative, 7, "invalid assignment: 'listener' declaration is final",
-                                  45, 5);
+                45, 5);
     }
 
     @Test
     public void testFinalVariableNegative() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/types/finaltypes/test_final_var_negative.bal");
         int i = 0;
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'v1'", 20, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'globalFinalInt'", 21, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'name'", 25, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 26, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'name'", 30, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 31, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'name'", 35, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 36, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'name'", 40, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'name'", 41, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'i'", 52, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 's'", 54, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 's'", 63, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'i'", 67, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to potentially initialized final 'i'",
-                                  75, 5);
-        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 's'", 82, 5);
+                75, 5);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 's'", 77, 5);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to potentially initialized final 's'",
+                82, 5);
         BAssertUtil.validateError(resultNegative, i++, "variable 'i' may not have been initialized", 94, 13);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 't'", 101, 5);
+        BAssertUtil.validateError(resultNegative, i++, "variable 's' may not have been initialized", 101, 16);
 
-        Assert.assertEquals(resultNegative.getErrorCount(), i);
+        Assert.assertEquals(resultNegative.getErrorCount(), i - 9);
+        Assert.assertEquals(resultNegative.getWarnCount(), 9);
     }
 
     @Test(description = "Test final global variable")
     public void testFinalAccess() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFinalAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testFinalAccess");
 
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 10L);
 
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 100);
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), 100L);
 
-        Assert.assertTrue(returns[2] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 10);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        Assert.assertEquals(returns.get(2), 10L);
 
-        Assert.assertTrue(returns[3] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 100);
+        Assert.assertTrue(returns.get(3) instanceof Long);
+        Assert.assertEquals(returns.get(3), 100L);
     }
 
     @Test(description = "Test final global variable")
     public void testFinalStringAccess() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFinalStringAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testFinalStringAccess");
 
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((returns[0]).stringValue(), "hello");
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals((returns.get(0)).toString(), "hello");
 
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals((returns[1]).stringValue(), "world");
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals((returns.get(1)).toString(), "world");
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals((returns[2]).stringValue(), "hello");
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals((returns.get(2)).toString(), "hello");
 
-        Assert.assertTrue(returns[3] instanceof BString);
-        Assert.assertEquals((returns[3]).stringValue(), "world");
+        Assert.assertTrue(returns.get(3) instanceof BString);
+        Assert.assertEquals((returns.get(3)).toString(), "world");
     }
 
     @Test(description = "Test final global variable as a parameter")
     public void testFinalFieldAsParameter() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFinalFieldAsParameter");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object returns = BRunUtil.invoke(compileResult, "testFinalFieldAsParameter");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 10L);
     }
 
     @Test(description = "Test final parameter")
     public void testFieldAsFinalParameter() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFieldAsFinalParameter");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+        Object returns = BRunUtil.invoke(compileResult, "testFieldAsFinalParameter");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 50L);
     }
 
     @Test(description = "Test final local variable with type")
     public void testLocalFinalValueWithType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLocalFinalValueWithType");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+        Object returns = BRunUtil.invoke(compileResult, "testLocalFinalValueWithType");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test(description = "Test final local variable without type")
     public void testLocalFinalValueWithoutType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLocalFinalValueWithoutType");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+        Object returns = BRunUtil.invoke(compileResult, "testLocalFinalValueWithoutType");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test(description = "Test final local variable with type initialized from a function")
     public void testLocalFinalValueWithTypeInitializedFromFunction() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLocalFinalValueWithTypeInitializedFromFunction");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+        Object returns = BRunUtil.invoke(compileResult, "testLocalFinalValueWithTypeInitializedFromFunction");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test(description = "Test final local variable without type initialized from a function")
     public void testLocalFinalValueWithoutTypeInitializedFromFunction() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLocalFinalValueWithoutTypeInitializedFromFunction");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+        Object returns = BRunUtil.invoke(compileResult, "testLocalFinalValueWithoutTypeInitializedFromFunction");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test(dataProvider = "finalLocalNoInitVarTests")

@@ -20,6 +20,8 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.AnnotatableType;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -27,6 +29,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
@@ -39,6 +42,7 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.BmpStringValue;
@@ -48,6 +52,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
+import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -146,6 +151,12 @@ public class VariableReturnType {
         return map;
     }
 
+    public static BStream getStreamOfRecords(ObjectValue objectValue, BStream strm, BTypedesc typedesc) {
+        RecordType streamConstraint = (RecordType) typedesc.getDescribingType();
+        Assert.assertSame(streamConstraint, TypeUtils.getImpliedType(strm.getConstraintType()));
+        return strm;
+    }
+
     public static ArrayValue getTuple(BTypedesc td1, BTypedesc td2, BTypedesc td3) {
         List<Type> memTypes = new ArrayList<>();
         memTypes.add(td1.getDescribingType());
@@ -227,11 +238,12 @@ public class VariableReturnType {
     }
 
     public static BXml getXml(BTypedesc td, BXml val) {
-        if (td.getDescribingType().getTag() == XML_ELEMENT_TAG) {
+        Type describingType = TypeUtils.getImpliedType(td.getDescribingType());
+        if (describingType.getTag() == XML_ELEMENT_TAG) {
             return val;
         }
 
-        assert td.getDescribingType().getTag() == XML_COMMENT_TAG : td.getDescribingType();
+        Assert.assertEquals(describingType.getTag(), XML_COMMENT_TAG, describingType.toString());
         return val;
     }
 
@@ -242,7 +254,7 @@ public class VariableReturnType {
             return getRecord(td2);
         }
 
-        assert tag == RECORD_TYPE_TAG;
+        Assert.assertEquals(tag, RECORD_TYPE_TAG);
         return 200;
     }
 
@@ -335,6 +347,25 @@ public class VariableReturnType {
         return ErrorCreator.createError(StringUtils.fromString("Error!"), StringUtils.fromString("Union typedesc"));
     }
 
+    public static BMap<BString, Object> getAnnotationValue(BTypedesc typedesc) {
+        return ((BTypeReferenceType) typedesc.getDescribingType()).getAnnotations();
+    }
+
+    public static Object getAnnotationValue2(Object value, BTypedesc typedesc, BString annotationName, 
+                                             int min, int max) {
+        Type describingType = typedesc.getDescribingType();
+        BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
+        if (annotations.containsKey(annotationName)) {
+            Object annotValue = annotations.get(annotationName);
+            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
+            Long maxValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("maxValue"));
+            if (minValue == min && maxValue == max) {
+                return value;
+            }
+        }
+        return ErrorCreator.createError(StringUtils.fromString("Validation failed for " + annotationName + "."));
+    }
+
     public static Object clientGetWithUnion(BObject client, Object x, BTypedesc y) {
         return getWithUnion(x, y);
     }
@@ -393,6 +424,16 @@ public class VariableReturnType {
         return mediaType.length() + header.length() + i;
     }
 
+    public static Object getResource(BObject client, BArray path, BTypedesc targetType) {
+        int targetTypeTag = targetType.getDescribingType().getTag();
+        if (targetTypeTag == STRING_TAG) {
+            return StringUtils.fromString(path.toString());
+        }
+
+        Assert.assertEquals(targetTypeTag, INT_TAG);
+        return 0;
+    }
+
     public static Object getSimpleUnion(Object val, BTypedesc td) {
         if (TypeUtils.getType(val).getTag() == INT_TAG) {
             if (td.getDescribingType().getTag() == INT_TAG) {
@@ -437,18 +478,18 @@ public class VariableReturnType {
             return arr;
         }
 
-        assert td.getDescribingType().getTag() == INT_TAG;
+        Assert.assertEquals(td.getDescribingType().getTag(), INT_TAG);
         return ValueCreator.createArrayValue(new long[]{arr.getLength(), i});
     }
 
     public static Object funcReturningUnionWithBuiltInRefType(Object strm, BTypedesc td) {
-        int tag = ((BStreamType) td.getDescribingType()).getConstrainedType().getTag();
+        int tag = ((BStreamType) TypeUtils.getImpliedType(td.getDescribingType())).getConstrainedType().getTag();
 
         if (tag == INT_TAG) {
             return strm;
         }
 
-        assert tag == BYTE_TAG;
+        Assert.assertEquals(tag, BYTE_TAG);
         if (strm == null) {
             return 100L;
         }
@@ -461,22 +502,35 @@ public class VariableReturnType {
 
         Type describingType = td.getDescribingType();
         if (tag == RECORD_TYPE_TAG) {
-            assert describingType.getTag() == INT_TAG;
+            Assert.assertEquals(describingType.getTag(), INT_TAG);
             return 101L;
         }
 
         if (tag == OBJECT_TYPE_TAG) {
-            assert describingType.getTag() == ARRAY_TAG &&
-                    ((BArrayType) describingType).getElementType().getTag() == STRING_TAG;
+            Assert.assertEquals(describingType.getTag(), ARRAY_TAG);
+            Assert.assertEquals(((BArrayType) describingType).getElementType().getTag(), STRING_TAG);
             return val;
         }
 
-        assert describingType.getTag() == BOOLEAN_TAG;
+        Assert.assertEquals(describingType.getTag(), BOOLEAN_TAG);
         return !((boolean) val);
     }
 
     public static BFunctionPointer getFunctionWithAnyFunctionParamType(BFunctionPointer x, BTypedesc td) {
-        assert td.getDescribingType().getTag() == INT_TAG;
+        Assert.assertEquals(td.getDescribingType().getTag(), INT_TAG);
         return x;
+    }
+
+    public static Object functionWithInferredArgForParamOfTypeReferenceType(BTypedesc td) {
+        Type describingType = td.getDescribingType();
+
+        int tag = describingType.getTag();
+
+        if (tag == INT_TAG) {
+            return 9876L;
+        }
+
+        Assert.assertEquals(tag, STRING_TAG);
+        return StringUtils.fromString("hello!");
     }
 }

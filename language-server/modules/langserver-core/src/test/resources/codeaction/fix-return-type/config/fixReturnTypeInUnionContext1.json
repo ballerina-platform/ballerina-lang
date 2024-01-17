@@ -1,0 +1,27 @@
+{
+  "position": {
+    "line": 7,
+    "character": 12
+  },
+  "source": "fixReturnTypeInUnionContext1.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'string|int'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 24
+            },
+            "end": {
+              "line": 0,
+              "character": 27
+            }
+          },
+          "newText": "string|int"
+        }
+      ]
+    }
+  ]
+}

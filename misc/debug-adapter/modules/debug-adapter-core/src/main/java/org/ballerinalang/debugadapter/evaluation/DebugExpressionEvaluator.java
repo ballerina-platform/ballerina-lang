@@ -57,6 +57,7 @@ public class DebugExpressionEvaluator extends Evaluator {
             EvaluationImportResolver importResolver = new EvaluationImportResolver(context);
             Map<String, BImport> resolvedImports = importResolver.getAllImports();
             evaluationContext.setResolvedImports(resolvedImports);
+            evaluationContext.setExpression(expression);
             // Validates the import prefixes (qualified name references) within the expression.
             importResolver.detectUsedImports(parsedExpression);
 
@@ -65,7 +66,7 @@ public class DebugExpressionEvaluator extends Evaluator {
 
             EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder(evaluationContext);
             Evaluator evaluator = evaluatorBuilder.build(parsedExpression);
-            return new BExpressionValue(context, evaluator.evaluate().getJdiValue());
+            return evaluator.evaluate();
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {

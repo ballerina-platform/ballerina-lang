@@ -1,19 +1,19 @@
-import ballerina/io;
-import ballerina/http;
+import ballerina/iox;
+import ballerina/httpx;
 
 function testDocumentation() {
     
 }
 
-@http:ServiceConfig {
+@httpx:ServiceConfig {
     basePath: "/testDoc"
 }
-service testDocService on new http:Listener(8080) {
-    @http:ResourceConfig {
+service testDocService on new httpx:Listener(8080) {
+    @httpx:ResourceConfig {
         path: "/testDocRes"
     }
-    resource function testDocResource(http:Caller caller, http:Request request) {
-        http:Response res = new;
+    resource function testDocResource(httpx:Caller caller, httpx:Request request) {
+        httpx:Response res = new;
         checkpanic caller->respond(res);
     }
 }
@@ -29,7 +29,7 @@ type testDocObject object {
     public string testString = "hello";
 
     function testFunctionWithImpl() {
-        io:println("Hello World!!");
+        iox:println("Hello World!!");
     }
 };
 

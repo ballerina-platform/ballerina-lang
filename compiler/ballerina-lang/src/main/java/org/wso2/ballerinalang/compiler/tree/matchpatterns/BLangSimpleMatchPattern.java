@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.matchpatterns.ConstPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.SimpleMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.VarBindingPatternMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.WildCardMatchPatternNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -31,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangSimpleMatchPattern extends BLangMatchPattern implements SimpleMatchPatternNode {
 
+    // BLangNodes
     public BLangConstPattern constPattern;
     public BLangWildCardMatchPattern wildCardMatchPattern;
     public BLangVarBindingPatternMatchPattern varVariableName;
@@ -68,6 +71,16 @@ public class BLangSimpleMatchPattern extends BLangMatchPattern implements Simple
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

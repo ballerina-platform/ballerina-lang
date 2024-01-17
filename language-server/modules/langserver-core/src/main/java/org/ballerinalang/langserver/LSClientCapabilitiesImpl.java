@@ -35,6 +35,7 @@ import static org.ballerinalang.langserver.Experimental.SHOW_TEXT_DOCUMENT;
  * @since 1.2.0
  */
 public class LSClientCapabilitiesImpl implements LSClientCapabilities {
+
     private final ExperimentalClientCapabilities experimentalCapabilities;
     private final InitializationOptions initializationOptions;
     private final WorkspaceClientCapabilities workspaceCapabilities;
@@ -43,7 +44,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
     LSClientCapabilitiesImpl(TextDocumentClientCapabilities textDocCapabilities,
                              WorkspaceClientCapabilities workspaceCapabilities,
-                             Map experimentalClientCapabilities, 
+                             Map experimentalClientCapabilities,
                              Map initializationOptionsMap) {
         this.textDocCapabilities = (textDocCapabilities != null) ?
                 textDocCapabilities : new TextDocumentClientCapabilities();
@@ -56,7 +57,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         this.initializationOptions = initializationOptionsMap != null ?
                 parseInitializationOptions(initializationOptionsMap) : new InitializationOptionsImpl();
-        
+
         this.ballerinaClientCapabilities = new ArrayList<>();
     }
 
@@ -69,7 +70,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
     public ExperimentalClientCapabilities getExperimentalCapabilities() {
         return experimentalCapabilities;
     }
-    
+
     @Override
     public InitializationOptions getInitializationOptions() {
         return initializationOptions;
@@ -141,6 +142,32 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
                 Boolean.parseBoolean(String.valueOf(semanticTokensSupport));
         initializationOptions.setEnableSemanticTokens(enableSemanticTokens);
 
+        Object quickPickSupport = initOptions.get(InitializationOptions.KEY_QUICKPICK_SUPPORT);
+        boolean enableQuickPickSupport = quickPickSupport != null &&
+                Boolean.parseBoolean(String.valueOf(quickPickSupport));
+        initializationOptions.setSupportQuickPick(enableQuickPickSupport);
+
+        Object lsLightWeightMode = initOptions.get(InitializationOptions.KEY_ENABLE_LIGHTWEIGHT_MODE);
+        boolean enableLSLightWeightMode = lsLightWeightMode != null &&
+                Boolean.parseBoolean(String.valueOf(lsLightWeightMode));
+        initializationOptions.setEnableLSLightWeightMode(enableLSLightWeightMode);
+
+        
+        Object positionalRenameSupport = initOptions.get(InitializationOptions.KEY_POSITIONAL_RENAME_SUPPORT);
+        boolean enablePositionalRenameSupport = positionalRenameSupport != null && 
+                Boolean.parseBoolean(String.valueOf(positionalRenameSupport));
+        initializationOptions.setSupportPositionalRenamePopup(enablePositionalRenameSupport);
+
+        Object inlayHintsSupport = initOptions.get(InitializationOptions.KEY_ENABLE_INLAY_HINTS);
+        boolean enableInlayHintsSupport = inlayHintsSupport != null &&
+                Boolean.parseBoolean(String.valueOf(inlayHintsSupport));
+        initializationOptions.setEnableInlayHints(enableInlayHintsSupport);
+
+        Object memoryUsageMonitor = initOptions.get(InitializationOptions.KEY_ENABLE_MEMORY_USAGE_MONITOR);
+        boolean enableMemoryUsageMonitor = memoryUsageMonitor != null &&
+                Boolean.parseBoolean(String.valueOf(memoryUsageMonitor));
+        initializationOptions.setEnableMemoryUsageMonitor(enableMemoryUsageMonitor);
+
         return initializationOptions;
     }
 
@@ -148,6 +175,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
      * Represents Extended LSP capabilities.
      */
     public static class ExperimentalClientCapabilitiesImpl implements ExperimentalClientCapabilities {
+
         private boolean introspectionEnabled = false;
         private boolean showTextDocumentEnabled = false;
 
@@ -184,8 +212,14 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
      * Represents the initialization options the LS client will be sending.
      */
     public static class InitializationOptionsImpl implements InitializationOptions {
+
         private boolean supportBalaScheme = false;
         private boolean enableSemanticTokens = false;
+        private boolean supportQuickPick = false;
+        private boolean enableLSLightWeightMode = false;
+        private boolean supportPositionalRenamePopup = false;
+        private boolean enableInlayHints = false;
+        private boolean enableMemoryUsageMonitor = false;
         
         @Override
         public boolean isBalaSchemeSupported() {
@@ -202,6 +236,51 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         public void setEnableSemanticTokens(boolean enableSemanticTokens) {
             this.enableSemanticTokens = enableSemanticTokens;
+        }
+
+        @Override
+        public boolean isPositionalRefactorRenameSupported() {
+            return supportPositionalRenamePopup;
+        }
+
+        public void setSupportPositionalRenamePopup(boolean supportPositionalRenamePopup) {
+            this.supportPositionalRenamePopup = supportPositionalRenamePopup;
+        }
+
+        @Override
+        public boolean isQuickPickSupported() {
+            return supportQuickPick;
+        }
+
+        public void setEnableLSLightWeightMode(boolean enableLSLightWeightMode) {
+            this.enableLSLightWeightMode = enableLSLightWeightMode;
+        }
+
+        @Override
+        public boolean isEnableLightWeightMode() {
+            return enableLSLightWeightMode;
+        }
+
+        public void setSupportQuickPick(boolean supportQuickPick) {
+            this.supportQuickPick = supportQuickPick;
+        }
+
+        @Override
+        public boolean isEnableInlayHints() {
+            return enableInlayHints;
+        }
+
+        public void setEnableInlayHints(boolean enableInlayHints) {
+            this.enableInlayHints = enableInlayHints;
+        }
+
+        @Override
+        public boolean isEnableMemoryUsageMonitor() {
+            return enableMemoryUsageMonitor;
+        }
+
+        public void setEnableMemoryUsageMonitor(boolean enableMemoryUsageMonitor) {
+            this.enableMemoryUsageMonitor = enableMemoryUsageMonitor;
         }
     }
 }

@@ -1,0 +1,319 @@
+[
+  {
+    "source": "function 'function(int val) returns int { return val + 1; }",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["'function"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "function 'get_ɱȇşşağę_for_\\#(int val) returns string { return val.toString() + \" is a numeric value\" ; }",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["'get_\\u{271}\\u{207}\\u{15f}\\u{15f}a\\u{11f}\\u{119}_for_\\#"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "function พิมพ์ชื่อ(string ชื่อ) returns string { return ชื่อ; }",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["\\u{e1e}\\u{e34}\\u{e21}\\u{e1e}\\u{e4c}\\u{e0a}\\u{e37}\\u{e48}\\u{e2d}"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "พิมพ์ชื่อ(\"ආයුබෝවන්\");",
+    "result": {
+      "shellValue": {
+        "value":"\"ආයුබෝවන්\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "type 'Person_\\{name\\&Ȧɢέ\\} record {| string 'first\\ name; int 'Ȧɢέ; |};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["'Person_\\{name\\\u0026\\u{226}\\u{262}\\u{3ad}\\}"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "'Person_\\{name\\&Ȧɢέ\\} person = {'first\\ name: \"Tom\", 'Ȧɢέ:25}",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["person"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "person",
+    "result": {
+      "shellValue": {
+        "value":"{\"first name\":\"Tom\", \"Ȧɢέ\":25}",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"Person_{name\u0026Ȧɢέ}"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "type Person record {| string 'first\\ name; int 'Ȧɢέ; |};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Person"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int 'int = 1;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["'int"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "'int",
+    "result": {
+      "shellValue": {
+        "value":"1",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int i = 'function('int)",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["i"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "i",
+    "result": {
+      "shellValue": {
+        "value":"2",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int '1PlusI = 1 + i;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["'1PlusI"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "'1PlusI",
+    "result": {
+      "shellValue": {
+        "value":"3",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int '\\{add\\#5\\} = 5 + i;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["'\\{add\\#5\\}"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "'\\{add\\#5\\}",
+    "result": {
+      "shellValue": {
+        "value":"7",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string 'üňĩćőđę_ňāɱȇ = \"John doe\";",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["'\\u{fc}\\u{148}\\u{129}\\u{107}\\u{151}\\u{111}\\u{119}_\\u{148}\\u{101}\\u{271}\\u{207}"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "'üňĩćőđę_ňāɱȇ",
+    "result": {
+      "shellValue": {
+        "value":"\"John doe\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "'get_ɱȇşşağę_for_\\#('int);",
+    "result": {
+      "shellValue": {
+        "value":"\"1 is a numeric value\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Person person2 = {'first\\ name: \"Tom\", 'Ȧɢέ:25};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["person2"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "person2.'Ȧɢέ",
+    "result": {
+      "shellValue": {
+        "value":"25",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "person2[\"first name\"]",
+    "result": {
+      "shellValue": {
+        "value":"\"Tom\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string 'unicode_\\u{2324} = \"Jane doe\";",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["'unicode_\\u{2324}"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "'unicode_\\u{2324}",
+    "result": {
+      "shellValue": {
+        "value":"\"Jane doe\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string 'unicode_\\u{2324}\\u{2324} = \"Jane doe\";",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["'unicode_\\u{2324}\\u{2324}"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "'unicode_\\u{2324}\\u{2324}",
+    "result": {
+      "shellValue": {
+        "value":"\"Jane doe\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string 'unicode_\\u{2324}\\u{2324}_name = \"Jane doe\"",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["'unicode_\\u{2324}\\u{2324}_name"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "'unicode_\\u{2324}\\u{2324}_name",
+    "result": {
+      "shellValue": {
+        "value":"\"Jane doe\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

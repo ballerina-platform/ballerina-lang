@@ -1,0 +1,20 @@
+[
+  {
+    "description": " Change the documentation in function \n",
+    "oldCode": "public type Person object{\n# Description\n#\n# +x - Parameter Description\n# +y - Parameter Description\n# + return - Return value Description\npublic function add(int x , int y ){}\n}\n",
+    "newCode": "public type Person object{\n# Description\n#\n# +x - x is a int\n# +y - y is a int\n# + return - Return as int\npublic function add(int x , int y ){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add documentation in function \n",
+    "oldCode": "public service type Person object{\nremote function add(int x , int y ) returns int {}\n}\n",
+    "newCode": "public service type Person object{\n# Description\n#\n# +x - x is a int\n# +y - y is a int\n# + return - Return as int\nremote function add(int x , int y ) returns int {}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove documentation in function \n",
+    "oldCode": "public type Person object{\n# Description\n#\n# +x - Parameter Description\n# +y - Parameter Description\n# + return - Return value Description\npublic function add(int x , int y ) returns int {}\n}\n",
+    "newCode": "public type Person object{\npublic function add(int x , int y ) returns int {}\n}\n",
+    "expectedOutput": {}
+  }
+]

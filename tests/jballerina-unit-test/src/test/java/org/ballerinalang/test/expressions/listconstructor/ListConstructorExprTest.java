@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.expressions.listconstructor;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -45,9 +43,8 @@ public class ListConstructorExprTest {
 
     @Test
     public void testListConstructorExpr() {
-        BValue[] returns = BRunUtil.invoke(result, "testListConstructorExpr");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testListConstructorExpr");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
@@ -61,10 +58,12 @@ public class ListConstructorExprTest {
                 "inferred for '[1, p]'", 38, 35);
         BAssertUtil.validateError(resultNegative, i++, "invalid list constructor expression: types cannot be " +
                 "inferred for '[a, 4]'", 41, 23);
-        BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match",
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid usage of list constructor: type 'NoFillerObject' does not have a filler value",
                 45, 31);
-        BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match",
-                46, 56);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid usage of list constructor: type '[NoFillerObject,NoFillerObject]'" +
+                        " does not have a filler value", 46, 56);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[record {| int id; string name;" +
                                           " int city; |},record {| anydata...; |},boolean,string]', found '[record {|" +
                                           " int id; string name; string city; |},record {| int id; string name; " +
@@ -85,6 +84,7 @@ public class ListConstructorExprTest {
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: 'int' cannot be cast to 'string'", 97, 23);
         BAssertUtil.validateError(resultNegative, i++, "unknown type 'Foo'", 98, 14);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: 'int' cannot be cast to 'string'", 98, 23);
+        BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(any|any[])'", 102, 19);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

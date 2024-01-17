@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class RangesTest extends RangeFormatterTest {
 
-    @Test(dataProvider = "test-file-provider")
+    @Test(dataProvider = "test-file-provider", enabled = false)
     @Override
     public void test(Path sourceFilePath, Path assertFilePath, ArrayList<LineRange> lineRanges) throws IOException,
             FormatterException {

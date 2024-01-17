@@ -1,0 +1,49 @@
+{
+  "position": {
+    "line": 37,
+    "character": 57
+  },
+  "source": "expressions/clientSource.bal",
+  "expected": {
+    "result": {
+      "signatures": [
+        {
+          "label": "post(string b, string... ids2)",
+          "parameters": [
+            {
+              "label": {
+                "right": {
+                  "first": 12,
+                  "second": 13
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`string`b**"
+                }
+              }
+            },
+            {
+              "label": {
+                "right": {
+                  "first": 25,
+                  "second": 29
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`string...`ids2**"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "activeSignature": 0,
+      "activeParameter": 2
+    },
+    "jsonrpc": "2.0"
+  }
+}

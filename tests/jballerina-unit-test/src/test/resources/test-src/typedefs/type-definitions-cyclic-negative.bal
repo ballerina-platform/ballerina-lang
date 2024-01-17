@@ -75,3 +75,36 @@ function testCyclicTypeDef() {
             i : 2
         };
 }
+
+type A1 B1 & readonly;
+type B1 stream<A1>;
+
+type A2 table<B2>;
+type B2 A2 & readonly;
+
+type A3 map<A3?>;
+type MyIntersection2 A3 & readonly;
+
+type MyIntersection3 A4 & readonly;
+type A4 map<MyIntersection3>;
+
+type A5 A5[];
+type MyIntersection4 A5 & readonly;
+
+type A6 xml<A6>;
+type MyIntersection5 A6 & readonly;
+
+type A7 table<A7>;
+type MyIntersection6 A7 & readonly;
+
+type A8 A8[] & readonly;
+
+type A9 map<A9> & readonly;
+
+type A10 future<A10>;
+
+type A11 table<A11> & readonly;
+
+type A12 xml<A12> & readonly;
+
+type A13 typedesc<A13> & readonly;

@@ -31,12 +31,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public abstract class BLangInputClause extends BLangNode implements InputClauseNode {
 
+    // BLangNodes
     public BLangExpression collection;
     public VariableDefinitionNode variableDefinitionNode;
+
+    // Parser Flags and Data
+    public boolean isDeclaredWithVar;
+
+    // Semantic Data
     public BType varType; // T
     public BType resultType; // map<T>
     public BType nillableResultType; // map<T>?
-    public boolean isDeclaredWithVar;
 
     @Override
     public ExpressionNode getCollection() {

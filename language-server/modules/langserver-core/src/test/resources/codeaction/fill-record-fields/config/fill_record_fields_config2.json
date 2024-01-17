@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 2,
+    "character": 32
+  },
+  "source": "fill_record_fields_source1.bal",
+  "expected": [
+    {
+      "title": "Fill 'Student' required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 32
+            },
+            "end": {
+              "line": 2,
+              "character": 32
+            }
+          },
+          "newText": ",age: 0"
+        }
+      ]
+    }
+  ],
+  "description": "Fill record fields when some fields are already filled"
+}

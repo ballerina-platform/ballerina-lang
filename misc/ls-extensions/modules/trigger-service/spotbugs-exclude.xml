@@ -1,0 +1,6 @@
+<FindBugsFilter>
+    <Match>
+        <Package name="io.ballerina.trigger.entity"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+</FindBugsFilter>

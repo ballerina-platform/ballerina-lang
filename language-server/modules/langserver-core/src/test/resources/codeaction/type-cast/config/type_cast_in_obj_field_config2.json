@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 6,
+    "character": 15
+  },
+  "source": "type_cast_in_obj_fields.bal",
+  "expected": [
+    {
+      "title": "Add type cast to 'd1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 20
+            },
+            "end": {
+              "line": 6,
+              "character": 20
+            }
+          },
+          "newText": "<float>"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

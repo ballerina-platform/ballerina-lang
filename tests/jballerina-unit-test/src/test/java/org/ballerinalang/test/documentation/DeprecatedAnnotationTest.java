@@ -61,7 +61,7 @@ public class DeprecatedAnnotationTest {
 
     @Test(description = "Test @deprecated annotation for module-level union type definitions")
     public void testDeprecatedUnionTypeDef() {
-        List<BType> bTypes = testModule.types;
+        List<BType> bTypes = testModule.unionTypes;
         BType depBType = null;
         BType nonDepBType = null;
 
@@ -83,7 +83,7 @@ public class DeprecatedAnnotationTest {
 
     @Test(description = "Test @deprecated annotation for module-level finite type definitions")
     public void testDeprecatedFiniteTypeDef() {
-        List<BType> bTypes = testModule.types;
+        List<BType> bTypes = testModule.unionTypes;
         BType depFiniteType = null;
         BType nonDepFiniteType = null;
 
@@ -293,21 +293,41 @@ public class DeprecatedAnnotationTest {
         BClass playerClass = null;
 
         for (BClass cls : bClasses) {
-            String clsName = cls.name;
-            if ("Player".equals(clsName)) {
+            if ("Player".equals(cls.name)) {
                 playerClass = cls;
+                break;
             }
         }
 
         Assert.assertNotNull(playerClass);
-        for (DefaultableVariable field : playerClass.fields) {
-            String fieldName = field.name;
-            if ("name".equals(fieldName)) {
-                testDeprecated(field);
-            } else if ("age".equals(fieldName)) {
-                testNonDeprecated(field);
+        testDeprecated(getField(playerClass.fields, "name"));
+        testNonDeprecated(getField(playerClass.fields, "age"));
+    }
+
+    @Test(description = "Test @deprecated annotation for record field")
+    public void testDeprecatedRecordField() {
+        List<Record> records = testModule.records;
+        Record employeeRecord = null;
+
+        for (Record record : records) {
+            if ("Employee".equals(record.name)) {
+                employeeRecord = record;
+                break;
             }
         }
+
+        Assert.assertNotNull(employeeRecord);
+        testDeprecated(getField(employeeRecord.fields, "name"));
+        testNonDeprecated(getField(employeeRecord.fields, "age"));
+    }
+
+    private DefaultableVariable getField(List<DefaultableVariable> fields, String fieldName) {
+        for (DefaultableVariable field : fields) {
+            if (fieldName.equals(field.name)) {
+                return field;
+            }
+        }
+        return null;
     }
 
     private void testDeprecated(Construct element) {

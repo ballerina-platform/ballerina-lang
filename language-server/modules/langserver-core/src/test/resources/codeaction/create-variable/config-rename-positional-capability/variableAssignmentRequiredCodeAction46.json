@@ -1,0 +1,53 @@
+{
+  "position": {
+    "line": 1,
+    "character": 7
+  },
+  "source": "createVariable10.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 1,
+              "character": 4
+            }
+          },
+          "newText": "regexp:RegExp regExp = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable10.bal",
+          {
+            "line": 2,
+            "character": 18
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

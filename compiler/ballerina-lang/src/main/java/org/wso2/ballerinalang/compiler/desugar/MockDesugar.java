@@ -19,7 +19,9 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -67,13 +69,17 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 public class MockDesugar {
 
     private static final CompilerContext.Key<MockDesugar> MOCK_DESUGAR_KEY = new CompilerContext.Key<>();
-    private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private static final String MOCK_FN_DELIMITER = "#";
+    private static final String MOCK_LEGACY_DELIMITER = "~";
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private BLangPackage bLangPackage;
     private BLangFunction originalFunction;
     private BInvokableSymbol importFunction;
     private String mockFnObjectName;
+    private String testPackageSymbol = "ballerina/test";
+
+    public static final String MOCK_FUNCTION = "$MOCK_";
 
     private MockDesugar(CompilerContext context) {
         context.put(MOCK_DESUGAR_KEY, this);
@@ -109,11 +115,35 @@ public class MockDesugar {
         // Get the Mock Function map from the pkgNode
         Map<String, String> mockFunctionMap = pkgNode.getTestablePkg().getMockFunctionNamesMap();
 
-        // Get the set of functions to generate
+        // Get all the imports symbols from the testable package
         Set<String> mockFunctionSet = mockFunctionMap.keySet();
+        ArrayList<String> importsList = new ArrayList<>();
+        for (BLangImportPackage importPkg : pkgNode.getTestablePkg().getImports()) {
+            if (importPkg.symbol == null) {
+                continue;
+            }
+            if (!importPkg.symbol.toString().contains(testPackageSymbol)) {
+                importsList.add(importPkg.symbol.toString());
+            }
+        }
+
+        // Get all the imports from the current package
+        for (BLangImportPackage importPkg : pkgNode.getImports()) {
+            if (importPkg.symbol == null) {
+                continue;
+            }
+            if (importsList.contains(importPkg.symbol.toString())) {
+                continue;
+            }
+            if (!importPkg.symbol.toString().contains(testPackageSymbol)) {
+                importsList.add(importPkg.symbol.toString());
+            }
+        }
 
         for (String function : mockFunctionSet) {
-            if (!function.contains("~")) {
+            if (function.contains(pkgNode.packageID.toString()) ? !function.split(pkgNode.packageID.toString())[1].
+                    startsWith(MOCK_LEGACY_DELIMITER) :
+                    !startsWithMockLegacyDelimiterForImportedMockFunctions(function, importsList)) {
                 pkgNode.getTestablePkg().functions.add(generateMockFunction(function));
             }
         }
@@ -136,17 +166,17 @@ public class MockDesugar {
         // Identify if function is part of current package or import package
         if (functionName.contains(this.bLangPackage.packageID.toString())) {
             // Simply extract the name only
-            functionName = functionName.substring(functionName.indexOf(MOCK_ANNOTATION_DELIMITER) + 1);
+            functionName = functionName.substring(functionName.indexOf(MOCK_FN_DELIMITER) + 1);
             this.originalFunction = getOriginalFunction(functionName);
         } else {
             // Extract the name and the package details
             String packageName = functionName.substring(functionName.indexOf('/') + 1, functionName.indexOf(':'));
-            functionName = functionName.substring(functionName.indexOf(MOCK_ANNOTATION_DELIMITER) + 1);
+            functionName = functionName.substring(functionName.indexOf(MOCK_FN_DELIMITER) + 1);
             this.importFunction = getImportFunction(functionName, packageName);
         }
 
         // Set the function name to $MOCK_<functionName>
-        functionName = "$MOCK_" + functionName;
+        functionName = MOCK_FUNCTION + functionName;
 
         // Create the Base function with the name
         BLangFunction generatedMock = ASTBuilderUtil.createFunction(bLangPackage.pos, functionName);
@@ -155,9 +185,11 @@ public class MockDesugar {
             generatedMock.requiredParams = generateRequiredParams();        // Required Params
             generatedMock.restParam = generateRestParam();                  // Rest Param
             generatedMock.returnTypeNode = generateReturnTypeNode();        // Return Type Node
-            generatedMock.body = generateBody();                            // Body
             generatedMock.setBType(generateSymbolInvokableType());             // Invokable Type
-            generatedMock.symbol = generateSymbol(functionName);            // Invokable Symbol
+            BInvokableSymbol symbol = generateSymbol(functionName);
+            symbol.scope = new Scope(symbol);
+            generatedMock.symbol = symbol;                                  // Invokable Symbol
+            generatedMock.body = generateBody(symbol);                      // Body
         } else {
             throw new IllegalStateException("Mock Function and Function to Mock cannot be null");
         }
@@ -293,9 +325,9 @@ public class MockDesugar {
         return bInvokableType;
     }
 
-    private BLangFunctionBody generateBody() {
+    private BLangFunctionBody generateBody(BInvokableSymbol symbol) {
         BLangFunctionBody body = ASTBuilderUtil.createBlockFunctionBody(bLangPackage.pos, generateStatements());
-        body.scope = bLangPackage.symbol.scope;
+        body.scope = new Scope(symbol);
         return body;
     }
 
@@ -374,6 +406,18 @@ public class MockDesugar {
     private BLangListConstructorExpr generateClassListConstructorExpr() {
         List<BLangCompilationUnit> compUnitList = this.bLangPackage.getTestablePkg().getCompilationUnits();
         BArrayType bArrayType = new BArrayType(symTable.stringType, null, -1, BArrayState.OPEN);
+
+        List<BLangCompilationUnit> modifiedcompUnitList = new ArrayList<>();
+        for (BLangCompilationUnit compUnit : compUnitList) {
+            List<TopLevelNode> topLevelNodes = compUnit.getTopLevelNodes();
+            for (TopLevelNode topLevelNode : topLevelNodes) {
+                if (topLevelNode instanceof BLangFunction) {
+                    modifiedcompUnitList.add(compUnit);
+                    break;
+                }
+            }
+        }
+        compUnitList = modifiedcompUnitList;
 
         BLangListConstructorExpr bLangListConstructorExpr =
                 ASTBuilderUtil.createListConstructorExpr(bLangPackage.pos, bArrayType);
@@ -547,5 +591,16 @@ public class MockDesugar {
         }
 
         return type;
+    }
+
+    private Boolean startsWithMockLegacyDelimiterForImportedMockFunctions(String mockFnName,
+                                                                          ArrayList<String> importsList) {
+        for (String importName : importsList) {
+            if (mockFnName.contains(importName) ? mockFnName.split(importName)[1].
+                    startsWith(MOCK_LEGACY_DELIMITER) : false) {
+                return true;
+            }
+        }
+        return false;
     }
 }

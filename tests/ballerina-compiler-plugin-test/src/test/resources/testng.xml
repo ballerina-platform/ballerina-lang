@@ -17,12 +17,12 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-compiler-plugin-test-suite">
 
     <!-- Ballerina language Compile Plugin Test Cases. -->
-    <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-lang-test-suite" preserve-order="true">
         <packages>
             <package name="io.ballerina.test.compiler.plugins"/>
         </packages>

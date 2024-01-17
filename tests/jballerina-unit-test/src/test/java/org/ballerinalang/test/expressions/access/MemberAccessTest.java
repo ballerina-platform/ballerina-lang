@@ -17,13 +17,12 @@
  */
 package org.ballerinalang.test.expressions.access;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -46,7 +45,7 @@ public class MemberAccessTest {
         negativeResult = BCompileUtil.compile("test-src/expressions/access/member_access_negative.bal");
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testNegativeCases() {
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
@@ -125,13 +124,132 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "invalid operation: type '((Grault|int[]) & readonly)?' does " +
                 "not support member access", 222, 14);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int?'", 225, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 231, 14);
+        validateError(negativeResult, i++, "incompatible types: expected 'int:Signed32', found 'int'", 234, 22);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 244, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                258, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'",
+                259, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found " +
+                "'(int|string|boolean)'", 261, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 262, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                265, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'",
+                268, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found " +
+                "'(int|string|boolean)'", 271, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 274, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                281, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                282, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'",
+                283, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                285, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found " +
+                "'(int|string|boolean)'", 286, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 287, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                290, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                293, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'",
+                296, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                299, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found " +
+                "'(int|string|boolean)'", 302, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 305, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                317, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'",
+                318, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                319, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                320, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'",
+                321, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                322, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                323, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                324, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                325, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found " +
+                "'(int|string|boolean)'", 327, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 328, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                329, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found " +
+                "'(int|string|boolean)'", 330, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 331, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                332, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                333, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                334, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                335, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                338, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'",
+                341, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                344, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                347, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'",
+                350, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found " +
+                "'(int|string|boolean)'", 353, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 356, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                359, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found " +
+                "'(int|string|boolean)'", 362, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
+                "'(int|string|boolean)'", 365, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                368, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                371, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'",
+                374, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'",
+                377, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found '(string|int)'",
+                388, 7);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|float)'",
+                392, 9);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found '(string|int)'",
+                396, 9);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'StrOrInt1'",
+                399, 9);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found '(string|int)'",
+                403, 7);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|Str)'",
+                406, 7);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test(dataProvider = "listMemberAccessFunctions")
     public void testListMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "listMemberAccessFunctions")
@@ -148,60 +266,75 @@ public class MemberAccessTest {
             { "testTupleMemberAccessByLiteralPositive" },
             { "testTupleMemberAccessByConstPositive" },
             { "testTupleMemberAccessByVariablePositive" },
-            { "testTupleMemberAccessByFiniteTypeVariablePositive" },
+            { "testTupleMemberAccessByFiniteTypeVariablePositive" }
         };
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(dataProvider = "listMemberAccessTestFunctions")
+    public void testListMemberAccess2(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider
+    public Object[][] listMemberAccessTestFunctions() {
+        return new Object[][] {
+                { "testValidArrayMemberAccessWithBuiltInIntSubTypeKeyExpr" },
+                { "testOutOfRangeArrayMemberAccessWithBuiltInIntSubTypeKeyExpr" },
+                { "testValidTupleMemberAccessWithBuiltInIntSubTypeKeyExpr" },
+                { "testOutOfRangeTupleMemberAccessWithBuiltInIntSubTypeKeyExpr" }
+        };
+    }
+
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
                     "index out of range: index: 4, size: 3\"\\}.*")
     public void testOpenArrayMemberAccessByLiteralIndexOutOfRange() {
         BRunUtil.invoke(result, "testOpenArrayMemberAccessByLiteralIndexOutOfRange");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
                     "index out of range: index: 6, size: 2\"\\}.*")
     public void testOpenArrayMemberAccessByConstIndexOutOfRange() {
         BRunUtil.invoke(result, "testOpenArrayMemberAccessByConstIndexOutOfRange");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
                     "index out of range: index: 5, size: 2\"\\}.*")
     public void testOpenArrayMemberAccessByVariableIndexOutOfRange() {
         BRunUtil.invoke(result, "testOpenArrayMemberAccessByVariableIndexOutOfRange");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
                     "index out of range: index: 9, size: 2\"\\}.*")
     public void testOpenArrayMemberAccessByFiniteTypeVariableIndexOutOfRange() {
         BRunUtil.invoke(result, "testOpenArrayMemberAccessByFiniteTypeVariableIndexOutOfRange");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
                     "index out of range: index: 5, size: 2\"\\}.*")
     public void testClosedArrayMemberAccessByVariableIndexOutOfRange() {
         BRunUtil.invoke(result, "testClosedArrayMemberAccessByVariableIndexOutOfRange");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
                     "index out of range: index: 9, size: 4\"\\}.*")
     public void testClosedArrayMemberAccessByFiniteTypeVariableIndexOutOfRange() {
         BRunUtil.invoke(result, "testClosedArrayMemberAccessByFiniteTypeVariableIndexOutOfRange");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"tuple " +
                     "index out of range: index: 3, size: 2\"\\}.*")
     public void testTupleMemberAccessByVariableIndexOutOfRange() {
         BRunUtil.invoke(result, "testTupleMemberAccessByVariableIndexOutOfRange");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"tuple " +
                     "index out of range: index: 9, size: 3\"\\}.*")
     public void testTupleMemberAccessByFiniteTypeVariableIndexOutOfRange() {
@@ -210,8 +343,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "recordMemberAccessFunctions")
     public void testRecordMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "recordMemberAccessFunctions")
@@ -228,10 +361,23 @@ public class MemberAccessTest {
         };
     }
 
+    @Test(dataProvider = "recordMemberAccessTestFunctions")
+    public void testRecordMemberAccess2(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider
+    public Object[][] recordMemberAccessTestFunctions() {
+        return new Object[][] {
+                { "testValidRecordMemberAccessWithStringCharKeyExpr" },
+                { "testUnspecifiedFieldRecordMemberAccessWithStringCharKeyExpr" }
+        };
+    }
+
     @Test(dataProvider = "mapMemberAccessFunctions")
     public void testMapMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "mapMemberAccessFunctions")
@@ -246,8 +392,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "optionalMappingMemberAccessFunctions")
     public void testOptionalMappingMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "optionalMappingMemberAccessFunctions")
@@ -281,8 +427,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "mappingUnionMemberAccessFunctions")
     public void testMappingUnionMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "mappingUnionMemberAccessFunctions")
@@ -295,8 +441,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "stringMemberAccessFunctions")
     public void testStringMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "stringMemberAccessFunctions")
@@ -309,36 +455,36 @@ public class MemberAccessTest {
         };
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: -1, size: 5\"\\}.*")
     public void testOutOfRangeStringMemberAccess1() {
-        BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess1");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess1");
+        Assert.assertTrue((Boolean) returns);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: 11, size: 11\"\\}.*")
     public void testOutOfRangeStringMemberAccess2() {
-        BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess2");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess2");
+        Assert.assertTrue((Boolean) returns);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: 25, size: 12\"\\}.*")
     public void testOutOfRangeStringMemberAccess3() {
-        BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess3");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess3");
+        Assert.assertTrue((Boolean) returns);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: 4, size: 3\"\\}.*")
     public void testOutOfRangeFiniteTypeStringMemberAccess() {
-        BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeFiniteTypeStringMemberAccess");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testOutOfRangeFiniteTypeStringMemberAccess");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
@@ -356,22 +502,55 @@ public class MemberAccessTest {
         BRunUtil.invoke(result, "testMemberAccessOnStrings");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: 5, size: 3\"\\}.*")
     public void testInvalidMemberAccessOnStrings1() {
         BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings1");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: 3, size: 1\"\\}.*")
     public void testInvalidMemberAccessOnStrings2() {
         BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings2");
     }
 
+    @Test(dataProvider = "memberAccessWithBinaryExprAsIndex")
+    public void testMemberAccessWithBinaryExprAsIndex(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider(name = "memberAccessWithBinaryExprAsIndex")
+    public Object[][] memberAccessWithBinaryExprAsIndex() {
+        return new Object[][] {
+                { "testMemberAccessWithBinaryExprAsIndex" },
+                { "testMemberAccessWithGroupExprAsIndex" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr1" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr2" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr3" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr4" }
+        };
+    }
+
+    @Test
+    public void testMemberAccessInInferTypeCtxWithTypeRef() {
+        BRunUtil.invoke(result, "testMemberAccessInInferTypeCtxWithTypeRef");
+    }
+    
     @Test
     public void testNestedMemberAccessOnIntersectionTypes() {
         BRunUtil.invoke(result, "testNestedMemberAccessOnIntersectionTypes");
+    }
+
+    @Test
+    public void testMemberAccessWithUnionTypedIndexExpr() {
+        BRunUtil.invoke(result, "testMemberAccessWithUnionTypedIndexExpr");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
     }
 }

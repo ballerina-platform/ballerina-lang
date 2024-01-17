@@ -27,16 +27,22 @@ function testXMLSequence() {
     test:assertEquals(x3.toString(), "text1interpolation1<foo>foo</foo>text2interpolation2<!--comment interpolation2-->text3");
     xml x4 = xml `<!--comment--><?foo ${v1}?>text1${v1}<root>text2 ${v2}${v1} text3!<foo>12</foo><bar></bar></root>text2${v2}`;
     test:assertEquals(x4.toString(), "<!--comment--><?foo interpolation1?>text1interpolation1<root>text2 "+
-    "interpolation2interpolation1 text3!<foo>12</foo><bar></bar></root>text2interpolation2");
+    "interpolation2interpolation1 text3!<foo>12</foo><bar/></root>text2interpolation2");
     xml x5 = xml `<!--comment-->text1`;
     test:assertEquals(x5.toString(), "<!--comment-->text1");
     xml x6 = xml `<!--comment-->`;
     test:assertEquals(x6.toString(), "<!--comment-->");
+    xml x27 = xml `<_>element</_>`;
+    test:assertEquals(x27.toString(), "<_>element</_>");
+    xml x28 = xml `<_/>`;
+    test:assertEquals(x28.toString(), "<_/>");
 
     xml<'xml:Element> x23 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
     test:assertEquals(x23.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
     xml<xml<'xml:Element>> x24 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
     test:assertEquals(x24.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
+    xml<'xml:Element> x29 = xml `<_>element</_>`;
+    test:assertEquals(x29.toString(), "<_>element</_>");
 
     xml<'xml:ProcessingInstruction> x17 = xml `<?foo?><?faa?>`;
     test:assertEquals(x17.toString(), "<?foo ?><?faa ?>");
@@ -69,15 +75,31 @@ function testXMLSequence() {
     test:assertEquals(x10.toString(), "<!--comment-->text1");
     xml<'xml:Element|'xml:ProcessingInstruction> x11 = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
     test:assertEquals(x11.toString(), "<root> text1<foo>100</foo><foo>200</foo></root><?foo ?>");
-    xml<'xml:Text>|xml<'xml:Comment> x13 = xml `<!--comment-->text1`;
-    test:assertEquals(x13.toString(), "<!--comment-->text1");
-    xml<xml<'xml:Text>>|xml<xml<'xml:Comment>> x14 = xml `<!--comment-->text1`;
-    test:assertEquals(x14.toString(), "<!--comment-->text1");
-    xml<'xml:Element>|'xml:Text x15 = xml `<root> text1<foo>100</foo><foo>200</foo></root> text1`;
-    test:assertEquals(x15.toString(), "<root> text1<foo>100</foo><foo>200</foo></root> text1");
     'xml:Text x16 = xml `text ${v1}`;
     test:assertEquals(x16.toString(), "text interpolation1");
+    
+    any x30 = xml `foo<e></e>`;
+    test:assertEquals(x30.toString(), "foo<e/>");
+    anydata x31 = xml `bar<e></e>`; 
+    test:assertEquals(x31.toString(), "bar<e/>");
+    any|Template x32 = xml `foo<elem></elem>`;
+    test:assertEquals(x32.toString(), "foo<elem/>");
+    Template|any x33 = xml `bar<elem></elem>`; 
+    test:assertEquals(x33.toString(), "bar<elem/>");
+    xml|error x34 = xml `world<elem></elem>`;
+    if (x34 is xml) {
+        test:assertEquals(x34.toString(), "world<elem/>");
+    }
+    xml|xml<xml:Text>|xml:Text x35 = xml `hello<e></e>`;
+    test:assertEquals(x35.toString(), "hello<e/>");
+    xml|xml<xml:Text|xml:Comment> x36 = xml `world<e></e>`;
+    test:assertEquals(x36.toString(), "world<e/>");
 }
+
+public type Template object {
+    public string[] & readonly strings;
+    public anydata[] insertions;
+};
 
 function testXMLTextLiteral() returns [xml, xml, xml, xml, xml, xml] {
     string v1 = "11";
@@ -362,4 +384,86 @@ function testXMLReturnUnion() returns error? {
     xmlSequence = obj.getNestedXmlSequence();
     test:assertTrue(xmlSequence is xml);
     test:assertEquals((check xmlSequence).toString(), "<grand_total>2</grand_total>");
+}
+
+type T xml;
+
+function testXMLInterpolationExprWithUserDefinedType() {
+    T x1 = xml `<foo></foo>`;
+    xml x2 = xml `<doc>${x1}</doc>`;
+    test:assertEquals(x2.toString(), "<doc><foo/></doc>");
+}
+
+function testQueryInXMLTemplateExpr() {
+    int[] a = [1, 2, 3];
+
+    var x1 = xml `<doc>${from int i in a select xml `<num>${i}</num>`}</doc>`;
+    xml x2 = xml `<doc>${from int i in a select xml `<num>${i}</num>`}</doc>`;
+    xml:Element x3 = xml `<doc>${from int i in a select xml `<num>${i}</num>`}</doc>`;
+
+    string str1 = "<doc><num>1</num><num>2</num><num>3</num></doc>";
+    test:assertEquals(x1.toString(), str1);
+    test:assertEquals(x2.toString(), str1);
+    test:assertEquals(x3.toString(), str1);
+
+    int[] b = [1, 2];
+    var x4 = xml `<doc>${from int i in b select xml `<row>${from int j in a select xml `<num>${j}</num>`}</row>`}</doc>`;
+
+    string str2 = "<doc><row><num>1</num><num>2</num><num>3</num></row><row><num>1</num><num>2</num><num>3</num></row></doc>";
+    test:assertEquals(x4.toString(), str2);
+
+    xml<xml:Element> x5 = xml `<doc><num>1</num><num>2</num><num>3</num></doc>`;
+    xml x6 = xml `<doc>${from xml:Element i in x5 select i}</doc>`;
+
+    string str3 = "<doc><doc><num>1</num><num>2</num><num>3</num></doc></doc>";
+    test:assertEquals(x6.toString(), str3);
+
+    var x7 = xml `<doc>${(from string s in ["a", "b", "c"] select xml `${s}z`)}</doc>`;
+    test:assertEquals(x7.toString(), "<doc>azbzcz</doc>");
+
+    // var x8 = xml `<doc>${xml `foo` + (from string s in ["a", "b"] select xml `${s}z`)}</doc>`; // issue #36541
+    // test:assertEquals(x8.toString(), "<doc>fooazbz</doc>")
+}
+
+type XMLType xml:Comment|xml:ProcessingInstruction;
+
+function testXMLLiteralWithConditionExpr() {
+    xml? s = xml `foo`;
+    string target = "foo";
+
+    xml x1 = (s ?: xml `<baz/>`);
+    test:assertEquals(x1.toString(), target);
+
+    xml x2 = (s is xml ? s : xml `<baz/>`) + xml ``;
+    test:assertEquals(x2.toString(), target);
+
+    xml x3 = (s ?: xml `<baz/>`) + xml ``;
+    test:assertEquals(x3.toString(), target);
+
+    s = ();
+
+    xml:Element e1 = xml `<baz/>`;
+    xml? v1 = (s ?: e1) + xml `<element>A</element>`;
+    test:assertEquals(v1.toString(), "<baz/><element>A</element>");
+
+    xml<xml:Element> e2 = xml `<baz/>`;
+    xml v2 = (s ?: e2) + xml `<element>A</element>`;
+    test:assertEquals(v2.toString(), "<baz/><element>A</element>");
+
+    XMLType e3 = xml `<!--This is a comment-->`;
+    xml v3 = (s ?: e3) + xml `<element>A</element>`;
+    test:assertEquals(v3.toString(), "<!--This is a comment--><element>A</element>");
+
+    XMLType e4 = xml `<?target data?>`;
+    xml v4 = (s ?: e4) + xml `<element>A</element>`;
+    test:assertEquals(v4.toString(), "<?target data?><element>A</element>");
+
+    xml w1 = (s ?: (v1 is xml<xml:Element> ? e2 : xml `<user>Foo</user>`)) + xml `<element>B</element>`;
+    test:assertEquals(w1.toString(), "<baz/><element>B</element>");
+
+    xml w2 = (s ?: (v1 ?: xml `<user>Foo</user>`)) + xml `<element>B</element>`;
+    test:assertEquals(w2.toString(), "<baz/><element>A</element><element>B</element>");
+
+    xml w3 = (s ?: (s ?: (v1 is xml:Element ? e2 : xml `<user>Foo</user>`))) + xml `<element>B</element>`;
+    test:assertEquals(w3.toString(), "<user>Foo</user><element>B</element>");
 }

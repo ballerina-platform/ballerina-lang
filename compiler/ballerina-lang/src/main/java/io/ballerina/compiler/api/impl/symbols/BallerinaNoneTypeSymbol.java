@@ -17,7 +17,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.NoneTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
@@ -28,12 +29,22 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaNoneTypeSymbol extends AbstractTypeSymbol implements NoneTypeSymbol {
 
-    public BallerinaNoneTypeSymbol(CompilerContext context, ModuleID moduleID, BNoType bNoType) {
+    public BallerinaNoneTypeSymbol(CompilerContext context, BNoType bNoType) {
         super(context, TypeDescKind.NONE, bNoType);
     }
 
     @Override
     public String signature() {
         return "";
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -175,3 +175,52 @@ function testFunction() {
 function parseField(string val) returns [string, int] {
     return [val, 10];
 }
+
+int[] x1 = [1, 2 , 3];
+int[] y1 = [...x1, 4];
+
+function testListConstructorSpreadOp() {
+    int[] x2 = [1, 2 , 3];
+    int[] y2 = [...x2, 4];
+    int[] y3 = [...y1, 5];
+}
+
+function testRegexpExp() {
+    string:RegExp r1 = re `[a-z]`;
+    string:RegExp r2 = re `((c)(d))`;
+    string:RegExp r3 = re `[bB].tt[a-z]*`;
+    string:RegExp r4 = re `[bB].${r3}`;
+}
+
+type O record {|
+    int[] items = [];
+|};
+
+public function findRefsIn() {
+    O o = {};
+
+     into.items.'map(item => item.quantity * menu.get(item.item))
+            .reduce(function (int val1, int val2) => val1 + val2, 0);
+
+}
+
+function testRefsInsideFuncCall() {
+    string|int value = "Jam";
+
+    func1(s1 = "Sam", s2 = value);
+    func2(xFunc = func1);
+    func2(xFunc = func4);
+    func2(func3(s1 = "abc"));
+}
+
+function func1(string s1, string|int s2) {
+}
+
+function func2(function xFunc) {
+}
+
+function (int) returns int func4 = a => a + a;
+
+function func3(string s1) returns function (int) returns int {
+    return func4;
+}

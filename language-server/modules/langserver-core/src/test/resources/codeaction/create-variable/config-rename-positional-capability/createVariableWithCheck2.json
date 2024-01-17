@@ -1,0 +1,67 @@
+{
+  "position": {
+    "line": 9,
+    "character": 4
+  },
+  "source": "createVariableWithCheck.bal",
+  "description": "Parent function has union return type with no error member",
+  "expected": [
+    {
+      "title": "Create variable and check error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 4
+            },
+            "end": {
+              "line": 9,
+              "character": 4
+            }
+          },
+          "newText": "int intWithError = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 4
+            },
+            "end": {
+              "line": 9,
+              "character": 4
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 71
+            },
+            "end": {
+              "line": 8,
+              "character": 89
+            }
+          },
+          "newText": "returns int|string|error"
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableWithCheck.bal",
+          {
+            "line": 9,
+            "character": 8
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

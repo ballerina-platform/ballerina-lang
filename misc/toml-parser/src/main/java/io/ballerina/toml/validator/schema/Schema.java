@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static io.ballerina.toml.validator.ValidationUtil.getTomlDiagnostic;
 import static io.ballerina.toml.validator.ValidationUtil.getTypeErrorMessage;
@@ -52,7 +51,6 @@ public class Schema extends AbstractSchema {
 
     private final String schema;
     private final String title;
-    private final String description;
     private final boolean hasAdditionalProperties;
     private final Map<String, AbstractSchema> properties;
     private final List<String> required;
@@ -62,10 +60,9 @@ public class Schema extends AbstractSchema {
     public Schema(String schema, String title, Type type, Map<String, String> message, String description,
                   boolean hasAdditionalProperties, Map<String, AbstractSchema> properties, List<String> required,
                   CompositionSchema compositionSchemas) {
-        super(type, message, compositionSchemas);
+        super(type, message, compositionSchemas, description);
         this.schema = schema;
         this.title = title;
-        this.description = description;
         this.hasAdditionalProperties = hasAdditionalProperties;
         this.properties = properties;
         this.required = required;
@@ -95,10 +92,6 @@ public class Schema extends AbstractSchema {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(AbstractSchema.class, new SchemaDeserializer()).create();
         return (Schema) gson.fromJson(jsonContent, AbstractSchema.class);
-    }
-
-    public Optional<String> description() {
-        return Optional.ofNullable(description);
     }
 
     public boolean hasAdditionalProperties() {

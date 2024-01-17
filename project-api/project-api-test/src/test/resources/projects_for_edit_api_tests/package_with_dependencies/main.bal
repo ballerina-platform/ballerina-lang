@@ -1,5 +1,5 @@
 import myproject.util;
 
 public function main() {
-    string foo = util:concatStrings("my", "project");
+    string _ = util:concatStrings("my", "project");
 }

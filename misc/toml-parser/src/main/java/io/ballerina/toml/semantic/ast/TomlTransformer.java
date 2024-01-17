@@ -629,7 +629,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         }
         TextRange textRange = TextRange.from(firstKeyLocation.textRange().startOffset(), length - 1);
         LineRange lineRange = LineRange.from(
-                firstKeyLocation.lineRange().filePath(),
+                firstKeyLocation.lineRange().fileName(),
                 firstKeyLocation.lineRange().startLine(),
                 tomlNodes.get(tomlNodes.size() - 1).location().lineRange().endLine());
         return new TomlNodeLocation(lineRange, textRange);

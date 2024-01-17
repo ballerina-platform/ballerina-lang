@@ -33,19 +33,19 @@ public class UnicodeNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/string/unicode-negative.bal");
 
         int index = 0;
-        BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{D800}'", 18, 18);
-        BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{D8FF}'", 19, 18);
-        BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{DFFF}'", 20, 18);
-        BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{11FFFF}'", 21, 18);
-        BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{12FFFF}'", 22, 18);
-        BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{DFFF}'", 23, 18);
-        BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{DAFF}'", 23, 26);
-        BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{12FFFF}'", 24, 18);
-        BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{DFFF}'", 24, 33);
-        BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{DAFF}'", 24, 46);
-        BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{12FFFF}'", 25, 18);
-        BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{DFFFAAA}'", 25, 33);
-        BAssertUtil.validateError(compileResult, index++, "invalid unicode '\\u{FFFFFFF}'", 25, 49);
+        BAssertUtil.validateError(compileResult, index++, "unicode code point 'D800' out of allowed range", 18, 21);
+        BAssertUtil.validateError(compileResult, index++, "unicode code point 'D8FF' out of allowed range", 19, 21);
+        BAssertUtil.validateError(compileResult, index++, "unicode code point 'DFFF' out of allowed range", 20, 21);
+        BAssertUtil.validateError(compileResult, index++, "unicode code point '11FFFF' out of allowed range", 21, 21);
+        BAssertUtil.validateError(compileResult, index++, "unicode code point '12FFFF' out of allowed range", 22, 21);
+        BAssertUtil.validateError(compileResult, index++, "unicode code point 'DFFF' out of allowed range", 23, 21);
+        BAssertUtil.validateError(compileResult, index++, "unicode code point 'DAFF' out of allowed range", 23, 29);
+        BAssertUtil.validateError(compileResult, index++, "unicode code point '12FFFF' out of allowed range", 24, 21);
+        BAssertUtil.validateError(compileResult, index++, "unicode code point 'DFFF' out of allowed range", 24, 36);
+        BAssertUtil.validateError(compileResult, index++, "unicode code point 'DAFF' out of allowed range", 24, 49);
+        BAssertUtil.validateError(compileResult, index++, "unicode code point '12FFFF' out of allowed range", 25, 21);
+        BAssertUtil.validateError(compileResult, index++, "unicode code point 'DFFFAAA' out of allowed range", 25, 36);
+        BAssertUtil.validateError(compileResult, index++, "unicode code point 'FFFFFFF' out of allowed range", 25, 52);
         BAssertUtil.validateError(compileResult, index, "invalid string numeric escape sequence", 26, 17);
     }
 }

@@ -750,7 +750,7 @@ readonly class AnotherReadOnlyClass {
     }
 }
 
-class ImplicitlyReadOnlyClass {
+readonly class TheOtherReadOnlyClass {
     final int i;
 
     isolated function init() {
@@ -761,7 +761,7 @@ class ImplicitlyReadOnlyClass {
 type RecordWithReadOnlyFields record {|
     readonly NonReadOnlyClass a;
     readonly ReadOnlyClass & readonly b = new ReadOnlyClass();
-    readonly ImplicitlyReadOnlyClass c;
+    readonly TheOtherReadOnlyClass c;
 |};
 
 type ONE 1;
@@ -792,7 +792,7 @@ function testReadOnlyFieldsOfClassTypes() {
     assertTrue(<any> rec2 is record {
         AnotherReadOnlyClass a;
         ReadOnlyClass b;
-        ImplicitlyReadOnlyClass c;
+        TheOtherReadOnlyClass c;
     });
     assertEquality(4567, rec2.a.i);
     assertEquality(2, rec2.b.i);
@@ -916,6 +916,65 @@ function testDefaultValueFromCETBeingUsedWithReadOnlyFieldsInTheMappingConstruct
     assertTrue(f is record {|string a; readonly string b; string[] c;|});
     assertTrue(f is record {|string a; readonly string b; readonly string[] c;|});
     assertFalse(f is record {|readonly string a; readonly string b; readonly string[] c;|});
+}
+
+type R1 record {|
+    never x?;
+|};
+
+type R2 record {
+    never x?;
+};
+
+type R3 record {|
+    never x?;
+    readonly int y;
+|};
+
+type R4 record {|
+    never x?;
+    string y;
+|};
+
+type R5 record {|
+   record {|
+       never a;
+   |} x?;
+|};
+
+type R6 record {|
+    never|never x?;
+|};
+
+function testRecordReadonlynessWithNeverFields() {
+    record {|
+        never x?;
+        never y?;
+    |} c = {};
+    readonly c1 = c;
+    assertTrue(c1 is record {|never x?; never y?;|} & readonly);
+
+    R1 e = {};
+    readonly e1 = e;
+    assertTrue(e1 is record {|never x?;|} & readonly);
+
+    R2 f = {};
+    assertFalse(f is record {|never x?; anydata...;|} & readonly);
+
+    R3 g = {y: 1};
+    readonly g1 = g;
+    assertTrue(g1 is record {|never x?; int y;|} & readonly);
+
+    R4 h = {y: "abc"};
+    assertFalse(h is record {|never x?; string y;|} & readonly);
+
+    R5 i = {};
+    readonly i1 = i;
+    assertTrue(i1 is record {|record {|never a;|} x?;|} & readonly);
+
+    R6 j = {};
+    readonly j1 = j;
+    assertTrue(j1 is record {|never|never x?;|} & readonly);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -22,10 +22,13 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmErrorCreatorGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmFunctionCallsCreatorsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmObjectCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmRecordCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -47,6 +50,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * Ballerina value creation related JVM byte code generation class.
@@ -58,16 +62,19 @@ public class JvmValueCreatorGen {
     private final JvmRecordCreatorGen jvmRecordCreatorGen;
     private final JvmObjectCreatorGen jvmObjectCreatorGen;
     private final JvmErrorCreatorGen jvmErrorCreatorGen;
+    private final JvmFunctionCallsCreatorsGen jvmFunctionCallsCreatorsGen;
 
-    public JvmValueCreatorGen(PackageID packageID) {
-        this.jvmRecordCreatorGen = new JvmRecordCreatorGen(this, packageID);
+    public JvmValueCreatorGen(PackageID packageID, JvmTypeGen jvmTypeGen) {
+        this.jvmRecordCreatorGen = new JvmRecordCreatorGen(this, packageID, jvmTypeGen);
         this.jvmObjectCreatorGen = new JvmObjectCreatorGen(this, packageID);
-        this.jvmErrorCreatorGen = new JvmErrorCreatorGen(packageID);
+        this.jvmErrorCreatorGen = new JvmErrorCreatorGen(packageID, jvmTypeGen);
+        this.jvmFunctionCallsCreatorsGen = new JvmFunctionCallsCreatorsGen(packageID);
     }
 
     public void generateValueCreatorClasses(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                     String moduleInitClass, Map<String, byte[]> jarEntries,
-                                     SymbolTable symbolTable) {
+                                            String moduleInitClass, Map<String, byte[]> jarEntries,
+                                            SymbolTable symbolTable, JvmCastGen jvmCastGen,
+                                            List<BIRNode.BIRFunction> sortedFunctions) {
 
         // due to structural type same name can appear twice, need to remove duplicates
         Set<BIRTypeDefinition> recordTypeDefSet = new TreeSet<>(NAME_HASH_COMPARATOR);
@@ -75,7 +82,7 @@ public class JvmValueCreatorGen {
         List<BIRTypeDefinition> errorTypeDefList = new ArrayList<>();
 
         for (BIRTypeDefinition optionalTypeDef : module.typeDefs) {
-            BType bType = optionalTypeDef.type;
+            BType bType = JvmCodeGenUtil.getImpliedType(optionalTypeDef.type);
             if (bType.tag == TypeTags.RECORD) {
                 recordTypeDefSet.add(optionalTypeDef);
             } else if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
@@ -91,6 +98,8 @@ public class JvmValueCreatorGen {
                 objectTypeDefList, symbolTable);
         jvmErrorCreatorGen.generateErrorsClass(jvmPackageGen, module, moduleInitClass, jarEntries, errorTypeDefList,
                 symbolTable);
+        jvmFunctionCallsCreatorsGen.generateFunctionCallsClass(jvmPackageGen, module, jarEntries, jvmCastGen,
+                sortedFunctions);
     }
 
     public void generateStaticInitializer(BIRNode.BIRPackage module, ClassWriter cw,
@@ -98,12 +107,12 @@ public class JvmValueCreatorGen {
         FieldVisitor fv = cw.visitField(Opcodes.ACC_STATIC, metaDataVarName, GET_STRAND_METADATA,
                 null, null);
         fv.visitEnd();
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
         JvmCodeGenUtil.genStrandMetadataField(mv, typeOwnerClass, module.packageID, metaDataVarName,
                 new ScheduleFunctionInfo(varName));
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_STATIC_INIT_METHOD, typeOwnerClass);
         mv.visitEnd();
     }
 }

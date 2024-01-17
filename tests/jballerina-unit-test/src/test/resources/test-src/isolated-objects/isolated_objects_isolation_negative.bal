@@ -83,7 +83,7 @@ isolated class InvalidIsolatedClassAccessingMutableFieldsOutsideLock {
 }
 
 function testInvalidIsolatedObjectConstructorAccessingMutableFieldsOutsideLock() {
-    isolated object {} invalidIsolatedObjectConstructorAccessingMutableFieldsOutsideLock = isolated object {
+    isolated object {} _ = isolated object {
         final int a = 1;
         private string b = "hello";
         private int[] c = [];
@@ -130,14 +130,14 @@ isolated class InvalidIsolatedClassWithNonUniqueInitializerExprs {
     function init(int[][]? a) returns error? {
         self.a = a ?: [globIntArr, globIntArr];
         record {} rec = {"a": 1, "b": 2.0};
-        anydata ad = rec;
+        anydata _ = rec;
         self.c = rec;
         self.h = check 'float:fromString(globStr);
     }
 }
 
 function testInvalidIsolatedObjectWithNonUniqueInitializerExprs() {
-    isolated object {} invalidIsolatedObjectWithNonUniqueInitializerExprs = isolated object {
+    isolated object {} _ = isolated object {
         private int[][] a = [globIntArr, globIntArr];
         private map<boolean> b = globBoolMap;
         private record {} c = {[globStr]: accessGlobBoolMap(globStr)};
@@ -267,7 +267,7 @@ isolated class InvalidIsolatedClassWithInvalidCopyOut {
 }
 
 function testInvalidIsolatedObjectWithInvalidCopyOut() {
-    isolated object {} invalidIsolatedObjectWithInvalidCopyOut = isolated object {
+    isolated object {} _ = isolated object {
         private map<boolean>[] c = [];
 
         isolated function invalidCopyOutOne(map<boolean>[] boolMaps) returns map<boolean> {
@@ -823,5 +823,152 @@ isolated class IsolatedClassWithInvalidQueryExpTransfer {
                             let int[] p = item where p[p.length()] == 0
                             select p;
         }
+    }
+}
+
+isolated class IsolatedClassWithInvalidAccessOutsideLockInInitMethod {
+    private int[][] arr;
+
+    function init(int[] node) {
+        self.arr = []; // OK
+
+        self.arr.push(node);
+        self.arr[0] = node;
+    }
+}
+
+int[] mutableIntArr = [1, 2];
+
+function getMutableIntArray() returns int[] => mutableIntArr;
+
+var isolatedObjectConstructorWithInvalidAccessOutsideLockInInitMethod = isolated object {
+    private int[][] arr;
+
+    function init() {
+        self.arr = []; // OK
+
+        int[] node = getMutableIntArray();
+
+        self.arr.push(node);
+        self.arr[0] = node;
+    }
+};
+
+isolated class IsolatedClassWithInvalidInitMethod {
+    private int[][] arr;
+
+    function init(int[] node) {
+        self.arr = []; // OK
+
+        lock {
+            self.arr[0] = node;
+            self.arr.push(getMutableIntArray());
+        }
+    }
+}
+
+function testIsolatedObjectConstructorWithInvalidInitMethod() {
+    var _ = isolated object {
+        private int[][] arr;
+
+        function init() {
+            self.arr = []; // OK
+
+            int[] node = getMutableIntArray();
+
+            lock {
+                self.arr.push(node);
+                int[] mutArr = getMutableIntArray();
+                self.arr[0] = mutArr;
+            }
+        }
+    };
+}
+
+isolated class TestInvalidAccessOfIsolatedObjectSelfInAnonFunctions {
+    private int[][] arr = [];
+
+    function init(int[] node) {
+        function _ = function () {
+            self.arr.push(node);
+        };
+    }
+
+    function f1(int[] node) {
+        function _ = function () {
+            self.arr.push(node);
+        };
+    }
+
+    function f2(int[] node) {
+        lock {
+            function _ = function () {
+                object {} _ = isolated object {
+                    private int[][] innerArr = [];
+
+                    function innerF(int[] innerNode) {
+                        function _ = function () {
+                            self.innerArr.push(innerNode);
+                        };
+                    }
+                };
+            };
+        }
+    }
+}
+
+isolated class TestInvalidTransferOfValuesInAnonFunctionsInIsolatedObject {
+    private int[][] arr = [];
+
+    function init(int[] node) {
+        function _ = function () {
+            lock {
+                self.arr.push(node);
+            }
+        };
+    }
+
+    function f1(int[] node) {
+        function _ = function () returns int[] {
+            lock {
+                return self.arr[0];
+            }
+        };
+    }
+
+    function f2(int[] node) {
+        lock {
+            function _ = function () {
+                object {} _ = isolated object {
+                    private int[][] innerArr = [];
+
+                    function innerF(int[] innerNode) {
+                        function _ = function () {
+                            lock {
+                                self.innerArr.push(innerNode);
+                            }
+                        };
+                    }
+                };
+            };
+        }
+    }
+}
+
+client isolated class TestInvalidAccessOfSelfWithinAnonFunctionInRemoteAndResourceMethods {
+    private int[][] arr = [];
+
+    resource function get test() {
+        function _ = function (int[] node) {
+            self.arr.push(node);
+        };
+    }
+
+    remote function testFn() {
+        function _ = function (int[] node) {
+            lock {
+                self.arr.push(node);
+            }
+        };
     }
 }

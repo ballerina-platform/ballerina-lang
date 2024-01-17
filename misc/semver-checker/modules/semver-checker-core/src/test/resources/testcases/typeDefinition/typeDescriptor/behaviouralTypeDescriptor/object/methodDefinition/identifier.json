@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Change a function name",
+    "oldCode": "public type Person object{\npublic function hello(){}\n}\n",
+    "newCode": "public type Person object{\npublic function hi(){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove a function\n",
+    "oldCode": "public service type Person object{\nremote function hello(){}\n}",
+    "newCode": "public service type Person object{}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add a new function\n",
+    "oldCode": "public service type Person object{}",
+    "newCode": "public service type Person object{\nresource function get hi(){}\n}",
+    "expectedOutput": {}
+  }
+]

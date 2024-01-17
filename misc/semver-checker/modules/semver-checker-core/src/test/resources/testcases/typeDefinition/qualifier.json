@@ -1,0 +1,66 @@
+[
+  {
+    "description": "Remove the public keyword from a type definition\n",
+    "oldCode": "public type Person object{\n\tint age;\n\tString name;\n};\n",
+    "newCode": "type Person object{\n\tint age;\n\tString name;\n};\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "'public' qualifier is removed from type 'Person'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add public qualifier\n",
+    "oldCode": "type Age null;\n",
+    "newCode": "public type Age null;\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "message": "'public' qualifier is added to type 'Age'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

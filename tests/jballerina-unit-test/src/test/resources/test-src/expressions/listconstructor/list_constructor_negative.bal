@@ -97,3 +97,7 @@ function testListConstrWithIssuesInCET() {
     Foo f = ["hello", <string> 1]; // Unknown type.
     string[]|Foo g = [<string> 1, "hello"]; // Unknown type in union.
 }
+
+function testAmbiguousTypeWithAny() {
+    any|any[] _ = [1, 2];
+}

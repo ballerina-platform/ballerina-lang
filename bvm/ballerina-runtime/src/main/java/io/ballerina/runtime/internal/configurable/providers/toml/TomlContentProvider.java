@@ -19,11 +19,9 @@
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.toml.api.Toml;
 
 import java.util.Set;
-
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
+import java.util.regex.Pattern;
 
 /**
  * Toml parser that reads from text content for configurable implementation.
@@ -33,10 +31,20 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.TomlCons
 public class TomlContentProvider extends TomlProvider {
 
     private final String configContent;
+    private static final Pattern UNESCAPED_NEWLINE_CHAR = Pattern.compile("\\\\n(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+    private static final Pattern UNESCAPED_CARRIAGE_CHAR =
+            Pattern.compile("(\\\\r|\\\\t)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
     public TomlContentProvider(Module rootModule, String configContent, Set<Module> moduleSet) {
         super(rootModule, moduleSet);
-        this.configContent = configContent;
+        this.configContent = cleanContent(configContent);
+    }
+
+    private String cleanContent(String configContent) {
+        // Finds the `\n` characters that is not inside values to replace with the system line separator
+        String content =  UNESCAPED_NEWLINE_CHAR.matcher(configContent).replaceAll(System.lineSeparator());
+        // Finds the `\r` and `\t` characters that is not inside values to remove them
+        return UNESCAPED_CARRIAGE_CHAR.matcher(content).replaceAll("");
     }
 
     @Override
@@ -44,7 +52,7 @@ public class TomlContentProvider extends TomlProvider {
         if (configContent.isEmpty()) {
             return;
         }
-        super.tomlNode = Toml.read(configContent, CONFIG_DATA_ENV_VARIABLE).rootNode();
+        super.tomlNode = new ConfigToml(configContent).tomlAstNode();
         super.initialize();
     }
 

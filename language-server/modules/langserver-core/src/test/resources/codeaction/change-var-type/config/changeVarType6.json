@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 1,
+    "character": 22
+  },
+  "source": "changeVarType3.bal",
+  "expected": [
+    {
+      "title": "Change variable 'reg' type to 'regexp:RegExp'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 1,
+              "character": 10
+            }
+          },
+          "newText": "regexp:RegExp"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

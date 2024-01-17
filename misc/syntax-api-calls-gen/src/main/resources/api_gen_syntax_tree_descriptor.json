@@ -230,6 +230,11 @@
         {
           "name": "closeBraceToken",
           "type": "Token"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token",
+          "isOptional": true
         }
       ]
     },
@@ -1764,6 +1769,11 @@
         {
           "name": "closeBraceToken",
           "type": "Token"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token",
+          "isOptional": true
         }
       ]
     },
@@ -2371,6 +2381,26 @@
       ]
     },
     {
+      "name": "XMLCDATANode",
+      "base": "XMLItemNode",
+      "kind": "XML_CDATA",
+      "attributes": [
+        {
+          "name": "cdataStart",
+          "type": "Token"
+        },
+        {
+          "name": "content",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "cdataEnd",
+          "type": "Token"
+        }
+      ]
+    },
+    {
       "name": "XMLProcessingInstruction",
       "base": "XMLItemNode",
       "kind": "XML_PI",
@@ -2853,6 +2883,21 @@
       ]
     },
     {
+      "name": "CollectClauseNode",
+      "base": "ClauseNode",
+      "kind": "COLLECT_CLAUSE",
+      "attributes": [
+        {
+          "name": "collectKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        }
+      ]
+    },
+    {
       "name": "QueryExpressionNode",
       "base": "ExpressionNode",
       "kind": "QUERY_EXPRESSION",
@@ -2867,8 +2912,8 @@
           "type": "QueryPipelineNode"
         },
         {
-          "name": "selectClause",
-          "type": "SelectClauseNode"
+          "name": "resultClause",
+          "type": "ClauseNode"
         },
         {
           "name": "onConflictClause",
@@ -3494,6 +3539,11 @@
         {
           "name": "closeBraceToken",
           "type": "Token"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token",
+          "isOptional": true
         }
       ]
     },
@@ -3532,6 +3582,18 @@
           "name": "memberTypeDesc",
           "type": "TypeDescriptorNode"
         },
+        {
+          "name": "dimensions",
+          "type": "ArrayDimensionNode",
+          "occurrences": "MULTIPLE"
+        }
+      ]
+    },
+    {
+      "name": "ArrayDimensionNode",
+      "base": "Node",
+      "kind": "ARRAY_DIMENSION",
+      "attributes": [
         {
           "name": "openBracket",
           "type": "Token"
@@ -3590,7 +3652,7 @@
     {
       "name": "RetryStatementNode",
       "base": "StatementNode",
-      "kind": "ROLLBACK_STATEMENT",
+      "kind": "RETRY_STATEMENT",
       "attributes": [
         {
           "name": "retryKeyword",
@@ -4149,6 +4211,49 @@
       ]
     },
     {
+      "name": "GroupByClauseNode",
+      "base": "IntermediateClauseNode",
+      "kind": "GROUP_BY_CLAUSE",
+      "attributes": [
+        {
+          "name": "groupKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "byKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "groupingKey",
+          "type": "Node",
+          "occurrences": "MULTIPLE_SEPARATED"
+        }
+      ]
+    },
+    {
+      "name": "GroupingKeyVarDeclarationNode",
+      "base": "Node",
+      "kind": "GROUPING_KEY_VAR_DECLARATION",
+      "attributes": [
+        {
+          "name": "typeDescriptor",
+          "type": "TypeDescriptorNode"
+        },
+        {
+          "name": "simpleBindingPattern",
+          "type": "BindingPatternNode"
+        },
+        {
+          "name": "equalsToken",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        }
+      ]
+    },
+    {
       "name": "OnFailClauseNode",
       "base": "ClauseNode",
       "kind": "ON_FAIL_CLAUSE",
@@ -4162,12 +4267,9 @@
           "type": "Token"
         },
         {
-          "name": "typeDescriptor",
-          "type": "TypeDescriptorNode"
-        },
-        {
-          "name": "failErrorName",
-          "type": "IdentifierToken"
+          "name": "typedBindingPattern",
+          "type": "TypedBindingPatternNode",
+          "isOptional": true
         },
         {
           "name": "blockStatement",
@@ -4235,6 +4337,11 @@
         {
           "name": "closeBrace",
           "type": "Token"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token",
+          "isOptional": true
         }
       ]
     },
@@ -4262,7 +4369,8 @@
         },
         {
           "name": "paramName",
-          "type": "Token"
+          "type": "Token",
+          "isOptional": true
         },
         {
           "name": "closeBracketToken",
@@ -4322,6 +4430,514 @@
           "name": "typeParamNode",
           "type": "TypeParameterNode",
           "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "SpreadMemberNode",
+      "base": "Node",
+      "kind": "SPREAD_MEMBER",
+      "attributes": [
+        {
+          "name": "ellipsis",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        }
+      ]
+    },
+    {
+      "name": "ClientResourceAccessActionNode",
+      "base": "ActionNode",
+      "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
+      "attributes": [
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        },
+        {
+          "name": "rightArrowToken",
+          "type": "Token"
+        },
+        {
+          "name": "slashToken",
+          "type": "Token"
+        },
+        {
+          "name": "resourceAccessPath",
+          "type": "Node",
+          "occurrences": "MULTIPLE_SEPARATED"
+        },
+        {
+          "name": "dotToken",
+          "type": "Token",
+          "isOptional": true
+        },
+        {
+          "name": "methodName",
+          "type": "SimpleNameReferenceNode",
+          "isOptional": true
+        },
+        {
+          "name": "arguments",
+          "type": "ParenthesizedArgList",
+          "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "ComputedResourceAccessSegmentNode",
+      "base": "Node",
+      "kind": "COMPUTED_RESOURCE_ACCESS_SEGMENT",
+      "attributes": [
+        {
+          "name": "openBracketToken",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        },
+        {
+          "name": "closeBracketToken",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ResourceAccessRestSegmentNode",
+      "base": "Node",
+      "kind": "RESOURCE_ACCESS_REST_SEGMENT",
+      "attributes": [
+        {
+          "name": "openBracketToken",
+          "type": "Token"
+        },
+        {
+          "name": "ellipsisToken",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        },
+        {
+          "name": "closeBracketToken",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ReSequenceNode",
+      "base": "Node",
+      "kind": "RE_SEQUENCE",
+      "attributes": [
+        {
+          "name": "reTerm",
+          "type": "ReTermNode",
+          "occurrences": "MULTIPLE"
+        }
+      ]
+    },
+    {
+      "name": "ReTermNode",
+      "base": "Node",
+      "isAbstract": true
+    },
+    {
+      "name": "ReAtomQuantifierNode",
+      "base": "ReTermNode",
+      "kind": "RE_ATOM_QUANTIFIER",
+      "attributes": [
+        {
+          "name": "reAtom",
+          "type": "Node"
+        },
+        {
+          "name": "reQuantifier",
+          "type": "ReQuantifierNode",
+          "isOptional": "true"
+        }
+      ]
+    },
+    {
+      "name": "ReAtomCharOrEscapeNode",
+      "base": "Node",
+      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
+      "attributes": [
+        {
+          "name": "reAtomCharOrEscape",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReQuoteEscapeNode",
+      "base": "Node",
+      "kind": "RE_QUOTE_ESCAPE",
+      "attributes": [
+        {
+          "name": "slashToken",
+          "type": "Token"
+        },
+        {
+          "name": "reSyntaxChar",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReSimpleCharClassEscapeNode",
+      "base": "Node",
+      "kind": "RE_SIMPLE_CHAR_CLASS_ESCAPE",
+      "attributes": [
+        {
+          "name": "slashToken",
+          "type": "Token"
+        },
+        {
+          "name": "reSimpleCharClassCode",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReUnicodePropertyEscapeNode",
+      "base": "Node",
+      "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+      "attributes": [
+        {
+          "name": "slashToken",
+          "type": "Token"
+        },
+        {
+          "name": "property",
+          "type": "Node"
+        },
+        {
+          "name": "openBraceToken",
+          "type": "Token"
+        },
+        {
+          "name": "reUnicodeProperty",
+          "type": "ReUnicodePropertyNode"
+        },
+        {
+          "name": "closeBraceToken",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ReUnicodePropertyNode",
+      "base": "Node",
+      "isAbstract": true
+    },
+    {
+      "name": "ReUnicodeScriptNode",
+      "base": "ReUnicodePropertyNode",
+      "kind": "RE_UNICODE_SCRIPT",
+      "attributes": [
+        {
+          "name": "scriptStart",
+          "type": "Node"
+        },
+        {
+          "name": "reUnicodePropertyValue",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReUnicodeGeneralCategoryNode",
+      "base": "ReUnicodePropertyNode",
+      "kind": "RE_UNICODE_GENERAL_CATEGORY",
+      "attributes": [
+        {
+          "name": "categoryStart",
+          "type": "Node",
+          "isOptional": true
+        },
+        {
+          "name": "reUnicodeGeneralCategoryName",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReCharacterClassNode",
+      "base": "Node",
+      "kind": "RE_CHARACTER_CLASS",
+      "attributes": [
+        {
+          "name": "openBracket",
+          "type": "Token"
+        },
+        {
+          "name": "negation",
+          "type": "Token",
+          "isOptional": true
+        },
+        {
+          "name": "reCharSet",
+          "type": "Node",
+          "isOptional": true
+        },
+        {
+          "name": "closeBracket",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ReCharSetRangeWithReCharSetNode",
+      "base": "Node",
+      "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
+      "attributes": [
+        {
+          "name": "reCharSetRange",
+          "type": "ReCharSetRangeNode"
+        },
+        {
+          "name": "reCharSet",
+          "type": "Node",
+          "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "ReCharSetRangeNode",
+      "base": "Node",
+      "kind": "RE_CHAR_SET_RANGE",
+      "attributes": [
+        {
+          "name": "lhsReCharSetAtom",
+          "type": "Node"
+        },
+        {
+          "name": "minusToken",
+          "type": "Token"
+        },
+        {
+          "name": "rhsReCharSetAtom",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReCharSetAtomWithReCharSetNoDashNode",
+      "base": "Node",
+      "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
+      "attributes": [
+        {
+          "name": "reCharSetAtom",
+          "type": "Node"
+        },
+        {
+          "name": "reCharSetNoDash",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReCharSetRangeNoDashWithReCharSetNode",
+      "base": "Node",
+      "kind": "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET",
+      "attributes": [
+        {
+          "name": "reCharSetRangeNoDash",
+          "type": "ReCharSetRangeNoDashNode"
+        },
+        {
+          "name": "reCharSet",
+          "type": "Node",
+          "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "ReCharSetRangeNoDashNode",
+      "base": "Node",
+      "kind": "RE_CHAR_SET_RANGE_NO_DASH",
+      "attributes": [
+        {
+          "name": "reCharSetAtomNoDash",
+          "type": "Node"
+        },
+        {
+          "name": "minusToken",
+          "type": "Token"
+        },
+        {
+          "name": "reCharSetAtom",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReCharSetAtomNoDashWithReCharSetNoDashNode",
+      "base": "Node",
+      "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+      "attributes": [
+        {
+          "name": "reCharSetAtomNoDash",
+          "type": "Node"
+        },
+        {
+          "name": "reCharSetNoDash",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReCapturingGroupsNode",
+      "base": "Node",
+      "kind": "RE_CAPTURING_GROUP",
+      "attributes": [
+        {
+          "name": "openParenthesis",
+          "type": "Token"
+        },
+        {
+          "name": "reFlagExpression",
+          "type": "ReFlagExpressionNode",
+          "isOptional": true
+        },
+        {
+          "name": "reSequences",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "closeParenthesis",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ReFlagExpressionNode",
+      "base": "Node",
+      "kind": "RE_FLAG_EXPR",
+      "attributes": [
+        {
+          "name": "questionMark",
+          "type": "Token"
+        },
+        {
+          "name": "reFlagsOnOff",
+          "type": "ReFlagsOnOffNode"
+        },
+        {
+          "name": "colon",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ReFlagsOnOffNode",
+      "base": "Node",
+      "kind": "RE_FLAGS_ON_OFF",
+      "attributes": [
+        {
+          "name": "lhsReFlags",
+          "type": "ReFlagsNode"
+        },
+        {
+          "name": "minusToken",
+          "type": "Token",
+          "isOptional": true
+        },
+        {
+          "name": "rhsReFlags",
+          "type": "ReFlagsNode",
+          "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "ReFlagsNode",
+      "base": "Node",
+      "kind": "RE_FLAGS",
+      "attributes": [
+        {
+          "name": "reFlag",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
+        }
+      ]
+    },
+    {
+      "name": "ReAssertionNode",
+      "base": "ReTermNode",
+      "kind": "RE_ASSERTION",
+      "attributes": [
+        {
+          "name": "reAssertion",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReQuantifierNode",
+      "base": "Node",
+      "kind": "RE_QUANTIFIER",
+      "attributes": [
+        {
+          "name": "reBaseQuantifier",
+          "type": "Node"
+        },
+        {
+          "name": "nonGreedyChar",
+          "type": "Token",
+          "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "ReBracedQuantifierNode",
+      "base": "Node",
+      "kind": "RE_BRACED_QUANTIFIER",
+      "attributes": [
+        {
+          "name": "openBraceToken",
+          "type": "Token"
+        },
+        {
+          "name": "leastTimesMatchedDigit",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "commaToken",
+          "type": "Token",
+          "isOptional": true
+        },
+        {
+          "name": "mostTimesMatchedDigit",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "closeBraceToken",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "MemberTypeDescriptorNode",
+      "base": "Node",
+      "kind": "MEMBER_TYPE_DESC",
+      "attributes": [
+        {
+          "name": "annotations",
+          "type": "AnnotationNode",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "typeDescriptor",
+          "type": "TypeDescriptorNode"
         }
       ]
     }

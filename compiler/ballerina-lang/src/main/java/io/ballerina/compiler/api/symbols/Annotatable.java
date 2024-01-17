@@ -33,4 +33,11 @@ public interface Annotatable {
      * @return The list of annotation symbols
      */
     List<AnnotationSymbol> annotations();
+
+    /**
+     * Retrieves a list of the annotation-attachment symbols attached to the symbol.
+     *
+     * @return The list of annotation-attachment symbols
+     */
+    List<AnnotationAttachmentSymbol> annotAttachments();
 }

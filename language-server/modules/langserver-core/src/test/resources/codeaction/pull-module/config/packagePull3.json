@@ -1,16 +1,20 @@
 {
-  "line": 0,
-  "character": 26,
+  "position": {
+    "line": 0,
+    "character": 26
+  },
+  "source": "packagePull2.bal",
   "expected": [
     {
       "title": "Pull unresolved modules",
+      "kind": "quickfix",
       "command": {
         "title": "Pull unresolved modules",
         "command": "PULL_MODULE",
         "arguments": [
           {
             "key": "module",
-            "value": "ballerina/http as ht"
+            "value": "ballerina/httpx as ht"
           }
         ]
       }

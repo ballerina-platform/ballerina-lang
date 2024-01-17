@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BErrorType;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
@@ -59,6 +60,7 @@ public class ErrorCreator {
      * @return new error
      */
     public static BError createError(BString message, BMap<BString, Object> details) {
+        details = RuntimeUtils.validateErrorDetails(details);
         return new ErrorValue(message, details);
     }
 
@@ -104,6 +106,8 @@ public class ErrorCreator {
      * @return new error
      */
     public static BError createError(Type type, BString message, BError cause, BMap<BString, Object> details) {
+        details = RuntimeUtils.validateErrorDetails(details);
+        ((BErrorType) type).setDetailType(TypeChecker.getType(details));
         return new ErrorValue(type, message, cause, details);
     }
 
@@ -137,7 +141,9 @@ public class ErrorCreator {
         if (error instanceof BError) {
             return (BError) error;
         }
-        return createError(StringUtils.fromString(error.getMessage()));
+        BError bError = createError(StringUtils.fromString(error.toString()));
+        bError.setStackTrace(error.getStackTrace());
+        return bError;
     }
 
     /**
@@ -152,9 +158,20 @@ public class ErrorCreator {
      * @throws BError if given error type is not defined in the ballerina module.
      */
     public static BError createError(Module module, String errorTypeName,
-                                     BString message, BError cause, BMap<BString, Object> details) {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
-        return valueCreator.createErrorValue(errorTypeName, message, cause, details);
+                                     BString message, BError cause, BMap<BString, Object> details) throws BError {
+        details = RuntimeUtils.validateErrorDetails(details);
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module, false));
+        try {
+            return valueCreator.createErrorValue(errorTypeName, message, cause, details);
+        } catch (BError e) {
+            // If error type definition not found, get it from test module.
+            String testLookupKey = ValueCreator.getLookupKey(module, true);
+            if (ValueCreator.containsValueCreator(testLookupKey)) {
+                return ValueCreator.getValueCreator(testLookupKey).createErrorValue(errorTypeName, message,
+                        cause, details);
+            }
+            throw e;
+        }
     }
 
     /**
@@ -164,7 +181,7 @@ public class ErrorCreator {
      * @param typeIdPkg  type id module
      * @param message  error message
      * @return new error
-     * @deprecated Use @createError(module, errorTypeName, message, cause, details) to create a distinct error.
+     * @deprecated Use {@link #createError(Module, String, BString, BError, BMap)} to create a distinct error.
      */
     @Deprecated
     public static BError createDistinctError(String typeIdName, Module typeIdPkg, BString message) {
@@ -180,11 +197,12 @@ public class ErrorCreator {
      * @param message  error message
      * @param details  error details
      * @return new error
-     * @deprecated Use @createError(module, errorTypeName, message, cause, details) to create a distinct error.
+     * @deprecated Use {@link #createError(Module, String, BString, BError, BMap)} to create a distinct error.
      */
     @Deprecated
     public static BError createDistinctError(String typeIdName, Module typeIdPkg, BString message,
                                              BMap<BString, Object> details) {
+        details = RuntimeUtils.validateErrorDetails(details);
         return new ErrorValue(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TypeChecker
                 .getType(details)), message, null, details, typeIdName, typeIdPkg);
     }
@@ -197,7 +215,7 @@ public class ErrorCreator {
      * @param message     error message
      * @param cause      error cause
      * @return new error
-     * @deprecated Use @createError(module, errorTypeName, message, cause, details) to create a distinct error.
+     * @deprecated Use {@link #createError(Module, String, BString, BError, BMap)} to create a distinct error.
      */
     @Deprecated
     public static BError createDistinctError(String typeIdName, Module typeIdPkg, BString message,

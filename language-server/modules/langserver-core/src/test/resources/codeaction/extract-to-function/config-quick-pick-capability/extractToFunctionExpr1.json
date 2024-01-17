@@ -1,0 +1,108 @@
+{
+  "position": {
+    "line": 1,
+    "character": 22
+  },
+  "source": "extract_to_function_exprs_with_quickpick.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "Extract to function",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "Extract to function",
+          "extract_to_function_exprs_with_quickpick.bal",
+          {
+            "10": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction extracted() returns int {\n    return 10;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 23
+                  }
+                },
+                "newText": "extracted()"
+              }
+            ],
+            "10 * 20": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction extracted() returns int {\n    return 10 * 20;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 28
+                  }
+                },
+                "newText": "extracted()"
+              }
+            ],
+            "10 * 20 + 30": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction extracted() returns int {\n    return 10 * 20 + 30;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 33
+                  }
+                },
+                "newText": "extracted()"
+              }
+            ]
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

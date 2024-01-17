@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -45,8 +44,8 @@ public class QueryExpressionIterableObjectTest {
 
     @Test
     public void testIterableObject() {
-        BValue[] returns = BRunUtil.invoke(program, "testIterableObject");
-        BValueArray array = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(program, "testIterableObject");
+        BArray array = (BArray) returns;
         int i = 0;
         Assert.assertEquals(array.getInt(i++), 12);
         Assert.assertEquals(array.getInt(i++), 34);
@@ -60,8 +59,8 @@ public class QueryExpressionIterableObjectTest {
 
     @Test
     public void testNestedIterableObject() {
-        BValue[] returns = BRunUtil.invoke(program, "testNestedIterableObject");
-        BValueArray array = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(program, "testNestedIterableObject");
+        BArray array = (BArray) returns;
         int i = 0;
         Assert.assertEquals(array.getInt(i++), 12);
         Assert.assertEquals(array.getInt(i++), 34);
@@ -87,8 +86,8 @@ public class QueryExpressionIterableObjectTest {
 
     @Test
     public void testStreamOfStreams() {
-        BValue[] returns = BRunUtil.invoke(program, "testStreamOfStreams");
-        BValueArray array = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(program, "testStreamOfStreams");
+        BArray array = (BArray) returns;
         int i = 0;
         Assert.assertEquals(array.getInt(i++), 1);
         Assert.assertEquals(array.getInt(i++), 2);
@@ -106,8 +105,8 @@ public class QueryExpressionIterableObjectTest {
 
     @Test
     public void testIteratorInStream() {
-        BValue[] returns = BRunUtil.invoke(program, "testIteratorInStream");
-        BValueArray array = (BValueArray) returns[0];
+        Object returns = BRunUtil.invoke(program, "testIteratorInStream");
+        BArray array = (BArray) returns;
         int i = 0;
         Assert.assertEquals(array.getInt(i++), 1);
         Assert.assertEquals(array.getInt(i++), 2);
@@ -128,11 +127,11 @@ public class QueryExpressionIterableObjectTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int index = 0;
         validateError(negativeResult, index++, "invalid iterable type 'IterableObject': an iterable object must be" +
-                        " a subtype of 'ballerina/lang.object:0.0.0:Iterable'", 43, 39);
+                " a subtype of 'ballerina/lang.object:0.0.0:Iterable'", 43, 39);
         validateError(negativeResult, index++, "invalid iterable type 'IterableObject': an iterable object must be" +
-                        " a subtype of 'ballerina/lang.object:0.0.0:Iterable'", 73, 39);
+                " a subtype of 'ballerina/lang.object:0.0.0:Iterable'", 73, 39);
         validateError(negativeResult, index++, "mismatched function signatures: expected 'public function iterator()" +
-                        " returns object { public function next () returns ((record {| (any|error) value; " +
+                " returns object { public function next () returns ((record {| (any|error) value; " +
                 "|}|error)?); }', found 'public function iterator() returns _Iterator'", 90, 9);
     }
 

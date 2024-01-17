@@ -67,7 +67,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "java11": {
+                "java17": {
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
@@ -98,11 +98,11 @@
                     },
                     "required": ["dependency"],
                     "message": {
-                        "required": "cannot find '${property}' under 'platform.java11'"
+                        "required": "cannot find '${property}' under 'platform.java17'"
                     }
                 }
             },
-            "required": ["java11"],
+            "required": ["java17"],
             "message": {
                 "required": "cannot find '${property}' under 'platform'"
             }

@@ -35,20 +35,26 @@ public class CompilerPluginCodeActionTests extends AbstractCodeActionTest {
     }
 
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"compiler_plugin_code_action_config1.json", "package_plugin_user_with_codeactions_1/main.bal"}
+                {"compiler_plugin_code_action_config1.json"},
+                {"compiler_plugin_code_action_single_file_config1.json"}
         };
     }
 
     @Override
     public String getResourceDir() {
         return "compiler-plugins";
+    }
+
+    @Override
+    protected Object convertActionData(Object actionData) {
+        return super.convertActionData(actionData);
     }
 }

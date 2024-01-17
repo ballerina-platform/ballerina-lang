@@ -24,7 +24,6 @@ import io.ballerina.cli.task.CreateDocsTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -48,7 +47,7 @@ import static io.ballerina.cli.cmd.Constants.DOC_COMMAND;
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = DOC_COMMAND, description = "Ballerina doc - Generates API Documentation")
+@CommandLine.Command(name = DOC_COMMAND, description = "Generate current package's documentation")
 public class DocCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
@@ -64,11 +63,21 @@ public class DocCommand implements BLauncherCmd {
         this.exitWhenFinish = true;
     }
 
-    public DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+    DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.projectPath = Paths.get(System.getProperty("user.dir"));
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
+    }
+
+    DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish, Path targetDir) {
+        this.projectPath = Paths.get(System.getProperty("user.dir"));
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.targetDir = targetDir;
+        this.offline = true;
     }
 
     @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")
@@ -79,7 +88,7 @@ public class DocCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--offline"}, description = "Compiles offline without downloading " +
             "dependencies.")
-    private boolean offline;
+    private Boolean offline;
 
     @CommandLine.Option(names = "--old-parser", description = "Enable old parser.", hidden = true)
     private boolean useOldParser;
@@ -93,8 +102,12 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private boolean experimentalFlag;
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
+    private Path targetDir;
+
+    @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
+            "caching for source files", defaultValue = "false")
+    private Boolean disableSyntaxTreeCaching;
 
     public void execute() {
         if (this.helpFlag) {
@@ -186,8 +199,7 @@ public class DocCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Generates API Documentation for Ballerina projects. \n");
-        out.append("\n");
+        out.append(BLauncherCmd.getCommandUsageInfo(DOC_COMMAND));
     }
 
     @Override
@@ -200,12 +212,20 @@ public class DocCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return new BuildOptionsBuilder()
-                .codeCoverage(false)
-                .experimental(experimentalFlag)
-                .offline(offline)
-                .testReport(false)
-                .observabilityIncluded(false)
-                .build();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+
+        buildOptionsBuilder
+                .setCodeCoverage(false)
+                .setOffline(offline)
+                .setTestReport(false)
+                .setObservabilityIncluded(false)
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
+
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir.toString());
+        }
+
+        return buildOptionsBuilder.build();
     }
 }

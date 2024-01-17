@@ -17,8 +17,10 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CodeActionExtension;
+import org.ballerinalang.langserver.commons.CodeActionResolveContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.CompletionExtension;
 import org.ballerinalang.langserver.commons.DiagnosticsExtension;
@@ -26,6 +28,7 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.FormattingExtension;
 import org.ballerinalang.langserver.commons.LanguageExtension;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CompletionItem;
@@ -37,6 +40,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -89,8 +93,10 @@ public class LangExtensionDelegator {
                                                                    LanguageServerContext serverContext)
             throws Throwable {
         List<CompletionItem> completionItems = new ArrayList<>();
+        URI uri = URI.create(params.getTextDocument().getUri());
         for (CompletionExtension ext : completionExtensions) {
-            if (ext.validate(params)) {
+            if (this.handleURIScheme(uri, ext.handledCustomURISchemes(params, context, serverContext))
+                    && ext.validate(params)) {
                 completionItems.addAll(ext.execute(params, context, serverContext));
             }
         }
@@ -111,8 +117,10 @@ public class LangExtensionDelegator {
                                                                    CancelChecker cancelChecker)
             throws Throwable {
         List<CompletionItem> completionItems = new ArrayList<>();
+        URI uri = URI.create(params.getTextDocument().getUri());
         for (CompletionExtension ext : completionExtensions) {
-            if (ext.validate(params)) {
+            if (this.handleURIScheme(uri, ext.handledCustomURISchemes(params, context, serverContext))
+                    && ext.validate(params)) {
                 completionItems.addAll(ext.execute(params, context, serverContext, cancelChecker));
             }
         }
@@ -132,8 +140,10 @@ public class LangExtensionDelegator {
                                                LanguageServerContext serverContext)
             throws Throwable {
         List<TextEdit> textEdits = new ArrayList<>();
+        URI uri = URI.create(params.getTextDocument().getUri());
         for (FormattingExtension ext : formatExtensions) {
-            if (ext.validate(params)) {
+            if (this.handleURIScheme(uri, ext.handledCustomURISchemes(params, context, serverContext))
+                    && ext.validate(params)) {
                 textEdits.addAll(ext.execute(params, context, serverContext));
             }
         }
@@ -152,13 +162,40 @@ public class LangExtensionDelegator {
                                                   LanguageServerContext serverContext)
             throws Throwable {
         List<CodeAction> actions = new ArrayList<>();
+        URI uri = URI.create(params.getTextDocument().getUri());
         for (CodeActionExtension ext : codeActionsExtensions) {
-            if (ext.validate(params)) {
-                actions.addAll(ext.execute(params, context, serverContext));
+            if (this.handleURIScheme(uri, ext.handledCustomURISchemes(params, context, serverContext))
+                    && ext.validate(params)) {
+                List<? extends CodeAction> codeActions = ext.execute(params, context, serverContext);
+                for (CodeAction codeAction : codeActions) {
+                    if (codeAction instanceof ResolvableCodeAction) {
+                        ResolvableCodeAction action = (ResolvableCodeAction) codeAction;
+                        action.getData().setExtName(ext.getClass().getName());
+                    }
+                    actions.add(codeAction);
+                }
             }
         }
 
         return actions;
+    }
+
+    /**
+     * Get resolvable code action.
+     *
+     * @param resolvableCodeAction Resolvable code action
+     * @param resolveContext       Code action resolve context
+     * @return code action
+     */
+    public CodeAction resolveCodeAction(ResolvableCodeAction resolvableCodeAction,
+                                        CodeActionResolveContext resolveContext) {
+        for (CodeActionExtension ext : codeActionsExtensions) {
+            if (ext.getClass().getName().equals(resolvableCodeAction.getData().getExtName())) {
+                return ext.resolve(resolvableCodeAction, resolveContext);
+            }
+        }
+
+        throw new IllegalStateException("Extension not found: " + resolvableCodeAction.getData().getExtName());
     }
 
     /**
@@ -172,8 +209,10 @@ public class LangExtensionDelegator {
                                                       DocumentServiceContext context,
                                                       LanguageServerContext serverContext) throws Throwable {
         List<PublishDiagnosticsParams> diagnosticsParams = new ArrayList<>();
+        URI fileURI = URI.create(uri);
         for (DiagnosticsExtension ext : diagExtensions) {
-            if (ext.validate(uri)) {
+            if (this.handleURIScheme(fileURI, ext.handledCustomURISchemes(uri, context, serverContext))
+                    && ext.validate(uri)) {
                 diagnosticsParams.addAll(ext.execute(uri, context, serverContext));
             }
         }
@@ -183,5 +222,9 @@ public class LangExtensionDelegator {
 
     public static LangExtensionDelegator instance() {
         return INSTANCE;
+    }
+
+    private boolean handleURIScheme(URI uri, List<String> customSchemes) {
+        return CommonUtil.URI_SCHEME_FILE.equals(uri.getScheme()) || customSchemes.contains(uri.getScheme());
     }
 }

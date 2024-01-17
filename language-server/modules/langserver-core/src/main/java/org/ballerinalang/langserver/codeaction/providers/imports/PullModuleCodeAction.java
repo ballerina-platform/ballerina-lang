@@ -18,13 +18,13 @@ package org.ballerinalang.langserver.codeaction.providers.imports;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
@@ -42,39 +42,36 @@ import java.util.Optional;
  * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class PullModuleCodeAction extends AbstractCodeActionProvider {
+public class PullModuleCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Pull Module";
 
     private static final int MISSING_MODULE_NAME_INDEX = 0;
 
     @Override
-    public boolean isEnabled(LanguageServerContext serverContext) {
-        // TODO: Disabled temporarily due to #33073
-        return false;
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         Optional<String> moduleName = getMissingModuleNameFromDiagnostic(diagnostic);
         if (moduleName.isEmpty()) {
             return Collections.emptyList();
         }
 
         CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, context.fileUri());
-        List<Diagnostic> diagnostics = new ArrayList<>();
 
         List<Object> args = new ArrayList<>();
         args.add(uriArg);
         args.add(CommandArgument.from(CommandConstants.ARG_KEY_MODULE_NAME, moduleName.get()));
 
         String commandTitle = CommandConstants.PULL_MOD_TITLE;
-        CodeAction action = new CodeAction(commandTitle);
-        action.setKind(CodeActionKind.QuickFix);
-        action.setCommand(new Command(commandTitle, PullModuleExecutor.COMMAND, args));
-        action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
+        Command command = new Command(commandTitle, PullModuleExecutor.COMMAND, args);
+        CodeAction action = CodeActionUtil.createCodeAction(commandTitle, command, CodeActionKind.QuickFix);
         return Collections.singletonList(action);
     }
 

@@ -1,0 +1,24 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	dependson-skip-test.bal
+WARNING [dependson-skip-test.bal:(34:5,34:18)] unused variable 'i'
+
+Running Tests
+
+	dependson-skip-test.bal
+		[pass] test1
+		[pass] test5
+
+		[fail] test2:
+
+		    error("{ballerina}DivisionByZero",message=" / by zero")
+				callableName: test2  fileName: dependson-skip-test.bal lineNumber: 34
+				callableName: test2$lambda2$  fileName: dependson-skip-test.bal lineNumber: 60
+			
+
+
+		2 passing
+		1 failing
+		2 skipped
+error: there are test failures

@@ -36,6 +36,24 @@ public type ApiDefinition record {|
 
 public type MyType byte[]|string|int|float;
 
+function testJavaNullPointerException() {
+    error? unionResult = trap callThrowNPEWithCallback();
+    test:assertEquals(unionResult is error, true);
+    if unionResult is error {
+        test:assertEquals(unionResult.message(), "java.lang.NullPointerException");
+        test:assertEquals(unionResult.stackTrace().toBalString(),
+        "[object callableName: throwNPE  fileName: static_method_tests.bal lineNumber: 190," +
+        "object callableName: $lambda$_0  fileName: static_method_tests.bal lineNumber: 53]");
+    }
+}
+
+function callThrowNPEWithCallback() {
+    int[] arr = [1, 2, 3];
+    arr.forEach(function(int x) {
+        throwNPE();
+    });
+}
+
 function testAcceptNothingAndReturnNothing() {
     acceptNothingAndReturnNothing();
 }
@@ -169,6 +187,10 @@ function hashCode(int receiver) returns int = @java:Method {
 } external;
 
 // Interop functions
+function throwNPE() = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
 public function acceptNothingAndReturnNothing() = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
@@ -368,3 +390,49 @@ function defaultDecimalArgsAddition(decimal a, decimal b = 10.05) returns (decim
 function defaultDecimalArgs(handle s, decimal d = -1) returns (anydata) = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
+
+function getStringFromFutureResult() returns string = @java:Method {
+    name: "getStringWithBalEnv",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public client isolated class Client {
+    resource function get getStringFromFutureResult() returns string = @java:Method {
+        name: "getStringWithBalEnv",
+        'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    } external;
+
+    resource function get getAnydataFromFutureResult() returns anydata = @java:Method {
+        name: "getStringWithBalEnv",
+        'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    } external;
+
+    resource function get getIntFromFutureResult() returns anydata = @java:Method {
+        name: "getIntWithBalEnv",
+        'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    } external;
+}
+
+function getMapFromFutureResult(string name, int age, map<anydata> results) returns map<any> = @java:Method {
+    name: "getMapValueWithBalEnv",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function testBalEnvAcceptingMethodRetType() {
+
+    string stringResult = getStringFromFutureResult();
+    test:assertEquals(stringResult, "Hello World!");
+
+    Client clientResult = new Client();
+    stringResult = clientResult->/getStringFromFutureResult();
+    test:assertEquals(stringResult, "Hello World!");
+
+    anydata anydataResult = clientResult->/getAnydataFromFutureResult();
+    test:assertEquals(anydataResult, "Hello World!");
+
+    anydataResult = clientResult->/getIntFromFutureResult();
+    test:assertEquals(anydataResult, 7);
+
+    map<any> mapResult = getMapFromFutureResult("John", 35, {"Mathematics": 99, "Physics": 95});
+    test:assertEquals(mapResult, {"name":"John","age":35,"results":{"Mathematics":99,"Physics":95}});
+}

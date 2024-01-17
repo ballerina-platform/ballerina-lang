@@ -222,7 +222,7 @@ public interface BArray extends BRefValue, BCollection {
 
 
     /**
-     * Get {@code BType} of the array elements.
+     * Get {@code Type} of the array elements.
      * @return element type
      */
     Type getElementType();

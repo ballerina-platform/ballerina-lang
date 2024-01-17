@@ -17,9 +17,10 @@
 
 package org.ballerinalang.test.main.function;
 
-import org.ballerinalang.core.model.types.BTypes;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -46,10 +47,11 @@ public class MainFunctionsTest {
     public void basicMainInvocationTest() {
         CompileResult result = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_basic_main_function.bal");
         assertEquals(result.getErrorCount(), 0);
-        BValueArray args = new BValueArray(BTypes.typeString);
+        BArray args =
+                ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING));
         args.add(0, "V1");
         args.add(1, "V2");
-        BRunUtil.invoke(result, "main", new BValue[] { args });
+        BRunUtil.invoke(result, "main", new Object[] { args });
     }
 
     @Test

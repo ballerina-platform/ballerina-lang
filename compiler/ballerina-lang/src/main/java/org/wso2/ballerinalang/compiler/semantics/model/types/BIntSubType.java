@@ -63,7 +63,7 @@ public class BIntSubType extends BType {
         return Names.INT.value + Names.ALIAS_SEPARATOR + name;
     }
 
-    protected String getQualifiedTypeName() {
+    public String getQualifiedTypeName() {
 
         return Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value
                 + Names.LANG.value + Names.DOT.value + Names.INT.value + Names.ALIAS_SEPARATOR + name;

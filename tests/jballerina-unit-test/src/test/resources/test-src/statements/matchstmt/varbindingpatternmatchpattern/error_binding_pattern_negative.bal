@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type MyError1 error<record { int x; }>;
-type MyError2 error<record { int y; }>;
-
 function testNegative1() {
     int v1 = 0;
     match v1 {

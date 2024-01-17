@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Add a new field in module type definition\n",
+    "oldCode": "public type Person object{\n\tstring name;\n\tint age;\n};\n",
+    "newCode": "public type Person object{\n\tstring name;\n\tint age;\n\tpublic string id;\n};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Rename field in module type definition\n",
+    "oldCode": "public type Person object{\n\tpublic string name;\n};\n",
+    "newCode": "public type Person object{\n\tpublic string nickName;\n};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": " Remove a field from module type definition\n",
+    "oldCode": "public type Person object{\n\tstring name;\n\tint age;\npublic int id;\n};\n",
+    "newCode": "public type Person object{\n\tstring name;\n\tint age;\n};\n",
+    "expectedOutput": {}
+  }
+]

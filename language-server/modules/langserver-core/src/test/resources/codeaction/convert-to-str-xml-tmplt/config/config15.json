@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 35,
+    "character": 16
+  },
+  "source": "source.bal",
+  "description": "Test return raw template when expecting a regex",
+  "expected": [
+    {
+      "title": "Convert to 're' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 35,
+              "character": 11
+            },
+            "end": {
+              "line": 35,
+              "character": 22
+            }
+          },
+          "newText": "re `Ballerina`"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

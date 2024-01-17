@@ -56,3 +56,7 @@ function testIncompatibleAssignment() {
     string:Char|int v3 = "ABC";
     SomeTypes2 v4 = "ABC";
 }
+
+function testNullAsUnionMember() {
+    boolean|null _ = "null"; // error
+}

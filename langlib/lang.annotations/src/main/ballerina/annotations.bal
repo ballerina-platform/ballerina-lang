@@ -48,7 +48,7 @@ type ArgsData record {|
 |};
 
 # Defaultable annotation data generated at compile time. This is for internal use.
-annotation ArgsData DefaultableArgs on function;
+const annotation ArgsData DefaultableArgs on function;
 
 # Contains the configurations related to service introspection. This is used by HTTP module.
 #
@@ -58,14 +58,14 @@ type ServiceIntrospectionDocConfig record {|
 |};
 
 # The annotation which is used to configure a HTTP service.
-annotation ServiceIntrospectionDocConfig IntrospectionDocConfig on service;
+const annotation ServiceIntrospectionDocConfig IntrospectionDocConfig on service;
 
 # An annotation that marks a program element as deprecated.
 #
 # The usage of a deprecated program element is not recommended due to
 # various reasons. Hence, the compiler issues a warning when such an element is used.
 public const annotation deprecated on source type, source class, source const, source annotation,
-                source function, source parameter, source object function, source object field;
+                source function, source parameter, source object function, source object field, source record field;
 
 //# Defines a disptcher to be used for concurrent execution of strands.
 //#
@@ -99,6 +99,8 @@ public const annotation record {
     string label;
     # icon path relative to module's resource directory
     string iconPath?;
+    # kind of the data
+    "text"|"password"|"file" kind?;
 } display on source type, source class,
       source function, source return, source parameter, source field, source listener,
-      source var, source const, source annotation, source service;
+      source var, source const, source annotation, source service, source external, source worker;

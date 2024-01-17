@@ -17,7 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-metrics-extension-suite" verbose="1">
     <test name="ballerina-metrics-extension-test">

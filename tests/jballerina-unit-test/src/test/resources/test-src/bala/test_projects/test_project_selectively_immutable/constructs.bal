@@ -121,7 +121,7 @@ public type Owner object {
     public function getId() returns int;
 };
 
-public class OwnerA {
+public readonly class OwnerA {
     final int id;
 
     public function init(int id) {
@@ -220,7 +220,7 @@ public type Config object {
     public function getName() returns string;
 };
 
-public class MyConfig {
+public readonly class MyConfig {
     public final string name;
 
     public function init(string name) {
@@ -254,3 +254,28 @@ public type User record {|
 public type UnionMap map<User|Identifier>;
 
 public type UnionTable table<User|Identifier>;
+
+public type Zone readonly & object {
+    public isolated function utcToCivil(Utc utc) returns Civil;
+};
+
+public type Utc readonly & [int, decimal];
+
+public type Seconds decimal;
+
+type DateFields record {
+    int year;
+    int month;
+    int day;
+};
+
+type TimeOfDayFields record {
+    int hour;
+    int minute;
+    Seconds second?;
+};
+
+public type Civil record {
+    *DateFields;
+    *TimeOfDayFields;
+};

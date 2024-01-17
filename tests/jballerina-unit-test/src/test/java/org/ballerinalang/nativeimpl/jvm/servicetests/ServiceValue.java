@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.jvm.servicetests;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -24,7 +25,6 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
@@ -85,7 +85,7 @@ public class ServiceValue {
             if (attachedFunction.getName().equals(methodName.getValue())) {
                 String[] paramNames = attachedFunction.getParamNames();
                 BArray arrayValue = ValueCreator.createArrayValue(
-                        TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, paramNames.length), paramNames.length);
+                        TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, paramNames.length));
                 for (int i = 0; i < paramNames.length; i++) {
                     String paramName = paramNames[i];
                     arrayValue.add(i, StringUtils.fromString(paramName));
@@ -168,7 +168,7 @@ public class ServiceValue {
         for (int i = 0; i < path.size(); i++) {
             funcName.append("$").append(path.getBString(i).getValue());
         }
-        return IdentifierUtils.encodeFunctionIdentifier(funcName.toString());
+        return Utils.encodeFunctionIdentifier(funcName.toString());
     }
 
     public static BArray getServicePath() {
@@ -197,14 +197,14 @@ public class ServiceValue {
                 .filter(r -> r.getName().equals(name.getValue())).findAny();
 
         if (func.isEmpty()) {
-            return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, 0), 0);
+            return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, 0));
         }
 
         ResourceMethodType rt = func.get();
 
         int len = rt.getParamDefaultability().length;
-        BArray arrayValue = ValueCreator.createArrayValue(
-                TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, len), len);
+        BArray arrayValue =
+                ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, len));
         for (int i = 0; i < len; i++) {
             boolean d = rt.getParamDefaultability()[i];
             arrayValue.add(i, d);

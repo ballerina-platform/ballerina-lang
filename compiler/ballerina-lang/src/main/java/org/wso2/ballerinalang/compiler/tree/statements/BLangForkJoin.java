@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import java.util.List;
  */
 public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
 
+    // BLangNodes
     public List<BLangSimpleVariableDef> workers;
 
     public BLangForkJoin() {
@@ -56,6 +59,16 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

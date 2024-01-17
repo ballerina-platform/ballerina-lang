@@ -51,11 +51,26 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
         test("a ? check b :\"c\"", "conditional-expr/conditional_expr_assert_23.json");
         test("a ? <string> b :\"c\"", "conditional-expr/conditional_expr_assert_24.json");
         test("a ? b is c :\"d\"", "conditional-expr/conditional_expr_assert_25.json");
+        test("a ? b ? c : d : e", "conditional-expr/conditional_expr_assert_30.json");
+    }
+
+    @Test
+    public void testLetExprInConditionalExpr() {
+        test("true ? let int z = 0 in z : let int y = 1 in y", "conditional-expr/conditional_expr_assert_31.json");
+        test("true ? let int z = 0 in z:let int y = 1 in y", "conditional-expr/conditional_expr_assert_32.json");
+        test("true ? let int z = 0 in z:r : let int y = 1 in y", "conditional-expr/conditional_expr_assert_33.json");
+        test("true ? let int z = 0 in z:r:let int y = 1 in y", "conditional-expr/conditional_expr_assert_34.json");
     }
 
     @Test
     public void testConditionalExprAmbiguity() {
         testFile("conditional-expr/conditional_expr_source_26.bal", "conditional-expr/conditional_expr_assert_26.json");
+        test("a ? b:c.d;", "conditional-expr/conditional_expr_assert_29.json");
+    }
+
+    @Test
+    public void testNestedConditionalExprAmbiguity() {
+        testFile("conditional-expr/conditional_expr_source_28.bal", "conditional-expr/conditional_expr_assert_28.json");
     }
 
     // Recovery tests

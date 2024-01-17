@@ -161,3 +161,37 @@ function incompatibleTypesInBinaryBitwiseOpInCompoundAssignment() {
     a |= d;
     a ^= d;
 }
+
+function testCompoundAssignmentNotAllowedWithNullableOperands() {
+    map<int>? m = {x: 2};
+    m["x"] += 1;
+    
+    map<int> n = {x: 2};
+    n["x"] += 1;
+
+    int? a = ();
+    a += 2;
+
+    record {|int name?; int? age;|} b = {age: ()};
+    b.name += 4;
+    b.age += 4;
+
+    ()|int c = 5;
+    c += 4;
+    
+    int? x =  4;
+    int? y = 5;
+    x += y;
+}
+
+type MyNill ();
+type MyMap map<int>;
+type MyUnion MyMap|MyNill;
+
+function testCompoundAssignmentNotAllowedWithNullableOperandsUsingTypeRef() {
+    MyMap x = {"w": 33};
+    x["w"] += 1;
+
+    MyUnion y = {"w": 33};
+    y["w"] += 1;
+}

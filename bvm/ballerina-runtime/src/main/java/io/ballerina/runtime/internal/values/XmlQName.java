@@ -27,6 +27,8 @@ import io.ballerina.runtime.api.values.BXmlQName;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+
 /**
  * <p>
  * Represents an XML qualified name in ballerina.
@@ -42,7 +44,7 @@ public final class XmlQName implements RefValue, BXmlQName {
     private String localName;
     private String uri;
     private String prefix;
-    private final BTypedesc typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_XML_ATTRIBUTES);
+    private BTypedesc typedesc = null;
 
     /**
      * Create attribute map with an XML.
@@ -60,7 +62,7 @@ public final class XmlQName implements RefValue, BXmlQName {
 
     @Deprecated
     public XmlQName(String qNameStr) {
-        int parenEndIndex = qNameStr.indexOf('}');
+        int parenEndIndex = qNameStr.lastIndexOf('}');
         if (qNameStr.startsWith("{") && parenEndIndex > 0) {
             localName = qNameStr.substring(parenEndIndex + 1);
             uri = qNameStr.substring(1, parenEndIndex);
@@ -79,6 +81,12 @@ public final class XmlQName implements RefValue, BXmlQName {
         if (prefix != null) {
             this.prefix = prefix.getValue();
         }
+    }
+
+    @Deprecated
+    public XmlQName(String qNameStr, String prefix) {
+        this(qNameStr);
+        this.prefix = prefix;
     }
 
     @Deprecated
@@ -136,6 +144,9 @@ public final class XmlQName implements RefValue, BXmlQName {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = getTypedescValue(PredefinedTypes.TYPE_XML_ATTRIBUTES, this);
+        }
         return typedesc;
     }
 

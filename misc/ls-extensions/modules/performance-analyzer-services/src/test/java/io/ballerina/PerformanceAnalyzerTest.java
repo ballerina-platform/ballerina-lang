@@ -18,11 +18,11 @@
 
 package io.ballerina;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.javacrumbs.jsonunit.core.Option;
 import org.ballerinalang.langserver.util.TestUtil;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
@@ -33,36 +33,152 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+
+import static io.ballerina.Constants.MESSAGE;
+import static io.ballerina.Constants.SUCCESS;
+import static io.ballerina.Constants.TYPE;
+import static io.ballerina.PerformanceAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
+import static io.ballerina.PerformanceAnalyzerNodeVisitor.ENDPOINTS_KEY;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 /**
  * Tests for Performance Analyzer.
  */
 public class PerformanceAnalyzerTest {
 
-    private static final String PERFORMANCE_ANALYZE = "performanceAnalyzer/getEndpoints";
+    private static final String BALLERINA = "ballerina";
+    private static final String RESULT = "result";
+    private static final String PERFORMANCE_ANALYZE = "performanceAnalyzer/getResourcesWithEndpoints";
     private static final Path RES_DIR = Paths.get("src", "test", "resources").toAbsolutePath();
-    private static final Path project = RES_DIR.resolve("ballerina")
-            .resolve("main.bal");
-    private static final Path resultJson = RES_DIR.resolve("result")
-            .resolve("result.json");
 
     @Test(description = "Test performance analyzer")
-    public void testPerformanceAnalyzer() throws IOException, ExecutionException, InterruptedException {
+    public void testFunction() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("project", "main.bal").toString(), "main.json", true, 0);
+    }
+
+    @Test(description = "Test performance analyzer")
+    public void testIfElse() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("project", "ifElse.bal").toString(), "ifElse.json", true, 0);
+    }
+
+    @Test(description = "Test performance analyzer")
+    public void testNoData() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("project", "noData.bal").toString(), "noData.json", true, 0);
+    }
+
+    @Test(description = "Test performance analyzer")
+    public void testForEach() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("project", "forEach.bal").toString(), "forEach.json", true, 0);
+    }
+
+    @Test(description = "Test performance analyzer")
+    public void testWhile() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("project", "while.bal").toString(), "while.json", true, 0);
+    }
+
+    @Test(description = "Test performance analyzer worker support")
+    public void testWorker() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("worker", "main.bal").toString(), "worker.json", true, 0);
+    }
+
+    @Test(description = "Test performance analyzer worker only scenario")
+    public void testWorkerOnly() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("worker", "workerOnly.bal").toString(), "workerOnly.json", true, 0);
+    }
+
+    @Test(description = "Test performance analyzer worker not support")
+    public void testWorkerNotSupport() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("worker", "main.bal").toString(), "workerNot.json", false, 0);
+    }
+
+    @Test(description = "Test performance analyzer return node support - only return")
+    public void testReturnStatementReturn() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("project", "return.bal").toString(), "returnIf.json", true, 0);
+    }
+
+    @Test(description = "Test performance analyzer return node support - only else")
+    public void testReturnStatementElse() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("project", "return.bal").toString(), "returnElse.json", true, 1);
+    }
+
+    @Test(description = "Test performance analyzer return node support - both return and else")
+    public void testReturnStatement() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("project", "return.bal").toString(),
+                "return.json", true, 2);
+    }
+
+    @Test(description = "Test performance analyzer return node support - nested if")
+    public void testReturnStatementNestedIf() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("project", "return.bal").toString(),
+                "returnNestedIf.json", true, 3);
+    }
+
+    private void compare(String balFile, String jsonFile, boolean isWorkerSupported, int serviceIndex)
+            throws IOException, InterruptedException, ExecutionException {
+
+        Path project = RES_DIR.resolve(BALLERINA).resolve(balFile);
+        Path resultJson = RES_DIR.resolve(RESULT).resolve(jsonFile);
 
         Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
         TestUtil.openDocument(serviceEndpoint, project);
 
-        PerformanceAnalyzerGraphRequest request = new PerformanceAnalyzerGraphRequest();
+        PerformanceAnalyzerRequest request = new PerformanceAnalyzerRequest();
         request.setDocumentIdentifier(new TextDocumentIdentifier(project.toString()));
-        request.setRange(new Range(new Position(21, 4), new Position(28, 5)));
+        request.setWorkerSupported(isWorkerSupported);
 
         CompletableFuture<?> result = serviceEndpoint.request(PERFORMANCE_ANALYZE, request);
-        JsonObject json = (JsonObject) result.get();
+        List<PerformanceAnalyzerResponse> endpoints = (List<PerformanceAnalyzerResponse>) result.get();
+        PerformanceAnalyzerResponse endpoint = endpoints.get(serviceIndex);
 
         BufferedReader br = new BufferedReader(new FileReader(resultJson.toAbsolutePath().toString()));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
-        Assert.assertEquals(json, expected);
+
+        Assert.assertEquals(endpoint.getType(), expected.get(TYPE).getAsString());
+        Assert.assertEquals(endpoint.getMessage(), expected.get(MESSAGE).getAsString());
+
+        if (endpoint.getType().equals(SUCCESS)) {
+            JsonObject actionInvocations = endpoint.getActionInvocations();
+            JsonObject expectedActionInvocations = expected.getAsJsonObject(ACTION_INVOCATION_KEY);
+
+            assertThatJson(actionInvocations.toString()).isEqualTo(expectedActionInvocations.toString());
+            validateEndpoints(endpoint.getEndpoints(), expected);
+        }
+    }
+
+    private void validateEndpoints(JsonObject endpoints, JsonObject expected) {
+
+        JsonObject expectedEndpoints = expected.getAsJsonObject(ENDPOINTS_KEY);
+
+        Assert.assertEquals(endpoints.size(), expectedEndpoints.size());
+        String[] endpointsKeys = endpoints.keySet().toArray(new String[endpoints.size()]);
+        String[] expectedEndpointsKeys = expectedEndpoints.keySet().toArray(new String[expectedEndpoints.size()]);
+
+        JsonArray endpointsArr = new JsonArray();
+        JsonArray expectedEndpointsArr = new JsonArray();
+        for (int i = 0; i < expectedEndpointsKeys.length; i++) {
+            JsonObject endpoint = endpoints.getAsJsonObject(endpointsKeys[i]);
+            endpointsArr.add(endpoint);
+            JsonObject expectedEndpoint = expectedEndpoints.getAsJsonObject(expectedEndpointsKeys[i]);
+            expectedEndpointsArr.add(expectedEndpoint);
+
+        }
+        assertThatJson(endpointsArr.toString())
+                .when(Option.IGNORING_ARRAY_ORDER)
+                .isEqualTo(expectedEndpointsArr.toString());
     }
 }

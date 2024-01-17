@@ -58,6 +58,11 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
         testFile("service-decl/service_decl_source_19.bal", "service-decl/service_decl_assert_19.json");
     }
 
+    @Test
+    public void testOptionalSemicolon() {
+        testFile("service-decl/service_decl_source_25.bal", "service-decl/service_decl_assert_25.json");
+    }
+
     // Valid service function syntax tests
 
     @Test
@@ -134,6 +139,12 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
     @Test
     public void testResourcePathParamNegative() {
         test("service-decl/service_decl_source_17.bal", "service-decl/service_decl_assert_17.json");
+    }
+
+    @Test
+    public void testRelativePathRecovery() {
+        testFile("service-decl/service_decl_source_23.bal", "service-decl/service_decl_assert_23.json");
+        testFile("service-decl/service_decl_source_24.bal", "service-decl/service_decl_assert_24.json");
     }
 
     // Service function recovery tests

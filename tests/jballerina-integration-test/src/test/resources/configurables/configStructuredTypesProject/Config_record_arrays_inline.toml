@@ -1,0 +1,11 @@
+personArray = [{ name = "manu", id = 11, address = { city = "New York", country = { name = "USA" } } }, { name = "hinduja", id = 12, address = { city = "London", country = { name = "UK" } } }]
+
+personArray1 = [{ name = "waruna", id = 700, address = { city = "Abu Dhabi", country = { name = "UAE" } } }, { name = "manu", id = 701, address = { city = "Mumbai", country = { name = "India" } } }]
+
+personArray2 = [{ name = "gabilan", id = 900, address = { city = "Abu Dhabi", country = { name = "UAE" } } }, { name = "hinduja", id = 901, address = { city = "Mumbai", country = { name = "India" } } }]
+
+configRecordArray.imported_records.personArray = [{ name = "waruna", id = 111, address = { city = "Abu Dhabi", country = { name = "UAE" } } }, { name = "manu", id = 122, address = { city = "Mumbai", country = { name = "India" } } }]
+
+configRecordArray.imported_records.personArray1 = [{ name = "manu", id = 800, address = { city = "New York", country = { name = "USA" } } }, { name = "hinduja", id = 801, address = { city = "London", country = { name = "UK" } } }]
+
+configRecordArray.imported_records.personArray2 = [{ name = "riyafa", id = 1000, address = { city = "New York", country = { name = "USA" } } }, { name = "waruna", id = 1001, address = { city = "London", country = { name = "UK" } } }]

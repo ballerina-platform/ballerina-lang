@@ -1,0 +1,25 @@
+NAME
+       ballerina-tool-remove - Remove a tool from the local environment.
+
+SYNOPSIS
+       bal tool remove <tool-id>[:<version>]
+
+OPTIONS
+       -h, --help
+           Print the usage details of tool remove command.
+
+       --repository
+           Remove a tool from a custom repository.
+
+DESCRIPTION
+       Remove a tool that was installed into to the local environment.
+
+       If the tool version is specified, that specific version will be removed.
+       The active version of a tool cannot be removed.
+
+       If the version is not specified, all versions of the tool will be
+       removed including the active version.
+
+EXAMPLES
+       Remove the '1.1.0' version of the 'eod' tool from local repository.
+           $ bal tool remove eod:1.1.0 --repository=local

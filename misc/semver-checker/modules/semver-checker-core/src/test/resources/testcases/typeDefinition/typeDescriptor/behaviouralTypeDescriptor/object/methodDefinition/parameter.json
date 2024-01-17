@@ -1,0 +1,62 @@
+[
+  {
+    "description": "Change a parameter type in a function\n",
+    "oldCode": "public type Person object{\npublic function add(int x, int y){}\n}\n",
+    "newCode": "public type Person object{\npublic function add(int x , string y){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change a parameter in a function\n",
+    "oldCode": "public type Person object{\npublic function add(int x, int y){}\n}\n",
+    "newCode": "public type Person object{\npublic function add(int x , string z){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove a parameter in a function\n",
+    "oldCode": "public service type Person object{\nremote function add(int x, int y){}\n}\n",
+    "newCode": "public service type Person object{\nremote function add(int x ){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add a new parameter to the function\n",
+    "oldCode": "public service type Person object{\nremote function add(int x, int y){}\n}\n",
+    "newCode": "public service type Person object{\nremote function add(int x , int y , int z){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the order of a parameter in function",
+    "oldCode": "public type Person object{\npublic function add(int x, string y){}\n}\n",
+    "newCode": "public type Person object{\npublic function add(string y, int x){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add a default value for a required parameter in function ",
+    "oldCode": "public service type Person object{\nresource function get add(int x){}\n}\n",
+    "newCode": "public service type Person object{\nresource function get add( int x =  7){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the default value parameter as a required parameter in function \n",
+    "oldCode": "public type Person object{\npublic function add( int y = 7){}\n}\n",
+    "newCode": "public type Person object{\npublic function add(int y){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the default value parameter to another default value in function \n",
+    "oldCode": "public type Person object{\npublic function add(int y = 7){}\n}\n",
+    "newCode": "public type Person object{\npublic function add(int y = 5){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add parameter annotation to a function.\n",
+    "oldCode": "public type Person object{\npublic function secureFunction(string name){}\n}\n",
+    "newCode": "public type Person object{\npublic function secureFunction(@untainted string name){}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": " Modify parameter annotation in a function.\n",
+    "oldCode": "public type Person object{\npublic function secureFunction(@untainted string name){}\n}\n",
+    "newCode": "public type Person object{\npublic function secureFunction(@tainted string name){}\n}\n",
+    "expectedOutput": {}
+  }
+]

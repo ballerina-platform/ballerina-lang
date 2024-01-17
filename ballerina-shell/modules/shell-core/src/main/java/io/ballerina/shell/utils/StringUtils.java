@@ -18,13 +18,15 @@
 
 package io.ballerina.shell.utils;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 
 import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utility functions required by invokers.
@@ -125,7 +127,7 @@ public class StringUtils {
      * @return modified identifier with unicode character
      */
     public static String unescapeUnicodeCodepoints(String identifier) {
-        return IdentifierUtils.unescapeUnicodeCodepoints(identifier);
+        return Utils.unescapeUnicodeCodepoints(identifier);
     }
 
     /**
@@ -147,7 +149,7 @@ public class StringUtils {
      * @return Converted string.
      */
     public static String getExpressionStringValue(Object object) {
-        return io.ballerina.runtime.api.utils.StringUtils.getExpressionStringValue(object, null);
+        return io.ballerina.runtime.api.utils.StringUtils.getExpressionStringValue(object);
     }
 
     /**
@@ -171,5 +173,27 @@ public class StringUtils {
      */
     public static String convertUnicode(char character) {
         return "\\u{" + Integer.toHexString((int) character) + "}";
+    }
+
+    /**
+     * Replace ballerina unicode format codes with their unicode character
+     * for a given string.
+     *
+     * @param toConvert String need to convert.
+     * @return Reformatted string.
+     */
+    public static String convertUnicodeToCharacter(String toConvert) {
+        Matcher matcher = Pattern.compile("\\\\u\\{([\\da-fA-F]*)}").matcher(toConvert);
+        StringBuilder stringBuilder = new StringBuilder();
+        int currentPosition = 0;
+        while (matcher.find()) {
+            stringBuilder.append(toConvert, currentPosition, matcher.start());
+            int code = Integer.parseInt(matcher.group(1), 16);
+            stringBuilder.append(Character.toChars(code));
+            currentPosition = matcher.end();
+        }
+
+        stringBuilder.append(toConvert.substring(currentPosition));
+        return stringBuilder.toString();
     }
 }

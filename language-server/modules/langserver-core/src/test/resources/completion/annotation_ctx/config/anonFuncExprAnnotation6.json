@@ -1,0 +1,45 @@
+{
+  "position": {
+    "line": 2,
+    "character": 24
+  },
+  "source": "annotation_ctx/source/anonFuncExprAnnotation6.bal",
+  "items": [
+    {
+      "label": "Constructor",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "Constructor {\n\t'class: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "Method",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "Method {\n\t'class: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "FieldGet",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "FieldGet {\n\tname: ${1:\"\"},\n\t'class: ${2:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "FieldSet",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "FieldSet {\n\tname: ${1:\"\"},\n\t'class: ${2:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

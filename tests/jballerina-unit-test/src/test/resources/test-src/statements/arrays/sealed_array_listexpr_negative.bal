@@ -154,10 +154,3 @@ type FooBar FOO|BAR;
 public function unionOfMapsWithoutProperInherantTypeForEmptyMapping() {
     (map<FooBar>|map<string>)[2] x = [];
 }
-
-// same type unions
-type LiteralConstAndIntType int|CONST_TWO; // We currently allow this
-
-function testLiteralConstAndIntType() {
-    LiteralConstAndIntType[2] x = [];
-}

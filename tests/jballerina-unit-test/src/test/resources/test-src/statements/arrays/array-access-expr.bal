@@ -3,6 +3,11 @@ function testNonInitArrayAccess() returns (string){
     return fruits[5];
 }
 
+function testUnaryConstExpressionInIndexAccess() {
+    int[2] a = [1,2];
+    int _ = a[~1];
+}
+
 function arrayAccessTest(int x, int y) returns (int) {
     int[] arr = [];
 

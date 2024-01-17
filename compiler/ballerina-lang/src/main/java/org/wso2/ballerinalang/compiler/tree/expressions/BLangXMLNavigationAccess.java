@@ -18,13 +18,13 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.List;
-import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -32,21 +32,25 @@ import java.util.StringJoiner;
  */
 public class BLangXMLNavigationAccess extends BLangExpression implements XMLNavigationAccess {
 
+    // BLangNodes
     public BLangExpression expr;
-    public final NavAccessType navAccessType;
-    public final List<BLangXMLElementFilter> filters;
     public BLangExpression childIndex;
+    public final List<BLangXMLElementFilter> filters;
+
+    // Parser Flags and Data
+    public final NavAccessType navAccessType;
+
+    // Semantic Data
     // Hack to avoid duplicate error messages in CodeAnalyzer, the reason for this flag is since we are adding
     // the 'receiver' of a method invocation as the first parameter to langlib invocations, XMLNavigationAccess
     // could be checked multiple times when used with langlib functions producing multiple error messages.
     public boolean methodInvocationAnalyzed;
 
-    public BLangXMLNavigationAccess(Location pos, Set<Whitespace> ws, BLangExpression expr,
+    public BLangXMLNavigationAccess(Location pos, BLangExpression expr,
                                     List<BLangXMLElementFilter> filters,
                                     NavAccessType navAccessType,
                                     BLangExpression childIndex) {
         this.pos = pos;
-        this.addWS(ws);
         this.expr = expr;
         this.filters = filters;
         this.navAccessType = navAccessType;
@@ -56,6 +60,16 @@ public class BLangXMLNavigationAccess extends BLangExpression implements XMLNavi
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

@@ -16,13 +16,11 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -46,11 +44,10 @@ public class BinaryExprEvalPrecedenceTest {
 
         boolean expectedResult = true;
 
-        BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BRunUtil.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+        Object[] args = {(one), (two), (three)};
+        Object returns = BRunUtil.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        boolean actualResult = (boolean) returns;
 
         Assert.assertEquals(actualResult, expectedResult);
     }
@@ -60,9 +57,9 @@ public class BinaryExprEvalPrecedenceTest {
         boolean one = false;
         boolean two = false;
         boolean three = false;
-        BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BRunUtil.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
-        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+        Object[] args = {(one), (two), (three)};
+        Object returns = BRunUtil.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
+        boolean actualResult = (boolean) returns;
         Assert.assertEquals(actualResult, one);
     }
 
@@ -74,11 +71,10 @@ public class BinaryExprEvalPrecedenceTest {
 
         boolean expectedResult = false;
 
-        BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BRunUtil.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+        Object[] args = {(one), (two), (three)};
+        Object returns = BRunUtil.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        boolean actualResult = (boolean) returns;
 
         Assert.assertEquals(actualResult, expectedResult);
     }
@@ -88,9 +84,9 @@ public class BinaryExprEvalPrecedenceTest {
         boolean one = true;
         boolean two = false;
         boolean three = false;
-        BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BRunUtil.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
-        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+        Object[] args = {(one), (two), (three)};
+        Object returns = BRunUtil.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
+        boolean actualResult = (boolean) returns;
         Assert.assertFalse(actualResult);
     }
 
@@ -100,13 +96,12 @@ public class BinaryExprEvalPrecedenceTest {
         boolean two = false;
         boolean three = true;
 
-        int expectedResult = 101;
+        long expectedResult = 101;
 
-        BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BRunUtil.invoke(result, "multiBinaryORExpr", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actualResult = (int) ((BInteger) returns[0]).intValue();
+        Object[] args = {(one), (two), (three)};
+        Object returns = BRunUtil.invoke(result, "multiBinaryORExpr", args);
+        Assert.assertSame(returns.getClass(), Long.class);
+        long actualResult = (long) returns;
 
         Assert.assertEquals(actualResult, expectedResult);
     }
@@ -117,13 +112,12 @@ public class BinaryExprEvalPrecedenceTest {
         boolean two = false;
         boolean three = false;
 
-        int expectedResult = 201;
+        long expectedResult = 201;
 
-        BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BRunUtil.invoke(result, "multiBinaryORExpr", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actualResult = (int) ((BInteger) returns[0]).intValue();
+        Object[] args = {(one), (two), (three)};
+        Object returns = BRunUtil.invoke(result, "multiBinaryORExpr", args);
+        Assert.assertSame(returns.getClass(), Long.class);
+        long actualResult = (long) returns;
 
         Assert.assertEquals(actualResult, expectedResult);
     }
@@ -134,13 +128,12 @@ public class BinaryExprEvalPrecedenceTest {
         boolean two = true;
         boolean three = true;
 
-        int expectedResult = 101;
+        long expectedResult = 101;
 
-        BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BRunUtil.invoke(result, "multiBinaryANDExpr", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actualResult = (int) ((BInteger) returns[0]).intValue();
+        Object[] args = {(one), (two), (three)};
+        Object returns = BRunUtil.invoke(result, "multiBinaryANDExpr", args);
+        Assert.assertSame(returns.getClass(), Long.class);
+        long actualResult = (long) returns;
 
         Assert.assertEquals(actualResult, expectedResult);
     }
@@ -151,14 +144,18 @@ public class BinaryExprEvalPrecedenceTest {
         boolean two = false;
         boolean three = false;
 
-        int expectedResult = 201;
+        long expectedResult = 201;
 
-        BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BRunUtil.invoke(result, "multiBinaryANDExpr", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        int actualResult = (int) ((BInteger) returns[0]).intValue();
+        Object[] args = {(one), (two), (three)};
+        Object returns = BRunUtil.invoke(result, "multiBinaryANDExpr", args);
+        Assert.assertSame(returns.getClass(), Long.class);
+        long actualResult = (long) returns;
 
         Assert.assertEquals(actualResult, expectedResult);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

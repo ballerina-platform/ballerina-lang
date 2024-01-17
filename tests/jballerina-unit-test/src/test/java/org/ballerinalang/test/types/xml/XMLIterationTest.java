@@ -16,15 +16,16 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.model.values.BXMLSequence;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BXmlSequence;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -47,11 +48,11 @@ public class XMLIterationTest {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 20);
+
         int index = 0;
         BAssertUtil.validateError(negative, index++,
-                                  "invalid list binding pattern: attempted to infer a list type, but found 'xml'",
-                                  13, 17);
+                "invalid list binding pattern: attempted to infer a list type, but found 'xml'",
+                13, 13);
         BAssertUtil.validateError(negative, index++, "incompatible types: " +
                 "expected 'function (ballerina/lang.xml:0.0.0:ItemType) returns ()', " +
                 "found 'function ([int,xml,string]) returns ()'", 18, 19);
@@ -62,9 +63,8 @@ public class XMLIterationTest {
                 "incompatible types: 'xml:Element' is not an iterable collection",
                 29, 34);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'record {| xml:Element value; |}?', " +
-                        "found 'record {| ballerina/lang.xml:0.0.0:ItemType value; |}?'",
-                33, 54);
+                "incompatible types: expected 'record {| xml:Comment value; |}?', found " +
+                        "'record {| xml:Element value; |}?'", 33, 54);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:Comment'",
                 40, 13);
@@ -72,9 +72,8 @@ public class XMLIterationTest {
                 "incompatible types: 'xml:Comment' is not an iterable collection",
                 40, 34);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'record {| xml:Comment value; |}?', " +
-                        "found 'record {| ballerina/lang.xml:0.0.0:ItemType value; |}?'",
-                44, 54);
+                "incompatible types: expected 'record {| xml:Element value; |}?', found " +
+                        "'record {| xml:Comment value; |}?'", 44, 54);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:ProcessingInstruction'",
                 51, 13);
@@ -82,12 +81,14 @@ public class XMLIterationTest {
                 "incompatible types: 'xml:ProcessingInstruction' is not an iterable collection",
                 51, 48);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'record {| xml:ProcessingInstruction value; |}?', " +
-                        "found 'record {| ballerina/lang.xml:0.0.0:ItemType value; |}?'",
-                55, 63);
+                "incompatible types: expected 'record {| xml:Comment value; |}?', found " +
+                        "'record {| xml:ProcessingInstruction value; |}?'", 55, 49);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected '(xml:Element|xml:Text)', found 'xml'",
                 59, 34);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected '(xml<xml:Element>|xml<xml:Text>)', found 'xml'",
+                60, 44);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
                 63, 13);
@@ -114,6 +115,15 @@ public class XMLIterationTest {
         BAssertUtil.validateError(negative, index++,
                 "xml langlib functions does not support union types as their arguments",
                 73, 68);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: 'xml' cannot be constrained with 'xml:Element[]'",
+                77, 5);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: 'xml' cannot be constrained with '(xml:Element[] & readonly)'",
+                85, 5);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: 'xml' cannot be constrained with '[int,string]'",
+                93, 5);
     }
 
     @Test
@@ -126,14 +136,28 @@ public class XMLIterationTest {
         BRunUtil.invoke(result, "foreachOpTest");
     }
 
-    @Test
-    public void testXMLTypesForeachOp() {
-        BRunUtil.invoke(result, "testXmlElementSequenceIteration");
-        BRunUtil.invoke(result, "testXmlTextSequenceIteration");
-        BRunUtil.invoke(result, "testXmlCommentSequenceIteration");
-        BRunUtil.invoke(result, "testXmlPISequenceIteration");
-        BRunUtil.invoke(result, "testXmlUnionSequenceIteration");
-        BRunUtil.invoke(result, "testXmlSequenceIteration");
+    @Test(dataProvider = "xmlForeachTests")
+    public void testXMLTypesForeachOp(String testFunction) {
+        BRunUtil.invoke(result, testFunction);
+    }
+
+    @DataProvider
+    public Object[] xmlForeachTests() {
+        return new String[] {
+            "testXmlElementSequenceIteration",
+            "testXmlTextSequenceIteration",
+            "testXmlCommentSequenceIteration",
+            "testXmlPISequenceIteration",
+            "testXmlUnionSequenceIteration",
+            "testXmlSequenceIteration",
+            "xmlTypeParamCommentIter",
+            "xmlTypeParamElementIter",
+            "xmlTypeParamPIIter",
+            "testSequenceOfSequenceOfXmlElementIteration",
+            "testSequenceOfSequenceOfReadonlyXmlElementIteration",
+            "testSequenceOfReadOnlyXmlSubTypeUnionIteration",
+            "testSequenceOfReadOnlyXmlSubTypeUnionIteration2"
+        };
     }
 
     @Test
@@ -143,35 +167,39 @@ public class XMLIterationTest {
 
     @Test
     public void testXMLFilterOp() {
-        BValue[] returns = BRunUtil.invoke(result, "filterOpTest");
+        Object returns = BRunUtil.invoke(result, "filterOpTest");
     }
 
     @Test
     public void testXMLChainedIterableOps() {
-        BValue[] returns = BRunUtil.invoke(result, "chainedIterableOps");
+        Object returns = BRunUtil.invoke(result, "chainedIterableOps");
 
         Assert.assertNotNull(returns);
 
-        BValueArray resArray = ((BXMLSequence) returns[0]).value();
-        Assert.assertEquals(((BXMLSequence) resArray.getRefValue(0)).getTextValue().stringValue(), authors[0][0]);
-        Assert.assertEquals(((BXMLSequence) resArray.getRefValue(1)).getTextValue().stringValue(), authors[1][0]);
+        BArray resArray = (BArray) ((BXmlSequence) returns).value();
+        Assert.assertEquals(((BXmlSequence) resArray.getRefValue(0)).getTextValue().toString(), authors[0][0]);
+        Assert.assertEquals(((BXmlSequence) resArray.getRefValue(1)).getTextValue().toString(), authors[1][0]);
     }
 
-    @Test(groups = { "disableOnOldParser" },
-            description = "Test iterating over xml elements where some elements are characters")
+    @Test(description = "Test iterating over xml elements where some elements are characters")
     public void testXMLCompoundCharacterSequenceIteration() {
-        BValue[] results = BRunUtil.invoke(result, "xmlSequenceIter");
+        Object results = BRunUtil.invoke(result, "xmlSequenceIter");
         Assert.assertEquals(result.getDiagnostics().length, 0);
-        String str = results[0].stringValue();
+        String str = results.toString();
         Assert.assertEquals(str, "<book>the book</book>\nbit of text\\u2702\\u2705\n");
     }
 
-    @Test(groups = { "disableOnOldParser" },
-            description = "Test iterating over xml sequence where all elements are character items")
+    @Test(description = "Test iterating over xml sequence where all elements are character items")
     public void testXMLCharacterSequenceIteration() {
-        BValue[] results = BRunUtil.invoke(result, "xmlCharItemIter");
+        Object results = BRunUtil.invoke(result, "xmlCharItemIter");
         Assert.assertEquals(result.getDiagnostics().length, 0);
-        String str = results[0].stringValue();
+        String str = results.toString();
         Assert.assertEquals(str, "bit of text\\u2702\\u2705\n");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negative = null;
     }
 }

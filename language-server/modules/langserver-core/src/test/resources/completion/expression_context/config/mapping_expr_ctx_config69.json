@@ -1,0 +1,53 @@
+{
+  "position": {
+    "line": 4,
+    "character": 21
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source69.bal",
+  "description": "Test completions in mapping constructor field name context with a similar type map in visible symbols (completion sorting with spread operator)",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map1",
+      "kind": "Variable",
+      "detail": "map<int>",
+      "sortText": "F",
+      "insertText": "map1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map2",
+      "kind": "Variable",
+      "detail": "map<int>",
+      "sortText": "F",
+      "insertText": "map2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...map2",
+      "kind": "Variable",
+      "detail": "map<int>",
+      "sortText": "AC",
+      "filterText": "map2",
+      "insertText": "...map2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...map1",
+      "kind": "Variable",
+      "detail": "map<int>",
+      "sortText": "AC",
+      "filterText": "map1",
+      "insertText": "...map1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -49,7 +49,6 @@ public class LexerTerminals {
     public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
     public static final String IMPORT = "import";
-    public static final String VERSION = "version";
     public static final String AS = "as";
     public static final String ON = "on";
     public static final String RESOURCE = "resource";
@@ -172,4 +171,6 @@ public class LexerTerminals {
     public static final char TAB = 0x9;
     public static final char SPACE = 0x20;
     public static final char FORM_FEED = 0xC;
+
+    public static final String RE = "re";
 }

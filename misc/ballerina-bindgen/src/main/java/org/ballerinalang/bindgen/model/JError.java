@@ -26,13 +26,12 @@ import java.util.Locale;
  */
 public class JError {
 
-    private String exceptionConstName;
-    private String shortExceptionName;
-    private String packageName;
-    private Class currentClass;
+    private final String exceptionConstName;
+    private final String shortExceptionName;
+    private final String packageName;
+    private final Class<?> currentClass;
 
-    public JError(Class exception) {
-
+    public JError(Class<?> exception) {
         currentClass = exception;
         shortExceptionName = exception.getSimpleName();
         exceptionConstName = exception.getSimpleName().toUpperCase(Locale.ENGLISH);
@@ -48,7 +47,7 @@ public class JError {
     }
 
     public String getPackageName() {
-      return packageName;
+        return packageName;
     }
 
     public Class getCurrentClass() {

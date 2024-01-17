@@ -20,9 +20,9 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -34,22 +34,27 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
+import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 
 /**
  * Command tests super class.
  *
  * @since 2.0.0
  */
-public abstract class BaseCommandTest extends PowerMockTestCase {
+public abstract class BaseCommandTest {
     protected Path tmpDir;
     private ByteArrayOutputStream console;
     protected PrintStream printStream;
+    protected Path homeCache;
     
     @BeforeClass
     public void setup() throws IOException {
         System.setProperty("java.command", "java");
         this.tmpDir = Files.createTempDirectory("b7a-cmd-test-" + System.nanoTime());
+        this.homeCache = Paths.get("build", "userHome");
         this.console = new ByteArrayOutputStream();
         this.printStream = new PrintStream(this.console);
     }
@@ -99,6 +104,30 @@ public abstract class BaseCommandTest extends PowerMockTestCase {
             Assert.fail("Invalid exception found: " + e.getClass().toString() + "-" + e.getMessage());
         }
         return null;
+    }
+
+    protected void cacheBalaToCentralRepository(Path balaProjectDirectory, String org, String name,
+                                                String version, String platform) throws IOException {
+        Path centralRepoPath = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(CENTRAL_REPOSITORY_CACHE_NAME).resolve(ProjectConstants.BALA_DIR_NAME);
+        Path balaDestPath = centralRepoPath.resolve(org).resolve(name).resolve(version).resolve(platform);
+        Files.createDirectories(balaDestPath);
+
+        try {
+            Files.walk(balaProjectDirectory).forEach(a -> {
+                Path b = Paths.get(String.valueOf(balaDestPath),
+                        a.toString().substring(balaProjectDirectory.toString().length()));
+                try {
+                    if (!a.toString().equals(String.valueOf(balaProjectDirectory))) {
+                        Files.copy(a, b, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                } catch (IOException e) {
+                    Assert.fail("Cache bala to central repository failed", e);
+                }
+            });
+        } catch (IOException e) {
+            Assert.fail("Cache bala to central repository failed", e);
+        }
     }
 
     @AfterMethod (alwaysRun = true)

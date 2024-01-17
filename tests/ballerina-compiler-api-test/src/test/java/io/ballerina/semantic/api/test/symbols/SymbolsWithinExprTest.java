@@ -155,7 +155,7 @@ public class SymbolsWithinExprTest {
                 {43, 9, RECORD_FIELD, "id"},
                 {48, 25, null, null},
                 {49, 19, RECORD_FIELD, "name"},
-//                {50, 12, VARIABLE, "m"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32707
+                {51, 12, VARIABLE, "m2"}
         };
     }
 
@@ -193,8 +193,7 @@ public class SymbolsWithinExprTest {
         };
     }
 
-    // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32802
-    @Test(enabled = false)
+    @Test
     public void testAnnotTagRef() {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(69, 27));
 

@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 32,
+    "character": 44
+  },
+  "source": "source.bal",
+  "description": "Test module variable declaration with a raw template",
+  "expected": [
+    {
+      "title": "Convert to 're' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 32,
+              "character": 38
+            },
+            "end": {
+              "line": 32,
+              "character": 62
+            }
+          },
+          "newText": "re `Module Var Declaration`"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

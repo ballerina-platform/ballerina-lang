@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.test.types.bytetype;
 
-import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BError;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -58,14 +57,14 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 2, msg1 , 4, 15);
         BAssertUtil.validateError(result, 3, msg1 , 5, 15);
         BAssertUtil.validateError(result, 4, msg2 , 6, 15);
-        BAssertUtil.validateError(result, 5, msg2 , 7, 15);
+        BAssertUtil.validateError(result, 5, msg2 , 7, 16);
         BAssertUtil.validateError(result, 6, msg2 , 8, 15);
         BAssertUtil.validateError(result, 7, msg1 , 9, 24);
         BAssertUtil.validateError(result, 8, msg1 , 10, 21);
         BAssertUtil.validateError(result, 9, msg2 , 11, 21);
         BAssertUtil.validateError(result, 10, msg1 , 11, 30);
         BAssertUtil.validateError(result, 11, msg1 , 11, 35);
-        BAssertUtil.validateError(result, 12, msg2 , 12, 21);
+        BAssertUtil.validateError(result, 12, msg2 , 12, 22);
         BAssertUtil.validateError(result, 13, msg2 , 12, 27);
         BAssertUtil.validateError(result, 14, msg1 , 12, 35);
         BAssertUtil.validateError(result, 15, msg1 , 15, 14);
@@ -78,7 +77,7 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 22, msg4, 40, 87);
     }
 
-    @Test(description = "Test byte shift operators negative", groups = { "disableOnOldParser" })
+    @Test(description = "Test byte shift operators negative")
     public void invalidByteShiftOperators() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-shift-operators-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 13);
@@ -100,29 +99,26 @@ public class BByteValueNegativeTest {
 
     @Test(description = "Test int to byte conversion negative")
     public void byteValueRuntimeNegative1() {
-        BValue[] returnValue = BRunUtil.invoke(result, "invalidByteLiteral1", new BValue[]{});
-        Assert.assertEquals(returnValue.length, 1);
-        Assert.assertTrue(returnValue[0] instanceof BError);
-        Assert.assertEquals(returnValue[0].stringValue(), "{ballerina}NumberConversionError {\"message\":" +
-                "\"'int' value '-12' cannot be converted to 'byte'\"}");
+        Object returnValue = BRunUtil.invoke(result, "invalidByteLiteral1", new Object[]{});
+        Assert.assertTrue(returnValue instanceof BError);
+        Assert.assertEquals(returnValue.toString(), "error(\"{ballerina}NumberConversionError\",message=\"'int' value" +
+                " '-12' cannot be converted to 'byte'\")");
     }
 
     @Test(description = "Test int to byte conversion negative")
     public void byteValueRuntimeNegative2() {
-        BValue[] returnValue = BRunUtil.invoke(result, "invalidByteLiteral2", new BValue[]{});
-        Assert.assertEquals(returnValue.length, 1);
-        Assert.assertTrue(returnValue[0] instanceof BError);
-        Assert.assertEquals(returnValue[0].stringValue(), "{ballerina}NumberConversionError {\"message\":" +
-                "\"'int' value '-257' cannot be converted to 'byte'\"}");
+        Object returnValue = BRunUtil.invoke(result, "invalidByteLiteral2", new Object[]{});
+        Assert.assertTrue(returnValue instanceof BError);
+        Assert.assertEquals(returnValue.toString(), "error(\"{ballerina}NumberConversionError\",message=\"'int' value" +
+                " '-257' cannot be converted to 'byte'\")");
     }
 
     @Test(description = "Test int to byte conversion negative")
     public void byteValueRuntimeNegative3() {
-        BValue[] returnValue = BRunUtil.invoke(result, "invalidByteLiteral3", new BValue[]{});
-        Assert.assertEquals(returnValue.length, 1);
-        Assert.assertTrue(returnValue[0] instanceof BError);
-        Assert.assertEquals(returnValue[0].stringValue(), "{ballerina}NumberConversionError {\"message\":" +
-                "\"'int' value '12,345' cannot be converted to 'byte'\"}");
+        Object returnValue = BRunUtil.invoke(result, "invalidByteLiteral3", new Object[]{});
+        Assert.assertTrue(returnValue instanceof BError);
+        Assert.assertEquals(returnValue.toString(), "error(\"{ballerina}NumberConversionError\",message=\"'int' value" +
+                " '12,345' cannot be converted to 'byte'\")");
     }
 
     @AfterClass

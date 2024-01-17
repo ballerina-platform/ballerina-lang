@@ -21,6 +21,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationReturnParameterAttributeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.LinkedList;
@@ -35,7 +37,10 @@ import java.util.stream.Collectors;
 public class BLangMarkdownReturnParameterDocumentation extends BLangExpression
         implements MarkdownDocumentationReturnParameterAttributeNode {
 
+    // Parser Flags and Data
     public List<String> returnParameterDocumentationLines;
+
+    // Semantic Data
     public BType type;
 
     public BLangMarkdownReturnParameterDocumentation() {
@@ -70,6 +75,16 @@ public class BLangMarkdownReturnParameterDocumentation extends BLangExpression
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

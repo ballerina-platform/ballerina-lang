@@ -7,17 +7,14 @@ import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBalaTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
-import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
@@ -32,28 +29,25 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
 import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromTomlTableNode;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
 
 /**
  * This class represents the "bal pack" command.
  *
  * @since 2.0.0
  */
+@CommandLine.Command(name = PACK_COMMAND, description = "Create distribution format of the current package")
 public class PackCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
-    private boolean exitWhenFinish;
-    private boolean skipCopyLibsFromDist;
-    private Boolean skipTests;
+    private final boolean exitWhenFinish;
+    private final boolean skipCopyLibsFromDist;
 
     @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
             "dependencies.")
     private Boolean offline;
-
-    @CommandLine.Option(names = {"--with-tests"}, description = "Run test compilation and execution.")
-    private Boolean withTests;
 
     @CommandLine.Parameters (arity = "0..1")
     private final Path projectPath;
@@ -73,30 +67,27 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private Boolean experimentalFlag;
-
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
-
-    @CommandLine.Option(names = "--test-report", description = "enable test report generation")
-    private Boolean testReport;
-
-    @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
-    private Boolean coverage;
-
-    @CommandLine.Option(names = "--coverage-format", description = "list of supported coverage report formats")
-    private String coverageFormat;
-
-    @CommandLine.Option(names = "--includes", hidden = true,
-            description = "hidden option for code coverage to include all classes")
-    private String includes;
 
     @CommandLine.Option(names = "--dump-build-time", hidden = true, description = "calculate and dump build time")
     private Boolean dumpBuildTime;
 
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
+
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
+    private Path targetDir;
+
+    @CommandLine.Option(names = "--generate-config-schema", hidden = true)
+    private Boolean configSchemaGen;
+
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
+    private Boolean enableCache;
+
+    @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
+            "caching for source files", defaultValue = "false")
+    private Boolean disableSyntaxTreeCaching;
 
     public PackCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -106,13 +97,25 @@ public class PackCommand implements BLauncherCmd {
         this.skipCopyLibsFromDist = false;
     }
 
-    public PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                        boolean skipCopyLibsFromDist) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.offline = true;
+    }
+
+    PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                       boolean skipCopyLibsFromDist, Path targetDir) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.targetDir = targetDir;
+        this.offline = true;
     }
 
     @Override
@@ -130,11 +133,6 @@ public class PackCommand implements BLauncherCmd {
 
         if (sticky == null) {
             sticky = false;
-        }
-
-        // If withTests flag is not provided, we change the skipTests flag accordingly
-        if (withTests != null) {
-            this.skipTests = !withTests;
         }
 
         BuildOptions buildOptions = constructBuildOptions();
@@ -161,11 +159,11 @@ public class PackCommand implements BLauncherCmd {
             return;
         }
 
-
-        // Check if package is empty
-        if (!project.currentPackage().compilerPluginToml().isPresent() && isProjectEmpty(project)) {
-            CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
-                    false);
+        // If project is empty
+        if (ProjectUtils.isProjectEmpty(project) && project.currentPackage().compilerPluginToml().isEmpty() &&
+                project.currentPackage().balToolToml().isEmpty()) {
+            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null,
+                        false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -237,42 +235,20 @@ public class PackCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
 
-        if (project.buildOptions().codeCoverage()) {
-            if (coverageFormat != null) {
-                if (!coverageFormat.equals(JACOCO_XML_FORMAT)) {
-                    String errMsg = "unsupported coverage report format '" + coverageFormat + "' found. Only '" +
-                            JACOCO_XML_FORMAT + "' format is supported.";
-                    CommandUtil.printError(this.errStream, errMsg, null, false);
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return;
-                }
-            }
-        } else {
-            // Skip --includes flag if it is set without code coverage
-            if (includes != null) {
-                this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
-            }
-            // Skip --coverage-format flag if it is set without code coverage
-            if (coverageFormat != null) {
-                this.outStream.println("warning: ignoring --coverage-format flag since code coverage is not " +
-                        "enabled");
-            }
-        }
-
         // Validate Settings.toml file
-
         try {
             RepoUtils.readSettings();
         } catch (SettingsTomlException e) {
             this.outStream.println("warning: " + e.getMessage());
         }
 
+        // Check package files are modified after last build
+        boolean isPackageModified = isProjectUpdated(project);
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream))
-                .addTask(new RunTestsTask(outStream, errStream, includes, coverageFormat),
-                        project.buildOptions().skipTests() || isSingleFileBuild)
+                .addTask(new CompileTask(outStream, errStream, true, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateBalaTask(outStream))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
@@ -284,29 +260,24 @@ public class PackCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return new BuildOptionsBuilder()
-                .codeCoverage(coverage)
-                .experimental(experimentalFlag)
-                .offline(offline)
-                .skipTests(skipTests)
-                .testReport(testReport)
-                .dumpBir(dumpBIR)
-                .dumpBirFile(dumpBIRFile)
-                .dumpGraph(dumpGraph)
-                .dumpRawGraphs(dumpRawGraphs)
-                .dumpBuildTime(dumpBuildTime)
-                .sticky(sticky)
-                .build();
-    }
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder
+                .setOffline(offline)
+                .setDumpBir(dumpBIR)
+                .setDumpBirFile(dumpBIRFile)
+                .setDumpGraph(dumpGraph)
+                .setDumpRawGraphs(dumpRawGraphs)
+                .setDumpBuildTime(dumpBuildTime)
+                .setSticky(sticky)
+                .setConfigSchemaGen(configSchemaGen)
+                .setEnableCache(enableCache)
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
 
-    private boolean isProjectEmpty(Project project) {
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Module module = project.currentPackage().module(moduleId);
-            if (!module.documentIds().isEmpty() || !module.testDocumentIds().isEmpty()) {
-                return false;
-            }
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir.toString());
         }
-        return true;
+
+        return buildOptionsBuilder.build();
     }
 
     @Override
@@ -316,14 +287,13 @@ public class PackCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("packages the current package into a .bala file after verifying that it can build with \n");
-        out.append("all its dependencies. Created .bala file contains the distribution format of the current package");
+        out.append(BLauncherCmd.getCommandUsageInfo(PACK_COMMAND));
 
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal pack [--offline] [--with-tests]\\n\" +\n" + "            \"       [<package-path>]");
+        out.append("  bal pack [--offline] \\n\" +\n" + "            \"       [<package-path>]");
     }
 
     @Override

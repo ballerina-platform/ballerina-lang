@@ -144,3 +144,17 @@ const annotation classForTest on source class;
 const annotation v1 on source field, function ;
 
 const annotation v2 on field, function;
+
+map<string[]> orderItems = {};
+service class OrderService {
+    remote function onMessage(string id) returns error? {
+        _ = orderItems.get(id);
+    }
+}
+
+map<PersonType> customers = {};
+service class CustomerService {
+    remote function onMessage(PersonType id) returns error? {
+        _ = customers.get(id);
+    }
+}

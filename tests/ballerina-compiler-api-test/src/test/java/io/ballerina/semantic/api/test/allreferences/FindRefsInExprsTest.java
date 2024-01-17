@@ -106,7 +106,8 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 {92, 15, location(92, 15, 19),
                         List.of(location(92, 15, 19),
                                 location(94, 17, 21),
-                                location(95, 18, 22))
+                                location(95, 18, 22),
+                                location(98, 27, 31))
                 },
                 {93, 12, location(93, 12, 15),
                         List.of(location(93, 12, 15),
@@ -121,7 +122,8 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 {98, 26, location(92, 15, 19),
                         List.of(location(92, 15, 19),
                                 location(94, 17, 21),
-                                location(95, 18, 22))
+                                location(95, 18, 22),
+                                location(98, 27, 31))
                 },
                 // Query exprs
                 {114, 22, location(114, 21, 23),
@@ -176,6 +178,46 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                         List.of(location(166, 8, 14),
                                 location(163, 6, 12))
                 },
+                // List spread operator
+                {178, 6, location(178, 6, 8),
+                        List.of(location(178, 6, 8),
+                                location(179, 15, 17))
+                },
+                {179, 6, location(179, 6, 8),
+                        List.of(location(179, 6, 8),
+                                location(184, 19, 21))
+                },
+                {182, 10, location(182, 10, 12),
+                        List.of(location(182, 10, 12),
+                                location(183, 19, 21))
+                },
+                // Regexp expression
+                {190, 19, location(190, 18, 20),
+                        List.of(location(190, 18, 20),
+                                location(191, 34, 36))
+                },
+                // Invalid expression
+                {201, 7, location(201, 5, 9),
+                        List.of(location(201, 5, 9))
+                },
+                // Parameters in named-args
+                {209, 10, location(215, 22, 24),
+                        List.of(location(209, 10, 12),
+                                location(215, 22, 24))
+                },
+                {209, 22, location(215, 37, 39),
+                        List.of(location(209, 22, 24),
+                                location(215, 37, 39))
+                },
+                {210, 10, location(218, 24, 29),
+                        List.of(location(210, 10, 15),
+                                location(211, 10, 15),
+                                location(218, 24, 29))
+                },
+                {212, 16, location(223, 22, 24),
+                        List.of(location(212, 16, 18),
+                                location(223, 22, 24))
+                }
         };
     }
 

@@ -14,7 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 string simpleLockCounter = "not-started";
+
+function testSimpleLock() {
+    test:assertEquals(simpleLock(), "main in critical after w1 is out");
+}
 
 function simpleLock() returns string {
     @strand{thread:"any"}
@@ -27,19 +33,31 @@ function simpleLock() returns string {
             busyWait();
             busyWait();
         }
-        simpleLockCounter = "w1 out of critical";
+        lock {
+            simpleLockCounter = "w1 out of critical";
+        }
     }
+
     busyWait();
-    if (simpleLockCounter == "not-started") {
-        return "main didn't wait for w1 to enter critical";
+    wait w1;
+
+    if (getSimpleLockCounter() == "not-started") {
+        return "main didn't wait for w1";
     }
+
     lock {
         busyWait();
-        if (simpleLockCounter == "w1 out of critical") {
+        if (getSimpleLockCounter() == "w1 out of critical") {
             simpleLockCounter = "main in critical after w1 is out";
         }
     }
-    return simpleLockCounter;
+    return getSimpleLockCounter();
+}
+
+function getSimpleLockCounter() returns string {
+    lock {
+        return simpleLockCounter;
+    }
 }
 
 function busyWait() {

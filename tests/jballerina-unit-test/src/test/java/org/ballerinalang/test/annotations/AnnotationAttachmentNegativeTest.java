@@ -19,6 +19,7 @@ package org.ballerinalang.test.annotations;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -37,7 +38,7 @@ public class AnnotationAttachmentNegativeTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 265);
+        Assert.assertEquals(compileResult.getErrorCount(), 277);
     }
 
     @Test
@@ -493,5 +494,34 @@ public class AnnotationAttachmentNegativeTest {
         validateError(compileResult, index++, "annotation 'v12' is not allowed on class", line += 3, 1);
         validateError(compileResult, index++, "annotation 'v13' is not allowed on class", line += 3, 1);
         validateError(compileResult, index, "annotation 'v15' is not allowed on class", line + 3, 1);
+    }
+
+    @Test
+    public void testInvalidAttachmentsOnEnum() {
+        int index = 265;
+        int line = 904;
+        validateError(compileResult, index++, "annotation 'v23' is not allowed on type", line, 1);
+        validateError(compileResult, index++, "annotation 'v23' is not allowed on type", line += 7, 1);
+        validateError(compileResult, index++, "annotation 'v23' is not allowed on type", line += 6, 1);
+        validateError(compileResult, index++, "annotation 'v24' is not allowed on type", ++line, 1);
+        validateError(compileResult, index++, "annotation 'v23' is not allowed on type", line += 6, 1);
+        validateError(compileResult, index++, "annotation 'v23' is not allowed on type", line += 7, 1);
+        validateError(compileResult, index, "annotation 'v22' is not allowed on const", line + 2, 5);
+    }
+
+    @Test
+    public void testInvalidConstAnnotElements() {
+        int index = 272;
+        int line = 943;
+        validateError(compileResult, index++, "expression is not a constant expression", line, 16);
+        validateError(compileResult, index++, "expression is not a constant expression", line += 7, 17);
+        validateError(compileResult, index++, "expression is not a constant expression", line += 7, 16);
+        validateError(compileResult, index++, "expression is not a constant expression", line += 9, 16);
+        validateError(compileResult, index, "expression is not a constant expression", line + 7, 16);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

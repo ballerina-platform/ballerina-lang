@@ -38,16 +38,24 @@ import java.util.Set;
  */
 public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
 
+    // BLangNodes
     public BLangIdentifier name;
     public BLangType typeNode;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
+
+    // Parser Flags and Data
     public Set<Flag> flagSet;
+
+    // Semantic Data
     public int precedence;
     public boolean isBuiltinTypeDef;
     public boolean hasCyclicReference = false;
+    public boolean referencedFieldsDefined;
 
     public BSymbol symbol;
+
+    public int cycleDepth = -1;
 
     public BLangTypeDefinition() {
         this.annAttachments = new ArrayList<>();
@@ -109,6 +117,16 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

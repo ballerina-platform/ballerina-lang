@@ -18,8 +18,11 @@
 package org.ballerinalang.testerina.natives.mock;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
@@ -29,7 +32,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 
 import java.util.ArrayList;
@@ -41,14 +44,14 @@ import java.util.Map;
 /**
  * A generic mock object to create a mock of any given typedesc.
  */
-public class GenericMockObjectValue implements BObject {
+public class GenericMockObjectValue implements ObjectValue {
 
-    private BObject mockObj;
+    private ObjectValue mockObj;
 
     private ObjectType type;
     private BTypedesc typedesc;
 
-    public GenericMockObjectValue(ObjectType type, BObject mockObj) {
+    public GenericMockObjectValue(ObjectType type, ObjectValue mockObj) {
         this.type = type;
         this.mockObj = mockObj;
         this.typedesc = new TypedescValueImpl(type);
@@ -72,8 +75,8 @@ public class GenericMockObjectValue implements BObject {
                 }
             }
         }
-        throw new BallerinaException("no cases registered for member function '" + funcName +
-                "' of object type '" + mockObj.getType().getName() + "'.");
+        throw ErrorCreator.createError(StringUtils.fromString("no cases registered for member function '" + funcName
+                + "' of object type '" + mockObj.getType().getName() + "'."));
     }
 
     @Override
@@ -87,8 +90,8 @@ public class GenericMockObjectValue implements BObject {
                 return MockRegistry.getInstance().getReturnValue(caseId);
             }
         }
-        throw new BallerinaException("no cases registered for member field '" + fieldName +
-                "' of object type '" + mockObj.getType().getName() + "'.");
+        throw ErrorCreator.createError(StringUtils.fromString("no cases registered for member field '" + fieldName +
+                        "' of object type '" + mockObj.getType().getName() + "'."));
     }
 
     @Override
@@ -168,6 +171,11 @@ public class GenericMockObjectValue implements BObject {
         return type;
     }
 
+    @Override
+    public Type getOriginalType() {
+        return type;
+    }
+
     public BObject getMockObj() {
         return this.mockObj;
     }
@@ -232,10 +240,11 @@ public class GenericMockObjectValue implements BObject {
         List<Object> newArgs = new ArrayList<>();
         int i = 0;
         while (i < args.length) {
-            if (args[i] != null && (TypeUtils.getType(args[i]).getTag() != TypeTags.TYPEDESC_TAG)) {
+            if (args[i] != null &&
+                    (TypeUtils.getImpliedType(TypeUtils.getType(args[i])).getTag() != TypeTags.TYPEDESC_TAG)) {
                 newArgs.add(args[i]);
             }
-            i += 2;
+            i += 1;
         }
         return newArgs.toArray();
     }

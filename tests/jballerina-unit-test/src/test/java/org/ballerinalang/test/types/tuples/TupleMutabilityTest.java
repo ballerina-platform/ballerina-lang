@@ -18,15 +18,12 @@
  */
 package org.ballerinalang.test.types.tuples;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,19 +45,19 @@ public class TupleMutabilityTest {
 
     @Test
     public void testValidTupleAssignment() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testValidTupleAssignment");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue(), "Expected value of true but found false");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 100, "Expected value of 100");
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "testValidTupleAssignment");
+        Assert.assertTrue((Boolean) returnValues.get(0), "Expected value of true but found false");
+        Assert.assertEquals(returnValues.get(1), 100L, "Expected value of 100");
     }
 
     @Test
     public void testWithTryCatch() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testWithTryCatch");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Expected value of 5");
+        Object returnValues = BRunUtil.invoke(compileResult, "testWithTryCatch");
+        Assert.assertEquals(returnValues, 5L, "Expected value of 5");
     }
 
     @Test(description = "Check if correct type is saved in covariant tuple with record type ",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types: 'Employee' cannot be " +
                             "cast to 'Intern'.*")
@@ -69,7 +66,7 @@ public class TupleMutabilityTest {
     }
 
     @Test(description = "Test mutation of record type using covariant tuple",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"incompatible types: " +
                             "expected 'Employee', found 'Person'.*")
@@ -78,7 +75,7 @@ public class TupleMutabilityTest {
     }
 
     @Test(description = "Test mutation of record type by assigning invalid record type",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"incompatible types: " +
                             "expected 'Employee', found 'Student'.*")
@@ -87,7 +84,7 @@ public class TupleMutabilityTest {
     }
 
     @Test(description = "Test mutation of int by inserting nil value to int? covariant tuple",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"incompatible types: " +
                             "expected 'int', found '\\(\\)'.*")
@@ -97,12 +94,12 @@ public class TupleMutabilityTest {
 
     @Test
     public void testDifferentTypeCovariance() {
-        BValue[] results = BRunUtil.invoke(compileResult, "testDifferentTypeCovariance");
-        Assert.assertEquals(((BInteger) results[0]).intValue(), 12);
+        Object results = BRunUtil.invoke(compileResult, "testDifferentTypeCovariance");
+        Assert.assertEquals(results, 12L);
     }
 
     @Test(description = "Test mutation of tuple which include structural and simple values",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"incompatible types: " +
                             "expected '\\(boolean\\|float\\)', found 'Person'.*")
@@ -126,12 +123,12 @@ public class TupleMutabilityTest {
 
     @Test
     public void testComplexTypes() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testComplexTupleTypes");
-        Assert.assertEquals(((BFloat) returnValues[0]).floatValue(), 12.0);
-        Assert.assertTrue(((BBoolean) returnValues[1]).booleanValue());
-        Assert.assertTrue(((BBoolean) returnValues[2]).booleanValue());
-        Assert.assertEquals(returnValues[3].stringValue(), "json");
-        Assert.assertEquals(((BFloat) returnValues[4]).floatValue(), 12.0);
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "testComplexTupleTypes");
+        Assert.assertEquals(returnValues.get(0), 12.0);
+        Assert.assertTrue((Boolean) returnValues.get(1));
+        Assert.assertTrue((Boolean) returnValues.get(2));
+        Assert.assertEquals(returnValues.get(3).toString(), "json");
+        Assert.assertEquals(returnValues.get(4), 12.0);
     }
 
     @AfterClass

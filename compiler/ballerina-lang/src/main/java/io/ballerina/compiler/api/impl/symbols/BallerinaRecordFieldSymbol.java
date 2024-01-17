@@ -17,14 +17,17 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -49,25 +52,16 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
     private final BField bField;
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
+    private List<io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol> annotAttachments;
     private List<Qualifier> qualifiers;
     private String signature;
     private boolean deprecated;
-    private String escapedName;
 
     public BallerinaRecordFieldSymbol(CompilerContext context, BField bField) {
-        super(bField.name.value, SymbolKind.RECORD_FIELD, bField.symbol, context);
+        super(bField.symbol.getOriginalName().value, SymbolKind.RECORD_FIELD, bField.symbol, context);
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
         this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);
-    }
-
-    @Override
-    public Optional<String> getName() {
-        if (this.escapedName != null) {
-            return Optional.of(this.escapedName);
-        }
-        this.escapedName = escapeReservedKeyword(this.bField.getName().getValue());
-        return Optional.ofNullable(this.escapedName);
     }
 
     /**
@@ -104,12 +98,29 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
 
         List<AnnotationSymbol> annots = new ArrayList<>();
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : bField.symbol.getAnnotations()) {
-            annots.add(symbolFactory.createAnnotationSymbol((BAnnotationSymbol) annot));
+        for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
+            annots.add(symbolFactory.createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
         }
 
         this.annots = Collections.unmodifiableList(annots);
         return this.annots;
+    }
+
+    @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        if (this.annotAttachments != null) {
+            return this.annotAttachments;
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
+
+        for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
+            annotAttachments.add(symbolFactory.createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
+        }
+
+        this.annotAttachments = Collections.unmodifiableList(annotAttachments);
+        return this.annotAttachments;
     }
 
     @Override
@@ -167,5 +178,15 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
         }
 
         return this.signature;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

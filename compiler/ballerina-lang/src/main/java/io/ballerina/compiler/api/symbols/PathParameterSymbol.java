@@ -28,6 +28,13 @@ import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 public interface PathParameterSymbol extends Symbol, Annotatable, PathSegment {
 
     /**
+     * Checks if the path parameter has a parameter name or not.
+     *
+     * @return True if the path parameter only has a type associated, without the parameter name
+     */
+    boolean isTypeOnlyParam();
+
+    /**
      * Returns the type symbol of this path parameter.
      *
      * @return The type of the param

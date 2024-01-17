@@ -1,0 +1,32 @@
+{
+  "position": {
+    "line": 8,
+    "character": 6
+  },
+  "source": "field_access_expression_context/source/field_access_ctx_source49.bal",
+  "items": [
+    {
+      "label": "id",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "AA",
+      "insertText": "id",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getId()",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "getId",
+      "insertText": "getId()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

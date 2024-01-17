@@ -48,13 +48,6 @@ public class ExpressionStmtTest {
     }
 
     @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30439
-    public void testStatementsNegative() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/expression/expression-stmt2-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "invalid statement", 3, 5);
-    }
-
-    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30439
     public void testStatementsSemanticsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/statements/expression/expression-stmt2-semantics" +
                 "-negative.bal");

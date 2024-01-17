@@ -25,12 +25,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,14 +41,14 @@ import java.util.stream.Stream;
 import static org.ballerinalang.test.context.Constant.BALLERINA_AGENT_PATH;
 
 /**
- * This class hold the server information and manage the a server instance.
+ * This class hold the server information and manage the server instance.
  *
  * @since 0.982.0
  */
 public class BServerInstance implements BServer {
     private static final Logger log = LoggerFactory.getLogger(BServerInstance.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
-    private String agentHost = "localhost";
+    private static final String agentHost = "localhost";
     private BalServer balServer;
     private int agentPort;
     private String agentArgs;
@@ -58,6 +59,16 @@ public class BServerInstance implements BServer {
     private Set<LogLeecher> tmpInfoLeechers = ConcurrentHashMap.newKeySet();
     private Set<LogLeecher> tmpErrorLeechers = ConcurrentHashMap.newKeySet();
     private int[] requiredPorts;
+
+    private static InetAddress address;
+
+    static {
+        try {
+            address = InetAddress.getByName(agentHost);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public BServerInstance(BalServer balServer) throws BallerinaTestException {
         this.balServer = balServer;
@@ -102,13 +113,13 @@ public class BServerInstance implements BServer {
     @Override
     public void startServer(String balFile, boolean useBallerinaRunCommand) throws BallerinaTestException {
         assert requiredPorts.length < 20 : "test try to open too many ports : " + requiredPorts.length;
-        startServer(balFile, new String[] { "--experimental" }, null, null, requiredPorts, true);
+        startServer(balFile, new String[] {}, null, null, requiredPorts, true);
     }
 
     @Override
     public void startServer(String balFile, int[] requiredPorts) throws BallerinaTestException {
         assert requiredPorts.length < 20 : "test try to open too many ports : " + requiredPorts.length;
-        startServer(balFile, new String[] { "--experimental" }, null, requiredPorts);
+        startServer(balFile, new String[] { }, null, requiredPorts);
     }
 
     @Override
@@ -225,7 +236,7 @@ public class BServerInstance implements BServer {
                 throw new BallerinaTestException("Error shutting down the server, invalid response - "
                         + response.getData());
             }
-            cleanupServer();
+            cleanupServer(address);
         } catch (IOException e) {
             throw new BallerinaTestException("Error shutting down the server, error - " + e.getMessage(), e);
         }
@@ -248,15 +259,15 @@ public class BServerInstance implements BServer {
                 throw new BallerinaTestException("Error killing the server, invalid response - "
                         + response.getData());
             }
-            cleanupServer();
+            cleanupServer(address);
         } catch (IOException e) {
             throw new BallerinaTestException("Error shutting down the server, error - " + e.getMessage(), e);
         }
     }
 
-    private void cleanupServer() {
+    private void cleanupServer(InetAddress address) {
         //wait until port to close
-        Utils.waitForPortsToClose(requiredPorts, 30000);
+        Utils.waitForPortsToClose(requiredPorts, 30000, address);
         log.info("Server Stopped Successfully");
     }
 
@@ -364,7 +375,7 @@ public class BServerInstance implements BServer {
         String[] cmdArray;
         File commandDir = new File(balServer.getServerHome());
         try {
-            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+            if (Utils.isWindowsOS()) {
                 cmdArray = new String[]{"cmd.exe", "/c", "bin\\" + Constant.BALLERINA_SERVER_SCRIPT_NAME + ".bat",
                                         command};
             } else {
@@ -461,7 +472,7 @@ public class BServerInstance implements BServer {
      * @param requiredPorts ports required for the server instance
      * @throws BallerinaTestException if starting services failed
      */
-    private void executeJarFile(String jarPath, String[] args, Map<String, String> envProperties, 
+    private void executeJarFile(String jarPath, String[] args, Map<String, String> envProperties,
                                 File commandDir, int[] requiredPorts) throws BallerinaTestException {
         try {
             if (this.requiredPorts == null) {
@@ -471,7 +482,7 @@ public class BServerInstance implements BServer {
             this.requiredPorts = ArrayUtils.addAll(this.requiredPorts, agentPort);
 
             //Check whether agent port is available.
-            Utils.checkPortsAvailability(this.requiredPorts);
+            Utils.checkPortsAvailability(this.requiredPorts, address);
 
             log.info("Starting Ballerina server..");
 
@@ -503,8 +514,9 @@ public class BServerInstance implements BServer {
             tmpErrorLeechers.forEach(leecher -> serverErrorLogReader.addLeecher(leecher));
             serverErrorLogReader.start();
             log.info("Waiting for port " + agentPort + " to open");
+            long timeout = 1000L * 60 * 10;
             //TODO: Need to reduce the timeout after build time improvements
-            Utils.waitForPortsToOpen(new int[]{agentPort}, 1000 * 60 * 10, false, agentHost);
+            Utils.waitForPortsToOpen(new int[]{agentPort}, timeout, false, address);
             log.info("Server Started Successfully.");
         } catch (IOException e) {
             throw new BallerinaTestException("Error starting services", e);

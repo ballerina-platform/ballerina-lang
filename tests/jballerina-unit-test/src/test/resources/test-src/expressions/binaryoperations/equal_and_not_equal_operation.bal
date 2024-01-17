@@ -98,6 +98,16 @@ function checkFloatEquality() {
     test:assertFalse((b == a) || !(b != a));
 }
 
+function checkDecimalEquality() {
+    decimal d1 = 0d;
+    decimal d2 = 0.0d;
+    decimal d3 = 1.0001;
+    decimal d4 = 1.000100;
+    test:assertTrue((d1 == d2) && !(d1 != d2));
+    test:assertTrue((d3 == d4) && !(d3 != d4));
+    test:assertFalse((d1 == d3) && !(d4 != d2));
+}
+
 function checkStringEquality() {
     string a = "a";
     string b = "Hello, from Ballerina!";
@@ -140,6 +150,23 @@ function checkAnyDataEquality() {
     test:assertFalse((a == e) || !(a != e));
     test:assertFalse((a == f) || !(a != f));
     test:assertFalse((a == g) || !(a != g));
+}
+
+type IntOne 1;
+type FloatOne 1.0;
+type IntTwo 2;
+type FloatTwo 2f;
+
+function checkFiniteTypeEquality() {
+    IntOne intOne_1 = 1;
+    IntOne intOne_2 = 1;
+    IntTwo intTwo = 2;
+    FloatOne floatOne = 1f;
+    FloatTwo floatTwo = 2.0;
+
+    test:assertTrue((intOne_1 == intOne_2) && !(intOne_1 != intOne_2));
+    test:assertTrue((floatOne != floatTwo) && !(floatOne == floatTwo));
+    test:assertFalse((intOne_1 == intTwo) && !(intOne_1 != intTwo));
 }
 
 type ErrorDetail record {
@@ -571,6 +598,9 @@ function checkComplexMapEqualityNegative() {
     test:assertFalse(m1 == m2 || !(m1 != m2));
 }
 
+type Array ["array", 1];
+type Mapping ["mapping", 2];
+
 function checkTupleEqualityPositive() {
     [string, int] t1 = ["", 0];
     [string, int] t2 = ["", 0];
@@ -579,6 +609,10 @@ function checkTupleEqualityPositive() {
     [string, int, OpenEmployee] t4 = ["hi", 0, {name: "Em"}];
 
     test:assertTrue(t1 == t2 && !(t1 != t2) && t3 == t4 && !(t3 != t4));
+
+    Array a = ["array", 1];
+    Array b = ["array", 1];
+    test:assertTrue(a == b);
 }
 
 function checkTupleEqualityNegative() {
@@ -592,6 +626,10 @@ function checkTupleEqualityNegative() {
     [string, ClosedEmployee] t6 = ["hi", {name: "Em"}];
 
     test:assertFalse(t1 == t2 || !(t1 != t2) || t3 == t4 || !(t3 != t4) || t5 == t6 || !(t5 != t6));
+
+    Array a = ["array", 1];
+    Mapping b = ["mapping", 2];
+    test:assertFalse(a == b);
 }
 
 function checkUnionConstrainedMapsPositive() {

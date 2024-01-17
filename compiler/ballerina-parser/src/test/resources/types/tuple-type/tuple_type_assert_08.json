@@ -296,22 +296,41 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "ARRAY_TYPE_DESC",
+                                  "kind": "MEMBER_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "LIST",
+                                      "children": []
+                                    },
+                                    {
+                                      "kind": "ARRAY_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "Foo"
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "Foo"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "ARRAY_DIMENSION",
+                                              "children": [
+                                                {
+                                                  "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                              ]
+                                            }
+                                          ]
                                         }
                                       ]
-                                    },
-                                    {
-                                      "kind": "OPEN_BRACKET_TOKEN"
-                                    },
-                                    {
-                                      "kind": "CLOSE_BRACKET_TOKEN"
                                     }
                                   ]
                                 },
@@ -325,11 +344,20 @@
                                   ]
                                 },
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "kind": "MEMBER_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "Bar"
+                                      "kind": "LIST",
+                                      "children": []
+                                    },
+                                    {
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "Bar"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -495,22 +523,41 @@
                                       "kind": "LIST",
                                       "children": [
                                         {
-                                          "kind": "ARRAY_TYPE_DESC",
+                                          "kind": "MEMBER_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "ARRAY_TYPE_DESC",
                                               "children": [
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "Foo"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "Foo"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": [
+                                                    {
+                                                      "kind": "ARRAY_DIMENSION",
+                                                      "children": [
+                                                        {
+                                                          "kind": "OPEN_BRACKET_TOKEN"
+                                                        },
+                                                        {
+                                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
                                                 }
                                               ]
-                                            },
-                                            {
-                                              "kind": "OPEN_BRACKET_TOKEN"
-                                            },
-                                            {
-                                              "kind": "CLOSE_BRACKET_TOKEN"
                                             }
                                           ]
                                         },
@@ -524,11 +571,20 @@
                                           ]
                                         },
                                         {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "kind": "MEMBER_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "Bar"
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "Bar"
+                                                }
+                                              ]
                                             }
                                           ]
                                         }

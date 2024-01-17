@@ -595,12 +595,12 @@ function testServiceObjects() {
 
     test:assertTrue(a is ServiceClassA);
     test:assertTrue(a is ServiceClassB);
-    test:assertTrue(a is ServiceClassC);
-    test:assertTrue(a is ServiceClassD);
+    test:assertFalse(a is ServiceClassC);
+    test:assertFalse(a is ServiceClassD);
 
     test:assertFalse(b is ServiceClassA);
     test:assertTrue(b is ServiceClassB);
-    test:assertTrue(b is ServiceClassC);
+    test:assertFalse(b is ServiceClassC);
     test:assertFalse(b is ServiceClassD);
 
     test:assertFalse(c is ServiceClassA);
@@ -610,7 +610,7 @@ function testServiceObjects() {
 
     test:assertTrue(d is ServiceClassA);
     test:assertTrue(d is ServiceClassB);
-    test:assertTrue(d is ServiceClassC);
+    test:assertFalse(d is ServiceClassC);
     test:assertTrue(d is ServiceClassD);
 }
 
@@ -709,6 +709,21 @@ public function testEmptyArrayType() {
     any c = b;
     test:assertEquals(c is [int...], true);
     test:assertEquals(c is int[], true);
+}
+
+function testReadOnlyArrays() {
+    anydata & readonly arr1 = [2, 2, 3];
+    test:assertTrue(arr1 is int[3]);
+    test:assertTrue(arr1 is int[]);
+    test:assertFalse(arr1 is int[2]);
+    test:assertFalse(arr1 is boolean[3]);
+
+    anydata arr2 = ["a", "b", "c"];
+    anydata & readonly arr3 = arr2.cloneReadOnly();
+    test:assertTrue(arr3 is string[3]);
+    test:assertTrue(arr3 is string[]);
+    test:assertFalse(arr3 is string[2]);
+    test:assertTrue(arr3 is anydata[3]);
 }
 
 // ========================== Tuples ==========================
@@ -900,6 +915,39 @@ function testFiniteType_2() returns string {
 function testFiniteTypeAsBroaderType_1() returns boolean {
     any a = GRAPE;
     return a is string;
+}
+
+type IntOne 1;
+type FloatOne 1.0;
+type FloatNaN float:NaN;
+type DecimalOne 1d;
+
+function testTypeTestExprWithSingletons() {
+    IntOne intOne = 1;
+    FloatOne floatOne = 1.0;
+    DecimalOne decimalOne = 1d;
+
+    any a = intOne;
+    test:assertFalse(a is FloatOne);
+    test:assertFalse(a is DecimalOne);
+    test:assertFalse(a is 1f);
+    test:assertFalse(a is float);
+    test:assertTrue(a is FloatOne|IntOne);
+
+    any b = floatOne;
+    test:assertFalse(b is IntOne);
+    test:assertFalse(b is 1);
+    test:assertFalse(b is int);
+
+    FloatNaN floatNaN = float:NaN;
+    any c = floatNaN;
+    test:assertTrue(c is FloatNaN);
+    test:assertTrue(c is float:NaN);
+
+    any d = decimalOne;
+    test:assertFalse(d is IntOne);
+    test:assertFalse(d is FloatOne);
+    test:assertFalse(d is 1);
 }
 
 type FRUIT_OR_COUNT "apple"|2|"grape"|10;
@@ -1373,4 +1421,575 @@ function testIntSubtypes() {
     test:assertTrue(val8 is int:Signed16);
     test:assertTrue(val8 is int:Signed32);
     test:assertTrue(val8 is int);
+}
+
+type MyClientObjectType client object {
+    resource function get foo/[int]();
+};
+
+function testResourceMethodTyping() {
+    client object {} objectVar = client object {
+        resource function post .() {
+        }
+    };
+
+    boolean result = objectVar is client object {
+        resource function get .();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [string a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get foo/[string a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get foo/[int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [string]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get foo/[string]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get foo/[int]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [byte]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int]();
+
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [string a]() {
+        }
+        resource function post [int a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [string]() {
+        }
+        resource function post [int]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get bar/[string... a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get bar/[int... a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get bar/[byte... a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get bar/[int... a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get bar/[int a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get bar/[int... a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get foo2/[int]() {
+        }
+    };
+
+    result = objectVar is client object {
+        *MyClientObjectType;
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get foo/[string]() {
+        }
+    };
+
+    result = objectVar is client object {
+        *MyClientObjectType;
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get .() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get .(int a);
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get .(int a) {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get .();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get .(int a) {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get .(int... a);
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get foo(int a) {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get foo();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get .(int a) {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get .(int a) {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int b](int a);
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [int a]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get .(int a);
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [int]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get .(int a);
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = service object {
+        resource function post .() {
+        }
+    };
+
+    result = objectVar is service object {
+        resource function get .();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = service object {
+        resource function get [string a]() {
+        }
+    };
+
+    result = objectVar is service object {
+        resource function get [int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = service object {
+        resource function get foo/[string a]() {
+        }
+    };
+
+    result = objectVar is service object {
+        resource function get foo/[int a]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = service object {
+        resource function get [string]() {
+        }
+    };
+
+    result = objectVar is service object {
+        resource function get [int]();
+    };
+
+    test:assertFalse(result);
+    
+    objectVar = client object {
+        resource function get [int]() {
+        }
+    };
+
+    result = objectVar is service object {
+        resource function get [int]();
+    };
+
+    test:assertFalse(result);
+
+    objectVar = client object {
+        function \$get\$\* () {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int]();
+    };
+
+    test:assertFalse(result);
+
+    objectVar = client object {
+        function get () {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int]();
+    };
+
+    test:assertFalse(result);
+
+    objectVar = client object {
+        remote function get () {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get [int]();
+    };
+
+    test:assertFalse(result);
+
+    objectVar = client object {
+        resource function get foo/[int]/[string...]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get foo/[int]/[string...]();
+    };
+
+    test:assertTrue(result);
+
+    objectVar = client object {
+        resource function get foo/[int b]/[string... a]() {
+        }
+
+        resource function get boo/[int b]/[int... a](string c) {
+        }
+
+        function name() { 
+        }
+
+        resource function post boo/[int b]/[int... a](string c) {
+        }
+
+        resource function post [int b]/[int... a](string c) {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get foo/[int b]/[string... a]();
+        function name();
+        resource function get boo/[int b]/[int... a](string c);
+        resource function post boo/[byte b]/[byte... a](string c);
+        resource function post [1 b]/[2... a](string c);
+    };
+
+    test:assertTrue(result);
+
+    result = objectVar is client object {
+        resource function get boo/[int b]/[int... a](string c);
+    };
+
+    test:assertTrue(result);
+
+    result = objectVar is client object {
+        resource function get foo/[int b]/["book"... a]();
+    };
+
+    test:assertTrue(result);
+
+    result = objectVar is client object {
+        function name();
+    };
+
+    test:assertTrue(result);
+    
+    objectVar = client object {
+        resource function get foo/[int...]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get foo/[string...]();
+    };
+    
+    test:assertFalse(result);
+}
+
+// ========================== distinct types ==========================
+
+type ListenerError distinct error;
+
+type ClientError distinct error;
+
+type DistictListenerError distinct ListenerError;
+
+type ErrType error;
+
+distinct error err1 = error("err1");
+distinct error err2 = error("err2");
+ErrType errtype1 = error("errtype1");
+error err3 = error("error!");
+ListenerError listerr1 = error("listerr1");
+ListenerError listerr2 = error("listerr2");
+ClientError clierr1 = error("clierr1");
+distinct ListenerError distlisterr1 = error("distlisterr1");
+distinct ListenerError distlisterr2 = error("distlisterr2");
+distinct ClientError distclierr1 = error("distclierr1");
+
+function testIsExpressionWithDistinctErrors() {
+    distinct error err11 = error("err11");
+    distinct error err21 = error("err21");
+    ErrType errtype11 = error("errtype11");
+    error err31 = error("error1!");
+    ListenerError listerr11 = error("listerr11");
+    ListenerError listerr21 = error("listerr21");
+    ClientError clierr11 = error("clierr11");
+    distinct ListenerError distlisterr11 = error("distlisterr11");
+    distinct ListenerError distlisterr21 = error("distlisterr21");
+    distinct ClientError distclierr11 = error("distclierr11");
+
+    // global variables
+    test:assertEquals(err1 is distinct error, false);
+    test:assertEquals(err1 is ErrType, true);
+    test:assertEquals(err1 is error, true);
+    test:assertEquals(err1 is ListenerError, false);
+    test:assertEquals(err1 is distinct ListenerError, false);
+    test:assertEquals(err1 is DistictListenerError, false);
+
+    test:assertEquals(errtype1 is distinct error, false);
+    test:assertEquals(errtype1 is ErrType, true);
+    test:assertEquals(errtype1 is error, true);
+    test:assertEquals(errtype1 is ListenerError, false);
+    test:assertEquals(errtype1 is distinct ListenerError, false);
+    test:assertEquals(errtype1 is DistictListenerError, false);
+
+    test:assertEquals(err3 is distinct error, false);
+    test:assertEquals(err3 is ErrType, true);
+    test:assertEquals(err3 is error, true);
+    test:assertEquals(err3 is ListenerError, false);
+    test:assertEquals(err3 is distinct ListenerError, false);
+    test:assertEquals(err3 is DistictListenerError, false);
+
+    test:assertEquals(listerr1 is distinct error, false);
+    test:assertEquals(listerr1 is ErrType, true);
+    test:assertEquals(listerr1 is error, true);
+    test:assertEquals(listerr1 is ListenerError, true);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38130
+    // test:assertEquals(listerr1 is distinct ListenerError, false);
+    test:assertEquals(listerr1 is ClientError, false);
+    test:assertEquals(listerr1 is distinct ClientError, false);
+    test:assertEquals(listerr1 is DistictListenerError, false);
+
+    test:assertEquals(distlisterr1 is distinct error, false);
+    test:assertEquals(distlisterr1 is ErrType, true);
+    test:assertEquals(distlisterr1 is error, true);
+    test:assertEquals(distlisterr1 is ListenerError, true);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38130
+    // test:assertEquals(distlisterr1 is distinct ListenerError, false);
+    test:assertEquals(distlisterr1 is ClientError, false);
+    test:assertEquals(distlisterr1 is distinct ClientError, false);
+    test:assertEquals(distlisterr1 is DistictListenerError, false);
+
+    // local variables
+    test:assertEquals(err11 is distinct error, false);
+    test:assertEquals(err11 is ErrType, true);
+    test:assertEquals(err11 is error, true);
+    test:assertEquals(err11 is ListenerError, false);
+    test:assertEquals(err11 is distinct ListenerError, false);
+    test:assertEquals(err11 is DistictListenerError, false);
+
+    test:assertEquals(errtype11 is distinct error, false);
+    test:assertEquals(errtype11 is ErrType, true);
+    test:assertEquals(errtype11 is error, true);
+    test:assertEquals(errtype11 is ListenerError, false);
+    test:assertEquals(errtype11 is distinct ListenerError, false);
+    test:assertEquals(errtype11 is DistictListenerError, false);
+
+    test:assertEquals(err31 is distinct error, false);
+    test:assertEquals(err31 is ErrType, true);
+    test:assertEquals(err31 is error, true);
+    test:assertEquals(err31 is ListenerError, false);
+    test:assertEquals(err31 is distinct ListenerError, false);
+    test:assertEquals(err31 is DistictListenerError, false);
+
+    test:assertEquals(listerr11 is distinct error, false);
+    test:assertEquals(listerr11 is ErrType, true);
+    test:assertEquals(listerr11 is error, true);
+    test:assertEquals(listerr11 is ListenerError, true);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38130
+    // test:assertEquals(listerr11 is distinct ListenerError, false);
+    test:assertEquals(listerr11 is ClientError, false);
+    test:assertEquals(listerr11 is distinct ClientError, false);
+    test:assertEquals(listerr11 is DistictListenerError, false);
+
+    test:assertEquals(distlisterr11 is distinct error, false);
+    test:assertEquals(distlisterr11 is ErrType, true);
+    test:assertEquals(distlisterr11 is error, true);
+    test:assertEquals(distlisterr11 is ListenerError, true);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38130
+    // test:assertEquals(distlisterr11 is distinct ListenerError, false);
+    test:assertEquals(distlisterr11 is ClientError, false);
+    test:assertEquals(distlisterr11 is distinct ClientError, false);
+    test:assertEquals(distlisterr11 is DistictListenerError, false);
+
+    testIsExpressionWithDistinctErrors2();
+}
+
+function testIsExpressionWithDistinctErrors2() {
+    distinct error err12 = error("err12");
+    distinct error err22 = error("err22");
+    ErrType errtype12 = error("errtype12");
+    error err32 = error("error2!");
+    ListenerError listerr12 = error("listerr12");
+    ListenerError listerr22 = error("listerr22");
+    ClientError clierr12 = error("clierr12");
+    distinct ListenerError distlisterr12 = error("distlisterr12");
+    distinct ListenerError distlisterr22 = error("distlisterr22");
+    distinct ClientError distclierr12 = error("distclierr12");
+
+    test:assertEquals(err12 is distinct error, false);
+    test:assertEquals(err12 is ErrType, true);
+    test:assertEquals(err12 is error, true);
+    test:assertEquals(err12 is ListenerError, false);
+    test:assertEquals(err12 is distinct ListenerError, false);
+    test:assertEquals(err12 is DistictListenerError, false);
+
+    test:assertEquals(errtype12 is distinct error, false);
+    test:assertEquals(errtype12 is ErrType, true);
+    test:assertEquals(errtype12 is error, true);
+    test:assertEquals(errtype12 is ListenerError, false);
+    test:assertEquals(errtype12 is distinct ListenerError, false);
+    test:assertEquals(errtype12 is DistictListenerError, false);
+
+    test:assertEquals(err32 is distinct error, false);
+    test:assertEquals(err32 is ErrType, true);
+    test:assertEquals(err32 is error, true);
+    test:assertEquals(err32 is ListenerError, false);
+    test:assertEquals(err32 is distinct ListenerError, false);
+    test:assertEquals(err32 is DistictListenerError, false);
+
+    test:assertEquals(listerr12 is distinct error, false);
+    test:assertEquals(listerr12 is ErrType, true);
+    test:assertEquals(listerr12 is error, true);
+    test:assertEquals(listerr12 is ListenerError, true);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38130
+    // test:assertEquals(listerr12 is distinct ListenerError, false);
+    test:assertEquals(listerr12 is ClientError, false);
+    test:assertEquals(listerr12 is distinct ClientError, false);
+    test:assertEquals(listerr12 is DistictListenerError, false);
+
+    test:assertEquals(distlisterr12 is distinct error, false);
+    test:assertEquals(distlisterr12 is ErrType, true);
+    test:assertEquals(distlisterr12 is error, true);
+    test:assertEquals(distlisterr12 is ListenerError, true);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38130
+    // test:assertEquals(distlisterr12 is distinct ListenerError, false);
+    test:assertEquals(distlisterr12 is ClientError, false);
+    test:assertEquals(distlisterr12 is distinct ClientError, false);
+    test:assertEquals(distlisterr12 is DistictListenerError, false);
 }

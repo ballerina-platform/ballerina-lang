@@ -39,18 +39,20 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
  *
  * @since 1.2.0
  */
-@CommandLine.Command(
-        name = "bindgen",
-        description = "A CLI tool for generating Ballerina bindings for Java APIs.")
+@CommandLine.Command(name = "bindgen", description = "Generate the Ballerina bindings for Java APIs")
 public class BindgenCommand implements BLauncherCmd {
 
-    private PrintStream outStream;
-    private PrintStream outError;
-    private boolean exitWhenFinish;
+    private final PrintStream outStream;
+    private final PrintStream outError;
+    private final boolean exitWhenFinish;
     private Path targetOutputPath = Paths.get(System.getProperty(USER_DIR));
 
     public BindgenCommand() {
         this(System.out, System.err);
+    }
+
+    public BindgenCommand(PrintStream out, PrintStream err) {
+        this(out, err, true);
     }
 
     public BindgenCommand(PrintStream out, PrintStream err, boolean exitWhenFinish) {
@@ -61,37 +63,53 @@ public class BindgenCommand implements BLauncherCmd {
         BindgenUtils.setErrStream(err);
     }
 
-    public BindgenCommand(PrintStream out, PrintStream err) {
-        this.outStream = out;
-        this.outError = err;
-        this.exitWhenFinish = true;
-        BindgenUtils.setOutStream(out);
-        BindgenUtils.setErrStream(err);
-    }
-
+    @SuppressWarnings("unused")
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
 
+    @SuppressWarnings("unused")
     @CommandLine.Option(names = {"-cp", "--classpath"},
             description = "One or more comma-delimited classpaths for obtaining the jar files required for\n" +
                     "generating the Ballerina bindings.")
     private String classPath;
 
+    @SuppressWarnings("unused")
     @CommandLine.Option(names = {"-mvn", "--maven"},
             description = "A maven dependency with colon delimited groupId, artifactId and version.")
     private String mavenDependency;
 
+    @SuppressWarnings("unused")
     @CommandLine.Option(names = {"-o", "--output"},
             description = "Generate all bindings inside the specified directory. This option could be " +
                     "used to generate mappings inside a single module."
     )
     private String outputPath;
 
+    @SuppressWarnings("unused")
     @CommandLine.Option(names = {"--public"},
             description = "Set the visibility modifier of Ballerina bindings to public."
     )
     private boolean publicFlag;
 
+    @SuppressWarnings("unused")
+    @CommandLine.Option(names = {"--with-optional-types"},
+            description = "Generate bindings with optional(i.e. nillable) types for parameter and return types."
+    )
+    private boolean optionalTypesFlag;
+
+    @SuppressWarnings("unused")
+    @CommandLine.Option(names = {"--with-optional-types-param"},
+            description = "Generate bindings with optional(i.e. nillable) types for parameter types."
+    )
+    private boolean optionalTypesParamFlag;
+
+    @SuppressWarnings("unused")
+    @CommandLine.Option(names = {"--with-optional-types-return"},
+            description = "Generate bindings with optional(i.e. nillable) types for return types."
+    )
+    private boolean optionalTypesReturnFlag;
+
+    @SuppressWarnings("unused")
     @CommandLine.Parameters
     private List<String> classNames;
 
@@ -103,7 +121,6 @@ public class BindgenCommand implements BLauncherCmd {
 
     @Override
     public void execute() {
-        outStream.println("\nNote: This is an experimental tool.");
         //Help flag check
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
@@ -133,6 +150,23 @@ public class BindgenCommand implements BLauncherCmd {
 
         if (publicFlag) {
             bindingsGenerator.setPublic();
+        }
+
+        if (optionalTypesFlag && (optionalTypesParamFlag || optionalTypesReturnFlag)) {
+            setOutError("cannot use '--with-optional-types' option with '--with-optional-types-param' or " +
+                    "'--with-optional-types-return' options at the same time");
+            exitWithCode(1, this.exitWhenFinish);
+            return;
+        }
+
+        if (optionalTypesFlag) {
+            bindingsGenerator.setOptionalTypesFlag();
+        }
+        if (optionalTypesParamFlag) {
+            bindingsGenerator.setOptionalParamTypesFlag();
+        }
+        if (optionalTypesReturnFlag) {
+            bindingsGenerator.setOptionalReturnTypesFlag();
         }
 
         Project project = null;
@@ -217,24 +251,16 @@ public class BindgenCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Generate Ballerina bridge code for Java APIs.\n");
-        out.append("\n");
-        out.append("Ballerina bindings could be generated for Java classes residing inside Java libraries\n");
-        out.append("or for standard Java classes. The Java classes will be mapped to the Ballerina\n");
-        out.append("classes providing a seamless Java interoperability developer experience to Ballerina users.\n");
-        out.append("\n");
-        out.append("In addition to the user-specified Java classes, partial implementations of directly\n");
-        out.append("-dependent Java classes will also be generated by the tool. By default, the bindings for\n");
-        out.append("each Java package will be mapped to a separate Ballerina module.\n");
+        out.append(BLauncherCmd.getCommandUsageInfo(BINDGEN_CMD));
     }
 
     @Override
     public void printUsage(StringBuilder out) {
         out.append("  $ bal " + COMPONENT_IDENTIFIER + " java.utils.ArrayDeque\n");
-        out.append("  $ bal " + COMPONENT_IDENTIFIER + " -cp ./libs/snakeyaml-1.25.jar,./libs/pdfbox-1.8.10.jar " +
+        out.append("  $ bal " + COMPONENT_IDENTIFIER + " -cp ./libs/snakeyaml-2.0.jar,./libs/pdfbox-1.8.10.jar " +
                 "-o ./modules/sample\n");
         out.append("  org.yaml.snakeyaml.Yaml org.apache.pdfbox.pdmodel.PDDocument java.io.File\n");
-        out.append("  $ bal " + COMPONENT_IDENTIFIER + " -mvn org.yaml:snakeyaml:1.25 org.yaml.snakeyaml.Yaml\n");
+        out.append("  $ bal " + COMPONENT_IDENTIFIER + " -mvn org.yaml:snakeyaml:2.0 org.yaml.snakeyaml.Yaml\n");
     }
 
     @Override

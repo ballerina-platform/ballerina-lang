@@ -17,6 +17,9 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -43,19 +46,22 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
     private final FunctionTypeSymbol typeDescriptor;
     private final List<Qualifier> qualifiers;
     private final List<AnnotationSymbol> annots;
+    private final List<AnnotationAttachmentSymbol> annotAttachments;
     private final Documentation docAttachment;
     private final boolean isExternal;
     private final boolean deprecated;
 
     protected BallerinaFunctionSymbol(String name, List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
+                                      List<AnnotationAttachmentSymbol> annotAttachments,
                                       FunctionTypeSymbol typeDescriptor, BInvokableSymbol invokableSymbol,
                                       CompilerContext context) {
         super(name, SymbolKind.FUNCTION, invokableSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
+        this.annotAttachments = Collections.unmodifiableList(annotAttachments);
         this.docAttachment = getDocAttachment(invokableSymbol);
         this.typeDescriptor = typeDescriptor;
-        this.isExternal = Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE);
+        this.isExternal = Symbols.isNative(invokableSymbol);
         this.deprecated = Symbols.isFlagOn(invokableSymbol.flags, Flags.DEPRECATED);
     }
 
@@ -90,8 +96,23 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
     }
 
     @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        return this.annotAttachments;
+    }
+
+    @Override
     public Optional<Documentation> documentation() {
         return Optional.ofNullable(this.docAttachment);
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     /**
@@ -101,6 +122,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
 
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected List<AnnotationSymbol> annots = new ArrayList<>();
+        protected List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
         protected FunctionTypeSymbol typeDescriptor;
 
         public FunctionSymbolBuilder(String name, BInvokableSymbol bSymbol, CompilerContext context) {
@@ -131,9 +153,14 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
             return this;
         }
 
+        public FunctionSymbolBuilder withAnnotationAttachment(AnnotationAttachmentSymbol annotationAttachment) {
+            this.annotAttachments.add(annotationAttachment);
+            return this;
+        }
+
         @Override
         public BallerinaFunctionSymbol build() {
-            return new BallerinaFunctionSymbol(this.name, this.qualifiers, this.annots,
+            return new BallerinaFunctionSymbol(this.name, this.qualifiers, this.annots, this.annotAttachments,
                     this.typeDescriptor, (BInvokableSymbol) this.bSymbol, this.context);
         }
     }

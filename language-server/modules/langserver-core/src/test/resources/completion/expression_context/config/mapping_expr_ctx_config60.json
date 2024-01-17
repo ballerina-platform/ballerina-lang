@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,16 +18,16 @@
       "label": "name",
       "kind": "Field",
       "detail": "Pet.name",
-      "sortText": "G",
-      "insertText": "name: \"${1}\"",
+      "sortText": "K",
+      "insertText": "name: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type",
+      "label": "'type",
       "kind": "Field",
       "detail": "Pet.type",
-      "sortText": "G",
-      "insertText": "'type: ${2:0}",
+      "sortText": "K",
+      "insertText": "'type: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,7 +36,7 @@
       "detail": "Pet",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "name: \"\",\ntype: 0",
+      "insertText": "name: ${1:\"\"},\n'type: ${2:0}",
       "insertTextFormat": "Snippet"
     }
   ]

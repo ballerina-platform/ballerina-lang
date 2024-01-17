@@ -1,0 +1,71 @@
+personTableArray = [
+  [
+    {name = "manu", id = 11, address = {city = "New York", country = {name = "USA"}}},
+    {name = "hinduja", id = 12, address = {city = "London", country = {name = "UK"}}},
+  ],
+  [
+    {name = "waruna", id = 700, address = {city = "Abu Dhabi", country = {name = "UAE"}}},
+    {name = "manu", id = 701, address = {city = "Mumbai", country = {name = "India"}}},
+  ],
+]
+
+personTableArray1 = [
+  [
+    {name = "waruna", id = 700, address = {city = "Abu Dhabi", country = {name = "UAE"}}},
+    {name = "manu", id = 701, address = {city = "Mumbai", country = {name = "India"}}},
+  ],
+  [
+    {name = "gabilan", id = 900, address = {city = "Abu Dhabi", country = {name = "UAE"}}},
+    {name = "hinduja", id = 901, address = {city = "Mumbai", country = {name = "India"}}},
+  ],
+]
+
+personTableArray2 = [
+  [
+    {name = "gabilan", id = 900, address = {city = "Abu Dhabi", country = {name = "UAE"}}},
+    {name = "hinduja", id = 901, address = {city = "Mumbai", country = {name = "India"}}},
+  ],
+  [
+    {name = "manu", id = 11, address = {city = "New York", country = {name = "USA"}}},
+    {name = "hinduja", id = 12, address = {city = "London", country = {name = "UK"}}},
+  ],
+]
+
+mapTableArray1 = [[{a = 1, b = "b", c = [1, "2", {c = "c"}], d = {d = "D"}}, {e = 3, f = "f", g = [4, "5", {g = "g"}], h = {h = "H"}}], [{e = 5, f = 6}]]
+mapTableArray2 = [[{a = 1, b = 2}, {c = 3, d = 4}], [{e = 5, f = 6}]]
+
+configTableArray.imported_tables.personTableArray = [
+  [
+    {name = "manu", id = 11, address = {city = "New York", country = {name = "USA"}}},
+    {name = "hinduja", id = 12, address = {city = "London", country = {name = "UK"}}},
+  ],
+  [
+    {name = "waruna", id = 111, address = {city = "Abu Dhabi", country = {name = "UAE"}}},
+    {name = "manu", id = 122, address = {city = "Mumbai", country = {name = "India"}}},
+  ],
+]
+
+configTableArray.imported_tables.personTableArray1 = [
+  [
+    {name = "gabilan", id = 900, address = {city = "Abu Dhabi", country = {name = "UAE"}}},
+    {name = "hinduja", id = 901, address = {city = "Mumbai", country = {name = "India"}}},
+  ],
+  [
+    {name = "manu", id = 800, address = {city = "New York", country = {name = "USA"}}},
+    {name = "hinduja", id = 801, address = {city = "London", country = {name = "UK"}}},
+  ],
+]
+
+configTableArray.imported_tables.personTableArray2 = [
+  [
+    {name = "waruna", id = 111, address = {city = "Abu Dhabi", country = {name = "UAE"}}},
+    {name = "manu", id = 122, address = {city = "Mumbai", country = {name = "India"}}},
+  ],
+  [
+    {name = "riyafa", id = 1000, address = {city = "New York", country = {name = "USA"}}},
+    {name = "waruna", id = 1001, address = {city = "London", country = {name = "UK"}}},
+  ],
+]
+
+configTableArray.imported_tables.mapTableArray1 = [[{a = 1, b = "b", c = [1, "2", {c = "c"}], d = {d = "D"}}, {e = 3, f = "f", g = [4, "5", {g = "g"}], h = {h = "H"}}], [{e = 5, f = 6}]]
+configTableArray.imported_tables.mapTableArray2 = [[{a = 1, b = 2}, {c = 3, d = 4}], [{e = 5, f = 6}]]

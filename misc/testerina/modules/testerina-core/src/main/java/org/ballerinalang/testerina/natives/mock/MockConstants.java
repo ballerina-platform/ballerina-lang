@@ -29,6 +29,8 @@ public class MockConstants {
     public static final String DEFAULT_MOCK_OBJ_ANON = "$anonType$";
     public static final String FUNCTION_CALL_PLACEHOLDER = "__CALL__";
     public static final String FUNCTION_CALLORIGINAL_PLACEHOLDER = "__ORIGINAL__";
+
+    public static final String ORIGINAL_FUNC_NAME_PREFIX = "$ORIG_";
     public static final String MOCK_STRAND_NAME = "mock";
 
     // constants to represent error messages
@@ -37,6 +39,7 @@ public class MockConstants {
     public static final String INVALID_MOCK_OBJECT_ERROR = "InvalidObjectError";
     public static final String FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";
     public static final String INVALID_MEMBER_FIELD_ERROR = "InvalidMemberFieldError";
+    public static final String NON_PUBLIC_MEMBER_FIELD_ERROR = "NonPublicMemberFieldError";
 
     public static final String FUNCTION_CALL_ERROR = "FunctionCallError";
 }

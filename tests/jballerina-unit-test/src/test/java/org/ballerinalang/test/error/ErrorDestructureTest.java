@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.error;
 
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -34,12 +34,13 @@ public class ErrorDestructureTest {
     public void testErrorDestructuring() {
         CompileResult destructuringResult = BCompileUtil.
                 compile("test-src/error/error_destructure_binding_pattern.bal");
-        BValue[] returns = BRunUtil.invoke(destructuringResult, "testErrorDestructure");
-        Assert.assertEquals(returns[0].stringValue(), "Sample Error");
-        Assert.assertEquals(returns[1].stringValue(), "Detail Info");
-        Assert.assertEquals(returns[2].stringValue(), "true");
-        Assert.assertEquals(returns[3].stringValue(), "Sample Error");
-        Assert.assertEquals(returns[4].stringValue(), "{\"info\":\"Detail Info\", \"fatal\":true}");
-        Assert.assertEquals(returns[5].stringValue(), "Failed Message");
+        Object arr = BRunUtil.invoke(destructuringResult, "testErrorDestructure");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.get(0).toString(), "Sample Error");
+        Assert.assertEquals(returns.get(1).toString(), "Detail Info");
+        Assert.assertEquals(returns.get(2).toString(), "true");
+        Assert.assertEquals(returns.get(3).toString(), "Sample Error");
+        Assert.assertEquals(returns.get(4).toString(), "{\"info\":\"Detail Info\",\"fatal\":true}");
+        Assert.assertEquals(returns.get(5).toString(), "Failed Message");
     }
 }

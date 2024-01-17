@@ -83,8 +83,32 @@ class NumberGenerator {
 class NumberGeneratorWithError {
     int i = 0;
     public isolated function next() returns record {|int value;|}|error? {
-        if (self.i == 3) {
+        if (self.i == 2) {
             return error("Custom error thrown explicitly.");
+        }
+        self.i += 1;
+        return {value: self.i};
+    }
+}
+
+class NumberGeneratorWithError2 {
+    int i = 0;
+    public isolated function next() returns record {|int value;|}|error {
+        if (self.i == 2) {
+            return error("Custom error thrown explicitly.");
+        }
+        self.i += 1;
+        return {value: self.i};
+    }
+}
+
+type ErrorR1 error<map<int>>;
+
+class NumberGeneratorWithCustomError {
+    int i = 0;
+    public isolated function next() returns record {|int value;|}|ErrorR1? {
+        if (self.i == 3) {
+            return error ErrorR1("Custom error", x = 1);
         }
         self.i += 1;
         return {value: self.i};
@@ -344,7 +368,7 @@ public function testQueryWithStream() returns boolean {
     NumberGenerator numGen = new;
     var numberStream = new stream<int, error?>(numGen);
 
-    int[]|error? oddNumberList = from int num in numberStream
+    int[]|error oddNumberList = from int num in numberStream
                                  where (num % 2 == 1)
                                  select num;
     if (oddNumberList is error) {
@@ -359,13 +383,73 @@ public function testQueryStreamWithError() {
     NumberGeneratorWithError numGen = new;
     var numberStream = new stream<int, error?>(numGen);
 
-    int[]|error? oddNumberList = from int num in numberStream
+    int[]|error oddNumberList = from int num in numberStream
                                 where (num % 2 == 1)
                                 select num;
     if (oddNumberList is error) {
         return;
     }
     panic error("Expeted error, found: " + (typeof oddNumberList).toString());
+}
+
+public function testQueryStreamWithDifferentCompletionTypes() {
+    NumberGeneratorWithError numGen1 = new;
+    stream<int, error?> numberStream1 = new (numGen1);
+
+    NumberGeneratorWithError2 numGen2 = new;
+    stream<int, error> numberStream2 = new (numGen2);
+
+    NumberGeneratorWithCustomError numGen3 = new;
+    stream<int, ErrorR1?> numberStream3 = new (numGen3);
+
+    int[]|error oddNumberList1 = from int num in numberStream1
+        where (num % 2 == 1)
+        select num;
+
+    if !(oddNumberList1 is error) {
+        panic error("Expeted error, found: " + (typeof oddNumberList1).toString());
+    }
+
+    int[]|error oddNumberList2 = from int num in numberStream2
+        where (num % 2 == 1)
+        select num;
+
+    if !(oddNumberList2 is error) {
+        panic error("Expeted error, found: " + (typeof oddNumberList2).toString());
+    }
+
+    int[]|ErrorR1 oddNumberList3 = from int num in numberStream3
+        where (num % 2 == 1)
+        select num;
+
+    if !(oddNumberList3 is ErrorR1) {
+        panic error("Expeted error, found: " + (typeof oddNumberList3).toString());
+    }
+
+    int[]|error oddNumberList4 = from int num1 in numberStream1
+        from int num2 in [1, 3, 5]
+        where num1 == num2
+        select num1;
+
+    if !(oddNumberList4 is error) {
+        panic error("Expeted error, found: " + (typeof oddNumberList4).toString());
+    }
+
+    stream<int, error?> numberStream5 = new (numGen1);
+
+    var oddNumberList5 = stream from int num in numberStream5
+        where (num % 2 == 1)
+        select num;
+
+    record {|int value;|}|error? next = oddNumberList5.next();
+    if next !is error {
+        assertEquality(1, next is null ? null : next.value);
+        next = oddNumberList5.next();
+    }
+
+    if !(next is error) {
+        panic error("Expeted error, found: " + (typeof oddNumberList5).toString());
+    }
 }
 
 function testOthersAssociatedWithRecordTypes() returns Teacher1[]{
@@ -536,6 +620,134 @@ function testTypeTestInWhereClause() {
     assertEquality(1, result[0]);
     assertEquality(2, result[1]);
     assertEquality(3, result[2]);
+}
+
+function testWildcardBindingPatternInQueryExpr1() {
+    int[] x = [1, 2, 3];
+
+    int m = 0;
+
+    int[] a1 = from int _ in x
+        select 1;
+    m += a1.length();
+
+    int[] a2 = from var _ in x
+        select 1;
+    m += a2.length();
+
+    assertEquality(6, m);
+}
+
+function testWildcardBindingPatternInQueryExpr2() {
+    map<boolean> x = {
+        a: true,
+        b: false
+    };
+
+    int m = 0;
+
+    int[] a1 = from boolean _ in x
+        select 1;
+    m += a1.length();
+
+    int[] a2 = from var _ in x
+        select 1;
+    m += a2.length();
+
+    assertEquality(4, m);
+}
+
+type ScoreEvent readonly & record {|
+    string email;
+    string problemId;
+    float score;
+|};
+
+function testUsingAnIntersectionTypeInQueryExpr() {
+    ScoreEvent[] events = [
+        {email: "jake@abc.com", problemId: "12", score: 80.0},
+        {email: "anne@abc.com", problemId: "20", score: 95.0},
+        {email: "peter@abc.com", problemId: "3", score: 72.0}
+    ];
+
+    json j = from ScoreEvent ev in events
+        where ev.score > 85.5
+        select {
+            email: ev.email,
+            score: ev.score
+        };
+    assertEquality(true, [{email: "anne@abc.com", score: 95.0}] == j);
+}
+
+function testQueryExprWithRegExp() {
+    string:RegExp[] arr1 = [re `A`, re `B`, re `C`];
+    string:RegExp[] arr2 = from var reg in arr1
+        where reg != re `B`
+        select reg;
+    assertEquality(true, [re `A`, re `C`] == arr2);
+}
+
+function testQueryExprWithRegExpWithInterpolations() {
+    string:RegExp[] arr1 = [re `A`, re `B2`, re `C`];
+    int v = 1;
+    string:RegExp[] arr2 = from var reg in arr1
+        where reg != re `B${v + 1}`
+        select reg;
+    assertEquality(true, [re `A`, re `C`] == arr2);
+}
+
+function testNestedQueryExprWithRegExp() {
+    string:RegExp[] arr1 = [re `A`, re `B2`, re `C`];
+    int v = 1;
+    string:RegExp[] arr2 = from var re in (from string:RegExp reg in arr1
+            where reg != re `B${v + 1}`
+            select reg)
+        let string:RegExp a = re `A`
+        where re != re `A`
+        select re `${re.toString() + a.toString()}`;
+    assertEquality(true, [re `CA`] == arr2);
+}
+
+function testJoinedQueryExprWithRegExp() {
+    string:RegExp[] arr1 = [re `A`, re `B`, re `C`, re `D`];
+    string:RegExp[] arr2 = [re `A`, re `B`];
+    int v = 1;
+    string[] arr3 = from var re1 in arr1
+        join string:RegExp re2 in arr2
+        on re1 equals re2
+        let string:RegExp a = re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??${v})|)|^|PQ?`
+        select re1.toString() + a.toString();
+    assertEquality(true, [
+        "AAB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?",
+        "BAB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?"
+    ] == arr3);
+}
+
+function testQueryExprWithLangLibCallsWithArrowFunctions() {
+    Person p1 = {firstName: "Alex", lastName: "George", age: 30};
+    Person p2 = {firstName: "Anne", lastName: "Frank", age: 40};
+    Person p3 = {firstName: "John", lastName: "David", age: 50};
+    Person[] personList = [p1, p2, p3];
+
+    int[] ageList = [50, 60];
+    int[] filteredAges = from int age in ageList
+        where personList.some(person => person.age == age)
+        select age;
+    assertEquality(true, filteredAges == [50]);
+
+    string[] filteredNames = from int age in [50]
+        select personList.filter(person => person.age == age).pop().firstName;
+    assertEquality(true, filteredNames == ["John"]);
+
+    string[] filteredNames2 = from var {firstName, lastName, age} in personList
+        where ageList.some(a => a == age)
+        select ["John", "Frank"].filter(names => names == firstName).pop();
+    assertEquality(true, filteredNames2 == ["John"]);
+
+    Person[][] filteredPersons = from int age in [50]
+        let string name = personList.filter(person => person.age == age).pop().firstName
+        select personList.filter(person => person.firstName == name);
+    assertEquality(true, filteredPersons == [[{"firstName":"John", "lastName":"David", "age":50}]]);
 }
 
 function assertEquality(any|error expected, any|error actual) {

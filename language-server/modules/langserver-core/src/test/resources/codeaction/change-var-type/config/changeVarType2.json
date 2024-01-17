@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 2,
-    "character": 12,
-    "expected": [
+    "character": 12
+  },
+  "source": "changeVarType.bal",
+  "expected": [
+    {
+      "title": "Change variable \u0027b\u0027 type to \u0027float\u0027",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Change variable 'b' type to 'float'",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 2,
-                            "character": 4
-                        },
-                        "end": {
-                            "line": 2,
-                            "character": 7
-                        }
-                    },
-                    "newText": "float"
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 7
+            }
+          },
+          "newText": "float"
         }
-    ]
+      ]
+    }
+  ]
 }

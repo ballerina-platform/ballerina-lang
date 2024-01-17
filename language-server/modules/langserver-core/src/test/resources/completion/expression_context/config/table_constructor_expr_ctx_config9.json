@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 14,
+    "character": 32
+  },
+  "source": "expression_context/source/table_constructor_expr_ctx_source9.bal",
+  "items": [
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "AG",
+      "insertText": "name",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

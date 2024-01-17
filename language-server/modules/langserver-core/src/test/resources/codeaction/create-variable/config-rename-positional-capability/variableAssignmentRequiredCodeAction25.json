@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 9,
+    "character": 4
+  },
+  "source": "createVariable4.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 4
+            },
+            "end": {
+              "line": 9,
+              "character": 4
+            }
+          },
+          "newText": "[[int, string, int], [boolean, float]] listResult = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable4.bal",
+          {
+            "line": 9,
+            "character": 43
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

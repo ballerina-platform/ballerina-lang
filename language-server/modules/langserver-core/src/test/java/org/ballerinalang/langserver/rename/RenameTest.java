@@ -59,9 +59,30 @@ public class RenameTest extends AbstractRenameTest {
                 {"rename_enum.json", "Color"},
                 {"rename_enum_member.json", "DARK_RED"},
                 {"rename_to_keyword1.json", "int"},
+                {"rename_identifier_with_escaped_char1.json", "first\\ name"},
+                {"rename_in_undefined_fn_call.json", "counter"},
+                {"rename_in_fn_call_rest_args.json", "myValue1"},
+                {"rename_in_mapping_binding_pattern1.json", "name2"},
+                {"rename_in_mapping_binding_pattern2.json", "pName"},
+                {"rename_in_mapping_binding_pattern3.json", "pName"},
+                {"rename_with_compilation_error.json", "NewTypeMap"},
+                {"rename_in_groupby_clause.json", "newPrice"},
 
+                // Rename parameter documentations
+                {"rename_fn_param1.json", "v1"},
+                {"rename_record_field1.json", "orgName"},
+                
                 // Invalid rename positions tests
                 {"rename_on_keyword1.json", "fn"},
+                {"rename_self.json", "this"},
+                {"rename_invalid_qname_ref.json", "io"},
+//                {"rename_resource_method_path_segment.json", "path1"} //TODO: Fix #41041
+                
+                {"rename_table_row_type_parameter1.json", "Student"},
+                {"rename_table_row_type_parameter2.json", "Student"},
+                {"rename_table_row_type_parameter3.json", "Student"},
+                {"rename_stream_type_parameter.json", "Student"},
+                {"rename_map_type_parameter.json", "Student"},
         };
     }
 }

@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 25,
+    "character": 12
+  },
+  "source": "convert_to_query_expr_lhs_record_field3.bal",
+  "expected": [
+    {
+      "title": "Map with a query expression",
+      "kind": "refactor.rewrite",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 25,
+              "character": 12
+            },
+            "end": {
+              "line": 25,
+              "character": 24
+            }
+          },
+          "newText": "from var item in input.Assets\n        select {Type: 0, Id: \"\", Confirmed: false, AssetsInner: []}"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

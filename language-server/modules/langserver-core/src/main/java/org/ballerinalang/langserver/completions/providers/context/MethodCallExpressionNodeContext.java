@@ -23,11 +23,11 @@ import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -51,9 +51,9 @@ public class MethodCallExpressionNodeContext extends FieldAccessContext<MethodCa
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.withinParameterContext(context, node)) {
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
-                List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+                List<Symbol> exprEntries = QNameRefCompletionUtil.getExpressionContextEntries(context, qNameRef);
                 List<LSCompletionItem> items = this.getCompletionItemList(exprEntries, context);
                 completionItems.addAll(items);
             } else {
@@ -117,20 +117,20 @@ public class MethodCallExpressionNodeContext extends FieldAccessContext<MethodCa
                 case SYMBOL:
                     Optional<Symbol> symbol = ((SymbolCompletionItem) completionItem).getSymbol();
                     if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.METHOD)) {
-                        rank = withinParameterCtx ? 3 : 1;
+                        rank = withinParameterCtx ? SortingUtil.toRank(context, completionItem, 2) : 1;
                         break;
                     } else if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.FUNCTION)) {
-                        rank = withinParameterCtx ? 3 : 1;
+                        rank = withinParameterCtx ? SortingUtil.toRank(context, completionItem, 2) : 1;
                         break;
                     } else if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.XMLNS)) {
-                        rank = withinParameterCtx ? 2 : 3;
+                        rank = withinParameterCtx ? 2 : SortingUtil.toRank(context, completionItem, 2);
                         break;
                     } else {
-                        rank = SortingUtil.toRank(context, completionItem, 3);
+                        rank = SortingUtil.toRank(context, completionItem, 2);
                         break;
                     }
                 default:
-                    rank = SortingUtil.toRank(context, completionItem, 3);
+                    rank = SortingUtil.toRank(context, completionItem, 2);
             }
 
             sortByAssignability(context, completionItem, rank);

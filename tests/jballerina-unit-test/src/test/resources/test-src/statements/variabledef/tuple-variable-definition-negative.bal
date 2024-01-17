@@ -112,3 +112,33 @@ function testInvalidTupleVarDef3() {
 
 type NoFillerObject object {
 };
+
+type T [int];
+
+function testTupleVarDeclWithTypeReferenceTypedExprNegative() {
+    T t = [1];
+    var [a, b] = t;
+}
+
+type Ints int;
+type IntsOrStrings int|string;
+
+function testTupleVarDeclWithInvalidTypeReferenceType() {
+    [int, int] i = [1, 2];
+    Ints [a, b] = i;
+    IntsOrStrings [c, d] = i;
+}
+
+type ReadOnlyTuple readonly & [int[], string];
+
+function testReadOnlyListWithListBindingPatternInVarDeclNegative() {
+    ReadOnlyTuple t1 = [[1, 2], "s1"];
+    [string[] & readonly, string] [a, b] = t1;
+
+    ReadOnlyTuple [c, d] = t1;
+    int[] arr = [];
+    c = arr;
+
+    var [e, _] = t1;
+    e = arr;
+}

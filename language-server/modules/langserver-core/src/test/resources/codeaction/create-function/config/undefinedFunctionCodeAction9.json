@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 12,
+    "character": 21
+  },
+  "source": "createUndefinedFunction7.bal",
+  "expected": [
+    {
+      "title": "Create function 'partition(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 33,
+              "character": 1
+            },
+            "end": {
+              "line": 33,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction partition(string recs, string s, function (string) returns boolean spliter) returns string[][][] {\n    return [[]];\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunction7.bal",
+        "range": {
+          "start": {
+            "line": 12,
+            "character": 21
+          },
+          "end": {
+            "line": 12,
+            "character": 57
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 12.0,
+              "character": 21.0
+            },
+            "end": {
+              "line": 12.0,
+              "character": 57.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -28,6 +28,10 @@ public class DummyObject2 {
 
     public string fieldOne = "Foo";
     public string fieldTwo = "";
+
+    @deprecated
+    public int id = 5;
+    
     # The `doThatOnObject` function is attached to the `DummyObject` object.
     #
     # + paramOne - This is the description of the parameter of
@@ -48,3 +52,17 @@ public function deprecated_func() returns string {
     return "";
 }
 
+# Define an annotation
+# # Deprecated
+# This annotation is deprecated
+@deprecated
+public annotation deprecatedAnnotation on function;
+
+# Define an client object
+# # Deprecated
+# This client object is deprecated
+@deprecated
+public type MyClientObject client object {
+    @deprecated
+    remote function remoteFunction();
+};

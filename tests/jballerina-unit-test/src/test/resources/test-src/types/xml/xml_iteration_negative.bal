@@ -30,7 +30,7 @@ function xmlTypeParamElementIter() {
         concatString(elem.toString());
     }
 
-    record {| 'xml:Element value; |}? nextElement2 = el2.iterator().next();
+    record {| 'xml:Comment value; |}? nextElement2 = el2.iterator().next();
 }
 
 function xmlTypeParamCommentIter() {
@@ -41,7 +41,7 @@ function xmlTypeParamCommentIter() {
         concatString(elem.toString());
     }
 
-    record {| 'xml:Comment value; |}? nextComment2 = comment2.iterator().next();
+    record {| 'xml:Element value; |}? nextComment2 = comment2.iterator().next();
 }
 
 function xmlTypeParamPIIter() {
@@ -52,7 +52,7 @@ function xmlTypeParamPIIter() {
         concatString(elem.toString());
     }
 
-    record {| 'xml:ProcessingInstruction value; |}? nextPI2 = pi2.iterator().next();
+    record {| 'xml:Comment value; |}? nextPI2 = pi2.iterator().next();
 }
 
 function xmlTypeParamUnionIter() {
@@ -71,4 +71,28 @@ function xmlTypeParamUnionIter() {
 
     record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal2 = el2.iterator().next();
     record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal3 = el3.iterator().next();
+}
+
+function xmlElementTypeArrayIter() {
+    xml<xml:Element[]> elements = xml ``;
+
+    foreach var element in elements {
+        concatString(element.toString());
+    }
+}
+
+function xmlElementArrayIntersectionWithReadonlyTypeIter() {
+    xml<xml:Element[] & readonly> elements = xml ``;
+
+    foreach var element in elements {
+        concatString(element.toString());
+    }
+}
+
+public function xmlTupleTypeIter() {
+    xml<[int, string]> elements = xml ``;
+
+    foreach var element in elements {
+        concatString(element.toString());
+    }
 }

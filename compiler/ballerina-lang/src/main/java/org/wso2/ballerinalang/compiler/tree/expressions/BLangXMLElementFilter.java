@@ -18,33 +18,33 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLElementFilter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-
-import java.util.Set;
 
 /**
  * @since 1.2.0
  */
 public class BLangXMLElementFilter extends BLangExpression implements XMLElementFilter {
 
+
+    // Semantic Data
     public final Location elemNamePos;
     public final Location nsPos;
     public final String namespace;
     public final String name;
     public BSymbol namespaceSymbol;
 
-    public BLangXMLElementFilter(Location pos, Set<Whitespace> ws, String ns,
+    public BLangXMLElementFilter(Location pos, String ns,
                                  Location nsPos,
                                  String elementName,
                                  Location elemNamePos) {
         this.namespace = ns;
         this.name = elementName;
         this.pos = pos;
-        this.addWS(ws);
         this.nsPos = nsPos;
         this.elemNamePos = elemNamePos;
     }
@@ -62,6 +62,16 @@ public class BLangXMLElementFilter extends BLangExpression implements XMLElement
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

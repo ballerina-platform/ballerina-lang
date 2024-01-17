@@ -16,15 +16,13 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -45,17 +43,16 @@ public class SubtractOperationTest {
 
     @Test(description = "Test two int subtract expression")
     public void testIntAddExpr() {
-        BValue[] args = { new BInteger(1234567891011L), new BInteger(9876543211110L)};
+        Object[] args = { (1234567891011L), (9876543211110L)};
 
-        BValue[]  returns = BRunUtil.invoke(result, "intSubtract", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long actual = ((BInteger) returns[0]).intValue();
+        Object returns = BRunUtil.invoke(result, "intSubtract", args);
+        Assert.assertSame(returns.getClass(), Long.class);
+        long actual = (long) returns;
         long expected = -8641975320099L;
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test two int subtract overflow expression", expectedExceptions = BLangRuntimeException.class,
+    @Test(description = "Test two int subtract overflow expression", expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowBySubtraction() {
@@ -64,12 +61,11 @@ public class SubtractOperationTest {
 
     @Test(description = "Test two float subtract expression")
     public void testFloatAddExpr() {
-        BValue[] args = { new BFloat(100.0f), new BFloat(200.0f)};
+        Object[] args = { (100.0f), (200.0f)};
 
-        BValue[] returns = BRunUtil.invoke(result, "floatSubtract", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        double actual = ((BFloat) returns[0]).floatValue();
+        Object returns = BRunUtil.invoke(result, "floatSubtract", args);
+        Assert.assertSame(returns.getClass(), Double.class);
+        double actual = (double) returns;
         double expected = -100.0f;
         Assert.assertEquals(actual, expected);
     }
@@ -79,13 +75,12 @@ public class SubtractOperationTest {
     public void testNegativeValues() {
         int a = -10;
         int b = -20;
-        BValue[] args = {new BInteger(a), new BInteger(b)};
+        Object[] args = {(a), (b)};
         // Subtract
         long expectedResult = a - b;
-        BValue[] returns = BRunUtil.invoke(result, "intSubtract", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long actualResult = ((BInteger) returns[0]).intValue();
+        Object returns = BRunUtil.invoke(result, "intSubtract", args);
+        Assert.assertSame(returns.getClass(), Long.class);
+        long actualResult = (long) returns;
         Assert.assertEquals(actualResult, expectedResult);
     }
 
@@ -107,9 +102,22 @@ public class SubtractOperationTest {
         BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInSubtract");
     }
 
+    @Test(dataProvider = "dataToTestShortCircuitingInSubtraction")
+    public void testShortCircuitingInSubtraction(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInSubtraction() {
+        return new Object[]{
+                "testNoShortCircuitingInSubtractionWithNullable",
+                "testNoShortCircuitingInSubtractionWithNonNullable"
+        };
+    }
+
     @Test(description = "Test subtract statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 12);
+        Assert.assertEquals(resultNegative.getErrorCount(), 13);
         BAssertUtil.validateError(resultNegative, 0, "operator '-' not defined for 'float' and 'string'", 4, 9);
         BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json' and 'json'", 14, 10);
         BAssertUtil.validateError(resultNegative, 2, "operator '-' not defined for 'C' and 'string'", 28, 14);
@@ -123,10 +131,18 @@ public class SubtractOperationTest {
         BAssertUtil.validateError(resultNegative, 9, "operator '-' not defined for 'int' and 'float'", 41, 18);
         BAssertUtil.validateError(resultNegative, 10, "operator '-' not defined for 'C' and 'float'", 45, 14);
         BAssertUtil.validateError(resultNegative, 11, "operator '-' not defined for 'C' and 'float'", 46, 14);
+        BAssertUtil.validateError(resultNegative, 12, "'9223372036854775808' is out of range " +
+                "for 'int'", 50, 17);
     }
 
     @Test(description = "Test subtraction of nullable values")
     public void testSubNullable() {
         BRunUtil.invoke(result, "testSubNullable");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
     }
 }

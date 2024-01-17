@@ -81,7 +81,8 @@ public class Flags {
     public static final long INFER = ANY_FUNCTION << 1;                         //  40
     public static final long ENUM_MEMBER = INFER << 1;                          //  41
     public static final long QUERY_LAMBDA = ENUM_MEMBER << 1;                   //  42
-
+    public static final long EFFECTIVE_TYPE_DEF = QUERY_LAMBDA << 1;            //  43
+    public static final long SOURCE_ANNOTATION = EFFECTIVE_TYPE_DEF << 1;       //  44
 
     public static long asMask(Set<Flag> flagSet) {
         long mask = 0;

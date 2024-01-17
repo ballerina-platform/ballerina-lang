@@ -1,0 +1,42 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	skip-when-before-fails.bal
+WARNING [skip-when-before-fails.bal:(28:5,28:18)] unused variable 'i'
+
+Running Tests
+
+	skip-when-before-fails.bal
+	[fail] [before test function for the test]:
+	    error("{ballerina}DivisionByZero",message=" / by zero")
+			callableName: before  fileName: skip-when-before-fails.bal lineNumber: 28
+			callableName: before$lambda6$  fileName: skip-when-before-fails.bal lineNumber: 32
+		
+	[fail] afterSuite[after test suite function]:
+	    error {ballerina/test:0}TestError ("Assertion Failed!
+		 
+		expected: 'beforetest3afterEach'
+		actual	: 'beforeafterEachafterEachtest3afterEach'
+		 
+		Diff	:
+		
+		--- actual
+		+++ expected 
+		 
+		 @@ -1,1 +1,1 @@ 
+		 
+		 -beforeafterEachafterEachtest3afterEach
+		+beforetest3afterEach
+		")
+			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
+			callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
+			callableName: afterSuite  fileName: skip-when-before-fails.bal lineNumber: 54
+			callableName: afterSuite$lambda5$  fileName: skip-when-before-fails.bal lineNumber: 62
+		
+		[pass] test3
+
+
+		1 passing
+		0 failing
+		2 skipped
+error: there are test failures

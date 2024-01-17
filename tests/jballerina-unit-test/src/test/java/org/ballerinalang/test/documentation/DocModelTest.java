@@ -56,7 +56,7 @@ public class DocModelTest {
 
     @Test(description = "Test tuple type doc model")
     public void testTupleTypes() {
-        Optional<BType> tupleType = testModule.types.stream()
+        Optional<BType> tupleType = testModule.tupleTypes.stream()
                 .filter(bType -> bType.name.equals("TimeDeltaStart")).findAny();
         Assert.assertTrue(tupleType.isPresent(), "TimeDeltaStart type not found");
         Assert.assertTrue(tupleType.get().isTuple, "isTuple must be true");
@@ -77,7 +77,7 @@ public class DocModelTest {
 
     @Test(description = "Test intersection type doc model")
     public void testIntersectionTypes() {
-        Optional<BType> intersectionType = testModule.types.stream()
+        Optional<BType> intersectionType = testModule.intersectionTypes.stream()
                 .filter(bType -> bType.name.equals("Block")).findAny();
         Assert.assertTrue(intersectionType.isPresent(), "Block type not found");
         Assert.assertTrue(intersectionType.get().isIntersectionType, "isIntersectionType must be true");
@@ -94,7 +94,7 @@ public class DocModelTest {
 
     @Test(description = "Test union type doc model")
     public void testUnionType() {
-        Optional<BType> unionType = testModule.types.stream()
+        Optional<BType> unionType = testModule.unionTypes.stream()
                 .filter(bType -> bType.name.equals("RequestMessage")).findAny();
         Assert.assertTrue(unionType.isPresent(), "RequestMessage type not found");
         Assert.assertTrue(unionType.get().isAnonymousUnionType, "isAnonymousUnionType must be true");
@@ -132,7 +132,7 @@ public class DocModelTest {
                 "Fifth membertype orgName should be ballerina");
         Assert.assertEquals(unionType.get().memberTypes.get(4).moduleName, "docerina_project.world",
                 "Fifth membertype moduleName should be test");
-        Assert.assertEquals(unionType.get().memberTypes.get(4).category, "classes",
+        Assert.assertEquals(unionType.get().memberTypes.get(4).category, "libs",
                 "Fifth membertype category should be classes");
 
         Assert.assertEquals(unionType.get().memberTypes.get(5).category, "builtin",
@@ -314,8 +314,8 @@ public class DocModelTest {
                 "First field in Human Record should be controller");
         Assert.assertEquals(humanRec.get().fields.get(0).type.name, "MainController",
                 "Type name of first field in Human Record should be MainController");
-        Assert.assertEquals(humanRec.get().fields.get(0).type.category, "classes",
-                "Category of first field in Human Record should be classes");
+        Assert.assertEquals(humanRec.get().fields.get(0).type.category, "reference",
+                "Category of first field in Human Record should be reference");
         Assert.assertEquals(humanRec.get().fields.get(0).description, "A MainController to control the human" +
                         System.lineSeparator(),
                 "Description of first field in Human Record should be: A MainController to control the human" +
@@ -347,8 +347,8 @@ public class DocModelTest {
                 "Fourth field in Human Record should be listnr");
         Assert.assertEquals(humanRec.get().fields.get(3).type.name, "Listener",
                 "Type name of fourth field in Human Record should be Listener");
-        Assert.assertEquals(humanRec.get().fields.get(3).type.category, "listeners",
-                "Category of fourth field in Human Record should be listeners");
+        Assert.assertEquals(humanRec.get().fields.get(3).type.category, "reference",
+                "Category of fourth field in Human Record should be reference");
         Assert.assertTrue(humanRec.get().fields.get(3).type.isNullable,
                 "Fourth field in Human Record should be optional");
 
@@ -356,8 +356,8 @@ public class DocModelTest {
                 "Fifth field in Human Record should be caller");
         Assert.assertEquals(humanRec.get().fields.get(4).type.name, "Caller",
                 "Type name of fifth field in Human Record should be Caller");
-        Assert.assertEquals(humanRec.get().fields.get(4).type.category, "clients",
-                "Category of fifth field in Human Record should be clients");
+        Assert.assertEquals(humanRec.get().fields.get(4).type.category, "reference",
+                "Category of fifth field in Human Record should be reference");
 
         Assert.assertEquals(humanRec.get().fields.get(5).name, "userID",
                 "Sixth field in Human Record should be userID");
@@ -409,7 +409,7 @@ public class DocModelTest {
         Assert.assertEquals(uuidRec.get().fields.get(0).type.moduleName, "lang.int");
         Assert.assertEquals(uuidRec.get().fields.get(0).type.version, "0.0.0");
         Assert.assertEquals(uuidRec.get().fields.get(0).type.name, "Unsigned32");
-        Assert.assertEquals(uuidRec.get().fields.get(0).type.category, "types");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.category, "libs");
 
         Optional<BObjectType> controller = testModule.objectTypes.stream().filter(record -> record.name
                 .equals("Controller")).findAny();
@@ -428,18 +428,18 @@ public class DocModelTest {
         Assert.assertEquals(function.get().parameters.get(0).type.orgName, "test_org");
         Assert.assertEquals(function.get().parameters.get(0).type.moduleName, "docerina_project");
         Assert.assertEquals(function.get().parameters.get(0).type.version, "1.0.0");
-        Assert.assertEquals(function.get().parameters.get(0).type.category, "objectTypes");
+        Assert.assertEquals(function.get().parameters.get(0).type.category, "types");
 
         Assert.assertEquals(function.get().parameters.get(1).name, "uuid");
         Assert.assertEquals(function.get().parameters.get(1).type.orgName, "test_org");
         Assert.assertEquals(function.get().parameters.get(1).type.moduleName, "docerina_project");
         Assert.assertEquals(function.get().parameters.get(1).type.version, "1.0.0");
-        Assert.assertEquals(function.get().parameters.get(1).type.category, "records");
+        Assert.assertEquals(function.get().parameters.get(1).type.category, "types");
     }
 
     @Test(description = "Test deciaml type")
     public void testDecimalType() {
-        Optional<BType> seconds = testModule.types.stream()
+        Optional<BType> seconds = testModule.decimalTypes.stream()
                 .filter(bType -> bType.name.equals("Seconds")).findAny();
         Assert.assertTrue(seconds.isPresent(), "Seconds decimal type not found");
         Assert.assertEquals(seconds.get().memberTypes.get(0).category, "builtin");
@@ -447,7 +447,7 @@ public class DocModelTest {
 
     @Test(description = "Test function type")
     public void testFunctionType() {
-        Optional<BType> valuer = testModule.types.stream()
+        Optional<BType> valuer = testModule.functionTypes.stream()
                 .filter(bType -> bType.name.equals("Valuer")).findAny();
         Assert.assertTrue(valuer.isPresent(), "Valuer function type not found");
         Assert.assertTrue(valuer.get().memberTypes.get(0) instanceof FunctionType);
@@ -540,6 +540,41 @@ public class DocModelTest {
         Assert.assertEquals(personA.get().fields.get(0).type.category, "builtin");
     }
 
+    @Test(description = "Test service type")
+    public void testServiceTypes() {
+        Optional<BObjectType> serviceType = testModule.serviceTypes.stream()
+                .filter(objectType -> objectType.name.equals("DetailsRequestService")).findAny();
+        Assert.assertTrue(serviceType.isPresent(), "DetailsRequestService service type not found");
+        Assert.assertEquals(serviceType.get().description, "The type representing services that can be declared " +
+                        "to receive details of people on request." + System.lineSeparator(),
+                "Expected description for DetailsRequestService service type: The type representing services " +
+                        "that can be declared to receive details of people on request." +
+                        System.lineSeparator() + "\n");
+        Assert.assertEquals(serviceType.get().methods.size(), 2, "Expected 2 methods in service type");
+
+        Assert.assertEquals(serviceType.get().methods.get(0).name, "onRequestOpened",
+                "First field in Human Record should be onRequestOpened");
+        Assert.assertEquals(serviceType.get().methods.get(0).description,
+                "The remote method that will be called when a request is opened." + System.lineSeparator(),
+                "The description of the first method should be " +
+                        "The remote method that will be called when a request is opened.");
+        Assert.assertEquals(serviceType.get().methods.get(0).parameters.size(), 1,
+                "Expected 1 parameter in the first method of the service type");
+        Assert.assertEquals(serviceType.get().methods.get(0).parameters.get(0).name, "name",
+                "First parameter in the first method of the service type should be name");
+
+        Assert.assertEquals(serviceType.get().methods.get(1).name, "onRequestCommented",
+                "First field in Human Record should be onRequestCommented");
+        Assert.assertEquals(serviceType.get().methods.get(1).description,
+                "The remote method that will be called when a request is commented." + System.lineSeparator(),
+                "The description of the first method should be " +
+                        "The remote method that will be called when a request is commented.");
+        Assert.assertEquals(serviceType.get().methods.get(1).parameters.size(), 1,
+                "Expected 1 parameter in the first method of the service type");
+        Assert.assertEquals(serviceType.get().methods.get(1).parameters.get(0).name, "name",
+                "First parameter in the first method of the service type should be name");
+    }
+
     @Test(description = "Test object inclusion")
     public void testObjectInclusion() {
         Optional<BObjectType> studentA = testModule.objectTypes.stream()
@@ -615,12 +650,12 @@ public class DocModelTest {
 
     @Test(description = "Test type params and builtin subtype")
     public void testTypeParamAndBuiltinSubtype() {
-        Optional<BType> typeParam = testModule.types.stream()
+        Optional<BType> typeParam = testModule.unionTypes.stream()
                 .filter(bType -> bType.name.equals("TypeParam")).findAny();
-        Optional<BType> charSubType = testModule.types.stream()
+        Optional<BType> charSubType = testModule.stringTypes.stream()
                 .filter(bType -> bType.name.equals("Char")).findAny();
 
-        Optional<BType> anyDataType = testModule.types.stream()
+        Optional<BType> anyDataType = testModule.anyDataTypes.stream()
                 .filter(bType -> bType.name.equals("AnydataType")).findAny();
 
         Assert.assertTrue(typeParam.isPresent());

@@ -31,3 +31,10 @@ function testFunction() {
     test:assertTrue(true, msg = "Failed!");
 }
 
+@test:Config {}
+function testFunc() {
+    ABC abc = new(5);
+    Record rec = {description: "desc", i: 5};
+    test:assertEquals(abc.getRec(), rec);
+    test:assertEquals(abc.getNum(), 5);
+}

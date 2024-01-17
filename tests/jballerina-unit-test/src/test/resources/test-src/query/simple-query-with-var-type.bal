@@ -197,10 +197,10 @@ function testFilteringNullElements() returns Person[] {
 
 function testMapWithArity() returns boolean {
     map<any> m = {a: "1A", b: "2B", c: "3C", d: "4D"};
-    var val = from var v in m
+    var val = map from var v in m
                    where <string> v == "1A"
-                   select <string>v;
-    return val == ["1A"];
+                   select ["a", v];
+    return val == {a: "1A"};
 }
 
 function testJSONArrayWithArity() returns boolean {
@@ -276,7 +276,7 @@ public function testQueryWithStream() returns boolean {
     NumberGenerator numGen = new;
     var numberStream = new stream<int, error?>(numGen);
 
-    var oddNumberList = from var num in numberStream
+    var oddNumberList = stream from var num in numberStream
                         where (num % 2 == 1)
                         select num;
     int[] result = [];
@@ -401,6 +401,169 @@ function testQueryConstructingTableWithVar() returns error? {
 
     assertEquality(true, result2 is table<record {| User user; |}> key(user));
     assertEquality({"user": u1}, result2.get(u1));
+}
+
+type ScoreEvent readonly & record {|
+    string email;
+    string problemId;
+    float score;
+|};
+
+type Team readonly & record {|
+    string user;
+    int teamId;
+|};
+
+ScoreEvent[] events = [
+    {email: "jake@abc.com", problemId: "12", score: 80.0},
+    {email: "anne@abc.com", problemId: "20", score: 95.0},
+    {email: "peter@abc.com", problemId: "3", score: 72.0}
+];
+
+Team[] team = [
+    {user: "jake@abc.com", teamId: 1},
+    {user: "anne@abc.com", teamId: 2},
+    {user: "peter@abc.com", teamId: 2}
+];
+
+function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInFromClause() {
+    json j = from var {email, problemId, score} in events
+        where score > 85.5
+        select {email, score};
+    assertEquality([{email: "anne@abc.com", score: 95.0}], j);
+
+    j = from var {email: em, problemId: pi, score: sc} in events
+        where sc < 80.0
+        select {em, sc};
+    assertEquality([{em : "peter@abc.com", sc: 72.0}], j);
+}
+
+function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInJoinClause() {
+    json j = from var {email, problemId, score} in events
+        join var {user, teamId} in team
+        on email equals user
+        where teamId == 2 && score > 85.5
+        select {email, score};
+    assertEquality([{email: "anne@abc.com", score: 95.0}], j);
+
+    j = from var {email: em, problemId: pi, score: sc} in events
+        join var {user: us, teamId: ti} in team
+        on em equals us
+        where sc < 80.0
+        select {ti, sc};
+    assertEquality([{ti: 2, sc: 72.0}], j);
+}
+
+function testUsingAnIntersectionTypeInQueryExpr() {
+    json j = from var ev in events
+        where ev.score < 80.0
+        select {
+            email: ev.email,
+            score: ev.score
+        };
+    assertEquality([{email : "peter@abc.com", score: 72.0}], j);
+
+    j = from var ev in events
+        join var tm in team
+        on ev.email equals tm.user
+        where ev.score < 80.0
+        select {
+            email: ev.email,
+            teamId: tm.teamId
+        };
+    assertEquality([{email : "peter@abc.com", teamId: 2}], j);
+}
+
+type ScoreEventType ScoreEvent;
+
+type TeamType Team;
+
+ScoreEventType[] events2 = events;
+
+TeamType[] team2 = team;
+
+function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInFromClause2() {
+    json j = from var {email, problemId, score} in events2
+        where score > 85.5
+        select {email, score};
+    assertEquality([{email: "anne@abc.com", score: 95.0}], j);
+
+    j = from var {email: em, problemId: pi, score: sc} in events2
+        where sc < 80.0
+        select {em, sc};
+    assertEquality([{em : "peter@abc.com", sc: 72.0}], j);
+}
+
+function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInJoinClause2() {
+    json j = from var {email, problemId, score} in events2
+        join var {user, teamId} in team2
+        on email equals user
+        where teamId == 2 && score > 85.5
+        select {email, score};
+    assertEquality([{email: "anne@abc.com", score: 95.0}], j);
+
+    j = from var {email: em, problemId: pi, score: sc} in events2
+        join var {user: us, teamId: ti} in team2
+        on em equals us
+        where sc < 80.0
+        select {ti, sc};
+    assertEquality([{ti: 2, sc: 72.0}], j);
+}
+
+function testUsingAnIntersectionTypeInQueryExpr2() {
+    json j = from var ev in events2
+        where ev.score < 80.0
+        select {
+            email: ev.email,
+            score: ev.score
+        };
+    assertEquality([{email : "peter@abc.com", score: 72.0}], j);
+
+    j = from var ev in events2
+        join var tm in team2
+        on ev.email equals tm.user
+        where ev.score < 80.0
+        select {
+            email: ev.email,
+            teamId: tm.teamId
+        };
+    assertEquality([{email : "peter@abc.com", teamId: 2}], j);
+}
+
+function testMethodCallExprsOnQueryExprs() {
+    string[] words = ["a", "b", "c"];
+    var len = (from string str in words
+        select str).length();
+    assertEquality(3, len);
+
+    len = (from string str in words
+        where str == "a"
+        select str).length();
+    assertEquality(1, len);
+
+    string word = (from string str in words
+        select str).pop();
+    assertEquality("c", word);
+
+    int? index = (from string str in words
+        select str).indexOf("b");
+    assertEquality(1, index);
+
+    boolean isReadonly = (from string str in words
+        select str).isReadOnly();
+    assertEquality(false, isReadonly);
+
+    word = (from string str in words
+        select str).remove(0);
+    assertEquality("a", word);
+
+    words = (from string str in words
+        select str).filter(w => w is string);
+    assertEquality(["a", "b", "c"], words);
+
+    words = (from string str in words
+        select str).reverse();
+    assertEquality(["c", "b", "a"], words);
 }
 
 function assertEquality(anydata expected, anydata actual) {

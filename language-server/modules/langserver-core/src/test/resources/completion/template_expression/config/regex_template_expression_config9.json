@@ -1,0 +1,210 @@
+{
+  "position": {
+    "line": 2,
+    "character": 28
+  },
+  "source": "template_expression/source/regex_template_expression_source9.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "d",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "d",
+      "insertText": "d",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "D",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "D",
+      "insertText": "D",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "s",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "s",
+      "insertText": "s",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "S",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "S",
+      "insertText": "S",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "w",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "w",
+      "insertText": "w",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "W",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "W",
+      "insertText": "W",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "r",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "r",
+      "insertText": "r",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "n",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "n",
+      "insertText": "n",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "t",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "t",
+      "insertText": "t",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "^",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "^",
+      "insertText": "^",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "$",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "$",
+      "insertText": "$",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "\\",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "\\",
+      "insertText": "\\",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": ".",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": ".",
+      "insertText": ".",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "*",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "*",
+      "insertText": "*",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "+",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "+",
+      "insertText": "+",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "?",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "?",
+      "insertText": "?",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "(",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "(",
+      "insertText": "(",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": ")",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": ")",
+      "insertText": ")",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "[",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "[",
+      "insertText": "[",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "]",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "]",
+      "insertText": "]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "{",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "{",
+      "insertText": "{",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "}",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "}",
+      "insertText": "}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "|",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "|",
+      "insertText": "|",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "p",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "p",
+      "insertText": "p",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "P",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "P",
+      "insertText": "P",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

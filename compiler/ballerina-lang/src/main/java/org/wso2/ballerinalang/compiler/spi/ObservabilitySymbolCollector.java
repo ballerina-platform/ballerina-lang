@@ -32,5 +32,5 @@ import java.nio.file.Path;
 public interface ObservabilitySymbolCollector {
     void process(Project project);
 
-    void writeToExecutable(Path executableFile) throws IOException;
+    void writeToExecutable(Path executableFile, Project project) throws IOException;
 }

@@ -25,6 +25,7 @@ import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.projects.internal.ModuleContextDataHolder;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -47,6 +48,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +74,10 @@ class ModuleContext {
     private final Collection<DocumentId> testSrcDocIds;
     private final MdDocumentContext moduleMdContext;
     private final Map<DocumentId, DocumentContext> testDocContextMap;
+    private final Collection<DocumentId> resourceIds;
+    private final Collection<DocumentId> testResourceIds;
+    private final Map<DocumentId, ResourceContext> resourceContextMap;
+    private final Map<DocumentId, ResourceContext> testResourceContextMap;
     private final Project project;
     private final CompilationCache compilationCache;
     private final List<ModuleDescriptor> moduleDescDependencies;
@@ -83,6 +89,7 @@ class ModuleContext {
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
     private Set<ModuleLoadRequest> allModuleLoadRequests = null;
+    private Set<ModuleLoadRequest> allTestModuleLoadRequests = null;
 
     ModuleContext(Project project,
                   ModuleId moduleId,
@@ -91,7 +98,9 @@ class ModuleContext {
                   Map<DocumentId, DocumentContext> srcDocContextMap,
                   Map<DocumentId, DocumentContext> testDocContextMap,
                   MdDocumentContext moduleMd,
-                  List<ModuleDescriptor> moduleDescDependencies) {
+                  List<ModuleDescriptor> moduleDescDependencies,
+                  Map<DocumentId, ResourceContext> resourceContextMap,
+                  Map<DocumentId, ResourceContext> testResourceContextMap) {
         this.project = project;
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
@@ -102,27 +111,43 @@ class ModuleContext {
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
         this.moduleMdContext = moduleMd;
         this.moduleDescDependencies = Collections.unmodifiableList(moduleDescDependencies);
+        this.resourceContextMap = resourceContextMap;
+        this.testResourceContextMap = testResourceContextMap;
+        this.resourceIds = Collections.unmodifiableCollection(resourceContextMap.keySet());
+        this.testResourceIds = Collections.unmodifiableCollection(testResourceContextMap.keySet());
 
         ProjectEnvironment projectEnvironment = project.projectEnvironmentContext();
         this.bootstrap = new Bootstrap(projectEnvironment.getService(PackageResolver.class));
         this.compilationCache = projectEnvironment.getService(CompilationCache.class);
     }
 
-    static ModuleContext from(Project project, ModuleConfig moduleConfig) {
-        Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+    static ModuleContext from(Project project, ModuleConfig moduleConfig, boolean disableSyntaxTree) {
+        Map<DocumentId, DocumentContext> srcDocContextMap = new LinkedHashMap<>();
         for (DocumentConfig sourceDocConfig : moduleConfig.sourceDocs()) {
-            srcDocContextMap.put(sourceDocConfig.documentId(), DocumentContext.from(sourceDocConfig));
+            srcDocContextMap.put(sourceDocConfig.documentId(), DocumentContext.from(sourceDocConfig,
+                    disableSyntaxTree));
         }
 
-        Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
+        Map<DocumentId, DocumentContext> testDocContextMap = new LinkedHashMap<>();
         for (DocumentConfig testSrcDocConfig : moduleConfig.testSourceDocs()) {
-            testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
+            testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig,
+                    disableSyntaxTree));
+        }
+
+        Map<DocumentId, ResourceContext> resourceContextMap = new HashMap<>();
+        for (ResourceConfig resourceConfig : moduleConfig.resources()) {
+            resourceContextMap.put(resourceConfig.documentId(), ResourceContext.from(resourceConfig));
+        }
+
+        Map<DocumentId, ResourceContext> testResourceContextMap = new HashMap<>();
+        for (ResourceConfig resourceConfig : moduleConfig.testResources()) {
+            testResourceContextMap.put(resourceConfig.documentId(), ResourceContext.from(resourceConfig));
         }
 
         return new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleDescriptor(),
                 moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap,
                 moduleConfig.moduleMd().map(c ->MdDocumentContext.from(c)).orElse(null),
-                moduleConfig.dependencies());
+                moduleConfig.dependencies(), resourceContextMap, testResourceContextMap);
     }
 
     ModuleId moduleId() {
@@ -145,11 +170,27 @@ class ModuleContext {
         return this.testSrcDocIds;
     }
 
+    Collection<DocumentId> resourceIds() {
+        return this.resourceIds;
+    }
+
+    Collection<DocumentId> testResourceIds() {
+        return this.testResourceIds;
+    }
+
     DocumentContext documentContext(DocumentId documentId) {
         if (this.srcDocIds.contains(documentId)) {
             return this.srcDocContextMap.get(documentId);
         } else {
             return this.testDocContextMap.get(documentId);
+        }
+    }
+
+    ResourceContext resourceContext(DocumentId documentId) {
+        if (this.resourceIds.contains(documentId)) {
+            return this.resourceContextMap.get(documentId);
+        } else {
+            return this.testResourceContextMap.get(documentId);
         }
     }
 
@@ -178,42 +219,34 @@ class ModuleContext {
         if (allModuleLoadRequests != null) {
             return allModuleLoadRequests;
         }
-        allModuleLoadRequests = new LinkedHashSet<>();
-        Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
+        allModuleLoadRequests = new OverwritableLinkedHashSet();
         for (DocumentContext docContext : srcDocContextMap.values()) {
-            for (ModuleLoadRequest request : docContext.moduleLoadRequests(moduleId, PackageDependencyScope.DEFAULT)) {
-                if (allModuleLoadRequests.contains(request) && !request.locations().isEmpty()) {
-                    // If module load request already exists, and it's `locations` is not empty
-                    // add `locations` to already existing module load request
-                    for (ModuleLoadRequest allModuleLoadRequest : allModuleLoadRequests) {
-                        if (allModuleLoadRequest.equals(request)) {
-                            allModuleLoadRequest.addAllLocations(request.locations());
-                        }
-                    }
-                } else {
-                    // If module load request does not exists, add it to `allModuleLoadRequests`
-                    allModuleLoadRequests.add(request);
-                }
-            }
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleId, PackageDependencyScope.DEFAULT));
+            allModuleLoadRequests.addAll(docContext.moduleLoadRequests(moduleDescriptor,
+                    PackageDependencyScope.DEFAULT));
         }
 
-        allModuleLoadRequests.addAll(moduleLoadRequests);
-        return moduleLoadRequests;
+        return allModuleLoadRequests;
     }
 
     Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests() {
-        Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
+        if (allTestModuleLoadRequests != null) {
+            return allTestModuleLoadRequests;
+        }
+        allTestModuleLoadRequests = new OverwritableLinkedHashSet();
         for (DocumentContext docContext : testDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleId, PackageDependencyScope.TEST_ONLY));
+            allTestModuleLoadRequests.addAll(
+                    docContext.moduleLoadRequests(moduleDescriptor, PackageDependencyScope.TEST_ONLY));
         }
 
-        allModuleLoadRequests.addAll(moduleLoadRequests);
-        return moduleLoadRequests;
+        return allTestModuleLoadRequests;
     }
 
     BLangPackage bLangPackage() {
         return getBLangPackageOrThrow();
+    }
+
+    protected void cleanBLangPackage() {
+        this.bLangPackage = null;
     }
 
     ModuleCompilationState compilationState() {
@@ -247,6 +280,7 @@ class ModuleContext {
         // TODO Not sure why we need to do this. It is there in the current implementation
         testablePkg.packageID = pkgId;
         testablePkg.flagSet.add(Flag.TESTABLE);
+        testablePkg.parent = pkgNode;
         // TODO Why we need two different diagnostic positions. This is how it is done in the current compiler.
         //  So I kept this as is for now.
         testablePkg.pos = new BLangDiagnosticLocation(this.moduleName().toString(), 1, 1, 1, 1);
@@ -265,6 +299,9 @@ class ModuleContext {
         // TODO This logic needs to be updated. We need a proper way to decide on the initial state
         if (compilationCache.getBir(moduleDescriptor.name()).length == 0) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
+        } else if (this.project().kind() == ProjectKind.BUILD_PROJECT
+                && !this.project.buildOptions().enableCache()) {
+            moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
         } else {
             moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;
         }
@@ -273,10 +310,6 @@ class ModuleContext {
 
     void setCompilationState(ModuleCompilationState moduleCompState) {
         this.moduleCompState = moduleCompState;
-    }
-
-    void parse() {
-        currentCompilationState().parse(this);
     }
 
     void resolveDependencies(DependencyResolution dependencyResolution) {
@@ -289,7 +322,9 @@ class ModuleContext {
                         moduleDependencies, dependencyResolution);
             }
         } else {
-            Set<ModuleLoadRequest> moduleLoadRequests = this.allModuleLoadRequests;
+            Set<ModuleLoadRequest> moduleLoadRequests = new OverwritableLinkedHashSet();
+            moduleLoadRequests.addAll(this.allModuleLoadRequests);
+            moduleLoadRequests.addAll(this.allTestModuleLoadRequests);
             for (ModuleLoadRequest modLoadRequest : moduleLoadRequests) {
                 PackageOrg packageOrg;
                 if (modLoadRequest.orgName().isEmpty()) {
@@ -322,8 +357,7 @@ class ModuleContext {
 
         ModuleContext resolvedModule = resolvedModuleOptional.get();
         ModuleDependency moduleDependency = new ModuleDependency(
-                new PackageDependency(resolvedModule.moduleId().packageId(), scope),
-                resolvedModule.moduleId());
+                new PackageDependency(resolvedModule.moduleId().packageId(), scope), resolvedModule.descriptor());
         moduleDependencies.add(moduleDependency);
     }
 
@@ -341,7 +375,7 @@ class ModuleContext {
         Module resolvedModule = resolvedModuleOptional.get();
         ModuleDependency moduleDependency = new ModuleDependency(
                 new PackageDependency(resolvedModule.packageInstance().packageId(), scope),
-                resolvedModule.moduleId());
+                resolvedModule.descriptor());
         moduleDependencies.add(moduleDependency);
     }
 
@@ -379,7 +413,8 @@ class ModuleContext {
                 moduleContext.isExported(),
                 moduleContext.descriptor(),
                 moduleContext.project.kind(),
-                moduleContext.project.buildOptions().skipTests());
+                moduleContext.project.buildOptions().skipTests(),
+                moduleContext.project().sourceRoot());
         packageCache.put(moduleCompilationId, pkgNode);
 
         // Parse source files
@@ -389,20 +424,18 @@ class ModuleContext {
         }
 
         if (!moduleContext.testSrcDocumentIds().isEmpty()) {
-            moduleContext.parseTestSources(pkgNode, moduleCompilationId, compilerContext);
+            PackageID moduleTestCompilationId = moduleContext.descriptor().moduleTestCompilationId();
+            moduleContext.parseTestSources(pkgNode, moduleTestCompilationId, compilerContext);
         }
 
         pkgNode.pos = new BLangDiagnosticLocation(moduleContext.moduleName().toString(), 0, 0, 0, 0);
         try {
             symbolEnter.definePackage(pkgNode);
             packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
-
-            if (bootstrapLangLibName != null) {
-                compilerPhaseRunner.performLangLibTypeCheckPhases(pkgNode);
-            } else {
-                compilerPhaseRunner.performTypeCheckPhases(pkgNode);
-            }
+            compilerPhaseRunner.performTypeCheckPhases(pkgNode);
         } catch (Throwable t) {
+            assert false : "Compilation failed due to" +
+                    (t.getMessage() != null ? ": " + t.getMessage() : " an unhandled exception");
             compilerPhaseRunner.addDiagnosticForUnhandledException(pkgNode, t);
         }
         moduleContext.bLangPackage = pkgNode;
@@ -420,36 +453,67 @@ class ModuleContext {
             try {
                 compilerPhaseRunner.performBirGenPhases(moduleContext.bLangPackage);
             } catch (Throwable t) {
+                assert false : "Compilation failed due to" +
+                        (t.getMessage() != null ? ": " + t.getMessage() : " an unhandled exception");
                 compilerPhaseRunner.addDiagnosticForUnhandledException(moduleContext.bLangPackage, t);
                 return;
             }
         }
 
+        // Note: The BIR and JAR caching should be atomic and so either both should be created or none.
+        ByteArrayOutputStream birContent;
+
+        // Skip caching BIR and JAR if there are diagnostics
+        if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
+            return;
+        }
+
         // Serialize the BIR  model
-        cacheBIR(moduleContext, compilerContext);
+        birContent = generateBIR(moduleContext, compilerContext);
 
         // Skip the code generation phase if there are diagnostics
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
             return;
         }
-        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
-    }
 
-    private static void cacheBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
-        // Skip caching BIR if there are diagnostics
+        // Generate and write the thin JAR to the file system
+        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
+
+        // Skip bir caching if jar generation is not successful
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
             return;
         }
 
-        // Skip caching BIR if it is a Build Project (current package) unless the --dump-bir-file flag is passed
-        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT) && !ProjectUtils.isBuiltInPackage(
-                moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
-            CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
-            if (!Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
-                return;
-            }
+        if (birContent == null) {
+            return;
         }
 
+        // Write the bir to the file system
+        // This code will execute only if JAR caching is successful
+        // TODO: check the filesystem cache and delete if the cache is incomplete (if BIR or JAR is missing)
+        moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+    }
+
+    private static boolean shouldGenerateBir(ModuleContext moduleContext, CompilerContext compilerContext) {
+        if (moduleContext.project.kind().equals(ProjectKind.BALA_PROJECT)) {
+            return true;
+        }
+        if (ProjectUtils.isBuiltInPackage(
+                moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
+            return true;
+        }
+        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
+        if (Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
+            return true;
+        }
+        return moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT)
+                && moduleContext.project().buildOptions().enableCache();
+    }
+
+    private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
+        if (!shouldGenerateBir(moduleContext, compilerContext)) {
+            return null;
+        }
         // Can we improve this logic
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();
         try {
@@ -461,7 +525,7 @@ class ModuleContext {
             }
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
             birContent.writeBytes(pkgBirBinaryContent);
-            moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+            return birContent;
         } catch (IOException e) {
             // This path may never be executed
             throw new RuntimeException("Failed to convert BIR model to a byte array", e);
@@ -492,23 +556,59 @@ class ModuleContext {
         // TODO implement
     }
 
+    static void shrinkDocuments(ModuleContext moduleContext) {
+        moduleContext.srcDocContextMap.values().forEach(DocumentContext::shrink);
+    }
+
     Optional<MdDocumentContext> moduleMdContext() {
         return Optional.ofNullable(this.moduleMdContext);
     }
 
     ModuleContext duplicate(Project project) {
-        Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+        Map<DocumentId, DocumentContext> srcDocContextMap = new LinkedHashMap<>();
         for (DocumentId documentId : this.srcDocumentIds()) {
             DocumentContext documentContext = this.documentContext(documentId);
             srcDocContextMap.put(documentId, documentContext.duplicate());
         }
 
-        Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
+        Map<DocumentId, DocumentContext> testDocContextMap = new LinkedHashMap<>();
         for (DocumentId documentId : this.testSrcDocumentIds()) {
             DocumentContext documentContext = this.documentContext(documentId);
             testDocContextMap.put(documentId, documentContext.duplicate());
         }
         return new ModuleContext(project, this.moduleId, this.moduleDescriptor, this.isDefaultModule,
-                srcDocContextMap, testDocContextMap, this.moduleMdContext().orElse(null), this.moduleDescDependencies);
+                srcDocContextMap, testDocContextMap, this.moduleMdContext().orElse(null),
+                this.moduleDescDependencies, this.resourceContextMap, this.testResourceContextMap);
+    }
+
+    /**
+     * An extended LinkedHashSet which can overwrite existing elements.
+     */
+    static class OverwritableLinkedHashSet extends LinkedHashSet<ModuleLoadRequest> {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public boolean add(ModuleLoadRequest moduleLoadRequest) {
+            if (this.contains(moduleLoadRequest)) {
+                Set<Location> locations = new HashSet<>();
+                ModuleLoadRequest finalModuleLoadRequest = moduleLoadRequest;
+                ModuleLoadRequest oldLoadRequest = this.stream().filter(
+                        oldRequest -> oldRequest.equals(finalModuleLoadRequest)).findFirst().orElseThrow();
+                locations.addAll(oldLoadRequest.locations());
+                locations.addAll(moduleLoadRequest.locations());
+
+                PackageDependencyScope scope = oldLoadRequest.scope() == PackageDependencyScope.DEFAULT ?
+                        oldLoadRequest.scope() : moduleLoadRequest.scope();
+                moduleLoadRequest = new ModuleLoadRequest(
+                        oldLoadRequest.orgName().orElse(null),
+                        oldLoadRequest.moduleName(),
+                        scope,
+                        oldLoadRequest.dependencyResolvedType(),
+                        locations);
+                this.remove(oldLoadRequest);
+            }
+            return super.add(moduleLoadRequest);
+        }
     }
 }

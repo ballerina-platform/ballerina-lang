@@ -1,0 +1,56 @@
+{
+  "position": {
+    "line": 38,
+    "character": 12
+  },
+  "source": "action_node_context/source/client_resource_access_action_source14.bal",
+  "items": [
+    {
+      "label": "/.post(string a, int b)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` a  \n- `int` b"
+        }
+      },
+      "sortText": "C",
+      "filterText": "post",
+      "insertText": "/.post(${1})",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 38,
+              "character": 10
+            },
+            "end": {
+              "line": 38,
+              "character": 11
+            }
+          },
+          "newText": ""
+        },
+        {
+          "range": {
+            "start": {
+              "line": 38,
+              "character": 11
+            },
+            "end": {
+              "line": 38,
+              "character": 12
+            }
+          },
+          "newText": ""
+        }
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

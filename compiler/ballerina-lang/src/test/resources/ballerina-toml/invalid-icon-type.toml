@@ -1,0 +1,11 @@
+[package]
+name = "winery"
+org = "foo"
+version = "0.1.0"
+license= ["Apache 2.0"]
+authors= ["jo", "pramodya"]
+keywords= ["toml", "ballerina"]
+repository= "https://github.com/ballerina-platform/ballerina-lang"
+distribution= "slbeta2"
+visibility= "private"
+icon= "../sample.svg"

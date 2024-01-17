@@ -26,7 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test query actions with records.
+ * This contains methods to test query expressions with error returns.
  *
  * @since 2.0.0
  */
@@ -82,6 +82,65 @@ public class ErrorQueryTest {
     @Test
     public void streamFromQueryWithAPanic() {
         BRunUtil.invoke(result, "streamFromQueryWithAPanicEncl");
+    }
+
+    @Test
+    public void testDistinctErrorReturn() {
+        BRunUtil.invoke(result, "testDistinctErrorReturn");
+    }
+
+    @Test
+    public void testCatchingErrorAtOnFail() {
+        BRunUtil.invoke(result, "testCatchingErrorAtOnFail");
+    }
+
+    @Test
+    public void testErrorReturnedFromSelectClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromSelect");
+    }
+
+    @Test
+    public void testErrorReturnedFromWhereClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromWhereClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromLetClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromLetClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromLimitClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromLimitClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromJoinClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromJoinClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromOrderByClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromOrderByClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromQueryAction() {
+        BRunUtil.invoke(result, "testErrorReturnedFromQueryAction");
+    }
+    @Test
+    public void testCompleteEarlyErrorsWithinQueryAction() {
+        BRunUtil.invoke(result, "testCompleteEarlyErrorsWithinQuery");
+    }
+
+    @Test
+    public void testErrorReturnedFromStreams() {
+        BRunUtil.invoke(result, "testErrorReturnedFromStreams");
+    }
+
+    @Test
+    public void testErrorsFailAndReturnedInQuery() {
+        BRunUtil.invoke(result, "testErrorsFailAndReturnedInQuery");
     }
 
     @AfterClass

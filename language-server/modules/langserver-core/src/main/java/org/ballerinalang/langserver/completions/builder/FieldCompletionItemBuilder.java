@@ -20,12 +20,15 @@ package org.ballerinalang.langserver.completions.builder;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -56,7 +59,7 @@ public class FieldCompletionItemBuilder {
 
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(recordFieldName);
-        completionItem.setInsertText(recordFieldName);
+        completionItem.setInsertText(CommonUtil.escapeSpecialCharsInInsertText(recordFieldName));
         completionItem.setKind(CompletionItemKind.Field);
         return completionItem;
     }
@@ -86,7 +89,7 @@ public class FieldCompletionItemBuilder {
             }
         }
 
-        completionItem.setInsertText(insertText);
+        completionItem.setInsertText(CommonUtil.escapeSpecialCharsInInsertText(insertText));
 
         return completionItem;
     }
@@ -100,11 +103,13 @@ public class FieldCompletionItemBuilder {
      */
     public static CompletionItem build(ObjectFieldSymbol objectFieldSymbol, boolean withSelfPrefix) {
         if (withSelfPrefix) {
-            String label = "self." + objectFieldSymbol.getName().get();
+            String label = String.format("self.%s", objectFieldSymbol.getName().orElse(""));
+            String insertText = "self." +
+                    CommonUtil.escapeSpecialCharsInInsertText(objectFieldSymbol.getName().orElse(""));
 
             CompletionItem item = new CompletionItem();
             item.setLabel(label);
-            item.setInsertText(label);
+            item.setInsertText(insertText);
             item.setKind(CompletionItemKind.Field);
 
             return item;
@@ -134,6 +139,11 @@ public class FieldCompletionItemBuilder {
             evalNode = evalNode.parent();
         }
 
+        // If the field is optional and doesn't have nil type, we allow direct field access
+        if (!hasNilType(recordFieldSymbol)) {
+            return Optional.empty();
+        }
+
         LineRange dotTokenLineRange;
         if (evalNode.kind() == SyntaxKind.FIELD_ACCESS) {
             dotTokenLineRange = ((FieldAccessExpressionNode) evalNode).dotToken().lineRange();
@@ -154,5 +164,19 @@ public class FieldCompletionItemBuilder {
         textEdit.setNewText("");
 
         return Optional.of(textEdit);
+    }
+    
+    public static boolean hasNilType(RecordFieldSymbol recordFieldSymbol) {
+        if (recordFieldSymbol.typeDescriptor().typeKind() == TypeDescKind.NIL) {
+            return true;
+        }
+
+        if (recordFieldSymbol.typeDescriptor().typeKind() != TypeDescKind.UNION) {
+            return false;
+        }
+        
+        UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) recordFieldSymbol.typeDescriptor();
+        return unionTypeSymbol.memberTypeDescriptors().stream()
+                .anyMatch(member -> member.typeKind() == TypeDescKind.NIL);
     }
 }

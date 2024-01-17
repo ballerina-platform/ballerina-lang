@@ -163,8 +163,107 @@ function testMapFromBalString() {
     }
 
     assert(result3, mapVal3);
-}
 
+    string mapExpString = string `{"name":"John","city":"London"}`;
+    anydata|error output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"name": "John", "city": "London"});
+    }
+
+    string mapExpString1 = string `{"key1": [ 1, 2, "three", ["",4,{"key1":"val1", "key2": 2}]],  "key2"  : `;
+    string mapExpString2 = string `{"key1": [1, 2, "three", ["",4,{"key1":"val1", "key2": 2}]],  "key2": "London"}}`;
+    mapExpString = mapExpString1 + mapExpString2;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"key1":[1,2,"three",["",4,{"key1":"val1","key2":2}]],
+        "key2":{"key1":[1,2,"three",["",4,{"key1":"val1","key2":2}]],"key2":"London"}});
+    }
+
+    mapExpString = string `{"name":"John",city:"London"}`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+
+    mapExpString = string `{name:"John",city:"London"}`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+
+    mapExpString = string `{"   name    ":"                John","     city ":"        London                    "}`;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"   name    ": "                John", "     city ": "        London                    "});
+    }
+
+    mapExpString = string `   {"name" :    "John"  ,  "city"  :  "London"}   `;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"name": "John", "city": "London"});
+    }
+
+    mapExpString = string `
+              {                 "name"  :
+                "John" ,
+                         "city" : "London"      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"name": "John", "city": "London"});
+    }
+
+    mapExpString = string `
+              {                 "intval"  :
+                3 ,
+                         "floatval" : 12.55      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {intval: 3, floatval: 12.55});
+    }
+
+    mapExpString = string `
+              {                 "name"  :
+                "John" ,
+                         city : "London"      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+
+    mapExpString = string `
+              {                 "name"  :
+                3 ,
+                         city" : 12.55      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+
+    mapExpString = string `
+              {                 name"  :
+                3 ,
+                         city" : 12.55      }`;
+    output = mapExpString.fromBalString();
+    assert(output is error, true);
+    if (output is error) {
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
+        <string>checkpanic output.detail()["message"]);
+    }
+}
 
 function testTableFromBalString() {
     string s1 = "table key(name) [{\"id\":1,\"name\":\"Mary\",\"grade\":12}," +
@@ -306,6 +405,18 @@ function testXmlFromBalString() {
         assert(result4, x4);
         assert(result5, x5);
     }
+
+    xml xmlVal = xml `<movie>
+                        <title>Some</title>
+                        <writer>Writer</writer>
+                      </movie>`;
+
+    string xmlString = xmlVal.toBalString();
+    string expectedXmlString = "xml`<movie>\n                        <title>Some</title>"
+    + "\n                        <writer>Writer</writer>\n                      </movie>`";
+    assert(xmlString, expectedXmlString);
+    anydata xmlValBack = checkpanic xmlString.fromBalString();
+    assert(xmlValBack, xmlVal);
 }
 
 function testObjectFromString() {
@@ -341,6 +452,228 @@ function testFromBalStringNegative() {
     assert(b.fromBalString(), err);
     assert(c.fromBalString(), err);
     assert(d.fromBalString(), err);
+}
+
+function testFromStringOnRegExp() {
+    string s = "re `AB+C*D{1,4}`";
+    anydata x1 = checkpanic s.fromBalString();
+    assert(re `AB+C*D{1,4}` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `A?B+C*?D{1,4}`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `A?B+C*?D{1,4}` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `A\\sB\\WC\\Dd\\\\`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `A\sB\WC\Dd\\` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `\\s{1}\\p{sc=Braille}*`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `\s{1}\p{sc=Braille}*` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `AB+\\p{gc=Lu}{1,}`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `AB+\p{gc=Lu}{1,}` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `A\\p{Lu}??B+\\W\\(+?C*D{1,4}?`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `A\p{Lu}??B+\W\(+?C*D{1,4}?` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `[\\r\\n\\^]`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[\r\n\^]` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `[A\\sB\\WC\\Dd\\\\]`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[A\sB\WC\Dd\\]` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `[\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA\\)]??`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA\)]??` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `[A\\sA-GB\\WC\\DJ-Kd\\\\]*`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[A\sA-GB\WC\DJ-Kd\\]*` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `[\\sA-F\\p{sc=Braille}K-Mabc-d\\--]`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[\sA-F\p{sc=Braille}K-Mabc-d\--]` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `(?:ABC)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?:ABC)` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `(?i:ABC)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?i:ABC)` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `(?i-m:AB+C*)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?i-m:AB+C*)` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `(?imxs:AB+C*D{1,4})`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?imxs:AB+C*D{1,4})` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `(?imx-s:A?B+C*?D{1,4})`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?imx-s:A?B+C*?D{1,4})` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `(?i-s:\\s{1}\\p{sc=Braille}*)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?i-s:\s{1}\p{sc=Braille}*)` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `(?ims-x:\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?ims-x:\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*)` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `(?im-sx:[A\\sA-GB\\WC\\DJ-Kd\\\\]*)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?im-sx:[A\sA-GB\WC\DJ-Kd\\]*)` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `(?i-sxm:[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?i-sxm:[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?)` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `(z)((a+)?(b+)?(c))*`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(z)((a+)?(b+)?(c))*` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `^^^^^^^robot$$$$`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `^^^^^^^robot$$$$` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `cx{0,93}c`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `cx{0,93}c` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `[\\d]*[\\s]*bc.`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[\d]*[\s]*bc.` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `\\??\\??\\??\\??\\??`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `\??\??\??\??\??` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `.?.?.?.?.?.?.?`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `.?.?.?.?.?.?.?` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `bc..[\\d]*[\\s]*`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `bc..[\d]*[\s]*` == x1, true);
+    assert(x1 is string:RegExp, true);
+
+    s = "re `\\\\u123`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `\\u123` == x1, true);
+    assert(x1 is string:RegExp, true);
+}
+
+function testFromStringOnRegExpNegative() {
+    string s = "re `AB+^*`";
+    anydata|error x1 = s.fromBalString();
+    assert(x1 is error, true);
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing backslash before '*' token in 'AB+^*'",
+        <string>checkpanic (<error>x1).detail()["message"]);
+
+    s = "re `AB\\hCD`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: invalid character 'h' after backslash in 'AB\\hCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
+
+    s = "re `AB\\pCD`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing open brace '{' token in 'AB\\pCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
+
+    s = "re `AB\\uCD`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: invalid character 'u' after backslash in 'AB\\uCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
+
+    s = "re `AB\\u{001CD`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing close brace '}' token in 'AB\\u{001CD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
+
+    s = "re `AB\\p{sc=Lu`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing close brace '}' token in 'AB\\p{sc=Lu'",
+        <string>checkpanic (<error>x1).detail()["message"]);
+
+    s = "re `[^abc`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing close bracket ']' token in '[^abc'",
+        <string>checkpanic (<error>x1).detail()["message"]);
+
+    s = "re `(abc`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing close parenthesis ')' token in '(abc'",
+        <string>checkpanic (<error>x1).detail()["message"]);
+
+    s = "re `(ab^*)`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing backslash before '*' token in '(ab^*)'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 }
 
 function assert(anydata|error actual, anydata|error expected) {

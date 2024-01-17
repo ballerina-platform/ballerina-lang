@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -26,6 +27,7 @@ import io.ballerina.runtime.internal.values.RefValue;
 import io.ballerina.runtime.internal.values.StreamingJsonValue;
 
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -40,7 +42,7 @@ import java.util.Map.Entry;
  * 
  * @since 0.995.0
  */
-public class JsonGenerator {
+public class JsonGenerator implements Closeable {
 
     private static final int DEFAULT_DEPTH = 10;
 
@@ -272,6 +274,10 @@ public class JsonGenerator {
         this.writer.flush();
     }
 
+    public void close() throws IOException {
+        this.writer.close();
+    }
+
     @SuppressWarnings("unchecked")
     public void serialize(Object json) throws IOException {
         if (json == null) {
@@ -279,7 +285,7 @@ public class JsonGenerator {
             return;
         }
 
-        switch (TypeChecker.getType(json).getTag()) {
+        switch (TypeUtils.getImpliedType(TypeChecker.getType(json)).getTag()) {
             case TypeTags.ARRAY_TAG:
                 if (json instanceof StreamingJsonValue) {
                     ((StreamingJsonValue) json).serialize(this);

@@ -45,3 +45,9 @@ function testImplicitConversion() {
     var y1 = d - e;
     any y2 = d - e;
 }
+
+function overflowBySubtraction() {
+    int num1 = -9223372036854775808;
+    int num2 = 1;
+    int ans = num1 - num2;
+}

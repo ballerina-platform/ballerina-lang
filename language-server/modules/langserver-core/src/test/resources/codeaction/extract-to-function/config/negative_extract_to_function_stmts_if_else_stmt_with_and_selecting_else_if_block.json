@@ -1,0 +1,19 @@
+{
+  "range": {
+    "start": {
+      "line": 3,
+      "character": 6
+    },
+    "end": {
+      "line": 5,
+      "character": 5
+    }
+  },
+  "source": "negative_extract_to_function_stmts_if_else_stmt_with_and_selecting_else_if_block.bal",
+  "expected": [
+    {
+      "title": "Extract to function"
+    }
+  ],
+  "description": "Extract to function for if else statements, checks when there is a else if block and selected else if"
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "description": "Add a type reference",
+    "oldCode": "public type Person stream<int>;",
+    "newCode": "public type Person stream<int>;\npublic type Employee Person\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "new",
+              "versionImpact": "minor"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

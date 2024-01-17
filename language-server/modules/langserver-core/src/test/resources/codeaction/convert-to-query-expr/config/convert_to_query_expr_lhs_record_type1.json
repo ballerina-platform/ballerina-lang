@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 9,
+    "character": 20
+  },
+  "source": "convert_to_query_expr_lhs_record_type1.bal",
+  "expected": [
+    {
+      "title": "Map with a query expression",
+      "kind": "refactor.rewrite",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 19
+            },
+            "end": {
+              "line": 9,
+              "character": 22
+            }
+          },
+          "newText": "from var item in ids\n        select {username: \"\", firstName: \"\", lastName: \"\", email: \"\"}"
+        }
+      ]
+    }
+  ]
+}

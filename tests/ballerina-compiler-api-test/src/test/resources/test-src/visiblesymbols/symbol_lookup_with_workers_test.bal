@@ -51,3 +51,28 @@ function testFork() {
         }
     }
 }
+
+function testWorkerSendReceive() {
+    worker wrk1 {
+        int a = 6;
+        a ->
+    }
+
+    worker wrk2 {
+    }
+
+    worker wrk3 {
+        int b = <-
+    }
+}
+
+function testFlushWithoutWorkerName() {
+    worker w1 {
+        10 -> w2;
+        error? err = flush ;
+    }
+
+    worker w2 {
+        int receivedVal = <- w1;
+    }
+}

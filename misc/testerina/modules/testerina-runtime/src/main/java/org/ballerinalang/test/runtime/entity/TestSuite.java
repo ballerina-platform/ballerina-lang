@@ -38,6 +38,8 @@ public class TestSuite {
     private String packageName;
     private String moduleName;
     private String packageId;
+    private String testPackageId;
+    private String executeFilePath;
 
     private String initFunctionName;
     private String startFunctionName;
@@ -69,15 +71,22 @@ public class TestSuite {
      */
     private Map<String, String> mockFunctionNamesMap = new HashMap<>();
 
-    public TestSuite(String packageId, String packageName, String orgName, String version) {
+    public TestSuite(String packageId, String testPackageId, String packageName,
+                     String orgName, String version, String executeFilePath) {
         this.packageId = packageId;
+        this.testPackageId = testPackageId;
         this.packageName = packageName;
         this.orgName = orgName;
         this.version = version;
+        this.executeFilePath = executeFilePath;
     }
 
     public String getPackageID() {
         return packageId;
+    }
+
+    public String getTestPackageID() {
+        return testPackageId;
     }
 
     public String getSourceRootPath() {
@@ -110,6 +119,14 @@ public class TestSuite {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public void setExecuteFilePath(String executeFilePath) {
+        this.executeFilePath = executeFilePath;
+    }
+
+    public String getExecuteFilePath() {
+        return this.executeFilePath;
     }
 
     public String getInitFunctionName() {
@@ -222,6 +239,14 @@ public class TestSuite {
 
     public void addMockFunction(String id, String function) {
         this.mockFunctionNamesMap.put(id, function);
+    }
+
+    public Map<String, String> getMockFunctionNamesMap() {
+        return this.mockFunctionNamesMap;
+    }
+
+    public void removeAllMockFunctions() {
+        this.mockFunctionNamesMap = new HashMap<>();
     }
 
     public void addTestUtilityFunction(String functionName, String functionClassName) {

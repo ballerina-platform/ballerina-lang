@@ -16,13 +16,13 @@
  */
 package org.ballerinalang.test.expressions.builtinoperations;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -43,72 +43,72 @@ public class BuiltinOperationsTest {
 
     @Test(description = "Test mathematical operation that returns NaN")
     public void testIsNaN() {
-        BValue[] returns = BRunUtil.invoke(result, "testIsNaN", new BValue[0]);
-
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testIsNaN", new Object[0]);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertFalse((Boolean) returns.get(2));
     }
 
     @Test(description = "Test mathematical operation that returns Infinity")
     public void testIsInfinity() {
-        BValue[] returns = BRunUtil.invoke(result, "testIsInfinite", new BValue[0]);
-
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testIsInfinite", new Object[0]);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertFalse((Boolean) returns.get(2));
     }
 
     @Test(description = "Test mathematical operation that returns a finite number")
     public void testIsFinite() {
-        BValue[] returns = BRunUtil.invoke(result, "testIsFinite", new BValue[0]);
-
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testIsFinite", new Object[0]);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertFalse((Boolean) returns.get(2));
     }
 
     @Test(description = "Test result that is returned from a mathematical operation")
     public void testWithCalc() {
-        BValue[] returns = BRunUtil.invoke(result, "testWithCalc", new BValue[0]);
-
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testWithCalc", new Object[0]);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertFalse((Boolean) returns.get(2));
     }
 
     @Test(description = "Test result that is returned from a mod with divisor as zero")
     public void testModWithDivisorAsZero() {
-        BValue[] returns = BRunUtil.invoke(result, "testModWithDivisorAsZero", new BValue[0]);
-
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testModWithDivisorAsZero", new Object[0]);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertFalse((Boolean) returns.get(2));
     }
 
     @Test(description = "Test result that is returned from a mod with both dividend and divisor as zero")
     public void testModZeroByZero() {
-        BValue[] returns = BRunUtil.invoke(result, "testModZeroByZero", new BValue[0]);
-
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testModZeroByZero", new Object[0]);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertFalse((Boolean) returns.get(2));
     }
 
     @Test(description = "Test result that is returned from a mod with divisor as a finite number")
     public void testModWithDivisorAsFinite() {
-        BValue[] returns = BRunUtil.invoke(result, "testModWithDivisorAsFinite", new BValue[0]);
-
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Object arr = BRunUtil.invoke(result, "testModWithDivisorAsFinite", new Object[0]);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertFalse((Boolean) returns.get(0));
+        Assert.assertFalse((Boolean) returns.get(1));
+        Assert.assertTrue((Boolean) returns.get(2));
     }
 
     @Test(description = "Test negative tests")
@@ -119,5 +119,11 @@ public class BuiltinOperationsTest {
         BAssertUtil.validateError(resNegative, 2, "undefined function 'isFinite' in type 'int'", 22, 28);
         BAssertUtil.validateError(resNegative, 3, "undefined function 'isNaN' in type 'int'", 24, 25);
         BAssertUtil.validateError(resNegative, 4, "undefined function 'isInfinite' in type 'int'", 25, 34);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resNegative = null;
     }
 }

@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 23,
+    "character": 28
+  },
+  "source": "convert_to_query_expr_rhs_method_call.bal",
+  "expected": [
+    {
+      "title": "Map with a query expression",
+      "kind": "refactor.rewrite",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 23,
+              "character": 17
+            },
+            "end": {
+              "line": 23,
+              "character": 34
+            }
+          },
+          "newText": "from var item in asset.getAssets()\n            select {'type: 0, id: \"\", confirmed: false, AssetsInner: []}"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

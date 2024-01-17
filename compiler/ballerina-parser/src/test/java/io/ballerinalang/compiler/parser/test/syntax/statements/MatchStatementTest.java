@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.syntax.statements;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -63,6 +64,79 @@ public class MatchStatementTest extends AbstractStatementTest {
         testFile("match-stmt/match_stmt_source_14.bal", "match-stmt/match_stmt_assert_14.json");
     }
 
+    @Test
+    public void testSimpleMatchStatementWithOnFailClauseWithoutVariable() {
+        testFile("match-stmt/match_stmt_source_23.bal", "match-stmt/match_stmt_assert_23.json");
+    }
+
+    @Test
+    public void testConstPatternWithPreDeclaredPrefix() {
+        testFile("match-stmt/match_stmt_source_22.bal", "match-stmt/match_stmt_assert_22.json");
+    }
+
+    @Test
+    public void testSimpleMatchStatementWithOnFailClauseHavingErrorBPWithVar() {
+        testFile("match-stmt/match_stmt_source_24.bal", "match-stmt/match_stmt_assert_24.json");
+    }
+
+    @Test
+    public void testSimpleMatchStatementWithOnFailClauseHavingErrorBPWithType() {
+        testFile("match-stmt/match_stmt_source_25.bal", "match-stmt/match_stmt_assert_25.json");
+    }
+
+    @Test
+    public void testSimpleMatchStatementWithOnFailClauseHavingErrorBPWithUserDefinedError() {
+        testFile("match-stmt/match_stmt_source_26.bal", "match-stmt/match_stmt_assert_26.json");
+    }
+
+    @Test
+    public void testSimpleMatchStatementWithOnFailClauseHavingErrorBPWithUserDefinedErrorWithVar() {
+        testFile("match-stmt/match_stmt_source_27.bal", "match-stmt/match_stmt_assert_27.json");
+    }
+
+    @DataProvider(name = "onFailClauseOtherBPTestDataProvider")
+    public Object[][] onFailClauseOtherBPTestDataProvider() {
+        return new Object[][]{
+                {"match-stmt/match_stmt_source_32.bal", "match-stmt/match_stmt_assert_32.json"},
+                {"match-stmt/match_stmt_source_33.bal", "match-stmt/match_stmt_assert_33.json"},
+                {"match-stmt/match_stmt_source_34.bal", "match-stmt/match_stmt_assert_34.json"},
+                {"match-stmt/match_stmt_source_35.bal", "match-stmt/match_stmt_assert_35.json"}
+        };
+    }
+
+    @Test(dataProvider = "onFailClauseOtherBPTestDataProvider")
+    public void testMatchStmtOnFailClauseWithOtherBP(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
+    @DataProvider(name = "onFailClauseErrorBPWithFieldBPTestDataProvider")
+    public Object[][] onFailClauseErrorBPWithFieldBPTestDataProvider() {
+        return new Object[][]{
+                {"match-stmt/match_stmt_source_36.bal", "match-stmt/match_stmt_assert_36.json"},
+                {"match-stmt/match_stmt_source_37.bal", "match-stmt/match_stmt_assert_37.json"},
+                {"match-stmt/match_stmt_source_38.bal", "match-stmt/match_stmt_assert_38.json"}
+        };
+    }
+
+    @Test(dataProvider = "onFailClauseErrorBPWithFieldBPTestDataProvider")
+    public void testMatchStmtOnFailClausHavingErrorBPWithFieldBP(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
+    @DataProvider(name = "onFailClauseErrorBPWithOtherTypeDescTestDataProvider")
+    public Object[][] onFailClauseErrorBPWithOtherTypeDescTestDataProvider() {
+        return new Object[][]{
+                {"match-stmt/match_stmt_source_39.bal", "match-stmt/match_stmt_assert_39.json"},
+                {"match-stmt/match_stmt_source_40.bal", "match-stmt/match_stmt_assert_40.json"},
+                {"match-stmt/match_stmt_source_41.bal", "match-stmt/match_stmt_assert_41.json"}
+        };
+    }
+
+    @Test(dataProvider = "onFailClauseErrorBPWithOtherTypeDescTestDataProvider")
+    public void testMatchStmtOnFailClausHavingErrorBPWithOtherTypeDesc(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
     // Recovery tests
 
     @Test
@@ -94,6 +168,7 @@ public class MatchStatementTest extends AbstractStatementTest {
     @Test
     public void testMatchStmtRecoveryInvalidMappingMatchPatterns() {
         testFile("match-stmt/match_stmt_source_11.bal", "match-stmt/match_stmt_assert_11.json");
+        testFile("match-stmt/match_stmt_source_21.bal", "match-stmt/match_stmt_assert_21.json");
     }
 
     @Test
@@ -101,9 +176,22 @@ public class MatchStatementTest extends AbstractStatementTest {
         testFile("match-stmt/match_stmt_source_13.bal", "match-stmt/match_stmt_assert_13.json");
     }
 
-    @Test
-    public void testMatchStatementOnFailClauseRecovery() {
-        testFile("match-stmt/match_stmt_source_15.bal", "match-stmt/match_stmt_assert_15.json");
+    @DataProvider(name = "onFailClauseRecoveryTestDataProvider")
+    public Object[][] onFailClauseRecoveryTestDataProvider() {
+        return new Object[][]{
+                {"match-stmt/match_stmt_source_15.bal", "match-stmt/match_stmt_assert_15.json"},
+                {"match-stmt/match_stmt_source_28.bal", "match-stmt/match_stmt_assert_28.json"},
+                {"match-stmt/match_stmt_source_29.bal", "match-stmt/match_stmt_assert_29.json"},
+                {"match-stmt/match_stmt_source_30.bal", "match-stmt/match_stmt_assert_30.json"},
+                {"match-stmt/match_stmt_source_31.bal", "match-stmt/match_stmt_assert_31.json"},
+                {"match-stmt/match_stmt_source_42.bal", "match-stmt/match_stmt_assert_42.json"}
+
+        };
+    }
+
+    @Test(dataProvider = "onFailClauseRecoveryTestDataProvider")
+    public void testMatchStatementOnFailClauseRecovery(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
     }
 
     @Test

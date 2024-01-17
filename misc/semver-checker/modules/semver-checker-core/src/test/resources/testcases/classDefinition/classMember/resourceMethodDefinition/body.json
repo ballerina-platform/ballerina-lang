@@ -1,0 +1,119 @@
+[
+  {
+    "description": "Modify the function body",
+    "oldCode": "public class Employee{\nresource function get add(int x, int y) returns int {\n\treturn 5; \n}\n}",
+    "newCode": "public class Employee{\nresource function get add(int x, int y) returns int {\n\treturn 3; \n}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "patch",
+                      "message": "function body is modified"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add function body",
+    "oldCode": "public class Employee{\nresource function get add(int x, int y) {}\n}",
+    "newCode": "public class Employee{\nresource function get add(int x, int y) {\n\tint z = 3; \n}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "patch",
+                      "message": "function body is modified"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove function body",
+    "oldCode": "public class Employee{\nresource function get add(int x, int y) {\n\tint z = 3; \n}\n}",
+    "newCode": "public class Employee{\nresource function get add(int x, int y) {}\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "patch",
+                      "message": "function body is modified"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

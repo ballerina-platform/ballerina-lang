@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 0,
+    "character": 19
+  },
+  "source": "extractToVariableInConstExpression.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable"
+    }
+  ]
+}

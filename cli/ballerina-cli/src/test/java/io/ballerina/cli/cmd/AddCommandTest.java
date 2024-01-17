@@ -37,19 +37,17 @@ public class AddCommandTest extends BaseCommandTest {
 
     private Path projectPath;
     private Path modulesPath;
-    private Path homeCache;
 
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
-        String[] args = {"project_name"};
-        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        projectPath = tmpDir.resolve("project_name");
+        String[] args = {projectPath.toString()};
+        NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
-        projectPath = tmpDir.resolve("project_name");
-        modulesPath = projectPath.resolve(ProjectConstants.MODULES_ROOT);
 
-        homeCache = this.tmpDir.resolve("home-cache");
+        modulesPath = projectPath.resolve(ProjectConstants.MODULES_ROOT);
     }
 
     @Test(description = "Test add command")
@@ -104,7 +102,7 @@ public class AddCommandTest extends BaseCommandTest {
     public void testAddCommandWithInvalidTemplate() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"mymodule2", "-t", "invalid"};
-        AddCommand addCommand = new AddCommand(projectPath, printStream, false, homeCache);
+        AddCommand addCommand = new AddCommand(projectPath, printStream, false);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
@@ -173,7 +171,7 @@ public class AddCommandTest extends BaseCommandTest {
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("ballerina-add - Add a new module to the current Ballerina package"));
+        Assert.assertTrue(readOutput().contains("ballerina-add - Add a new module to the current package"));
     }
 
     @Test(description = "Test add command", dependsOnMethods = {"testAddCommand"})

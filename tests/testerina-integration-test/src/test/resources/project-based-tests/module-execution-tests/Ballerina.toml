@@ -4,4 +4,4 @@ name = "moduleExecution"
 version = "0.0.0"
 
 [build-options]
-observabilityIncluded = true
+observabilityIncluded = false

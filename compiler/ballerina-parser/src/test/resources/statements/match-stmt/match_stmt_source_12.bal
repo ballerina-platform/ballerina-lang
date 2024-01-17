@@ -22,5 +22,7 @@ function foo() {
         }
         error(0xf5, error typeref(...var e), namedarg1 = mathchpattren, ...var varname) => {
         }
+        error(errorMessage:MSG_1, errorValues:ERROR_1, namedArg = matchPattern) => {
+        }
     }
 }

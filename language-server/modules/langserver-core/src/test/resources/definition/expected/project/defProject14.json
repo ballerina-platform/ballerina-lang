@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "projectls/defmodsource5.bal"
+  },
+  "position": {
+    "line": 3,
+    "character": 22
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 0
+        },
+        "end": {
+          "line": 0,
+          "character": 28
+        }
+      },
+      "uri": "repo/bala/ballerina/module1/0.1.0/any/modules/module1/variables.bal"
+    }
+  ]
+}

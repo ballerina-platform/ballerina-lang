@@ -23,6 +23,7 @@ public function testRecordBasedQueryExpr() {
     testQueryExprInLambda();
     testQueryExprInLambdaV2();
     testQueryExprInLambdaV3();
+    testQueryWithRecordDefaultValues();
 }
 
 type Person record {
@@ -43,7 +44,7 @@ type Employee record {
     string firstName;
     string lastName;
     int age;
-    string? address?;
+    string? address;
 };
 
 public function testQueryExprForNilFieldType() {
@@ -93,8 +94,8 @@ public function testQueryExprForOptionalField() {
 public function testQueryExprForOptionalFieldV2() {
 
     Employee p1 = {firstName: "Alex", lastName: "George", age: 23, address: "Colombo"};
-    Employee p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-    Employee p3 = {firstName: "John", lastName: "David", age: 33};
+    Employee p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30, address: "Matara"};
+    Employee p3 = {firstName: "John", lastName: "David", age: 33, address: "Galle"};
 
     Employee[] employeeList = [p1, p2, p3];
 
@@ -108,7 +109,7 @@ public function testQueryExprForOptionalFieldV2() {
              };
 
     assertEquality("Colombo", outputPersonList[0]?.address);
-    assertEquality((), outputPersonList[1]?.address);
+    assertEquality("Matara", outputPersonList[1]?.address);
 }
 
 public function testMethodParamWithLet() {
@@ -236,6 +237,23 @@ public function testQueryExprInLambdaV3() {
     };
 
     assertEquality(23, anonFunction()[0].age);
+}
+
+function testQueryWithRecordDefaultValues() {
+    [int, string][] a = [[1, "value"]];
+
+    record {|string name; int id; boolean employed; int salary;|}[] b = from var [id, name] in a
+                let record {|
+                    string name;
+                    int id;
+                    boolean employed = true;
+                    int salary = 1234;
+                |} rec = {id, name}
+                select rec;
+    assertEquality("value", b[0].name);
+    assertEquality(1, b[0].id);
+    assertEquality(true, b[0].employed);
+    assertEquality(1234, b[0].salary);
 }
 
 //---------------------------------------------------------------------------------------------------------

@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 11,
-    "character": 15,
-    "expected": [
+    "character": 15
+  },
+  "source": "fixReturnTypeInClass.bal",
+  "expected": [
+    {
+      "title": "Change return type to \u0027int\u0027",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Change return type to 'int'",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 10,
-                            "character": 19
-                        },
-                        "end": {
-                            "line": 10,
-                            "character": 19
-                        }
-                    },
-                    "newText": " returns int"
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 19
+            },
+            "end": {
+              "line": 10,
+              "character": 19
+            }
+          },
+          "newText": " returns int"
         }
-    ]
+      ]
+    }
+  ]
 }

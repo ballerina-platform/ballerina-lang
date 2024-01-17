@@ -23,6 +23,7 @@ import io.ballerina.projects.providers.SemverDataProvider;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -59,9 +60,10 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.org().value(), "foo");
         Assert.assertEquals(descriptor.version().value().toString(), "0.1.0");
 
-        PackageManifest.Platform platform = packageManifest.platform("java11");
+        PackageManifest.Platform platform = packageManifest.platform("java17");
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
+        Assert.assertEquals(platform.graalvmCompatible().booleanValue(), true);
         for (Map<String, Object> library : platformDependencies) {
             Assert.assertTrue(library.get("path").equals("../dummy-jars/toml4j.txt")
                                       || library.get("path").equals("../dummy-jars/swagger.txt"));
@@ -109,7 +111,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.org().value(), "ballerina");
         Assert.assertEquals(descriptor.version().value().toString(), "1.0.0");
 
-        List<Map<String, Object>> platformDependencies = packageManifest.platform("java11").dependencies();
+        List<Map<String, Object>> platformDependencies = packageManifest.platform("java17").dependencies();
         Assert.assertEquals(platformDependencies.size(), 0);
     }
 
@@ -118,7 +120,7 @@ public class BallerinaTomlTests {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("platfoms-with-scope.toml"));
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
-        PackageManifest.Platform platform = packageManifest.platform("java11");
+        PackageManifest.Platform platform = packageManifest.platform("java17");
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
         for (Map<String, Object> library : platformDependencies) {
@@ -135,6 +137,18 @@ public class BallerinaTomlTests {
                 Assert.assertEquals(library.get("groupId"), "com.moandjiezana.toml");
             }
         }
+    }
+
+    @Test(description = "Test a valid Ballerina.toml file with tool id, filePath and targetModule")
+    public void testBallerinaTomlWithTool() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("tool-entries.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
+
+        PackageManifest.Tool tool = packageManifest.tools().get(0);
+        Assert.assertEquals(tool.getType(), "openapi");
+        Assert.assertEquals(tool.getId(), "generate-delivery-client");
+        Assert.assertEquals(tool.getFilePath(), "delivery.json");
+        Assert.assertEquals(tool.getTargetModule(), "delivery");
     }
 
     // Negative tests
@@ -162,6 +176,96 @@ public class BallerinaTomlTests {
         Assert.assertEquals(iterator.next().message(), "'name' under [package] is missing");
         Assert.assertEquals(iterator.next().message(), "'org' under [package] is missing");
         Assert.assertEquals(iterator.next().message(), "'version' under [package] is missing");
+    }
+
+    @Test(description = "Package should be given as [package], Here checking error when it given as [[package]]")
+    public void testBallerinaTomlWithPackageGivenAsTableArray() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("package-as-table-array.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type for key 'package': expected 'OBJECT', found 'ARRAY'");
+    }
+
+    @Test(description = "Build options should be given as [build-options], " +
+            "Here checking error when it given as [build-options]")
+    public void testBallerinaTomlWithBuildOptionsGivenAsTableArray() throws IOException {
+        PackageManifest packageManifest =
+                getPackageManifest(BAL_TOML_REPO.resolve("build-options-as-table-array.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type for key 'build-options': expected 'OBJECT', found 'ARRAY'");
+    }
+
+    @Test(description = "Test graalvmBuildOptions parsed properly")
+    public void testBallerinaTomlWithGraalvmBuildOptions() throws IOException {
+        BuildOptions buildOptions =
+                getBuildOptions(BAL_TOML_REPO.resolve("build-options-as-table.toml"));
+        Assert.assertTrue(buildOptions.graalVMBuildOptions().equals("--static"));
+    }
+
+    @DataProvider(name = "ballerinaTomlWithInvalidEntries")
+    public Object[][] provideBallerinaTomlWithInvalidEntries() {
+        return new Object[][] {
+                {
+                    "missing-tool-entries.toml",
+                    "missing key '[filePath]' in table '[tool.openapi]'.",
+                    "missing key '[id]' in table '[tool.openapi]'."
+                },
+                {
+                    "invalid-tool-entries.toml",
+                    "empty string found for key '[filePath]' in table '[tool.openapi]'.",
+                    "incompatible type found for key '[targetModule]': expected 'STRING'"
+                }
+        };
+    }
+
+    @Test(description = "Test Ballerina.toml file with invalid or missing tool properties",
+            dataProvider = "ballerinaTomlWithInvalidEntries")
+    public void testBallerinaTomlWithMissingToolEntries(String tomlFileName, String assertMessage1,
+        String assertMessage2) throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve(tomlFileName));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(), assertMessage1);
+        Assert.assertEquals(iterator.next().message(), assertMessage2);
+    }
+
+    @Test(description = "Platform libs should be given as [[platform.java17.dependency]], " +
+            "Here checking error when it given as [platform.java17.dependency]")
+    public void testBallerinaTomlWithPlatformLibsGivenAsTable() throws IOException {
+        PackageManifest packageManifest =
+                getPackageManifest(BAL_TOML_REPO.resolve("platform-libs-as-table.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type for key 'dependency': expected 'ARRAY', found 'OBJECT'");
+        Assert.assertEquals(iterator.next().message(),
+                "existing node 'dependency'");
+    }
+
+    @Test(description = "Local dependencies should be given as [[dependency]], " +
+            "Here checking error when it given as [dependency]")
+    public void testBallerinaTomlWithLocalDependenciesGivenAsTable() throws IOException {
+        PackageManifest packageManifest =
+                getPackageManifest(BAL_TOML_REPO.resolve("local-dependencies-as-table-array.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type for key 'dependency': expected 'ARRAY', found 'OBJECT'");
+        Assert.assertEquals(iterator.next().message(),
+                "existing node 'dependency'");
     }
 
     @Test(enabled = false)
@@ -308,6 +412,23 @@ public class BallerinaTomlTests {
     }
 
     @Test
+    public void testPackageHasOrgAndNameWithInitialNumericCharacters() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("initial-numeric-chars-org-name.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(),
+                "invalid 'name' under [package]: 'name' cannot have initial numeric characters");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:7,1:20)");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'org' under [package]: 'org' cannot have initial numeric characters");
+    }
+
+    @Test
     public void testLangPackageHasNameWithConsecutiveUnderscores() throws IOException {
         PackageManifest packageManifest = getPackageManifest(
                 BAL_TOML_REPO.resolve("underscores-lang-package.toml"));
@@ -328,7 +449,7 @@ public class BallerinaTomlTests {
         DiagnosticResult diagnostics = packageManifest.diagnostics();
         Assert.assertTrue(diagnostics.hasErrors());
         Assert.assertEquals(diagnostics.errors().iterator().next().message(),
-                            "incompatible type for key 'java11': expected 'OBJECT', found 'ARRAY'");
+                            "incompatible type for key 'java17': expected 'OBJECT', found 'ARRAY'");
     }
 
     @Test(description = "Test Ballerina.toml having invalid types for entries in package and build options")
@@ -456,12 +577,59 @@ public class BallerinaTomlTests {
         Assert.assertTrue(packageManifest.diagnostics().hasErrors());
         Assert.assertEquals(packageManifest.diagnostics().diagnostics().size(), 1);
         Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
-        Assert.assertEquals(iterator.next().message(), "could not locate icon path '../sample.svg'");
+        Assert.assertEquals(iterator.next().message(), "could not locate icon path '../sample.png'");
+    }
+
+    @Test
+    public void testInvalidIconType() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("invalid-icon-type.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'icon' under [package]: 'icon' can only have 'png' images");
+    }
+
+    @Test
+    public void testValidTemplateValue() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("valid-template-ballerina.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().diagnostics().size(), 0);
+        Assert.assertTrue(packageManifest.template());
+    }
+
+    @Test(dataProvider = "provideInvalidTemplateValueToml")
+    public void testInvalidTemplateValue(String balToml, String diagnosticMessage) throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve(balToml));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(), diagnosticMessage);
+    }
+
+    @DataProvider(name = "provideInvalidTemplateValueToml")
+    public Object[][] provideInvalidTemplateValueToml() {
+        return new Object[][]{
+                {"invalid-template-value.toml",
+                        "incompatible type for key 'template': expected 'BOOLEAN', found 'STRING'"},
+                {"invalid-template-value-2.toml",
+                        "incompatible type for key 'template': expected 'BOOLEAN', found 'STRING'"},
+                {"invalid-template-value-3.toml",
+                        "incompatible type for key 'template': expected 'BOOLEAN', found 'INTEGER'"}
+        };
     }
 
     static PackageManifest getPackageManifest(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
         return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).packageManifest();
+    }
+
+    static BuildOptions getBuildOptions(Path tomlPath) throws IOException {
+        String tomlContent = Files.readString(tomlPath);
+        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
+        return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).buildOptions();
     }
 }

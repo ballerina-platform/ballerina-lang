@@ -21,6 +21,8 @@ package org.ballerinalang.test.types.readonly;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -36,7 +38,7 @@ public class ReadonlyArrayTest {
         result = BCompileUtil.compile("test-src/types/readonly/array_creation.bal");
     }
 
-    @Test(expectedExceptions = org.ballerinalang.core.util.exceptions.BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = ".*modification not allowed on readonly " +
                   "value.*", dataProvider = "arrayTests")
     public void testCreateArray(String funcName) {
@@ -46,5 +48,15 @@ public class ReadonlyArrayTest {
     @DataProvider(name = "arrayTests")
     public Object[] getFunctionNames() {
         return new String[]{"testIntArray", "testBooleanArray", "testByteArray", "testFloatArray", "testStringArray"};
+    }
+
+    @Test
+    public void testReadOnlyMappingWithOptionalNeverFieldArray() {
+        BRunUtil.invoke(result, "testReadOnlyMappingWithOptionalNeverFieldArray");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

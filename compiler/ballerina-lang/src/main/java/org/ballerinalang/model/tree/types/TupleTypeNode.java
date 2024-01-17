@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.tree.types;
 
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.List;
  */
 public interface TupleTypeNode {
 
+    List<? extends BLangSimpleVariable> getMemberNodes();
     List<? extends TypeNode> getMemberTypeNodes();
     BLangType getRestParamType();
 }

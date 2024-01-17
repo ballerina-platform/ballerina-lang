@@ -1,0 +1,4 @@
+digraph "example1" {
+    "asmaj/app:0.1.0" -> "asmaj/foo:0.6.0"
+    "asmaj/app:0.1.0" -> "ballerina/io:1.0.1"
+}

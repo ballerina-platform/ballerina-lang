@@ -1,7 +1,7 @@
 public function foo() {
     foreach string animal in animals {
         match
-    animal
+        animal
             {
             "Mouse" =>
             {
@@ -74,3 +74,9 @@ type Person record {
     Address
     ? addr;
 };
+
+final http:Client emailClientEndpoint = check new (emailServiceUrl,
+    secureSocket = {
+        enable: false
+    }
+);

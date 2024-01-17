@@ -1,0 +1,16 @@
+Compiling source
+	intg_tests/intersection_type:0.0.0
+
+Running Tests with Coverage
+
+	intersection_type
+		[pass] testIntersectionTypes
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	intersection-type-test\target\report\test_results.json
+

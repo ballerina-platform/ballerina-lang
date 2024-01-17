@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 1,
+    "character": 26
+  },
+  "source": "type_casts_in_langlib.bal",
+  "expected": [
+    {
+      "title": "Add type cast"
+    }
+  ]
+}

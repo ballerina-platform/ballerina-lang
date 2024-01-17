@@ -33,3 +33,18 @@ const map<string> m = { one: "hello", two: "world" };
 function testInvalidUpdate() {
     m["one"] += " world";
 }
+
+// Constant map with invalid field update via computed name field.
+const CONSTA = "a";
+const map<string> X = {a : "A", [CONSTA] : "B"};
+
+// Constant map with invalid cyclic reference.
+type A1 record {|
+    B1? b;
+|};
+
+const A1 B1 = {b : ()};
+
+const map<float>|map<decimal> mUnion1 = {a: 1, b: 2.0}; // Ambiguous type.
+const map<string>|map<boolean> mUnion2 = {a: 1, b: 2}; // Incompatible type.
+const int|float|string mUnion3 = {a: 1, b: 2}; // Incompatible type.

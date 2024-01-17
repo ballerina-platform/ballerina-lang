@@ -1,8 +1,8 @@
-import ballerina/io;
+import ballerina/iox;
 import ballerina/math;
 
 public function main() {
-    io:println("Hello, World!");
+    iox:println("Hello, World!");
 }
 
 # Prints PI value
@@ -13,13 +13,13 @@ public function print(int value) {
     float piValue = math:PI;
 
     // Use the explicit prefix `console` to invoke a function defined in the `ballerina/io` module.
-    io:println(piValue);
+    iox:println(piValue);
     if value == 0 {
-        io:println("Value cannot be zero.");
+        iox:println("Value cannot be zero.");
     } else if value < 0 {
-        io:println("Value cannot be negative.");
+        iox:println("Value cannot be negative.");
     } else {
-        io:println("Value is acceptable.");
+        iox:println("Value is acceptable.");
     }
 
     map<string> countryCapitals = {
@@ -28,12 +28,12 @@ public function print(int value) {
         "England": "London"
     };
     foreach var [country, capital] in countryCapitals.entries() {
-        io:println("Country: ", country, ", Capital: ", capital);
+        iox:println("Country: ", country, ", Capital: ", capital);
     }
 
     int[] numbers = [1, 3, 4, 7];
     while (numbers.length() > 0) {
-        io:println(numbers.pop());
+        iox:println(numbers.pop());
     }
 }
 
@@ -48,7 +48,7 @@ function miscellaneous() {
         check print(12);
         var res = commit;
     } on fail error er {
-        io:println("Error caught during printing: ", er);
+        iox:println("Error caught during printing: ", er);
         rollback;
         fail invalidAccoundIdError;
     }
@@ -70,14 +70,14 @@ function miscellaneous() {
      }
 
      retry(3) {
-         io:println("Attempting execution...");
+         iox:println("Attempting execution...");
          check print();
      }
 
      do {
          print(1);
      } on fail Error e {
-         io:println("Error caught: ", e.message());
+         iox:println("Error caught: ", e.message());
      }
 
      lock {

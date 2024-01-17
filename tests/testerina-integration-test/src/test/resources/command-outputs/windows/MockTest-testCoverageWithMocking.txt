@@ -1,0 +1,26 @@
+Compiling source
+	intg_tests/mocking_coverage:0.0.0
+
+Running Tests with Coverage
+
+	mocking_coverage.mod2
+		[pass] testFloatAdd
+		[pass] testStringAdd
+
+
+		2 passing
+		0 failing
+		0 skipped
+
+	mocking_coverage
+		[pass] testFloatAdd
+		[pass] testStringAdd
+
+
+		2 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	mocking-coverage-tests\target\report\test_results.json
+

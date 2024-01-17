@@ -35,7 +35,7 @@ public class CleanTargetCacheDirTask implements Task {
     @Override
     public void execute(Project project) {
         try {
-            Target target = new Target(project.sourceRoot());
+            Target target = new Target(project.targetDir());
             target.cleanCache();
         } catch (IOException | ProjectException e) {
             throw createLauncherException("unable to clean the target cache directory: " + e.getMessage());

@@ -40,5 +40,7 @@ function test(any val) {
         _ => {
             any f = val;
         }
+    } on fail error err {
+        error errRef = err;
     }
 }

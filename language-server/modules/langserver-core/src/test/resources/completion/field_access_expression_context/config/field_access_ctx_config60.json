@@ -1,0 +1,33 @@
+{
+  "position": {
+    "line": 13,
+    "character": 16
+  },
+  "source": "field_access_expression_context/source/field_access_ctx_source60.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "target",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "AA",
+      "insertText": "target",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "doSomething()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "doSomething",
+      "insertText": "doSomething()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

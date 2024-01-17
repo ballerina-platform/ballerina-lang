@@ -49,19 +49,19 @@ public class TestTarget {
         // 2) Load the package
         Package currentPackage = project.currentPackage();
 
-        Target projectTarget = new Target(project.sourceRoot());
+        Target projectTarget = new Target(project.targetDir());
         Path balaCachePath = projectTarget.getBalaPath();
         Path birCachePath = projectTarget.getBirCachePath();
         Path jarCachePath = projectTarget.getJarCachePath();
         Path executablePath = projectTarget.getExecutablePath(currentPackage);
 
         Assert.assertEquals(balaCachePath.toString(),
-                projectPath.resolve("target").resolve("bala").toString());
+                project.targetDir().resolve("bala").toString());
         Assert.assertEquals(birCachePath.toString(),
-                projectPath.resolve("target").resolve("cache").resolve("bir_cache").toString());
+                project.targetDir().resolve("cache").resolve("bir_cache").toString());
         Assert.assertEquals(jarCachePath.toString(),
-                projectPath.resolve("target").resolve("cache").resolve("jar_cache").toString());
+                project.targetDir().resolve("cache").resolve("jar_cache").toString());
         Assert.assertEquals(executablePath.toString(),
-                projectPath.resolve("target").resolve("bin").resolve("myproject.jar").toString());
+                project.targetDir().resolve("bin").resolve("myproject.jar").toString());
     }
 }

@@ -35,7 +35,10 @@ import java.util.StringJoiner;
  */
 public class BLangBlockFunctionBody extends BLangFunctionBody implements BlockFunctionBodyNode {
 
+    // BLangNodes
     public List<BLangStatement> stmts;
+
+    // Semantic Data
     public BVarSymbol mapSymbol;
 
     public BLangBlockFunctionBody() {
@@ -55,6 +58,16 @@ public class BLangBlockFunctionBody extends BLangFunctionBody implements BlockFu
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

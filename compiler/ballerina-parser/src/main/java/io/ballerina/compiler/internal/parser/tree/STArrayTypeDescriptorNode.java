@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -32,69 +32,49 @@ import java.util.Collections;
  */
 public class STArrayTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode memberTypeDesc;
-    public final STNode openBracket;
-    public final STNode arrayLength;
-    public final STNode closeBracket;
+    public final STNode dimensions;
 
     STArrayTypeDescriptorNode(
             STNode memberTypeDesc,
-            STNode openBracket,
-            STNode arrayLength,
-            STNode closeBracket) {
+            STNode dimensions) {
         this(
                 memberTypeDesc,
-                openBracket,
-                arrayLength,
-                closeBracket,
+                dimensions,
                 Collections.emptyList());
     }
 
     STArrayTypeDescriptorNode(
             STNode memberTypeDesc,
-            STNode openBracket,
-            STNode arrayLength,
-            STNode closeBracket,
+            STNode dimensions,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.ARRAY_TYPE_DESC, diagnostics);
         this.memberTypeDesc = memberTypeDesc;
-        this.openBracket = openBracket;
-        this.arrayLength = arrayLength;
-        this.closeBracket = closeBracket;
+        this.dimensions = dimensions;
 
         addChildren(
                 memberTypeDesc,
-                openBracket,
-                arrayLength,
-                closeBracket);
+                dimensions);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STArrayTypeDescriptorNode(
                 this.memberTypeDesc,
-                this.openBracket,
-                this.arrayLength,
-                this.closeBracket,
+                this.dimensions,
                 diagnostics);
     }
 
     public STArrayTypeDescriptorNode modify(
             STNode memberTypeDesc,
-            STNode openBracket,
-            STNode arrayLength,
-            STNode closeBracket) {
+            STNode dimensions) {
         if (checkForReferenceEquality(
                 memberTypeDesc,
-                openBracket,
-                arrayLength,
-                closeBracket)) {
+                dimensions)) {
             return this;
         }
 
         return new STArrayTypeDescriptorNode(
                 memberTypeDesc,
-                openBracket,
-                arrayLength,
-                closeBracket,
+                dimensions,
                 diagnostics);
     }
 

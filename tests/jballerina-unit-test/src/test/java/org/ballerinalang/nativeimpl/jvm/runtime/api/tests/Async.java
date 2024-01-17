@@ -24,10 +24,12 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BServiceType;
 
 /**
@@ -36,6 +38,50 @@ import io.ballerina.runtime.internal.types.BServiceType;
  * @since 2.0.0
  */
 public class Async {
+
+    public static long getFieldValWithNoArgs(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithNoArgs");
+        return 0;
+    }
+
+    public static long getFieldValWithRequiredArg(Environment env, BObject obj, long num) {
+        invokeMethodAsyncConcurrently(env, obj, "getFieldValWithRequiredArg", num, true);
+        return 0;
+    }
+
+    public static long getFieldValWithOptionalArgDefaultVal(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithOptionalArg", StringUtils.fromString("any value here"),
+                false);
+        return 0;
+    }
+
+    public static long getFieldValWithMultipleOptionalArgsDefaultVal(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithMultipleOptionalArgs", 0, false, 0, false, 0, false);
+        return 0;
+    }
+
+    public static long getFieldValWithMultipleOptionalArgsDefaultValAsync(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithMultipleOptionalArgsAsync", 0, false, 0, false, 0,
+                false);
+        return 0;
+    }
+
+    public static long getFieldValWithProvidedOptionalArgVal(Environment env, BObject obj, BString fieldName) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithOptionalArg", fieldName, true);
+        return 0;
+    }
+
+    public static long getFieldValWithDefaultValSpecialChars(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithDefaultValSpecialChars", 0, false, 0, false, 0,
+                false);
+        return 0;
+    }
+
+    public static long getFieldValWithDefaultValSpecialCharsAsync(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithDefaultValSpecialCharsAsync", 0, false, 0, false, 0,
+                false);
+        return 0;
+    }
 
     public static long getA(Environment env, BObject obj) {
         invokeAsync(env, obj, "getA");
@@ -53,11 +99,16 @@ public class Async {
     }
 
     public static boolean isolatedClassIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((ObjectType) obj.getType()).isIsolated();
     }
 
     public static boolean isolatedClassIsIsolatedFunction(BObject obj) {
         return isRemoteMethodIsolated(obj);
+    }
+
+    public static boolean isIsolatedFunctionWithName(BObject obj, BString method) {
+        ObjectType objectType = obj.getType();
+        return objectType.isIsolated() && objectType.isIsolated(method.getValue());
     }
 
     public static long nonIsolatedGetA(Environment env, BObject obj) {
@@ -76,7 +127,7 @@ public class Async {
     }
 
     public static boolean nonIsolatedClassIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((ObjectType) obj.getType()).isIsolated();
     }
 
     public static boolean nonIsolatedClassIsIsolatedFunction(BObject obj) {
@@ -89,7 +140,7 @@ public class Async {
     }
 
     public static boolean isolatedServiceIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((ObjectType) obj.getType()).isIsolated();
     }
 
     public static boolean isolatedServiceIsIsolatedFunction(BObject obj) {
@@ -102,7 +153,7 @@ public class Async {
     }
 
     public static boolean nonIsolatedServiceIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((ObjectType) obj.getType()).isIsolated();
     }
 
     public static boolean nonIsolatedServiceIsIsolatedFunction(BObject obj) {
@@ -154,7 +205,7 @@ public class Async {
         return 0;
     }
 
-    private static void invokeMethodAsyncSequentially(Environment env, BObject obj, String methodName) {
+    private static void invokeMethodAsyncSequentially(Environment env, BObject obj, String methodName, Object... args) {
         Future future = env.markAsync();
         BFuture bFuture = env.getRuntime().invokeMethodAsyncSequentially(obj, methodName, null, null, new Callback() {
             @Override
@@ -166,10 +217,10 @@ public class Async {
             public void notifyFailure(BError error) {
                 future.complete(error);
             }
-        }, null, PredefinedTypes.TYPE_INT);
+        }, null, PredefinedTypes.TYPE_INT, args);
     }
 
-    private static void invokeMethodAsyncConcurrently(Environment env, BObject obj, String methodName) {
+    private static void invokeMethodAsyncConcurrently(Environment env, BObject obj, String methodName, Object... args) {
         Future future = env.markAsync();
         BFuture bFuture = env.getRuntime().invokeMethodAsyncConcurrently(obj, methodName, null, null, new Callback() {
             @Override
@@ -181,7 +232,7 @@ public class Async {
             public void notifyFailure(BError error) {
                 future.complete(error);
             }
-        }, null, PredefinedTypes.TYPE_INT);
+        }, null, PredefinedTypes.TYPE_INT, args);
     }
 
     private static void invokeAsync(Environment env, BObject obj, String methodName) {
@@ -210,7 +261,7 @@ public class Async {
     }
 
     private static boolean isRemoteMethodIsolated(BObject obj) {
-        MethodType[] methods = obj.getType().getMethods();
+        MethodType[] methods = ((ObjectType) obj.getType()).getMethods();
         for (MethodType method : methods) {
             if (method.getName().equals("getA")) {
                 return method.isIsolated();

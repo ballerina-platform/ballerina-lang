@@ -36,10 +36,19 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "INT_TYPE_DESC",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "INT_KEYWORD"
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "INT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "INT_KEYWORD"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -53,10 +62,19 @@
                               ]
                             },
                             {
-                              "kind": "FLOAT_TYPE_DESC",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "FLOAT_KEYWORD"
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "FLOAT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "FLOAT_KEYWORD"
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -68,20 +86,32 @@
                       ]
                     },
                     {
-                      "kind": "OPEN_BRACKET_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "CLOSE_BRACKET_TOKEN",
-                      "isMissing": true,
+                      "kind": "LIST",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+                      "children": [
+                        {
+                          "kind": "ARRAY_DIMENSION",
+                          "hasDiagnostics": true,
+                          "children": [
+                            {
+                              "kind": "OPEN_BRACKET_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_BRACKET_TOKEN",
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+                              ]
+                            }
+                          ]
+                        }
                       ]
                     }
                   ]

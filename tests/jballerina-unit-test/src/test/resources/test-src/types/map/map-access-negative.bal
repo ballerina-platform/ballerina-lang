@@ -8,9 +8,9 @@ function accessUninitMap() {
     map<int> ints;
     ints["0"] = 0;
 
-    map<int> m1 = getUninitializedMap11(ints);
+    map<int> _ = getUninitializedMap11(ints);
 
-    map<int> m2 = getUninitializedMap21();
+    map<int> _ = getUninitializedMap21();
 }
 
 

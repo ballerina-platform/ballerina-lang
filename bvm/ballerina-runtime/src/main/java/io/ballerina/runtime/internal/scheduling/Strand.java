@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -32,6 +33,7 @@ import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +48,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.CURRENT_TRANSACTION_CONTEXT_PROPERTY;
 import static io.ballerina.runtime.internal.scheduling.State.BLOCK_AND_YIELD;
 import static io.ballerina.runtime.internal.scheduling.State.BLOCK_ON_AND_YIELD;
+import static io.ballerina.runtime.internal.scheduling.State.DONE;
 import static io.ballerina.runtime.internal.scheduling.State.RUNNABLE;
 import static io.ballerina.runtime.internal.scheduling.State.YIELD;
 
@@ -54,17 +57,17 @@ import static io.ballerina.runtime.internal.scheduling.State.YIELD;
  *
  * @since 0.955.0
  */
-
 public class Strand {
 
-    private static AtomicInteger nextStrandId = new AtomicInteger(0);
+    private static final AtomicInteger nextStrandId = new AtomicInteger(0);
 
-    private int id;
-    private String name;
-    private StrandMetadata metadata;
+    private final int id;
+    private final String name;
+    private final StrandMetadata metadata;
 
-    public Object[] frames;
+    public Stack<FunctionFrame> frames;
     public int resumeIndex;
+    public int functionInvocation;
     public Object returnValue;
     public BError panic;
     public Scheduler scheduler;
@@ -75,6 +78,7 @@ public class Strand {
     public Set<ChannelDetails> channelDetails;
     public Set<SchedulerItem> dependants;
     public boolean cancel;
+    public int acquiredLockCount;
 
     SchedulerItem schedulerItem;
     List<WaitContext> waitingContexts;
@@ -105,36 +109,46 @@ public class Strand {
         //TODO: improve by using a copy on write map #26710
         if (properties != null) {
             this.globalProps = properties;
-            Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
-            if (currentContext != null) {
-                TransactionLocalContext branchedContext =
-                        createTrxContextBranch((TransactionLocalContext) currentContext, name);
-                setCurrentTransactionContext(branchedContext);
-            }
         } else if (parent != null) {
             this.globalProps = new HashMap<>(parent.globalProps);
         } else {
             this.globalProps = new HashMap<>();
         }
     }
-
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
                   Map<String, Object> properties, TransactionLocalContext currentTrxContext) {
         this(name, metadata, scheduler, parent, properties);
         if (currentTrxContext != null) {
             this.trxContexts = parent.trxContexts;
             this.trxContexts.push(currentTrxContext);
-            this.currentTrxContext = createTrxContextBranch(currentTrxContext, name);
+            this.currentTrxContext = currentTrxContext;
+        } else {
+            Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
+            if (currentContext != null) {
+                TransactionLocalContext branchedContext =
+                        createTrxContextBranch((TransactionLocalContext) currentContext, this.id);
+                setCurrentTransactionContext(branchedContext);
+            }
         }
     }
+
+    public static int getCreatedStrandCount() {
+        return nextStrandId.get();
+    }
+
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
-                                                           String strandName) {
+                                                           int strandName) {
         TransactionLocalContext trxCtx = TransactionLocalContext
                 .createTransactionParticipantLocalCtx(currentTrxContext.getGlobalTransactionId(),
                         currentTrxContext.getURL(), currentTrxContext.getProtocol(),
                         currentTrxContext.getInfoRecord());
         String currentTrxBlockId = currentTrxContext.getCurrentTransactionBlockId();
+        if (currentTrxBlockId.contains("_")) {
+            // remove the parent strand id from the transaction block id
+            currentTrxBlockId = currentTrxBlockId.split("_")[0];
+        }
         trxCtx.addCurrentTransactionBlockId(currentTrxBlockId + "_" + strandName);
+        trxCtx.setTransactionContextStore(currentTrxContext.getTransactionContextStore());
         return trxCtx;
     }
 
@@ -151,19 +165,10 @@ public class Strand {
         }
     }
 
-    /**
-     * @deprecated use Environment#getStrandLocal()
-     */
-    @Deprecated
     public Object getProperty(String key) {
         return this.globalProps.get(key);
     }
 
-    /**
-     *
-     * @deprecated use Environment#setStrandLocal()
-     */
-    @Deprecated
     public void setProperty(String key, Object value) {
         this.globalProps.put(key, value);
     }
@@ -180,8 +185,10 @@ public class Strand {
     public void removeCurrentTrxContext() {
         if (!this.trxContexts.isEmpty()) {
             this.currentTrxContext = this.trxContexts.pop();
+            globalProps.put(CURRENT_TRANSACTION_CONTEXT_PROPERTY, this.currentTrxContext);
             return;
         }
+        globalProps.remove(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
         this.currentTrxContext = null;
     }
 
@@ -237,9 +244,11 @@ public class Strand {
         this.flushDetail.inProgress = false;
         this.flushDetail.flushedCount = 0;
         this.flushDetail.result = null;
+        this.flushDetail.flushLock.unlock();
         for (ChannelDetails channel : channels) {
             getWorkerDataChannel(channel).removeFlushWait();
         }
+        this.flushDetail.flushLock.lock();
     }
 
     public void handleWaitMultiple(Map<String, FutureValue> keyValues, MapValue<BString, Object> target)
@@ -397,6 +406,10 @@ public class Strand {
         return id;
     }
 
+    public ItemGroup getStrandGroup() {
+        return strandGroup;
+    }
+
     /**
      * Gets the strand name. This will be optional. Strand name can be either name given in strand annotation or async
      * call or function pointer variable name.
@@ -414,6 +427,76 @@ public class Strand {
      */
     public StrandMetadata getMetadata() {
         return metadata;
+    }
+
+    public String dumpState() {
+        StringBuilder strandInfo = new StringBuilder("\tstrand " + this.id);
+        if (this.name != null && this.getName().isPresent()) {
+            strandInfo.append(" \"").append(this.getName().get()).append("\"");
+        }
+
+        strandInfo.append(" [");
+        StrandMetadata strandMetadata = this.metadata;
+        if (strandMetadata == null) {
+            strandInfo.append("N/A");
+        } else {
+            strandInfo.append(strandMetadata.getModuleOrg()).append(".").append(strandMetadata.getModuleName())
+                    .append(".").append(strandMetadata.getModuleVersion()).append(":")
+                    .append(strandMetadata.getParentFunctionName());
+        }
+        if (this.parent != null) {
+            strandInfo.append("][").append(this.parent.getId());
+        }
+        strandInfo.append("] [");
+
+        String closingBracketWithNewLines = "]\n\n";
+        if (this.isYielded()) {
+            getInfoFromYieldedState(strandInfo, closingBracketWithNewLines);
+        } else if (this.getState().equals(DONE)) {
+            strandInfo.append(DONE).append(closingBracketWithNewLines);
+        } else {
+            strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
+        }
+
+        return strandInfo.toString();
+    }
+
+    private void getInfoFromYieldedState(StringBuilder strandInfo, String closingBracketWithNewLines) {
+        Stack<FunctionFrame> strandFrames = this.frames;
+        if ((strandFrames == null) || (strandFrames.isEmpty())) {
+            // this means the strand frames is changed, hence the state is runnable
+            strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
+            return;
+        }
+
+        StringBuilder frameStackTrace = new StringBuilder();
+        String stringPrefix = "\t\tat\t";
+        String yieldStatus = "BLOCKED";
+        boolean noPickedYieldStatus = true;
+        try {
+            for (FunctionFrame frame : strandFrames) {
+                if (noPickedYieldStatus) {
+                    yieldStatus = frame.yieldStatus;
+                    noPickedYieldStatus = false;
+                }
+                String yieldLocation = frame.yieldLocation;
+                frameStackTrace.append(stringPrefix).append(yieldLocation);
+                frameStackTrace.append("\n");
+                stringPrefix = "\t\t  \t";
+            }
+        } catch (ConcurrentModificationException ce) {
+            // this exception can be thrown when frames get added or removed while it is being iterated
+            // that means now the strand state is changed from yielded state to runnable state
+            strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
+            return;
+        }
+        if (!this.isYielded() || noPickedYieldStatus) {
+            // if frames have got empty, noPickedYieldStatus is true, then the state has changed to runnable
+            strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
+            return;
+        }
+        strandInfo.append(yieldStatus).append("]:\n");
+        strandInfo.append(frameStackTrace).append("\n");
     }
 
     /**

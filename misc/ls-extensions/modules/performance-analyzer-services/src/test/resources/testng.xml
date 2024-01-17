@@ -20,7 +20,7 @@ under the License.
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="performance-analyzer-test-suite">
-    <test name="get-endpoints-test" parallel="false">
+    <test name="get-endpoints-test">
         <classes>
             <class name="io.ballerina.PerformanceAnalyzerTest"/>
         </classes>

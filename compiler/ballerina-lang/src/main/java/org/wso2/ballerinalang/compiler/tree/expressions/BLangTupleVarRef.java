@@ -23,6 +23,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TupleVariableReferenceNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -36,18 +38,21 @@ import java.util.stream.Collectors;
  */
 public class BLangTupleVarRef extends BLangVariableReference implements TupleVariableReferenceNode {
 
-    public BVarSymbol varSymbol;
-    public BLangIdentifier pkgAlias;
+    // BLangNodes
     public List<BLangExpression> expressions;
-    public ExpressionNode restParam;
+    public BLangExpression restParam;
+
+    // Semantic Data
+    public BVarSymbol varSymbol;
 
     public BLangTupleVarRef() {
         this.expressions = new ArrayList<>();
     }
 
     @Override
+    @Deprecated
     public BLangIdentifier getPackageAlias() {
-        return pkgAlias;
+        return null;
     }
 
     @Override
@@ -63,12 +68,22 @@ public class BLangTupleVarRef extends BLangVariableReference implements TupleVar
     @Override
     public String toString() {
         return "[" + expressions.stream().map(ExpressionNode::toString).collect(Collectors.joining(","))
-                + ((restParam != null) ? ", ..." + restParam.toString() + "]" : "]");
+                + ((restParam != null) ? ", ..." + restParam + "]" : "]");
     }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

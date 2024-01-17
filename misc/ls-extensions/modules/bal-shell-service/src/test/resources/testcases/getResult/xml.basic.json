@@ -1,0 +1,117 @@
+[
+  {
+    "source": "xml xml1 = xml `<book>The Lost World</book>`;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["xml1"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xml1",
+    "result": {
+      "shellValue": {
+        "value":"\u003cbook\u003eThe Lost World\u003c/book\u003e",
+        "mimeType":"ballerina-notebook/xml-view",
+        "type":"lang.xml:Element"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xml xml2 = xml `Hello, world!`;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["xml2"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xml2",
+    "result": {
+      "shellValue": {
+        "value":"Hello, world!",
+        "mimeType":"ballerina-notebook/xml-view",
+        "type":"lang.xml:Text"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xml xml3 = xml `<!--I am a comment-->`;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["xml3"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xml3",
+    "result": {
+      "shellValue": {
+        "value":"\u003c!--I am a comment--\u003e",
+        "mimeType":"ballerina-notebook/xml-view",
+        "type":"lang.xml:Comment"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xml xml4 = xml `<?target data?>`;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["xml4"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xml4",
+    "result": {
+      "shellValue": {
+        "value":"\u003c?target data?\u003e",
+        "mimeType":"ballerina-notebook/xml-view",
+        "type":"lang.xml:ProcessingInstruction"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xml xml5 = xml1 + xml2 + xml3 + xml4;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["xml5"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xml5",
+    "result": {
+      "shellValue": {
+        "value":"\u003cbook\u003eThe Lost World\u003c/book\u003eHello, world!\u003c!--I am a comment--\u003e\u003c?target data?\u003e",
+        "mimeType":"ballerina-notebook/xml-view",
+        "type":"xml\u003c(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)\u003e"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

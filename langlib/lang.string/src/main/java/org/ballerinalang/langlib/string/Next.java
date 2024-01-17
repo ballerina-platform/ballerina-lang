@@ -47,7 +47,7 @@ public class Next {
         if (charIterator.hasNext()) {
             Object element = StringUtils.fromString((String) charIterator.next());
             return ValueCreator
-                    .createRecordValue(ValueCreator.createMapValue(PredefinedTypes.STRING_ITR_NEXT_RETURN_TYPE),
+                    .createRecordValue(ValueCreator.createRecordValue(PredefinedTypes.STRING_ITR_NEXT_RETURN_TYPE),
                             element);
         }
         return null;

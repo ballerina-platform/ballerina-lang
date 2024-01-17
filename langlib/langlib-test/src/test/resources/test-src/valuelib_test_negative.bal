@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jballerina.java;
 import ballerina/lang.'value as value;
 
 function testCyclicCloneableTypeWithAny() {
@@ -38,4 +39,18 @@ type Person record {
 function testEnsureTypeFunction() returns error? {
     Person p = {name: 12};
     int age = check p.name;
+}
+
+type RecordWithHandleField record {|
+    int i;
+    handle h;
+|};
+
+function testToJsonConversionError() {
+    table<RecordWithHandleField> tb = table [
+         {i: 12, h: java:fromString("pqr")},
+         {i: 34, h: java:fromString("pqr")}
+   ];
+
+   json _ = tb.toJson();
 }

@@ -164,6 +164,165 @@ function testDecimalFillerValue() {
     assertEquality(true, a == b);
 }
 
+function testDecimalZeroOperations() {
+    decimal result = 1.2 + 0;
+    assertEquality(1.2d, result);
+
+    result = 0 - 0;
+    assertEquality(0d, result);
+
+    result = 0 - 22;
+    assertEquality(-22d, result);
+
+    result = 22 - 0;
+    assertEquality(22d, result);
+
+    result = 0 * 0;
+    assertEquality(0d, result);
+
+    result = 0 * 1.2;
+    assertEquality(0d, result);
+
+    result = 1.2 * 0;
+    assertEquality(0d, result);
+
+    result = 0 / 1.2;
+    assertEquality(0d, result);
+
+    result = 0;
+    result = - result;
+    assertEquality(0d, result);
+
+    decimal|error d2 = trap 12d / 0d;
+    assertEquality(true, d2 is error);
+    error err = <error>d2;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value 'Infinity'", messageString);
+
+    decimal d1 = 0.0;
+    d2 = trap d1 / 0d;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value 'NaN'", messageString);
+
+    d2 = trap -1.0d / d1;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value '-Infinity'", messageString);
+
+    d2 = trap 1.0d / d1;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value 'Infinity'", messageString);
+
+    d2 = trap 1.0d % d1;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value 'NaN'", messageString);
+
+    float inf = 1.0 / 0.0;
+    d2 = trap <decimal>inf;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value 'Infinity'", messageString);
+
+    float negInf = -1.0 / 0.0;
+    d2 = trap <decimal>negInf;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value '-Infinity'", messageString);
+
+    float nan1 = 0.0 / 0.0;
+    d2 = trap <decimal>nan1;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value 'NaN'", messageString);
+}
+
+function testDecimalValueWithExponent() {
+    decimal a1 = 9.99E+6111;
+    decimal a2 = <decimal>9.99E+6111;
+
+    assertEquality(true, a1 == a2);
+}
+
+function testDecimalValUsingIntLiterals() {
+    decimal result = 10000000000000000123;
+    assertEquality("1.0E+19", result.toString());
+
+    result = 9223372036854775808;
+    assertEquality("9.223372036854776E+18", result.toString());
+
+    result = 922337203685477580883748874792939797987937145676734655623565776478378749283472394;
+    assertEquality("9.223372036854776E+80", result.toString());
+}
+
+public type Seconds decimal;
+public type SecondsOrNil Seconds?;
+
+function testDecimalTypeRef() {
+    Seconds? sec1 = 10;
+    assertEquality(sec1 is decimal, true);
+
+    SecondsOrNil sec2 = 11;
+    assertEquality(sec2 is decimal, true);
+}
+
+function testDecimalValueOverflow() {
+    decimal|error d = trap 9.999999999999999999999999999999999E6001d * 1E145d;
+    assertEquality(true, d is error);
+    error err = <error> d;
+    assertEquality("{ballerina}NumberOverflow", err.message());
+    assertEquality("decimal range overflow", checkpanic <string|error> err.detail()["message"]);
+
+    d = trap -9.999999999999999999999999999999999E6141d * 1E5d;
+    assertEquality(true, d is error);
+    err = <error> d;
+    assertEquality("{ballerina}NumberOverflow", err.message());
+    assertEquality("decimal range overflow", checkpanic <string|error> err.detail()["message"]);
+
+    d = trap 9.999999999999999999999999999999999E6144d + 1E6143d;
+    assertEquality(true, d is error);
+    err = <error> d;
+    assertEquality("{ballerina}NumberOverflow", err.message());
+    assertEquality("decimal range overflow", checkpanic <string|error> err.detail()["message"]);
+
+    d = trap -1E6144d - 9.999999999999999999999999999999999E6144d;
+    assertEquality(true, d is error);
+    err = <error> d;
+    assertEquality("{ballerina}NumberOverflow", err.message());
+    assertEquality("decimal range overflow", checkpanic <string|error> err.detail()["message"]);
+
+    d = trap 1E614d / 2E-5800d;
+    assertEquality(true, d is error);
+    err = <error> d;
+    assertEquality("{ballerina}NumberOverflow", err.message());
+    assertEquality("decimal range overflow", checkpanic <string|error> err.detail()["message"]);
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

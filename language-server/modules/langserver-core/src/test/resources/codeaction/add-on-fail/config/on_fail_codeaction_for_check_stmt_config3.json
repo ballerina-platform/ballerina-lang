@@ -1,9 +1,13 @@
 {
-  "line": 2,
-  "character": 16,
+  "position": {
+    "line": 2,
+    "character": 16
+  },
+  "source": "on_fail_codeaction_for_check_stmt_source3.bal",
   "expected": [
     {
       "title": "Create on fail clause",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

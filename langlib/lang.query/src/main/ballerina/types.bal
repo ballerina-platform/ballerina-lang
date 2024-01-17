@@ -77,20 +77,24 @@ class _StreamPipeline {
     _StreamFunction streamFunction;
     typedesc<Type> constraintTd;
     typedesc<CompletionType> completionTd;
+    boolean isLazyLoading;
 
     function init(
-            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection,
-            typedesc<Type> constraintTd, typedesc<CompletionType> completionTd) {
+            Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
+            typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading) {
         self.streamFunction = new _InitFunction(collection);
         self.constraintTd = constraintTd;
         self.completionTd = completionTd;
+        self.isLazyLoading = isLazyLoading;
     }
 
     public isolated function next() returns _Frame|error? {
         _StreamFunction sf = self.streamFunction;
-        var func = sf.process;
-        var res = func();
+        var res = internal:invokeAsExternal(sf.process);
         if (res is _Frame|error) {
+            if (self.isLazyLoading && (res is QueryErrorTypes)) {
+                return getQueryErrorRootCause(res);
+            }
             return res;
         }
     }
@@ -106,7 +110,7 @@ class _StreamPipeline {
         self.streamFunction = streamFunction;
     }
 
-    public function getStream() returns stream <Type,CompletionType> {
+    public function getStream() returns stream<Type, CompletionType> {
         IterHelper itrObj = new (self, self.constraintTd);
         var strm = internal:construct(self.constraintTd, self.completionTd, itrObj);
         return strm;
@@ -117,10 +121,10 @@ class _InitFunction {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
-    Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection;
+    Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection;
 
     function init(
-            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection) {
+            Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection) {
         self.prevFunc = ();
         self.itr = ();
         self.collection = collection;
@@ -131,8 +135,10 @@ class _InitFunction {
         _Iterator i = <_Iterator>self.itr;
         record {|(any|error) value;|}|error? v = i.next();
         if (v is record {|(any|error) value;|}) {
-            record {|(any|error)...;|} _frame = {...v};
+            record {|(any|error)...; |} _frame = {...v};
             return _frame;
+        } else if(v is error) {
+            return prepareCompleteEarlyError(v);
         }
         return v;
     }
@@ -146,7 +152,7 @@ class _InitFunction {
     }
 
     function _getIterator(
-            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection)
+            Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection)
                 returns _Iterator {
         if (collection is Type[]) {
             return lang_array:iterator(collection);
@@ -191,6 +197,9 @@ class _InputFunction {
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
+            if(cFrame is error) {
+                return prepareQueryBodyError(cFrame);
+            }
             return cFrame;
         }
         return pFrame;
@@ -235,6 +244,8 @@ class _NestedFromFunction {
                 if (collection is any) {
                     itr = self._getIterator(collection);
                     self.itr = itr;
+                } else if (collection is error) {
+                    return prepareQueryBodyError(collection);
                 }
             }
         }
@@ -247,7 +258,7 @@ class _NestedFromFunction {
                 }
                 return _frame;
             } else if (v is error) {
-                return v;
+                return prepareCompleteEarlyError(v);
             } else {
                 // Move to next frame
                 self.currentFrame = ();
@@ -282,7 +293,7 @@ class _NestedFromFunction {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
             return collection.iterator();
-        } else if (collection is stream <Type,CompletionType>) {
+        } else if (collection is stream<Type, CompletionType>) {
             return lang_stream:iterator(collection);
         }
         panic error("Unsuppored collection", message = "unsuppored collection type.");
@@ -308,6 +319,9 @@ class _LetFunction {
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
+            if (cFrame is error) {
+                return prepareQueryBodyError(cFrame);
+            }
             return cFrame;
         }
         return pFrame;
@@ -323,25 +337,34 @@ class _LetFunction {
 
 class _InnerJoinFunction {
     *_StreamFunction;
-    function (_Frame _frame) returns any lhsKeyFunction;
-    function (_Frame _frame) returns any rhsKeyFunction;
+    function (_Frame _frame) returns any|error lhsKeyFunction;
+    function (_Frame _frame) returns any|error rhsKeyFunction;
     _FrameMultiMap rhsFramesMap = new;
-    _Frame[]? rhsCandidates;
-    _Frame|error? lhsFrame;
+    error? failureAtJoin = ();
+    stream<_Frame>? joinedFramesStream;
 
     function init(
             _StreamPipeline pipelineToJoin,
-            function (_Frame _frame) returns any lhsKeyFunction,
-            function (_Frame _frame) returns any rhsKeyFunction) {
+            function (_Frame _frame) returns any|error lhsKeyFunction,
+            function (_Frame _frame) returns any|error rhsKeyFunction) {
         self.lhsKeyFunction = lhsKeyFunction;
         self.rhsKeyFunction = rhsKeyFunction;
-        self.rhsCandidates = ();
         self.prevFunc = ();
-        self.lhsFrame = ();
+        self.joinedFramesStream = ();
+
         _Frame|error? f = pipelineToJoin.next();
         while (f is _Frame) {
-            self.rhsFramesMap.put(rhsKeyFunction(f).toString(), f);
-            f = pipelineToJoin.next();
+            any|error rhsKeyFuncResult = rhsKeyFunction(f);
+            if rhsKeyFuncResult is error {
+                self.failureAtJoin = prepareQueryBodyError(rhsKeyFuncResult);
+                return;
+            } else {
+                self.rhsFramesMap.put(rhsKeyFuncResult.toString(), f);
+                f = pipelineToJoin.next();
+            }
+        }
+        if (f is error) {
+            self.failureAtJoin = f;
         }
     }
 
@@ -350,46 +373,48 @@ class _InnerJoinFunction {
     # join var ... in streamA join var ... in streamB
     # + return - merged two frames { ...frameA, ...frameB }
     public function process() returns _Frame|error? {
-        function (_Frame _frame) returns any lhsKF = self.lhsKeyFunction;
-        _StreamFunction pf = <_StreamFunction>self.prevFunc;
-         _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
-        _Frame[]? rhsCandidates = self.rhsCandidates;
-        _Frame|error? lhsFrame = self.lhsFrame;
-        string lhsKey = "";
+        if (self.joinedFramesStream is ()) {
+            function (_Frame _frame) returns any|error lhsKF = self.lhsKeyFunction;
+            _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
+            _StreamFunction pf = <_StreamFunction>self.prevFunc;
+            _Frame|error? lhsFrame = pf.process();
+            _Frame[] joinedFrames = [];
+            error? failureAtJoin = self.failureAtJoin;
 
-        if (lhsFrame is ()) {
-            lhsFrame = pf.process();
-            self.lhsFrame = lhsFrame;
-        }
-
-        if (lhsFrame is _Frame) {
-            lhsKey = lhsKF(lhsFrame).toString();
-            if (rhsCandidates is ()) {
-                rhsCandidates = rhsFramesMap.get(lhsKey);
-                self.rhsCandidates = rhsCandidates;
+            if (failureAtJoin is error) {
+                fail failureAtJoin;
             }
-            if (rhsCandidates is _Frame[] && rhsCandidates.length() > 0) {
-                _Frame rhsFrame = rhsCandidates.shift();
-                self.rhsCandidates = rhsCandidates;
-                _Frame joinedFrame = {...lhsFrame};
-                foreach var [k, val] in rhsFrame.entries() {
-                    joinedFrame[k] = val;
+
+            while (lhsFrame is _Frame) {
+                any|error lhsKFRes = lhsKF(lhsFrame);
+                if (lhsKFRes is error) {
+                    return prepareQueryBodyError(lhsKFRes);
                 }
-                return joinedFrame;
-            } else {
-                // Move to next lhs frame
-                self.lhsFrame = ();
-                self.rhsCandidates = ();
-                return self.process();
+                string lhsKey = (lhsKFRes).toString();
+
+                _Frame[]? rhsCandidates = rhsFramesMap.get(lhsKey);
+                while (rhsCandidates is _Frame[] && rhsCandidates.length() > 0) {
+                    _Frame rhsFrame = rhsCandidates.shift();
+                    _Frame joinedFrame = {...lhsFrame};
+                    foreach var [k, val] in rhsFrame.entries() {
+                        joinedFrame[k] = val;
+                    }
+                    joinedFrames.push(joinedFrame);
+                }
+                lhsFrame = pf.process();
             }
+            self.joinedFramesStream = joinedFrames.toStream();
         }
-        return lhsFrame;
+        stream<_Frame> s = <stream<_Frame>>self.joinedFramesStream;
+        record {|_Frame value;|}|error? f = s.next();
+        if (f is record {|_Frame value;|}) {
+            return f.value;
+        }
+        return f;
     }
 
     public function reset() {
-        // Reset the state of lhsFrame
-        self.lhsFrame = ();
-        self.rhsCandidates = ();
+        self.joinedFramesStream = ();
         _StreamFunction? pf = self.prevFunc;
         if (pf is _StreamFunction) {
             pf.reset();
@@ -399,17 +424,18 @@ class _InnerJoinFunction {
 
 class _OuterJoinFunction {
     *_StreamFunction;
-    function (_Frame _frame) returns any lhsKeyFunction;
-    function (_Frame _frame) returns any rhsKeyFunction;
+    function (_Frame _frame) returns any|error lhsKeyFunction;
+    function (_Frame _frame) returns any|error rhsKeyFunction;
     _FrameMultiMap rhsFramesMap = new;
     _Frame[]? rhsCandidates;
     _Frame|error? lhsFrame;
     _Frame nilFrame;
+    error? failureAtJoin = ();
 
     function init(
             _StreamPipeline pipelineToJoin,
-            function (_Frame _frame) returns any lhsKeyFunction,
-            function (_Frame _frame) returns any rhsKeyFunction, _Frame nilFrame) {
+            function (_Frame _frame) returns any|error lhsKeyFunction,
+            function (_Frame _frame) returns any|error rhsKeyFunction, _Frame nilFrame) {
         self.lhsKeyFunction = lhsKeyFunction;
         self.rhsKeyFunction = rhsKeyFunction;
         self.rhsCandidates = ();
@@ -418,8 +444,17 @@ class _OuterJoinFunction {
         self.nilFrame = nilFrame;
         _Frame|error? f = pipelineToJoin.next();
         while (f is _Frame) {
-            self.rhsFramesMap.put(rhsKeyFunction(f).toString(), f);
-            f = pipelineToJoin.next();
+            any|error rhsKeyFuncResult = rhsKeyFunction(f);
+            if rhsKeyFuncResult is error {
+                self.failureAtJoin = prepareQueryBodyError(rhsKeyFuncResult);
+                return;
+            } else {
+                self.rhsFramesMap.put(rhsKeyFuncResult.toString(), f);
+                f = pipelineToJoin.next();
+            }
+        }
+        if (f is error) {
+            self.failureAtJoin = f;
         }
     }
 
@@ -428,13 +463,18 @@ class _OuterJoinFunction {
     # outer join var ... in streamA join var ... in streamB
     # + return - merged two frames { ...frameA, ...frameB }
     public function process() returns _Frame|error? {
-        function (_Frame _frame) returns any lhsKF = self.lhsKeyFunction;
+        function (_Frame _frame) returns any|error lhsKF = self.lhsKeyFunction;
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-         _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
+        _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
         _Frame[]? rhsCandidates = self.rhsCandidates;
         _Frame|error? lhsFrame = self.lhsFrame;
         _Frame nilFrame = self.nilFrame;
+        error? failureAtJoin = self.failureAtJoin;
         string lhsKey = "";
+
+        if(failureAtJoin is error) {
+            fail failureAtJoin;
+        }
 
         if (lhsFrame is ()) {
             lhsFrame = pf.process();
@@ -442,7 +482,11 @@ class _OuterJoinFunction {
         }
 
         if (lhsFrame is _Frame) {
-            lhsKey = lhsKF(lhsFrame).toString();
+            any|error lhsKFRes = lhsKF(lhsFrame);
+            if (lhsKFRes is error) {
+                return prepareQueryBodyError(lhsKFRes);
+            }
+            lhsKey = (lhsKFRes).toString();
             if (rhsCandidates is ()) {
                 rhsCandidates = rhsFramesMap.get(lhsKey);
                 self.rhsCandidates = rhsCandidates;
@@ -492,19 +536,28 @@ class _FilterFunction {
     # Desugared function to do;
     # where person.age >= 70
     # emit the next frame which satisfies the condition
-    function (_Frame _frame) returns boolean filterFunc;
+    function (_Frame _frame) returns error|boolean filterFunc;
 
-    function init(function (_Frame _frame) returns boolean filterFunc) {
+    function init(function (_Frame _frame) returns boolean|error filterFunc) {
         self.filterFunc = filterFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-        function (_Frame _frame) returns boolean filterFunc = self.filterFunc;
+        function (_Frame _frame) returns boolean|error filterFunc = self.filterFunc;
         _Frame|error? pFrame = pf.process();
-        while (pFrame is _Frame && !filterFunc(pFrame)) {
-            pFrame = pf.process();
+        while (pFrame is _Frame) {
+            boolean|error filterResult = filterFunc(pFrame);
+            if filterResult is boolean {
+                if !filterResult {
+                    pFrame = pf.process();
+                } else {
+                    return pFrame;
+                }
+            } else {
+                return prepareQueryBodyError(filterResult);
+            }
         }
         return pFrame;
     }
@@ -522,10 +575,10 @@ class _OrderByFunction {
 
     # Desugared function to do;
     # order by person.fname true, person.age false
-    function(_Frame _frame) orderKeyFunc;
+    function (_Frame _frame) returns error? orderKeyFunc;
     stream<_Frame>? orderedStream;
 
-    function init(function(_Frame _frame) orderKeyFunc) {
+    function init(function (_Frame _frame) returns error? orderKeyFunc) {
         self.orderKeyFunc = orderKeyFunc;
         self.orderedStream = ();
         self.prevFunc = ();
@@ -533,14 +586,17 @@ class _OrderByFunction {
 
     public function process() returns _Frame|error? {
         if (self.orderedStream is ()) {
-            _StreamFunction pf = <_StreamFunction> self.prevFunc;
-            function(_Frame _frame) orderKeyFunc = self.orderKeyFunc;
+            _StreamFunction pf = <_StreamFunction>self.prevFunc;
+            function (_Frame _frame) returns error? orderKeyFunc = self.orderKeyFunc;
             _Frame|error? f = pf.process();
             boolean[] directions = [];
             _OrderTreeNode oTree = new;
             // consume all events for ordering.
             while (f is _Frame) {
-                orderKeyFunc(f);
+                error? res = orderKeyFunc(f);
+                if(res is error) {
+                    return prepareQueryBodyError(res);
+                }
                 oTree.add(f, <any[]>(checkpanic f["$orderDirection$"]), <any[]>(checkpanic f["$orderKey$"]));
                 f = pf.process();
             }
@@ -560,6 +616,139 @@ class _OrderByFunction {
 
     public function reset() {
         self.orderedStream = ();
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+}
+
+type RowGroupedData record {|
+    readonly anydata groupingKey;
+    _Frame[] frames;
+|};
+
+class _GroupByFunction {
+    *_StreamFunction;
+
+    string[] keys;
+    string[] nonGroupingKeys;
+    stream<_Frame>? groupedStream;
+    table<RowGroupedData> key(groupingKey) tbl;
+
+    function init(string[] keys, string[] nonGroupingKeys) {
+        self.keys = keys;
+        self.nonGroupingKeys = nonGroupingKeys;
+        self.groupedStream = ();
+        self.tbl = table [];
+        self.prevFunc = ();
+    }
+
+    public function process() returns _Frame|error? {
+        if (self.groupedStream is ()) {
+            _StreamFunction pf = <_StreamFunction>self.prevFunc;
+            _Frame? f = check pf.process();
+            while f is _Frame {
+                anydata & readonly key = (check self.getKey(f)).cloneReadOnly();
+                if self.tbl.hasKey(key) {
+                    self.tbl.get(key).frames.push(f);
+                } else {
+                    self.tbl.add({groupingKey: key, frames: [f]});
+                }
+                f = check pf.process();
+            }
+            self.groupedStream = self.convertToStream(self.tbl);
+        }
+
+        stream<_Frame> s = <stream<_Frame>>self.groupedStream;
+        record {|_Frame value;|}|error? next = s.next();
+        return next is record {|_Frame value;|} ? next.value : next;
+    }
+
+    public function reset() {
+        self.groupedStream = ();
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+
+    private function getKey(_Frame f) returns anydata|error {
+        anydata[] keys = [];
+        foreach var key in self.keys {
+            keys.push(<anydata> check f[key]);
+        }
+        return keys;
+    }
+
+    private function convertToStream(table<RowGroupedData> key(groupingKey) tbl) returns stream<_Frame> {
+        _Frame[] groupedFrames = [];
+
+        foreach var entry in tbl {
+            _Frame groupedFrame = {};
+            _Frame firstFrame = entry.frames[0];
+            foreach var key in self.keys {
+                groupedFrame[key] = firstFrame[key];
+            }
+            foreach var nonGroupingKey in self.nonGroupingKeys {
+                groupedFrame[nonGroupingKey] = [];
+            }
+            foreach var f in entry.frames {
+                foreach var nonGroupingKey in self.nonGroupingKeys {
+                    any|error sequenceValue = groupedFrame[nonGroupingKey];
+                    if sequenceValue is any {
+                        any|error val = f[nonGroupingKey];
+                        if val !is () {
+                            (<(any|error)[]> sequenceValue).push(val);
+                        }
+                    }
+                }
+            }
+            groupedFrames.push(groupedFrame);
+        }
+        return groupedFrames.toStream();
+    }
+}
+
+class _CollectFunction {
+    *_StreamFunction;
+
+    string[] nonGroupingKeys;
+    function (_Frame _frame) returns _Frame|error? collectFunc;
+
+    function init(string[] nonGroupingKeys, function (_Frame _frame) returns _Frame|error? collectFunc) {
+        self.nonGroupingKeys = nonGroupingKeys;
+        self.collectFunc = collectFunc;
+        self.prevFunc = ();
+    }
+
+    public function process() returns _Frame|error? {
+        _Frame groupedFrame = {};
+        foreach var nonGroupingKey in self.nonGroupingKeys {
+            groupedFrame[nonGroupingKey] = [];
+        }
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
+        _Frame? f = check pf.process();
+        while f is _Frame {
+            foreach var nonGroupingKey in self.nonGroupingKeys {
+                any|error sequenceValue = groupedFrame[nonGroupingKey];
+                if (sequenceValue is any) {
+                    any|error val = f[nonGroupingKey];
+                    if val !is () {
+                        (<(any|error)[]> sequenceValue).push(val);
+                    }
+                }
+            }
+            f = check pf.process();
+        }
+        _Frame|error? cFrame = self.collectFunc(groupedFrame);
+        if (cFrame is error) {
+            return prepareQueryBodyError(cFrame);
+        }
+        return cFrame;
+    }
+
+    public function reset() {
         _StreamFunction? pf = self.prevFunc;
         if (pf is _StreamFunction) {
             pf.reset();
@@ -589,6 +778,9 @@ class _SelectFunction {
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
+            if (cFrame is error) {
+                return prepareQueryBodyError(cFrame);
+            }
             return cFrame;
         }
         return pFrame;
@@ -609,24 +801,28 @@ class _DoFunction {
     # do {
     #   count += value;
     # };
-    public function (_Frame _frame) doFunc;
+    public function (_Frame _frame) returns any|error doFunc;
 
-    function init(function (_Frame _frame) doFunc) {
+    function init(function (_Frame _frame) returns any|error doFunc) {
         self.doFunc = doFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-        function (_Frame _frame) f = self.doFunc;
+        function (_Frame _frame) returns any|error f = self.doFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
-            f(pFrame);
+            any|error cFrame = f(pFrame);
+            if (cFrame is error) {
+                return prepareQueryBodyError(cFrame);
+            }
+            if cFrame !is () {
+                return {"$value$": cFrame};
+            }
             return pFrame;
         }
-        if (pFrame is error) {
-            return pFrame;
-        }
+        return pFrame;
     }
 
     public function reset() {
@@ -641,7 +837,7 @@ class _LimitFunction {
     *_StreamFunction;
 
     # Desugared function to limit the number of results
-    function (_Frame _frame) returns int limitFunc;
+    function (_Frame _frame) returns int|error limitFunc;
     public int count = 0;
 
     function init(function (_Frame _frame) returns int limitFunc) {
@@ -651,18 +847,22 @@ class _LimitFunction {
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-        function (_Frame _frame) returns int limitFunc = self.limitFunc;
+        function (_Frame _frame) returns int|error limitFunc = self.limitFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
-            int lmt = limitFunc(pFrame);
-            if (lmt < 1) {
-                panic error("Invalid limit", message = "limit cannot be < 1.");
+            int|error lmt = limitFunc(pFrame);
+            if (lmt is int) {
+                if (lmt < 1) {
+                    panic error("Invalid limit", message = "limit cannot be < 1.");
+                }
+                if (self.count < lmt) {
+                    self.count += 1;
+                    return pFrame;
+                }
+                return ();
+            } else {
+                return prepareQueryBodyError(lmt);
             }
-            if (self.count < lmt) {
-                self.count += 1;
-                return pFrame;
-            }
-            return ();
         }
         return pFrame;
     }
@@ -715,8 +915,8 @@ class IterHelper {
     public typedesc<Type> outputType;
 
     function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
-      self.pipeline = pipeline;
-      self.outputType = outputType;
+        self.pipeline = pipeline;
+        self.outputType = outputType;
     }
 
     public isolated function next() returns record {|Type value;|}|error? {
@@ -749,7 +949,7 @@ class _OrderTreeNode {
             }
 
         } else {
-            if(!<boolean>directions.shift()) {
+            if (!<boolean>directions.shift()) {
                 self.nodesDirection = lang_array:DESCENDING;
             }
             any key = keys.shift();
@@ -768,7 +968,7 @@ class _OrderTreeNode {
     }
 
     # do a pre-order tree traversal and return collected leaf frames as orderedFrames.
-    # + return -  ordered frames.
+    # + return - ordered frames.
     function get() returns _Frame[] {
         _Frame[] orderedFrames = [];
         if (self.frames is _Frame[]) {
@@ -793,7 +993,7 @@ class _OrderTreeNode {
     }
 
     # sorting is not supported for any[], therefore have to resolve runtime type and sort it.
-    # + return -  ordered array.
+    # + return - ordered array.
     function getSortedArray(any[] arr) returns any[] {
         if (arr.length() > 0) {
             int i = 0;
@@ -834,3 +1034,11 @@ class _OrderTreeNode {
         }
     }
 }
+
+//Distinct error to identify errors thrown from query body
+public type Error distinct error;
+
+//Distinct error to identify errors thrown from query pipeline
+public type CompleteEarlyError distinct error;
+
+public type QueryErrorTypes CompleteEarlyError|Error;

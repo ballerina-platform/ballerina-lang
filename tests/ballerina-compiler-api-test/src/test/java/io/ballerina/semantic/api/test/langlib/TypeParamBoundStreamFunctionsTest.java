@@ -90,7 +90,7 @@ public class TypeParamBoundStreamFunctionsTest {
 
     @Test
     public void testMap() {
-        FunctionTypeSymbol mapFnType = assertFnNameAndGetParams("map");
+        FunctionTypeSymbol mapFnType = assertFnNameAndGetParams("'map");
         List<ParameterSymbol> params = mapFnType.params().get();
 
         assertEquals(params.size(), 2);
@@ -109,7 +109,7 @@ public class TypeParamBoundStreamFunctionsTest {
 
         TypeSymbol returnTypeSymbol = ((StreamTypeSymbol) mapFnRetType).typeParameter();
         assertEquals(returnTypeSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) returnTypeSymbol).typeDescriptor().typeKind(), TypeDescKind.UNION);
+        assertEquals(((TypeReferenceTypeSymbol) returnTypeSymbol).typeDescriptor().typeKind(), TypeDescKind.RECORD);
     }
 
     @Test

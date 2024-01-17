@@ -1,0 +1,46 @@
+{
+  "packages": [
+    {
+      "org": "pramodya",
+      "name": "template_lib_project",
+      "version": "1.0.0",
+      "transitive": false,
+      "dependencies": [
+        {
+          "org": "pramodya",
+          "name": "winery",
+          "version": "0.1.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        }
+      ],
+      "modules": []
+    },
+    {
+      "org": "pramodya",
+      "name": "winery",
+      "version": "0.1.0",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "pramodya",
+      "package_name": "template_lib_project",
+      "version": "1.0.0",
+      "module_name": "template_lib_project",
+      "dependencies": [
+        {
+          "org": "pramodya",
+          "package_name": "winery",
+          "version": "0.1.0",
+          "module_name": "winery",
+          "dependencies": []
+        }
+      ]
+    }
+  ]
+}

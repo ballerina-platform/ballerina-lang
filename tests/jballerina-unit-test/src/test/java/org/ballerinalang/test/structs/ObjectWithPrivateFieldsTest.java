@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.test.structs;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -41,72 +40,73 @@ public class ObjectWithPrivateFieldsTest {
 
     @Test(description = "Test private struct field access")
     public void testPrivateFieldAccessSamePackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "textPrivateFieldAccess1");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "textPrivateFieldAccess1");
 
-        Assert.assertEquals(returns[0].stringValue(), "sam");
-        Assert.assertEquals(returns[1].stringValue(), "95134");
-        Assert.assertEquals(returns[2].stringValue(), "234-56-7890");
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 45034);
-        Assert.assertEquals(((BInteger) returns[4]).intValue(), 123456);
+        Assert.assertEquals(returns.get(0).toString(), "sam");
+        Assert.assertEquals(returns.get(1).toString(), "95134");
+        Assert.assertEquals(returns.get(2).toString(), "234-56-7890");
+        Assert.assertEquals(returns.get(3), 45034L);
+        Assert.assertEquals(returns.get(4), 123456L);
     }
 
     @Test(description = "Test struct with private field which is in a different package")
     public void testStructWithPrivateFieldDifferentPackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "textPrivateFieldAccess2");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "textPrivateFieldAccess2");
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
-        Assert.assertEquals(returns[1].stringValue(), "mad");
+        Assert.assertEquals(returns.get(0), 12L);
+        Assert.assertEquals(returns.get(1).toString(), "mad");
     }
 
     @Test(description = "Test compile time struct equivalence with private fields")
     public void testCompileTimeStructEqWithPrivateFields() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCompileTimeStructEqWithPrivateFields");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testCompileTimeStructEqWithPrivateFields");
 
-        Assert.assertEquals(returns[0].stringValue(), "jay");
-        Assert.assertEquals(returns[1].stringValue(), "95134");
-        Assert.assertEquals(returns[2].stringValue(), "123-56-7890");
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 458);
+        Assert.assertEquals(returns.get(0).toString(), "jay");
+        Assert.assertEquals(returns.get(1).toString(), "95134");
+        Assert.assertEquals(returns.get(2).toString(), "123-56-7890");
+        Assert.assertEquals(returns.get(3), 458L);
     }
 
     @Test(description = "Test compile time struct equivalence with private fields. " +
             "Structs are in different packages")
     public void testCompileTimeStructEqWithPrivateFieldsTwoPackages() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCompileTimeStructEqWithPrivateFieldsTwoPackages");
+        BArray returns =
+                (BArray) BRunUtil.invoke(compileResult, "testCompileTimeStructEqWithPrivateFieldsTwoPackages");
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 28);
-        Assert.assertEquals(returns[1].stringValue(), "mal");
-        Assert.assertEquals(returns[2].stringValue(), "95134");
+        Assert.assertEquals(returns.get(0), 28L);
+        Assert.assertEquals(returns.get(1).toString(), "mal");
+        Assert.assertEquals(returns.get(2).toString(), "95134");
     }
 
     @Test(description = "Test compile time struct equivalence with private fields")
     public void testRuntimeStructEqWithPrivateFields() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFields");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFields");
 
-        Assert.assertEquals(returns[0].stringValue(), "jay");
-        Assert.assertEquals(returns[1].stringValue(), "95134");
-        Assert.assertEquals(returns[2].stringValue(), "123-56-7890");
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 458);
-        Assert.assertEquals(((BInteger) returns[4]).intValue(), 123);
+        Assert.assertEquals(returns.get(0).toString(), "jay");
+        Assert.assertEquals(returns.get(1).toString(), "95134");
+        Assert.assertEquals(returns.get(2).toString(), "123-56-7890");
+        Assert.assertEquals(returns.get(3), 458L);
+        Assert.assertEquals(returns.get(4), 123L);
     }
 
     @Test(description = "Test runtime time struct equivalence with private fields. " +
             "Structs are in different packages")
     public void testRuntimeStructEqWithPrivateFieldsTwoPackages1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFieldsTwoPackages1");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFieldsTwoPackages1");
 
-        Assert.assertEquals(returns[0].stringValue(), "jay");
-        Assert.assertEquals(returns[1].stringValue(), "95134");
-        Assert.assertEquals(returns[2].stringValue(), "123-56-7890");
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 458);
+        Assert.assertEquals(returns.get(0).toString(), "jay");
+        Assert.assertEquals(returns.get(1).toString(), "95134");
+        Assert.assertEquals(returns.get(2).toString(), "123-56-7890");
+        Assert.assertEquals(returns.get(3), 458L);
     }
 
     @Test(description = "Test runtime time struct equivalence with private fields. " +
             "Structs are in different packages")
     public void testRuntimeStructEqWithPrivateFieldsTwoPackages2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFieldsTwoPackages2");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFieldsTwoPackages2");
 
-        Assert.assertEquals(returns[0].stringValue(), "mal");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 56);
+        Assert.assertEquals(returns.get(0).toString(), "mal");
+        Assert.assertEquals(returns.get(1), 56L);
     }
 
     @AfterClass

@@ -18,13 +18,14 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +34,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.EMPTY;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.TEST_PACKAGE_NAME;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARATOR;
 
 /**
@@ -45,9 +47,9 @@ public abstract class ValueCreator {
 
     private static final Map<String, ValueCreator> runtimeValueCreators = new HashMap<>();
 
-    public static void addValueCreator(String orgName, String moduleName, String moduleVersion,
+    public static void addValueCreator(String orgName, String moduleName, String moduleVersion, boolean isTestPkg,
                                        ValueCreator valueCreator) {
-        String key = getLookupKey(orgName, moduleName, moduleVersion);
+        String key = getLookupKey(orgName, moduleName, moduleVersion, isTestPkg);
 
         if (!key.equals(DOT) && runtimeValueCreators.containsKey(key)) {
             // silently fail
@@ -57,13 +59,17 @@ public abstract class ValueCreator {
         runtimeValueCreators.put(key, valueCreator);
     }
 
-    public static String getLookupKey(Module module) {
-        return getLookupKey(module.getOrg(), module.getName(), module.getMajorVersion());
+    public static String getLookupKey(Module module, boolean isTestPkg) {
+        return getLookupKey(module.getOrg(), module.getName(), module.getMajorVersion(), isTestPkg);
     }
 
-    public static String getLookupKey(String orgName, String moduleName, String majorVersion) {
+    public static String getLookupKey(String orgName, String moduleName, String majorVersion, boolean isTestPkg) {
         if (DOT.equals(moduleName)) {
             return moduleName;
+        }
+
+        if (isTestPkg) {
+            moduleName = moduleName + TEST_PACKAGE_NAME;
         }
 
         String pkgName = "";
@@ -80,9 +86,18 @@ public abstract class ValueCreator {
 
     public static ValueCreator getValueCreator(String key) {
         if (!runtimeValueCreators.containsKey(key)) {
-            throw new BallerinaException("Value creator object is not available for: " + key);
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "Value creator object is not available for: " + key));
         }
         return runtimeValueCreators.get(key);
+    }
+
+    public Object call(Strand strand, String funcName, Object... args) throws BError {
+        throw new ErrorValue(StringUtils.fromString("No such method: " + funcName));
+    }
+
+    public static boolean containsValueCreator(String key) {
+        return runtimeValueCreators.containsKey(key);
     }
 
     public abstract MapValue<BString, Object> createRecordValue(String recordTypeName) throws BError;

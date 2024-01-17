@@ -21,7 +21,9 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -59,6 +61,23 @@ public class BitwiseShiftOperationTest {
         BRunUtil.invoke(result, "testBitwiseUnsignedRightShiftOp");
     }
 
+    @Test(dataProvider = "dataToTestShortCircuitingInBitwiseShiftOp")
+    public void testShortCircuitingInBitwiseShiftOp(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInBitwiseShiftOp() {
+        return new Object[]{
+                "testNoShortCircuitingInBitwiseLeftShiftWithNullable",
+                "testNoShortCircuitingInBitwiseLeftShiftWithNonNullable",
+                "testNoShortCircuitingInBitwiseSignedRightShiftWithNullable",
+                "testNoShortCircuitingInBitwiseSignedRightShiftWithNonNullable",
+                "testNoShortCircuitingInBitwiseUnsignedRightShiftWithNullable",
+                "testNoShortCircuitingInBitwiseUnsignedRightShiftWithNonNullable"
+        };
+    }
+
     @Test(description = "Test bitwise shift operation negative scenarios")
     public void testBitwiseShiftNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 15);
@@ -93,5 +112,11 @@ public class BitwiseShiftOperationTest {
                 55, 15);
         BAssertUtil.validateError(negativeResult, index, "operator '>>>' not defined for 'int' and 'float'",
                 57, 15);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
     }
 }

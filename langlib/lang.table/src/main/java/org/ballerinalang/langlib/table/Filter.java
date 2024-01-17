@@ -22,11 +22,11 @@ import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.TableType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -51,30 +51,23 @@ public class Filter {
                                                                       TABLE_VERSION, "filter");
 
     public static BTable filter(BTable tbl, BFunctionPointer<Object, Boolean> func) {
-        TableType tableType = (TableType) tbl.getType();
+        TableType tableType = (TableType) TypeUtils.getImpliedType(tbl.getType());
         BTable newTable =
                 ValueCreator.createTableValue(TypeCreator.createTableType(tableType.getConstrainedType(),
                         tableType.getFieldNames(), false));
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
-        // accessing the parent strand here to use it with each iteration
-        Strand parentStrand = Scheduler.getStrand();
-
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{parentStrand,
-                                tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
-                        result -> {
-                            if ((Boolean) result) {
-                                Object key = tbl.getKeys()[index.get()];
-                                Object value = tbl.get(key);
-                                newTable.put(key, value);
-                            }
-                        }, () -> newTable, Scheduler.getStrand().scheduler);
+        Object[] keys = tbl.getKeys();
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                () -> new Object[]{tbl.get(keys[index.incrementAndGet()]), true},
+                result -> {
+                    if ((Boolean) result) {
+                        Object key = keys[index.get()];
+                        Object value = tbl.get(key);
+                        newTable.put(key, value);
+                    }
+                }, () -> newTable, Scheduler.getStrand().scheduler);
         return newTable;
     }
 
-    public static BTable filter_bstring(Strand strand, BTable tbl, BFunctionPointer<Object, Boolean> func) {
-        return filter(tbl, func);
-    }
 }

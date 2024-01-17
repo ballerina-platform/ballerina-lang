@@ -1,0 +1,23 @@
+Compiling source
+	intg_tests/function_mocking_with_dependencies:0.0.0
+
+Running Tests with Coverage
+
+	function_mocking_with_dependencies.a_dependency
+		[pass] test1
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+	function_mocking_with_dependencies.b_dependent
+		[pass] test1
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	function-mocking-tests-with-dependencies/target/report/test_results.json

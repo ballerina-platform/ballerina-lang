@@ -20,13 +20,15 @@ import com.google.gson.JsonElement;
 /**
  * Represents a Ballerina Syntax Tree response.
  *
- * @since 1.3.0
+ * @since 2201.3.0
  */
 public class BallerinaSyntaxTreeResponse {
 
     private JsonElement syntaxTree;
 
     private String source;
+
+    private String defFilePath;
 
     private boolean parseSuccess;
 
@@ -53,4 +55,13 @@ public class BallerinaSyntaxTreeResponse {
     public void setParseSuccess(boolean parseSuccess) {
         this.parseSuccess = parseSuccess;
     }
+
+    public void setDefFilePath(String defFilePath) {
+        this.defFilePath = defFilePath;
+    }
+
+    public String getDefFilePath() {
+        return defFilePath;
+    }
+
 }

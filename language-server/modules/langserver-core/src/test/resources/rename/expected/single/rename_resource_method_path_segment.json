@@ -1,0 +1,31 @@
+{
+  "source": {
+    "file": "rename_resource_method_path_segment.bal"
+  },
+  "position": {
+    "line": 39,
+    "character": 33
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "rename_resource_method_path_segment.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 12,
+              "character": 27
+            },
+            "end": {
+              "line": 12,
+              "character": 32
+            }
+          },
+          "newText": "path1"
+        }
+      ]
+    }
+  }
+}

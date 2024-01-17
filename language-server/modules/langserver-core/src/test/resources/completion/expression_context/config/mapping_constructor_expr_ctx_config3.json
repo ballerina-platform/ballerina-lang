@@ -1,0 +1,44 @@
+{
+  "position": {
+    "line": 6,
+    "character": 51
+  },
+  "source": "expression_context/source/mapping_constructor_expr_ctx_source3.bal",
+  "description": "completions for mapping constructor in a row list of a table constructor",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "empId",
+      "kind": "Field",
+      "detail": "Employee.empId",
+      "sortText": "K",
+      "insertText": "empId: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "Employee.name",
+      "sortText": "K",
+      "insertText": "name: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Employee Required Fields",
+      "kind": "Property",
+      "detail": "Employee",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "empId: ${1:0},\nname: ${2:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

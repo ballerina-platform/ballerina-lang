@@ -24,6 +24,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -42,31 +43,30 @@ public class CaptureBindingPatternTest {
                 "-binding-pattern-negative.bal");
     }
 
-    @Test
-    public void testCaptureBindingPattern1() {
-        BRunUtil.invoke(result, "testCaptureBindingPattern1");
+    @Test(dataProvider = "captureBindingPatternTests")
+    public void testCaptureBindingPattern(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test
-    public void testCaptureBindingPattern2() {
-        BRunUtil.invoke(result, "testCaptureBindingPattern2");
-    }
-
-    @Test
-    public void testCaptureBindingPattern3() {
-        BRunUtil.invoke(result, "testCaptureBindingPattern3");
-    }
-
-    @Test
-    public void testCaptureBindingPattern4() {
-        BRunUtil.invoke(result, "testCaptureBindingPattern4");
+    @DataProvider
+    public Object[] captureBindingPatternTests() {
+        return new Object[]{
+                "testCaptureBindingPattern1",
+                "testCaptureBindingPattern2",
+                "testCaptureBindingPattern3",
+                "testCaptureBindingPattern4",
+                "testCaptureBindingPattern5",
+                "testCaptureBindingPattern6",
+                "testCaptureBindingPattern7"
+        };
     }
 
     @Test
     public void testCaptureBindingPatternNegative1() {
-        Assert.assertEquals(resultNegative.getWarnCount(), 1);
+        Assert.assertEquals(resultNegative.getWarnCount(), 2);
 
-        BAssertUtil.validateWarning(resultNegative, 0, "unreachable pattern", 22, 9);
+        BAssertUtil.validateWarning(resultNegative, 0, "unused variable 'a'", 19, 9);
+        BAssertUtil.validateWarning(resultNegative, 1, "unreachable pattern", 22, 9);
     }
 
     @AfterClass

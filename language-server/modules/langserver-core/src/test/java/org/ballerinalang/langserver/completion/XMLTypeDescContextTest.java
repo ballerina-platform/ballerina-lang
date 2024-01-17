@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.completion;
 
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import java.io.IOException;
 
@@ -29,6 +30,7 @@ import java.io.IOException;
  */
 public class XMLTypeDescContextTest extends CompletionTest {
 
+    @Test(dataProvider = "completion-data-provider")
     @Override
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
         super.test(config, configPath);

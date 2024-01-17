@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -27,14 +28,19 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.ValueUtils;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -44,13 +50,15 @@ import java.util.Optional;
  * @since 0.995.0
  */
 public class BRecordType extends BStructureType implements RecordType {
-
+    private final String internalName;
     public boolean sealed;
     public Type restFieldType;
     public int typeFlags;
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
+
+    private final Map<String, BFunctionPointer<Object, ?>> defaultValues = new LinkedHashMap<>();
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -61,8 +69,9 @@ public class BRecordType extends BStructureType implements RecordType {
      * @param sealed flag indicating the sealed status
      * @param typeFlags flags associated with the type
      */
-    public BRecordType(String typeName, Module pkg, long flags, boolean sealed, int typeFlags) {
+    public BRecordType(String typeName, String internalName, Module pkg, long flags, boolean sealed, int typeFlags) {
         super(typeName, pkg, flags, MapValueImpl.class);
+        this.internalName = internalName;
         this.sealed = sealed;
         this.typeFlags = typeFlags;
         this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
@@ -94,6 +103,7 @@ public class BRecordType extends BStructureType implements RecordType {
             this.restFieldType = restFieldType;
             this.fields = fields;
         }
+        this.internalName = typeName;
     }
 
     private Map<String, Field> getReadOnlyFields(Map<String, Field> fields) {
@@ -118,7 +128,16 @@ public class BRecordType extends BStructureType implements RecordType {
         if (isReadOnly()) {
             return (V) ValueCreator.createReadonlyRecordValue(this.pkg, typeName, new HashMap<>());
         }
-        return (V) ValueCreator.createRecordValue(this.pkg, typeName);
+        BMap<BString, Object> recordValue = ValueCreator.createRecordValue(this.pkg, typeName);
+        ValueUtils.populateDefaultValues(recordValue, this, new HashSet<>());
+        if (defaultValues.isEmpty()) {
+            return (V) recordValue;
+        }
+        for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
+            recordValue.put(StringUtils.fromString(field.getKey()),
+                    field.getValue().call(new Object[] {Scheduler.getStrand()}));
+        }
+        return (V) recordValue;
     }
 
     @SuppressWarnings("unchecked")
@@ -141,7 +160,7 @@ public class BRecordType extends BStructureType implements RecordType {
 
     @Override
     public String getAnnotationKey() {
-        return IdentifierUtils.decodeIdentifier(this.typeName);
+        return Utils.decodeIdentifier(this.internalName);
     }
 
     @Override
@@ -190,4 +209,13 @@ public class BRecordType extends BStructureType implements RecordType {
     public int getTypeFlags() {
         return typeFlags;
     }
+
+    public void setDefaultValue(String fieldName, BFunctionPointer<Object, ?> defaultValue) {
+        defaultValues.put(fieldName, defaultValue);
+    }
+
+    public Map<String, BFunctionPointer<Object, ?>> getDefaultValues() {
+        return defaultValues;
+    }
+
 }

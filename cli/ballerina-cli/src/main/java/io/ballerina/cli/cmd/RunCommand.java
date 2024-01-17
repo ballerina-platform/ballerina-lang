@@ -22,16 +22,18 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
+import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunExecutableTask;
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -43,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -50,7 +53,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = RUN_COMMAND, description = "Build and execute a Ballerina program.")
+@CommandLine.Command(name = RUN_COMMAND, description = "Compile and run the current package")
 public class RunCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
@@ -62,14 +65,14 @@ public class RunCommand implements BLauncherCmd {
             FileSystems.getDefault().getPathMatcher("glob:**.jar");
 
     @CommandLine.Parameters(description = "Program arguments")
-    private List<String> argList = new ArrayList<>();
+    private final List<String> argList = new ArrayList<>();
 
     @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--offline"}, description = "Builds offline without downloading dependencies and " +
             "then run.")
-    private boolean offline;
+    private Boolean offline;
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
@@ -78,9 +81,6 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
 
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private boolean experimentalFlag;
-
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
@@ -88,16 +88,33 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
-    @CommandLine.Option(names = "--dump-graph", hidden = true)
+    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.", hidden = true)
     private boolean dumpGraph;
 
-    @CommandLine.Option(names = "--dump-raw-graphs", hidden = true)
+    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
+            "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
+
+    @CommandLine.Option(names = "--generate-config-schema", hidden = true)
+    private Boolean configSchemaGen;
+
+    @CommandLine.Option(names = "--target-dir", description = "target directory path")
+    private Path targetDir;
+
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
+    private Boolean enableCache;
+
+    @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
+            "caching for source files", defaultValue = "false")
+    private Boolean disableSyntaxTreeCaching;
+
+    @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time", hidden = true)
+    private Boolean dumpBuildTime;
 
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
-            "    bal run [--experimental] [--offline]\n" +
-            "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
+                    "    bal run [--offline]\n" +
+                    "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
 
     public RunCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -105,14 +122,25 @@ public class RunCommand implements BLauncherCmd {
         this.errStream = System.err;
     }
 
-    public RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish) {
+    RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.exitWhenFinish = exitWhenFinish;
         this.outStream = outStream;
         this.errStream = outStream;
+        this.offline = true;
+    }
+
+    RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish, Path targetDir) {
+        this.projectPath = projectPath;
+        this.exitWhenFinish = exitWhenFinish;
+        this.outStream = outStream;
+        this.errStream = outStream;
+        this.targetDir = targetDir;
+        this.offline = true;
     }
 
     public void execute() {
+        long start = 0;
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(RUN_COMMAND);
             this.errStream.println(commandUsageInfo);
@@ -158,10 +186,18 @@ public class RunCommand implements BLauncherCmd {
         // load project
         Project project;
         BuildOptions buildOptions = constructBuildOptions();
+
         boolean isSingleFileBuild = false;
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
+                if (buildOptions.dumpBuildTime()) {
+                    start = System.currentTimeMillis();
+                    BuildTime.getInstance().timestamp = start;
+                }
                 project = SingleFileProject.load(this.projectPath, buildOptions);
+                if (buildOptions.dumpBuildTime()) {
+                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
+                }
             } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -170,7 +206,14 @@ public class RunCommand implements BLauncherCmd {
             isSingleFileBuild = true;
         } else {
             try {
+                if (buildOptions.dumpBuildTime()) {
+                    start = System.currentTimeMillis();
+                    BuildTime.getInstance().timestamp = start;
+                }
                 project = BuildProject.load(this.projectPath, buildOptions);
+                if (buildOptions.dumpBuildTime()) {
+                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
+                }
             } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -178,14 +221,26 @@ public class RunCommand implements BLauncherCmd {
             }
         }
 
+        // If project is empty
+        if (ProjectUtils.isProjectEmpty(project)) {
+            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        // Check package files are modified after last build
+        boolean isPackageModified = isProjectUpdated(project);
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
-                .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
-                .addTask(new CompileTask(outStream, errStream)) // compile the modules
+                // clean target dir for projects
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
+                // resolve maven dependencies in Ballerina.toml
+                .addTask(new ResolveMavenDependenciesTask(outStream))
+                // compile the modules
+                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new RunExecutableTask(args, outStream, errStream))
+                .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
-
         taskExecutor.executeTasks(project);
     }
 
@@ -196,14 +251,7 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Run command runs a compiled Ballerina program. \n");
-        out.append("\n");
-        out.append("If a Ballerina source file is given, \n");
-        out.append("run command compiles and runs it. \n");
-        out.append("\n");
-        out.append("By default, 'bal run' executes the main function. \n");
-        out.append("If the main function is not there, it executes services. \n");
-        out.append("\n");
+        out.append(BLauncherCmd.getCommandUsageInfo(RUN_COMMAND));
     }
 
     @Override
@@ -218,16 +266,25 @@ public class RunCommand implements BLauncherCmd {
     }
 
     private BuildOptions constructBuildOptions() {
-        return new BuildOptionsBuilder()
-                .codeCoverage(false)
-                .experimental(experimentalFlag)
-                .offline(offline)
-                .skipTests(true)
-                .testReport(false)
-                .observabilityIncluded(observabilityIncluded)
-                .sticky(sticky)
-                .dumpGraph(dumpGraph)
-                .dumpRawGraphs(dumpRawGraphs)
-                .build();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+
+        buildOptionsBuilder
+                .setCodeCoverage(false)
+                .setOffline(offline)
+                .setSkipTests(true)
+                .setTestReport(false)
+                .setObservabilityIncluded(observabilityIncluded)
+                .setSticky(sticky)
+                .setDumpGraph(dumpGraph)
+                .setDumpRawGraphs(dumpRawGraphs)
+                .setConfigSchemaGen(configSchemaGen)
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
+                .setDumpBuildTime(dumpBuildTime);
+
+        if (targetDir != null) {
+            buildOptionsBuilder.targetDir(targetDir.toString());
+        }
+
+        return buildOptionsBuilder.build();
     }
 }

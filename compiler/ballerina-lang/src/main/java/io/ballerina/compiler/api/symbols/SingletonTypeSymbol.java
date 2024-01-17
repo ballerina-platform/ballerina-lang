@@ -22,4 +22,11 @@ package io.ballerina.compiler.api.symbols;
  * @since 2.0.0
  */
 public interface SingletonTypeSymbol extends TypeSymbol {
+
+    /**
+     * Get the original type associated with the shape of the singleton type symbol.
+     *
+     * @return {@link TypeSymbol} of the original type
+     */
+    TypeSymbol originalType();
 }

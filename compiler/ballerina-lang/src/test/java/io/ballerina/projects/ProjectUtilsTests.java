@@ -20,6 +20,7 @@ package io.ballerina.projects;
 
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.internal.model.BuildJson;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
@@ -31,6 +32,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Test {@code ProjectUtils}.
@@ -47,7 +51,8 @@ public class ProjectUtilsTests {
     @BeforeClass
     public void setUp() throws IOException {
         tempDirectory = Files.createTempDirectory("b7a-project-utils-test-" + System.nanoTime());
-        buildJson = new BuildJson(1629359520, 1629259520, RepoUtils.getBallerinaShortVersion());
+        buildJson = new BuildJson(1629359520, 1629259520, RepoUtils.getBallerinaShortVersion(),
+                Collections.emptyMap());
     }
 
     @Test
@@ -77,5 +82,22 @@ public class ProjectUtilsTests {
         Assert.assertThrows(JsonSyntaxException.class, () -> {
             ProjectUtils.readBuildJson(buildFilePath);
         });
+    }
+
+    @Test()
+    public void testDeleteSelectedFilesInDirectory() throws IOException {
+        Path fromDir = PROJECT_UTILS_RESOURCES.resolve("delete-files");
+        Path tempPackageDir = tempDirectory.resolve("delete-files");
+        Files.createDirectory(tempPackageDir);
+        List<Path> filesToKeep = new ArrayList<>();
+        filesToKeep.add(tempPackageDir.resolve("test.txt"));
+        filesToKeep.add(tempPackageDir.resolve("examples"));
+        Files.walkFileTree(fromDir, new FileUtils.Copy(fromDir, tempPackageDir));
+        ProjectUtils.deleteSelectedFilesInDirectory(tempPackageDir, filesToKeep);
+        Assert.assertFalse(Files.exists(tempPackageDir.resolve("Ballerina.toml")));
+        Assert.assertFalse(Files.exists(tempPackageDir.resolve("main.bal")));
+        Assert.assertFalse(Files.exists(tempPackageDir.resolve("tests").resolve("main-test.bal")));
+        Assert.assertTrue(Files.exists(tempPackageDir.resolve("test.txt")));
+        Assert.assertTrue(Files.exists(tempPackageDir.resolve("examples").resolve("example.txt")));
     }
 }

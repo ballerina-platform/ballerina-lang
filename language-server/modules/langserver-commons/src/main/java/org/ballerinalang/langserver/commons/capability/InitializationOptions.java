@@ -33,6 +33,31 @@ public interface InitializationOptions {
     String KEY_ENABLE_SEMANTIC_TOKENS = "enableSemanticHighlighting";
 
     /**
+     * Whether the client supports {@link org.eclipse.lsp4j.Position} based rename popup.
+     */
+    String KEY_POSITIONAL_RENAME_SUPPORT = "supportPositionalRenamePopup";
+    
+    /**
+     * Whether the client supports quick picks.
+     */
+    String KEY_QUICKPICK_SUPPORT = "supportQuickPick";
+
+    /**
+     * Whether the LS should run in lightweight mode.
+     */
+    String KEY_ENABLE_LIGHTWEIGHT_MODE = "enableLightWeightMode";
+
+    /**
+     * Whether the client supports inlay hints.
+     */
+    String KEY_ENABLE_INLAY_HINTS = "enableInlayHints";
+
+    /**
+     * Whether the client supports memory usage monitor.
+     */
+    String KEY_ENABLE_MEMORY_USAGE_MONITOR = "enableMemoryUsageMonitor";
+
+    /**
      * Return if the client support bala URI scheme.
      *
      * @return True if bala URi scheme is supported.
@@ -45,4 +70,38 @@ public interface InitializationOptions {
      * @return True if supported, false otherwise
      */
     boolean isEnableSemanticTokens();
+
+    /**
+     * Returns if the client supports {@link org.eclipse.lsp4j.Position} based rename.
+     * @return True if supported, false otherwise
+     */
+    boolean isPositionalRefactorRenameSupported();
+
+    /**
+     * Returns if the client supports quick picks.
+     *
+     * @return True if supported, false otherwise
+     */
+    boolean isQuickPickSupported();
+
+    /**
+     * Returns if the LS enable lightweight mode.
+     *
+     * @return True if enabled, false otherwise
+     */
+    boolean isEnableLightWeightMode();
+
+    /**
+     * Returns if the client supports inlay hints.
+     *
+     * @return True if supported, false otherwise
+     */
+    boolean isEnableInlayHints();
+
+    /**
+     * Returns if the client supports memory usage monitor.
+     *
+     * @return True if supported, false otherwise
+     */
+    boolean isEnableMemoryUsageMonitor();
 }

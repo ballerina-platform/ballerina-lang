@@ -17,9 +17,13 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.StringCharTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -33,7 +37,9 @@ import java.util.Optional;
  */
 public class BallerinaStringCharTypeSymbol extends AbstractTypeSymbol implements StringCharTypeSymbol {
 
-    public BallerinaStringCharTypeSymbol(CompilerContext context, ModuleID moduleID, BStringSubType charType) {
+    private ModuleSymbol module;
+
+    public BallerinaStringCharTypeSymbol(CompilerContext context, BStringSubType charType) {
         super(context, TypeDescKind.STRING_CHAR, charType);
     }
 
@@ -45,5 +51,29 @@ public class BallerinaStringCharTypeSymbol extends AbstractTypeSymbol implements
     @Override
     public String signature() {
         return "string:" + Names.STRING_CHAR;
+    }
+
+    @Override
+    public Optional<ModuleSymbol> getModule() {
+        if (this.module != null) {
+            return Optional.of(this.module);
+        }
+
+        SymbolTable symTable = SymbolTable.getInstance(this.context);
+        SymbolFactory symFactory = SymbolFactory.getInstance(this.context);
+        this.module = (ModuleSymbol) symFactory.getBCompiledSymbol(symTable.langStringModuleSymbol,
+                                                                   symTable.langStringModuleSymbol
+                                                                           .getOriginalName().value);
+        return Optional.of(this.module);
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

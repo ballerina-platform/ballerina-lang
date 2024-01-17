@@ -22,17 +22,19 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PROTECTED;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -58,6 +60,7 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.castToJavaString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -70,6 +73,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELD
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORTED_OPERATION_EXCEPTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_COLLECTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.COLLECTION_OP;
@@ -89,6 +93,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_S
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_SET_MAP_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TO_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TWO_OBJECTS_ARGS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getFieldIsPresentFlagName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.isOptionalRecordField;
@@ -122,7 +127,7 @@ public class JvmRecordGen {
         if (fields.isEmpty()) {
             Label defaultCaseLabel = new Label();
             this.createGetDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
-            mv.visitMaxs(0, 0);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, "get", className);
             mv.visitEnd();
             return;
         }
@@ -131,7 +136,7 @@ public class JvmRecordGen {
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "get", RECORD_GET, false);
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "get", className);
         mv.visitEnd();
         splitGetMethod(cw, fields, className, jvmCastGen);
     }
@@ -204,13 +209,13 @@ public class JvmRecordGen {
                     mv.visitMethodInsn(INVOKEVIRTUAL, className, getMethod, RECORD_GET, false);
                     mv.visitInsn(ARETURN);
                 }
-                mv.visitMaxs(i + 10, i + 10);
+                mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
                 mv.visitEnd();
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
             this.createGetDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
-            mv.visitMaxs(i + 10, i + 10);
+            mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }
     }
@@ -238,7 +243,7 @@ public class JvmRecordGen {
         if (fields.isEmpty()) {
             Label defaultCaseLabel = new Label();
             this.createPutDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, valueRegIndex);
-            mv.visitMaxs(0, 0);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, "putValue", className);
             mv.visitEnd();
             return;
         }
@@ -248,7 +253,7 @@ public class JvmRecordGen {
         mv.visitVarInsn(ALOAD, valueRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "putValue", RECORD_PUT, false);
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "putValue", className);
         mv.visitEnd();
         splitSetMethod(cw, fields, className, jvmCastGen);
     }
@@ -325,13 +330,13 @@ public class JvmRecordGen {
                     mv.visitMethodInsn(INVOKEVIRTUAL, className, setMethod, RECORD_PUT, false);
                     mv.visitInsn(ARETURN);
                 }
-                mv.visitMaxs(0, 0);
+                JvmCodeGenUtil.visitMaxStackForMethod(mv, setMethod, className);
                 mv.visitEnd();
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
             this.createPutDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, valueRegIndex);
-            mv.visitMaxs(0, 0);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, setMethod, className);
             mv.visitEnd();
         }
     }
@@ -355,7 +360,7 @@ public class JvmRecordGen {
         int entrySetVarIndex = 1;
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitVarInsn(ASTORE, entrySetVarIndex);
         if (!fields.isEmpty()) {
             mv.visitVarInsn(ALOAD, selfIndex);
@@ -373,7 +378,7 @@ public class JvmRecordGen {
 
         mv.visitVarInsn(ALOAD, entrySetVarIndex);
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "entrySet", className);
         mv.visitEnd();
     }
 
@@ -419,7 +424,7 @@ public class JvmRecordGen {
             jvmCastGen.addBoxInsn(mv, optionalField.type);
 
             mv.visitMethodInsn(INVOKESPECIAL, MAP_SIMPLE_ENTRY, JVM_INIT_METHOD, TWO_OBJECTS_ARGS, false);
-            mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", ANY_TO_JBOOLEAN, true);
+            mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
             mv.visitInsn(POP);
 
             mv.visitLabel(ifNotPresent);
@@ -431,13 +436,13 @@ public class JvmRecordGen {
                     mv.visitMethodInsn(INVOKEVIRTUAL, className, addEntryMethod, LINKED_HASH_SET_OP, false);
                 }
                 mv.visitInsn(RETURN);
-                mv.visitMaxs(0, 0);
+                JvmCodeGenUtil.visitMaxStackForMethod(mv, addEntryMethod, className);
                 mv.visitEnd();
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
             mv.visitInsn(RETURN);
-            mv.visitMaxs(0, 0);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, addEntryMethod, className);
             mv.visitEnd();
         }
     }
@@ -454,7 +459,7 @@ public class JvmRecordGen {
         if (fields.isEmpty()) {
             Label defaultCaseLabel = new Label();
             this.createContainsDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
-            mv.visitMaxs(0, 0);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, "containsKey", className);
             mv.visitEnd();
             return;
         }
@@ -463,7 +468,7 @@ public class JvmRecordGen {
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "containsKey", CONTAINS_KEY, false);
         mv.visitInsn(IRETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "containsKey", className);
         mv.visitEnd();
         splitContainsKeyMethod(cw, fields, className);
     }
@@ -530,13 +535,13 @@ public class JvmRecordGen {
                     mv.visitMethodInsn(INVOKEVIRTUAL, className, containsMethod, CONTAINS_KEY, false);
                     mv.visitInsn(IRETURN);
                 }
-                mv.visitMaxs(i + 10, i + 10);
+                mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
                 mv.visitEnd();
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
             this.createContainsDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
-            mv.visitMaxs(i + 10, i + 10);
+            mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }
     }
@@ -558,7 +563,7 @@ public class JvmRecordGen {
         int valuesVarIndex = 1;
         mv.visitTypeInsn(NEW, ARRAY_LIST);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitVarInsn(ASTORE, valuesVarIndex);
         if (!fields.isEmpty()) {
             mv.visitVarInsn(ALOAD, selfIndex);
@@ -575,7 +580,7 @@ public class JvmRecordGen {
 
         mv.visitVarInsn(ALOAD, 1);
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "values", className);
         mv.visitEnd();
     }
 
@@ -609,7 +614,7 @@ public class JvmRecordGen {
             mv.visitVarInsn(ALOAD, 0); // this
             mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
             jvmCastGen.addBoxInsn(mv, optionalField.type);
-            mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", ANY_TO_JBOOLEAN, true);
+            mv.visitMethodInsn(INVOKEINTERFACE, LIST, ADD_METHOD, ANY_TO_JBOOLEAN, true);
             mv.visitInsn(POP);
             mv.visitLabel(ifNotPresent);
             bTypesCount++;
@@ -621,13 +626,13 @@ public class JvmRecordGen {
                             false);
                 }
                 mv.visitInsn(RETURN);
-                mv.visitMaxs(0, 0);
+                JvmCodeGenUtil.visitMaxStackForMethod(mv, valuesMethod, className);
                 mv.visitEnd();
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
             mv.visitInsn(RETURN);
-            mv.visitMaxs(0, 0);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, valuesMethod, className);
             mv.visitEnd();
         }
     }
@@ -645,11 +650,11 @@ public class JvmRecordGen {
         // cast key to java.lang.String
         castToJavaString(mv, fieldNameRegIndex, strKeyVarIndex);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "validateFreezeStatus", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "validateFreezeStatus", VOID_METHOD_DESC, false);
         if (fields.isEmpty()) {
             Label defaultCaseLabel = new Label();
             this.createRemoveDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
-            mv.visitMaxs(0, 0);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, "remove", className);
             mv.visitEnd();
             return;
         }
@@ -658,7 +663,7 @@ public class JvmRecordGen {
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "remove", RECORD_REMOVE, false);
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "remove", className);
         mv.visitEnd();
         splitRemoveMethod(cw, fields, className, jvmCastGen);
     }
@@ -724,7 +729,8 @@ public class JvmRecordGen {
             } else {
                 mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
                 mv.visitInsn(DUP);
-                mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, JVM_INIT_METHOD, "()V", false);
+                mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, JVM_INIT_METHOD, VOID_METHOD_DESC,
+                        false);
                 mv.visitInsn(ATHROW);
             }
             i += 1;
@@ -740,13 +746,13 @@ public class JvmRecordGen {
                     mv.visitMethodInsn(INVOKEVIRTUAL, className, removeMethod, RECORD_REMOVE, false);
                     mv.visitInsn(ARETURN);
                 }
-                mv.visitMaxs(0, 0);
+                JvmCodeGenUtil.visitMaxStackForMethod(mv, removeMethod, className);
                 mv.visitEnd();
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
             this.createRemoveDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
-            mv.visitMaxs(0, 0);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, removeMethod, className);
             mv.visitEnd();
         }
     }
@@ -767,7 +773,7 @@ public class JvmRecordGen {
         int keysVarIndex = 1;
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitVarInsn(ASTORE, keysVarIndex);
 
         if (!fields.isEmpty()) {
@@ -790,7 +796,7 @@ public class JvmRecordGen {
         mv.visitMethodInsn(INVOKEINTERFACE, SET, "toArray", TO_ARRAY, true);
 
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "getKeys", className);
         mv.visitEnd();
     }
 
@@ -824,7 +830,7 @@ public class JvmRecordGen {
             mv.visitLdcInsn(decodeIdentifier(fieldName));
             mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
                     FROM_STRING, false);
-            mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", ANY_TO_JBOOLEAN, true);
+            mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
             mv.visitInsn(POP);
             mv.visitLabel(ifNotPresent);
             bTypesCount++;
@@ -835,13 +841,13 @@ public class JvmRecordGen {
                     mv.visitMethodInsn(INVOKEVIRTUAL, className, getKeysMethod, LINKED_HASH_SET_OP, false);
                 }
                 mv.visitInsn(RETURN);
-                mv.visitMaxs(0, 0);
+                JvmCodeGenUtil.visitMaxStackForMethod(mv, getKeysMethod, className);
                 mv.visitEnd();
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
             mv.visitInsn(RETURN);
-            mv.visitMaxs(0, 0);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, getKeysMethod, className);
             mv.visitEnd();
         }
     }
@@ -854,6 +860,8 @@ public class JvmRecordGen {
             case FLOAT:
             case BYTE:
                 return false;
+            case TYPEREFDESC:
+                return checkIfValueIsJReferenceType(((BTypeReferenceType) bType).referredType);
             default:
                 return true;
         }

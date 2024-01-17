@@ -1,0 +1,414 @@
+{
+  "qualifierList": [
+    {
+      "kind": "ResourceKeyword",
+      "isToken": true,
+      "value": "resource",
+      "isMissing": false,
+      "position": {
+        "startLine": 1,
+        "startColumn": 4,
+        "endLine": 1,
+        "endColumn": 12
+      },
+      "leadingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": "    ",
+          "isInvalid": false
+        }
+      ],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ]
+    }
+  ],
+  "functionKeyword": {
+    "kind": "FunctionKeyword",
+    "isToken": true,
+    "value": "function",
+    "isMissing": false,
+    "position": {
+      "startLine": 1,
+      "startColumn": 13,
+      "endLine": 1,
+      "endColumn": 21
+    },
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ]
+  },
+  "functionName": {
+    "kind": "IdentifierToken",
+    "isToken": true,
+    "value": "get",
+    "isMissing": false,
+    "position": {
+      "startLine": 1,
+      "startColumn": 22,
+      "endLine": 1,
+      "endColumn": 25
+    },
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ]
+  },
+  "relativeResourcePath": [
+    {
+      "kind": "IdentifierToken",
+      "isToken": true,
+      "value": "greeting",
+      "isMissing": false,
+      "position": {
+        "startLine": 1,
+        "startColumn": 26,
+        "endLine": 1,
+        "endColumn": 34
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": []
+    }
+  ],
+  "functionSignature": {
+    "kind": "FunctionSignature",
+    "openParenToken": {
+      "kind": "OpenParenToken",
+      "isToken": true,
+      "value": "(",
+      "isMissing": false,
+      "position": {
+        "startLine": 1,
+        "startColumn": 34,
+        "endLine": 1,
+        "endColumn": 35
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": []
+    },
+    "parameters": [],
+    "closeParenToken": {
+      "kind": "CloseParenToken",
+      "isToken": true,
+      "value": ")",
+      "isMissing": false,
+      "position": {
+        "startLine": 1,
+        "startColumn": 35,
+        "endLine": 1,
+        "endColumn": 36
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ]
+    },
+    "returnTypeDesc": {
+      "kind": "ReturnTypeDescriptor",
+      "returnsKeyword": {
+        "kind": "ReturnsKeyword",
+        "isToken": true,
+        "value": "returns",
+        "isMissing": false,
+        "position": {
+          "startLine": 1,
+          "startColumn": 37,
+          "endLine": 1,
+          "endColumn": 44
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ]
+      },
+      "annotations": [],
+      "type": {
+        "kind": "StringTypeDesc",
+        "name": {
+          "kind": "StringKeyword",
+          "isToken": true,
+          "value": "string",
+          "isMissing": false,
+          "position": {
+            "startLine": 1,
+            "startColumn": 45,
+            "endLine": 1,
+            "endColumn": 51
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": " ",
+              "isInvalid": false
+            }
+          ]
+        },
+        "source": "string ",
+        "syntaxDiagnostics": [],
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ],
+        "position": {
+          "startLine": 1,
+          "startColumn": 45,
+          "endLine": 1,
+          "endColumn": 51
+        },
+        "typeData": {}
+      },
+      "source": "returns string ",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ],
+      "position": {
+        "startLine": 1,
+        "startColumn": 37,
+        "endLine": 1,
+        "endColumn": 51
+      },
+      "typeData": {}
+    },
+    "source": "() returns string ",
+    "syntaxDiagnostics": [],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ],
+    "position": {
+      "startLine": 1,
+      "startColumn": 34,
+      "endLine": 1,
+      "endColumn": 51
+    },
+    "typeData": {}
+  },
+  "functionBody": {
+    "kind": "FunctionBodyBlock",
+    "openBraceToken": {
+      "kind": "OpenBraceToken",
+      "isToken": true,
+      "value": "{",
+      "isMissing": false,
+      "position": {
+        "startLine": 1,
+        "startColumn": 52,
+        "endLine": 1,
+        "endColumn": 53
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "minutiae": "\n",
+          "isInvalid": false
+        }
+      ]
+    },
+    "statements": [
+      {
+        "kind": "ReturnStatement",
+        "returnKeyword": {
+          "kind": "ReturnKeyword",
+          "isToken": true,
+          "value": "return",
+          "isMissing": false,
+          "position": {
+            "startLine": 2,
+            "startColumn": 8,
+            "endLine": 2,
+            "endColumn": 14
+          },
+          "leadingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": "        ",
+              "isInvalid": false
+            }
+          ],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": " ",
+              "isInvalid": false
+            }
+          ]
+        },
+        "expression": {
+          "kind": "StringLiteral",
+          "literalToken": {
+            "kind": "StringLiteralToken",
+            "isToken": true,
+            "value": "\"Hello, World!\"",
+            "isMissing": false,
+            "position": {
+              "startLine": 2,
+              "startColumn": 15,
+              "endLine": 2,
+              "endColumn": 30
+            },
+            "leadingMinutiae": [],
+            "trailingMinutiae": []
+          },
+          "source": "\"Hello, World!\"",
+          "syntaxDiagnostics": [],
+          "leadingMinutiae": [],
+          "trailingMinutiae": [],
+          "position": {
+            "startLine": 2,
+            "startColumn": 15,
+            "endLine": 2,
+            "endColumn": 30
+          },
+          "typeData": {}
+        },
+        "semicolonToken": {
+          "kind": "SemicolonToken",
+          "isToken": true,
+          "value": ";",
+          "isMissing": false,
+          "position": {
+            "startLine": 2,
+            "startColumn": 30,
+            "endLine": 2,
+            "endColumn": 31
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "minutiae": "\n",
+              "isInvalid": false
+            }
+          ]
+        },
+        "source": "        return \"Hello, World!\";\n",
+        "syntaxDiagnostics": [],
+        "leadingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": "        ",
+            "isInvalid": false
+          }
+        ],
+        "trailingMinutiae": [
+          {
+            "kind": "END_OF_LINE_MINUTIAE",
+            "minutiae": "\n",
+            "isInvalid": false
+          }
+        ],
+        "position": {
+          "startLine": 2,
+          "startColumn": 8,
+          "endLine": 2,
+          "endColumn": 31
+        },
+        "typeData": {}
+      }
+    ],
+    "closeBraceToken": {
+      "kind": "CloseBraceToken",
+      "isToken": true,
+      "value": "}",
+      "isMissing": false,
+      "position": {
+        "startLine": 3,
+        "startColumn": 4,
+        "endLine": 3,
+        "endColumn": 5
+      },
+      "leadingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": "    ",
+          "isInvalid": false
+        }
+      ],
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "minutiae": "\n",
+          "isInvalid": false
+        }
+      ]
+    },
+    "source": "{\n        return \"Hello, World!\";\n    }\n",
+    "syntaxDiagnostics": [],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "END_OF_LINE_MINUTIAE",
+        "minutiae": "\n",
+        "isInvalid": false
+      }
+    ],
+    "position": {
+      "startLine": 1,
+      "startColumn": 52,
+      "endLine": 3,
+      "endColumn": 5
+    },
+    "typeData": {}
+  },
+  "source": "    resource function get greeting() returns string {\n        return \"Hello, World!\";\n    }\n",
+  "kind": "ResourceAccessorDefinition",
+  "syntaxDiagnostics": [],
+  "leadingMinutiae": [
+    {
+      "kind": "WHITESPACE_MINUTIAE",
+      "minutiae": "    ",
+      "isInvalid": false
+    }
+  ],
+  "trailingMinutiae": [
+    {
+      "kind": "END_OF_LINE_MINUTIAE",
+      "minutiae": "\n",
+      "isInvalid": false
+    }
+  ],
+  "position": {
+    "startLine": 1,
+    "startColumn": 4,
+    "endLine": 3,
+    "endColumn": 5
+  },
+  "typeData": {}
+}

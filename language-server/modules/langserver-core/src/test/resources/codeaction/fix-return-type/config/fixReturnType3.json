@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 10,
-    "character": 10,
-    "expected": [
+    "character": 10
+  },
+  "source": "fixReturnType.bal",
+  "expected": [
+    {
+      "title": "Change return type to \u0027int[]\u0027",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Change return type to 'int[]'",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 8,
-                            "character": 47
-                        },
-                        "end": {
-                            "line": 8,
-                            "character": 54
-                        }
-                    },
-                    "newText": "int[]"
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 47
+            },
+            "end": {
+              "line": 8,
+              "character": 54
+            }
+          },
+          "newText": "int[]"
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -29,6 +29,8 @@ import org.testng.annotations.Test;
  * @since 0.96.0
  */
 public class ForeachNegativeTests {
+    private static final String INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE =
+            "a wildcard binding pattern can be used only with a value that belong to type 'any'";
 
     @Test
     public void testForeachSemanticsNegative() {
@@ -36,37 +38,37 @@ public class ForeachNegativeTests {
         int index = 0;
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
-                39, 17);
+                39, 13);
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
-                48, 17);
+                48, 13);
         BAssertUtil.validateError(compile, index++, "redeclared symbol 'i'", 48, 18);
         BAssertUtil.validateError(compile, index++, "redeclared symbol 's'", 48, 21);
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
-                55, 17);
+                55, 13);
         BAssertUtil.validateError(compile, index++, "undefined symbol 'i'", 58, 13);
         BAssertUtil.validateError(compile, index++, "incompatible types: 'int' is not an iterable collection", 63,
                 22);
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
-                76, 17);
+                76, 13);
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
-                84, 17);
+                84, 13);
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'json'",
-                93, 17);
+                93, 13);
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
-                119, 17);
+                119, 13);
         BAssertUtil.validateError(compile, index++, "undefined function 'Error'", 141, 18);
         BAssertUtil.validateError(compile, index++, "undefined function 'Error'", 142, 18);
         BAssertUtil.validateError(compile, index++, "undefined function 'Error'", 143, 18);
         BAssertUtil.validateError(compile, index++,
                 "incompatible types: '(json|error)' cannot be cast to 'json'", 166, 21);
-        BAssertUtil.validateError(compile, index++, "invalid record binding pattern with type 'anydata'", 206, 17);
-        BAssertUtil.validateError(compile, index++, "invalid record binding pattern with type 'any'", 213, 17);
+        BAssertUtil.validateError(compile, index++, "invalid record binding pattern with type 'anydata'", 206, 13);
+        BAssertUtil.validateError(compile, index++, "invalid record binding pattern with type 'any'", 213, 13);
         BAssertUtil.validateError(compile, index++, "incompatible types: expected 'string', found 'int'", 238, 20);
         BAssertUtil.validateError(compile, index++, "incompatible types: expected 'int[]', found 'int'", 239, 19);
         BAssertUtil.validateError(compile, index++, "incompatible types: expected 'string', found 'int'", 249, 18);
@@ -94,6 +96,16 @@ public class ForeachNegativeTests {
         // https://github.com/ballerina-platform/ballerina-lang/issues/33366
         BAssertUtil.validateError(compile, index++, "incompatible types: expected '(int|string)', found '" +
                 "(int|string|boolean)'", 308, 24);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'Bar', found 'int'", 326, 13);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'Bar2', found 'int'", 331, 13);
+        BAssertUtil.validateError(compile, index++, "invalid list binding pattern; member variable count " +
+                "mismatch with member type count", 338, 13);
+        BAssertUtil.validateError(compile, index++, "invalid list binding pattern; member variable count " +
+                "mismatch with member type count", 342, 13);
+        BAssertUtil.validateError(compile, index++, "invalid list binding pattern; member variable count " +
+                "mismatch with member type count", 346, 18);
+        BAssertUtil.validateError(compile, index++, "invalid error variable; expecting an error type " +
+                "but found '(SampleComplexError|SampleError)' in type definition", 374, 15);
         Assert.assertEquals(compile.getErrorCount(), index);
     }
 
@@ -143,5 +155,22 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++, "incompatible types: expected '(([int,string,boolean.." +
                 ".]|[boolean,int]) & readonly)', found '[int,(string|int),int...]'", 136, 13);
         Assert.assertEquals(compile.getErrorCount(), index);
+    }
+
+    @Test
+    public void testWildcardBindingPatternInForeachNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/statements/foreach/foreach_wildcard_binding_pattern_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 20, 13);
+        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 23, 13);
+        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 28, 13);
+        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 31, 13);
+//        https://github.com/ballerina-platform/ballerina-lang/issues/33544
+//        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 36, 32);
+//        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 39, 59);
+        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 43, 21);
+        BAssertUtil.validateError(result, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 46, 55);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 }

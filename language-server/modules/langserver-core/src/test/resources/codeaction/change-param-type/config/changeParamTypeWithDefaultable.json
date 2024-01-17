@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 1,
+    "character": 26
+  },
+  "source": "changeParamTypeWithDefaultable.bal",
+  "expected": [
+    {
+      "title": "Change parameter 'age' type to 'record {|int a;|}'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 14
+            },
+            "end": {
+              "line": 0,
+              "character": 17
+            }
+          },
+          "newText": "record {|int a;|}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 24
+            },
+            "end": {
+              "line": 0,
+              "character": 26
+            }
+          },
+          "newText": "{a: 0}"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

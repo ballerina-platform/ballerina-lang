@@ -25,11 +25,11 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.langlib.array.utils.GetFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -56,13 +56,13 @@ public class Map {
                                                                       ARRAY_VERSION, "map");
 
     public static BArray map(BArray arr, BFunctionPointer<Object, Object> func) {
-        Type elemType = ((FunctionType) func.getType()).getReturnType();
+        Type elemType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
         Type retArrType = TypeCreator.createArrayType(elemType);
         BArray retArr = ValueCreator.createArrayValue((ArrayType) retArrType);
         int size = arr.size();
         GetFunction getFn;
 
-        Type arrType = arr.getType();
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 getFn = BArray::get;
@@ -74,14 +74,9 @@ public class Map {
                 throw createOpNotSupportedError(arrType, "map()");
         }
         AtomicInteger index = new AtomicInteger(-1);
-        Strand parentStrand = Scheduler.getStrand();
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{parentStrand,
-                                                               getFn.get(arr, index.incrementAndGet()), true},
-                                                       result -> retArr.add(index.get(), result),
-                                                       () -> retArr, Scheduler.getStrand().scheduler);
-
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                () -> new Object[]{getFn.get(arr, index.incrementAndGet()), true},
+                result -> retArr.add(index.get(), result), () -> retArr, Scheduler.getStrand().scheduler);
         return retArr;
     }
 }

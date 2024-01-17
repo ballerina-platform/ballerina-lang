@@ -1,0 +1,54 @@
+{
+  "source": {
+    "file": "main.bal"
+  },
+  "position": {
+    "line": 19,
+    "character": 23
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "modules/module2/types.bal": [{
+        "range": {
+          "start": {
+            "line": 2,
+            "character": 12
+          },
+          "end": {
+            "line": 2,
+            "character": 17
+          }
+        },
+        "newText": "Student"
+      }],
+      "main.bal": [{
+        "range": {
+          "start": {
+            "line": 18,
+            "character": 19
+          },
+          "end": {
+            "line": 18,
+            "character": 24
+          }
+        },
+        "newText": "Student"
+      }, {
+        "range": {
+          "start": {
+            "line": 19,
+            "character": 18
+          },
+          "end": {
+            "line": 19,
+            "character": 23
+          }
+        },
+        "newText": "Student"
+      }]
+    }
+  }
+}

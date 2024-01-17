@@ -1,0 +1,37 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	invalid-data-provider-test.bal
+WARNING [invalid-data-provider-test.bal:(25:5,25:58)] unused variable 'resultErr'
+
+Running Tests
+
+	invalid-data-provider-test.bal
+
+		[fail] testInvalidDataProvider#0:
+
+		    [fail data provider for the function testInvalidDataProvider]
+			error {ballerina/test:0}ExecutionError ("error("{ballerina/lang.function}IncompatibleArguments",message="arguments of incompatible types: argument list '(int)' cannot be passed to function expecting parameter list '(string)'")
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 339
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 136
+				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 123
+				callableName: executeTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 83
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 58
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 48
+				callableName: __execute__  fileName: invalid-data-provider-test.bal lineNumber: 37
+			",functionName="testInvalidDataProvider")
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 349
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 136
+				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 123
+				callableName: executeTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 83
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 58
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 48
+				callableName: __execute__  fileName: invalid-data-provider-test.bal lineNumber: 37
+			
+
+
+		0 passing
+		1 failing
+		0 skipped
+error: there are test failures

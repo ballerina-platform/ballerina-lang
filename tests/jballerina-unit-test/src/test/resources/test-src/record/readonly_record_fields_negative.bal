@@ -284,3 +284,42 @@ type RecordWithReadOnlyFields record {|
 
 RecordWithReadOnlyFields & readonly r1 = {x: []};
 readonly & RecordWithReadOnlyFields & readonly r2 = 1;
+
+type R1 record {
+    never x?;
+};
+
+type R2 record {|
+    never x?;
+    string y;
+|};
+
+function testRecordReadonlynessWithNeverFieldsNegative() {
+    R1 r1 = {};
+    readonly x = r1;
+
+    R2 r2 = {y: "hello"};
+    readonly y = r2;
+
+    record {
+        int x;
+        never y?;
+    } r3 = {x: 1};
+    readonly z = r3;
+}
+
+type Foo1 record {|
+    any[] x = [1, 2];
+|};
+
+class Test {
+}
+
+type Foo2 record {
+    Test y = new();
+};
+
+function testRecordReadonlyIntersection() {
+    Foo1 & readonly _ = {};
+    Foo2 & readonly _ = {};
+}

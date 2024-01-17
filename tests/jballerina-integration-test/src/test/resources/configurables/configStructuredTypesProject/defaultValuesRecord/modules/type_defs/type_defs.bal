@@ -26,7 +26,8 @@ public type Numbers record {|
     int num2 = num2;
     int num3 = getNumber();
     int num4 = configLib:getNumber();
-    int num5;
+    int? num5 = ();
+    int num6;
 |};
 
 public isolated function getWord() returns string {
@@ -44,3 +45,9 @@ type Staff record {|
 |};
 
 public type StaffTable table<Staff> key(id);
+
+public type Endpoint record {|
+    string basePath;
+    string[] url = [];
+    int port = 9090;
+|};

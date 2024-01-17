@@ -1,0 +1,26 @@
+{
+  "position": {
+    "line": 11,
+    "character": 43
+  },
+  "source": "expression_context/source/mapping_expr_in_named_arg.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "Config.name",
+      "sortText": "K",
+      "insertText": "name: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

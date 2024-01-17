@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 /**
  * Slice and return a subsequence of the an XML sequence.
@@ -41,7 +41,7 @@ public class Slice {
         try {
             return (BXml) xml.slice(startIndex, endIndex);
         } catch (Throwable e) {
-            BLangExceptionHelper.handleXMLException(OPERATION, e);
+            ErrorHelper.handleXMLException(OPERATION, e);
         }
         return null;
     }

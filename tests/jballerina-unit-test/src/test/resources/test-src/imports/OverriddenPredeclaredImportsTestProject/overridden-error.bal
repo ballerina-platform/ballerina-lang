@@ -16,9 +16,9 @@
 
 import ballerina/lang.'error as err;
 
-function testErrorStackTrace('err:CallStackElement elem) returns string {
-    return elem.callableName + ":" + elem.fileName;
+function testErrorStackTrace('err:StackFrame elem) returns string {
+    return elem.toString();
 }
-function testErrorStackTraceWithAutoImports('err:CallStackElement elem) returns string {
-    return elem.callableName + ":" + elem.fileName;
+function testErrorStackTraceWithAutoImports('err:StackFrame elem) returns string {
+    return elem.toString();
 }

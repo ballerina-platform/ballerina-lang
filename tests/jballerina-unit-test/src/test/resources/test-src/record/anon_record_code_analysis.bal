@@ -1,7 +1,7 @@
 function testCodeAnalyzerRunningOnAnonymousRecordsForDeprecatedFunctionAnnotation() {
     record {
         int b = Test();
-        } rec = {};
+        } _ = {};
 }
 
 @deprecated

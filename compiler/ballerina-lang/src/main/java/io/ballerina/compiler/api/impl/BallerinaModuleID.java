@@ -105,4 +105,9 @@ public class BallerinaModuleID implements ModuleID {
     public int hashCode() {
         return this.moduleID.hashCode();
     }
+
+    @Override
+    public boolean isTestable() {
+        return moduleID.isTestPkg;
+    }
 }

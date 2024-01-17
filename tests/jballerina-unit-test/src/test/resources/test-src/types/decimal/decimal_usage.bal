@@ -42,7 +42,7 @@ function testDecimalRecord() returns [decimal, decimal] {
 
 // Test object with decimal fields
 function testDecimalObject() returns [string, int, decimal, decimal] {
-    Student s = new(57.25, 168.67);
+    Student s = new (57.25, 168.67);
     return [s.name, s.age, s.weight, s.height];
 }
 

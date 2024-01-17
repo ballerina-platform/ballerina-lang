@@ -39,7 +39,7 @@ public class DummyObject {
 # This function is deprecated
 @deprecated
 public function func1() {
-    DummyObject obj = new;
+    DummyObject _ = new;
 }
 
 public function func2(DummyObject obj, Foo foo, string str = CONST1) {
@@ -83,8 +83,8 @@ T1 a = { name: "John" };
 
 function testAnnotationDeprecation() {
     typedesc<any> t = typeof a;
-    Annot? annot1 = t.@v1;
-    Annot[]? annot2 = t.@v2;
+    Annot? _ = t.@v1;
+    Annot[]? _ = t.@v2;
 }
 
 @v1 {
@@ -197,10 +197,10 @@ public class Object3 {
 }
 
 public function func5() {
-    int x1 = add1(2, 3, 3);
-    int x2 = add2(2, 4, 5);
-    Object1 obj1 = new;
-    Object2 obj2 = new;
+    int _ = add1(2, 3, 3);
+    int _ = add2(2, 4, 5);
+    Object1 _ = new;
+    Object2 _ = new;
 }
 
 # Test function doc
@@ -210,7 +210,7 @@ public function func5() {
 # # Deprecated parameters
 # + z - deprecated rest parameter
 function add3(int x, int y, @deprecated int... z) {
-    int n = z[0];
+    int _ = z[0];
 }
 
 public function typeReturn() returns Foo { // Compile warning because 'Foo' is deprecated
@@ -219,17 +219,310 @@ public function typeReturn() returns Foo { // Compile warning because 'Foo' is d
 }
 
 public function getType() {
-    Foo f = typeReturn();
+    Foo _ = typeReturn();
 }
 
 class SimpleClass {
-    int i = 0;
+
 }
 
 function testObjectConstructorWithCodeAnalyzer() {
-    SimpleClass|float x = object SimpleClass {
+    SimpleClass|float _ = object SimpleClass {
         @deprecated
         function init() {
         }
     };
+}
+
+@deprecated
+annotation myAnnot on function;
+
+@myAnnot
+function testUsingDeprecatedAnnotation() {
+
+}
+
+function testAccessingDeprecatedAnnotation() {
+    typedesc funcType = typeof testUsingDeprecatedAnnotation();
+    _ = funcType.@myAnnot;
+}
+
+@deprecated
+type MyObject client object {
+    @deprecated
+    int id;
+
+    @deprecated
+    remote function getId() returns int;
+};
+
+@deprecated
+class Person {
+    @deprecated
+    string name = "john";
+
+    @deprecated
+    function getName() returns string {
+        return self.name;
+    }
+
+    function getAge() {
+    }
+}
+
+function testUsingDeprecatedFieldsMethodsAndTypes(int i, string s) {
+    MyObject obj = client object MyObject {
+        @deprecated
+        int id = 4;
+
+        remote function getId() returns int {
+            return self.id;
+        }
+    };
+
+    int _ = obj.id;
+    int _ = obj->getId();
+
+    Person obj2 = new Person();
+    string _ = obj2.name;
+    string _ = obj2.getName();
+    obj2.getAge(); // should not give a warning
+}
+
+@deprecated
+function myFunction(int i, string s) {
+
+}
+
+function testUsingDepricatedFunction() {
+    myFunction(1, "hello");
+}
+
+type Employee record {|
+    @deprecated
+    string name;
+    int id;
+    @deprecated
+    Job job;
+|};
+
+type Job record {|
+    string title;
+    @deprecated
+    int experience;
+|};
+
+public function testDeprecatedRecordFields() {
+    Employee employee = {name: "John", id: 112, job: {title: "SE", experience: 2}};
+    _ = employee.name; // warning
+    _ = employee.id;
+    _ = employee.job; // warning
+    _ = employee.job.title; // warning
+    _ = employee.job.experience; // warning
+}
+
+# Employee2 record
+type Employee2 record {|
+    # This is the description of the `Employee2`'s `name` field.
+    # # Deprecated
+    # This field is deprecated
+    @deprecated
+    string name;
+
+    # This is the description of the `Employee2`'s `id` field.
+    int id;
+
+    # This is the description of the `Employee2`'s `job` field.
+    # # Deprecated
+    # This field is deprecated
+    @deprecated
+    Job job;
+|};
+
+public function testDeprecatedRecordFieldsWithDocumentation() {
+    Employee2 employee2 = {name: "John", id: 112, job: {title: "SE", experience: 2}};
+    _ = employee2.name; // warning
+    _ = employee2.id;
+    _ = employee2.job; // warning
+}
+
+record {|
+    @deprecated
+    string name;
+
+    int id;
+|} employee3 = {name: "Jo", id: 123};
+
+public function testDeprecatedAnonRecord() {
+    _ = employee3.name;  // warning
+    _ = employee3.id;
+}
+
+record {|
+    # This is the description of the `name` field.
+    # # Deprecated
+    # This field is deprecated
+    @deprecated
+    string name;
+
+    # This is the description of the `id` field.
+    int id;
+|} employee4 = {name: "Jo", id: 123};
+
+public function testDeprecatedAnonRecordWithDocumentation() {
+    _ = employee4.name;  // warning
+    _ = employee4.id;
+}
+
+type Employee5 record {
+    string fname = "";
+    string lname = "";
+    int age = 0;
+
+    @deprecated
+    record { string line01 = "";
+             @deprecated
+             string line02 = "";
+             string city = "";
+             string state = "";
+             string zipcode = "";
+    } address;
+};
+
+public function testDeprecatedAnonStructAsStructField() {
+    Employee5 employee5 = {address: {}};    // warning
+    _ = employee5.address;  // warning
+    _ = employee5.address.line02;   // warning
+}
+
+type Company record {
+    int companyId;
+
+    @deprecated
+    string name;
+
+    @deprecated
+    string city;
+
+    @deprecated
+    string country;
+};
+
+public function testDeprecatedAnonRecordFieldInInitialization() {
+     Job _ = {
+        title: "SE",
+        experience: 1  // warning
+    };
+
+    int experience = 2;
+    Job _ = {
+        title: "SE",
+        experience  // warning
+    };
+
+    var details = {experience: 2};
+    Job _ = {
+        title: "SE",
+        ...details  // warning
+    };
+
+    string city = "Berlin";
+    var companyDetails = {country: "Germany"};
+    Company _ = {
+        companyId: 1,
+        name: "Foo",    // warning
+        city: city,     // warning
+        ...companyDetails   // warning
+    };
+}
+
+function fooFn(int x1, @deprecated int x2){
+}
+
+function barFn(string s, *Company company) {
+}
+
+function bazFn(string a, @deprecated string b, @deprecated int... c) {
+}
+
+function quxFn(@deprecated string y1 = "Qux", @deprecated int y2 = 10) {
+}
+
+function quuxFn(record {|
+    int id;
+    record {|string name; @deprecated int age;|} person;
+|} z) {
+}
+
+public function testDeprecatedParamUsages() {
+    fooFn(10, 11);
+    fooFn(12, x2 = 13);
+    fooFn(x1 = 14, x2 = 15);
+    barFn("bar", {
+        companyId: 1,
+        city: "Berlin", // Warning
+        country: "Germany", // Warning
+        name: "Bar" // Warning
+    });
+    barFn(
+        "bar",
+        companyId = 1,
+        city = "Berlin", // Warning
+        country = "Germany", // Warning
+        name = "Bar" // Warning
+    );
+    bazFn(
+        "A",
+        "B",    // warning
+        1,      // warning
+        2,      // warning
+        3       // warning
+    );
+    quxFn(
+        "Quux", // warning
+        11      // warning
+    );
+    quxFn(
+        y1 = "Quux", // warning
+        y2 = 11      // warning
+    );
+    quuxFn({
+        id: 1,
+        person: {
+            name: "John",
+            age: 12     // warning
+        }
+    });
+
+    // As rest args
+    [int, int] argX = [1, 2];
+    fooFn(...argX);
+    fooFn(...[
+            1,
+            2           // warning
+        ]
+    );
+    var fn1 = function ()  returns int => 1;
+    fooFn(...[
+        1,
+        ...[
+            fn1()       // warning
+            ]
+        ]
+    );
+    var fn2 = function () returns [int, int] => [1, 2];
+    fooFn(...[
+        ...[
+            ...fn2()    // warning
+            ]
+        ]
+    );
+    bazFn(
+        "A",
+        ...[
+            "B",    // warning
+            1,      // warning
+            3       // warning
+        ]
+    );
 }

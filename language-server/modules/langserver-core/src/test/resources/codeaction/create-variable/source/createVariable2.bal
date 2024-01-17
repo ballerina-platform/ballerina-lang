@@ -8,7 +8,7 @@ public class Lorry {
     public function get_color(int a) returns Color{
         return new Color();
     }
-};
+}
 
 # A Car
 public class Color {
@@ -18,7 +18,7 @@ public class Color {
     public function print(string b) returns string{
         return "red";
     }
-};
+}
 
 public function foo(string... args) {
     Lorry lorry = new Lorry();

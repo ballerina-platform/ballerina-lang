@@ -29,11 +29,13 @@ public enum LSContextOperation implements LSOperation {
     DIAGNOSTICS("debouncer/diagnostics"),
     TXT_DID_OPEN("text/didOpen"),
     TXT_HOVER("text/hover"),
+    TXT_INLAY_HINT("text/inlayHint"),
     TXT_SIGNATURE("text/signature"),
     TXT_DEFINITION("text/definition"),
     TXT_REFERENCES("text/references"),
     TXT_DOC_SYMBOL("text/documentSymbol"),
     TXT_CODE_ACTION("text/codeAction"),
+    TXT_RESOLVE_CODE_ACTION("text/resolveCodeAction"),
     TXT_FORMATTING("text/formatting"),
     TXT_RANGE_FORMATTING("text/rangeFormatting"),
     TXT_CODE_LENS("text/codeLens"),
@@ -51,7 +53,9 @@ public enum LSContextOperation implements LSOperation {
     SOURCE_PRUNER("sourcePruner"),
     TEST_GEN("testGeneration"),
     CREATE_PROJECT("createProject"),
-    RELOAD_PROJECT("reloadProject");
+    LOAD_PROJECT("loadProject"),
+    RELOAD_PROJECT("reloadProject"),
+    SYMBOL_DOCUMENT("symbol/documentation");
 
     private final String name;
 

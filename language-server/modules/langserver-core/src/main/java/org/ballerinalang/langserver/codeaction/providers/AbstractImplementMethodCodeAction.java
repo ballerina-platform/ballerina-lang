@@ -30,15 +30,15 @@ import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -60,7 +60,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
  *
  * @since 2.0.0
  */
-public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActionProvider {
+public abstract class AbstractImplementMethodCodeAction {
 
     protected static final int DIAG_PROPERTY_NAME_INDEX = 0;
     protected static final int DIAG_PROPERTY_SYMBOL_INDEX = 1;
@@ -72,34 +72,15 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
     );
 
     /**
-     * Create a diagnostic based code action provider.
-     */
-    public AbstractImplementMethodCodeAction() {
-        super();
-    }
-
-    /**
-     * Create a node type based code action provider.
-     *
-     * @param nodeTypes code action node types list
-     */
-    public AbstractImplementMethodCodeAction(List<CodeActionNodeType> nodeTypes) {
-        super(nodeTypes);
-    }
-
-    /**
      * Returns a list of text edits based on diagnostics.
      *
-     * @param diagnostic      diagnostic to evaluate
      * @param positionDetails {@link DiagBasedPositionDetails}
      * @param context         language server context
      * @return list of Text Edits
      */
-    public static List<TextEdit> getDiagBasedTextEdits(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+    public static List<TextEdit> getDiagBasedTextEdits(DiagBasedPositionDetails positionDetails,
                                                        CodeActionContext context) {
-        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
-            return Collections.emptyList();
-        }
+
 
         Optional<Name> methodName = positionDetails.diagnosticProperty(DIAG_PROPERTY_NAME_INDEX);
         Optional<TypeSymbol> optionalSymbol = positionDetails.diagnosticProperty(DIAG_PROPERTY_SYMBOL_INDEX);
@@ -173,7 +154,8 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
         if (unimplMethod.typeDescriptor().returnTypeDescriptor().isPresent()) {
             TypeSymbol returnTypeSymbol = unimplMethod.typeDescriptor().returnTypeDescriptor().get();
             if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
-                Optional<String> defaultReturnValueForType = CommonUtil.getDefaultValueForType(returnTypeSymbol);
+                Optional<String> defaultReturnValueForType = DefaultValueGenerationUtil
+                        .getDefaultValueForType(returnTypeSymbol);
                 if (defaultReturnValueForType.isPresent()) {
                     String defaultReturnValue = defaultReturnValueForType.get();
                     if (defaultReturnValue.equals(CommonKeys.PARANTHESES_KEY)) {
@@ -202,7 +184,7 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
                 .append(CommonKeys.CLOSE_BRACE_KEY)
                 .append(LINE_SEPARATOR)
                 .append(StringUtils.repeat(' ', closeBraceOffset));
-        Position editPos = CommonUtil.toPosition(editPosition);
+        Position editPos = PositionUtil.toPosition(editPosition);
         edits.add(new TextEdit(new Range(editPos, editPos), editText.toString()));
         return edits;
     }

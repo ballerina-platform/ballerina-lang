@@ -2,7 +2,7 @@ function testUninitializedClosureVars() {
     string a;
 
     var bazz = function () {
-        string str = a + "aa";
+        string _ = a + "aa";
     };
 
     bazz();
@@ -25,16 +25,16 @@ public function lambdaInitTest() {
 
     worker w1 {
         localVar = 4;
-        int j = localVar;
-        int k = localVar2;
+        int _ = localVar;
+        int _ = localVar2;
     }
 
-    var f = function () {
+    var _ = function () {
         localVar = 2;
-        int k = localVar;
-        int l = localVar2;
+        int _ = localVar;
+        int _ = localVar2;
     };
 
-    int copy = localVar;
-    int copy2 = localVar2;
+    int _ = localVar;
+    int _ = localVar2;
 }

@@ -18,7 +18,7 @@ import ballerina/jballerina.java;
 
 # Type for value that can be cloned.
 # This is the same as in lang.value, but is copied here to avoid a dependency.
-type Cloneable readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>;
+public type Cloneable readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>;
 
 # The type to which error detail records must belong.
 public type Detail record {|
@@ -33,6 +33,10 @@ type DetailType Detail;
 
 # Returns the error's message.
 #
+# ```ballerina
+# error("IO error").message() ⇒ IO error
+# ```
+#
 # + e - the error value
 # + return - error message
 public isolated function message(error e) returns string = @java:Method {
@@ -41,6 +45,14 @@ public isolated function message(error e) returns string = @java:Method {
 } external;
 
 # Returns the error's cause.
+#
+# ```ballerina
+# error fileNotFoundError = error("file not found", file = "test.bal");
+# fileNotFoundError.cause() is () ⇒ true
+#
+# error ioError = error("IO error", fileNotFoundError);
+# ioError.cause() ⇒ error("file not found",file="test.bal")
+# ```
 #
 # + e - the error value
 # + return - error cause
@@ -51,48 +63,57 @@ public isolated function cause(error e) returns error? = @java:Method {
 
 # Returns the error's detail record.
 #
+# ```ballerina
+# error("file not found", file = "test.bal").detail() ⇒ {"file":"test.bal"}
+# ```
+#
 # The returned value will be immutable.
 # + e - the error value
 # + return - error detail value
-public isolated function detail(error<DetailType> e) returns DetailType = @java:Method {
+public isolated function detail(error<DetailType> e) returns readonly & DetailType = @java:Method {
     'class: "org.ballerinalang.langlib.error.Detail",
     name: "detail"
 } external;
 
-# Representation of `CallStackElement`.
-#
-# + callableName - Callable name
-# + moduleName - Module name
-# + fileName - File name
-# + lineNumber - Line number
-public type CallStackElement record {|
-    string callableName;
-    string moduleName?;
-    string fileName;
-    int lineNumber;
-|};
-
-# Represents an error call stack.
-#
-# + callStack - call stack
-public class CallStack {
-    public CallStackElement[] callStack = [];
-}
+# Type representing a stack frame.
+# A call stack is represented as an array of stack frames.
+# This type is also present in lang.runtime to avoid a dependency.
+public type StackFrame readonly & object {
+   # Returns a string representing this StackFrame.
+   # This must not contain any newline characters.
+   # + return - a string
+   public isolated function toString() returns string;
+};
 
 # Returns an object representing the stack trace of the error.
 #
+# ```ballerina
+# error("IO error").stackTrace() ⇒ [callableName: main  fileName: test.bal lineNumber: 5]
+# ```
+#
 # + e - the error value
 # + return - a new object representing the stack trace of the error value
-public isolated function stackTrace(error e) returns CallStack = @java:Method {
-    'class: "org.ballerinalang.langlib.error.StackTrace",
-    name: "stackTrace"
-} external;
-
+# The first member of the array represents the top of the call stack.
+public isolated function stackTrace(error e) returns StackFrame[] {
+    StackFrame[] stackFrame = [];
+    int i = 0;
+    CallStack callStackElements = externGetStackTrace(e);
+    foreach var callStackElement in callStackElements.callStack {
+        stackFrame[i] = new java:StackFrameImpl(callStackElement.callableName,
+        callStackElement.fileName, callStackElement.lineNumber, callStackElement?.moduleName);
+        i += 1;
+    }
+    return stackFrame;
+}
 
 # Converts an error to a string.
 #
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the direct style.
+#
+# ```ballerina
+# error("invalid salary", value = 0d).toString() ⇒ error("invalid salary",value=0)
+# ```
 #
 # + e - the error to be converted to a string
 # + return - a string resulting from the conversion
@@ -106,6 +127,10 @@ public isolated function toString(error e) returns string = @java:Method {
 #
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the expression style.
+#
+# ```ballerina
+# error("invalid salary", value = 0d).toBalString() ⇒ error("invalid salary",value=0d)
+# ```
 #
 # + e - the error to be converted to a string
 # + return - a string resulting from the conversion

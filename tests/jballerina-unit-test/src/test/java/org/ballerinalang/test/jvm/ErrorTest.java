@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -43,34 +41,34 @@ public class ErrorTest {
         compileResult = BCompileUtil.compile("test-src/jvm/errors.bal");
     }
 
-    @Test(description = "Test panic an error", expectedExceptions = RuntimeException.class, 
-          expectedExceptionsMessageRegExp = "error: reason foo 1 \\{\"message\":\"int value\"\\}\n\tat errors:foo\\" +
-                  "(errors.bal:91\\)\n\t   errors:testPanic\\(errors.bal:20\\)")
+    @Test(description = "Test panic an error", expectedExceptions = RuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: reason foo 1 \\{\"message\":\"int value\"\\}\n\tat errors:foo\\" +
+                    "(errors.bal:91\\)\n\t   errors:testPanic\\(errors.bal:20\\)")
     public void testPanic() {
-            BRunUtil.invoke(compileResult, "testPanic", new BValue[] { new BInteger(0) });
+        BRunUtil.invoke(compileResult, "testPanic", new Object[]{0});
     }
 
     @Test(description = "Test trap an error")
     public void testTrap() {
-        BRunUtil.invoke(compileResult, "testTrap", new BValue[] { new BInteger(0) });
+        BRunUtil.invoke(compileResult, "testTrap", new Object[]{0});
     }
 
     @Test(description = "Test handle errors of nested function calls with single trap")
     public void testNestedCallsWithSingleTrap() {
         // Run with zero integer input
-        BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new BValue[] { new BInteger(0) });
+        BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new Object[]{0});
 
         // Run with non zero integer input
-        BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new BValue[] { new BInteger(1) });
+        BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new Object[]{1});
     }
 
     @Test(description = "Test handle errors of nested function calls with trap expression for each function call")
     public void testNestedCallsWithAllTraps() {
         // Run with zero integer input
-        BRunUtil.invoke(compileResult, "testNestedCallsWithAllTraps", new BValue[] { new BInteger(0) });
+        BRunUtil.invoke(compileResult, "testNestedCallsWithAllTraps", new Object[]{0});
 
         // Run with non zero integer input
-        BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new BValue[] { new BInteger(1) });
+        BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new Object[]{1});
     }
 
     @Test

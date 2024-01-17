@@ -19,14 +19,17 @@ package org.wso2.ballerinalang.compiler.tree.types;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.TupleTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * {@code BLangUnionTypeNode} represents a tuple type node in Ballerina
+ * {@code BLangTupleTypeNode} represents a tuple type node in Ballerina
  * <p>
  * e.g. [int, float , string]
  *
@@ -34,12 +37,20 @@ import java.util.stream.Collectors;
  */
 public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
 
-    public List<BLangType> memberTypeNodes = new ArrayList<>();
+    // BLangNodes
+    public List<BLangSimpleVariable> members = new ArrayList<>();
     public BLangType restParamType;
 
     @Override
+    public List<BLangSimpleVariable> getMemberNodes() {
+        return members;
+    }
+
+    @Override
     public List<BLangType> getMemberTypeNodes() {
-        return memberTypeNodes;
+        List<BLangType> types = new ArrayList<>();
+        members.forEach(member -> types.add(member.typeNode));
+        return types;
     }
 
     @Override
@@ -53,13 +64,23 @@ public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.TUPLE_TYPE_NODE;
     }
 
     @Override
     public String toString() {
-        return "[" + memberTypeNodes.stream().map(BLangType::toString).collect(Collectors.joining(","))
+        return "[" + members.stream().map(BLangSimpleVariable::toString).collect(Collectors.joining(","))
                 + ((restParamType != null) ? "," + restParamType.toString() + "...]" : "]");
     }
 }

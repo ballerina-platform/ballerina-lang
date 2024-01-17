@@ -81,6 +81,7 @@ public class VarDeclrSemanticTest {
         validateError(result, indx++, "unknown type 'L'", 20, 26);
         validateError(result, indx++, "missing open parenthesis token", 21, 1);
         validateError(result, indx++, "missing comma token", 21, 17);
+        validateError(result, indx++, "intervening whitespaces are not allowed in qualified identifier", 21, 30);
         validateError(result, indx++, "missing close parenthesis token", 22, 1);
         validateError(result, indx++, "missing close parenthesis token", 22, 1);
         validateError(result, indx++, "missing identifier", 22, 1);

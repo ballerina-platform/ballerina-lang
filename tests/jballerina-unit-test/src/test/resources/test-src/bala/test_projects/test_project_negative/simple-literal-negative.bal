@@ -13,3 +13,7 @@ public const decimal decimalWithType = 4.0;
 
 public const string stringWithType = "Ballerina is awesome";
 public const stringWithoutType = "Ballerina rocks";
+
+public const int ACONST = 123;
+public const int BCONST = ACONST;
+public const int CCONST = BCONST - ACONST - 1;

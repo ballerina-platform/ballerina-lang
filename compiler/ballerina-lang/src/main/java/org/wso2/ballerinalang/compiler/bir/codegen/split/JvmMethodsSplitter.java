@@ -18,11 +18,13 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,22 +42,24 @@ public class JvmMethodsSplitter {
     private final String moduleInitClass;
 
     public JvmMethodsSplitter(JvmPackageGen jvmPackageGen, JvmConstantsGen jvmConstantsGen,
-                              BIRNode.BIRPackage module, String moduleInitClass, TypeHashVisitor typeHashVisitor) {
+                              BIRNode.BIRPackage module, String moduleInitClass, TypeHashVisitor typeHashVisitor,
+                              JvmTypeGen jvmTypeGen) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.moduleInitClass = moduleInitClass;
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
         this.jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, jvmConstantsGen, module.packageID, typeHashVisitor);
-        this.jvmAnnotationsGen = new JvmAnnotationsGen(module, jvmPackageGen, jvmTypeGen);
-        this.jvmValueCreatorGen = new JvmValueCreatorGen(module.packageID);
+        this.jvmAnnotationsGen = new JvmAnnotationsGen(module, jvmPackageGen, jvmTypeGen, jvmConstantsGen);
+        this.jvmValueCreatorGen = new JvmValueCreatorGen(module.packageID, jvmTypeGen);
         jvmConstantsGen.setJvmCreateTypeGen(jvmCreateTypeGen);
     }
 
-    public void generateMethods(Map<String, byte[]> jarEntries) {
+    public void generateMethods(Map<String, byte[]> jarEntries, JvmCastGen jvmCastGen,
+                                List<BIRNode.BIRFunction> sortedFunctions) {
+        jvmCreateTypeGen.generateRefTypeConstants(module.typeDefs, jvmPackageGen.symbolTable);
         jvmCreateTypeGen.generateTypeClass(jvmPackageGen, module, jarEntries, moduleInitClass,
                 jvmPackageGen.symbolTable);
         jvmValueCreatorGen.generateValueCreatorClasses(jvmPackageGen, module, moduleInitClass, jarEntries,
-                jvmPackageGen.symbolTable);
+                jvmPackageGen.symbolTable, jvmCastGen, sortedFunctions);
         jvmCreateTypeGen.generateAnonTypeClass(jvmPackageGen, module, moduleInitClass, jarEntries);
         jvmAnnotationsGen.generateAnnotationsClass(jarEntries);
     }

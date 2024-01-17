@@ -54,6 +54,7 @@ import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
 import org.ballerinalang.datamapper.utils.HttpClientRequest;
 import org.ballerinalang.datamapper.utils.HttpResponse;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -164,7 +165,7 @@ class AIDataMapperCodeActionUtil {
             List<Symbol> fileContentSymbols = semanticModel.moduleSymbols();
 
             // Find the location to insert function call in the code where error is found
-            Range newTextRange = CommonUtil.toRange(diagnostic.location().lineRange());
+            Range newTextRange = PositionUtil.toRange(diagnostic.location().lineRange());
             LinePosition linePosition = diagnostic.location().lineRange().startLine();
 
             SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).get();
@@ -269,7 +270,7 @@ class AIDataMapperCodeActionUtil {
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else if (foundErrorLeft && foundErrorRight) {
                         // get the information about the line positions
-                        newTextRange = CommonUtil.toRange(matchedNode.lineRange());
+                        newTextRange = PositionUtil.toRange(matchedNode.lineRange());
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, functionCall);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));

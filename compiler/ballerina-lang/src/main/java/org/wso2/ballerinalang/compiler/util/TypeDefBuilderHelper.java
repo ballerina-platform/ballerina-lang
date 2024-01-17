@@ -19,18 +19,21 @@ package org.wso2.ballerinalang.compiler.util;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -38,8 +41,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -52,14 +57,20 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createIdentifier;
 
@@ -122,48 +133,30 @@ public class TypeDefBuilderHelper {
         return objectTypeNode;
     }
 
-    public static BLangFunction createInitFunctionForRecordType(BLangRecordTypeNode recordTypeNode, SymbolEnv env,
-                                                                Names names, SymbolTable symTable) {
-        BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode.pos, recordTypeNode.symbol, env,
-                                                                        names, Names.INIT_FUNCTION_SUFFIX, symTable,
-                                                                        recordTypeNode.getBType());
-        BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.getBType().tsymbol);
-        structureSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
-                                                                (BInvokableType) initFunction.getBType(),
-                                                                initFunction.pos);
-        recordTypeNode.initFunction = initFunction;
-        structureSymbol.scope.define(structureSymbol.initializerFunc.symbol.name,
-                                     structureSymbol.initializerFunc.symbol);
-        return initFunction;
-    }
-
-    public static BLangFunction createInitFunctionForStructureType(Location location,
-                                                                   BSymbol symbol,
+    public static BLangFunction createInitFunctionForStructureType(BSymbol symbol,
                                                                    SymbolEnv env,
                                                                    Names names,
                                                                    Name suffix,
                                                                    SymbolTable symTable,
                                                                    BType type) {
-        return createInitFunctionForStructureType(location, symbol, env, names, suffix, type, symTable.nilType);
+        return createInitFunctionForStructureType(symbol, env, names, suffix, type, symTable.nilType);
     }
 
-    public static BLangFunction createInitFunctionForStructureType(Location location,
-                                                                   BSymbol symbol,
+    public static BLangFunction createInitFunctionForStructureType(BSymbol symbol,
                                                                    SymbolEnv env,
                                                                    Names names,
                                                                    Name suffix,
                                                                    BType type,
                                                                    BType returnType) {
         String structTypeName = type.tsymbol.name.value;
-        BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunctionWithNilReturn(location, structTypeName, suffix);
+        BLangFunction initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(null, structTypeName, suffix);
 
         // Create the receiver and add receiver details to the node
-        initFunction.receiver = ASTBuilderUtil.createReceiver(location, type);
+        initFunction.receiver = ASTBuilderUtil.createReceiver(null, type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                    names.fromIdNode(initFunction.receiver.name),
                                                    names.originalNameFromIdNode(initFunction.receiver.name),
-                                                   env.enclPkg.symbol.pkgID, type, null, location, VIRTUAL);
+                                                   env.enclPkg.symbol.pkgID, type, null, null, VIRTUAL);
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
@@ -180,7 +173,7 @@ public class TypeDefBuilderHelper {
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
-        initFunction.name = createIdentifier(location, funcSymbolName.value);
+        initFunction.name = createIdentifier(null, funcSymbolName.value);
 
         // Create the function type symbol
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
@@ -208,8 +201,9 @@ public class TypeDefBuilderHelper {
         typeDefinition.setBType(type);
         typeDefinition.symbol = symbol;
         typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
-        typeDefinition.pos = typeNode.getPosition();
-        env.enclPkg.addTypeDefinition(typeDefinition);
+        if (env != null) {
+            env.enclPkg.addTypeDefinition(typeDefinition);
+        }
         return typeDefinition;
     }
 
@@ -222,7 +216,6 @@ public class TypeDefBuilderHelper {
                     Names.fromString(symbol.name.value), symbol.pkgID, type, symbol.owner,
                     symbol.pos, symbol.origin);
         typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
-        typeDefinition.pos = typeNode.getPosition();
         env.enclPkg.addTypeDefinition(typeDefinition);
         return typeDefinition;
     }
@@ -258,7 +251,7 @@ public class TypeDefBuilderHelper {
         userDefinedTypeNode.pos = pos;
         userDefinedTypeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
 
-        BType detailType = type.detailType;
+        BType detailType = Types.getImpliedType(type.detailType);
 
         if (detailType.tag == TypeTags.MAP) {
             BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
@@ -288,7 +281,8 @@ public class TypeDefBuilderHelper {
 
     public static String getPackageAlias(SymbolEnv env, String compUnitName, PackageID typePkgId) {
         for (BLangImportPackage importStmt : env.enclPkg.imports) {
-            if (!importStmt.compUnit.value.equals(compUnitName)) {
+            if (importStmt == null || importStmt.compUnit == null || importStmt.compUnit.value == null ||
+                    !importStmt.compUnit.value.equals(compUnitName)) {
                 continue;
             }
 
@@ -298,5 +292,109 @@ public class TypeDefBuilderHelper {
         }
 
         return ""; // current module
+    }
+
+    public static void populateStructureFieldsAndTypeInclusions(Types types, SymbolTable symTable,
+                                                                BLangAnonymousModelHelper anonymousModelHelper,
+                                                                Names names, BLangStructureTypeNode structureTypeNode,
+                                                                BStructureType structureType,
+                                                                BStructureType origStructureType, Location pos,
+                                                                SymbolEnv env, PackageID pkgID,
+                                                                Set<BType> unresolvedTypes, long flag,
+                                                                boolean isImmutable) {
+        BTypeSymbol structureSymbol = structureType.tsymbol;
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+        structureType.typeInclusions = origStructureType.typeInclusions;
+        for (BField origField : origStructureType.fields.values()) {
+            BType fieldType;
+            if (isImmutable) {
+                fieldType = ImmutableTypeCloner.getImmutableType(pos, types, origField.type, env,
+                        env.enclPkg.packageID, env.scope.owner, symTable, anonymousModelHelper, names, unresolvedTypes);
+            } else {
+                fieldType = origField.type;
+            }
+
+            Name origFieldName = origField.symbol.originalName;
+            Name fieldName = origField.name;
+            BVarSymbol fieldSymbol;
+            BType referredType = Types.getImpliedType(fieldType);
+            if (referredType.tag == TypeTags.INVOKABLE && referredType.tsymbol != null) {
+                fieldSymbol = new BInvokableSymbol(origField.symbol.tag, origField.symbol.flags | flag,
+                        fieldName, origFieldName, pkgID, fieldType,
+                        structureSymbol, origField.symbol.pos, SOURCE);
+                BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) referredType.tsymbol;
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) fieldSymbol;
+                invokableSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
+                invokableSymbol.restParam = tsymbol.restParam;
+                invokableSymbol.retType = tsymbol.returnType;
+                invokableSymbol.flags = tsymbol.flags;
+            } else if (fieldType == symTable.semanticError) {
+                // Can only happen for records.
+                fieldSymbol = new BVarSymbol(origField.symbol.flags | flag | Flags.OPTIONAL,
+                        fieldName, origFieldName, pkgID, symTable.neverType,
+                        structureSymbol, origField.symbol.pos, SOURCE);
+            } else {
+                fieldSymbol = new BVarSymbol(origField.symbol.flags | flag, fieldName, origFieldName, pkgID,
+                        fieldType, structureSymbol,
+                        origField.symbol.pos, SOURCE);
+            }
+            fieldSymbol.isDefaultable = origField.symbol.isDefaultable;
+            String nameString = fieldName.value;
+            fields.put(nameString, new BField(fieldName, null, fieldSymbol));
+            structureSymbol.scope.define(fieldName, fieldSymbol);
+        }
+        structureType.fields = fields;
+
+        if (origStructureType.tag == TypeTags.OBJECT) {
+            return;
+        }
+        BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
+                ASTBuilderUtil.createIdentifier(pos,
+                        TypeDefBuilderHelper.getPackageAlias(env, null,
+                                origStructureType.tsymbol.pkgID)),
+                ASTBuilderUtil.createIdentifier(pos, origStructureType.tsymbol.name.value));
+        origTypeRef.pos = pos;
+        origTypeRef.setBType(origStructureType);
+
+        if (isImmutable) {
+            structureTypeNode.typeRefs.add(origTypeRef);
+        }
+    }
+
+    public static void createTypeDefinition(BRecordType type, Location pos, Names names,
+                                            Types types, SymbolTable symTable,
+                                            SymbolEnv env) {
+        BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) type.tsymbol;
+
+        BTypeDefinitionSymbol typeDefinitionSymbol = Symbols.createTypeDefinitionSymbol(type.tsymbol.flags,
+                type.tsymbol.name, env.scope.owner.pkgID, null, env.scope.owner, pos, VIRTUAL);
+        typeDefinitionSymbol.scope = new Scope(typeDefinitionSymbol);
+        typeDefinitionSymbol.scope.define(Names.fromString(typeDefinitionSymbol.name.value), typeDefinitionSymbol);
+
+        type.tsymbol.scope = new Scope(type.tsymbol);
+        for (BField field : ((HashMap<String, BField>) type.fields).values()) {
+            type.tsymbol.scope.define(field.name, field.symbol);
+            field.symbol.owner = recordSymbol;
+        }
+        typeDefinitionSymbol.type = type;
+        recordSymbol.type = type;
+        recordSymbol.typeDefinitionSymbol = typeDefinitionSymbol;
+        recordSymbol.markdownDocumentation = new MarkdownDocAttachment(0);
+
+        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), type,
+                pos);
+        TypeDefBuilderHelper.populateStructureFieldsAndTypeInclusions(types, symTable, null, names, recordTypeNode,
+                                                                      type, type, pos, env, env.scope.owner.pkgID,
+                                                                      null, Flags.REQUIRED, false);
+        recordTypeNode.sealed = true;
+        recordTypeNode.analyzed = true;
+        type.restFieldType = new BNoType(TypeTags.NONE);
+        BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(null,
+                typeDefinitionSymbol, recordTypeNode, env);
+        typeDefinition.symbol.scope = new Scope(typeDefinition.symbol);
+        typeDefinition.symbol.type = type;
+        typeDefinition.flagSet = new HashSet<>();
+        typeDefinition.flagSet.add(Flag.PUBLIC);
+        typeDefinition.flagSet.add(Flag.ANONYMOUS);
     }
 }

@@ -17,13 +17,16 @@
  */
 package org.wso2.ballerinalang.compiler.bir.emit;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
+import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,6 +40,7 @@ import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitSpaces;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitTabs;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitValue;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitVarRef;
+import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitVarRefs;
 import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitTypeRef;
 
 /**
@@ -45,6 +49,10 @@ import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitTypeRef;
  * @since 1.2.0
  */
 class InstructionEmitter {
+
+    private static final byte INITIAL_VALUE_COUNT = 10;
+
+    private InstructionEmitter() {}
 
     static String emitInstructions(List<? extends BIRInstruction> instructions, int tabs) {
 
@@ -79,6 +87,8 @@ class InstructionEmitter {
                 return emitInsNewError((BIRNonTerminator.NewError) ins, tabs);
             case FP_LOAD:
                 return emitInsFPLoad((BIRNonTerminator.FPLoad) ins, tabs);
+            case RECORD_DEFAULT_FP_LOAD:
+                return emitInsRecordDefaultFpLoad((BIRNonTerminator.RecordDefaultFPLoad) ins, tabs);
             case MAP_LOAD:
             case MAP_STORE:
             case ARRAY_LOAD:
@@ -122,9 +132,41 @@ class InstructionEmitter {
             case NEW_TABLE:
                 return emitInsNewTable((BIRNonTerminator.NewTable) ins, tabs);
             default:
-                throw new IllegalStateException("Not an instruction");
+                return emitBIRInstruction(ins.getClass().getSimpleName(), ((BIRAbstractInstruction) ins).lhsOp,
+                        ((BIRAbstractInstruction) ins).getRhsOperands(), tabs);
 
         }
+    }
+
+    private static String emitInsRecordDefaultFpLoad(BIRNonTerminator.RecordDefaultFPLoad ins, int tabs) {
+        String anonLoadIns = "";
+        anonLoadIns += emitTabs(tabs);
+        anonLoadIns += "_";
+        anonLoadIns += emitSpaces(1);
+        anonLoadIns += "=";
+        anonLoadIns += emitSpaces(1);
+        anonLoadIns += emitTypeRef(ins.enclosedType, tabs);
+        anonLoadIns += " Default => ";
+        anonLoadIns += ins.fieldName;
+        anonLoadIns += emitSpaces(1);
+        anonLoadIns += "<";
+        anonLoadIns += emitVarRef(ins.lhsOp);
+        anonLoadIns += ">";
+        return anonLoadIns;
+    }
+
+    private static String emitBIRInstruction(String ins, BIROperand lhsOp, BIROperand[] rhsOperands, int tabs) {
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += ins;
+        str += emitSpaces(1);
+        str += emitVarRefs(rhsOperands);
+        str += ";";
+        return str;
     }
 
     private static String emitInsConstantLoad(BIRNonTerminator.ConstantLoad ins, int tabs) {
@@ -153,8 +195,31 @@ class InstructionEmitter {
         nMapStr += "NewMap";
         nMapStr += emitSpaces(1);
         nMapStr += emitVarRef(ins.rhsOp);
+        nMapStr += "{";
+        nMapStr += emitMapValues(ins.initialValues);
+        nMapStr += "}";
         nMapStr += ";";
         return nMapStr;
+    }
+
+    private static String emitMapValues(List<BIRNode.BIRMappingConstructorEntry> initialValues) {
+        if (initialValues.isEmpty()) {
+            return "";
+        }
+        StringBuilder outStr = new StringBuilder();
+        for (int i = 0; i < Math.min(initialValues.size(), INITIAL_VALUE_COUNT); i++) {
+            BIRNode.BIRMappingConstructorEntry mappingEntry = initialValues.get(i);
+            if (mappingEntry instanceof BIRNode.BIRMappingConstructorKeyValueEntry) {
+                BIRNode.BIRMappingConstructorKeyValueEntry entry =
+                        (BIRNode.BIRMappingConstructorKeyValueEntry) mappingEntry;
+                outStr.append(emitVarRef(entry.keyOp)).append(":").append(emitVarRef(entry.valueOp)).append(",");
+            } else {
+                outStr.append(emitVarRef(((BIRNode.BIRMappingConstructorSpreadFieldEntry) mappingEntry).exprOp))
+                        .append(",");
+            }
+        }
+        return initialValues.size() > INITIAL_VALUE_COUNT ? outStr.append("...").toString()
+                : outStr.substring(0, outStr.length() - 1);
     }
 
     private static String emitInsNewTable(BIRNonTerminator.NewTable ins, int tabs) {
@@ -207,12 +272,30 @@ class InstructionEmitter {
         str += emitSpaces(1);
         str += "newArray";
         str += emitSpaces(1);
-        str += emitTypeRef(ins.type, 0);
+        BType type = Types.getImpliedType(ins.type);
+        if (type.tag == TypeTags.TUPLE) {
+            str += emitVarRef(ins.typedescOp);
+        } else {
+            str += emitTypeRef(ins.type, 0);
+        }
         str += "[";
         str += emitVarRef(ins.sizeOp);
         str += "]";
+        str += "{";
+        str += emitArrayValues(ins.values);
+        str += "}";
         str += ";";
         return str;
+    }
+
+    private static String emitArrayValues(List<BIRNode.BIRListConstructorEntry> values) {
+        int operandArraySize = Math.min(INITIAL_VALUE_COUNT, values.size());
+        BIROperand[] valueOperands = new BIROperand[operandArraySize];
+        for (int i = 0; i < operandArraySize; i++) {
+            valueOperands[i] = values.get(i).exprOp;
+        }
+        String result = emitVarRefs(valueOperands);
+        return values.size() > INITIAL_VALUE_COUNT ? result + ",..." : result;
     }
 
     private static String emitInsNewError(BIRNonTerminator.NewError ins, int tabs) {
@@ -583,8 +666,28 @@ class InstructionEmitter {
             case WAIT_ALL:
                 return emitWaitAll((BIRTerminator.WaitAll) term, tabs);
             default:
-                throw new IllegalStateException("Not a terminator instruction");
+                return emitBIRTerminator(term.getClass().getSimpleName(), term.lhsOp, term.getRhsOperands(), tabs,
+                        term.thenBB);
         }
+    }
+
+    private static String emitBIRTerminator(String ins, BIROperand lhsOp, BIROperand[] rhsOperands, int tabs,
+                                            BIRNode.BIRBasicBlock thenBB) {
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += ins;
+        str += emitSpaces(1);
+        str += emitVarRefs(rhsOperands);
+        str += emitSpaces(1);
+        str += "->";
+        str += emitSpaces(1);
+        str += emitBasicBlockRef(thenBB);
+        str += ";";
+        return str;
     }
 
     private static String emitWait(BIRTerminator.Wait term, int tabs) {
@@ -710,7 +813,7 @@ class InstructionEmitter {
         callStr.append("(");
         int i = 0;
         int argLength = term.args.size();
-        for (BIRArgument ref : term.args) {
+        for (BIROperand ref : term.args) {
             if (ref != null) {
                 callStr.append(emitVarRef(ref));
                 i += 1;
@@ -746,7 +849,7 @@ class InstructionEmitter {
         str.append("(");
         int i = 0;
         int argLength = term.args.size();
-        for (BIRArgument ref : term.args) {
+        for (BIROperand ref : term.args) {
             if (ref != null) {
                 str.append(emitVarRef(ref));
                 i += 1;
@@ -873,7 +976,7 @@ class InstructionEmitter {
         callStr.append("(");
         int i = 0;
         int argLength = term.args.size();
-        for (BIRArgument ref : term.args) {
+        for (BIROperand ref : term.args) {
             if (ref != null) {
                 callStr.append(emitVarRef(ref));
                 i += 1;

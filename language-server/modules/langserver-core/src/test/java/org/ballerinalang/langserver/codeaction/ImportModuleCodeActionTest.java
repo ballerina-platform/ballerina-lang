@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "import-module";
@@ -36,17 +37,44 @@ public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
+    }
+
+    @Test(dataProvider = "negativeDataProvider")
+    @Override
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
+    @Override
+    public boolean loadMockedPackages() {
+        return true;
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"importModule1a.json", "importModule1.bal"},
-                {"importModule1b.json", "importModule1.bal"},
-                {"importModule2.json", "importModule2.bal"},
+                {"importModule1a.json"},
+                {"importModule1b.json"},
+                {"importModule2.json"},
+                {"importModule3.json"},
+                {"importModuleWithModAlias1.json"},
+                {"importModuleWithModAlias2.json"},
+                {"importModuleWithMultipleModAliases1.json"},
+                {"importModuleWithMultipleModAliases2.json"},
+                {"importModuleWithLicenceHeader1.json"},
+                {"importModuleWithLicenceHeader2.json"},
+                {"importModuleWithIgnoredImport.json"},
+                {"importModuleWithTopLevelComment.json"}
+        };
+    }
+
+    @DataProvider
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"negativeImportModuleWithMultipleModAliases1.json"}
         };
     }
 }

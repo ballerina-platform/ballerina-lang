@@ -79,3 +79,11 @@ class Foo {
         self.name = name;
     }
 }
+
+annotation vx on type;
+
+public function testAnnot() {
+    typedesc<any> td = int;
+    _ = td.@vx;
+    typedesc _ = td;
+}

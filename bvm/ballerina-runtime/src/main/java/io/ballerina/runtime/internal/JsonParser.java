@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -310,7 +311,7 @@ public class JsonParser {
             }
 
             Object parentNode = this.nodesStack.pop();
-            if (TypeChecker.getType(parentNode).getTag() == TypeTags.MAP_TAG) {
+            if (TypeUtils.getImpliedType(TypeChecker.getType(parentNode)).getTag() == TypeTags.MAP_TAG) {
                 ((MapValueImpl<BString, Object>) parentNode).put(StringUtils.fromString(fieldNames.pop()),
                                                                  currentJsonNode);
                 currentJsonNode = parentNode;
@@ -539,6 +540,8 @@ public class JsonParser {
                         state = sm.initNewObject();
                     } else if (ch == '[') {
                         state = sm.initNewArray();
+                    } else if (ch == ']') {
+                        throw new JsonParserException("expected an array element");
                     } else {
                         state = NON_STRING_ARRAY_ELEMENT_STATE;
                     }
@@ -646,6 +649,8 @@ public class JsonParser {
                         state = sm.initNewObject();
                     } else if (ch == '[') {
                         state = sm.initNewArray();
+                    } else if (ch == ']' || ch == '}') {
+                        throw new JsonParserException("expected a field value");
                     } else {
                         state = NON_STRING_FIELD_VALUE_STATE;
                     }
@@ -923,6 +928,8 @@ public class JsonParser {
                             default:
                                 if (isNegativeZero(str)) {
                                     setValueToJsonType(type, Double.parseDouble(str));
+                                } else if (isExponential(str)) {
+                                    setValueToJsonType(type, new DecimalValue(str));
                                 } else {
                                     setValueToJsonType(type, Long.parseLong(str));
                                 }
@@ -933,6 +940,10 @@ public class JsonParser {
                     }
                 }
             }
+        }
+
+        private boolean isExponential(String str) {
+            return str.contains("e") || str.contains("E");
         }
 
         private void setValueToJsonType(ValueType type, Object value) {
@@ -1121,8 +1132,7 @@ public class JsonParser {
                         continue;
                     }
                     this.reset(sm);
-                    StateMachine.throwExpected("hexadecimal value of an unicode character");
-                    break;
+                    throw new JsonParserException("expected the hexadecimal value of a unicode character");
                 }
                 sm.index = i + 1;
                 return state;
@@ -1248,7 +1258,7 @@ public class JsonParser {
                             }
                             break;
                         default:
-                            StateMachine.throwExpected("escaped characters");
+                            throw new JsonParserException("expected escaped characters");
                     }
                 }
                 sm.index = i + 1;

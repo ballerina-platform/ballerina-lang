@@ -1,0 +1,456 @@
+{
+  "forEachKeyword": {
+    "kind": "ForeachKeyword",
+    "isToken": true,
+    "value": "foreach",
+    "isMissing": false,
+    "position": {
+      "startLine": 0,
+      "startColumn": 0,
+      "endLine": 0,
+      "endColumn": 7
+    },
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ]
+  },
+  "typedBindingPattern": {
+    "kind": "TypedBindingPattern",
+    "typeDescriptor": {
+      "kind": "VarTypeDesc",
+      "name": {
+        "kind": "VarKeyword",
+        "isToken": true,
+        "value": "var",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 8,
+          "endLine": 0,
+          "endColumn": 11
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ]
+      },
+      "source": "var ",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ],
+      "position": {
+        "startLine": 0,
+        "startColumn": 8,
+        "endLine": 0,
+        "endColumn": 11
+      },
+      "typeData": {}
+    },
+    "bindingPattern": {
+      "kind": "CaptureBindingPattern",
+      "variableName": {
+        "kind": "IdentifierToken",
+        "isToken": true,
+        "value": "item",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 12,
+          "endLine": 0,
+          "endColumn": 16
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ]
+      },
+      "source": "item ",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ],
+      "position": {
+        "startLine": 0,
+        "startColumn": 12,
+        "endLine": 0,
+        "endColumn": 16
+      },
+      "typeData": {}
+    },
+    "source": "var item ",
+    "syntaxDiagnostics": [],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ],
+    "position": {
+      "startLine": 0,
+      "startColumn": 8,
+      "endLine": 0,
+      "endColumn": 16
+    },
+    "typeData": {}
+  },
+  "inKeyword": {
+    "kind": "InKeyword",
+    "isToken": true,
+    "value": "in",
+    "isMissing": false,
+    "position": {
+      "startLine": 0,
+      "startColumn": 17,
+      "endLine": 0,
+      "endColumn": 19
+    },
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ]
+  },
+  "actionOrExpressionNode": {
+    "kind": "SimpleNameReference",
+    "name": {
+      "kind": "IdentifierToken",
+      "isToken": true,
+      "value": "arr",
+      "isMissing": false,
+      "position": {
+        "startLine": 0,
+        "startColumn": 20,
+        "endLine": 0,
+        "endColumn": 23
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ]
+    },
+    "source": "arr ",
+    "syntaxDiagnostics": [],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ],
+    "position": {
+      "startLine": 0,
+      "startColumn": 20,
+      "endLine": 0,
+      "endColumn": 23
+    },
+    "typeData": {}
+  },
+  "blockStatement": {
+    "kind": "BlockStatement",
+    "openBraceToken": {
+      "kind": "OpenBraceToken",
+      "isToken": true,
+      "value": "{",
+      "isMissing": false,
+      "position": {
+        "startLine": 0,
+        "startColumn": 24,
+        "endLine": 0,
+        "endColumn": 25
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "minutiae": "\r\n",
+          "isInvalid": false
+        }
+      ]
+    },
+    "statements": [
+      {
+        "kind": "CallStatement",
+        "expression": {
+          "kind": "FunctionCall",
+          "functionName": {
+            "kind": "QualifiedNameReference",
+            "modulePrefix": {
+              "kind": "IdentifierToken",
+              "isToken": true,
+              "value": "io",
+              "isMissing": false,
+              "position": {
+                "startLine": 1,
+                "startColumn": 4,
+                "endLine": 1,
+                "endColumn": 6
+              },
+              "leadingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "minutiae": "    ",
+                  "isInvalid": false
+                }
+              ],
+              "trailingMinutiae": []
+            },
+            "colon": {
+              "kind": "ColonToken",
+              "isToken": true,
+              "value": ":",
+              "isMissing": false,
+              "position": {
+                "startLine": 1,
+                "startColumn": 6,
+                "endLine": 1,
+                "endColumn": 7
+              },
+              "leadingMinutiae": [],
+              "trailingMinutiae": []
+            },
+            "identifier": {
+              "kind": "IdentifierToken",
+              "isToken": true,
+              "value": "println",
+              "isMissing": false,
+              "position": {
+                "startLine": 1,
+                "startColumn": 7,
+                "endLine": 1,
+                "endColumn": 14
+              },
+              "leadingMinutiae": [],
+              "trailingMinutiae": []
+            },
+            "source": "    io:println",
+            "syntaxDiagnostics": [],
+            "leadingMinutiae": [
+              {
+                "kind": "WHITESPACE_MINUTIAE",
+                "minutiae": "    ",
+                "isInvalid": false
+              }
+            ],
+            "trailingMinutiae": [],
+            "position": {
+              "startLine": 1,
+              "startColumn": 4,
+              "endLine": 1,
+              "endColumn": 14
+            },
+            "typeData": {}
+          },
+          "openParenToken": {
+            "kind": "OpenParenToken",
+            "isToken": true,
+            "value": "(",
+            "isMissing": false,
+            "position": {
+              "startLine": 1,
+              "startColumn": 14,
+              "endLine": 1,
+              "endColumn": 15
+            },
+            "leadingMinutiae": [],
+            "trailingMinutiae": []
+          },
+          "arguments": [
+            {
+              "kind": "PositionalArg",
+              "expression": {
+                "kind": "SimpleNameReference",
+                "name": {
+                  "kind": "IdentifierToken",
+                  "isToken": true,
+                  "value": "item",
+                  "isMissing": false,
+                  "position": {
+                    "startLine": 1,
+                    "startColumn": 15,
+                    "endLine": 1,
+                    "endColumn": 19
+                  },
+                  "leadingMinutiae": [],
+                  "trailingMinutiae": []
+                },
+                "source": "item",
+                "syntaxDiagnostics": [],
+                "leadingMinutiae": [],
+                "trailingMinutiae": [],
+                "position": {
+                  "startLine": 1,
+                  "startColumn": 15,
+                  "endLine": 1,
+                  "endColumn": 19
+                },
+                "typeData": {}
+              },
+              "source": "item",
+              "syntaxDiagnostics": [],
+              "leadingMinutiae": [],
+              "trailingMinutiae": [],
+              "position": {
+                "startLine": 1,
+                "startColumn": 15,
+                "endLine": 1,
+                "endColumn": 19
+              },
+              "typeData": {}
+            }
+          ],
+          "closeParenToken": {
+            "kind": "CloseParenToken",
+            "isToken": true,
+            "value": ")",
+            "isMissing": false,
+            "position": {
+              "startLine": 1,
+              "startColumn": 19,
+              "endLine": 1,
+              "endColumn": 20
+            },
+            "leadingMinutiae": [],
+            "trailingMinutiae": []
+          },
+          "source": "    io:println(item)",
+          "syntaxDiagnostics": [],
+          "leadingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": "    ",
+              "isInvalid": false
+            }
+          ],
+          "trailingMinutiae": [],
+          "position": {
+            "startLine": 1,
+            "startColumn": 4,
+            "endLine": 1,
+            "endColumn": 20
+          },
+          "typeData": {}
+        },
+        "semicolonToken": {
+          "kind": "SemicolonToken",
+          "isToken": true,
+          "value": ";",
+          "isMissing": false,
+          "position": {
+            "startLine": 1,
+            "startColumn": 20,
+            "endLine": 1,
+            "endColumn": 21
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "minutiae": "\r\n",
+              "isInvalid": false
+            }
+          ]
+        },
+        "source": "    io:println(item);\r\n",
+        "syntaxDiagnostics": [],
+        "leadingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": "    ",
+            "isInvalid": false
+          }
+        ],
+        "trailingMinutiae": [
+          {
+            "kind": "END_OF_LINE_MINUTIAE",
+            "minutiae": "\r\n",
+            "isInvalid": false
+          }
+        ],
+        "position": {
+          "startLine": 1,
+          "startColumn": 4,
+          "endLine": 1,
+          "endColumn": 21
+        },
+        "typeData": {}
+      }
+    ],
+    "closeBraceToken": {
+      "kind": "CloseBraceToken",
+      "isToken": true,
+      "value": "}",
+      "isMissing": false,
+      "position": {
+        "startLine": 3,
+        "startColumn": 0,
+        "endLine": 3,
+        "endColumn": 1
+      },
+      "leadingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "minutiae": "\r\n",
+          "isInvalid": false
+        }
+      ],
+      "trailingMinutiae": []
+    },
+    "source": "{\r\n    io:println(item);\r\n\r\n}",
+    "syntaxDiagnostics": [],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [],
+    "position": {
+      "startLine": 0,
+      "startColumn": 24,
+      "endLine": 3,
+      "endColumn": 1
+    },
+    "typeData": {}
+  },
+  "source": "foreach var item in arr {\r\n    io:println(item);\r\n\r\n}",
+  "kind": "ForeachStatement",
+  "syntaxDiagnostics": [],
+  "leadingMinutiae": [],
+  "trailingMinutiae": [],
+  "position": {
+    "startLine": 0,
+    "startColumn": 0,
+    "endLine": 3,
+    "endColumn": 1
+  },
+  "typeData": {}
+}

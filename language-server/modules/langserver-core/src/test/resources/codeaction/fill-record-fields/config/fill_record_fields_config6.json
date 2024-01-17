@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 11,
+    "character": 12
+  },
+  "source": "fill_record_fields_source3.bal",
+  "expected": [
+    {
+      "title": "Fill 'Record1' required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 12
+            },
+            "end": {
+              "line": 11,
+              "character": 12
+            }
+          },
+          "newText": "rec1f2: 0, rec1f1: {rec2f1: 0, rec2f2: 0}"
+        }
+      ]
+    }
+  ],
+  "description": "Fill record fields in return statement context"
+}

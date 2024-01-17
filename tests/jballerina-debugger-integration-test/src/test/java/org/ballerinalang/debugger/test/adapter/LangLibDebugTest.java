@@ -30,6 +30,10 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+
 /**
  * Test implementation for Ballerina language library debugging related test scenarios.
  *
@@ -38,7 +42,6 @@ import org.testng.annotations.Test;
 public class LangLibDebugTest extends BaseTestCase {
 
     private DebugTestRunner debugTestRunner;
-    private static final String BALA_URI_SCHEME = "bala";
 
     @BeforeClass
     public void setup() {
@@ -47,13 +50,15 @@ public class LangLibDebugTest extends BaseTestCase {
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test(description = "Evaluates debug hits and step events inside ballerina language libraries")
-    public void testLangLibDebugHits() throws BallerinaTestException {
+    @Test(description = "Evaluates debug hits and step events inside lang-lib functions")
+    public void testLangLibFunctionDebug() throws BallerinaTestException {
 
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 19));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 22));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
+
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
 
         // Steps into `int` language library.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_IN);
@@ -65,7 +70,7 @@ public class LangLibDebugTest extends BaseTestCase {
         // Next breakpoint.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 22));
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(1));
 
         // Steps into `float` language library.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_IN);
@@ -73,6 +78,29 @@ public class LangLibDebugTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft().getSourceURI().getScheme(), BALA_URI_SCHEME);
         Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().replaceAll("\\\\", "/")
                 .endsWith("ballerina/lang.float/0.0.0/any/modules/lang.float/float.bal"));
+    }
+
+    @Test(enabled = false, description = "Evaluates debug hits and step events inside lang-lib class definitions")
+    public void testLangLibClassDebug() throws BallerinaTestException {
+        // enable after fixing on windows
+        Path filePath = debugTestRunner.testProjectPath.resolve(debugTestRunner.getBalServer().getServerHome())
+                .resolve("repo").resolve("bala").resolve("ballerina").resolve("lang.query").resolve("0.0.0")
+                .resolve("any").resolve("modules").resolve("lang.query").resolve("types.bal");
+
+        try {
+            URI filePathUri = new URI(BALA_URI_SCHEME, null, filePath.toUri().getPath(), null);
+            debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePathUri, 85));
+            debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+
+            // Test for debug engage inside lang lib init() method
+            Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
+            Assert.assertEquals(debugHitInfo.getLeft().getDAPBreakPoint().getLine(),
+                    debugTestRunner.testBreakpoints.get(0).getDAPBreakPoint().getLine());
+            Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().replaceAll("\\\\", "/")
+                    .endsWith("ballerina/lang.query/0.0.0/any/modules/lang.query/types.bal"));
+        } catch (URISyntaxException e) {
+            throw new BallerinaTestException("failed to resolve breakpoint path due to: " + e.getMessage());
+        }
     }
 
     @AfterMethod(alwaysRun = true)

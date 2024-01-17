@@ -1,0 +1,5 @@
+Compiling source
+	testuserorg/tool_sample:0.1.0
+
+Generating executable
+	target\bin\tool_sample.jar

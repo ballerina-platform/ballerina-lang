@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -41,6 +40,7 @@ public class MainParameterVisitor {
     }
 
     public boolean visit(BType type) {
+        type = Types.getImpliedType(type);
         if (type.tag == TypeTags.ARRAY) {
             return isOperandType(((BArrayType) type).eType);
         }
@@ -71,7 +71,7 @@ public class MainParameterVisitor {
     private boolean hasNil(LinkedHashSet<BType> memberTypes) {
         boolean result = false;
         for (BType memberType : memberTypes) {
-            if (memberType.tag == TypeTags.NIL) {
+            if (Types.getImpliedType(memberType).tag == TypeTags.NIL) {
                 result = true;
                 break;
             }
@@ -80,18 +80,15 @@ public class MainParameterVisitor {
     }
 
     public boolean isOperandType(BType type) {
-        switch (type.tag) {
-            case TypeTags.INT:
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
-            case TypeTags.STRING:
+            case TypeTags.BYTE:
                 return true;
             case TypeTags.BOOLEAN:
                 return option;
-            case TypeTags.TYPEREFDESC:
-                return isOperandType(((BTypeReferenceType) type).referredType);
             default:
-                return false;
+                return TypeTags.isIntegerTypeTag(type.tag) || TypeTags.isStringTypeTag(type.tag);
         }
     }
 }

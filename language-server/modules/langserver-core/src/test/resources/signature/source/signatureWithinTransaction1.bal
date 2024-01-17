@@ -1,7 +1,7 @@
-import ballerina/http;
+import ballerina/httpx;
 
 function initiateNestedTransactionInRemote(string nestingMethod) returns string {
-   http:Client remoteEp = new("http://localhost:8889");
+   httpx:Client remoteEp = new("http://localhost:8889");
     string s = "";
     transaction {
         string testString = "Hello World!!";

@@ -1,6 +1,6 @@
-import ballerina/http;
+import ballerina/httpx;
 
-http:Client httpClient = new ("http://localhost:8080");
+httpx:Client httpClient = new ("http://localhost:8080");
 
 function testSignatureHelp () {
     httpClient->get()

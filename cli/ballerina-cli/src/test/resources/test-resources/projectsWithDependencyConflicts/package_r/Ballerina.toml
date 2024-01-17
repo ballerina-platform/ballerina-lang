@@ -1,0 +1,9 @@
+[package]
+org = "foo"
+name = "package_r"
+version = "1.0.0"
+
+[[dependency]]
+org = "foo"
+name = "package_o"
+version = "2.1.0"

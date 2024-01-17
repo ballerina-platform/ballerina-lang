@@ -1,0 +1,35 @@
+{
+  "packages": [
+    {
+      "org": "foo",
+      "name": "include_test",
+      "version": "0.1.0",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "foo",
+      "package_name": "include_test",
+      "version": "0.1.0",
+      "module_name": "include_test.services",
+      "dependencies": []
+    },
+    {
+      "org": "foo",
+      "package_name": "include_test",
+      "version": "0.1.0",
+      "module_name": "include_test.storage",
+      "dependencies": []
+    },
+    {
+      "org": "foo",
+      "package_name": "include_test",
+      "version": "0.1.0",
+      "module_name": "include_test",
+      "dependencies": []
+    }
+  ]
+}

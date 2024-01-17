@@ -19,7 +19,6 @@ package org.ballerinalang.debugadapter.evaluation.engine.invokable;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.Method;
-import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
@@ -53,7 +52,7 @@ public class RuntimeStaticMethod extends RuntimeMethod {
             }
             List<Value> argValueList = getMethodArgs(this);
             return ((ClassType) classRef).invokeMethod(context.getFrame().threadProxy().getThreadReference(),
-                    methodRef, argValueList, ObjectReference.INVOKE_SINGLE_THREADED);
+                    methodRef, argValueList, 0);
         } catch (ClassNotLoadedException e) {
             throw createEvaluationException(FUNCTION_NOT_FOUND, methodRef.name());
         } catch (EvaluationException e) {

@@ -163,6 +163,61 @@ function testNextIsNotInvokedTwiseBeforeInvokingBody() {
     }
 }
 
+
+function testLangLibRangeFunction1() {
+    int[] expected = [6, 4, 2];
+    int[] actual = [];
+    foreach int i in int:range(6, 0, -2) {
+        actual.push(i);
+    }
+    assert(expected, actual);
+}
+
+function testLangLibRangeFunction2() {
+    int[] expected = [0, 2, 4];
+    int[] actual = [];
+    foreach int i in int:range(0, 6, 2) {
+        actual.push(i);
+    }
+    assert(expected, actual);
+}
+
+function testLangLibRangeFunction3() {
+    int[] expected = [];
+    int[] actual = [];
+    foreach int i in int:range(0, 5, -2) {
+        actual.push(i);
+    }
+    assert(expected, actual);
+}
+
+function testLangLibRangeFunction4() {
+    int[] expected = [];
+    int[] actual = [];
+    foreach int i in int:range(5, 0, 2) {
+        actual.push(i);
+    }
+    assert(expected, actual);
+}
+
+function testLangLibRangeFunction5() {
+    int[] expected = [0, -2, -4];
+    int[] actual = [];
+    foreach int i in int:range(0, -6, -2) {
+        actual.push(i);
+    }
+    assert(expected, actual);
+}
+
+function testLangLibRangeFunction6() {
+    int[] expected = [-6, -4, -2];
+    int[] actual = [];
+    foreach int i in int:range(-6, 0, 2) {
+        actual.push(i);
+    }
+    assert(expected, actual);
+}
+
 class Iter {
     public function next() returns record {|int value;|}? {
         globalInt += 1;

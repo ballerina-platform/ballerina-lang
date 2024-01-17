@@ -25,12 +25,12 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,7 +51,7 @@ public class Filter {
                                                                       MAP_VERSION, "filter");
 
     public static BMap filter(BMap<?, ?> m, BFunctionPointer<Object, Boolean> func) {
-        Type mapType = m.getType();
+        Type mapType = TypeUtils.getImpliedType(m.getType());
         Type constraint;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
@@ -67,17 +67,16 @@ public class Filter {
         BMap<BString, Object> newMap = ValueCreator.createMapValue(TypeCreator.createMapType(constraint));
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
-        Strand parentStrand = Scheduler.getStrand();
+        Object[] keys = m.getKeys();
         AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                         () -> new Object[]{parentStrand,
-                                                                 m.get(m.getKeys()[index.incrementAndGet()]), true},
-                                                         result -> {
-                                                             if ((Boolean) result) {
-                                                                 Object key = m.getKeys()[index.get()];
-                                                                 Object value = m.get(key);
-                                                                 newMap.put((BString) key, value);
-                                                             }
-                                                         }, () -> newMap, Scheduler.getStrand().scheduler);
+                () -> new Object[]{m.get(keys[index.incrementAndGet()]), true},
+                result -> {
+                    if ((Boolean) result) {
+                        Object key = keys[index.get()];
+                        Object value = m.get(key);
+                        newMap.put((BString) key, value);
+                    }
+                }, () -> newMap, Scheduler.getStrand().scheduler);
         return newMap;
     }
 }

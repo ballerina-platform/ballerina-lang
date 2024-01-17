@@ -43,7 +43,6 @@ public class DependenciesTomlTests {
     private static final Path DEPENDENCIES_TOML_REPO = RESOURCE_DIRECTORY.resolve("dependencies-toml");
     static final PrintStream OUT = System.out;
 
-
     @Test
     public void testValidDependenciesToml() throws IOException {
         DependencyManifest depsManifest = getDependencyManifest(
@@ -55,6 +54,7 @@ public class DependenciesTomlTests {
         List<DependencyManifest.Package> dependencies = new ArrayList<>(depsManifest.packages());
         Assert.assertEquals(depsManifest.dependenciesTomlVersion(), "2");
         Assert.assertEquals(dependencies.size(), 3);
+        Assert.assertEquals(depsManifest.distributionVersion().toString(), "2201.5.0-20230328-002700-db7a81cf");
 
         DependencyManifest.Package rootPackage = dependencies.get(0);
         Assert.assertEquals(rootPackage.org().value(), "winery");
@@ -93,6 +93,15 @@ public class DependenciesTomlTests {
         Assert.assertTrue(github.isTransitive());
         Assert.assertEquals(github.dependencies().size(), 1);
         Assert.assertEquals(github.modules().size(), 0);
+    }
+
+    @Test(description = "Test dependencies.toml without distribution version")
+    public void testDependenciesTomlWithoutDistributionVersion() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependency-wo-dist-version.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
+        Assert.assertFalse(diagnostics.hasErrors());
     }
 
     /**
@@ -176,6 +185,22 @@ public class DependenciesTomlTests {
                 "invalid 'org' under [[package]]: " + "maximum length of 'org' is 256 characters");
         Assert.assertEquals(iterator.next().message(),
                 "invalid 'name' under [[dependency]]: " + "maximum length of 'name' is 256 characters");
+    }
+
+    @Test(description = "Test dependencies.toml with invalid distribution version")
+    public void testDependenciesTomlWithInvalidDistributionVersion() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("invalid-dist-version-value.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
+
+        Assert.assertTrue(diagnostics.hasErrors());
+        Assert.assertEquals(diagnostics.errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "invalid 'distribution-version' under [ballerina]: " +
+                "'distribution-version' should be compatible with semver rules");
     }
 
     @Test
@@ -280,6 +305,38 @@ public class DependenciesTomlTests {
         Assert.assertEquals(depsManifest.diagnostics().warnings().size(), 1);
         Assert.assertEquals(depsManifest.diagnostics().warnings().iterator().next().message(),
                         "Detected corrupted Dependencies.toml file. This will be updated to latest dependencies.");
+    }
+
+    @Test(description = "Invalid Dependencies.toml file with additional attribute in modules array")
+    public void testDependenciesTomlWithAdditionalAttributeInModulesArray() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependencies-with-additional-attribute-in-modules.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
+
+        Assert.assertTrue(diagnostics.hasErrors());
+        Assert.assertEquals(diagnostics.errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "key 'name' not supported in schema 'modules'");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(31:44,31:60)");
+    }
+
+    @Test(description = "Invalid Dependencies.toml file with additional attribute in dependencies array")
+    public void testDependenciesTomlWithAdditionalAttributeInDependenciesArray() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependencies-with-additional-attribute-in-dependencies.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
+
+        Assert.assertTrue(diagnostics.hasErrors());
+        Assert.assertEquals(diagnostics.errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "key 'version' not supported in schema 'dependencies'");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(13:37,13:54)");
     }
 
     private DependencyManifest getDependencyManifest(Path dependenciesTomlPath) throws IOException {

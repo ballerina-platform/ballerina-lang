@@ -16,8 +16,6 @@
  */
 package org.ballerinalang.test.types.table;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -25,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -44,20 +43,32 @@ public class RecordConstraintTableTest {
 
     @Test
     public void testDuplicateKeysInTableConstructorExpr() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
-        BAssertUtil.validateError(negativeResult, 0, "duplicate key found in table row key('name') : 'AAA'", 18, 5);
-        BAssertUtil.validateError(negativeResult, 1, "duplicate key found in table row key('id, name') : '13, Foo'",
-                23, 5);
-        BAssertUtil.validateError(negativeResult, 2, "duplicate key found in table row key('m') : ' {AAA: DDDD}'",
-                36, 7);
-        BAssertUtil.validateError(negativeResult, 3, "duplicate key found in table row key('idNum') : 'idNum'",
-                46, 9);
+        int index = 0;
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table " +
+                "row key('name') : 'AAA'", 18, 5);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table " +
+                "row key('id, name') : '13, Foo'", 23, 5);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table " +
+                "row key('m') : ' {AAA: DDDD}'", 36, 9);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table row key('idNum') : 'idNum'",
+                44, 9);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table row key('idNum') : 'idNum'",
+                52, 9);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table" +
+                " row key('idNum, name') : 'idNum, Jo'", 60, 9);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table" +
+                " row key('idNum, name') : 'idNum, Jo'", 68, 9);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table row key('m')" +
+                " : ' {AAA: DDDD}'", 83, 9);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table" +
+                " row key('m, age') : ' {AAA: DDDD}, 11'", 97, 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
     @Test(description = "Test global table constructor expr")
     public void testGlobalTableConstructExpr() {
-        BValue[] values = BRunUtil.invoke(result, "testGlobalTableConstructExpr", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testGlobalTableConstructExpr", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test key specifier and key type constraint options")
@@ -85,9 +96,10 @@ public class RecordConstraintTableTest {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
     }
 
-    @Test(description = "Test Table with var type")
+    @Test(description = "Test table with var type")
     public void testTableWithVarType() {
         BRunUtil.invoke(result, "runTableTestcasesWithVarType");
+        BRunUtil.invoke(result, "testTableTypeInferenceWithVarType");
     }
 
     @Test(description = "Test invalid member access in table")
@@ -97,24 +109,24 @@ public class RecordConstraintTableTest {
 
     @Test(description = "Test member access in table in store operation")
     public void testTableMemberAccessStore() {
-        BValue[] values = BRunUtil.invoke(result, "testTableMemberAccessStore", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testTableMemberAccessStore", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test member access in table in load operation")
     public void testTableMemberAccessLoad() {
-        BValue[] values = BRunUtil.invoke(result, "testTableMemberAccessLoad", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testTableMemberAccessLoad", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test table as record field")
     public void testTableAsRecordField() {
-        BRunUtil.invoke(result, "testTableAsRecordField", new BValue[]{});
+        BRunUtil.invoke(result, "testTableAsRecordField", new Object[]{});
     }
 
     @Test(description = "Test table equality")
     public void testTableEquality() {
-        BRunUtil.invoke(result, "testTableEquality", new BValue[]{});
+        BRunUtil.invoke(result, "testTableEquality", new Object[]{});
     }
 
     @Test(description = "Test member access in table having members with nilable/optional fields")
@@ -130,6 +142,19 @@ public class RecordConstraintTableTest {
     @Test(description = "Test using spread field in table constructor")
     public void testSpreadFieldInConstructor() {
         BRunUtil.invoke(result, "testSpreadFieldInConstructor");
+    }
+
+    @Test(dataProvider = "functionsToTestEmptyKeyedKeylessTbl")
+    public void testEmptyKeyedKeylessTbl(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsToTestEmptyKeyedKeylessTbl() {
+        return new String[] {
+                "testAssignabilityWithEmptyKeyedKeylessTbl",
+                "testEqualityWithEmptyKeyedKeylessTbl",
+        };
     }
 
     @AfterClass

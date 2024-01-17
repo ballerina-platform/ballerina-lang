@@ -19,6 +19,7 @@ package org.ballerinalang.test.statements.vardeclr;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -74,5 +75,10 @@ public class ModulePublicVariableTest {
         validateError(compileResultNegative, index++, "attempt to refer to non-accessible symbol 'name'", 20, 21);
         validateError(compileResultNegative, index++, "undefined symbol 'name'", 20, 21);
         assertEquals(compileResultNegative.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

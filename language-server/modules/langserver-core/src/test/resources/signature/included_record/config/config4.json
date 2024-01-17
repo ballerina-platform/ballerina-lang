@@ -1,0 +1,77 @@
+{
+  "position": {
+    "line": 17,
+    "character": 14
+  },
+  "source": "included_record/source2.bal",
+  "expected": {
+    "result": {
+      "signatures": [
+        {
+          "label": "printInfo(string msg, error? 'error, error:StackFrame[]? stackTrace, KeyValues keyValues)",
+          "parameters": [
+            {
+              "label": {
+                "right": {
+                  "first": 17,
+                  "second": 20
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`string`msg**"
+                }
+              }
+            },
+            {
+              "label": {
+                "right": {
+                  "first": 29,
+                  "second": 35
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`error?`'error**"
+                }
+              }
+            },
+            {
+              "label": {
+                "right": {
+                  "first": 57,
+                  "second": 67
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`error:StackFrame[]?`stackTrace**"
+                }
+              }
+            },
+            {
+              "label": {
+                "right": {
+                  "first": 79,
+                  "second": 88
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`KeyValues`keyValues**"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "activeSignature": 0,
+      "activeParameter": 0
+    },
+    "jsonrpc": "2.0"
+  }
+}

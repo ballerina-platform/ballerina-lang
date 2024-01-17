@@ -1,3 +1,4 @@
-[project]
-org-name = "cyclic_imports"
-version = "1.0.0"
+[package]
+org = "testorg"
+name = "cyclic_imports"
+version = "0.1.0"

@@ -422,82 +422,10 @@ function testOutOfIntRangeNegativeDecimalInUnionAsInt() {
     int i = <int> f;
 }
 
-function testNaNDecimalAsByte() {
-    decimal d1 = 0.0;
-    decimal d2 = d1/0;
-    byte i = <byte> d2;
-}
-
-function testPositiveInfiniteDecimalAsByte() {
-    decimal d1 = 0.0;
-    decimal d2 = 1.0/d1;
-    byte i = <byte> d2;
-}
-
-function testNegativeInfiniteDecimalAsByte() {
-    decimal d1 = 0.0;
-    decimal d2 = -1.0/d1;
-    byte i = <byte> d2;
-}
-
-function testNaNDecimalInUnionAsByte() {
-    decimal d1 = 0.0;
-    decimal|boolean d2 = d1/0d;
-    byte i = <byte> d2;
-}
-
-function testPositiveInfiniteDecimalInUnionAsByte() {
-    decimal d1 = 0.0;
-    decimal|boolean d2 = 1d/d1;
-    byte i = <byte> d2;
-}
-
-function testNegativeInfiniteDecimalInUnionAsByte() {
-    decimal d1 = 0.0;
-    decimal|boolean d2 = -1d/d1;
-    byte i = <byte> d2;
-}
-
-function testNaNDecimalAsInt() {
-    decimal d1 = 0.0;
-    decimal d2 = d1/0;
-    int i = <int> d2;
-}
-
-function testPositiveInfiniteDecimalAsInt() {
-    decimal d1 = 0.0;
-    decimal d2 = 1.0/d1;
-    int i = <int> d2;
-}
-
-function testNegativeInfiniteDecimalAsInt() {
-    decimal d1 = 0.0;
-    decimal d2 = -1.0/d1;
-    int i = <int> d2;
-}
-
-function testNaNDecimalInUnionAsInt() {
-    decimal d1 = 0.0;
-    decimal|boolean d2 = d1/0d;
-    int i = <int> d2;
-}
-
-function testPositiveInfiniteDecimalInUnionAsInt() {
-    decimal d1 = 0.0;
-    decimal|boolean d2 = 1d/d1;
-    int i = <int> d2;
-}
-
-function testNegativeInfiniteDecimalInUnionAsInt() {
-    decimal d1 = 0.0;
-    decimal|boolean d2 = -1d/d1;
-    int i = <int> d2;
-}
-
 function testExplicitlyTypedExprForExactValues() returns error? {
     // test from float
     float f = 12.345;
-    decimal fd = 12.34500000000000063948846218409017;
+    decimal fd = 12.345;
     byte fb = 12;
 
     float f1 = <float> f;

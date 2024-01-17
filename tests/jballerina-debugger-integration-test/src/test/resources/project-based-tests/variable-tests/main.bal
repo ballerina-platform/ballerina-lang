@@ -183,7 +183,21 @@ public function main() {
         grades: {
             maths: 80,
             physics: 75,
-            chemistry: 65
+            chemistry: 65,
+            "english": 80
+        },
+        "course": "ballerina"
+    };
+
+    Pet pet2 = {
+        id: 2,
+        name: "Rova",
+        'type: { 
+            'type: "Dog",
+            owner: {
+                name: "lnash",
+                address: ()
+            }
         }
     };
 
@@ -245,6 +259,11 @@ public function main() {
         }
     };
 
+    // let expression
+    string letVar = let string hello = "Hello ",
+                        string ballerina = "Ballerina!"
+                    in hello + ballerina;
+
     // variable visibility in 'if' statement
     if (true) {
         intVar = 1;
@@ -302,10 +321,8 @@ public function main() {
         intVar += intVar;
     }
 
-    // variable visibility inside let expression
-    string greeting = let string hello = "Hello ",
-                              string ballerina = "Ballerina!"
-                          in hello + ballerina;
+    var foo = basicClosure();
+    int result = foo(3);
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {
@@ -332,4 +349,16 @@ function printDetails(string name, int age = 18, string... modules) returns stri
 
 function addition(int a, int b) returns int {
     return a + b;
+}
+
+function basicClosure() returns (function (int) returns int) {
+    int a = 3;
+    var foo = function(int b) returns int {
+        int c = 34;
+        if (b == 3) {
+            c = c + b + a + port;
+        }
+        return c + a;
+    };
+    return foo;
 }

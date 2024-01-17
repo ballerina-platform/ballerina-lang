@@ -16,7 +16,7 @@
 
 int globalVar = 5;
 
-class Person {
+client class Person {
     string name;
     int id;
 
@@ -35,6 +35,10 @@ class Person {
 
     function getCar() returns Car {
         return new Car("BMW");
+    }
+
+    remote function sayHello() returns string {
+        return "Hello!";
     }
 }
 

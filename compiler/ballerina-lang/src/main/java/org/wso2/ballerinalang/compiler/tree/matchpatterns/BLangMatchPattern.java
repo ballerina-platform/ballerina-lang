@@ -33,8 +33,13 @@ import java.util.Map;
  */
 public abstract class BLangMatchPattern extends BLangNode implements MatchPatternNode {
 
+    // BLangNodes
     public BLangExpression matchExpr; // TODO : should changed as action or expr
+
+    // Parser Flags and Data
     public boolean matchGuardIsAvailable;
+
+    // Semantic Data
     public boolean isLastPattern;
     public Map<String, BVarSymbol> declaredVars = new HashMap<>();
     public Scope scope;

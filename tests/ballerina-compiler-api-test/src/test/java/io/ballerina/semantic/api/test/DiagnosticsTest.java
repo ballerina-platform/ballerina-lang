@@ -29,8 +29,11 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NONE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static org.testng.Assert.assertEquals;
 
@@ -65,7 +68,7 @@ public class DiagnosticsTest {
         List<Diagnostic> diagnostics = model.diagnostics(range);
 
         assertEquals(diagnostics.size(), 1);
-        assertDiagnostic(diagnostics.get(0), getExpectedErrors()[16]);
+        assertDiagnostic(diagnostics.get(0), getExpectedErrors()[20]);
     }
 
     @Test
@@ -74,10 +77,10 @@ public class DiagnosticsTest {
                 "test-src/testerrorproject/");
 
         LineRange range = LineRange.from("diagnostic_properties_check.bal", LinePosition.from(1, 0),
-                LinePosition.from(26, 41));
+                LinePosition.from(39, 1));
         List<Diagnostic> diagnostics = model.diagnostics(range);
 
-        assertEquals(diagnostics.size(), 5);
+        assertEquals(diagnostics.size(), 16);
         assertDiagnosticProperties(diagnostics);
     }
 
@@ -101,6 +104,11 @@ public class DiagnosticsTest {
                 {"too many arguments in call to 'map()'", 27, 18},
                 {"missing close parenthesis token", 27, 39},
 
+                {"invalid usage of receive expression, var not allowed", 37, 8},
+                {"variable assignment is required", 37, 8},
+                {"missing identifier", 38, 0},
+                {"missing semicolon token", 38, 0},
+
                 // syntax_errors.bal
                 {"missing semicolon token", 18, 0},
                 {"invalid token 'string'", 21, 8},
@@ -121,10 +129,13 @@ public class DiagnosticsTest {
 
     private Object[][] getExpectedDiagnosticProperties() {
         return new Object[][] {
-                {"[string]|record {| string arg2; |}", UNION},
+                {"[string]|record {|string arg2;|}", UNION},
                 {"()", NIL},
                 {"map<string>", MAP},
                 {"map<$UndefinedType$>", MAP},
+                {"function (ballerina/lang.map:0.0.0:Type val) returns ballerina/lang.map:0.0.0:Type1", FUNCTION},
+                {"string", STRING},
+                {"$UndefinedType$", NONE},
         };
     }
 

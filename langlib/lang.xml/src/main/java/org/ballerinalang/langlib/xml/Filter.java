@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +53,7 @@ public class Filter {
 
     public static BXml filter(BXml x, BFunctionPointer<Object, Boolean> func) {
         if (x.isSingleton()) {
-            Object[] args = new Object[]{Scheduler.getStrand(), x, true};
+            Object[] args = new Object[]{x, true};
             func.asyncCall(args,
                       result -> {
                           if ((Boolean) result) {
@@ -68,18 +67,14 @@ public class Filter {
         List<BXml> elements = new ArrayList<>();
         int size = x.size();
         AtomicInteger index = new AtomicInteger(-1);
-        Strand parentStrand = Scheduler.getStrand();
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{parentStrand,
-                                                               x.getItem(index.incrementAndGet()), true},
-                                                       result -> {
-                                                           if ((Boolean) result) {
-                                                               elements.add(x.getItem(index.get()));
-                                                           }
-                                                       }, () -> ValueCreator.createXmlSequence(elements),
-                                                       Scheduler.getStrand().scheduler);
-
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                () -> new Object[]{x.getItem(index.incrementAndGet()), true},
+                result -> {
+                    if ((Boolean) result) {
+                        elements.add(x.getItem(index.get()));
+                    }
+                }, () -> ValueCreator.createXmlSequence(elements),
+                Scheduler.getStrand().scheduler);
         return ValueCreator.createXmlSequence(elements);
     }
 }

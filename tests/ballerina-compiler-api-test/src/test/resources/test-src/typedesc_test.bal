@@ -255,3 +255,123 @@ function testObjectTypeSignature() {
         remote function testRFunc();
     } obj;
 }
+
+function testUnionTypeWithFunctionType() {
+    10|20|function () returns int aVar = 10;
+    (function () returns int)|string bVar = "10";
+    string|function () returns int cVar = "10";
+    10|(function () returns int)|20 dVar = 10;
+    3|function () returns int|string eVar = 3;
+    ReturnIntFunctionType?|string fVar = returnIntFunc;
+    (function () returns string)|function () returns int gVar = returnIntFunc;
+}
+
+function testFixedArrays() {
+    int[3] a;
+    string[1][2][3][4][5] b;
+    int[][2] c;
+    int[2][] d;
+    (int|string)[1][2] e;
+    (Bar & readonly)[1][2][3] f;
+}
+
+const string greeting = "Hello" + ;
+
+type FOO "foo1" | "foo2";
+FOO foo1;
+
+Thread thread;
+
+// utils
+type ReturnIntFunctionType function () returns int;
+
+function returnIntFunc() returns int {
+    return 1;
+}
+
+function testInferredArrays() {
+    int[*] a;
+    string[1][*][2][*][3] b;
+    int[][2][*] c;
+    int[2][*][3] d;
+    string[*][*] e;
+    (int|string)[][*][] f;
+    (Bar & readonly)[*][2][*] g;
+}
+
+type BarReadonly Bar & readonly;
+
+function testReadonlyIntersection() {
+    Bar & readonly a;
+    BarReadonly b;
+    readonly & Foo c;
+    FooReadOnly d;
+    readonly & record {| int a; |} e;
+}
+
+type XmlEle xml:Element;
+type New_XmlEle 'xml:Element;
+type XmlEleRef XmlEle;
+type XmlPI xml:ProcessingInstruction;
+type XmlComment xml:Comment;
+type New_XmlComment 'xml:Comment;
+type XmlCommentRef New_XmlComment;
+type XmlTxt xml:Text;
+type XmlUnionA XmlEle|XmlPI|XmlTxt;
+type XmlUnionB XmlEle|xml:Comment|XmlTxt;
+type XmlUnionC XmlUnionA|'xml:Comment;
+
+public function testXmlSubTypes() {
+    XmlEle a;
+    xml<XmlEle> ax;
+    New_XmlEle b;
+    xml<New_XmlEle> bx;
+    XmlPI c;
+    XmlComment d;
+    New_XmlComment e;
+    xml<New_XmlComment> ex;
+    XmlCommentRef f;
+    xml<XmlCommentRef> fx;
+    XmlTxt g;
+    xml<xml:Element> h;
+    xml<'xml:Comment> i;
+    XmlUnionA j1;
+    xml<XmlUnionA> j2;
+    XmlUnionB j3;
+    XmlUnionC j4;
+    xml<XmlUnionC> j5;
+}
+
+enum enumsForSingletons {
+    RED,
+    GREEN,
+    BLUE
+}
+
+function testSingletonTypes() {
+    5 a;
+    "6" b;
+    "abc" c;
+    1.2 d;
+    3.4f e;
+    0xA f;
+    0xB5ef g;
+    0xA1.B5 h;
+    0xB2.8Fp1 i;
+    "a" j;
+    RED k;
+}
+
+public isolated client class 'client {
+}
+
+class 'class {
+}
+
+function testQuotedClientClass() {
+    'client c;
+    'class cls;
+}
+
+public type PersonType distinct service object {
+};

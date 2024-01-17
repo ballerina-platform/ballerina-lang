@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 25,
+    "character": 4
+  },
+  "source": "createVariableWithCheck.bal",
+  "expected": [
+    {
+      "title": "Create variable"
+    }
+  ]
+}

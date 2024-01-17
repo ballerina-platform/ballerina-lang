@@ -1,0 +1,66 @@
+name: (Nightly) Publish Timestamped Snapshot Artifacts
+
+on:
+  schedule:
+    - cron: '30 18 * * *'    # 00:00 in LK time (GMT+5:30)
+
+jobs:
+  publish-ballerina-lang:
+    name: Build and Publish Ballerina Lang
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        branch: ['master', '2201.4.x', '2201.5.x', '2201.6.x']
+    timeout-minutes: 240
+    if: github.repository_owner == 'ballerina-platform'
+    steps:
+      -   name: Checkout Repository
+          uses: actions/checkout@v3
+          with:
+            ref: ${{ matrix.branch }}
+
+      -   name: Set up JDK 17
+          uses: actions/setup-java@v3
+          with:
+            distribution: 'temurin'
+            java-version: '17.0.7'
+
+      -   name: Initialize Sub Modules
+          run: git submodule update --init
+
+      -   name: Change to Timestamped Version
+          run: |
+            startTime=$(TZ="Asia/Kolkata" date +'%Y%m%d-%H%M00')
+            latestCommit=$(git log -n 1 --pretty=format:"%h")
+            VERSION=$((grep -w 'version' | cut -d= -f2) < gradle.properties | rev | cut --complement -d- -f1 | rev)
+            updatedVersion=$VERSION-$startTime-$latestCommit
+            echo $updatedVersion
+            echo TIMESTAMPED_VERSION=$updatedVersion >> $GITHUB_ENV
+            sed -i "s/version=\(.*\)/version=$updatedVersion/g" gradle.properties
+
+      -   name: Build and Publish
+          env:
+            publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
+            publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          run: |
+            ./gradlew clean build -x createJavadoc --scan --continue --rerun-tasks
+            ./gradlew publish
+            ./gradlew createCodeCoverageReport
+            curl -X POST \
+            'https://api.github.com/repos/ballerina-platform/ballerina-release/dispatches' \
+            -H 'Accept: application/vnd.github.v3+json' \
+            -H 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
+            --data "{
+              \"event_type\": \"update_timestamped_version\",
+              \"client_payload\": {
+                \"branch\": \"${{ matrix.branch }}\",
+                \"timestamped_version\": \"${TIMESTAMPED_VERSION}\"
+              }
+            }"
+
+      -   name: Generate Codecov Report
+          uses: codecov/codecov-action@v3
+          with:
+            files: ./.jacoco/reports/jacoco/report.xml

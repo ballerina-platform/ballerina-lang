@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -35,25 +33,19 @@ public class JavaToBallerinaTest {
     @Test
     public void testUsingExistingBallerinaRuntime() {
         CompileResult result = BCompileUtil.compile("test-src/javainterop/basic/java_to_bal_test.bal");
-        BValue[] returns = BRunUtil.invoke(result, "timerTest");
+        Object returns = BRunUtil.invoke(result, "timerTest");
 
-        Assert.assertEquals(returns.length, 1);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+        Assert.assertEquals(returns.getClass(), Long.class);
+        Assert.assertEquals(returns, 3L);
     }
 
     @Test
     public void testReturnValue() {
         CompileResult result = BCompileUtil.compile("test-src/javainterop/basic/java_to_bal_with_return.bal");
-        BValue[] returns = BRunUtil.invoke(result, "returnValueTest");
+        Object returns = BRunUtil.invoke(result, "returnValueTest");
 
-        Assert.assertEquals(returns.length, 1);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+        Assert.assertEquals(returns.getClass(), Long.class);
+        Assert.assertEquals(returns, 50L);
     }
 
 

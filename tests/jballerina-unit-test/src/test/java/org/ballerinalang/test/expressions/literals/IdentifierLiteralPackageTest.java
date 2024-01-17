@@ -18,11 +18,10 @@
 
 package org.ballerinalang.test.expressions.literals;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -34,7 +33,7 @@ import org.testng.annotations.Test;
 /**
  * Identifier literal test cases with package.
  */
-@Test(groups = {"disableOnOldParser"})
+@Test()
 public class IdentifierLiteralPackageTest {
 
     private CompileResult result;
@@ -49,51 +48,53 @@ public class IdentifierLiteralPackageTest {
 
     @Test(description = "Test accessing variable in other packages defined with identifier literal")
     public void testAccessingVarsInOtherPackage() {
-        BValue[] returns = BRunUtil.invoke(result, "getVarsInOtherPkg");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BFloat.class);
-        Assert.assertSame(returns[3].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 800);
-        Assert.assertEquals(returns[1].stringValue(), "value");
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 99.34323);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 88343);
+        Object arr = BRunUtil.invoke(result, "getVarsInOtherPkg");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertTrue(returns.get(2) instanceof Double);
+        Assert.assertTrue(returns.get(3) instanceof Long);
+        Assert.assertEquals(returns.get(0), 800L);
+        Assert.assertEquals(returns.get(1).toString(), "value");
+        Assert.assertEquals(returns.get(2), 99.34323);
+        Assert.assertEquals(returns.get(3), 88343L);
     }
 
     @Test(description = "Test accessing global vars with identifier literals defined in other packages")
     public void testAccessStructGlobalVarWithIdentifierLiteralInOtherPackage() {
-        BValue[] returns = BRunUtil.invoke(result, "accessStructWithIL");
+        Object arr = BRunUtil.invoke(result, "accessStructWithIL");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof Long);
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
-
-        Assert.assertEquals(returns[0].stringValue(), "Harry");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        Assert.assertEquals(returns.get(0).toString(), "Harry");
+        Assert.assertEquals(returns.get(1), 25L);
 
     }
 
     @Test(description = "Test access fields of record types with type label")
     public void testAccessTypeLabelWithIL() {
-        BValue[] returns = BRunUtil.invoke(result, "accessTypeLabelWithIL");
+        Object arr = BRunUtil.invoke(result, "accessTypeLabelWithIL");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof Long);
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
-
-        Assert.assertEquals(returns[0].stringValue(), "John");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 20);
+        Assert.assertEquals(returns.get(0).toString(), "John");
+        Assert.assertEquals(returns.get(1), 20L);
 
     }
 
     @Test(description = "Test get nested anonymous record arrays with element type of record having quoted identifier")
     public void testGetNestedAnonymousRecordArray() {
-        BValue[] returns = BRunUtil.invoke(result, "getAnonFromFoo");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
-        BMap bmap = (BMap) returns[0];
-        Assert.assertEquals(bmap.get("name").stringValue(), "Waruna");
+        Object arr = BRunUtil.invoke(result, "getAnonFromFoo");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 1);
+        Assert.assertTrue(returns.get(0) instanceof BMap);
+        BMap bmap = (BMap) returns.get(0);
+        Assert.assertEquals(bmap.get(StringUtils.fromString("name")).toString(), "Waruna");
     }
 
     @AfterClass

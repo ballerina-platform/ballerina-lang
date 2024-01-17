@@ -24,9 +24,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test implementation for debug expression evaluation scenarios.
+ * Common expression evaluation test scenarios for Ballerina packages and single file projects.
  */
-public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
+public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws BallerinaTestException {
@@ -53,7 +53,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, "-5.0e34f", "-5.0E34", "float");
         debugTestRunner.assertExpression(context, "-30.0d", "-30.0", "decimal");
         debugTestRunner.assertExpression(context, "-40.0D", "-40.0", "decimal");
-        debugTestRunner.assertExpression(context, "-5.0e34d", "-5.0E+34", "decimal");
+        debugTestRunner.assertExpression(context, "-5.0e+34d", "-5.0E+34", "decimal");
         // Todo - add following tests after the implementation
         //  - hex float
         //  - string literal
@@ -61,13 +61,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void listConstructorEvaluationTest() throws BallerinaTestException {
         // Todo
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void mappingConstructorEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -103,14 +103,30 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void newConstructorEvaluationTest() throws BallerinaTestException {
         debugTestRunner.assertExpression(context, "new Location(\"New York\",\"USA\")", "Location", "object");
-
-        // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertExpression(context, "new other:Place(\"New York\",\"USA\")", "Place", "object");
     }
 
     @Override
     @Test
-    public void variableReferenceEvaluationTest() throws BallerinaTestException {
+    public void builtInNameReferenceEvaluationTest() throws BallerinaTestException {
+        // basic, simple types
+        debugTestRunner.assertExpression(context, INT_TYPE_DESC, "int", "typedesc");
+        debugTestRunner.assertExpression(context, FLOAT_TYPE_DESC, "float", "typedesc");
+        debugTestRunner.assertExpression(context, DECIMAL_TYPE_DESC, "decimal", "typedesc");
+        debugTestRunner.assertExpression(context, BOOLEAN_TYPE_DESC, "boolean", "typedesc");
+        // basic, sequence types
+        debugTestRunner.assertExpression(context, STRING_TYPE_DESC, "string", "typedesc");
+        // other types
+        debugTestRunner.assertExpression(context, BYTE_TYPE_DESC, "byte", "typedesc");
+        debugTestRunner.assertExpression(context, JSON_TYPE_DESC, "json", "typedesc");
+        debugTestRunner.assertExpression(context, ANY_TYPE_DESC, "any", "typedesc");
+        debugTestRunner.assertExpression(context, ANYDATA_TYPE_DESC, "anydata", "typedesc");
+        debugTestRunner.assertExpression(context, NEVER_TYPE_DESC, "never", "typedesc");
+        debugTestRunner.assertExpression(context, PARENTHESISED_TYPE_DESC, "int", "typedesc");
+    }
+
+    @Override
+    @Test
+    public void nameReferenceEvaluationTest() throws BallerinaTestException {
         // var variable test
         debugTestRunner.assertExpression(context, NIL_VAR, "()", "nil");
         // boolean variable test
@@ -144,7 +160,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // future variable test
         debugTestRunner.assertExpression(context, FUTURE_VAR, "future<int>", "future");
         // object variable test (Person object)
-        debugTestRunner.assertExpression(context, OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
+        debugTestRunner.assertExpression(context, OBJECT_VAR, "Person_ /<>:@[`{~π_ƮέŞŢ", "object");
         // type descriptor variable test
         debugTestRunner.assertExpression(context, TYPEDESC_VAR, "int", "typedesc");
         // union variable test
@@ -166,13 +182,12 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // json variable test
         debugTestRunner.assertExpression(context, JSON_VAR, "json (size = 3)", "json");
         // anonymous object variable test (AnonPerson object)
-        debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
+        debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_ /<>:@[`{~π_ƮέŞŢ", "object");
         // service object variable test
         debugTestRunner.assertExpression(context, SERVICE_VAR, "service", "service");
 
         debugTestRunner.assertExpression(context, "nameWithType", "\"Ballerina\"", "string");
         debugTestRunner.assertExpression(context, "nameWithoutType", "\"Ballerina\"", "string");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map (size = 1)", "map");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_04, "()", "nil");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_05, "()", "nil");
         // global variables
@@ -184,9 +199,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, GLOBAL_VAR_11, "\"IL with global var\"", "string");
 
         // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertExpression(context, "other:publicConstant", "\"Ballerina\"", "string");
-        debugTestRunner.assertExpression(context, "other:constMap", "map (size = 1)", "map");
         debugTestRunner.assertExpression(context, "int:MAX_VALUE", "9223372036854775807", "int");
+
         // qualified name references with import alias
         debugTestRunner.assertExpression(context, "langFloat:PI", "3.141592653589793", "float");
     }
@@ -207,6 +221,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, RECORD_VAR + ".grades.maths", "80", "int");
         // optional field access
         debugTestRunner.assertExpression(context, RECORD_VAR + "?.undefined", "()", "nil");
+        // additional field access
+        debugTestRunner.assertExpression(context, RECORD_VAR + ".course", "\"ballerina\"", "string");
     }
 
     @Override
@@ -264,25 +280,34 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // ---------------------- Defaultable Parameters + named arguments  ---------------------------------
 
+        // Todo - Enable once the semantic API blocker is fixed
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/32176
         // Call the function by passing a value only for the `baseSalary` parameter.
         // The `annualIncrement` and `bonusRate` parameters default to 20 and 0.02 respectively.
-        debugTestRunner.assertExpression(context, "printSalaryDetails(2500)", "\"[2500, 20, 0.02]\"", "string");
+        // debugTestRunner.assertExpression(context, "printSalaryDetails(2500)", "\"[2500, 20, 0.02]\"", "string");
 
+        // Todo - Enable once the semantic API blocker is fixed
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/32176
         // Call the function by passing values only for the `baseSalary` and `annualIncrement`
         // parameters. The value for the `annualIncrement` parameter is passed as a named argument.
         // The `bonusRate` parameter defaults to 0.02.
-        debugTestRunner.assertExpression(context, "printSalaryDetails(2500, annualIncrement = 100)",
-                "\"[2500, 100, 0.02]\"", "string");
+        // debugTestRunner.assertExpression(context, "printSalaryDetails(2500, annualIncrement = 100)",
+        //        "\"[2500, 100, 0.02]\"", "string");
 
+        // Todo - Enable once the semantic API blocker is fixed
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/32176
         // Call the function again by passing values only for the `baseSalary` and `annualIncrement`
         // parameters, now passing the value for the `annualIncrement` parameter as a positional argument.
         // The `bonusRate` parameter defaults to 0.02.
-        debugTestRunner.assertExpression(context, "printSalaryDetails(2500, 100);", "\"[2500, 100, 0.02]\"", "string");
+        // debugTestRunner.assertExpression(context, "printSalaryDetails(2500, 100);", "\"[2500, 100, 0.02]\"",
+        // "string");
 
+        // Todo - Enable once the semantic API blocker is fixed
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/32176
         // Call the function by passing values only for the `baseSalary` and `bonusRate` parameters.
         // The `annualIncrement` parameter defaults to 20.
-        debugTestRunner.assertExpression(context, "printSalaryDetails(2500, bonusRate = 0.1);", "\"[2500, 20, 0.1]\"",
-                "string");
+        // debugTestRunner.assertExpression(context, "printSalaryDetails(2500, bonusRate = 0.1);", "\"[2500, 20,
+        // 0.1]\"", "string");
 
         // In order to pass the value for `bonusRate` as a positional argument, a value would
         // have to be specified for the `annualIncrement` parameter too.
@@ -298,15 +323,16 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // Call the function by passing all three arguments as named arguments.
         // Any and all arguments after the first named argument need to be specified
         // as named arguments but could be specified in any order.
-        debugTestRunner.assertExpression(context,
-                "printSalaryDetails(annualIncrement = 100, baseSalary = 2500, bonusRate = 0.1);",
-                "\"[2500, 100, 0.1]\"", "string");
+        debugTestRunner.assertExpression(context, "printSalaryDetails(annualIncrement = 100, baseSalary = 2500, " +
+                "bonusRate = 0.1);", "\"[2500, 100, 0.1]\"", "string");
 
         // ----------------------------  Rest Parameters  ------------------------------------------
 
+        // Todo - Enable once the semantic API blocker is fixed
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/32176
         // Call the function by passing only the required parameter.
-        debugTestRunner.assertExpression(context, "printDetails(\"Alice\");", "\"[Alice, 18, Module(s): ()]\"",
-                "string");
+        // debugTestRunner.assertExpression(context, "printDetails(\"Alice\");", "\"[Alice, 18, Module(s): ()]\"",
+        //        "string");
 
         // Call the function by passing the required parameter and the defaultable parameter.Named arguments can
         // also be used since values are not passed for the rest parameter.
@@ -334,8 +360,10 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, "getSum(10, 20);", "30", "int");
 
         // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertExpression(context, "other:sum(2,6)", "8", "int");
         debugTestRunner.assertExpression(context, "int:abs(-6)", "6", "int");
+
+        // with typedesc values as arguments
+        debugTestRunner.assertExpression(context, "processTypeDesc(int)", "int", "typedesc");
     }
 
     @Override
@@ -424,7 +452,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // Function calls in expression
         debugTestRunner.assertExpression(context, "let int x = 4, int z = 10 in func(x * z)", "80", "int");
         // Let expression as a function arg
-        debugTestRunner.assertExpression(context, "func2(let string x = \"aa\", string y = \"bb\" in x+y)", "4", "int");
+        // Todo - https://github.com/ballerina-platform/ballerina-lang/issues/34151
+        // debugTestRunner.assertExpression(context, "func2(let string x = \"aa\", string y = \"bb\" in x+y)", "4",
+        //    "int");
         // Let expression tuple
         debugTestRunner.assertExpression(context, "let [[string, [int, [boolean, byte]]], [float, int]] " +
                 "v1 = [[\"Ballerina\", [3, [true, 34]]], [5.6, 45]], int x = 2 in v1[0][1][0] + x;", "5", "int");
@@ -446,10 +476,6 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, String.format("<float>%s", ANYDATA_VAR), "619.0", "float");
         // casting into a union type
         debugTestRunner.assertExpression(context, String.format("<float|boolean>%s", ANYDATA_VAR), "619.0", "float");
-
-        // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertExpression(context, "<other:Place> location", "Place", "object");
-        debugTestRunner.assertExpression(context, "<other:Place> stringVar", "{ballerina}TypeCastError", "error");
     }
 
     @Override
@@ -462,7 +488,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // reference types
         debugTestRunner.assertExpression(context, String.format("typeof %s", JSON_VAR), "map<json>", "typedesc");
         debugTestRunner.assertExpression(context, String.format("typeof %s[0]", STRING_VAR), "f", "typedesc");
-        debugTestRunner.assertExpression(context, String.format("typeof typeof %s", BOOLEAN_VAR), "typedesc",
+        debugTestRunner.assertExpression(context, String.format("typeof typeof %s", BOOLEAN_VAR), "typedesc<true>",
                 "typedesc");
     }
 
@@ -492,9 +518,6 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // unary negation operator
         // boolean
         debugTestRunner.assertExpression(context, String.format("!%s", BOOLEAN_VAR), "false", "boolean");
-
-        // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertExpression(context, "-other:publicInt", "-10", "int");
     }
 
     @Override
@@ -547,7 +570,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // string template concatenation
         String bStringTemplateExpr = String.format("string `name: ${%s}, age: ${%s}`", STRING_VAR, INT_VAR);
         debugTestRunner.assertExpression(context, String.format("%s + %s + %s", bStringTemplateExpr,
-                bStringTemplateExpr, bStringTemplateExpr),
+                        bStringTemplateExpr, bStringTemplateExpr),
                 "\"name: foo, age: 20name: foo, age: 20name: foo, age: 20\"", "string");
 
         // xml + xml
@@ -629,21 +652,23 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // string - string
         debugTestRunner.assertExpression(context, String.format("%s < %s", STRING_VAR, STRING_VAR), "false",
                 "boolean");
-        // boolean[] - boolean[]
-        debugTestRunner.assertExpression(context, String.format("%s < %s", "booleanArrayVar", "booleanArrayVar"),
-                "false", "boolean");
-        // int[] - int[]
-        debugTestRunner.assertExpression(context, String.format("%s < %s", "intArrayVar", "intArrayVar"),
-                "false", "boolean");
-        // float[] - float[]
-        debugTestRunner.assertExpression(context, String.format("%s < %s", "floatArrayVar", "floatArrayVar"),
-                "false", "boolean");
-        // decimal[] - decimal[]
-        debugTestRunner.assertExpression(context, String.format("%s < %s", "decimalArrayVar", "decimalArrayVar"),
-                "false", "boolean");
-        // string[] - string[]
-        debugTestRunner.assertExpression(context, String.format("%s < %s", "stringArrayVar", "stringArrayVar"),
-                "false", "boolean");
+
+//        Todo - enable once https://github.com/ballerina-platform/ballerina-lang/issues/38642 is fixed
+//        // boolean[] - boolean[]
+//        debugTestRunner.assertExpression(context, String.format("%s < %s", "booleanArrayVar", "booleanArrayVar"),
+//                "false", "boolean");
+//        // int[] - int[]
+//        debugTestRunner.assertExpression(context, String.format("%s < %s", "intArrayVar", "intArrayVar"),
+//                "false", "boolean");
+//        // float[] - float[]
+//        debugTestRunner.assertExpression(context, String.format("%s < %s", "floatArrayVar", "floatArrayVar"),
+//                "false", "boolean");
+//        // decimal[] - decimal[]
+//        debugTestRunner.assertExpression(context, String.format("%s < %s", "decimalArrayVar", "decimalArrayVar"),
+//                "false", "boolean");
+//        // string[] - string[]
+//        debugTestRunner.assertExpression(context, String.format("%s < %s", "stringArrayVar", "stringArrayVar"),
+//                "false", "boolean");
 
         // expression <= expression
         // nil - nil
@@ -661,21 +686,23 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // string - string
         debugTestRunner.assertExpression(context, String.format("%s <= %s", STRING_VAR, STRING_VAR), "true",
                 "boolean");
-        // boolean[] - boolean[]
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", "booleanArrayVar", "booleanArrayVar"),
-                "true", "boolean");
-        // int[] - int[]
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", "intArrayVar", "intArrayVar"),
-                "true", "boolean");
-        // float[] - float[]
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", "floatArrayVar", "floatArrayVar"),
-                "true", "boolean");
-        // decimal[] - decimal[]
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", "decimalArrayVar", "decimalArrayVar"),
-                "true", "boolean");
-        // string[] - string[]
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", "stringArrayVar", "stringArrayVar"),
-                "true", "boolean");
+
+//        Todo - enable once https://github.com/ballerina-platform/ballerina-lang/issues/38642 is fixed
+//        // boolean[] - boolean[]
+//        debugTestRunner.assertExpression(context, String.format("%s <= %s", "booleanArrayVar", "booleanArrayVar"),
+//                "true", "boolean");
+//        // int[] - int[]
+//        debugTestRunner.assertExpression(context, String.format("%s <= %s", "intArrayVar", "intArrayVar"),
+//                "true", "boolean");
+//        // float[] - float[]
+//        debugTestRunner.assertExpression(context, String.format("%s <= %s", "floatArrayVar", "floatArrayVar"),
+//                "true", "boolean");
+//        // decimal[] - decimal[]
+//        debugTestRunner.assertExpression(context, String.format("%s <= %s", "decimalArrayVar", "decimalArrayVar"),
+//                "true", "boolean");
+//        // string[] - string[]
+//        debugTestRunner.assertExpression(context, String.format("%s <= %s", "stringArrayVar", "stringArrayVar"),
+//                "true", "boolean");
 
         // expression > expression
         // Note ::= Not required to test all the possibilities in here, as 'X > Y' is processed as '!(X <= Y)' by the
@@ -694,18 +721,24 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void typeTestEvaluationTest() throws BallerinaTestException {
         // predefined types
-        debugTestRunner.assertExpression(context, String.format("%s is string", INT_VAR), "false", "boolean");
-        debugTestRunner.assertExpression(context, String.format("%s is int", INT_VAR), "true", "boolean");
+        debugTestRunner.assertExpression(context, String.format("%s is map<string>", JSON_VAR), "false", "boolean");
+        debugTestRunner.assertExpression(context, String.format("%s is json", JSON_VAR), "true", "boolean");
         debugTestRunner.assertExpression(context, String.format("%s is error", ERROR_VAR), "true", "boolean");
+        debugTestRunner.assertExpression(context, String.format("%s is readonly", ERROR_VAR), "true", "boolean");
+
+        // other named types
+        // Todo - https://github.com/ballerina-platform/ballerina-lang/issues/34151
+        // debugTestRunner.assertExpression(context, String.format("%s is 'Person_\\ \\/\\<\\>\\:\\@\\[\\`\\{\\" +
+        //   "~\\u{03C0}_ƮέŞŢ", OBJECT_VAR), "true", "boolean");
+
         // union types
         debugTestRunner.assertExpression(context, String.format("%s is int | string", STRING_VAR), "true", "boolean");
-        // other named types
-        debugTestRunner.assertExpression(context, String.format("%s is 'Person_\\\\\\ \\/\\<\\>\\:\\@\\[\\`\\{\\~" +
-                "\\u{03C0}_ƮέŞŢ", OBJECT_VAR), "true", "boolean");
 
-        // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertExpression(context, "location is other:Place", "true", "boolean");
-        debugTestRunner.assertExpression(context, "intVar is other:Place", "false", "boolean");
+        // intersection types
+        debugTestRunner.assertExpression(context, String.format("%s is map<string> & readonly", JSON_VAR), "false",
+                "boolean");
+        debugTestRunner.assertExpression(context, String.format("%s is (string & readonly) | int", STRING_VAR), "true",
+                "boolean");
     }
 
     @Override
@@ -763,7 +796,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void checkingExpressionEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -796,7 +829,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
                         "        degree: degreeName," +
                         "        expectedGradYear: expectedGradYear" +
                         "    };",
-                "map[2]", "array");
+                "record {| string name; string degree; int expectedGradYear; |}[2]", "array");
 
         // Query stream evaluation
         debugTestRunner.assertExpression(context, "stream from var student in studentList" +
@@ -810,7 +843,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
                         "                degree: degreeName," +
                         "                graduationYear: graduationYear" +
                         "    };",
-                "stream<map>", "stream");
+                "stream<evaluation_executor:record {| string name; string degree; int graduationYear; |}>", "stream");
 
         // Query join expression evaluation
         debugTestRunner.assertExpression(context, "from var student in gradStudentList" +
@@ -823,7 +856,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
                         "        degree: \"Bachelor of Science\", " +
                         "        intakeYear: student.intakeYear " +
                         "    }",
-                "map[3]", "array");
+                "record {| string name; string deptName; string degree; int intakeYear; |}[3]", "array");
 
         // Table query with contextually expected type (type cast).
         debugTestRunner.assertExpression(context,
@@ -856,12 +889,6 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
                         "    where student.score.toBalString() != int:MAX_VALUE.toBalString()" +
                         "    select student.firstName + \" \" + student.lastName",
                 "string[3]", "array");
-
-        // Queries with other module imports
-        debugTestRunner.assertExpression(context, "from var student in studentList" +
-                        "    where student is other:Kid" +
-                        "    select student.firstName + \" \" + student.lastName",
-                "string[0]", "array");
     }
 
     @Override
@@ -881,8 +908,12 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void remoteCallActionEvaluationTest() throws BallerinaTestException {
-        debugTestRunner.assertExpression(context, String.format("%s->getName(\"John\")", CLIENT_OBJECT_VAR),
-                "\"John\"", "string");
+        // Todo - Enable once the semantic API blocker is fixed
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/32176
+        // debugTestRunner.assertExpression(context, String.format("%s->getName(\"John\")", CLIENT_OBJECT_VAR),
+        //        "\"John\"", "string");
+        debugTestRunner.assertExpression(context, String.format("%s->getName(\"John\",\" Doe\")", CLIENT_OBJECT_VAR),
+                "\"John Doe\"", "string");
         debugTestRunner.assertExpression(context, String.format("%s->getTotalMarks(78,90)", CLIENT_OBJECT_VAR),
                 "168", "int");
     }

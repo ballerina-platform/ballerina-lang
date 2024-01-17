@@ -1,0 +1,72 @@
+[
+  {
+    "source": "100",
+    "result": {
+      "shellValue": {
+        "value":"100",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "\"hello\"",
+    "result": {
+      "shellValue": {
+        "value":"\"hello\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "0.12",
+    "result": {
+      "shellValue": {
+        "value":"0.12",
+        "mimeType":"plain/text",
+        "type":"float"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string `hello world`",
+    "result": {
+      "shellValue": {
+        "value":"\"hello world\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "true",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

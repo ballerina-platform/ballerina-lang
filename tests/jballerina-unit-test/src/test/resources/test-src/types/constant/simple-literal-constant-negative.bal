@@ -61,7 +61,7 @@ type XYZ "XYZ";
 const xyz = "XYZ";
 
 function testInvalidTypes() returns ACTION {
-    ACTION action = xyz; // Incompatibel types.
+    ACTION action = xyz; // Incompatible types.
     return action;
 }
 
@@ -275,7 +275,7 @@ type Foo record {
     int i;
 };
 
-const Foo f = { s: "const string", i: 1 };
+const Foo f = { s: "const string", i: 1 }; // Valid case.
 
 const json j = 1;
 
@@ -306,3 +306,55 @@ const int CONST1 = CONST1;
 // Redeclared constant.
 const abc2 = 1;
 const abc2 = "1";
+
+type Byte byte;
+
+const Byte V1 = 256;
+
+type Ints int;
+
+const Ints V2 = 1.0;
+
+// Test the types of Langlib constants
+type Ints2 -1|int:MIN_VALUE;
+Ints2 ints2 = 2;
+
+float:NaN floatNan = 1.0;
+float:Infinity floatInf = 1.0;
+
+const NUM1 = -1;
+const int NUM2 = -9223372036854775807 - 1;
+const int NUM3 = 0;
+const int NUM4 = 9223372036854775807;
+const int NUM5 = 10;
+
+// Test arithmetic errors
+const int ANS1 = NUM2 / NUM1;
+const int ANS2 = NUM2 / NUM3;
+
+const int ANS3 = NUM2 * NUM1;
+const int ANS4 = NUM2 * 5;
+
+const int ANS5 = NUM2 % NUM3;
+const int ANS6 = -NUM2;
+
+const int ANS7 = NUM2 + NUM1;
+const int ANS8 = NUM4 + NUM5;
+
+const int ANS10 = NUM2 - NUM5;
+const int ANS11 = NUM4 - NUM1;
+
+const decimal ANS12 = 5 % 0;
+
+const int ANS7 = NUM2 - 1;
+
+const decimal d1 = 9.999999999999999999999999999999999E6001d * 1E145d;
+const decimal d2 = -9.999999999999999999999999999999999E6141d * 1E5d;
+const decimal d3 = 9.999999999999999999999999999999999E6144d + 1E6143d;
+const decimal d4 = -1E6144d - 9.999999999999999999999999999999999E6144d;
+const decimal d5 = 1E614d / 2E-5800d;
+
+const int ANS13 = -int:MIN_VALUE;
+
+const int var1 = 1;
+const T1 = typeof var1;

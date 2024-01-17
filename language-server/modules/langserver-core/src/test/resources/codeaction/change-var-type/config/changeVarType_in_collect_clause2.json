@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 6,
+    "character": 64
+  },
+  "source": "changeVarType_in_collect_clause.bal",
+  "expected": [
+    {
+      "title": "Change variable \u0027letters\u0027 type to \u0027string\u0027",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 4
+            },
+            "end": {
+              "line": 6,
+              "character": 7
+            }
+          },
+          "newText": "string"
+        }
+      ]
+    }
+  ]
+}

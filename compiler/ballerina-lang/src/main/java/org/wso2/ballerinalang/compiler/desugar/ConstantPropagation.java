@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.clauses.OnClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -47,8 +46,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -65,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -75,12 +78,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
@@ -88,15 +91,27 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -108,11 +123,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
@@ -142,7 +157,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -156,7 +170,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
@@ -282,7 +295,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         rewrite(funcNode.requiredParams);
-        rewrite(funcNode.workers);
         funcNode.body = rewrite(funcNode.body);
         rewrite(funcNode.annAttachments);
 
@@ -330,6 +342,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangCollectContextInvocation collectContextInvocation) {
+        collectContextInvocation.invocation = rewrite(collectContextInvocation.invocation);
+        result = collectContextInvocation;
+    }
+
+    @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         rewrite(errorConstructorExpr.positionalArgs);
         rewrite(errorConstructorExpr.namedArgs);
@@ -342,6 +360,16 @@ public class ConstantPropagation extends BLangNodeVisitor {
         rewrite(actionInv.requiredArgs);
         rewrite(actionInv.restArgs);
         result = actionInv;
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceActionInvocation) {
+        resourceActionInvocation.expr = rewrite(resourceActionInvocation.expr);
+        rewrite(resourceActionInvocation.requiredArgs);
+        rewrite(resourceActionInvocation.restArgs);
+        resourceActionInvocation.resourceAccessPathSegments = 
+                rewrite(resourceActionInvocation.resourceAccessPathSegments);
+        result = resourceActionInvocation;
     }
 
     @Override
@@ -464,13 +492,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         rewrite(serviceNode.annAttachments);
 
-        if (serviceNode.isAnonymousServiceValue) {
-            result = serviceNode;
-            return;
-        }
-
         rewrite(serviceNode.attachedExprs);
-        rewrite(serviceNode.resourceFunctions);
         result = serviceNode;
     }
 
@@ -539,22 +561,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch matchNode) {
-        matchNode.expr = rewrite(matchNode.expr);
-        rewrite(matchNode.patternClauses);
-        matchNode.onFailClause = rewrite(matchNode.onFailClause);
-        result = matchNode;
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        patternClauseNode.variable = rewrite(patternClauseNode.variable);
-        patternClauseNode.body = rewrite(patternClauseNode.body);
-        patternClauseNode.matchExpr = rewrite(patternClauseNode.matchExpr);
-        result = patternClauseNode;
-    }
-
-    @Override
     public void visit(BLangForeach foreach) {
         foreach.collection = rewrite(foreach.collection);
         foreach.body = rewrite(foreach.body);
@@ -604,9 +610,9 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.expr = rewrite(workerSendNode.expr);
-        result = workerSendNode;
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
+        asyncSendExpr.expr = rewrite(asyncSendExpr.expr);
+        result = asyncSendExpr;
     }
 
     @Override
@@ -660,12 +666,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        rewrite(tableMultiKeyExpr.multiKeyIndexExprs);
-        result = tableMultiKeyExpr;
-    }
-
-    @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
         ternaryExpr.expr = rewrite(ternaryExpr.expr);
         ternaryExpr.thenExpr = rewrite(ternaryExpr.thenExpr);
@@ -696,6 +696,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         rewrite(listConstructorExpr.exprs);
         result = listConstructorExpr;
+    }
+
+    @Override
+    public void visit(BLangListConstructorSpreadOpExpr listConstructorSpreadOpExpr) {
+        rewrite(listConstructorSpreadOpExpr.expr);
+        result = listConstructorSpreadOpExpr;
     }
 
     @Override
@@ -739,15 +745,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.body = rewrite(bLangArrowFunction.body);
-        bLangArrowFunction.function = rewrite(bLangArrowFunction.function);
         result = bLangArrowFunction;
-    }
-
-    @Override
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        intRangeExpression.startExpr = rewrite(intRangeExpression.startExpr);
-        intRangeExpression.endExpr = rewrite(intRangeExpression.endExpr);
-        result = intRangeExpression;
     }
 
     @Override
@@ -820,21 +818,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
-        bLangMatchStmtStaticBindingPatternClause.literal =
-                rewrite(bLangMatchStmtStaticBindingPatternClause.literal);
-        bLangMatchStmtStaticBindingPatternClause.body =
-                rewrite(bLangMatchStmtStaticBindingPatternClause.body);
-        result = bLangMatchStmtStaticBindingPatternClause;
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause
-                                  bLangMatchStmtStructuredBindingPatternClause) {
-        result = bLangMatchStmtStructuredBindingPatternClause;
-    }
-
-    @Override
     public void visit(BLangTypedescExpr accessExpr) {
         result = accessExpr;
     }
@@ -891,12 +874,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         result = xmlnsStmtNode;
-    }
-
-    @Override
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        xmlAttributeAccessExpr.expr = rewrite(xmlAttributeAccessExpr.expr);
-        result = xmlAttributeAccessExpr;
     }
 
     @Override
@@ -987,7 +964,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangJoinClause joinClause) {
         joinClause.collection = rewrite(joinClause.collection);
         if (joinClause.onClause != null) {
-            joinClause.onClause = (OnClauseNode) rewrite((BLangNode) joinClause.onClause);
+            joinClause.onClause = rewrite(joinClause.onClause);
         }
         result = joinClause;
     }
@@ -1004,6 +981,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangSelectClause selectClause) {
         selectClause.expression = rewrite(selectClause.expression);
         result = selectClause;
+    }
+
+    @Override
+    public void visit(BLangCollectClause collectClause) {
+        collectClause.expression = rewrite(collectClause.expression);
+        result = collectClause;
     }
 
     @Override
@@ -1041,6 +1024,18 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangOrderByClause orderByClause) {
         orderByClause.orderByKeyList.forEach(value -> rewrite((BLangNode) value));
         result = orderByClause;
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        groupByClause.groupingKeyList.forEach(value -> rewrite((BLangNode) value));
+        result = groupByClause;
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKey) {
+        groupingKey.setGroupingKey(rewrite((BLangNode) groupingKey.getGroupingKey()));
+        result = groupingKey;
     }
 
     @Override
@@ -1114,7 +1109,14 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
             // If the var ref is a const-ref of value type, then replace the ref
             // from a simple literal
-            BType literalType = types.getReferredType(constSymbol.literalType);
+            BType literalType = Types.getImpliedType(constSymbol.literalType);
+            BType varRefType = Types.getImpliedType(varRefExpr.getBType());
+
+            // Handle the assignment of int to subtypes of int (byte, int:Signed16, ...).
+            if (literalType.tag == TypeTags.INT && types.isContainSubtypeOfInt(varRefType)) {
+                literalType = varRefType;
+            }
+
             if (literalType.tag <= TypeTags.BOOLEAN || literalType.tag == TypeTags.NIL) {
                 BLangConstRef constRef = ASTBuilderUtil.createBLangConstRef(varRefExpr.pos, literalType,
                                                                             constSymbol.value.value);
@@ -1130,13 +1132,103 @@ public class ConstantPropagation extends BLangNodeVisitor {
                     implConversionExpr.targetType = varRefExpr.impConversionExpr.targetType;
                     constRef.impConversionExpr = implConversionExpr;
                 } else {
-                    types.setImplicitCastExpr(constRef, constRef.getBType(), varRefExpr.getBType());
+                    types.setImplicitCastExpr(constRef, constRef.getBType(), varRefType);
                 }
                 result = constRef;
                 return;
             }
         }
         result = varRefExpr;
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        rewrite(regExpTemplateLiteral.reDisjunction);
+        result = regExpTemplateLiteral;
+    }
+
+    @Override
+    public void visit(BLangReSequence reSequence) {
+        rewrite(reSequence.termList);
+        result = reSequence;
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier reAtomQuantifier) {
+        rewrite(reAtomQuantifier.atom);
+        rewrite(reAtomQuantifier.quantifier);
+        result = reAtomQuantifier;
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape) {
+        rewrite(reAtomCharOrEscape.charOrEscape);
+        result = reAtomCharOrEscape;
+    }
+
+    @Override
+    public void visit(BLangReQuantifier reQuantifier) {
+        rewrite(reQuantifier.quantifier);
+        rewrite(reQuantifier.nonGreedyChar);
+        result = reQuantifier;
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass reCharacterClass) {
+        rewrite(reCharacterClass.characterClassStart);
+        rewrite(reCharacterClass.negation);
+        rewrite(reCharacterClass.charSet);
+        rewrite(reCharacterClass.characterClassEnd);
+        result = reCharacterClass;
+    }
+
+    @Override
+    public void visit(BLangReCharSet reCharSet) {
+        rewrite(reCharSet.charSetAtoms);
+        result = reCharSet;
+    }
+
+    @Override
+    public void visit(BLangReCharSetRange reCharSetRange) {
+        rewrite(reCharSetRange.lhsCharSetAtom);
+        rewrite(reCharSetRange.dash);
+        rewrite(reCharSetRange.rhsCharSetAtom);
+        result = reCharSetRange;
+    }
+
+    @Override
+    public void visit(BLangReAssertion reAssertion) {
+        rewrite(reAssertion.assertion);
+        result = reAssertion;
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups reCapturingGroups) {
+        rewrite(reCapturingGroups.openParen);
+        rewrite(reCapturingGroups.flagExpr);
+        rewrite(reCapturingGroups.disjunction);
+        rewrite(reCapturingGroups.closeParen);
+        result = reCapturingGroups;
+    }
+
+    @Override
+    public void visit(BLangReDisjunction reDisjunction) {
+        rewrite(reDisjunction.sequenceList);
+        result = reDisjunction;
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff reFlagsOnOff) {
+        rewrite(reFlagsOnOff.flags);
+        result = reFlagsOnOff;
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression reFlagExpression) {
+        rewrite(reFlagExpression.questionMark);
+        rewrite(reFlagExpression.flagsOnOff);
+        rewrite(reFlagExpression.colon);
+        result = reFlagExpression;
     }
 
     @SuppressWarnings("unchecked")

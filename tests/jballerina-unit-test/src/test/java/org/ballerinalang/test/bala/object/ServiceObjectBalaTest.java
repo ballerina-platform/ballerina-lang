@@ -21,6 +21,7 @@ package org.ballerinalang.test.bala.object;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -44,5 +45,10 @@ public class ServiceObjectBalaTest {
     @Test
     public void testServiceClassBala() {
         BRunUtil.invoke(result, "testServiceObjectValue");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

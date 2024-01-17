@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 12,
+    "character": 26
+  },
+  "source": "createUndefinedFunction8.bal",
+  "expected": [
+    {
+      "title": "Create function 'createClassRoom(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 1
+            },
+            "end": {
+              "line": 15,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction createClassRoom(Student[] students) returns ClassRoom {\n    return new (\"\", 0, []);\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunction8.bal",
+        "range": {
+          "start": {
+            "line": 12,
+            "character": 26
+          },
+          "end": {
+            "line": 12,
+            "character": 51
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 12.0,
+              "character": 26.0
+            },
+            "end": {
+              "line": 12.0,
+              "character": 51.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
 [package]
 org= "testorg"
-name="runtime_api"
+name="errors"
 version= "1.0.0"

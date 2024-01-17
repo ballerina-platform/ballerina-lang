@@ -1,0 +1,48 @@
+Compiling source
+	intg_tests/dataproviders:0.0.0
+WARNING [tests/new-data-provider-tests.bal:(121:9,121:21)] unused variable 'a'
+WARNING [tests/new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
+
+Running Tests with Coverage
+
+	dataproviders
+		[pass] intDataProviderTest#Case3
+
+		[fail] intDataProviderTest#Case1:
+
+		    error {ballerina/test:0}TestError ("The sum is not correct
+			 
+			expected: '4'
+			actual	: '3'")
+				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
+				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
+				callableName: intDataProviderTest moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 25
+				callableName: intDataProviderTest$lambda0$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 4
+			
+
+		[fail] intDataProviderTest#Case2:
+
+		    error {ballerina/test:0}TestError ("The sum is not correct
+			 
+			expected: '31'
+			actual	: '30'")
+				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
+				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
+				callableName: intDataProviderTest moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 25
+				callableName: intDataProviderTest$lambda0$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 4
+			
+
+
+		1 passing
+		2 failing
+		0 skipped
+
+	dataproviders.module1
+
+
+		No tests found
+
+Generating Test Report
+	data-providers/target/report/test_results.json
+
+error: there are test failures

@@ -1,0 +1,82 @@
+{
+  "position": {
+    "line": 8,
+    "character": 30
+  },
+  "source": "template_expression/source/regex_template_expression_source9.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "sc=",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "sc=",
+      "insertText": "sc=",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "gc=",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "gc=",
+      "insertText": "gc=",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "L",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "L",
+      "insertText": "L",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "M",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "M",
+      "insertText": "M",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "N",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "N",
+      "insertText": "N",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "S",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "S",
+      "insertText": "S",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "P",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "P",
+      "insertText": "P",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Z",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "Z",
+      "insertText": "Z",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "C",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "C",
+      "insertText": "C",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

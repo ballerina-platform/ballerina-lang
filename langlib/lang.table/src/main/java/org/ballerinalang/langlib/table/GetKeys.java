@@ -51,38 +51,37 @@ public class GetKeys {
                     Object key = keys[i];
                     boolArr[i] = (boolean) key;
                 }
-                return (BArray) ValueCreator.createArrayValue(boolArr);
+                return ValueCreator.createArrayValue(boolArr);
             case TypeTags.INT:
                 long[] intArr  = new long[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
                     intArr[i] = (long) key;
                 }
-                return (BArray) ValueCreator.createArrayValue(intArr);
+                return ValueCreator.createArrayValue(intArr);
             case TypeTags.BYTE:
                 byte[] byteArr  = new byte[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
                     byteArr[i] = (byte) key;
                 }
-                return (BArray) ValueCreator.createArrayValue(byteArr);
+                return ValueCreator.createArrayValue(byteArr);
             case TypeTags.FLOAT:
                 double[] floatArr  = new double[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
                     floatArr[i] = (double) key;
                 }
-                return (BArray) ValueCreator.createArrayValue(floatArr);
+                return ValueCreator.createArrayValue(floatArr);
             case TypeTags.STRING:
                 BString[] stringArr  = new BString[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
                     stringArr[i] = (BString) key;
                 }
-                return (BArray) ValueCreator.createArrayValue(stringArr);
+                return ValueCreator.createArrayValue(stringArr);
             default:
-                return (BArray) ValueCreator
-                        .createArrayValue(tbl.getKeys(), TypeCreator.createArrayType(tbl.getKeyType()));
+                return ValueCreator.createArrayValue(keys, TypeCreator.createArrayType(tbl.getKeyType()));
         }
     }
 }

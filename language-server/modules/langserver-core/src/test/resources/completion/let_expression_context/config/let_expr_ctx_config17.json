@@ -1,0 +1,545 @@
+{
+  "position": {
+    "line": 1,
+    "character": 28
+  },
+  "source": "let_expression_context/source/let_expr_ctx_source17.bal",
+  "description": "Test completions after qualified name reference",
+  "items": [
+    {
+      "label": "Char",
+      "kind": "TypeParameter",
+      "detail": "Char",
+      "documentation": {
+        "left": "Built-in subtype of string containing strings of length 1."
+      },
+      "sortText": "R",
+      "insertText": "Char",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RegExp",
+      "kind": "TypeParameter",
+      "detail": "Typereference",
+      "documentation": {
+        "left": "Refers to the `RegExp` type defined by lang.regexp module."
+      },
+      "sortText": "R",
+      "insertText": "RegExp",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "length(string str)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns the length of the string.\n\n```ballerina\n\"Hello, World!\".length() ⇒ 13;\n```\n  \n**Params**  \n- `string` str: the string  \n  \n**Return** `int`   \n- the number of characters (code points) in parameter `str`  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "length",
+      "insertText": "length(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "iterator(string str)",
+      "kind": "Function",
+      "detail": "object {public isolated function next() returns record {|string:Char value;|}?;}",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns an iterator over the string.\n\nThe iterator will yield the substrings of length 1 in order.\n\n```ballerina\nobject {\n  public isolated function next() returns record {|string:Char value;|}?;\n} iterator = \"Hello, World!\".iterator();\niterator.next() ⇒ {\"value\":\"H\"}\n```\n  \n**Params**  \n- `string` str: the string to be iterated over  \n  \n**Return** `object {public isolated function next() returns record {|string:Char value;|}?;}`   \n- a new iterator object  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "iterator",
+      "insertText": "iterator(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "concat(string... strs)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConcatenates zero or more strings.\n\n```ballerina\n\"http://worldtimeapi.org\".concat(\"/api/timezone/\", \"Asia\", \"/\", \"Colombo\") ⇒ http://worldtimeapi.org/api/timezone/Asia/Colombo\n// Alternative approach to achieve the same.\nstring:concat(\"http://worldtimeapi.org\", \"/api/timezone/\", \"Asia\", \"/\", \"Colombo\") ⇒ http://worldtimeapi.org/api/timezone/Asia/Colombo\n```\n  \n**Params**  \n- `string[]` strs: strings to be concatenated  \n  \n**Return** `string`   \n- concatenation of all of the parameter `strs`; empty string if parameter `strs` is empty  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "concat",
+      "insertText": "concat(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getCodePoint(string str, int index)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns the code point of a character in a string.\n\n```ballerina\n\"Hello, World!\".getCodePoint(3) ⇒ 108\n```\n  \n**Params**  \n- `string` str: the string  \n- `int` index: an index in parameter `str`  \n  \n**Return** `int`   \n- the Unicode code point of the character at parameter `index` in parameter `str`  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "getCodePoint",
+      "insertText": "getCodePoint(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "substring(string str, int startIndex, int endIndex)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns a substring of a string.\n\n```ballerina\n\"Hello, my name is John\".substring(7) ⇒ my name is John\n\"Hello, my name is John Anderson\".substring(18, 22) ⇒ John\n```\n  \n**Params**  \n- `string` str: source string.  \n- `int` startIndex: the starting index, inclusive  \n- `int` endIndex: the ending index, exclusive(Defaultable)  \n  \n**Return** `string`   \n- substring consisting of characters with index >= `startIndex` and < `endIndex`  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "substring",
+      "insertText": "substring(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "codePointCompare(string str1, string str2)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nLexicographically compares strings using their Unicode code points.\n\nThis orders strings in a consistent and well-defined way,\nbut the ordering will often not be consistent with cultural expectations\nfor sorted order.\n\n```ballerina\n\"Austria\".codePointCompare(\"Australia\") ⇒ 1\n```\n  \n**Params**  \n- `string` str1: the first string to be compared  \n- `string` str2: the second string to be compared  \n  \n**Return** `int`   \n- an int that is less than, equal to or greater than zero,  \naccording as parameter `str1` is less than, equal to or greater than parameter `str2`  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "codePointCompare",
+      "insertText": "codePointCompare(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "'join(string separator, string... strs)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nJoins zero or more strings together with a separator.\n\n```ballerina\nstring:'join(\" \", \"Ballerina\", \"is\", \"a\", \"programming\", \"language\") ⇒ Ballerina is a programming language\nstring[] array = [\"John\", \"23\", \"USA\", \"Computer Science\", \"Swimmer\"];\nstring:'join(\",\", ...array) ⇒ John,23,USA,Computer Science,Swimmer\n```\n  \n**Params**  \n- `string` separator: separator string  \n- `string[]` strs: strings to be joined  \n  \n**Return** `string`   \n- a string consisting of all of parameter `strs` concatenated in order  \nwith parameter `separator` in between them  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "'join",
+      "insertText": "'join(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "indexOf(string str, string substr, int startIndex)",
+      "kind": "Function",
+      "detail": "int?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nFinds the first occurrence of one string in another string.\n\n```ballerina\n\"New Zealand\".indexOf(\"land\") ⇒ 7\n\"Ballerinalang is a unique programming language\".indexOf(\"lang\", 15) ⇒ 38\n```\n  \n**Params**  \n- `string` str: the string in which to search  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Return** `int?`   \n- index of the first occurrence of parameter `substr` in parameter `str` that is >= parameter `startIndex`,  \nor `()` if there is no such occurrence  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "indexOf",
+      "insertText": "indexOf(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "lastIndexOf(string str, string substr, int startIndex)",
+      "kind": "Function",
+      "detail": "int?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nFinds the last occurrence of one string in another string.\n\n```ballerina\n\"Ballerinalang is a unique programming language\".lastIndexOf(\"lang\") ⇒ 38\n// Search backwards for the last occurrence of a string from a specific index.\n\"Ballerinalang is a unique programming language\".lastIndexOf(\"lang\", 15) ⇒ 9\n```\n  \n**Params**  \n- `string` str: the string in which to search  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the last occurrence of parameter `substr` in parameter `str` that is <= parameter `startIndex`,  \nor `()` if there is no such occurrence  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "lastIndexOf",
+      "insertText": "lastIndexOf(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "includes(string str, string substr, int startIndex)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTests whether a string includes another string.\n\n```ballerina\n\"Hello World, from Ballerina\".includes(\"Bal\") ⇒ true\n\"Hello World! from Ballerina\".includes(\"Hello\", 10) ⇒ false\n```\n  \n**Params**  \n- `string` str: the string in which to search  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Return** `boolean`   \n- `true` if there is an occurrence of parameter `substr` in parameter `str` at an index >= parameter `startIndex`,  \nor `false` otherwise  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "includes",
+      "insertText": "includes(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "startsWith(string str, string substr)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTests whether a string starts with another string.\n\n```ballerina\n\"Welcome to the Ballerina programming language\".startsWith(\"Welcome\") ⇒ true\n```\n  \n**Params**  \n- `string` str: the string to be tested  \n- `string` substr: the starting string  \n  \n**Return** `boolean`   \n- true if parameter `str` starts with parameter `substr`; false otherwise  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "startsWith",
+      "insertText": "startsWith(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "endsWith(string str, string substr)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTests whether a string ends with another string.\n\n```ballerina\n\"Welcome to the Ballerina programming language\".endsWith(\"language\") ⇒ true\n```\n  \n**Params**  \n- `string` str: the string to be tested  \n- `string` substr: the ending string  \n  \n**Return** `boolean`   \n- true if parameter `str` ends with parameter `substr`; false otherwise  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "endsWith",
+      "insertText": "endsWith(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toLowerAscii(string str)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConverts occurrences of A-Z to a-z.\n\nOther characters are left unchanged.\n\n```ballerina\n\"HELLO, World!\".toLowerAscii() ⇒ hello, world!\n```\n  \n**Params**  \n- `string` str: the string to be converted  \n  \n**Return** `string`   \n- parameter `str` with any occurrences of A-Z converted to a-z  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "toLowerAscii",
+      "insertText": "toLowerAscii(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toUpperAscii(string str)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConverts occurrences of a-z to A-Z.\n\nOther characters are left unchanged.\n\n```ballerina\n\"hello, World!\".toUpperAscii() ⇒ HELLO, WORLD!\n```\n  \n**Params**  \n- `string` str: the string to be converted  \n  \n**Return** `string`   \n- parameter `str` with any occurrences of a-z converted to A-Z  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "toUpperAscii",
+      "insertText": "toUpperAscii(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "equalsIgnoreCaseAscii(string str1, string str2)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTests whether two strings are the same, ignoring the case of ASCII characters.\n\nA character in the range a-z is treated the same as the corresponding character in the range A-Z.\n\n```ballerina\n\"BALLERINA\".equalsIgnoreCaseAscii(\"ballerina\") ⇒ true\n```\n  \n**Params**  \n- `string` str1: the first string to be compared  \n- `string` str2: the second string to be compared  \n  \n**Return** `boolean`   \n- true if parameter `str1` is the same as parameter `str2`, treating upper-case and lower-case  \nASCII letters as the same; false, otherwise  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "equalsIgnoreCaseAscii",
+      "insertText": "equalsIgnoreCaseAscii(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "trim(string str)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nRemoves ASCII white space characters from the start and end of a string.\n\nThe ASCII white space characters are 0x9...0xD, 0x20.\n\n```ballerina\n\" Hello World   \".trim() + \"!\" ⇒ Hello World!\n```\n  \n**Params**  \n- `string` str: the string  \n  \n**Return** `string`   \n- parameter `str` with leading or trailing ASCII white space characters removed  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "trim",
+      "insertText": "trim(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toBytes(string str)",
+      "kind": "Function",
+      "detail": "byte[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nRepresents a string as an array of bytes using UTF-8.\n\n```ballerina\n\"Hello, World!\".toBytes() ⇒ [72,101,108,108,111,44,32,87,111,114,108,100,33]\n```\n  \n**Params**  \n- `string` str: the string  \n  \n**Return** `byte[]`   \n- UTF-8 byte array  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "toBytes",
+      "insertText": "toBytes(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fromBytes(byte[] bytes)",
+      "kind": "Function",
+      "detail": "string|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConstructs a string from its UTF-8 representation in bytes.\n\n```ballerina\nstring:fromBytes([72, 101, 108, 108, 111, 32, 66, 97, 108, 108, 101, 114, 105, 110, 97, 33]) ⇒ Hello, World!\nstring:fromBytes([149, 169, 224]) ⇒ error\n```\n  \n**Params**  \n- `byte[]` bytes: UTF-8 byte array  \n  \n**Return** `string|error`   \n- parameter `bytes` converted to string or error  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "fromBytes",
+      "insertText": "fromBytes(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toCodePointInts(string str)",
+      "kind": "Function",
+      "detail": "int[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConverts a string to an array of code points.\n\n```ballerina\n\"Hello, world 🌎\".toCodePointInts() ⇒ [72,101,108,108,111,44,32,119,111,114,108,100,32,127758]\n```\n  \n**Params**  \n- `string` str: the string  \n  \n**Return** `int[]`   \n- an array with a code point for each character of parameter `str`  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "toCodePointInts",
+      "insertText": "toCodePointInts(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toCodePointInt(string:Char ch)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConverts a single character string to a code point.\n\n```ballerina\nstring:toCodePointInt(\"a\") ⇒ 97\n```\n  \n**Params**  \n- `string:Char` ch: a single character string  \n  \n**Return** `int`   \n- the code point of parameter `ch`  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "toCodePointInt",
+      "insertText": "toCodePointInt(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fromCodePointInts(int[] codePoints)",
+      "kind": "Function",
+      "detail": "string|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConstructs a string from an array of code points.\n\nAn int is a valid code point if it is in the range 0 to 0x10FFFF inclusive,\nbut not in the range 0xD800 or 0xDFFF inclusive.\n\n```ballerina\nstring:fromCodePointInts([66, 97, 108, 108, 101, 114, 105, 110, 97]) ⇒ Ballerina\nstring:fromCodePointInts([1114113, 1114114, 1114115]) ⇒ error\n```\n  \n**Params**  \n- `int[]` codePoints: an array of ints, each specifying a code point  \n  \n**Return** `string|error`   \n- a string with a character for each code point in parameter `codePoints`; or an error  \nif any member of parameter `codePoints` is not a valid code point  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "fromCodePointInts",
+      "insertText": "fromCodePointInts(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fromCodePointInt(int codePoint)",
+      "kind": "Function",
+      "detail": "string:Char|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConstructs a single character string from a code point.\n\nAn int is a valid code point if it is in the range 0 to 0x10FFFF inclusive,\nbut not in the range 0xD800 or 0xDFFF inclusive.\n\n```ballerina\nstring:fromCodePointInt(97) ⇒ a\nstring:fromCodePointInt(1114113) ⇒ error\n```\n  \n**Params**  \n- `int` codePoint: an int specifying a code point  \n  \n**Return** `string:Char|error`   \n- a single character string whose code point is parameter `codePoint`; or an error  \nif parameter `codePoint` is not a valid code point  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "fromCodePointInt",
+      "insertText": "fromCodePointInt(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "padStart(string str, int len, string:Char padChar)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nAdds padding to the start of a string.\nAdds sufficient `padChar` characters at the start of `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n\n```ballerina\n\"100Km\".padStart(10) ⇒      100Km\n\"100Km\".padStart(10, \"0\") ⇒ 00000100Km\n```\n  \n**Params**  \n- `string` str: the string to pad  \n- `int` len: the length of the string to be returned  \n- `string:Char` padChar: the character to use for padding `str`; defaults to a space character(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with `padChar`  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "padStart",
+      "insertText": "padStart(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "padEnd(string str, int len, string:Char padChar)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nAdds padding to the end of a string.\nAdds sufficient `padChar` characters to the end of `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n\n```ballerina\n\"Ballerina for developers\".padEnd(30) ⇒ Ballerina for developers\n\"Ballerina for developers\".padEnd(30, \"!\") ⇒ Ballerina for developers!!!!!!\n```\n  \n**Params**  \n- `string` str: the string to pad  \n- `int` len: the length of the string to be returned  \n- `string:Char` padChar: the character to use for padding `str`; defaults to a space character(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with `padChar`  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "padEnd",
+      "insertText": "padEnd(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "padZero(string str, int len, string:Char zeroChar)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nPads a string with zeros.\nThe zeros are added at the start of the string, after a `+` or `-` sign if there is one.\nSufficient zero characters are added to `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n\n```ballerina\n\"-256\".padZero(9) ⇒ -00000256\n\"-880\".padZero(8, \"#\") ⇒ -####880\n```\n  \n**Params**  \n- `string` str: the string to pad  \n- `int` len: the length of the string to be returned  \n- `string:Char` zeroChar: the character to use for the zero; defaults to ASCII zero `0`(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with zeros  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "padZero",
+      "insertText": "padZero(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "matches(string str, string:RegExp re)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTests whether there is a full match of a regular expression with a string.\nA match of a regular expression in a string is a full match if it\nstarts at index 0 and ends at index `n`, where `n` is the length of the string.\nThis is equivalent to `regex:isFullMatch(re, str)`.\n\n```ballerina\n\"This is a Match\".matches(re `A|Th.*ch|^`) ⇒ true\n\"Not a Match\".matches(re `A|Th.*ch|^`) ⇒ false\n```\n  \n**Params**  \n- `string` str: the string  \n- `string:RegExp` re: the regular expression  \n  \n**Return** `boolean`   \n- true if there is full match of `re` with `str`, and false otherwise  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "matches",
+      "insertText": "matches(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "includesMatch(string str, string:RegExp re, int startIndex)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTests whether there is a match of a regular expression somewhere within a string.\nThis is equivalent to `regexp:find(re, str, startIndex) != ()`.\n\n```ballerina\n\"This will match\".includesMatch(re `Th.*ch`) ⇒ true\n\"Will this match\".includesMatch(re `th.*ch`, 5) ⇒ true\n\"Not a match\".includesMatch(re `Th.*ch`) ⇒ false\n\"Will this match\".includesMatch(re `Th.*ch`, 5) ⇒ false\n```\n  \n**Params**  \n- `string` str: the string to be matched  \n- `string:RegExp` re: the regular expression  \n- `int` startIndex(Defaultable)  \n  \n**Return** `boolean`   \n- true if the is a match of `re` somewhere within `str`, otherwise false  \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "includesMatch",
+      "insertText": "includesMatch(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

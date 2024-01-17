@@ -20,6 +20,7 @@ package io.ballerina.compiler.internal.parser.utils;
 import io.ballerina.compiler.internal.parser.BallerinaParser;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
+import io.ballerina.compiler.internal.parser.tree.STNodeList;
 import io.ballerina.compiler.internal.parser.tree.STQualifiedNameReferenceNode;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
@@ -51,6 +52,10 @@ public class ConditionalExprResolver {
     }
 
     public static STNode getQualifiedNameRefNode(STNode parentNode, boolean leftMost) {
+        if (parentNode == null || parentNode.kind == SyntaxKind.LIST && ((STNodeList) parentNode).isEmpty()) {
+            return null;
+        }
+
         if (parentNode.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             STNode modulePrefix = ((STQualifiedNameReferenceNode) parentNode).modulePrefix;
             return isValidSimpleNameRef((STToken) modulePrefix) ? parentNode : null;
@@ -69,7 +74,7 @@ public class ConditionalExprResolver {
      * Check whether an identifier is a valid SimpleNameRef.
      * Predeclared prefixes which are not a BuiltinSimpleNameReference is not valid as SimpleNameRef.
      *
-     * @param modulePrefixIdentifier
+     * @param modulePrefixIdentifier module prefix identifier
      * @return <code>true</code> if modulePrefixIdentifier text is Valid Simple NameRef
      */
     private static boolean isValidSimpleNameRef(STToken modulePrefixIdentifier) {

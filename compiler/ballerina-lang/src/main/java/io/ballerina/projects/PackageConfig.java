@@ -38,10 +38,12 @@ public class PackageConfig {
     private final DocumentConfig dependenciesToml;
     private final DocumentConfig cloudToml;
     private final DocumentConfig compilerPluginToml;
+    private final DocumentConfig balToolToml;
     private final Path packagePath;
     private final DependencyGraph<PackageDescriptor> packageDescDependencyGraph;
     private final Collection<ModuleConfig> otherModules;
     private final DocumentConfig packageMd;
+    private final boolean disableSyntaxTree;
 
     private PackageConfig(PackageId packageId,
                           Path packagePath,
@@ -51,9 +53,11 @@ public class PackageConfig {
                           DocumentConfig dependenciesToml,
                           DocumentConfig cloudToml,
                           DocumentConfig compilerPluginToml,
+                          DocumentConfig balToolToml,
                           Collection<ModuleConfig> moduleConfigs,
                           DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
-                          DocumentConfig packageMd) {
+                          DocumentConfig packageMd,
+                          boolean disableSyntaxTree) {
         this.packageId = packageId;
         this.packagePath = packagePath;
         this.packageManifest = packageManifest;
@@ -62,9 +66,11 @@ public class PackageConfig {
         this.dependenciesToml = dependenciesToml;
         this.cloudToml = cloudToml;
         this.compilerPluginToml = compilerPluginToml;
+        this.balToolToml = balToolToml;
         this.otherModules = moduleConfigs;
         this.packageDescDependencyGraph = packageDescDependencyGraph;
         this.packageMd = packageMd;
+        this.disableSyntaxTree = disableSyntaxTree;
     }
 
     public static PackageConfig from(PackageId packageId,
@@ -75,11 +81,12 @@ public class PackageConfig {
                                      DocumentConfig dependenciesToml,
                                      DocumentConfig cloudToml,
                                      DocumentConfig compilerPluginToml,
+                                     DocumentConfig balToolToml,
                                      DocumentConfig packageMd,
                                      Collection<ModuleConfig> moduleConfigs) {
         return new PackageConfig(packageId, packagePath, packageManifest, dependencyManifest, ballerinaToml,
-                                 dependenciesToml, cloudToml, compilerPluginToml, moduleConfigs,
-                                 DependencyGraph.emptyGraph(), packageMd);
+                                 dependenciesToml, cloudToml, compilerPluginToml, balToolToml, moduleConfigs,
+                                 DependencyGraph.emptyGraph(), packageMd, false);
     }
 
     public static PackageConfig from(PackageId packageId,
@@ -90,12 +97,31 @@ public class PackageConfig {
                                      DocumentConfig dependenciesToml,
                                      DocumentConfig cloudToml,
                                      DocumentConfig compilerPluginToml,
+                                     DocumentConfig balToolToml,
                                      DocumentConfig packageMd,
                                      Collection<ModuleConfig> moduleConfigs,
                                      DependencyGraph<PackageDescriptor> packageDescDependencyGraph) {
         return new PackageConfig(packageId, packagePath, packageManifest, dependencyManifest, ballerinaToml,
-                                 dependenciesToml, cloudToml, compilerPluginToml, moduleConfigs,
-                                 packageDescDependencyGraph, packageMd);
+                                 dependenciesToml, cloudToml, compilerPluginToml, balToolToml, moduleConfigs,
+                                 packageDescDependencyGraph, packageMd, false);
+    }
+
+    public static PackageConfig from(PackageId packageId,
+                                     Path packagePath,
+                                     PackageManifest packageManifest,
+                                     DependencyManifest dependencyManifest,
+                                     DocumentConfig ballerinaToml,
+                                     DocumentConfig dependenciesToml,
+                                     DocumentConfig cloudToml,
+                                     DocumentConfig compilerPluginToml,
+                                     DocumentConfig balToolToml,
+                                     DocumentConfig packageMd,
+                                     Collection<ModuleConfig> moduleConfigs,
+                                     DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
+                                     boolean disableSyntaxTree) {
+        return new PackageConfig(packageId, packagePath, packageManifest, dependencyManifest, ballerinaToml,
+                dependenciesToml, cloudToml, compilerPluginToml, balToolToml, moduleConfigs,
+                packageDescDependencyGraph, packageMd, disableSyntaxTree);
     }
 
     public PackageId packageId() {
@@ -112,6 +138,10 @@ public class PackageConfig {
 
     public PackageVersion packageVersion() {
         return packageManifest.version();
+    }
+
+    public boolean packageTemplate() {
+        return packageManifest.template();
     }
 
     public PackageManifest packageManifest() {
@@ -132,6 +162,10 @@ public class PackageConfig {
 
     public Optional<DocumentConfig> compilerPluginToml() {
         return Optional.ofNullable(compilerPluginToml);
+    }
+
+    public Optional<DocumentConfig> balToolToml() {
+        return Optional.ofNullable(balToolToml);
     }
 
     public CompilationOptions compilationOptions() {
@@ -158,5 +192,9 @@ public class PackageConfig {
 
     public Optional<DocumentConfig> dependenciesToml() {
         return Optional.ofNullable(this.dependenciesToml);
+    }
+
+    boolean isSyntaxTreeDisabled() {
+        return disableSyntaxTree;
     }
 }

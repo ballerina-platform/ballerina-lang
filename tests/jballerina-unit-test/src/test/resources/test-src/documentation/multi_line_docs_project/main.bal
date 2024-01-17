@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 
 # Returns a formatted string using the specified format string and arguments. Following format specifiers are allowed.
 #
@@ -57,5 +57,11 @@ public function deprecatedMultilineDocsFunction(string format) returns string {
 }
 
 public function main() {
-    io:println(multilineDocsFunction("world"));
+    println(multilineDocsFunction("world"));
 }
+
+// helper functions
+
+function println(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

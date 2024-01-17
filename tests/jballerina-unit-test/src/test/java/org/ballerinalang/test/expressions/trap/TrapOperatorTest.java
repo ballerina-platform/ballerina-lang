@@ -16,12 +16,17 @@
  * under the License.
  *
  */
+
 package org.ballerinalang.test.expressions.trap;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -31,19 +36,46 @@ import org.testng.annotations.Test;
  */
 public class TrapOperatorTest {
 
+    CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/expressions/trap/trap-expr.bal");
+    }
+
     @Test
     public void testTrapNegative() {
-        CompileResult negative = BCompileUtil.compile("test-src/expressions/trap/trap_negative.bal");
+        CompileResult resultNegative = BCompileUtil.compile("test-src/expressions/trap/trap_negative.bal");
         int i = 0;
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'int', found '(int|error)'", 18, 13);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'int', found '(int|error)'", 19, 13);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'boolean', found '(boolean|error)'",
-                25, 8);
-        BAssertUtil.validateError(negative, i++, "invalid usage of the 'check' expression operator: " +
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'int', found '(int|error)'", 18, 13);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'int', found '(int|error)'", 19, 13);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'boolean', found '(boolean|error)'", 25, 8);
+        BAssertUtil.validateWarning(resultNegative, i++, "invalid usage of the 'check' expression operator: " +
                         "no expression type is equivalent to error type", 29, 46);
-        BAssertUtil.validateError(negative, i++, "invalid usage of the 'check' expression operator: " +
+        BAssertUtil.validateWarning(resultNegative, i++, "invalid usage of the 'check' expression operator: " +
                         "no expression type is equivalent to error type", 29, 56);
+        Assert.assertEquals(resultNegative.getWarnCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), i - 2);
+    }
 
-        Assert.assertEquals(negative.getErrorCount(), i);
+    @Test(dataProvider = "functionsToTestTrapExpression", description = "Test trap expression")
+    public void testTrapExpression(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] functionsToTestTrapExpression() {
+        return new Object[]{
+                "trapInsideFunctionArg",
+                "testTrapInsideForLoop"
+        };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -17,6 +17,9 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -36,12 +39,15 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymb
 
     private TypeSymbol returnType;
     private List<AnnotationSymbol> annots;
+    private final List<AnnotationAttachmentSymbol> annotAttachments;
 
     private BallerinaWorkerSymbol(String name, SymbolKind ballerinaSymbolKind, TypeSymbol returnType,
-                                  List<AnnotationSymbol> annots, BSymbol symbol, CompilerContext context) {
+                                  List<AnnotationSymbol> annots, List<AnnotationAttachmentSymbol> annotAttachments,
+                                  BSymbol symbol, CompilerContext context) {
         super(name, ballerinaSymbolKind, symbol, context);
         this.returnType = returnType;
         this.annots = annots;
+        this.annotAttachments = annotAttachments;
     }
 
     /**
@@ -59,6 +65,21 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymb
         return this.annots;
     }
 
+    @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        return this.annotAttachments;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
     /**
      * Represents Ballerina Worker Symbol Builder.
      */
@@ -66,6 +87,7 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymb
 
         protected TypeSymbol returnType;
         protected List<AnnotationSymbol> annots = new ArrayList<>();
+        protected List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
 
         public WorkerSymbolBuilder(String name, BSymbol symbol, CompilerContext context) {
             super(name, SymbolKind.WORKER, symbol, context);
@@ -74,7 +96,7 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymb
         @Override
         public BallerinaWorkerSymbol build() {
             return new BallerinaWorkerSymbol(this.name, this.ballerinaSymbolKind, this.returnType, this.annots,
-                                             this.bSymbol, this.context);
+                                             this.annotAttachments, this.bSymbol, this.context);
         }
 
         public WorkerSymbolBuilder withReturnType(TypeSymbol typeDescriptor) {
@@ -84,6 +106,11 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymb
 
         public WorkerSymbolBuilder withAnnotation(AnnotationSymbol annot) {
             this.annots.add(annot);
+            return this;
+        }
+
+        public WorkerSymbolBuilder withAnnotationAttachment(AnnotationAttachmentSymbol annotAttachment) {
+            this.annotAttachments.add(annotAttachment);
             return this;
         }
     }

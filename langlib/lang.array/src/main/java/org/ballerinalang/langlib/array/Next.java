@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.array;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
@@ -41,8 +42,8 @@ public class Next {
 
         if (arrIterator.hasNext()) {
             Object element = arrIterator.next();
-            return ValueCreator.createRecordValue(ValueCreator.createMapValue(arr.getIteratorNextReturnType()),
-                                                  element);
+            return ValueCreator.createRecordValue(ValueCreator.createRecordValue(
+                    (RecordType) arr.getIteratorNextReturnType()), element);
         }
 
         return null;

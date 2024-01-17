@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Modify the function body\n",
+    "oldCode": "public type Person object{\npublic function add(int x, int y) returns int {\n\treturn 5; \n}\n}\n",
+    "newCode": "public type Person object{\npublic function add(int x, int y) returns int {\n\treturn 3; \n}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add function body\n",
+    "oldCode": "public service type Person object{\nremote function add(int x, int y) {}\n}\n",
+    "newCode": "public service type Person object{\nremote function add(int x, int y)  {\n\tint z = 3;\n}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": " Remove function body\n",
+    "oldCode": "public service type Person object{\nresource function get add(int x, int y)  {\nint z = 3;\n}\n}\n",
+    "newCode": "public service type Person object{\nresource function get add(int x, int y)  {\t\n}\n}\n",
+    "expectedOutput": {}
+  }
+]

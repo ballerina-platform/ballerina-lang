@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -525,6 +525,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(selectClauseNode);
     }
 
+    public void visit(STCollectClauseNode collectClauseNode) {
+        visitSyntaxNode(collectClauseNode);
+    }
+
     public void visit(STQueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
     }
@@ -665,6 +669,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(arrayTypeDescriptorNode);
     }
 
+    public void visit(STArrayDimensionNode arrayDimensionNode) {
+        visitSyntaxNode(arrayDimensionNode);
+    }
+
     public void visit(STTransactionStatementNode transactionStatementNode) {
         visitSyntaxNode(transactionStatementNode);
     }
@@ -785,6 +793,14 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(orderKeyNode);
     }
 
+    public void visit(STGroupByClauseNode groupByClauseNode) {
+        visitSyntaxNode(groupByClauseNode);
+    }
+
+    public void visit(STGroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        visitSyntaxNode(groupingKeyVarDeclarationNode);
+    }
+
     public void visit(STOnFailClauseNode onFailClauseNode) {
         visitSyntaxNode(onFailClauseNode);
     }
@@ -811,6 +827,114 @@ public abstract class STNodeVisitor {
 
     public void visit(STParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         visitSyntaxNode(parameterizedTypeDescriptorNode);
+    }
+
+    public void visit(STSpreadMemberNode spreadMemberNode) {
+        visitSyntaxNode(spreadMemberNode);
+    }
+
+    public void visit(STClientResourceAccessActionNode clientResourceAccessActionNode) {
+        visitSyntaxNode(clientResourceAccessActionNode);
+    }
+
+    public void visit(STComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
+        visitSyntaxNode(computedResourceAccessSegmentNode);
+    }
+
+    public void visit(STResourceAccessRestSegmentNode resourceAccessRestSegmentNode) {
+        visitSyntaxNode(resourceAccessRestSegmentNode);
+    }
+
+    public void visit(STReSequenceNode reSequenceNode) {
+        visitSyntaxNode(reSequenceNode);
+    }
+
+    public void visit(STReAtomQuantifierNode reAtomQuantifierNode) {
+        visitSyntaxNode(reAtomQuantifierNode);
+    }
+
+    public void visit(STReAtomCharOrEscapeNode reAtomCharOrEscapeNode) {
+        visitSyntaxNode(reAtomCharOrEscapeNode);
+    }
+
+    public void visit(STReQuoteEscapeNode reQuoteEscapeNode) {
+        visitSyntaxNode(reQuoteEscapeNode);
+    }
+
+    public void visit(STReSimpleCharClassEscapeNode reSimpleCharClassEscapeNode) {
+        visitSyntaxNode(reSimpleCharClassEscapeNode);
+    }
+
+    public void visit(STReUnicodePropertyEscapeNode reUnicodePropertyEscapeNode) {
+        visitSyntaxNode(reUnicodePropertyEscapeNode);
+    }
+
+    public void visit(STReUnicodeScriptNode reUnicodeScriptNode) {
+        visitSyntaxNode(reUnicodeScriptNode);
+    }
+
+    public void visit(STReUnicodeGeneralCategoryNode reUnicodeGeneralCategoryNode) {
+        visitSyntaxNode(reUnicodeGeneralCategoryNode);
+    }
+
+    public void visit(STReCharacterClassNode reCharacterClassNode) {
+        visitSyntaxNode(reCharacterClassNode);
+    }
+
+    public void visit(STReCharSetRangeWithReCharSetNode reCharSetRangeWithReCharSetNode) {
+        visitSyntaxNode(reCharSetRangeWithReCharSetNode);
+    }
+
+    public void visit(STReCharSetRangeNode reCharSetRangeNode) {
+        visitSyntaxNode(reCharSetRangeNode);
+    }
+
+    public void visit(STReCharSetAtomWithReCharSetNoDashNode reCharSetAtomWithReCharSetNoDashNode) {
+        visitSyntaxNode(reCharSetAtomWithReCharSetNoDashNode);
+    }
+
+    public void visit(STReCharSetRangeNoDashWithReCharSetNode reCharSetRangeNoDashWithReCharSetNode) {
+        visitSyntaxNode(reCharSetRangeNoDashWithReCharSetNode);
+    }
+
+    public void visit(STReCharSetRangeNoDashNode reCharSetRangeNoDashNode) {
+        visitSyntaxNode(reCharSetRangeNoDashNode);
+    }
+
+    public void visit(STReCharSetAtomNoDashWithReCharSetNoDashNode reCharSetAtomNoDashWithReCharSetNoDashNode) {
+        visitSyntaxNode(reCharSetAtomNoDashWithReCharSetNoDashNode);
+    }
+
+    public void visit(STReCapturingGroupsNode reCapturingGroupsNode) {
+        visitSyntaxNode(reCapturingGroupsNode);
+    }
+
+    public void visit(STReFlagExpressionNode reFlagExpressionNode) {
+        visitSyntaxNode(reFlagExpressionNode);
+    }
+
+    public void visit(STReFlagsOnOffNode reFlagsOnOffNode) {
+        visitSyntaxNode(reFlagsOnOffNode);
+    }
+
+    public void visit(STReFlagsNode reFlagsNode) {
+        visitSyntaxNode(reFlagsNode);
+    }
+
+    public void visit(STReAssertionNode reAssertionNode) {
+        visitSyntaxNode(reAssertionNode);
+    }
+
+    public void visit(STReQuantifierNode reQuantifierNode) {
+        visitSyntaxNode(reQuantifierNode);
+    }
+
+    public void visit(STReBracedQuantifierNode reBracedQuantifierNode) {
+        visitSyntaxNode(reBracedQuantifierNode);
+    }
+
+    public void visit(STMemberTypeDescriptorNode memberTypeDescriptorNode) {
+        visitSyntaxNode(memberTypeDescriptorNode);
     }
 
     // STNodeList

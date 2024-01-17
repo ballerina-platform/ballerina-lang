@@ -25,9 +25,9 @@
 public type TestConfig record {
     boolean enable = true;
     string[] groups = [];
-    function() returns (any|error) dataProvider?;
-    function() returns (any|error) before?;
-    function() returns (any|error) after?;
+    function () returns DataProviderReturnType dataProvider?;
+    function () returns (any|error) before?;
+    function () returns (any|error) after?;
     function[] dependsOn = [];
 };
 
@@ -40,20 +40,35 @@ public type MockConfig record {
     string functionName = "";
 };
 
+# Configuration set for AfterSuite functions.
+#
+# + alwaysRun - Flag to indicate whether the afterSuite function needs to be executed irrespective of other dependent functions
 public type AfterSuiteConfig record {
     boolean alwaysRun = false;
 };
 
+# Configuration set for BeforeGroups functions.
+#
+# + value - List of groups before which the beforeGroups function needs to be executed
 public type BeforeGroupsConfig record {
     string[] value = [];
 };
 
+# Configuration set for AfterGroups functions.
+#
+# + value - List of groups after which the afterGroups function needs to be executed
+# + alwaysRun - Flag to indicate whether the afterGroups function needs to be executed irrespective of other dependent functions
 public type AfterGroupsConfig record {
     string[] value = [];
     boolean alwaysRun = false;
 };
 
+# Identifies test function.
 public annotation TestConfig Config on function;
+
+//TODO: Enable dynamic registration upon approval
+# Identifies test factory function for dynamic test registration.
+// public annotation Factory on function;
 
 # Identifies beforeSuite function.
 public annotation BeforeSuite on function;

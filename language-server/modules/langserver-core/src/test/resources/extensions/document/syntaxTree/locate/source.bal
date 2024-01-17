@@ -1,7 +1,7 @@
-import ballerina/io;
+import ballerina/module1;
 
 public function bar() {
     int x = 10;
     int y = 20;
-    io:print(x, y);
+    module1:function3(x, y);
 }

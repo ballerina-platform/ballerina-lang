@@ -19,6 +19,7 @@
 package org.ballerinalang.model.tree.expressions;
 
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.NodeEntry;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public interface RecordVariableReferenceNode extends VariableReferenceNode {
     /**
      * Interface for key and value of a record var ref.
      */
-    interface BLangRecordVarRefKeyValueNode {
+    interface BLangRecordVarRefKeyValueNode extends NodeEntry {
 
         IdentifierNode getVariableName();
 

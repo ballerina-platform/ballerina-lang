@@ -64,11 +64,19 @@ public class BalaProject extends Project {
     }
 
     @Override
+    public void clearCaches() {
+        resetPackage(this);
+        ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        this.projectEnvironment = projectEnvironmentBuilder.build(this);
+    }
+
+    @Override
     public Project duplicate() {
         ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
         BalaProject balaProject = new BalaProject(projectEnvironmentBuilder, this.sourceRoot);
-        return cloneProject(balaProject);
+        return resetPackage(balaProject);
     }
 
     @Override
@@ -125,5 +133,10 @@ public class BalaProject extends Project {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public Path targetDir() {
+        throw new UnsupportedOperationException("target directory is not supported for BalaProject");
     }
 }

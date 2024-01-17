@@ -256,6 +256,22 @@ function testArrayTupleType() {
     test:assertEquals("typedesc [string[2],int,float[3][4]][][]", t.toString());
 }
 
+function testTableWithByteArrayArgForUnionParam() {
+    testPrintable(table [{ id:1, byteArray: base16 `abcd`}]);
+    testPrintable(table [{ id:1, byteArray: base64 `Cake`}]);
+}
+
+function testPrintable(Printable p) {
+    test:assertTrue(p is Printable);
+}
+
+public type Printable any|error|PrintableRawTemplate;
+
+public type PrintableRawTemplate object {
+    public string[] & readonly strings;
+    public Printable[] insertions;
+};
+
 function testUpdatingJsonTupleViaArrayTypedVar() {
     [json...] a = [];
     json[] b = a;

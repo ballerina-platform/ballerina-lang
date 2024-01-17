@@ -19,7 +19,6 @@ package org.ballerinalang.test.types.string;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -31,6 +30,7 @@ import org.testng.annotations.Test;
  * Tests functionalities of the {@link StringUtils} class.
  */
 public class StringUtilsTest {
+
     private CompileResult result;
 
     @BeforeClass
@@ -47,7 +47,7 @@ public class StringUtilsTest {
         StringBuilder content = new StringBuilder();
         for (Object value : values) {
             if (value != null) {
-                content.append(StringUtils.getStringValue(value, null));
+                content.append(StringUtils.getStringValue(value));
             }
         }
         return StringUtils.fromString(content.toString());
@@ -58,8 +58,8 @@ public class StringUtilsTest {
         BRunUtil.invoke(result, "testStringValue");
     }
 
-    public static BString invokeStringValue(BValue value) {
-        return StringUtils.fromString(value.stringValue(null));
+    public static BString invokeStringValue(Object value) {
+        return StringUtils.fromString(value.toString());
     }
 
     @AfterClass

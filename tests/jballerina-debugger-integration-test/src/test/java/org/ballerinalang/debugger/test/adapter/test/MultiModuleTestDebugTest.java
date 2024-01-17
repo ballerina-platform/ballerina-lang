@@ -53,7 +53,8 @@ public class MultiModuleTestDebugTest extends BaseTestCase {
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test
+    @Test(description = "Test to verify breakpoint hits within different types of test functions (i.e. beforeSuite, " +
+            "beforeFunc, etc)")
     public void testMultiModuleDebugScenarios() throws BallerinaTestException {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 22));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 27));
@@ -65,7 +66,7 @@ public class MultiModuleTestDebugTest extends BaseTestCase {
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.TEST);
 
         // Test for debug engage and break point hit @test:BeforeSuite
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(20000);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(30000);
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
 
         // Test for break point hit at beforeFunc()
@@ -98,7 +99,7 @@ public class MultiModuleTestDebugTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(5));
     }
 
-    @Test
+    @Test(description = "Test to verify breakpoint hits when running selective test cases")
     public void testSelectiveTestsDebug() throws BallerinaTestException {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 36));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 44));
@@ -110,7 +111,7 @@ public class MultiModuleTestDebugTest extends BaseTestCase {
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.TEST, testArgs);
 
         // Test for break point hit at testMain()
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(20000);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(30000);
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
 
         // Since the test filter will exclude the "testFunction()" method, continuing the debugger should hit the

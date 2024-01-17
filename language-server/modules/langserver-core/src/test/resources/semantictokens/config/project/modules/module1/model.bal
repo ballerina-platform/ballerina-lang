@@ -1,6 +1,6 @@
-import ballerina/io;
-import ballerina/http;
-import ballerina/log;
+import ballerina/iox;
+import ballerina/httpx;
+import ballerina/logx;
 
 public class Counter {
     private int n;

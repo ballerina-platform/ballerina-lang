@@ -38,7 +38,7 @@ import java.util.Set;
  */
 public class BSymbol implements Symbol {
 
-    public int tag;
+    public long tag;
     public long flags;
     public Name name;
     public Name originalName;
@@ -57,7 +57,7 @@ public class BSymbol implements Symbol {
      */
     public Scope scope;
 
-    public BSymbol(int tag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
+    public BSymbol(long tag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                    Location location,
                    SymbolOrigin origin) {
         this.tag = tag;
@@ -71,7 +71,7 @@ public class BSymbol implements Symbol {
         this.origin = origin;
     }
 
-    public BSymbol(int tag, long flags, Name name, Name originalName, PackageID pkgID, BType type, BSymbol owner,
+    public BSymbol(long tag, long flags, Name name, Name originalName, PackageID pkgID, BType type, BSymbol owner,
                    Location location,
                    SymbolOrigin origin) {
         this.tag = tag;

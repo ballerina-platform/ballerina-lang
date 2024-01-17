@@ -17,23 +17,38 @@
  */
 package io.ballerina.projects;
 
+import java.util.Objects;
+
 /**
  * Build options of a project.
  */
 public class BuildOptions {
+
     private Boolean testReport;
     private Boolean codeCoverage;
     private Boolean dumpBuildTime;
     private Boolean skipTests;
     private CompilationOptions compilationOptions;
+    private String targetDir;
+    private Boolean enableCache;
+    private Boolean nativeImage;
+    private Boolean exportComponentModel;
+    private String graalVMBuildOptions;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
-                 CompilationOptions compilationOptions) {
+                 CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
+                 Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
         this.skipTests = skipTests;
         this.compilationOptions = compilationOptions;
+        this.targetDir = targetPath;
+        this.enableCache = enableCache;
+        this.nativeImage = nativeImage;
+        this.exportComponentModel = exportComponentModel;
+        this.graalVMBuildOptions = graalVMBuildOptions;
+
     }
 
     public boolean testReport() {
@@ -61,8 +76,19 @@ public class BuildOptions {
         return this.compilationOptions.sticky();
     }
 
+    public boolean disableSyntaxTree() {
+        return this.compilationOptions.disableSyntaxTree();
+    }
+
+    /**
+     * Checks whether experimental compilation option is set.
+     *
+     * @return Is experimental compilation option is set
+     * @deprecated Since language no longer has experimental features
+     */
+    @Deprecated(forRemoval = true)
     public boolean experimental() {
-        return this.compilationOptions.experimental();
+        return false;
     }
 
     public boolean observabilityIncluded() {
@@ -81,6 +107,26 @@ public class BuildOptions {
         return this.compilationOptions;
     }
 
+    public boolean exportOpenAPI() {
+        return this.compilationOptions.exportOpenAPI();
+    }
+
+    public boolean exportComponentModel() {
+        return this.compilationOptions.exportComponentModel();
+    }
+
+    public boolean enableCache() {
+        return this.compilationOptions.enableCache();
+    }
+
+    public boolean nativeImage() {
+        return toBooleanDefaultIfNull(this.nativeImage);
+    }
+
+    public String graalVMBuildOptions() {
+        return Objects.requireNonNullElse(this.graalVMBuildOptions, "");
+    }
+
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
      *
@@ -90,39 +136,71 @@ public class BuildOptions {
     public BuildOptions acceptTheirs(BuildOptions theirOptions) {
         BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
         if (theirOptions.skipTests != null) {
-            buildOptionsBuilder.skipTests(theirOptions.skipTests);
+            buildOptionsBuilder.setSkipTests(theirOptions.skipTests);
         } else {
-            buildOptionsBuilder.skipTests(this.skipTests);
+            buildOptionsBuilder.setSkipTests(this.skipTests);
         }
         if (theirOptions.codeCoverage != null) {
-            buildOptionsBuilder.codeCoverage(theirOptions.codeCoverage);
+            buildOptionsBuilder.setCodeCoverage(theirOptions.codeCoverage);
         } else {
-            buildOptionsBuilder.codeCoverage(this.codeCoverage);
+            buildOptionsBuilder.setCodeCoverage(this.codeCoverage);
         }
         if (theirOptions.testReport != null) {
-            buildOptionsBuilder.testReport(theirOptions.testReport);
+            buildOptionsBuilder.setTestReport(theirOptions.testReport);
         } else {
-            buildOptionsBuilder.testReport(this.testReport);
+            buildOptionsBuilder.setTestReport(this.testReport);
         }
         if (theirOptions.dumpBuildTime != null) {
-            buildOptionsBuilder.dumpBuildTime(theirOptions.dumpBuildTime);
+            buildOptionsBuilder.setDumpBuildTime(theirOptions.dumpBuildTime);
         } else {
-            buildOptionsBuilder.dumpBuildTime(this.dumpBuildTime);
+            buildOptionsBuilder.setDumpBuildTime(this.dumpBuildTime);
+        }
+        if (theirOptions.targetDir != null) {
+            buildOptionsBuilder.targetDir(theirOptions.targetDir);
+        } else {
+            buildOptionsBuilder.targetDir(this.targetDir);
+        }
+        if (theirOptions.enableCache != null) {
+            buildOptionsBuilder.setEnableCache(theirOptions.enableCache);
+        } else {
+            buildOptionsBuilder.setEnableCache(this.enableCache);
+        }
+        if (theirOptions.nativeImage != null) {
+            buildOptionsBuilder.setNativeImage(theirOptions.nativeImage);
+        } else {
+            buildOptionsBuilder.setNativeImage(this.nativeImage);
+        }
+        if (theirOptions.exportComponentModel != null) {
+            buildOptionsBuilder.setExportComponentModel(theirOptions.exportComponentModel);
+        } else {
+            buildOptionsBuilder.setExportComponentModel(this.exportComponentModel);
+        }
+        if (theirOptions.graalVMBuildOptions != null) {
+            buildOptionsBuilder.setGraalVMBuildOptions(theirOptions.graalVMBuildOptions);
+        } else {
+            buildOptionsBuilder.setGraalVMBuildOptions(this.graalVMBuildOptions);
         }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
-        buildOptionsBuilder.offline(compilationOptions.offlineBuild);
-        buildOptionsBuilder.experimental(compilationOptions.experimental);
-        buildOptionsBuilder.observabilityIncluded(compilationOptions.observabilityIncluded);
-        buildOptionsBuilder.dumpBir(compilationOptions.dumpBir);
-        buildOptionsBuilder.dumpBirFile(compilationOptions.dumpBirFile);
-        buildOptionsBuilder.dumpGraph(compilationOptions.dumpGraph);
-        buildOptionsBuilder.dumpRawGraphs(compilationOptions.dumpRawGraphs);
-        buildOptionsBuilder.cloud(compilationOptions.cloud);
-        buildOptionsBuilder.listConflictedClasses(compilationOptions.listConflictedClasses);
-        buildOptionsBuilder.sticky(compilationOptions.sticky);
+        buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
+        buildOptionsBuilder.setObservabilityIncluded(compilationOptions.observabilityIncluded);
+        buildOptionsBuilder.setDumpBir(compilationOptions.dumpBir);
+        buildOptionsBuilder.setDumpBirFile(compilationOptions.dumpBirFile);
+        buildOptionsBuilder.setDumpGraph(compilationOptions.dumpGraph);
+        buildOptionsBuilder.setDumpRawGraphs(compilationOptions.dumpRawGraphs);
+        buildOptionsBuilder.setCloud(compilationOptions.cloud);
+        buildOptionsBuilder.setListConflictedClasses(compilationOptions.listConflictedClasses);
+        buildOptionsBuilder.setSticky(compilationOptions.sticky);
+        buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
+        buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
+        buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
+        buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
 
         return buildOptionsBuilder.build();
+    }
+
+    public static BuildOptionsBuilder builder() {
+        return new BuildOptionsBuilder();
     }
 
     private boolean toBooleanDefaultIfNull(Boolean bool) {
@@ -139,6 +217,10 @@ public class BuildOptions {
         return bool;
     }
 
+    public String getTargetPath() {
+        return targetDir;
+    }
+
     /**
      * Enum to represent build options.
      */
@@ -146,8 +228,11 @@ public class BuildOptions {
         SKIP_TESTS("skipTests"),
         TEST_REPORT("testReport"),
         CODE_COVERAGE("codeCoverage"),
-        DUMP_BUILD_TIME("dumpBuildTime")
-        ;
+        DUMP_BUILD_TIME("dumpBuildTime"),
+        TARGET_DIR("targetDir"),
+        NATIVE_IMAGE("graalvm"),
+        EXPORT_COMPONENT_MODEL("exportComponentModel"),
+        GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions");
 
         private final String name;
 
@@ -158,6 +243,154 @@ public class BuildOptions {
         @Override
         public String toString() {
             return name;
+        }
+    }
+
+    /**
+     * A builder for the {@code BuildOptions}.
+     *
+     * @since 2.0.0
+     */
+    public static class BuildOptionsBuilder {
+
+        private Boolean testReport;
+        private Boolean codeCoverage;
+        private Boolean dumpBuildTime;
+        private Boolean skipTests;
+        private String targetPath;
+        private Boolean enableCache;
+        private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
+        private Boolean nativeImage;
+        private Boolean exportComponentModel;
+        private String graalVMBuildOptions;
+
+
+        private BuildOptionsBuilder() {
+            compilationOptionsBuilder = CompilationOptions.builder();
+        }
+
+        public BuildOptionsBuilder disableSyntaxTreeCaching(Boolean value) {
+            compilationOptionsBuilder.disableSyntaxTree(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setTestReport(Boolean value) {
+            testReport = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setCodeCoverage(Boolean value) {
+            codeCoverage = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpBuildTime(Boolean value) {
+            dumpBuildTime = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setSkipTests(Boolean value) {
+            skipTests = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setSticky(Boolean value) {
+            compilationOptionsBuilder.setSticky(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setListConflictedClasses(Boolean value) {
+            compilationOptionsBuilder.setListConflictedClasses(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setOffline(Boolean value) {
+            compilationOptionsBuilder.setOffline(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setGraalVMBuildOptions(String value) {
+            graalVMBuildOptions = value;
+            return this;
+        }
+
+        /**
+         * Set experimental compilation option.
+         *
+         * @return Build options builder
+         * @deprecated Since language no longer has experimental features
+         */
+        @Deprecated(forRemoval = true)
+        public BuildOptionsBuilder setExperimental(Boolean value) {
+            return this;
+        }
+
+        public BuildOptionsBuilder setObservabilityIncluded(Boolean value) {
+            compilationOptionsBuilder.setObservabilityIncluded(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setCloud(String value) {
+            compilationOptionsBuilder.setCloud(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpBir(Boolean value) {
+            compilationOptionsBuilder.setDumpBir(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpBirFile(Boolean value) {
+            compilationOptionsBuilder.setDumpBirFile(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpGraph(Boolean value) {
+            compilationOptionsBuilder.setDumpGraph(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpRawGraphs(Boolean value) {
+            compilationOptionsBuilder.setDumpRawGraphs(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder targetDir(String path) {
+            targetPath = path;
+            return this;
+        }
+
+        public BuildOptionsBuilder setConfigSchemaGen(Boolean value) {
+            compilationOptionsBuilder.setConfigSchemaGen(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setExportOpenAPI(Boolean value) {
+            compilationOptionsBuilder.setExportOpenAPI(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setExportComponentModel(Boolean value) {
+            compilationOptionsBuilder.setExportComponentModel(value);
+            exportComponentModel = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setEnableCache(Boolean value) {
+            compilationOptionsBuilder.setEnableCache(value);
+            enableCache = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setNativeImage(Boolean value) {
+            nativeImage = value;
+            return this;
+        }
+
+        public BuildOptions build() {
+            CompilationOptions compilationOptions = compilationOptionsBuilder.build();
+            return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions,
+                    targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions);
         }
     }
 }

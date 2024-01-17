@@ -1,0 +1,24 @@
+{
+  "person":{
+    "id": 1001,
+    "firstName": "Vinnie",
+    "lastName": "Hickman"
+  },
+  "course": [
+    {
+      "id": "CS6002",
+      "title": "Computation Structures",
+      "credits": 4
+    },
+    {
+      "id": "CS6003",
+      "title": "Circuits and Electronics",
+      "credits": 3
+    },
+    {
+      "id": "CS6004",
+      "title": "Signals and Systems",
+      "credits": 3
+    }
+  ]
+}

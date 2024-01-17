@@ -1,0 +1,9 @@
+{
+  "position": {
+    "line": 1,
+    "character": 74
+  },
+  "source": "extract_to_function_exprs_let_expr.bal",
+  "expected": [],
+  "description": "Extract to function for expressions, cursor inside the function call in let expression"
+}

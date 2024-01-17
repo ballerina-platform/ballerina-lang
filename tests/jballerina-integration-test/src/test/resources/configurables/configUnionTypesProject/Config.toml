@@ -5,6 +5,7 @@ countryCodes = ["United States","Sri Lanka"]
 
 anydataVar ="hello"
 intStringVar=12345
+intArrayVar = [123, 456, 789]
 anydataArray = ["hello", 1, 2, 3.4, false]
 number="three"
 
@@ -98,6 +99,8 @@ header2="header2"
 [configUnionTypes.configMap2.config2]
 password=["1", 2, 3]
 
+[configUnionTypes.config]
+auth.clientId = "ABC"
 
 [configUnionTypes.imported_unions]
 httpVersion = "HTTP_2"
@@ -105,6 +108,7 @@ countryCode = "United States"
 countryCodes = ["Sri Lanka", "United States"]
 anydataVar ="hello"
 intStringVar=12345
+intArrayVar = [123, 456, 789]
 anydataArray = ["hello", 1, 2, 3.4, false]
 number="three"
 
@@ -194,6 +198,71 @@ unionVar3 = 24
 versions = ["HTTP_1_1", "HTTP_1_1", "HTTP_2"]
 countryCodes = ["United States", "Sri Lanka"]
 numbers = [1, 2.5, "three"]
+city = {name = "Jack", city = "Colombo"}
+pet = {nickname = "Fido", pet_type = "Dog", age = 4}
+arrayUnionVal = [1, 2, 3]
+arrTupleUnionVal = [23.1, 24]
+unionVal1 = 23.0
+
+[[configUnionTypes.union_ambiguity.movies]]
+title = "Inception"
+year = [2010, 2011]
+
+[[configUnionTypes.union_ambiguity.movies]]
+title = "Alice in wonderland"
+year = [2010, 2016]
+
+[[configUnionTypes.union_ambiguity.movies]]
+title = "Coco"
+year = [2017, 2018]
+
+[[configUnionTypes.union_ambiguity.events]]
+title = "Inception"
+year = [2010.0, 2011.0]
+
+[[configUnionTypes.union_ambiguity.events]]
+title = "Alice in wonderland"
+year = [2010.0, 2016.0]
+
+[[configUnionTypes.union_ambiguity.events]]
+title = "Coco"
+year = [2017.0, 2018.0]
+
+[[configUnionTypes.union_ambiguity.scenarios]]
+title = "Inception"
+year = [2010.0, 2011.0]
+
+[[configUnionTypes.union_ambiguity.scenarios]]
+title = "Alice in wonderland"
+year = [2010.0, 2016.0]
+
+[[configUnionTypes.union_ambiguity.scenarios]]
+title = "Coco"
+year = [2017.0, 2018.0]
+
+[[configUnionTypes.union_ambiguity.videos]]
+title = "Inception"
+year = [2010, 2011]
+
+[[configUnionTypes.union_ambiguity.videos]]
+title = "Alice in wonderland"
+year = [2010, 2016]
+
+[[configUnionTypes.union_ambiguity.videos]]
+title = "Coco"
+year = [2017, 2018]
+
+[[configUnionTypes.union_ambiguity.blogs]]
+title = "Inception"
+year = [2010, 2011]
+
+[[configUnionTypes.union_ambiguity.blogs]]
+title = "Alice in wonderland"
+year = [2010, 2016]
+
+[[configUnionTypes.union_ambiguity.blogs]]
+title = "Coco"
+year = [2017, 2018]
 
 [[configUnionTypes.union_ambiguity.mapArrayVar]]
 a = "test string"
@@ -250,3 +319,18 @@ clientConfig.customHeaders.header4="header4"
 
 [[configUnionTypes.union_ambiguity.configs]]
 password=["1", 2, 3]
+
+[configUnionTypes.jsonType]
+jsonVar1 = "json String"
+jsonVar2 = [1, 2]
+jsonVar3 = ["hello", 1, true]
+jsonVar4 = {a = "aaa", b = 2}
+jsonVar5 = [{a = "aaa", b = 2}, {c = "ccc", d = 4}]
+jsonVar6 = [[1, 2], [4, 5]]
+
+jsonArr = [1, "hello", [1, 2], {name = "Hindu", age = 26}, [{one = 1}, {two = 2}]]
+jsonUnion = 22
+jsonMap = {string = "string", num = 12, arr = [1, 2, "hello"], map = {a = "a"}}
+jsonRecord = {payload = {msg = "This is message"}, code = 200}
+jsonTable1 = [{val1 = ["hello", 1, true]}, {val2 = "json String"}]
+jsonTable2 = [{payload = {msg = "This is message"}, code = 200}, {payload = {error = "Not found"}, code = 400}]

@@ -17,7 +17,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.IntUnsigned32TypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
@@ -31,9 +32,9 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaIntUnsigned32TypeSymbol extends AbstractTypeSymbol implements IntUnsigned32TypeSymbol {
+public class BallerinaIntUnsigned32TypeSymbol extends AbstractIntSubTypeSymbol implements IntUnsigned32TypeSymbol {
 
-    public BallerinaIntUnsigned32TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType unsigned32Type) {
+    public BallerinaIntUnsigned32TypeSymbol(CompilerContext context, BIntSubType unsigned32Type) {
         super(context, TypeDescKind.INT_UNSIGNED32, unsigned32Type);
     }
 
@@ -45,5 +46,15 @@ public class BallerinaIntUnsigned32TypeSymbol extends AbstractTypeSymbol impleme
     @Override
     public String signature() {
         return "int:" + Names.STRING_UNSIGNED32;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

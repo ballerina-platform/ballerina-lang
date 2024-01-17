@@ -894,3 +894,64 @@ function f28(int?[] arr) returns boolean {
 
     return false;
 }
+
+function f29() {
+    int|string x = 1;
+
+    if x is int {
+        while x is byte {
+            x += 1;
+        }
+    }
+}
+
+function f30() {
+    int? res = ();
+
+    if res is int {
+        while res is int {
+            res = ();
+        }
+    }
+}
+
+function f31() {
+    int? res = ();
+
+    while res is int {
+        while res is int {
+            res = ();
+        }
+    }
+}
+
+function f32() {
+    any x = 1;
+
+    error? m = from int i in 0 ..< 2
+    do {
+        if x is int {
+            int _ = x;
+            x = "str";
+        }
+    };
+    boolean _ = m is error;
+}
+
+function f33() {
+    error? m = from int i in 0 ..< 2
+    do {
+        int? j = 2;
+        if j is int {
+            int _ = j;
+            j = ();
+        }
+
+        int? k = 2;
+        if k is int {
+            k = ();
+            int? _ = k;
+        }
+    };
+    boolean _ = m is error;
+}

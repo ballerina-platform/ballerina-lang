@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -41,40 +39,40 @@ public class FunctionsAndNilTest {
 
     @Test(description = "Test functions that returns nil type")
     public void testFuncReturnNilImplicit() {
-        BValue[] returns = BRunUtil.invoke(result, "funcReturnNilImplicit");
-        Assert.assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "funcReturnNilImplicit");
+        Assert.assertNull(returns);
     }
 
     @Test(description = "Test functions that returns nil type")
     public void funcReturnNilExplicit() {
-        BValue[] returns = BRunUtil.invoke(result, "funcReturnNilExplicit");
-        Assert.assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "funcReturnNilExplicit");
+        Assert.assertNull(returns);
     }
 
     @Test(description = "Test functions that returns nil type")
     public void funcReturnNilOrError() {
-        BValue[] params = new BValue[1];
-        params[0] = new BInteger(10);
+        Object[] params = new Object[1];
+        params[0] = (10);
         BRunUtil.invoke(result, "funcReturnNilOrError", params);
 
-        params[0] = new BInteger(30);
+        params[0] = (30);
         BRunUtil.invoke(result, "funcReturnNilOrError", params);
     }
 
     @Test(description = "Test functions that returns nil type")
     public void funcReturnOptionallyError() {
-        BValue[] params = new BValue[1];
-        params[0] = new BInteger(10);
+        Object[] params = new Object[1];
+        params[0] = (10);
         BRunUtil.invoke(result, "funcReturnOptionallyError", params);
 
-        params[0] = new BInteger(30);
+        params[0] = (30);
         BRunUtil.invoke(result, "funcReturnOptionallyError", params);
     }
 
     @Test(description = "Test functions that returns nil type")
     public void testNilReturnAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testNilReturnAssignment");
-        Assert.assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "testNilReturnAssignment");
+        Assert.assertNull(returns);
     }
 
     @AfterClass

@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 0,
+    "character": 16
+  },
+  "source": "testproject9/main.bal",
+  "expected": [
+    {
+      "title": "Add module to Ballerina.toml",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 0
+            },
+            "end": {
+              "line": 5,
+              "character": 0
+            }
+          },
+          "newText": "[[dependency]]\norg = \"ballerina\"\nname = \"x\"\nversion = \"0.1.0\"\nrepository = \"local\"\n\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

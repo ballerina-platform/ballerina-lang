@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 3,
+    "character": 11
+  },
+  "source": "typeCastInMemberAccess1.bal",
+  "expected": [
+    {
+      "title": "Add type cast",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 10
+            },
+            "end": {
+              "line": 3,
+              "character": 10
+            }
+          },
+          "newText": "\u003cstring\u003e"
+        }
+      ]
+    }
+  ]
+}

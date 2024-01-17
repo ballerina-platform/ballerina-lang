@@ -17,7 +17,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.CompilationErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -37,7 +38,7 @@ public class BallerinaCompilationErrorTypeSymbol extends AbstractTypeSymbol impl
 
     private static final List<FunctionSymbol> langLibMethods = Collections.unmodifiableList(new ArrayList<>());
 
-    public BallerinaCompilationErrorTypeSymbol(CompilerContext context, ModuleID moduleID, BType error) {
+    public BallerinaCompilationErrorTypeSymbol(CompilerContext context, BType error) {
         super(context, TypeDescKind.COMPILATION_ERROR, error);
     }
 
@@ -49,5 +50,15 @@ public class BallerinaCompilationErrorTypeSymbol extends AbstractTypeSymbol impl
     @Override
     public List<FunctionSymbol> langLibMethods() {
         return langLibMethods;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

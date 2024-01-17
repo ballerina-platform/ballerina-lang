@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.expressions.invocations;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,24 +40,35 @@ public class FunctionTest {
 
     @Test(description = "Test empty function scenario")
     public void testEmptyFunction() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "emptyFunction", args);
-        Assert.assertNull(returns[0]);
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "emptyFunction", args);
+        Assert.assertNull(returns);
     }
 
     @Test(description = "Test function with empty default worker")
     public void testFunctionWithEmptyDefaultWorker() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "funcEmptyDefaultWorker", args);
-        Assert.assertNull(returns[0]);
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "funcEmptyDefaultWorker", args);
+        Assert.assertNull(returns);
     }
 
     @Test
     public void testNoReturnFunctions() {
-        BValue[] args = {};
+        Object[] args = {};
         BRunUtil.invoke(result, "test1", args);
         BRunUtil.invoke(result, "test2", args);
         BRunUtil.invoke(result, "test3", args);
+    }
+
+    @Test(description = "Test frame yield depth overflow", expectedExceptions = BLangTestException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}StackOverflow \\{\"message\":\"stack overflow\"}")
+    public void testRecursiveFunctionWhereStackOverflows() {
+        BRunUtil.invoke(result, "testRecursiveFunctionWhereStackOverflows");
+    }
+
+    @Test
+    public void testRecursiveFunctionWhichYields() {
+        BRunUtil.invoke(result, "testRecursiveFunctionWhichYields");
     }
 
     @AfterClass

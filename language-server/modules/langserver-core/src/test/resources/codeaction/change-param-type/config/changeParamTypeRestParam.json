@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 1,
+    "character": 17
+  },
+  "source": "changeParamTypeRestParam.bal",
+  "expected": [
+    {
+      "title": "Change parameter 'age' type to 'string'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 14
+            },
+            "end": {
+              "line": 0,
+              "character": 20
+            }
+          },
+          "newText": "string"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

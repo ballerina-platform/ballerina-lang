@@ -66,4 +66,8 @@ class SyntaxNodeAnalysisTask {
     Collection<SyntaxKind> syntaxKinds() {
         return syntaxKinds;
     }
+
+    CompilerPluginInfo getCompilerPluginInfo() {
+        return compilerPluginInfo;
+    }
 }

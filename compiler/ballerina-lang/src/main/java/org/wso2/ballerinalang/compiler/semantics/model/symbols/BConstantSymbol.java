@@ -53,4 +53,9 @@ public class BConstantSymbol extends BVarSymbol implements ConstantSymbol {
     public SymbolKind getKind() {
         return SymbolKind.CONSTANT;
     }
+
+    @Override
+    public Object getConstValue() {
+        return value;
+    }
 }

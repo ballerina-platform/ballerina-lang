@@ -12,4 +12,5 @@ module io.ballerina.diagram.util {
     exports org.ballerinalang.diagramutil.connector.models;
     exports org.ballerinalang.diagramutil.connector.models.connector;
     exports org.ballerinalang.diagramutil.connector.generator;
+    exports org.ballerinalang.diagramutil.connector.models.connector.types;
 }

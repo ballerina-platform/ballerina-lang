@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 3,
+    "character": 8
+  },
+  "source": "importModuleWithModAlias1.bal",
+  "description": "Change module prefix when module prefix is available in another alias - ballerina/module1",
+  "expected": [
+    {
+      "title": "Change module prefix to 'mod1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 11
+            }
+          },
+          "newText": "mod1"
+        }
+      ]
+    }
+  ]
+}

@@ -17,7 +17,7 @@
       "label": "float1",
       "kind": "Field",
       "detail": "float",
-      "sortText": "BA",
+      "sortText": "CA",
       "insertText": "float1",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +25,7 @@
       "label": "field1",
       "kind": "Field",
       "detail": "string",
-      "sortText": "BA",
+      "sortText": "CA",
       "insertText": "field1",
       "insertTextFormat": "Snippet"
     },
@@ -33,7 +33,7 @@
       "label": "field2",
       "kind": "Field",
       "detail": "string",
-      "sortText": "BA",
+      "sortText": "CA",
       "insertText": "field2",
       "insertTextFormat": "Snippet"
     },
@@ -85,7 +85,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "BC",
+      "sortText": "CC",
       "filterText": "fn3",
       "insertText": "fn3()",
       "insertTextFormat": "Snippet"
@@ -100,7 +100,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "BC",
+      "sortText": "CC",
       "filterText": "fn4",
       "insertText": "fn4()",
       "insertTextFormat": "Snippet"
@@ -115,7 +115,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `Rec`   \n  \n"
         }
       },
-      "sortText": "BC",
+      "sortText": "CC",
       "filterText": "fn5",
       "insertText": "fn5()",
       "insertTextFormat": "Snippet"
@@ -130,7 +130,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `float`   \n  \n"
         }
       },
-      "sortText": "BC",
+      "sortText": "CC",
       "filterText": "getFloat",
       "insertText": "getFloat()",
       "insertTextFormat": "Snippet"

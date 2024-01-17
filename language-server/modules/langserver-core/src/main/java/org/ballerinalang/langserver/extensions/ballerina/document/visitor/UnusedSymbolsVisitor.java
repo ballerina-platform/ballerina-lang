@@ -120,6 +120,9 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
         boolean availableOutSideDeleteRange = false;
         for (Location location : locations) {
             if (isWithinLineRange(importDeclarationNode.lineRange(), location.lineRange())) {
+                if (locations.size() == 1) {
+                    availableOutSideDeleteRange = true;
+                }
                 continue;
             }
             LineRange deleteRange = getDeleteRange(location.lineRange());
@@ -127,6 +130,13 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
                 availableOutSideDeleteRange = true;
             }
         }
+
+        // If import has the prefix `_` then treat is as an used import.
+        if (importDeclarationNode.prefix().isPresent()
+                && "_".equals(importDeclarationNode.prefix().get().prefix().text())) {
+            availableOutSideDeleteRange = true;
+        }
+
         if (availableOutSideDeleteRange) {
             this.unusedImports.remove(getImportModuleName(importDeclarationNode.orgName().isPresent()
                     ? importDeclarationNode.orgName().get() : null, importDeclarationNode.moduleName()));
@@ -134,8 +144,6 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
                             ? importDeclarationNode.orgName().get() : null, importDeclarationNode.moduleName()),
                     importDeclarationNode);
         }
-
-
     }
 
     private void decideVariablesToBeDeleted(LineRange lineRange) {

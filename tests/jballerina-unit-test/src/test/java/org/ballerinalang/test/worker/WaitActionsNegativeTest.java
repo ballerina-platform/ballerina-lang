@@ -33,7 +33,6 @@ public class WaitActionsNegativeTest {
     public void testNegativeWorkerActions() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/workers/wait-actions-negative.bal");
         int index = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 45, "Wait actions negative test error count");
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<string>', found 'future<int>'", 56, 22);
         BAssertUtil.validateError(resultNegative, index++,
@@ -143,9 +142,34 @@ public class WaitActionsNegativeTest {
                         "expression 'f2'", 90, 45);
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<string>', found 'future<(int|error)>'", 90, 54);
-        BAssertUtil.validateError(resultNegative, index,
+        BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'string', found eventual type '(string|error)' for wait future " +
                         "expression 'f4'", 90, 54);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 115, 38);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 116, 48);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 117, 27);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 117, 58);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 119, 27);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 120, 48);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 121, 27);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 121, 72);
+        BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
+                " found '(future<(boolean|error)>|future<(boolean|error)>)'", 136, 38);
+        BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
+                " found '(future<boolean>|future<boolean>)'", 137, 48);
+        BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
+                " found '(future<(boolean|error)>|future<(boolean|error)>)'", 138, 27);
+        BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
+                " found '(future<boolean>|future<boolean>)'", 138, 40);
+        Assert.assertEquals(resultNegative.getErrorCount(), index, "Wait actions negative test error count");
     }
 
     @Test
@@ -157,11 +181,13 @@ public class WaitActionsNegativeTest {
         BAssertUtil.validateError(result, index++, expectedErrMsg, 33, 17);
         BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 41, 13);
         BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 44, 13);
+        BAssertUtil.validateWarning(result, index++, "unused variable 'i'", 50, 9);
         BAssertUtil.validateError(result, index++, expectedErrMsg, 50, 17);
         BAssertUtil.validateError(result, index++, expectedErrMsg, 51, 13);
         BAssertUtil.validateError(result, index++, expectedErrMsg, 61, 25);
 
-        Assert.assertEquals(result.getErrorCount(), index);
+        Assert.assertEquals(result.getErrorCount(), index - 1);
+        Assert.assertEquals(result.getWarnCount(), 1);
     }
 
     @Test

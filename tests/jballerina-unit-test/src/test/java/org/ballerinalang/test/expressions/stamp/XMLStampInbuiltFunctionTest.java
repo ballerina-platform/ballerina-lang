@@ -17,8 +17,7 @@
 */
 package org.ballerinalang.test.expressions.stamp;
 
-import org.ballerinalang.core.model.types.BXMLType;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.internal.types.BXmlType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -26,6 +25,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 
 /**
  * Test cases for stamping XML type variables.
@@ -46,23 +47,21 @@ public class XMLStampInbuiltFunctionTest {
     @Test
     public void testStampXMLToXML() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampXMLToXML");
-        BValue xmlValue = results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampXMLToXML");
+        Object xmlValue = results;
 
-        Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(xmlValue.stringValue(), "<book>The Lost World</book>");
-        Assert.assertEquals(xmlValue.getType().getClass(), BXMLType.class);
+        Assert.assertEquals(xmlValue.toString(), "<book>The Lost World</book>");
+        Assert.assertEquals(getType(xmlValue).getClass(), BXmlType.class);
     }
 
     @Test
     public void testStampXMLToAnydata() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampXMLToAnydata");
-        BValue anydataValue = results[0];
+        Object results = BRunUtil.invoke(compileResult, "stampXMLToAnydata");
+        Object anydataValue = results;
 
-        Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(anydataValue.stringValue(), "<book>The Lost World</book>");
-        Assert.assertEquals(anydataValue.getType().getClass(), BXMLType.class);
+        Assert.assertEquals(anydataValue.toString(), "<book>The Lost World</book>");
+        Assert.assertEquals(getType(anydataValue).getClass(), BXmlType.class);
     }
 
     @AfterClass

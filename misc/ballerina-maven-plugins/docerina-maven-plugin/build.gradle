@@ -23,7 +23,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation project(':ballerina-lang')
     implementation project(':docerina')
-    testCompile 'junit:junit'
+    testImplementation 'junit:junit'
     compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations'
 }
 

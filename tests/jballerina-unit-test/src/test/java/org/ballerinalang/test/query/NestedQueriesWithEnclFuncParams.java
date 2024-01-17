@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
  * @since Swan Lake
  */
 public class NestedQueriesWithEnclFuncParams {
+
     private CompileResult result;
 
     @BeforeClass
@@ -50,7 +51,10 @@ public class NestedQueriesWithEnclFuncParams {
                 "testFuncParams2",
                 "testFuncParams3",
                 "testFuncParams4",
-                "testFuncParams5"
+                "testFuncParams5",
+                "testFunc6",
+                "testFunc7",
+                "testFunc8"
         };
     }
 

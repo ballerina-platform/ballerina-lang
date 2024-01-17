@@ -28,7 +28,7 @@ import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 
 /**
- * {@code BTypeType} represents type of type in Ballerina type system.
+ * {@code BTypedescType} represents a type of a type in the Ballerina type system.
  *
  * @since 0.995.0
  */
@@ -77,5 +77,10 @@ public class BTypedescType extends BType implements TypedescType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "typedesc" + "<" + constraint.toString() + ">";
     }
 }

@@ -1,8 +1,8 @@
-import ballerina/io;
-import ballerina/http;
+import ballerina/iox;
+import ballerina/httpx;
 import project.module2 as mod2;
 import ballerina/jballerina.java;
-import ballerina/mime;
+import ballerina/mimex;
 
 class Person {
     # + fname - this is first name
@@ -81,20 +81,20 @@ public function main() returns error? {
     // ** Class **
     // 1. Same module level class reference in the same file (declaration before the reference)
     Person person = new ("Alice", "Miller", true);
-    io:println(person.getFullName());
+    iox:println(person.getFullName());
     people.push(person);
 
     // 2. Same module level class reference, but in a separate file
     Counter counter = new (12);
-    io:println(counter.get());
+    iox:println(counter.get());
 
     // 3. Same module level class reference in the same file (declaration after the reference)
     Employee employee = new ();
-    io:print(employee.getEmail());
+    iox:print(employee.getEmail());
 
     // 4. Different module class reference
     mod2:Teenager teenager = check new ("Bob", 15);
-    io:print(teenager.getName());
+    iox:print(teenager.getName());
 
     // ** Record **
     // 1. Define record
@@ -103,7 +103,7 @@ public function main() returns error? {
         y: 2
     };
     int a = recordObj.y;
-    io:println(a);
+    iox:println(a);
 
     // 2. Same module level record reference in the same file (declaration before the reference)
     Coord c = {
@@ -111,7 +111,7 @@ public function main() returns error? {
         y: 2
     };
     int b = c.x;
-    io:println(b);
+    iox:println(b);
 
     // 3. Same module level record reference, but in a separate file
     Teacher teacher = {
@@ -119,7 +119,7 @@ public function main() returns error? {
         age: 24,
         salary: 8000.0
     };
-    io:print(teacher.name);
+    iox:print(teacher.name);
 
     // 4. Same module level record reference in the same file (declaration after the reference)
     Student student = {
@@ -130,14 +130,14 @@ public function main() returns error? {
             country: "USA"
         }
     };
-    io:print(student.age);
+    iox:print(student.age);
 
     // 5. Different module record reference
     table<mod2:Row> key(k) t = table [
     {k: "John", value: 17}
 ];
     t.add({k: "Anne", value: 18});
-    io:println(t);
+    iox:println(t);
 
     // ** Object **
     // 1. Define object
@@ -167,13 +167,13 @@ public function main() returns error? {
     };
 
     // 3. Same module level object reference, but in a separate file
-    io:print(helloService);
+    iox:print(helloService);
 
     // 4. Same module level object reference in the same file (declaration after the reference)
     typedesc<any> td = typeof ser;
 
     // 5. Different module object reference
-    io:print(mod2:Bar);
+    iox:print(mod2:Bar);
 
     // ** Type **
     // 1. Same module level type reference in the same file (declaration before the reference)
@@ -181,7 +181,7 @@ public function main() returns error? {
         {"x": "foo"},
         {"y": "bar"}
     ];
-    io:println(mapArr[0]);
+    iox:println(mapArr[0]);
 
     // 2. Same module level type reference, but in a separate file
     AccountNotFoundError accountNotFoundError = error AccountNotFoundError("ACCOUNT_NOT_FOUND", count = 500);
@@ -194,13 +194,13 @@ public function main() returns error? {
 
     // ** Function **
     // 1. Define function
-    stream<string[], io:Error> csvStream = check io:fileReadCsvAsStream("/path");
+    stream<string[], iox:Error> csvStream = check iox:fileReadCsvAsStream("/path");
     error? e = csvStream.forEach(function(string[] val) {
-        io:println(val);
+        iox:println(val);
     });
 
     // 2. Same module level function reference in the same file (declaration before the reference)
-    io:print(printDetails("Alice", 20, "JP"));
+    iox:print(printDetails("Alice", 20, "JP"));
 
     // 3. Same module level function reference, but in a separate file
     string? largestCountryInContinent = getLargestCountryInContinent("SL");
@@ -215,20 +215,20 @@ public function main() returns error? {
 
     // ** Enum **
     // 1. Same module level enum reference in the same file (declaration before the reference)
-    io:print(RED);
-    io:print(Color);
+    iox:print(RED);
+    iox:print(Color);
 
     // 2. Same module level enum reference, but in a separate file
-    io:print(GOLD);
-    io:print(CATEGORY);
+    iox:print(GOLD);
+    iox:print(CATEGORY);
 
     // 3. Same module level enum reference in the same file (declaration after the reference)
-    io:print(EN);
-    io:print(Language);
+    iox:print(EN);
+    iox:print(Language);
 
     // 4. Different module enum reference
-    io:print(mod2:BLUE);
-    io:print(mod2:Color);
+    iox:print(mod2:BLUE);
+    iox:print(mod2:Color);
 
     // ** Variable **
     // 1. Define variable
@@ -239,51 +239,51 @@ public function main() returns error? {
     // 2. Same module level variable reference in the same file (declaration before the reference)
     anydata x2 = x1.clone();
     boolean eq = (x1 == x2);
-    io:print(ONE);
-    io:print(++count);
+    iox:print(ONE);
+    iox:print(++count);
 
     // 3. Same module level variable reference, but in a separate file
-    io:print(BALLERINA);
-    io:print(value);
+    iox:print(BALLERINA);
+    iox:print(value);
 
     // 4. Same module level variable reference in the same file (declaration after the reference)
-    io:print(TWO);
-    io:print(++number);
+    iox:print(TWO);
+    iox:print(++number);
 
     // 5. Different module variable reference
-    io:print(mod2:RANDOM);
-    io:print(mod2:val);
+    iox:print(mod2:RANDOM);
+    iox:print(mod2:val);
 
 }
 
 // ** Service **
-http:Client clientEP = check new ("http://localhost:9091/backEndService");
+httpx:Client clientEP = check new ("httpx://localhost:9091/backEndService");
 
 # Description
-service /actionService on new http:Listener(9090) {
+service /actionService on new httpx:Listener(9090) {
 
     # Description
     #
     # + caller - Parameter Description
     # + req - Parameter Description
-    resource function 'default messageUsage(http:Caller caller, http:Request req) {
+    resource function 'default messageUsage(httpx:Caller caller, httpx:Request req) {
         var response = clientEP->get("/greeting");
-        if response is http:Response {
+        if response is httpx:Response {
             return;
         }
-        var bStream = io:fileReadBlocksAsStream("./files/logo.png");
-        if (bStream is stream<byte[], io:Error>) {
-            mime:Entity part1 = new;
+        var bStream = iox:fileReadBlocksAsStream("./files/logo.png");
+        if (bStream is stream<byte[], iox:Error>) {
+            mimex:Entity part1 = new;
             part1.setJson({"name": "Jane"});
         } else {
-            http:Response res = new;
+            httpx:Response res = new;
             res.statusCode = 500;
             res.setPayload(<@untainted>bStream.message());
             var result = caller->respond(res);
         }
     }
 
-    resource function get profile(int id) returns http:Response|error {
+    resource function get profile(int id) returns httpx:Response|error {
         if (id < people.length()) {
             return error("Person with id " + id.toString() + " not found");
         }

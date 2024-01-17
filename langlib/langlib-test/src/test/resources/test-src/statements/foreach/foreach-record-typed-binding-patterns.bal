@@ -139,6 +139,32 @@ function testForeachWithClosedRecordWithNoFields() {
     assertEquality("ABC", a);
 }
 
+type ScoreEvent readonly & record {|
+    string email;
+    string problemId;
+    float score;
+|};
+
+function testDestructuringRecordingBindingPatternWithAnIntersectionTypeInForeach() {
+    ScoreEvent[] events = [
+        {email: "jake@abc.com", problemId: "12", score: 80.0},
+        {email: "anne@abc.com", problemId: "20", score: 95.0},
+        {email: "peter@abc.com", problemId: "3", score: 72.0}
+    ];
+
+    float sum = 0.0;
+    foreach var {email, problemId, score} in events {
+        sum += score;
+    }
+    assertEquality(247.0, sum);
+
+    sum = 0.0;
+    foreach var {email: em, problemId: pi, score: sc} in events {
+        sum += sc;
+    }
+    assertEquality(247.0, sum);
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

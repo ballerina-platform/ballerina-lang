@@ -18,12 +18,13 @@
 
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.FROM_BAL_STRING_ERROR;
+import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.FROM_BAL_STRING_ERROR;
 
 /**
  * Returns the result of evaluating a Ballerina expression syntax.
@@ -37,9 +38,9 @@ public class FromBalString {
             return null;
         }
         try {
-            return StringUtils.parseExpressionStringValue(str, null);
-        } catch (BallerinaException e) {
-            return ErrorCreator.createError(FROM_BAL_STRING_ERROR, StringUtils.fromString(e.getMessage()));
+            return StringUtils.parseExpressionStringValue(str);
+        } catch (BError e) {
+            return createError(FROM_BAL_STRING_ERROR, (BMap<BString, Object>) e.getDetails());
         }
     }
 }

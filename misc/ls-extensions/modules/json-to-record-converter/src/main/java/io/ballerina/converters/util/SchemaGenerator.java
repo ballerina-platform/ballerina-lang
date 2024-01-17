@@ -43,7 +43,7 @@ public class SchemaGenerator {
     public static Map<String, Object> generate(JsonNode json) throws JsonToRecordConverterException {
         Map<String, Object> schema = new HashMap<>();
 
-        if (json.getNodeType() == JsonNodeType.NULL || json.getNodeType() == JsonNodeType.MISSING
+        if (json.getNodeType() == JsonNodeType.MISSING
                 || json.getNodeType() == JsonNodeType.POJO || json.getNodeType() == JsonNodeType.BINARY) {
             throw new JsonToRecordConverterException(ErrorMessages.unsupportedType());
         }
@@ -80,6 +80,11 @@ public class SchemaGenerator {
                 schema.put("items", generate(array.get(0)));
             }
 
+            return schema;
+        }
+
+        if (json.getNodeType() == JsonNodeType.NULL) {
+            schema.put("type", "anydata");
             return schema;
         }
 

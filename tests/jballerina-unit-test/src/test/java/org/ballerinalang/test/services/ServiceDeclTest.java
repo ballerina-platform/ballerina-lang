@@ -38,6 +38,20 @@ public class ServiceDeclTest {
     }
 
     @Test()
+    public void testServiceDeclDistinctListenerArg() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/services/service_decl_distinct_listener_arg.bal");
+        BRunUtil.invoke(compileResult, "testServiceDecl");
+    }
+
+    @Test()
+    public void testServiceDeclWithTypeRefDistinctListenerArg() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/services/service_decl_with_type_ref_distinct_listener_arg.bal");
+        BRunUtil.invoke(compileResult, "testServiceDecl");
+    }
+
+    @Test()
     public void testServiceNameLiteral() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_service_name_literal.bal");
         BRunUtil.invoke(compileResult, "testServiceName");
@@ -62,6 +76,13 @@ public class ServiceDeclTest {
     }
 
     @Test
+    public void testServiceDeclOnListenerThatMayReturnCustomError() {
+        CompileResult result = BCompileUtil.compileWithoutInitInvocation(
+                "test-src/services/service_decl_with_listener_returning_custom_error.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
     public void testServiceDeclAndListenerAttachmentsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/services/service_decl_negative.bal");
         int i = 0;
@@ -82,10 +103,42 @@ public class ServiceDeclTest {
         validateError(result, i++, "listener variable incompatible types: 'ue' is not a Listener object", 162, 1);
         validateError(result, i++, "listener variable incompatible types: 'ui' is not a Listener object", 165, 1);
         validateError(result, i++, "incompatible types: expected 'listener', found 'UnionWithInt'", 167, 14);
-        validateError(result, i++, "service type is not supported by the listener", 190, 14);
+        validateError(result, i++,
+                "service declaration does not implement all required constructs of type: 'ServType'", 190, 1);
         validateError(result, i++, "service absolute path or literal is required by listener", 209, 12);
         validateError(result, i++, "no implementation found for the method 'exec' of service declaration " +
                 "'object { function exec () returns ((any|error)); }'", 213, 1);
+        validateError(result, i++, "invalid object constructor return type 'Int?', expected a subtype of 'error?' " +
+                "containing '()'", 245, 36);
+        validateError(result, i++, "incompatible types: expected 'listener', found '" +
+                "(ListenerWithNonNilInitReturnType|Int)'", 264, 12);
         Assert.assertEquals(i, result.getErrorCount());
+    }
+
+
+    @Test
+    public void testResourcePathSyntaxErrors() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/services/service_relative_resource_path_negative.bal");
+        int index = 0;
+        validateError(compileResult, index++, "resource path cannot begin with slash", 35, 27);
+        validateError(compileResult, index++,
+                "resource path segment is not allowed after resource path rest parameter", 38, 44);
+        validateError(compileResult, index++,
+                "resource path segment is not allowed after resource path rest parameter", 38, 49);
+        validateError(compileResult, index++, "invalid token 'limit'", 43, 27);
+        validateError(compileResult, index++, "missing identifier", 43, 32);
+        validateError(compileResult, index++, "resource path cannot begin with slash", 46, 27);
+        validateError(compileResult, index++, "invalid token 'limit'", 46, 28);
+        validateError(compileResult, index++, "missing identifier", 46, 33);
+        validateError(compileResult, index++, "invalid token 'limit'", 49, 31);
+        validateError(compileResult, index++, "missing identifier", 49, 36);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
+
+    @Test
+    public void testServiceDeclNoWarnings() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_no_warnings.bal");
+        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
     }
 }

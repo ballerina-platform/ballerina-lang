@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the
+ * {@code FloatType} represents a integer which is a 32-bit floating-point number according to the
  * standard IEEE 754 specifications.
  *
  * @since 2.0.0

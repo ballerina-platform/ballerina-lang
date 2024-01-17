@@ -52,8 +52,6 @@ dependencies {
 
     // Lang libs
 
-    balSource project(path: ':ballerina-observability', configuration: 'balSource')
-    balSource project(path: ':ballerina-observability-internal', configuration: 'balSource')
 //    balSource project(path: ':ballerina-transactions', configuration: 'balSource')
 
     // Lang Libs
@@ -64,6 +62,7 @@ dependencies {
     balSource project(path: ':ballerina-lang:decimal', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:error', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:floatingpoint', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:function', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:future', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:integer', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:map', configuration: 'balSource')
@@ -78,6 +77,7 @@ dependencies {
     balSource project(path: ':ballerina-lang:runtime', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:query', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:transaction', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:regexp', configuration: 'balSource')
 
     staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
 }
@@ -156,13 +156,16 @@ build {
 }
 
 // This section makes sure that checkstyle/spotbug runs when dist is build.
-project.afterEvaluate {
-    configurations.dist.dependencies
-        .findAll { it instanceof ProjectDependency }
-        .each {
-            it.dependencyProject.afterEvaluate {
-                def dependencyCheck = it.tasks.find { it.name == 'check' }
-                check.dependsOn dependencyCheck
-            }
-        }
+tasks.whenTaskAdded { task ->
+    if (task.name == 'check') {
+        configurations.dist.dependencies
+                .findAll { it instanceof ProjectDependency }
+                .each { dependency ->
+                    dependency.dependencyProject.afterEvaluate {
+                        def dependencyCheck = tasks.named('check')
+                        task.dependsOn dependencyCheck
+                    }
+                }
+    }
 }
+tasks.createZip.dependsOn(':ballerina-io-internal:copyInteropImports')

@@ -53,6 +53,30 @@
       ]
     },
     {
+      "kind": "IMPORT_PREFIX",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "AS_KEYWORD",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_AS_KEYWORD"
+          ]
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "version",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
       "kind": "SEMICOLON_TOKEN",
       "hasDiagnostics": true,
       "leadingMinutiae": [
@@ -63,26 +87,11 @@
             "hasDiagnostics": true,
             "children": [
               {
-                "kind": "VERSION_KEYWORD",
+                "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
                 "hasDiagnostics": true,
                 "diagnostics": [
-                  "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
-        },
-        {
-          "kind": "INVALID_NODE_MINUTIAE",
-          "invalidNode": {
-            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-            "children": [
-              {
-                "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                  "ERROR_INVALID_TOKEN"
+                ],
                 "value": "2"
               }
             ]

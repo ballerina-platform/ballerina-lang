@@ -1,0 +1,15 @@
+Compiling source
+	intg_tests/object_mocking2:0.0.0
+
+Running Tests with Coverage
+
+	object_mocking2
+		[pass] testFn
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	object-mocking-tests2/target/report/test_results.json

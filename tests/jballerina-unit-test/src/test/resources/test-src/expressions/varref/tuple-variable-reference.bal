@@ -374,7 +374,7 @@ function testRestVarRefType7() {
     var [h1, h2, ...h3] = t6;
     assertEqual("typedesc 10", (typeof h1).toString());
     assertEqual("typedesc 20", (typeof h2).toString());
-    assertEqual("typedesc [int,int,int]", (typeof h3).toString());
+    assertEqual("typedesc [int,int,int,int...]", (typeof h3).toString());
     assertEqual(10, h1);
     assertEqual(20, h2);
     assertEqual(3, h3.length());
@@ -386,7 +386,7 @@ function testRestVarRefType7() {
 function testRestVarRefType8() {
     (int|Bar)[5] t7 = [10, 20, {id: 34, flag: true}, 40, {id: 35, flag: false}];
     var [h1, h2, ...h3] = t7;
-    assertEqual("typedesc [(int|Bar),(int|Bar),(int|Bar)]", (typeof h3).toString());
+    assertEqual("typedesc [(int|Bar),(int|Bar),(int|Bar),(int|Bar)...]", (typeof h3).toString());
     assertEqual(10, h1);
     assertEqual(20, h2);
     assertEqual(3, h3.length());
@@ -452,6 +452,34 @@ function testRestVarRefType9() {
     assertEqual("John", i4[1]);
     assertEqual("Mary", i4[2]);
     assertEqual("Sheldon", i4[3]);
+}
+
+type ReadOnlyTuple readonly & [int[], string];
+
+function testReadOnlyTupleWithListBindingPatternInDestructuringAssignment() {
+    ReadOnlyTuple t1 = [[1, 2], "s1"];
+    int[] & readonly a;
+    string b;
+    [a, b] = t1;
+    assertEqual(<int[]> [1, 2], a);
+    assertEqual("s1", b);
+
+    readonly & [int[], ReadOnlyTuple] t2 = [[12, 34, 56], t1];
+    readonly & int[] c;
+    readonly & int[] d;
+    string e;
+    [c, [d, e]] = t2;
+    assertEqual(<int[]> [12, 34, 56], c);
+    assertEqual(<int[]> [1, 2], d);
+    assertEqual("s1", e);
+
+    int[] f;
+    int[] g;
+    string h;
+    [f, [g, h]] = t2;
+    assertEqual(<int[]> [12, 34, 56], f);
+    assertEqual(<int[]> [1, 2], g);
+    assertEqual("s1", h);
 }
 
 function assertEqual(any|error expected, any|error actual) {

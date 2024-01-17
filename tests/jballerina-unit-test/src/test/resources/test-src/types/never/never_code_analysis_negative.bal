@@ -15,7 +15,7 @@
 // under the License.
 
 function testFunctionWithNeverReturnTypeReturningNil() returns never {
-    string a = "hello";
+    string _ = "hello";
 }
 
 public function testNeverReturnFuncInvWithPanic() {
@@ -27,8 +27,8 @@ function unreached() returns never {
 }
 
 function testCheckWithNeverTypeExpr() returns error? {
-    any e1 = check unreached();
-    any e2 = checkpanic unreached();
+    any _ = check unreached();
+    any _ = checkpanic unreached();
     return;
 }
 
@@ -48,3 +48,67 @@ function testInvalidUsageOfExprOfNeverInGroupedExpr() returns error? {
     error? x = check (unreached());
     return;
 }
+
+public type Foo record {
+    never w;
+    record {|
+        *Foo;
+    |} x;
+};
+
+public type Bar record {
+    record {|
+        *Bar;
+        never x?;
+    |} x;
+};
+
+function testCyclicInclusionViaFieldWithNever() {
+    Foo _ = {}; // error: expression of type 'never' or equivalent to type 'never' not allowed here
+    Bar _ = {x: {}}; // OK
+}
+
+function testReturnUnionOfNever1() returns never|never {
+} // error
+
+function testReturnUnionOfNever2() returns never|never|never {
+} // error
+
+type Never never;
+
+function testReturnUnionOfNever3() returns never|Never {
+} // error
+
+function testReturnUnionOfNever4() returns never|Never|Never {
+} // error
+
+function testReturnUnionOfNever5() returns never|int {
+} // error
+
+function testReturnUnionOfNever6() returns int|Never {
+} // error
+
+type NeverNever never|Never;
+
+function testReturnUnionOfNever7() returns NeverNever {
+} // error
+
+function testReturnUnionOfNever8() returns NeverNever|never {
+} // error
+
+type BazNever Baz|never; // never
+type Baz never|never; // never
+
+function testReturnUnionOfNever9() returns BazNever {
+} // error
+
+function testReturnUnionOfNever10() returns Baz {
+} // error
+
+function testReturnUnionOfNever11() {
+    function() returns never _ = function() returns never|never {
+    };
+
+    function() returns never _ = function() returns NeverNever|never {
+    };
+} // error

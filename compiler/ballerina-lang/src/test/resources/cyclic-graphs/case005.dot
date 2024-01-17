@@ -1,0 +1,4 @@
+digraph "case005" {
+    "nipyf/js:1.0.2" -> "nipyf/toml:1.0.0"
+    "nipyf/toml:1.0.0" -> "nipyf/js:1.0.2"
+}

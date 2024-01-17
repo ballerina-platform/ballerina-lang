@@ -18,6 +18,7 @@
 
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.compiler.api.impl.util.SymbolUtils;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -31,11 +32,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -43,6 +41,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +66,7 @@ public class LangLibrary {
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.langLibMethods = new HashMap<>();
         this.types = Types.getInstance(context);
-        this.methodBinder = new LangLibFunctionBinder(this.types);
+        this.methodBinder = new LangLibFunctionBinder(this.types, context);
 
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symbolTable.pkgEnvMap.entrySet()) {
@@ -94,21 +93,31 @@ public class LangLibrary {
     }
 
     /**
+     * Returns the lang library method of the given type descriptor type and the method name.
+     *
+     * @param type          Type descriptor type
+     * @param methodName    Name of the lang library function
+     * @return The associated lang library function
+     */
+    public BInvokableSymbol getLangLibMethod(BType type, String methodName) {
+        return langLibMethods.get(getLangLibName(type)).get(methodName);
+    }
+
+    /**
      * Given a type descriptor kind, return the list of lang library functions that can be called using a method call
      * expr, on an expression of that type.
      *
      * @return The associated list of lang library functions
      */
     public List<FunctionSymbol> getMethods(BType type) {
-        String langLibName = getAssociatedLangLibName(type.getKind());
-        return getMethods(langLibName, type);
+        return getMethods(getLangLibName(type), type);
     }
 
     // Private Methods
 
     private List<FunctionSymbol> getMethods(String langLibName, BType type) {
         Map<String, BInvokableSymbol> methods = langLibMethods.get(langLibName);
-        BType boundType = getTypeParamBoundType(type);
+        BType boundType = SymbolUtils.getTypeParamBoundType(type);
         List<FunctionSymbol> wrappedMethods = new ArrayList<>();
 
         populateMethodList(wrappedMethods, methods, type, boundType);
@@ -119,6 +128,13 @@ public class LangLibrary {
         }
 
         return wrappedMethods;
+    }
+
+    private String getLangLibName(BType type) {
+        if (type.getKind() == TypeKind.UNION && types.isAllErrorMembers((BUnionType) type)) {
+            return TypeKind.ERROR.typeName();
+        }
+        return getAssociatedLangLibName(type.getKind());
     }
 
     private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib, BType type,
@@ -153,6 +169,7 @@ public class LangLibrary {
             case TYPEDESC:
             case XML:
             case TABLE:
+            case REGEXP:
                 return typeKind.typeName();
             default:
                 return LANG_VALUE;
@@ -173,11 +190,9 @@ public class LangLibrary {
             BInvokableSymbol invSymbol = (BInvokableSymbol) symbol;
 
             if (Symbols.isFlagOn(invSymbol.flags, Flags.PUBLIC) &&
-                    (!invSymbol.params.isEmpty()
-                            && basicType.compareToIgnoreCase(types.getReferredType(invSymbol.params.get(0).type)
-                            .getKind().name()) == 0 || invSymbol.restParam != null
-                            && basicType.compareToIgnoreCase(((BArrayType) invSymbol.restParam.type)
-                            .eType.tsymbol.getName().getValue()) == 0)) {
+                    (!invSymbol.params.isEmpty() && equalsToBasicType(invSymbol.params.get(0).type, basicType) ||
+                            invSymbol.restParam != null &&
+                                    equalsToBasicType(((BArrayType) invSymbol.restParam.type).eType, basicType))) {
                 methods.put(invSymbol.name.value, invSymbol);
             }
         }
@@ -202,27 +217,22 @@ public class LangLibrary {
         langLibMethods.put(LANG_VALUE, methods);
     }
 
-    private BType getTypeParamBoundType(BType type) {
-        switch (type.getKind()) {
-            case MAP:
-                return ((BMapType) type).constraint;
-            case ARRAY:
-                return ((BArrayType) type).eType;
-            case TABLE:
-                return ((BTableType) type).constraint;
-            case STREAM:
-                return ((BStreamType) type).constraint;
-            case XML:
-                return ((BXMLType) type).constraint;
-            // The following explicitly mentioned type kinds should be supported, but they are not for the moment.
-            case ERROR:
-            default:
-                return null;
-        }
-    }
-
     private static boolean isLangLibModule(PackageID moduleID) {
         return Names.BALLERINA_ORG.equals(moduleID.orgName)
                 && (moduleID.nameComps.size() == 2 && Names.LANG.equals(moduleID.nameComps.get(0)));
+    }
+
+    private static boolean equalsToBasicType(BType type, String basicType) {
+        if (type.getKind() == TypeKind.UNION) {
+            LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+            for (BType memberType : memberTypes) {
+                if (basicType.compareToIgnoreCase(Types.getImpliedType(memberType).getKind().name()) != 0) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return basicType.compareToIgnoreCase(Types.getImpliedType(type).getKind().name()) == 0;
+        }
     }
 }

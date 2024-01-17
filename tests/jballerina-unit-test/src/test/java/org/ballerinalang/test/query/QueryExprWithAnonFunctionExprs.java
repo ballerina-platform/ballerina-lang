@@ -21,6 +21,7 @@ package org.ballerinalang.test.query;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -31,6 +32,7 @@ import org.testng.annotations.Test;
  * @since 2.0.0
  */
 public class QueryExprWithAnonFunctionExprs {
+
     private CompileResult result;
 
     @BeforeClass
@@ -55,8 +57,13 @@ public class QueryExprWithAnonFunctionExprs {
                 "testComplexQueryWithAnonFuncExpr",
                 "testComplexQueryWithAnonFuncExpr2",
                 "testInnerQueryWithAnonFuncExpr",
-                "testQueryWithNestedLambdaFunctions",
+//                "testQueryWithNestedLambdaFunctions",
                 "testGlobalQueryWithAnonFuncExpr"
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

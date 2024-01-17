@@ -16,15 +16,19 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.WhereClauseNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.CompleteExpressionValidator;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,15 +50,17 @@ public class WhereClauseNodeContext extends IntermediateClauseNodeContext<WhereC
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WhereClauseNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-
-        if (cursorAtTheEndOfClause(context, node)) {
+        ExpressionNode expression = node.expression();
+        CompleteExpressionValidator expressionValidator = new CompleteExpressionValidator();
+        
+        if (expression.apply(expressionValidator) && cursorAtTheEndOfClause(context, node)) {
             completionItems.addAll(this.getKeywordCompletions(context, node));
         } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            List<Symbol> exprEntries = QNameRefCompletionUtil.getExpressionContextEntries(context, qNameRef);
             completionItems.addAll(this.getCompletionItemList(exprEntries, context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));
@@ -67,6 +73,22 @@ public class WhereClauseNodeContext extends IntermediateClauseNodeContext<WhereC
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, WhereClauseNode node) {
         return !node.whereKeyword().isMissing();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, WhereClauseNode node, List<LSCompletionItem> completionItems) {
+        Optional<QueryExpressionNode> queryExprNode =  SortingUtil.getTheOutermostQueryExpressionNode(node);
+        if (queryExprNode.isEmpty()) {
+            return;
+        }        
+        completionItems.forEach(lsCItem -> {
+            int rank = 2;
+            if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode.get())) {
+                rank = 1;
+            }
+            lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank) +
+                    SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+        });
     }
 
     @Override

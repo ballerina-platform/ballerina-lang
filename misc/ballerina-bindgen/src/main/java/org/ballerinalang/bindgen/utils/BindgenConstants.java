@@ -32,6 +32,7 @@ public class BindgenConstants {
     static final String DEFAULT_TEMPLATE_DIR = "templates";
     public static final String USER_DIR = "user.dir";
     public static final String ARRAY_BRACKETS = "[]";
+    public static final String QUESTION_MARK = "?";
     public static final String MODULES_DIR = "modules";
     static final String NAME = "name";
     static final String CLASS = "'class";
@@ -56,6 +57,8 @@ public class BindgenConstants {
     static final String HANDLE = "handle";
     public static final String BALLERINA_STRING = "string";
     public static final String BALLERINA_STRING_ARRAY = "string[]";
+    public static final String BALLERINA_NILLABLE_STRING = "string?";
+    public static final String BALLERINA_NILLABLE_STRING_ARRAY = "string?[]?";
     public static final String EXCEPTION_CLASS_PREFIX = "J";
     public static final String[] BALLERINA_RESERVED_WORDS = {"import", "as", "public", "private", "external", "final",
             "service", "resource", "function", "object", "record", "annotation", "parameter", "transformer",

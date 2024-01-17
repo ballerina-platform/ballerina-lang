@@ -43,6 +43,8 @@ public class Connector {
     @Expose
     public String name;
     @Expose
+    public String icon;
+    @Expose
     public String documentation;
     @Expose
     public String platform;

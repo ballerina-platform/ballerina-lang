@@ -1,0 +1,17 @@
+Compiling source
+	intg_tests/isolated_functions:0.0.0
+
+Running Tests with Coverage
+
+	isolated_functions
+		[pass] testCallingIsolatedFunction
+		[pass] testFunc
+		[pass] testIsolatedTestFunction
+
+
+		3 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	isolated-functions/target/report/test_results.json

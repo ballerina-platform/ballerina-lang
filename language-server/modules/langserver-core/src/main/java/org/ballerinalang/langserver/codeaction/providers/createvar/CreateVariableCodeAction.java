@@ -16,21 +16,32 @@
 package org.ballerinalang.langserver.codeaction.providers.createvar;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -42,10 +53,10 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class CreateVariableCodeAction extends AbstractCodeActionProvider {
-    
+public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvider {
+
     public static final String NAME = "Create Variable";
-    
+
     /**
      * {@inheritDoc}
      */
@@ -54,33 +65,38 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         return 999;
     }
 
+    @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        List<CodeAction> actions = new ArrayList<>();
-        if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
-            return actions;
-        }
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
 
-        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
-        if (typeSymbol.isEmpty()) {
-            return actions;
+        Optional<TypeSymbol> typeSymbol = getExpectedTypeSymbol(positionDetails);
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.NONE
+                || isCompilationErrorTyped(typeSymbol.get())) {
+            return Collections.emptyList();
         }
 
         String uri = context.fileUri();
-        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+        Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeSymbol.get(),
-                                                                          context);
+                context, new ImportsAcceptor(context));
         List<String> types = createVarTextEdits.types;
+        List<CodeAction> actions = new ArrayList<>();
         for (int i = 0; i < types.size(); i++) {
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
             List<TextEdit> edits = new ArrayList<>();
-            edits.add(createVarTextEdits.edits.get(i));
+            TextEdit variableEdit = createVarTextEdits.edits.get(i);
+            edits.add(variableEdit);
             edits.addAll(createVarTextEdits.imports);
             String type = types.get(i);
             if (createVarTextEdits.types.size() > 1) {
@@ -89,9 +105,28 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                 String typeLabel = isTuple && type.length() > 10 ? "Tuple" : type;
                 commandTitle = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", typeLabel);
             }
-            actions.add(createQuickFixCodeAction(commandTitle, edits, uri));
+
+            CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
+            addRenamePopup(context, codeAction, createVarTextEdits.varRenamePosition.get(i),
+                    createVarTextEdits.imports.size());
+            actions.add(codeAction);
         }
         return actions;
+    }
+
+    private boolean isCompilationErrorTyped(TypeSymbol typeSymbol) {
+
+        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+            return isCompilationErrorTyped((UnionTypeSymbol) typeSymbol);
+        }
+
+        return typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR;
+    }
+
+    protected boolean isCompilationErrorTyped(UnionTypeSymbol unionTypeSymbol) {
+
+        return unionTypeSymbol.memberTypeDescriptors().stream()
+                .anyMatch(tSymbol -> tSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR);
     }
 
     @Override
@@ -99,41 +134,93 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         return NAME;
     }
 
-    CreateVariableOut getCreateVariableTextEdits(Range range, DiagBasedPositionDetails positionDetails,
-                                                 TypeSymbol typeDescriptor, CodeActionContext context) {
+    protected CreateVariableOut getCreateVariableTextEdits(Range range, DiagBasedPositionDetails positionDetails,
+                                                           TypeSymbol typeDescriptor, CodeActionContext context,
+                                                           ImportsAcceptor importsAcceptor) {
         Symbol matchedSymbol = positionDetails.matchedSymbol();
 
-        Position position = CommonUtil.toPosition(positionDetails.matchedNode().lineRange().startLine());
+        Position position = PositionUtil.toPosition(positionDetails.matchedNode().lineRange().startLine());
         Set<String> allNameEntries = context.visibleSymbols(position).stream()
                 .filter(s -> s.getName().isPresent())
                 .map(s -> s.getName().get())
                 .collect(Collectors.toSet());
 
-        String name = CommonUtil.generateVariableName(matchedSymbol, typeDescriptor, allNameEntries);
+        String name = NameUtil.generateVariableName(matchedSymbol, typeDescriptor, allNameEntries);
 
-        List<TextEdit> importEdits = new ArrayList<>();
         List<TextEdit> edits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes(typeDescriptor, importEdits, context);
-        Position pos = range.getStart();
+        List<Integer> renamePositions = new ArrayList<>();
+        List<String> types = CodeActionUtil.getPossibleTypes(typeDescriptor, context, importsAcceptor);
+        Position insertPos = range.getStart();
+        List<Position> varRenamePositions = new ArrayList<>();
         for (String type : types) {
-            Position insertPos = new Position(pos.getLine(), pos.getCharacter());
             String edit = type + " " + name + " = ";
             edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
+            renamePositions.add(type.length() + 1);
+            varRenamePositions.add(new Position(insertPos.getLine(),
+                    insertPos.getCharacter() + type.length() + 1));
         }
-        return new CreateVariableOut(name, types, edits, importEdits);
+        return new CreateVariableOut(name, types, edits, importsAcceptor.getNewImportTextEdits(), renamePositions,
+                varRenamePositions);
+    }
+
+    /**
+     * Given the position details, this method will determine the expected type symbol for the required variable
+     * assignment from diagnostic properties.
+     *
+     * @param positionDetails Position details
+     * @return Optional expected type symbol
+     */
+    protected Optional<TypeSymbol> getExpectedTypeSymbol(DiagBasedPositionDetails positionDetails) {
+
+        Optional<Symbol> symbol = positionDetails.diagnosticProperty(
+                CodeActionUtil.getDiagPropertyFilterFunction(
+                        DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX));
+        if (symbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        TypeSymbol typeSymbol = null;
+        if (symbol.get() instanceof TypeSymbol) {
+            typeSymbol = (TypeSymbol) symbol.get();
+        }
+
+        if (symbol.get().kind() == SymbolKind.WORKER) {
+            WorkerSymbol workerSymbol = (WorkerSymbol) symbol.get();
+            typeSymbol = workerSymbol.returnType();
+        }
+
+        return Optional.ofNullable(typeSymbol);
     }
 
     static class CreateVariableOut {
+
         String name;
         List<String> types;
         List<TextEdit> edits;
         List<TextEdit> imports;
+        List<Integer> renamePositions;
+        List<Position> varRenamePosition;
 
-        public CreateVariableOut(String name, List<String> types, List<TextEdit> edits, List<TextEdit> imports) {
+        public CreateVariableOut(String name, List<String> types, List<TextEdit> edits, List<TextEdit> imports,
+                                 List<Integer> renamePositions, List<Position> varRenamePosition) {
             this.name = name;
             this.types = types;
             this.edits = edits;
             this.imports = imports;
+            this.renamePositions = renamePositions;
+            this.varRenamePosition = varRenamePosition;
+        }
+    }
+
+    public void addRenamePopup(CodeActionContext context, CodeAction codeAction,
+                               Position varRenamePosition, int newImportsCount) {
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
+            codeAction.setCommand(new Command(
+                    CommandConstants.RENAME_COMMAND_TITLE_FOR_VARIABLE, CommandConstants.POSITIONAL_RENAME_COMMAND,
+                    List.of(context.fileUri(),
+                            new Position(varRenamePosition.getLine() + newImportsCount,
+                                    varRenamePosition.getCharacter()))));
         }
     }
 }

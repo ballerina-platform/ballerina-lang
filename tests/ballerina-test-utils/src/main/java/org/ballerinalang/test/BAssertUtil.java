@@ -63,7 +63,7 @@ public class BAssertUtil {
                 "incorrect line number:");
         Assert.assertEquals(diag.location().lineRange().startLine().offset() + 1, expectedErrCol,
                 "incorrect column position:");
-        Assert.assertEquals(diag.location().lineRange().filePath(),
+        Assert.assertEquals(diag.location().lineRange().fileName(),
                 fileName, "incorrect file name:");
     }
 

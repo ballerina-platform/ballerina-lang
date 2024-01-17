@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BStringType} represents a String type in ballerina.
+ * {@code StringType} represents a String type in ballerina.
  *
  * @since 2.0.0
  */

@@ -18,15 +18,12 @@ package org.ballerinalang.debugadapter.utils;
 
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
-import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -34,12 +31,11 @@ import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.ExecutionContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 
-import java.io.Closeable;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.AbstractMap;
@@ -63,7 +59,9 @@ public class PackageUtils {
     public static final String INIT_CLASS_NAME = "$_init";
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
-    static final String MODULE_DIR_NAME = "modules";
+    static final String USER_MODULE_DIR = "modules";
+    static final String GEN_MODULE_DIR = "generated";
+    static final String TEST_PKG_POSTFIX = "$test";
     private static final String URI_SCHEME_FILE = "file";
     private static final String URI_SCHEME_BALA = "bala";
 
@@ -102,26 +100,6 @@ public class PackageUtils {
             }
         }
         return Optional.empty();
-    }
-
-    /**
-     * Loads the target ballerina source project instance using the Project API, from the file path of the open/active
-     * editor instance in the client(plugin) side.
-     *
-     * @param filePath file path of the open/active editor instance in the plugin side.
-     */
-    public static Project loadProject(String filePath) {
-        Map.Entry<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndRoot(Paths.get(filePath));
-        ProjectKind projectKind = projectKindAndProjectRootPair.getKey();
-        Path projectRoot = projectKindAndProjectRootPair.getValue();
-        BuildOptions options = new BuildOptionsBuilder().offline(true).build();
-        if (projectKind == ProjectKind.BUILD_PROJECT) {
-            return BuildProject.load(projectRoot, options);
-        } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
-            return SingleFileProject.load(projectRoot, options);
-        } else {
-            return ProjectLoader.loadProject(projectRoot, options);
-        }
     }
 
     /**
@@ -203,13 +181,20 @@ public class PackageUtils {
     /**
      * Returns the derived full-qualified class name for a given ballerina source file.
      *
-     * @param filePath file path
+     * @param filePathUri file path URI
      * @return full-qualified class name
      */
-    public static Optional<String> getQualifiedClassName(ExecutionContext context, String filePath) {
+    public static Optional<String> getQualifiedClassName(ExecutionContext context, String filePathUri) {
         try {
-            Path path = Paths.get(filePath);
-            Project project = context.getProjectCache().getProject(path);
+            Optional<Path> path = getPathFromURI(filePathUri);
+            if (path.isEmpty()) {
+                return Optional.empty();
+            }
+
+            Project project = context.getProjectCache().getProject(path.get());
+            // This triggers a resolution request to load all the generated modules, if not loaded already.
+            project.currentPackage().getResolution();
+
             if (project instanceof SingleFileProject) {
                 DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
                 String docName = project.currentPackage().getDefaultModule().document(documentId).name();
@@ -219,7 +204,7 @@ public class PackageUtils {
                 return Optional.of(docName);
             }
 
-            DocumentId documentId = project.documentId(path);
+            DocumentId documentId = project.documentId(path.get());
             Module module = project.currentPackage().module(documentId.moduleId());
             Document document = module.document(documentId);
 
@@ -228,7 +213,7 @@ public class PackageUtils {
             int packageMajorVersion = document.module().packageInstance().packageVersion().value().major();
             StringJoiner classNameJoiner = new StringJoiner(".");
             classNameJoiner.add(document.module().packageInstance().packageOrg().value())
-                    .add(encodeModuleName(document.module().moduleName().toString()))
+                    .add(getFullModuleName(document))
                     .add(String.valueOf(packageMajorVersion))
                     .add(document.name().replace(BAL_FILE_EXT, "").replace(FILE_SEPARATOR_REGEX, ".")
                             .replace("/", "."));
@@ -242,11 +227,10 @@ public class PackageUtils {
     /**
      * Returns full-qualified class name for a given JDI class reference instance.
      *
-     * @param context       Debug context
      * @param referenceType JDI class reference instance
      * @return full-qualified class name
      */
-    public static String getQualifiedClassName(ExecutionContext context, ReferenceType referenceType) {
+    public static String getQualifiedClassName(ReferenceType referenceType) {
         try {
             List<String> paths = referenceType.sourcePaths(null);
             List<String> names = referenceType.sourceNames(null);
@@ -258,8 +242,7 @@ public class PackageUtils {
             String[] nameParts = getQModuleNameParts(name);
             String srcFileName = nameParts[nameParts.length - 1];
 
-            if (!path.endsWith(BAL_FILE_EXT) || (context.getSourceProject() instanceof BuildProject &&
-                    !path.startsWith(context.getSourceProject().currentPackage().packageOrg().value()))) {
+            if (!path.endsWith(BAL_FILE_EXT)) {
                 return referenceType.name();
             }
 
@@ -269,20 +252,6 @@ public class PackageUtils {
             return replaceSeparators(path);
         } catch (Exception e) {
             return referenceType.name();
-        }
-    }
-
-    /**
-     * Closes the given Closeable and swallows any IOException that may occur.
-     *
-     * @param c Closeable to close, can be null.
-     */
-    public static void closeQuietly(final Closeable c) {
-        if (c != null) {
-            try {
-                c.close();
-            } catch (final IOException ignored) { // NOPMD
-            }
         }
     }
 
@@ -314,6 +283,68 @@ public class PackageUtils {
         }
 
         throw new IllegalArgumentException("unsupported URI with scheme: " + fileUri.getScheme());
+    }
+
+    /**
+     * Get the path from given string URI (If the given URI scheme is `bala`, it will still be converted to `file`
+     * scheme).
+     *
+     * @param fileUri file uri
+     * @return {@link Optional} Path from the URI
+     */
+    private static Optional<Path> getPathFromURI(String fileUri) {
+        try {
+            if (isValidPath(fileUri)) {
+                return Optional.of(Paths.get(fileUri).normalize());
+            }
+
+            URI uri = URI.create(fileUri);
+            String scheme = uri.getScheme();
+            if (uri.getScheme() == null || uri.getScheme().equals(URI_SCHEME_BALA)) {
+                scheme = URI_SCHEME_FILE;
+            }
+            URI converted = new URI(scheme, uri.getHost(), uri.getPath(), uri.getFragment());
+            return Optional.of(Paths.get(converted).normalize());
+        } catch (URISyntaxException e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Checks if the given string is a valid path.
+     */
+    private static boolean isValidPath(String path) {
+        if (path.startsWith(URI_SCHEME_BALA + ":")) {
+            return false;
+        }
+        try {
+            Paths.get(path);
+        } catch (InvalidPathException ex) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns the full name string of the Ballerina module (package name part + module name part) for a given
+     * Ballerina source document.
+     *
+     * @param document Ballerina document
+     * @return full name of the Ballerina module
+     */
+    private static String getFullModuleName(Document document) {
+        String packageNamePart = encodeModuleName(document.module().moduleName().packageName().value());
+
+        String moduleNamePart = document.module().moduleName().moduleNamePart();
+        String moduleName = moduleNamePart != null ? encodeModuleName(packageNamePart + "." + moduleNamePart) :
+                packageNamePart;
+
+        if (document.module().testDocumentIds().contains(document.documentId())) {
+            // all the generated java classes for Ballerina test sources ends with "$test" postfix
+            moduleName = moduleName + TEST_PKG_POSTFIX;
+        }
+
+        return moduleName;
     }
 
     private static String replaceSeparators(String path) {

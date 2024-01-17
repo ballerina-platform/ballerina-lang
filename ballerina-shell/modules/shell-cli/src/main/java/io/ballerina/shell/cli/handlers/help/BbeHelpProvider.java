@@ -22,6 +22,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Helper class to initialize functions related to help /TOPIC command.
@@ -31,7 +34,8 @@ public class BbeHelpProvider {
 
     private static final String BALLERINA_HOME = System.getProperty("ballerina.home");
     private static final String EXAMPLES = "examples";
-    private static final String DESCRIPTION = ".description";
+    private static final String MD_FILE = ".md";
+    private static final String REMOVABLE_CHARACTERS = ":::";
 
     public BbeHelpProvider() {
     }
@@ -39,9 +43,12 @@ public class BbeHelpProvider {
     public String getDescription(String topic) throws HelpProviderException {
         String topicUrl = topic.replace(" ", "-");
         String bbePrefix = BALLERINA_HOME + File.separator + EXAMPLES + File.separator;
-        String bbePath = bbePrefix + topicUrl + File.separator + String.join("_", topicUrl.split("-")) + DESCRIPTION;
+        String bbePath = bbePrefix + topicUrl + File.separator + String.join("_",
+                topicUrl.split("-")) + MD_FILE;
         String description = readFileAsString(bbePath).trim();
-        return description.replaceAll("//", "");
+        Stream<String> stringStream = Arrays.stream(description.split("\n"))
+                .filter(line -> !line.startsWith(REMOVABLE_CHARACTERS));
+        return stringStream.collect(Collectors.joining("\n"));
     }
 
     private static String readFileAsString(String file) throws HelpProviderException {

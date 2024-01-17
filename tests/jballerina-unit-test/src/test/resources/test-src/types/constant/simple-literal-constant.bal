@@ -381,19 +381,32 @@ function testLabeling() returns string {
 
 // -----------------------------------------------------------
 
-// Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/11183.
-//type M record { string f; }|Z;
-//
-//Z z1 = "V";
-//
-//Z z2 = "W";
-//
-//Z z3 = "X";
-//
-//
-//const string W = "W";
-//
-//const string X = "X";
+type M record { string f; }|Z;
+
+M m1 = { f: "test_project" };
+
+M m2 = "V";
+
+M m3 = "W";
+
+M m4 = "X";
+
+type Y X;
+
+type Z "V"|W|X;
+
+Y y = "X";
+
+Z z1 = "V";
+
+Z z2 = "W";
+
+Z z3 = "X";
+
+
+const string W = "W";
+
+const string X = "X";
 
 // -----------------------------------------------------------
 
@@ -425,4 +438,41 @@ const decimal aDecimal = 25.5;
 
 function testDecimalConcat() returns string {
     return aDecimal.toString() + " rocks";
+}
+
+type Seconds decimal;
+
+const Seconds ZERO = 0;
+const Seconds ONE = 1.0;
+
+function testDecimalConstsWithTypeReferenceTypeDescriptorsDefinedWithNumericLiterals() {
+    Seconds a = ZERO;
+    Seconds b = ONE;
+    assertEquality(0d, a);
+    assertEquality(1d, b);
+
+    0d _ = ZERO;
+    1d _ = ONE;
+}
+
+// -----------------------------------------------------------
+const CONST1 = 200;
+const byte CONST2 = CONST1;
+const int CONST3 = 200;
+const byte CONST4 = CONST3;
+
+function testAssigningConstToByte() {
+    assertEquality(200, CONST2);
+    assertEquality(200, CONST4);
+
+    byte b = CONST1;
+    assertEquality(200, b);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error(string `expected '${expected.toBalString()}', found '${actual.toBalString()}'`);
 }

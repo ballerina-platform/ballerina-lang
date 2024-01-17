@@ -31,11 +31,14 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
@@ -43,7 +46,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.BmpStringValue;
@@ -59,6 +61,7 @@ import io.ballerina.runtime.internal.values.StringValue;
 import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
+import org.testng.Assert;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -83,8 +86,13 @@ public class StaticMethods {
     private static final BTupleType tupleType = new BTupleType(
             Arrays.asList(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT, PredefinedTypes.TYPE_STRING,
                           PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
+    private static Module errorModule = new Module("testorg", "distinct_error.errors", "1");
 
     private StaticMethods() {
+    }
+
+    public static void throwNPE() {
+        throw new NullPointerException();
     }
 
     public static void acceptNothingAndReturnNothing() {
@@ -112,6 +120,14 @@ public class StaticMethods {
 
     public static Integer acceptThreeParamsAndReturnSomething(Integer s1, Integer s2, Integer s3) {
         return s1 + s2 + s3;
+    }
+
+    public static BDecimal getBDecimalValue() {
+        return ValueCreator.createDecimalValue("5.0");
+    }
+
+    public static BDecimal getNullInsteadOfBDecimal() {
+        return null;
     }
 
     // This scenario is for map value to be passed to interop and return array value.
@@ -155,7 +171,7 @@ public class StaticMethods {
             case 4:
                 return null;
             case 5:
-                return ValueCreator.createMapValue(PredefinedTypes.TYPE_ANYDATA);
+                return ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
             default:
                 return true;
         }
@@ -298,6 +314,33 @@ public class StaticMethods {
         return ErrorCreator.createError(msg, new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
+    public static Object acceptIntErrorUnionReturnWhichThrowsCheckedException(int flag)
+            throws JavaInteropTestCheckedException {
+        if (flag == 0) {
+            return 5;
+        } else {
+            return new ErrorValue(StringUtils.fromString("error message"));
+        }
+    }
+
+    public static Object returnDistinctErrorUnionWhichThrowsCheckedException(int flag, BString errorName)
+            throws JavaInteropTestCheckedException {
+        if (flag == 0) {
+            return 5;
+        } else if (flag == 1) {
+            BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
+            errorDetails.put(StringUtils.fromString("detail"), "detail error message");
+            return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("error msg"),
+                    null, errorDetails);
+        } else {
+            return ErrorCreator.createError(StringUtils.fromString("Invalid data given"));
+        }
+    }
+
+    public static long acceptIntErrorUnionReturnWhichThrowsUncheckedException() throws RuntimeException {
+        return 5;
+    }
+
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
             throws JavaInteropTestCheckedException {
         switch (flag) {
@@ -346,7 +389,7 @@ public class StaticMethods {
                                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
-    public static TupleValueImpl getArrayValue() throws BallerinaException {
+    public static TupleValueImpl getArrayValue() throws BError {
         String name = null;
         String type = null;
         try {
@@ -356,8 +399,9 @@ public class StaticMethods {
                     add(PredefinedTypes.TYPE_STRING);
                 }
             }));
-        } catch (BallerinaException e) {
-            throw new BallerinaException("Error occurred while creating ArrayValue.", e);
+        } catch (BError e) {
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "Error occurred while creating ArrayValue."), e);
         }
     }
 
@@ -474,7 +518,7 @@ public class StaticMethods {
         return new ArrayValueImpl(new BArrayType(new BUnionType(new ArrayList(2) {{
             add(PredefinedTypes.TYPE_INT);
             add(PredefinedTypes.TYPE_STRING);
-        }}), length, true), length, entries);
+        }}), length, true), entries);
     }
 
     public static Object echoAnydataAsAny(Object value) {
@@ -554,12 +598,12 @@ public class StaticMethods {
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
-            assert false;
+            Assert.fail(e.getMessage());
         }
     }
 
     public static Object acceptAndReturnReadOnly(Object value) {
-        Type type = TypeChecker.getType(value);
+        Type type = TypeUtils.getImpliedType(TypeChecker.getType(value));
 
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
@@ -644,7 +688,7 @@ public class StaticMethods {
         BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("name"), StringUtils.fromString("Riyafa")), ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("birth"), StringUtils.fromString("Sri Lanka"))};
-        return ValueCreator.createMapValue(bmap.getType(), mapInitialValueEntries);
+        return ValueCreator.createRecordValue((RecordType) bmap.getType(), mapInitialValueEntries);
     }
 
     public static BMap<BString, Object> createStudent() {
@@ -675,7 +719,7 @@ public class StaticMethods {
         BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("name"), StringUtils.fromString("aee")), ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("id"), 123L)};
-        return ValueCreator.createMapValue(recordType, mapInitialValueEntries);
+        return ValueCreator.createRecordValue(recordType, mapInitialValueEntries);
     }
 
     public static BDecimal defaultDecimalArgsAddition(BDecimal a, BDecimal b) {
@@ -705,5 +749,79 @@ public class StaticMethods {
         integers.forEach(i -> {
             throw ErrorCreator.createError(StringUtils.fromString("error!!!"));
         });
+    }
+
+    public static int getResource() {
+        return 1;
+    }
+
+    public static int getResource(BArray paths) {
+        return paths.size();
+    }
+
+    public static int getResource(BObject client, BArray path) {
+        return path.size();
+    }
+
+    public static int getResource(BObject client, BArray paths, double value, BString str) {
+        return paths.size();
+    }
+
+    public static int getResource(BObject client, BArray path, BString p2, double value, BString str) {
+        return path.size();
+    }
+
+    public static int getResource(BObject client, long p1, BString p2, double value, BString str) {
+        return 1;
+    }
+
+    public static BString getResource(Environment env, BObject client, BArray path, BString str) {
+        return str;
+    }
+
+    public static BString getResource(Environment env, BArray path, BObject client, BString str, BArray arr) {
+        return str;
+    }
+
+    public static BString getResource(Environment env, BObject client, BArray path, BString str, BArray arr) {
+        return str;
+    }
+
+    public static BString getResourceOne(Environment env, BObject client, BArray path, BTypedesc recordType) {
+        return StringUtils.fromString("getResourceOne");
+    }
+
+    public static BString getResourceTwo(Environment env, BObject client, BTypedesc recordType) {
+        return StringUtils.fromString("getResourceTwo");
+    }
+
+    public static void getStringWithBalEnv(Environment env) {
+        Future balFuture = env.markAsync();
+        BString output = StringUtils.fromString("Hello World!");
+        balFuture.complete(output);
+    }
+
+    public static void getIntWithBalEnv(Environment env) {
+        Future balFuture = env.markAsync();
+        long output = 7;
+        balFuture.complete(output);
+    }
+
+    public static void getMapValueWithBalEnv(Environment env, BString name, long age,
+                                             MapValue<BString, Object> results) {
+        Future balFuture = env.markAsync();
+        BMap<BString, Object> output = ValueCreator.createMapValue();
+        output.put(StringUtils.fromString("name"), name);
+        output.put(StringUtils.fromString("age"), age);
+        output.put(StringUtils.fromString("results"), results);
+        balFuture.complete(output);
+    }
+
+    public static BString testOverloadedMethods(Environment env, BArray arr, BString str) {
+        return str;
+    }
+
+    public static BString testOverloadedMethods(ArrayValue obj, BString str) {
+        return str;
     }
 }

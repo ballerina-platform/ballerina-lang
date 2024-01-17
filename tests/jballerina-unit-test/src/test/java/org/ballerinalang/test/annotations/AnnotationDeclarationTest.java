@@ -29,20 +29,23 @@ import org.testng.annotations.Test;
  */
 public class AnnotationDeclarationTest {
 
-    @Test(groups = {"disableOnOldParser"})
+    public static final String EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION = "expression is not a constant expression";
+
+    @Test
     public void testSourceOnlyAnnotDeclWithoutSource() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/annotations/source_only_annot_without_source_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 7);
-        BAssertUtil.validateError(compileResult, 0,
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++,
                 "annotation declaration with 'source' attach point(s) should be a 'const' declaration", 17, 1);
-        BAssertUtil.validateError(compileResult, 1, "missing source keyword", 17, 30);
-        BAssertUtil.validateError(compileResult, 2, "missing source keyword", 18, 28);
-        BAssertUtil.validateError(compileResult, 3,
+        BAssertUtil.validateError(compileResult, index++, "missing source keyword", 17, 30);
+        BAssertUtil.validateError(compileResult, index++, "missing source keyword", 18, 28);
+        BAssertUtil.validateError(compileResult, index++,
                 "annotation declaration with 'source' attach point(s) should be a 'const' declaration", 19, 1);
-        BAssertUtil.validateError(compileResult, 4, "missing source keyword", 19, 22);
-        BAssertUtil.validateError(compileResult, 5, "missing source keyword", 20, 45);
-        BAssertUtil.validateError(compileResult, 6, "missing source keyword", 21, 37);
+        BAssertUtil.validateError(compileResult, index++, "missing source keyword", 19, 22);
+        BAssertUtil.validateError(compileResult, index++, "missing source keyword", 20, 45);
+        BAssertUtil.validateError(compileResult, index++, "missing source keyword", 21, 37);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test
@@ -59,19 +62,31 @@ public class AnnotationDeclarationTest {
     @Test
     public void testInvalidAnnotType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/annots_with_invalid_type.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 2);
-        BAssertUtil.validateError(compileResult, 0, "annotation declaration requires " +
-                "a subtype of 'true', 'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'int'", 17, 12);
-        BAssertUtil.validateError(compileResult, 1,
-                                  "annotation declaration requires a subtype of 'true', " +
-                                          "'map<value:Cloneable>' or 'map<value:Cloneable>[]', " +
-                                          "but found 'trueArray'", 22, 12);
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "annotation declaration requires a subtype " +
+                "of 'true', 'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'int'", 17, 12);
+        BAssertUtil.validateError(compileResult, index++, "annotation declaration requires a subtype " +
+                "of 'true', 'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'trueArray'", 22, 12);
+        BAssertUtil.validateError(compileResult, index++, "annotation declaration requires a subtype of 'true', " +
+                "'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'record {| Foo f; |}'", 24, 12);
+        BAssertUtil.validateError(compileResult, index++, "annotation declaration requires a subtype of 'true', " +
+                "'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'map<object { }>'", 30, 12);
+        BAssertUtil.validateError(compileResult, index++, "annotation declaration requires a subtype of 'true', " +
+                "'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'record {| Foo...; |}'", 32, 12);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test
     public void testAnnotWithInvalidConsts() {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/annots_with_invalid_consts.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        BAssertUtil.validateError(compileResult, 0, "expression is not a constant expression", 35, 14);
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION, 35, 14);
+//        https://github.com/ballerina-platform/ballerina-lang/issues/38746
+//        BAssertUtil.validateError(compileResult, index++, EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION, 67, 14);
+        BAssertUtil.validateError(compileResult, index++, EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION, 80, 10);
+        BAssertUtil.validateError(compileResult, index++, EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION, 83, 16);
+        BAssertUtil.validateError(compileResult, index++, EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION, 86, 11);
+        BAssertUtil.validateError(compileResult, index++, EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION, 86, 14);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

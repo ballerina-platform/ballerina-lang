@@ -29,9 +29,13 @@ import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProv
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.troubleshoot.StrandDump;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import sun.misc.Signal;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,9 +46,13 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILES_ENV_VARIABLE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.DEFAULT_CONFIG_PATH;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.MODULES_ROOT;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.TEST_DIR_NAME;
 
 /**
  * Util methods to be used during starting and ending a ballerina program.
@@ -53,7 +61,26 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.TomlCons
  */
 public class LaunchUtils {
 
+    private static final PrintStream outStream = System.out;
+
     private LaunchUtils() {
+    }
+
+    public static void startListenersAndSignalHandler(boolean isService) {
+        // starts all listeners
+        startListeners(isService);
+
+        // start TRAP signal handler which produces the strand dump
+        startTrapSignalHandler();
+    }
+
+    public static void startTrapSignalHandler() {
+        try {
+            Signal.handle(new Signal("TRAP"), signal -> outStream.println(StrandDump.getStrandDump()));
+        } catch (IllegalArgumentException ignored) {
+            // In some Operating Systems like Windows, "TRAP" POSIX signal is not supported.
+            // There getting the strand dump using kill signals is not expected, hence this exception is ignored.
+        }
     }
 
     public static void startListeners(boolean isService) {
@@ -64,6 +91,15 @@ public class LaunchUtils {
     public static void stopListeners(boolean isService) {
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
         listeners.forEach(listener -> listener.afterRunProgram(isService));
+    }
+
+    public static void addModuleConfigData(Map<Module, VariableKey[]> configurationData, Module m,
+                                           VariableKey[] variableKeys) {
+        VariableKey[] keys = configurationData.put(m, variableKeys);
+        if (keys == null) {
+            return;
+        }
+        configurationData.put(m, ArrayUtils.addAll(keys, variableKeys));
     }
 
     public static void initConfigurableVariables(Module rootModule, Map<Module, VariableKey[]> configurationData,
@@ -109,5 +145,20 @@ public class LaunchUtils {
             }
         }
         return null;
+    }
+
+    public static TomlDetails getTestConfigPaths(Module module, String pkgName, String sourceRoot) {
+        String moduleName = module.getName();
+        Path testConfigPath = Paths.get(sourceRoot);
+        if (!moduleName.equals(pkgName)) {
+            testConfigPath = testConfigPath.resolve(MODULES_ROOT)
+                    .resolve(moduleName.substring(moduleName.indexOf(DOT) + 1));
+        }
+        testConfigPath = testConfigPath.resolve(TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);
+        if (!Files.exists(testConfigPath)) {
+            return new TomlDetails(new Path[]{}, null);
+        } else {
+            return new TomlDetails(new Path[]{testConfigPath}, null);
+        }
     }
 }

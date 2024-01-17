@@ -1,9 +1,14 @@
 {
+  "line": 0,
+  "character": 0,
+  "position": {
     "line": 7,
-    "character": 35,
-    "expected": [
-        {
-            "title": "Change variable 'val' type to 'string?'"
-        }
-    ]
+    "character": 35
+  },
+  "source": "negative_changeVarType1.bal",
+  "expected": [
+    {
+      "title": "Change variable \u0027val\u0027 type to \u0027string?\u0027"
+    }
+  ]
 }

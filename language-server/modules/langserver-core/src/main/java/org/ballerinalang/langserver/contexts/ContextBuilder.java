@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.CodeActionResolveContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DidChangeWatchedFilesContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -28,6 +29,7 @@ import org.ballerinalang.langserver.commons.DocumentSymbolContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
+import org.ballerinalang.langserver.commons.InlayHintContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
@@ -136,10 +138,9 @@ public class ContextBuilder {
                                                          LanguageServerContext serverContext,
                                                          Position position,
                                                          CancelChecker cancelChecker) {
-        return new SignatureContextImpl.SignatureContextBuilder(serverContext)
+        return new SignatureContextImpl.SignatureContextBuilder(serverContext, capabilities)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
-                .withCapabilities(capabilities)
                 .withPosition(position)
                 .withCancelChecker(cancelChecker)
                 .build();
@@ -229,6 +230,25 @@ public class ContextBuilder {
                                                            CodeActionParams params,
                                                            CancelChecker cancelChecker) {
         return new CodeActionContextImpl.CodeActionContextBuilder(params, serverContext)
+                .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
+                .withCancelChecker(cancelChecker)
+                .build();
+    }
+
+    /**
+     * Build the code action resolve context.
+     *
+     * @param workspaceManager workspace manager instance
+     * @param serverContext    language server context
+     * @param cancelChecker    cancellation checker
+     * @return {@link CodeActionResolveContext} generated resolver context
+     */
+    public static CodeActionResolveContext buildCodeActionResolveContext(String uri,
+                                                                         WorkspaceManager workspaceManager,
+                                                                         LanguageServerContext serverContext,
+                                                                         CancelChecker cancelChecker) {
+        return new CodeActionResolveContextImpl.CodeActionResolveContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withCancelChecker(cancelChecker)
@@ -370,6 +390,17 @@ public class ContextBuilder {
                                                                    LanguageServerContext serverContext,
                                                                    CancelChecker cancelChecker) {
         return new SemanticTokensContextImpl.SemanticTokensContextBuilder(serverContext)
+                .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
+                .withCancelChecker(cancelChecker)
+                .build();
+    }
+
+    public static InlayHintContext buildInlayHintContext(String uri,
+                                                         WorkspaceManager workspaceManager,
+                                                         LanguageServerContext serverContext,
+                                                         CancelChecker cancelChecker) {
+        return new InlayHintContextImpl.InlayHintContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withCancelChecker(cancelChecker)

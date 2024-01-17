@@ -28,6 +28,8 @@ public class BallerinaDocumentServerCapabilities extends BallerinaServerCapabili
 
     private boolean syntaxTree;
 
+    private boolean syntaxTreeByName;
+
     private boolean syntaxTreeByRange;
 
     private boolean syntaxTreeLocate;
@@ -41,6 +43,9 @@ public class BallerinaDocumentServerCapabilities extends BallerinaServerCapabili
     private boolean syntaxTreeNode;
 
     private boolean executorPositions;
+
+    private boolean resolveMissingDependencies;
+    private boolean syntaxTreeNodeByPosition;
 
     public boolean isSyntaxApiCalls() {
         return syntaxApiCalls;
@@ -64,6 +69,14 @@ public class BallerinaDocumentServerCapabilities extends BallerinaServerCapabili
 
     public void setSyntaxTreeByRange(boolean syntaxTreeByRange) {
         this.syntaxTreeByRange = syntaxTreeByRange;
+    }
+
+    public boolean getSyntaxTreeByName() {
+        return syntaxTreeByName;
+    }
+
+    public void setSyntaxTreeByName(boolean syntaxTreeByName) {
+        this.syntaxTreeByName = syntaxTreeByName;
     }
 
     public boolean getSyntaxTreeLocate() {
@@ -117,4 +130,19 @@ public class BallerinaDocumentServerCapabilities extends BallerinaServerCapabili
     public BallerinaDocumentServerCapabilities() {
         super(Constants.CAPABILITY_NAME);
     }
+
+    public boolean isResolveMissingDependencies() {
+        return resolveMissingDependencies;
+    }
+
+    public void setResolveMissingDependencies(boolean resolveMissingDependencies) {
+        this.resolveMissingDependencies = resolveMissingDependencies;
+    }
+    public boolean getSyntaxTreeNodeByPosition() {
+        return syntaxTreeNodeByPosition;
+    }
+    public void setSyntaxTreeNodeByPosition(boolean syntaxTreeNodeByPosition) {
+        this.syntaxTreeNodeByPosition = syntaxTreeNodeByPosition;
+    }
+
 }

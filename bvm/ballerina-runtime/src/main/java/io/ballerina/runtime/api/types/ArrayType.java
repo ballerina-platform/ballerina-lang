@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BArrayType} represents a type of an arrays in Ballerina.
+ * {@code ArrayType} represents a type of an arrays in Ballerina.
  * <p>
  * Arrays are defined using the arrays constructor [] as follows:
  * TypeName[]

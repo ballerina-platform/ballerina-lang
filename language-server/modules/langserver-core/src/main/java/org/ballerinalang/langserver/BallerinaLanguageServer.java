@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.commons.registration.BallerinaClientCapabili
 import org.ballerinalang.langserver.commons.registration.BallerinaInitializeParams;
 import org.ballerinalang.langserver.commons.registration.BallerinaInitializeResult;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
+import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.config.ClientConfigListener;
 import org.ballerinalang.langserver.config.LSClientConfig;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
@@ -35,10 +36,12 @@ import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
-import org.ballerinalang.langserver.task.BackgroundTaskService;
 import org.ballerinalang.langserver.util.LSClientUtil;
+import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.CodeActionOptions;
 import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
+import org.eclipse.lsp4j.CompletionRegistrationOptions;
 import org.eclipse.lsp4j.DefinitionRegistrationOptions;
 import org.eclipse.lsp4j.DidChangeWatchedFilesRegistrationOptions;
 import org.eclipse.lsp4j.DocumentFilter;
@@ -60,7 +63,9 @@ import org.eclipse.lsp4j.TextDocumentRegistrationOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.WatchKind;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.services.NotebookDocumentService;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
@@ -86,9 +91,9 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private ExtendedLanguageClient client = null;
     private final TextDocumentService textService;
     private final WorkspaceService workspaceService;
+    private final NotebookDocumentService notebookService;
     private int shutdown = 1;
 
-    private static final String LS_INIT_MODE_PROPERTY = "enableLightWeightMode";
     private static final String LS_ENABLE_SEMANTIC_HIGHLIGHTING = "enableSemanticHighlighting";
 
     public BallerinaLanguageServer() {
@@ -97,8 +102,9 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
     private BallerinaLanguageServer(LanguageServerContext serverContext) {
         super(serverContext);
-        this.textService = new BallerinaTextDocumentService(this, workspaceManager, this.serverContext);
-        this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager, this.serverContext);
+        this.textService = new BallerinaTextDocumentService(this, workspaceManagerProxy, this.serverContext);
+        this.workspaceService = new BallerinaWorkspaceService(this, workspaceManagerProxy, this.serverContext);
+        this.notebookService = new BallerinaNotebookDocumentService(this.serverContext);
     }
 
     public ExtendedLanguageClient getClient() {
@@ -109,35 +115,62 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 
+        Map experimentalClientCapabilities = null;
+        if (params.getCapabilities().getExperimental() != null) {
+            experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
+                    HashMap.class);
+        }
+
+        Map initializationOptions = null;
+        if (params.getInitializationOptions() != null) {
+            initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(), HashMap.class);
+        }
+
+        TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();
+        WorkspaceClientCapabilities workspaceClientCapabilities = params.getCapabilities().getWorkspace();
+        LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(textDocClientCapabilities,
+                workspaceClientCapabilities,
+                experimentalClientCapabilities,
+                initializationOptions);
+        this.serverContext.put(LSClientCapabilities.class, capabilities);
+
         //Checks for instances in which the LS needs to be initiated in lightweight mode
-        if (isLightWeightMode(params)) {
+        if (capabilities.getInitializationOptions().isEnableLightWeightMode()) {
             return CompletableFuture.supplyAsync(() -> res);
         }
 
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
-        final CompletionOptions completionOptions = new CompletionOptions();
-        completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
 
-        res.getCapabilities().setCompletionProvider(completionOptions);
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setDocumentSymbolProvider(true);
-        res.getCapabilities().setCodeActionProvider(true);
         res.getCapabilities().setDocumentFormattingProvider(true);
         res.getCapabilities().setDocumentRangeFormattingProvider(true);
         res.getCapabilities().setWorkspaceSymbolProvider(false);
         res.getCapabilities().setImplementationProvider(false);
         res.getCapabilities().setFoldingRangeProvider(true);
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
-        
+        res.getCapabilities().setInlayHintProvider(true);
+
+        CodeActionOptions codeActionOptions = new CodeActionOptions(List.of(CodeActionKind.Refactor,
+                CodeActionKind.QuickFix, CodeActionKind.Source));
+        codeActionOptions.setResolveProvider(true);
+        res.getCapabilities().setCodeActionProvider(codeActionOptions);
+
         // Hover, references and definition support will be registered dynamically if supported
         if (!LSClientUtil.isDynamicHoverRegistrationSupported(params.getCapabilities().getTextDocument())) {
-                    res.getCapabilities().setHoverProvider(true);
+            res.getCapabilities().setHoverProvider(true);
         }
         if (!LSClientUtil.isDynamicDefinitionRegistrationSupported(params.getCapabilities().getTextDocument())) {
             res.getCapabilities().setDefinitionProvider(true);
         }
         if (!LSClientUtil.isDynamicReferencesRegistrationSupported(params.getCapabilities().getTextDocument())) {
             res.getCapabilities().setReferencesProvider(true);
+        }
+        if (!LSClientUtil.isDynamicCompletionRegistrationSupported(params.getCapabilities().getTextDocument())) {
+            final CompletionOptions completionOptions = new CompletionOptions();
+            completionOptions.setTriggerCharacters(this.getCompletionTriggerCharacters());
+
+            res.getCapabilities().setCompletionProvider(completionOptions);
         }
 
         // Register LS semantic tokens capabilities if dynamic registration is not available
@@ -150,24 +183,10 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         boolean prepareSupport = LSClientUtil.clientSupportsPrepareRename(params.getCapabilities());
         res.getCapabilities().setRenameProvider(new RenameOptions(prepareSupport));
 
-        // We are not registering commands here because they need to be registered/unregistered dynamically.
-        // Only if the client doesn't support dynamic command registration, we do registration here
-        if (!LSClientUtil.isDynamicCommandRegistrationSupported(params.getCapabilities())) {
-            List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
-            ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandsList);
-            res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
-        }
-
-        Map initializationOptions = null;
-        if (params.getInitializationOptions() != null) {
-            initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(), HashMap.class);
-        }
-
-        Map experimentalClientCapabilities = null;
-        if (params.getCapabilities().getExperimental() != null) {
-            experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
-                    HashMap.class);
-        }
+        // Register commands
+        List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
+        ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandsList);
+        res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
 
         // Set AST provider and examples provider capabilities
         HashMap<String, Object> experimentalServerCapabilities = new HashMap<>();
@@ -176,13 +195,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         experimentalServerCapabilities.put(API_EDITOR_PROVIDER.getValue(), true);
         res.getCapabilities().setExperimental(experimentalServerCapabilities);
 
-        TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();
-        WorkspaceClientCapabilities workspaceClientCapabilities = params.getCapabilities().getWorkspace();
-        LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(textDocClientCapabilities,
-                workspaceClientCapabilities,
-                experimentalClientCapabilities,
-                initializationOptions);
-        this.serverContext.put(LSClientCapabilities.class, capabilities);
         this.serverContext.put(ServerCapabilities.class, res.getCapabilities());
         ((BallerinaTextDocumentService) textService).setClientCapabilities(capabilities);
         ((BallerinaWorkspaceService) workspaceService).setClientCapabilities(capabilities);
@@ -196,64 +208,92 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
         // Register dynamic capabilities
         registerDynamicCapabilities();
-        
+
         startListeningFileChanges();
+
+        LSClientCapabilities lsClientCapabilities = this.serverContext.get(LSClientCapabilities.class);
+        
+        if (lsClientCapabilities.getInitializationOptions().isEnableLightWeightMode()) {
+            return;
+        }
+        //Initialize Service Template Generator.
+        ServiceTemplateGenerator.getInstance(this.serverContext);
+        CentralPackageDescriptorLoader.getInstance(this.serverContext)
+                .loadBallerinaxPackagesFromCentral(this.serverContext);
+
+        if (lsClientCapabilities.getInitializationOptions().isEnableMemoryUsageMonitor()) {
+            MemoryUsageMonitor.getInstance(this.serverContext).start(client);
+        }
     }
 
     /**
      * Checks and registers required dynamic capabilities.
      */
     private void registerDynamicCapabilities() {
-        registerTextSynchronizationForBalaUriScheme();
-        
+        registerTextSynchronizationForCustomUriSchemes();
+
         DocumentFilter balaFilter = new DocumentFilter();
         balaFilter.setScheme(CommonUtil.URI_SCHEME_BALA);
+
         DocumentFilter fileFilter = new DocumentFilter();
         fileFilter.setScheme(CommonUtil.URI_SCHEME_FILE);
         fileFilter.setLanguage(CommonUtil.LANGUAGE_ID_BALLERINA);
+
+        DocumentFilter fileFilterToml = new DocumentFilter();
+        fileFilterToml.setScheme(CommonUtil.URI_SCHEME_FILE);
+        fileFilterToml.setLanguage(CommonUtil.LANGUAGE_ID_TOML);
+
+        DocumentFilter exprFilter = new DocumentFilter();
+        exprFilter.setScheme(CommonUtil.URI_SCHEME_EXPR);
+        exprFilter.setLanguage(CommonUtil.LANGUAGE_ID_BALLERINA);
+
         List<DocumentFilter> documentSelectors = List.of(balaFilter, fileFilter);
 
         registerDynamicHoverSupport(documentSelectors);
         registerDynamicDefinitionSupport(documentSelectors);
         registerDynamicReferencesSupport(documentSelectors);
+        registerDynamicCompletionSupport(List.of(fileFilter, exprFilter, fileFilterToml));
 
-        registerDynamicCommandsSupport();
         registerDynamicSemanticTokenSupport();
     }
 
     /**
-     * "bala" URI scheme is used to make stdlib and langlib files readonly at the editor. 
+     * "bala" URI scheme is used to make stdlib and langlib files readonly at the editor.
+     * "expr" URI scheme is used to make expression editor based use-cases
      */
-    private void registerTextSynchronizationForBalaUriScheme() {
+    private void registerTextSynchronizationForCustomUriSchemes() {
         LanguageClient client = serverContext.get(ExtendedLanguageClient.class);
         LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
 
         DocumentFilter balaFilter = new DocumentFilter();
         balaFilter.setScheme(CommonUtil.URI_SCHEME_BALA);
 
-        // Register text synchronization for bala scheme
+        DocumentFilter exprFilter = new DocumentFilter();
+        exprFilter.setScheme(CommonUtil.URI_SCHEME_EXPR);
+
+        // Register text synchronization for bala and expr schemes
         if (LSClientUtil.isDynamicSynchronizationRegistrationSupported(clientCapabilities.getTextDocCapabilities())) {
             TextDocumentRegistrationOptions openRegOptions = new TextDocumentRegistrationOptions();
-            openRegOptions.setDocumentSelector(List.of(balaFilter));
+            openRegOptions.setDocumentSelector(List.of(balaFilter, exprFilter));
             Registration didOpenRegistration = new Registration(UUID.randomUUID().toString(),
                     "textDocument/didOpen", openRegOptions);
 
             TextDocumentChangeRegistrationOptions changeRegOptions = new TextDocumentChangeRegistrationOptions();
-            changeRegOptions.setDocumentSelector(List.of(balaFilter));
+            changeRegOptions.setDocumentSelector(List.of(balaFilter, exprFilter));
             changeRegOptions.setSyncKind(TextDocumentSyncKind.Full);
-            Registration changeRegistration = new Registration(UUID.randomUUID().toString(), 
+            Registration changeRegistration = new Registration(UUID.randomUUID().toString(),
                     "textDocument/didChange", changeRegOptions);
 
             TextDocumentRegistrationOptions closeRegOptions = new TextDocumentRegistrationOptions();
-            closeRegOptions.setDocumentSelector(List.of(balaFilter));
-            Registration closeRegistration = new Registration(UUID.randomUUID().toString(), 
+            closeRegOptions.setDocumentSelector(List.of(balaFilter, exprFilter));
+            Registration closeRegistration = new Registration(UUID.randomUUID().toString(),
                     "textDocument/didClose", closeRegOptions);
 
             client.registerCapability(new RegistrationParams(List.of(didOpenRegistration)));
             client.registerCapability(new RegistrationParams(List.of(changeRegistration)));
             client.registerCapability(new RegistrationParams(List.of(closeRegistration)));
         }
-        
+
         // TODO Server capabilities in server context are out of sync now.
     }
 
@@ -279,6 +319,16 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         }
     }
 
+    private void registerDynamicCompletionSupport(List<DocumentFilter> documentSelectors) {
+        CompletionRegistrationOptions completionRegistrationOptions = new CompletionRegistrationOptions();
+        completionRegistrationOptions.setDocumentSelector(documentSelectors);
+        completionRegistrationOptions.setTriggerCharacters(this.getCompletionTriggerCharacters());
+        Registration completionRegistration = new Registration(UUID.randomUUID().toString(),
+                "textDocument/completion", completionRegistrationOptions);
+        client.registerCapability(new RegistrationParams(List.of(completionRegistration)));
+
+    }
+
     private void registerDynamicReferencesSupport(List<DocumentFilter> documentSelectors) {
         LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
         if (LSClientUtil.isDynamicReferencesRegistrationSupported(clientCapabilities.getTextDocCapabilities())) {
@@ -289,15 +339,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             client.registerCapability(new RegistrationParams(List.of(referencesRegistration)));
         }
     }
-    
-    private void registerDynamicCommandsSupport() {
-        // If the client support dynamic registration of commands, we register the capability here
-        if (LSClientUtil.isDynamicCommandRegistrationSupported(serverContext)) {
-            List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
-            LSClientUtil.registerCommands(serverContext, commandsList);
-        }
-    }
-    
+
     private void registerDynamicSemanticTokenSupport() {
         // Register LS semantic tokens capabilities if dynamic registration is available
         LSClientCapabilities capabilities = this.serverContext.get(LSClientCapabilities.class);
@@ -316,7 +358,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         for (ExtendedLanguageServerService service : extendedServices) {
             service.shutdown();
         }
-        BackgroundTaskService.getInstance(serverContext).shutdown();
         return CompletableFuture.supplyAsync(Object::new);
     }
 
@@ -329,6 +370,11 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
     public TextDocumentService getTextDocumentService() {
         return this.textService;
+    }
+
+    @Override
+    public NotebookDocumentService getNotebookDocumentService() {
+        return this.notebookService;
     }
 
     public WorkspaceService getWorkspaceService() {
@@ -376,29 +422,21 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private void startListeningFileChanges() {
         ExtendedLanguageClient languageClient = serverContext.get(ExtendedLanguageClient.class);
         List<FileSystemWatcher> watchers = new ArrayList<>();
-        watchers.add(new FileSystemWatcher("/**/*.bal", WatchKind.Create + WatchKind.Delete + WatchKind.Change));
-        watchers.add(new FileSystemWatcher("/**/modules/*", WatchKind.Create + WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/modules", WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/" + ProjectConstants.BALLERINA_TOML,
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/*.bal"),
+                WatchKind.Create + WatchKind.Delete + WatchKind.Change));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/modules/*"), WatchKind.Create + WatchKind.Delete));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/modules"), WatchKind.Delete));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/generated"), WatchKind.Delete));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/" + ProjectConstants.BALLERINA_TOML),
                 WatchKind.Create + WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/" + ProjectConstants.CLOUD_TOML,
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/" + ProjectConstants.CLOUD_TOML),
                 WatchKind.Create + WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/" + ProjectConstants.DEPENDENCIES_TOML,
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/" + ProjectConstants.DEPENDENCIES_TOML),
                 WatchKind.Create + WatchKind.Delete));
         DidChangeWatchedFilesRegistrationOptions opts = new DidChangeWatchedFilesRegistrationOptions(watchers);
         Registration registration = new Registration(UUID.randomUUID().toString(),
                 "workspace/didChangeWatchedFiles", opts);
         languageClient.registerCapability(new RegistrationParams(Collections.singletonList(registration)));
-    }
-
-    private Boolean isLightWeightMode(InitializeParams params) {
-        if (params.getInitializationOptions() != null) {
-            JsonObject initOptions = (JsonObject) params.getInitializationOptions();
-            if (initOptions.has(LS_INIT_MODE_PROPERTY)) {
-                return initOptions.get(LS_INIT_MODE_PROPERTY).getAsBoolean();
-            }
-        }
-        return false;
     }
 
     private boolean enableBallerinaSemanticTokens(InitializeParams params) {
@@ -410,5 +448,9 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             return true;
         }
         return initOptions.get(LS_ENABLE_SEMANTIC_HIGHLIGHTING).getAsBoolean();
+    }
+
+    private List<String> getCompletionTriggerCharacters() {
+        return Arrays.asList(":", ".", ">", "@", "/", "\\", "?");
     }
 }

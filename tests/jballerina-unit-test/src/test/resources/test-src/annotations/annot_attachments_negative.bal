@@ -896,3 +896,82 @@ type MyTypeTwo int|boolean;
 service class ServiceClass {
 
 }
+
+public annotation v22 on type;
+public const annotation v23 on source const;
+public annotation v24 on class;
+
+@v23 // error
+public enum Color1 {
+    RED,
+    BLUE
+}
+
+@v22
+@v23 // error
+public enum Color2 {
+    RED,
+    BLUE
+}
+
+@v23 // error
+@v24 // error
+public enum Color3 {
+    RED,
+    BLUE
+}
+
+@v23 // error
+public enum Color4 {
+    @v23
+    WHITE,
+    YELLOW
+}
+
+@v23 // error
+public enum Color5 {
+    @v22 // error
+    ORANGE,
+    GREEN
+}
+
+public const annotation record {| int increment; |} v25 on source type;
+
+int x = 1;
+
+@v25 {
+    increment: x + 1
+}
+type F1 record {|
+    int x;
+|};
+
+@v25 {
+    increment: -x
+}
+type F2 record {|
+    int x;
+|};
+
+@v25 {
+    increment: 1 + 2
+}
+type F3 record {|
+    int x;
+|};
+
+const int y = 3;
+
+@v25 {
+    increment: y + 1
+}
+type F4 record {|
+    int x;
+|};
+
+@v25 {
+    increment: y + x
+}
+type F5 record {|
+    int x;
+|};

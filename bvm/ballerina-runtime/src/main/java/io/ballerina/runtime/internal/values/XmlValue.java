@@ -17,8 +17,10 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -27,7 +29,6 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
 import io.ballerina.runtime.internal.IteratorUtils;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
 import java.util.List;
@@ -55,7 +56,7 @@ import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 public abstract class XmlValue implements RefValue, BXml, CollectionValue {
 
     Type type = PredefinedTypes.TYPE_XML;
-    protected BTypedesc typedesc = new TypedescValueImpl(type);
+    protected BTypedesc typedesc;
 
     protected Type iteratorNextReturnType;
 
@@ -147,10 +148,10 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
         // Here local message of the cause is logged whenever possible, to avoid java class being logged
         // along with the error message.
         if (t.getCause() != null) {
-            throw new BallerinaException(message + t.getCause().getMessage());
+            throw ErrorCreator.createError(StringUtils.fromString(message + t.getCause().getMessage()));
         }
 
-        throw new BallerinaException(message + t.getMessage());
+        throw ErrorCreator.createError(StringUtils.fromString(message + t.getMessage()));
     }
 
     /**
@@ -248,11 +249,10 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = getTypedescValue(type, this);
+        }
         return typedesc;
-    }
-
-    protected void setTypedescValue(Type type) {
-        this.typedesc = getTypedescValue(type, this);
     }
 
     @Override

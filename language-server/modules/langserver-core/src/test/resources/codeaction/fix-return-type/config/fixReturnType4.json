@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 17,
+    "character": 22
+  },
+  "source": "fixReturnType.bal",
+  "expected": [
+    {
+      "title": "Change return type to \u0027int\u0027",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 16,
+              "character": 24
+            },
+            "end": {
+              "line": 16,
+              "character": 24
+            }
+          },
+          "newText": " returns int"
+        }
+      ]
+    }
+  ]
+}

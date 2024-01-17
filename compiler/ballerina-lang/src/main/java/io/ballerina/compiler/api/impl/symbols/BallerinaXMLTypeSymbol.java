@@ -17,11 +17,13 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -38,7 +40,7 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
     private String typeName;
     private String signature;
 
-    public BallerinaXMLTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLType xmlType) {
+    public BallerinaXMLTypeSymbol(CompilerContext context, BXMLType xmlType) {
         super(context, TypeDescKind.XML, xmlType);
     }
 
@@ -46,7 +48,10 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
     public Optional<TypeSymbol> typeParameter() {
         if (this.typeParameter == null) {
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-            this.typeParameter = typesFactory.getTypeDescriptor(((BXMLType) this.getBType()).constraint);
+            BType constraintType = ((BXMLType) this.getBType()).constraint;
+            if (constraintType != null) {
+                this.typeParameter = typesFactory.getTypeDescriptor(constraintType, constraintType.tsymbol, true);
+            }
         }
 
         return Optional.ofNullable(this.typeParameter);
@@ -82,5 +87,15 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
         }
 
         return this.signature;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

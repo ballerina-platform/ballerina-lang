@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 type A [int, A[]];
 public function testCycleTypeArray() {
     A a = [1];
@@ -275,8 +277,8 @@ function testCastingToImmutableCyclicTuple() {
     assert(b is error, true);
     error err = <error> b;
     assert(err.message(), "{ballerina}TypeCastError");
-    assert(<string> checkpanic err.detail()["message"], "incompatible types: '[int,MyCyclicTuple[]]' " +
-    "cannot be cast to '[int,([int,MyCyclicTuple[]][] & readonly)] & readonly'");
+    assert(<string> checkpanic err.detail()["message"], "incompatible types: 'MyCyclicTuple' cannot be " +
+    "cast to '[int,(MyCyclicTuple[] & readonly)] & readonly'");
     MyCyclicTuple c = <[int, MyCyclicTuple[]] & readonly> [1, []];
     MyCyclicTuple & readonly d = <MyCyclicTuple & readonly> c;
     assert(d is [int, MyCyclicTuple[]] & readonly, true);
@@ -291,6 +293,74 @@ public function recursiveTupleArrayCloneTest() {
    RTuple[] v = [];
    any x = v.cloneReadOnly();
    assertTrue(x is readonly & RTuple[]);
+}
+
+type RestTypeTuple [int, RestTypeTuple...];
+
+function testRecursiveTupleWithRestType() {
+   RestTypeTuple a = [1];
+   RestTypeTuple b = [2, a, a, a];
+   RestTypeTuple c = [3, a, b];
+
+   assertTrue(a[0] is int);
+   assertTrue(b[1] is RestTypeTuple);
+   assertTrue(c[2] is RestTypeTuple);
+}
+
+public type Type string|Union|Tuple;
+
+public type Union ["|", Type...];
+
+public type Tuple ["tuple", Type, Type...]; 
+
+type SubtypeRelation record {|
+    Type subtype;
+    Type superType;
+|};
+
+function testUnionWithCyclicTuplesHashCode() {
+    Tuple tup1 = ["tuple", "never", "int"];
+    Tuple tup2 = ["tuple", "never", ["|", "int", "string"]];
+
+    Type subtype = ["|", "int", tup1];
+    Type superType = ["|", ["|", "int", "float"], tup2];
+    SubtypeRelation p = {subtype: subtype, superType: superType};
+    assert(p.toJsonString(), "{\"subtype\":[\"|\", \"int\", [\"tuple\", \"never\", \"int\"]], " +
+    "\"superType\":[\"|\", [\"|\", \"int\", \"float\"], [\"tuple\", \"never\", [\"|\", \"int\", \"string\"]]]}"); 
+}
+
+type List [List?];
+
+function testCloneOnRecursiveTuples() {
+    List list = [()];
+    list[0] = list;
+    List list_cloned = list.clone();
+    test:assertTrue(list_cloned == list);
+    test:assertFalse(list_cloned === list);
+
+    List list_readonly = list.cloneReadOnly();
+    test:assertTrue(list_readonly == list);
+    test:assertFalse(list_readonly === list);
+}
+
+type Q1 [Q1];
+type Q2 [Q2, Q2];
+type Q3 [Q3, Q3...];
+type Q4 [Q4, Q4, Q4...];
+type Q5 [Q5]|[Q5, Q5]|[Q5...]|[Q5, Q5...]|[Q5, Q5, Q5...];
+type Q6 [Q1];
+type Q7 [Q1, Q2, Q3, Q4, Q5, Q6, Q7];
+type Q8 [Q1?];
+
+function testCyclicTuples() {
+    Q1? q1 = ();
+    Q2? q2 = ();
+    Q3? q3 = ();
+    Q4? q4 = ();
+    Q5? q5 = ();
+    Q6? q6 = ();
+    Q7? q7 = ();
+    Q8 q8 = [];
 }
 
 function assertTrue(anydata actual) {

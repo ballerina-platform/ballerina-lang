@@ -18,27 +18,43 @@ package org.ballerinalang.langserver.extensions;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListRequest;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListResponse;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeByNameRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeByRangeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeModifyRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsResponse;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoRequest;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoResponse;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.TypeFromExpressionRequest;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.TypeFromSymbolRequest;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromExpressionResponse;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromFnDefinitionRequest;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromSymbolResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import static org.ballerinalang.langserver.util.TestUtil.getTextDocumentPositionParams;
 
 /**
  * Provides util methods for testing lang-server extension apis.
@@ -52,6 +68,13 @@ public class LSExtensionTestUtil {
     private static final String SYNTAX_API_QUOTE = "ballerinaDocument/syntaxApiCalls";
     private static final String GET_CONNECTORS = "ballerinaConnector/connectors";
     private static final String GET_CONNECTOR = "ballerinaConnector/connector";
+    private static final String GET_SYMBOL = "ballerinaSymbol/getSymbol";
+    private static final String SYNTAX_TREE_BY_NAME = "ballerinaDocument/syntaxTreeByName";
+    private static final String GET_TYPE_FROM_SYMBOL = "ballerinaSymbol/getTypeFromSymbol";
+    private static final String GET_TYPE_FROM_EXPRESSION = "ballerinaSymbol/getTypeFromExpression";
+    private static final String GET_TYPE_FROM_FN_DEFINITION = "ballerinaSymbol/getTypesFromFnDefinition";
+    private static final String GET_NODE_DEFINITION_BY_POSITION = "ballerinaDocument/syntaxTreeNodeByPosition";
+
     private static final Gson GSON = new Gson();
     private static final JsonParser parser = new JsonParser();
 
@@ -137,6 +160,24 @@ public class LSExtensionTestUtil {
         return GSON.fromJson(getResult(result), SyntaxApiCallsResponse.class);
     }
 
+    /**
+     * Get the ballerinaDocument/syntaxTreeByName response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param range           Range for which the function should be retrieved
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static BallerinaSyntaxTreeResponse getBallerinaSyntaxTreeByName(String filePath,
+                                                                            Range range,
+                                                                            Endpoint serviceEndpoint) {
+        BallerinaSyntaxTreeByNameRequest request = new BallerinaSyntaxTreeByNameRequest();
+        request.setDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
+        request.setLineRange(range);
+        CompletableFuture result = serviceEndpoint.request(SYNTAX_TREE_BY_NAME, request);
+        return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
+    }
+
     private static JsonObject getResult(CompletableFuture result) {
         return parser.parse(TestUtil.getResponseString(result)).getAsJsonObject().getAsJsonObject("result");
     }
@@ -153,8 +194,15 @@ public class LSExtensionTestUtil {
         return getResult(result);
     }
 
+    public static BallerinaSyntaxTreeResponse getSTNodeDefinitionByPosition(String filePath, Position position,
+                                                                            Endpoint serviceEndpoint) {
+        TextDocumentPositionParams request = getTextDocumentPositionParams(filePath, position);
+        CompletableFuture<?> result = serviceEndpoint.request(GET_NODE_DEFINITION_BY_POSITION, request);
+        return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
+    }
+
     public static JsonObject getConnectorByFqn(String org, String packageName, String module, String version,
-                                          String name, Endpoint serviceEndpoint) {
+                                               String name, Endpoint serviceEndpoint) {
         BallerinaConnectorRequest connectorRequest = new BallerinaConnectorRequest(org, packageName, module,
                 version, name);
         CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, connectorRequest);
@@ -169,4 +217,78 @@ public class LSExtensionTestUtil {
         return tempFilePath;
     }
 
+    /**
+     * Get the ballerinaDocument/getSymbol response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @param position        Position of the function to get documentation
+     * @return {@link String}   Response as String
+     */
+    public static SymbolInfoResponse getSymbolDocumentation(String filePath, Position position,
+                                                            Endpoint serviceEndpoint) {
+        SymbolInfoRequest symbolInfoRequest = new SymbolInfoRequest();
+        symbolInfoRequest.setPosition(position);
+        symbolInfoRequest.setTextDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
+        CompletableFuture result = serviceEndpoint.request(GET_SYMBOL, symbolInfoRequest);
+        return GSON.fromJson(getResult(result), SymbolInfoResponse.class);
+    }
+
+    /**
+     * Get the ballerinaDocument/getTypeFromSymbol response.
+     *
+     * @param filePath          Path of the Bal file
+     * @param positions         Positions of the symbols to get associated types
+     * @param serviceEndpoint   Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static TypesFromSymbolResponse getTypeFromSymbol(URI filePath, LinePosition[] positions,
+                                                            Endpoint serviceEndpoint
+                                                            ) throws ExecutionException, InterruptedException {
+        TypeFromSymbolRequest typeFromSymbolRequest = new TypeFromSymbolRequest();
+        typeFromSymbolRequest.setPositions(positions);
+        typeFromSymbolRequest.setDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
+        CompletableFuture<?> result = serviceEndpoint.request(GET_TYPE_FROM_SYMBOL, typeFromSymbolRequest);
+        return (TypesFromSymbolResponse) result.get();
+    }
+
+    /**
+     * Get the ballerinaDocument/getTypeFromExpression response.
+     *
+     * @param filePath          Path of the Bal file
+     * @param ranges            Ranges of the expressions to get associated types
+     * @param serviceEndpoint   Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static TypesFromExpressionResponse getTypeFromExpression(URI filePath, LineRange[] ranges,
+                                                                    Endpoint serviceEndpoint
+                                                                    ) throws ExecutionException, InterruptedException {
+        TypeFromExpressionRequest typeFromExpressionRequest = new TypeFromExpressionRequest();
+        typeFromExpressionRequest.setExpressionRanges(ranges);
+        typeFromExpressionRequest.setDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
+        CompletableFuture<?> result = serviceEndpoint.request(GET_TYPE_FROM_EXPRESSION, typeFromExpressionRequest);
+        return (TypesFromExpressionResponse) result.get();
+    }
+
+    /**
+     * Get the ballerinaDocument/getTypesFromFnDefinition response.
+     *
+     * @param filePath      Path of the Bal file
+     * @param fnPosition    Ranges of the expressions to get associated types
+     * @param returnTypeDescPosition    Service Endpoint to Language Server
+     * @param serviceEndpoint   Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static TypesFromSymbolResponse getTypesFromFnDefinition(URI filePath,
+                                                                   LinePosition fnPosition,
+                                                                   LinePosition returnTypeDescPosition,
+                                                                   Endpoint serviceEndpoint)
+            throws ExecutionException, InterruptedException {
+        TypesFromFnDefinitionRequest typesFromFnDefRequest = new TypesFromFnDefinitionRequest();
+        typesFromFnDefRequest.setFnPosition(fnPosition);
+        typesFromFnDefRequest.setReturnTypeDescPosition(returnTypeDescPosition);
+        typesFromFnDefRequest.setDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
+        CompletableFuture<?> result = serviceEndpoint.request(GET_TYPE_FROM_FN_DEFINITION, typesFromFnDefRequest);
+        return (TypesFromSymbolResponse) result.get();
+    }
 }

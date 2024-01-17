@@ -17,7 +17,11 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.impl.util.FieldMap;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
@@ -41,7 +45,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,6 +59,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     private final ObjectTypeSymbol typeDescriptor;
     private final List<Qualifier> qualifiers;
     private final List<AnnotationSymbol> annots;
+    private final List<AnnotationAttachmentSymbol> annotAttachments;
     private final boolean deprecated;
     private final BClassSymbol internalSymbol;
     private final CompilerContext context;
@@ -64,11 +68,12 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     private Map<String, ClassFieldSymbol> classFields;
 
     protected BallerinaClassSymbol(CompilerContext context, String name, List<Qualifier> qualifiers,
-                                   List<AnnotationSymbol> annots, ObjectTypeSymbol typeDescriptor,
-                                   BClassSymbol classSymbol) {
+                                   List<AnnotationSymbol> annots, List<AnnotationAttachmentSymbol> annotAttachments,
+                                   ObjectTypeSymbol typeDescriptor, BClassSymbol classSymbol) {
         super(name, SymbolKind.CLASS, classSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
+        this.annotAttachments = Collections.unmodifiableList(annotAttachments);
         this.docAttachment = getDocAttachment(classSymbol);
         this.typeDescriptor = typeDescriptor;
         this.deprecated = Symbols.isFlagOn(classSymbol.flags, Flags.DEPRECATED);
@@ -82,11 +87,11 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
             return classFields;
         }
 
-        Map<String, ClassFieldSymbol> fields = new LinkedHashMap<>();
+        FieldMap<String, ClassFieldSymbol> fields = new FieldMap<>();
         BObjectType type = (BObjectType) this.getBType();
 
         for (BField field : type.fields.values()) {
-            fields.put(field.name.value, new BallerinaClassFieldSymbol(this.context, field));
+            fields.put(field.symbol.getOriginalName().value, new BallerinaClassFieldSymbol(this.context, field));
         }
 
         this.classFields = Collections.unmodifiableMap(fields);
@@ -103,7 +108,8 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
         if (this.initMethod == null && this.internalSymbol.initializerFunc != null) {
             SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
             this.initMethod = symbolFactory.createMethodSymbol(internalSymbol.initializerFunc.symbol,
-                                                               internalSymbol.initializerFunc.funcName.value);
+                                                               internalSymbol.initializerFunc.symbol
+                                                                       .getOriginalName().value);
         }
 
         return Optional.ofNullable(this.initMethod);
@@ -117,6 +123,11 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     @Override
     public List<AnnotationSymbol> annotations() {
         return this.annots;
+    }
+
+    @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        return this.annotAttachments;
     }
 
     @Override
@@ -164,6 +175,16 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
         return this.qualifiers;
     }
 
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
     BType getBType() {
         return this.internalSymbol.type;
     }
@@ -185,6 +206,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
 
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected List<AnnotationSymbol> annots = new ArrayList<>();
+        protected List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
         protected ObjectTypeSymbol typeDescriptor;
 
         public ClassSymbolBuilder(CompilerContext context, String name, BSymbol symbol) {
@@ -206,10 +228,15 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
             return this;
         }
 
+        public ClassSymbolBuilder withAnnotationAttachment(AnnotationAttachmentSymbol annotAttachment) {
+            this.annotAttachments.add(annotAttachment);
+            return this;
+        }
+
         @Override
         public BallerinaClassSymbol build() {
             return new BallerinaClassSymbol(this.context, this.name, this.qualifiers, this.annots,
-                                            this.typeDescriptor, (BClassSymbol) this.bSymbol);
+                                            this.annotAttachments, this.typeDescriptor, (BClassSymbol) this.bSymbol);
         }
     }
 }

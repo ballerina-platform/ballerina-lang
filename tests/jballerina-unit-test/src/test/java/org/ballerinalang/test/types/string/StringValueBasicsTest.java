@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -39,9 +38,9 @@ public class StringValueBasicsTest extends BStringTestCommons {
 
     @Test
     public void testConcatBMPStrings() {
-        BValue[] returns = BRunUtil.invoke(result, "concatBMP");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "red apple");
+        Object returns = BRunUtil.invoke(result, "concatBMP");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "red apple");
     }
 
     @Test
@@ -70,8 +69,8 @@ public class StringValueBasicsTest extends BStringTestCommons {
         BRunUtil.invoke(result, "testStringIndexAccess");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*string index out of range: index: 6, size: 6.*")
+    @Test(expectedExceptions = BLangTestException.class,
+            expectedExceptionsMessageRegExp = ".*string index out of range: index: 6, size: 6.*")
     public void testStringIndexAccessException() {
         BRunUtil.invoke(result, "testStringIndexAccessException");
     }

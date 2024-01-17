@@ -105,11 +105,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Annotation",
+      "label": "annotation",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Q",
-      "filterText": "Annotation",
+      "filterText": "annotation",
       "insertText": "annotation ",
       "insertTextFormat": "Snippet"
     },
@@ -156,6 +156,15 @@
       "sortText": "Q",
       "filterText": "worker",
       "insertText": "worker",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "client",
+      "insertText": "client ",
       "insertTextFormat": "Snippet"
     }
   ]

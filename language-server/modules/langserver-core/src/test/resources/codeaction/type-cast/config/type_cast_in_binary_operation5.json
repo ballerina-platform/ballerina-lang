@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 8,
+    "character": 15
+  },
+  "source": "type_cast_in_binary_operation.bal",
+  "expected": [
+    {
+      "title": "Add type cast to 'i1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 13
+            },
+            "end": {
+              "line": 8,
+              "character": 13
+            }
+          },
+          "newText": "<decimal>"
+        }
+      ]
+    }
+  ]
+}

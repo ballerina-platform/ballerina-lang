@@ -1,0 +1,26 @@
+[
+  {
+    "description": "Add a json type definition\n",
+    "oldCode": "",
+    "newCode": "public type Person json;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "new",
+              "versionImpact": "minor"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

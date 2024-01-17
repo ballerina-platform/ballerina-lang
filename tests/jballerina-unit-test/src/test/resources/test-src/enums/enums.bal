@@ -115,13 +115,39 @@ function testEnumInRecursiveArray() {
     Keyword u = "union";
     assert(u, "union");
 
-    ApproxType b = "'boolean";
+    ApproxType b = "boolean";
+    assert(b, "boolean");
     assert(b, 'boolean);
 
-    Keyword i = "'int";
-    assert(i, "'int");
+    Keyword i = "int";
+    assert(i, "int");
+    assert(i, 'int);
 }
 
+public enum CallState {
+    'new\u{5C}
+}
+
+function testEnumMemberContainingNumericEscape() {
+    CallState state = "new\\";
+    assert(state, "new\\");
+    assert('new\u{5C}, "new\\");
+}
+
+public enum EnumOfQuotedIdentifiers {
+    'new,
+    'string
+}
+
+function testEnumMemberContainingQuotedIdentifier() {
+    EnumOfQuotedIdentifiers a = 'new;
+    assert(a, "new");
+    assert('new, "new");
+    
+    'string b = "string";
+    assert(b, "string");
+    assert('string, "string");
+}
 
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {

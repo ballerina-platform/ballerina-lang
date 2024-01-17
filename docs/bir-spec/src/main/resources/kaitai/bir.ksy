@@ -182,6 +182,22 @@ types:
         type: s4
       - id: value
         size: value_length
+  closure_symbol_body:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: flags
+        type: s8
+      - id: type_cp_index
+        type: s4
+      - id: pkd_id_cp_index
+        type: s4
+      - id: param_count
+        type: s4
+      - id: params
+        type: function_parameter
+        repeat: expr
+        repeat-expr: param_count
   type_invokable_body:
     seq:
       - id: param_types_count
@@ -197,6 +213,46 @@ types:
         if: has_rest_type == 1
       - id: return_type_cp_index
         type: s4
+      - id: has_invokable_type_symbol
+        type: u1
+      - id: invokable_type_symbol
+        type: invokable_type_symbol_body
+        if: has_invokable_type_symbol == 1
+  function_parameter:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: flags
+        type: s8
+      - id: doc
+        type: markdown
+      - id: type_cp_index
+        type: s4
+  default_value_body:
+    seq:
+      - id: param_name_cp_index
+        type: s4
+      - id: closure_symbol
+        type: closure_symbol_body
+  invokable_type_symbol_body:
+    seq:
+      - id: param_count
+        type: s4
+      - id: params
+        type: function_parameter
+        repeat: expr
+        repeat-expr: param_count
+      - id: has_rest_type
+        type: u1
+      - id: rest_param
+        type: function_parameter
+        if: has_rest_type == 1
+      - id: default_values
+        type: s4
+      - id: default_value
+        type: default_value_body
+        repeat: expr
+        repeat-expr: default_values
   type_invokable:
     seq:
       - id: is_any_function
@@ -238,16 +294,12 @@ types:
         type: s4
   type_object_or_service:
     seq:
-      - id: is_object_type
-        type: s1
       - id: pkd_id_cp_index
         type: s4
       - id: name_cp_index
         type: s4
-      - id: is_abstract
-        type: u1
-      - id: is_client
-        type: u1
+      - id: object_symbol_flags
+        type: s8
       - id: object_fields_count
         type: s4
       - id: object_fields
@@ -293,6 +345,8 @@ types:
   object_attached_function:
     seq:
       - id: name_cp_index
+        type: s4
+      - id: original_name_cp_index
         type: s4
       - id: flags
         type: s8
@@ -343,7 +397,7 @@ types:
       - id: tuple_types_count
         type: s4
       - id: tuple_type_cp_index
-        type: s4
+        type: tuple_member
         repeat: expr
         repeat-expr: tuple_types_count
       - id: has_rest_type
@@ -351,6 +405,16 @@ types:
       - id: rest_type_cp_index
         type: s4
         if: has_rest_type == 1
+  tuple_member:
+      seq:
+        - id: name_cp_index
+          type: s4
+        - id: flags
+          type: s8
+        - id: type_cp_index
+          type: s4
+        - id: annotation_attachments_content
+          type: annotation_attachments_content
   type_intersection:
     seq:
       - id: constituent_types_count
@@ -359,7 +423,7 @@ types:
         type: s4
         repeat: expr
         repeat-expr: constituent_types_count
-      - id: effective_type_count
+      - id: effective_type_cp_index
         type: s4
   type_xml:
     seq:
@@ -403,17 +467,18 @@ types:
         type: record_field
         repeat: expr
         repeat-expr: record_fields_count
-      - id: has_init_function
-        type: s1
-      - id: record_init_function
-        type: record_init_function
-        if: has_init_function == 1
       - id: type_inclusions_count
         type: s4
       - id: type_inclusions_cp_index
         type: s4
         repeat: expr
         repeat-expr: type_inclusions_count
+      - id: default_values
+        type: s4
+      - id: default_value
+        type: default_value_body
+        repeat: expr
+        repeat-expr: default_values
   record_field:
     seq:
       - id: name_cp_index
@@ -424,6 +489,8 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
   record_init_function:
     seq:
       - id: name_cp_index
@@ -454,12 +521,12 @@ types:
         type: type_definition
         repeat: expr
         repeat-expr: type_definition_count
-      - id: golbal_var_count
+      - id: global_var_count
         type: s4
-      - id: golbal_vars
-        type: golbal_var
+      - id: global_vars
+        type: global_var
         repeat: expr
-        repeat-expr: golbal_var_count
+        repeat-expr: global_var_count
       - id: type_definition_bodies_count
         type: s4
       - id: type_definition_bodies
@@ -484,8 +551,10 @@ types:
         type: service_declaration
         repeat: expr
         repeat-expr: service_decls_size
-  golbal_var:
+  global_var:
     seq:
+      - id: position
+        type: position
       - id: kind
         type: s1
       - id: name_cp_index
@@ -498,6 +567,8 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
   type_definition:
     seq:
       - id: position
@@ -512,15 +583,12 @@ types:
         type: s1
       - id: doc
         type: markdown
-      - id: annotation_attachments_content
-        type: annotation_attachments_content
       - id: type_cp_index
         type: s4
       - id: has_reference_type
         type: u1
-      - id: ref_type_cp_index
-        type: s4
-        if: has_reference_type != 0
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
 
   type_definition_body:
     seq:
@@ -580,6 +648,8 @@ types:
         type: s4
   annotation:
     seq:
+      - id: package_id_cp_index
+        type: s4
       - id: name_cp_index
         type: s4
       - id: original_name_cp_index
@@ -600,6 +670,8 @@ types:
         type: s4
       - id: doc
         type: markdown
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
   attach_point:
     seq:
       - id: point_name_cp_index
@@ -620,6 +692,8 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
       - id: length
         type: s8
       - id: constant_value
@@ -646,7 +720,8 @@ types:
             'type_tag_enum::type_tag_decimal': decimal_constant_info
             'type_tag_enum::type_tag_boolean': boolean_constant_info
             'type_tag_enum::type_tag_nil': nil_constant_info
-            'type_tag_enum::type_tag_map': map_constant_info
+            'type_tag_enum::type_tag_record': map_constant_info
+            'type_tag_enum::type_tag_intersection': intersection_constant_info
     instances:
       type:
         value: _root.constant_pool.constant_pool_entries[constant_value_type_cp_index].cp_info.as<shape_cp_info>
@@ -678,6 +753,21 @@ types:
     seq:
       - id: value_nil_constant
         size: 0
+  intersection_constant_info:
+    seq:
+      - id: constant_value_info
+        type:
+          switch-on: effective_type.shape.type_tag
+          cases:
+            'type_tag_enum::type_tag_record': map_constant_info
+            'type_tag_enum::type_tag_tuple': list_constant_info
+    instances:
+      type:
+        value: _root.constant_pool.constant_pool_entries[_parent.constant_value_type_cp_index].cp_info.as<shape_cp_info>
+      intersection_type:
+        value: type.shape.type_structure.as<type_intersection>
+      effective_type:
+        value: _root.constant_pool.constant_pool_entries[intersection_type.effective_type_cp_index].cp_info.as<shape_cp_info>
   map_constant_info:
     seq:
       - id: map_constant_size
@@ -692,6 +782,14 @@ types:
         type: s4
       - id: key_value_info
         type: constant_value
+  list_constant_info:
+    seq:
+      - id: list_constant_size
+        type: s4
+      - id: list_member_value_info
+        type: constant_value
+        repeat: expr
+        repeat-expr: list_constant_size
   markdown:
     seq:
       - id: length
@@ -743,6 +841,11 @@ types:
         type: s1
       - id: type_cp_index
         type: s4
+      - id: is_resource_function
+        type: u1
+      - id: resource_function_content
+        type: resource_function_content
+        if: is_resource_function == 1
       - id: annotation_attachments_content
         type: annotation_attachments_content
       - id: return_type_annotations
@@ -757,6 +860,9 @@ types:
         type: u1
       - id: rest_param_name_cp_index
         type: s4
+        if: has_rest_param != 0
+      - id: rest_param_annotations
+        type: annotation_attachments_content
         if: has_rest_param != 0
       - id: has_receiver
         type: u1
@@ -784,6 +890,41 @@ types:
       - id: function_body
         type: function_body
         size: function_body_length
+  resource_function_content:
+    seq:
+      - id: path_params_count
+        type: s4
+      - id: path_params
+        type: path_param
+        repeat: expr
+        repeat-expr: path_params_count
+      - id: has_rest_path_param  
+        type: u1
+      - id: rest_path_param
+        type: path_param
+        if: has_rest_path_param == 1
+      - id: resource_path_segment_count
+        type: s4
+      - id: resource_path_segments
+        type: resource_path_segment
+        repeat: expr
+        repeat-expr: resource_path_segment_count
+      - id: resource_accessor
+        type: s4
+  resource_path_segment:
+    seq:
+      - id: resource_path_segment_cp_index
+        type: s4  
+      - id: resource_path_segment_pos
+        type: position  
+      - id: resource_path_segment_type
+        type: s4
+  path_param:
+    seq:
+      - id: path_param_name_cp_index
+        type: s4
+      - id: path_param_type_cp_index
+        type: s4
   annotation_attachments_content:
     seq:
       - id: annotation_attachments_content_length
@@ -802,62 +943,11 @@ types:
         type: position
       - id: tag_reference_cp_index
         type: s4
-      - id: attach_values_count
-        type: s4
-      - id: attache_values
-        type: attach_value
-        repeat: expr
-        repeat-expr: attach_values_count
-  attach_value:
-    seq:
-      - id: attach_value_type_cp_index
-        type: s4
-      - id: attach_value_value_info
-        type:
-          switch-on: attach_type.shape.type_tag
-          cases:
-            'type_tag_enum::type_tag_array': attach_value_array
-            'type_tag_enum::type_tag_map': attach_value_map
-            'type_tag_enum::type_tag_record': attach_value_map
-            'type_tag_enum::type_tag_int': int_constant_info
-            'type_tag_enum::type_tag_signed32_int': int_constant_info
-            'type_tag_enum::type_tag_signed16_int': int_constant_info
-            'type_tag_enum::type_tag_signed8_int': int_constant_info
-            'type_tag_enum::type_tag_unsigned32_int': int_constant_info
-            'type_tag_enum::type_tag_unsigned16_int': int_constant_info
-            'type_tag_enum::type_tag_unsigned8_int': int_constant_info
-            'type_tag_enum::type_tag_byte': byte_constant_info
-            'type_tag_enum::type_tag_float': float_constant_info
-            'type_tag_enum::type_tag_string': string_constant_info
-            'type_tag_enum::type_tag_char_string': string_constant_info
-            'type_tag_enum::type_tag_decimal': decimal_constant_info
-            'type_tag_enum::type_tag_boolean': boolean_constant_info
-            'type_tag_enum::type_tag_nil': nil_constant_info
-    instances:
-      attach_type:
-        value: _root.constant_pool.constant_pool_entries[attach_value_type_cp_index].cp_info.as<shape_cp_info>
-  attach_value_array:
-    seq:
-      - id: array_values_count
-        type: s4
-      - id: array_values
-        type: attach_value
-        repeat: expr
-        repeat-expr: array_values_count
-  attach_value_map:
-    seq:
-      - id: map_entries_count
-        type: s4
-      - id: map_entries
-        type: attach_value_map_entry
-        repeat: expr
-        repeat-expr: map_entries_count
-  attach_value_map_entry:
-    seq:
-      - id: key_name_cp_index
-        type: s4
-      - id: key_value_info
-        type: attach_value
+      - id: is_const_annot
+        type: u1
+      - id: constant_value
+        type: constant_value
+        if: is_const_annot == 1
   referenced_type:
     seq:
       - id: type_cp_index
@@ -868,6 +958,8 @@ types:
         type: s4
       - id: flags
         type: s8
+      - id: param_annotations
+        type: annotation_attachments_content
   reciever:
     seq:
       - id: kind
@@ -908,10 +1000,6 @@ types:
         type: local_variable
         repeat: expr
         repeat-expr: local_variables_count
-      - id: default_parameter_basic_blocks_info
-        type: basic_blocks_info
-        repeat: expr
-        repeat-expr: default_parameter_count
       - id: function_basic_blocks_info
         type: basic_blocks_info
       - id: error_table
@@ -1114,6 +1202,20 @@ types:
             'instruction_kind_enum::instruction_kind_typeof': instruction_unary_operation
             'instruction_kind_enum::instruction_kind_not': instruction_unary_operation
             'instruction_kind_enum::instruction_kind_negate': instruction_unary_operation
+            'instruction_kind_enum::instruction_kind_new_reg_exp': instruction_new_reg_exp
+            'instruction_kind_enum::instruction_kind_new_re_disjunction': instruction_new_re_disjunction
+            'instruction_kind_enum::instruction_kind_new_re_sequence': instruction_new_re_sequence
+            'instruction_kind_enum::instruction_kind_new_re_assertion': instruction_new_re_assertion
+            'instruction_kind_enum::instruction_kind_new_re_atom_quantifier': instruction_new_re_atom_quantifier
+            'instruction_kind_enum::instruction_kind_new_re_literal_char_escape': instruction_new_re_char_escape
+            'instruction_kind_enum::instruction_kind_new_re_char_class': instruction_new_re_char_class
+            'instruction_kind_enum::instruction_kind_new_re_char_set': instruction_new_re_char_set
+            'instruction_kind_enum::instruction_kind_new_re_char_set_range': instruction_new_re_char_set_range
+            'instruction_kind_enum::instruction_kind_new_re_capturing_group': instruction_new_re_capturing_group
+            'instruction_kind_enum::instruction_kind_new_re_flag_expr': instruction_new_re_flag_expr
+            'instruction_kind_enum::instruction_kind_new_re_flag_on_off': instruction_new_re_flag_on_off
+            'instruction_kind_enum::instruction_kind_new_re_quantifier': instruction_new_re_quantifier
+            'instruction_kind_enum::instruction_kind_record_default_fp_load': instruction_record_default_fp_load
     enums:
       instruction_kind_enum:
         1: instruction_kind_goto
@@ -1193,6 +1295,20 @@ types:
         86: instruction_kind_bitwise_left_shift
         87: instruction_kind_bitwise_right_shift
         88: instruction_kind_bitwise_unsigned_right_shift
+        89: instruction_kind_new_reg_exp
+        90: instruction_kind_new_re_disjunction
+        91: instruction_kind_new_re_sequence
+        92: instruction_kind_new_re_assertion
+        93: instruction_kind_new_re_atom_quantifier
+        94: instruction_kind_new_re_literal_char_escape
+        95: instruction_kind_new_re_char_class
+        96: instruction_kind_new_re_char_set
+        97: instruction_kind_new_re_char_set_range
+        98: instruction_kind_new_re_capturing_group
+        99: instruction_kind_new_re_flag_expr
+        100: instruction_kind_new_re_flag_on_off
+        101: instruction_kind_new_re_quantifier
+        102: instruction_kind_record_default_fp_load
         128: instruction_kind_platform
   instruction_const_load:
     seq:
@@ -1319,6 +1435,11 @@ types:
         type: s4
       - id: lhs_operand
         type: operand
+      - id: has_typedesc_operand
+        type: s1
+      - id: typedesc_operand
+        type: operand
+        if: has_typedesc_operand == 1
       - id: size_operand
         type: operand
       - id: init_values_count
@@ -1675,6 +1796,116 @@ types:
         type: operand
       - id: lhs_operand
         type: operand
+  instruction_new_reg_exp:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: re_disjunction
+        type: operand
+  instruction_new_re_disjunction:
+    seq:
+      - id: sequences
+        type: operand
+      - id: lhs_op
+        type: operand
+  instruction_new_re_sequence:
+    seq:
+      - id: terms
+        type: operand
+      - id: lhs_op
+        type: operand
+  instruction_new_re_assertion:
+    seq:
+      - id: assertion
+        type: operand
+      - id: lhs_op
+        type: operand
+  instruction_new_re_atom_quantifier:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: atom
+        type: operand
+      - id: quantifier
+        type: operand
+  instruction_new_re_char_escape:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: char_or_escape
+        type: operand
+  instruction_new_re_char_class:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: class_start
+        type: operand
+      - id: negation
+        type: operand
+      - id: char_set
+        type: operand
+      - id: class_end
+        type: operand
+  instruction_new_re_char_set:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: char_set_atoms
+        type: operand
+  instruction_new_re_char_set_range:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: lhs_char_set_atom
+        type: operand
+      - id: dash
+        type: operand
+      - id: rhs_char_set_atom
+        type: operand
+  instruction_new_re_capturing_group:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: open_paren
+        type: operand
+      - id: flag_expr
+        type: operand
+      - id: re_disjunction
+        type: operand
+      - id: close_paren
+        type: operand
+  instruction_new_re_flag_expr:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: question_mark
+        type: operand
+      - id: flags_on_off
+        type: operand
+      - id: colon
+        type: operand
+  instruction_new_re_flag_on_off:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: flags
+        type: operand
+  instruction_new_re_quantifier:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: quantifier
+        type: operand
+      - id: non_greedy_char
+        type: operand
+  instruction_record_default_fp_load:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: enclosed_type_index
+        type: s4
+      - id: field_name
+        type: s4
   operand:
     seq:
       - id: ignored_variable
@@ -1756,3 +1987,4 @@ enums:
     50: type_tag_never
     51: type_tag_null_set
     52: type_tag_parameterized_type
+    53: type_tag_reg_exp_type

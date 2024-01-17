@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "module_init_worker_dynamic_listener_project"
+version = "0.1.0"

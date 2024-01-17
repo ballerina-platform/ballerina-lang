@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -41,57 +40,57 @@ public class ObjectAttachedFunctionPointerTest {
 
     @Test(description = "Test basic function pointer test")
     public void testBasicAttachedFunctionPointerTest() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "test1");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
+        Object returns = BRunUtil.invoke(compileResult, "test1");
+        Assert.assertEquals(returns, 60L);
     }
 
     @Test(description = "Test object attached function pointer with lambda")
     public void testAttachedFunctionPointerWithLambdaTest() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "test2");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
+        Object returns = BRunUtil.invoke(compileResult, "test2");
+        Assert.assertEquals(returns, 60L);
     }
 
     @Test(description = "Test basic externally attached function pointer")
     public void testBasicExternalAttachedFunctionPointerTest() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "test3");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 53);
+        Object returns = BRunUtil.invoke(compileResult, "test3");
+        Assert.assertEquals(returns, 53L);
     }
 
     @Test(description = "Test externally attached function pointer with lambda")
     public void testExternalAttachedFunctionPointerWithLambdaTest() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "test4");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
+        Object returns = BRunUtil.invoke(compileResult, "test4");
+        Assert.assertEquals(returns, 60L);
     }
 
     @Test(description = "Test multi level lambda with attached function")
     public void testMultiLevelLambdaWithinAttachedFunction() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "test5");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 65);
+        Object returns = BRunUtil.invoke(compileResult, "test5");
+        Assert.assertEquals(returns, 65L);
     }
 
     @Test(description = "Test invoke attached function as function pointer1")
     public void testInvokeAttachedFunctionAsFunctionPointer1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "test6");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 106);
+        Object returns = BRunUtil.invoke(compileResult, "test6");
+        Assert.assertEquals(returns, 106L);
     }
 
     @Test(description = "Test invoke attached function as function pointer2")
     public void testInvokeAttachedFunctionAsFunctionPointer2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "test7");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 106);
+        Object returns = BRunUtil.invoke(compileResult, "test7");
+        Assert.assertEquals(returns, 106L);
     }
 
     @Test(description = "Test invoke attached function as function pointer3")
     public void testInvokeAttachedFunctionAsFunctionPointer3() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "test8");
-        Assert.assertEquals(returns[0].stringValue(), "A");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "test8");
+        Assert.assertEquals(returns.get(0).toString(), "A");
+        Assert.assertEquals(returns.get(1), 2L);
     }
 
     @Test(description = "Test invoke attached function as function pointer4")
     public void testInvokeAttachedFunctionAsFunctionPointer4() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "test9");
-        Assert.assertEquals(returns[0].stringValue(), "finally");
+        Object returns = BRunUtil.invoke(compileResult, "test9");
+        Assert.assertEquals(returns.toString(), "finally");
     }
 
     @AfterClass

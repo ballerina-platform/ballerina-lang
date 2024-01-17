@@ -17,13 +17,12 @@
  */
 package org.ballerinalang.test.expressions.access;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -50,16 +49,15 @@ public class AccessTest {
     public void testNegativeCases() {
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int i = 0;
-        validateError(negativeResult, i++, "field access cannot be used to access an optional field, use optional " +
-                "field access or member access", 40, 18);
+        validateError(negativeResult, i++, "invalid operation: type 'Beta?[]?' does not support member access", 40, 18);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found 'string?'", 53, 17);
         validateError(negativeResult, i, "invalid operation: type 'Delta?' does not support member access", 70, 17);
     }
 
     @Test(dataProvider = "fieldAndOptionalFieldAccessFunctions")
     public void testFieldAndOptionalFieldAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "fieldAndOptionalFieldAccessFunctions")
@@ -73,8 +71,8 @@ public class AccessTest {
 
     @Test(dataProvider = "fieldOptionalFieldAndMemberAccessFunctions")
     public void testFieldOptionalFieldAndMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "fieldOptionalFieldAndMemberAccessFunctions")
@@ -85,7 +83,7 @@ public class AccessTest {
         };
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array index out of range: index: 0, size: 0.*")
     public void testFieldOptionalFieldAndMemberAccess2() {
         BRunUtil.invoke(result, "testFieldOptionalFieldAndMemberAccess3");
@@ -93,14 +91,14 @@ public class AccessTest {
 
     @Test
     public void testMemberAccessOnNillableObjectField() {
-        BValue[] returns = BRunUtil.invoke(result, "testMemberAccessOnNillableObjectField");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testMemberAccessOnNillableObjectField");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testNilLiftingOnMemberAccessOnNillableObjectField() {
-        BValue[] returns = BRunUtil.invoke(result, "testNilLiftingOnMemberAccessOnNillableObjectField");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testNilLiftingOnMemberAccessOnNillableObjectField");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
@@ -110,8 +108,13 @@ public class AccessTest {
 
     @Test
     public void testAccessOnGroupedExpressions() {
-        BValue[] returns = BRunUtil.invoke(result, "testAccessOnGroupedExpressions");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testAccessOnGroupedExpressions");
+        Assert.assertTrue((Boolean) returns);
     }
 
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
+    }
 }

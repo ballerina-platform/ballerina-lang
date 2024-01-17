@@ -23,6 +23,7 @@ import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -30,6 +31,7 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.io.FilenameUtils;
 import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
@@ -48,18 +50,22 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.jar.Attributes;
@@ -69,7 +75,10 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
+import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 
 /**
  * This class represents the Ballerina compiler backend that produces executables that runs on the JVM.
@@ -84,7 +93,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
-    private static final PrintStream out = System.out;
+    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
     private final PackageResolution pkgResolution;
     private final JvmTarget jdkVersion;
@@ -97,13 +106,13 @@ public class JBallerinaBackend extends CompilerBackend {
     private final PackageCompilation packageCompilation;
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
-    private List<JarConflict> conflictedJars;
+    private final List<JarConflict> conflictedJars;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         // Check if the project has write permissions
         if (packageCompilation.packageContext().project().kind().equals(ProjectKind.BUILD_PROJECT)) {
             try {
-                new Target(packageCompilation.packageContext().project().sourceRoot());
+                new Target(packageCompilation.packageContext().project().targetDir());
             } catch (IOException e) {
                 throw new ProjectException("error while checking permissions of target directory", e);
             }
@@ -131,8 +140,6 @@ public class JBallerinaBackend extends CompilerBackend {
             observabilitySymbolCollector.process(packageContext.project());
         }
         this.conflictedJars = new ArrayList<>();
-
-        // Trigger code generation
         performCodeGen();
     }
 
@@ -153,13 +160,27 @@ public class JBallerinaBackend extends CompilerBackend {
         // collect compilation diagnostics
         List<Diagnostic> moduleDiagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
+            if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
+                if (packageCompilation.diagnosticResult().hasErrors()) {
+                    for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                        moduleDiagnostics.add(
+                                new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                    }
+                    continue;
+                }
+            }
             // We can't generate backend code when one of its dependencies have errors.
-            if (hasNoErrors(moduleDiagnostics)) {
+            if (!this.packageContext.getResolution().diagnosticResult().hasErrors() && !hasErrors(moduleDiagnostics)) {
                 moduleContext.generatePlatformSpecificCode(compilerContext, this);
             }
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                 moduleDiagnostics.add(
                         new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+            }
+
+            ModuleContext.shrinkDocuments(moduleContext);
+            if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
+                moduleContext.cleanBLangPackage();
             }
         }
         // add compilation diagnostics
@@ -171,13 +192,13 @@ public class JBallerinaBackend extends CompilerBackend {
         codeGenCompleted = true;
     }
 
-    private boolean hasNoErrors(List<Diagnostic> diagnostics) {
+    private boolean hasErrors(List<Diagnostic> diagnostics) {
         for (Diagnostic diagnostic : diagnostics) {
             if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public DiagnosticResult diagnosticResult() {
@@ -193,6 +214,9 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         switch (outputType) {
+            case GRAAL_EXEC:
+                generatedArtifact = emitGraalExecutable(filePath);
+                break;
             case EXEC:
                 generatedArtifact = emitExecutable(filePath);
                 break;
@@ -203,16 +227,19 @@ public class JBallerinaBackend extends CompilerBackend {
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
 
+        ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
         List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion(filePath);
         if (!pluginDiagnostics.isEmpty()) {
-            ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
             diagnostics.addAll(pluginDiagnostics);
-
-            diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         }
+        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+
+        List<Diagnostic> allDiagnostics = new ArrayList<>(diagnostics);
+        jarResolver().diagnosticResult().diagnostics().stream().forEach(
+                diagnostic -> allDiagnostics.add(diagnostic));
 
         // TODO handle the EmitResult properly
-        return new EmitResult(true, diagnosticResult, generatedArtifact);
+        return new EmitResult(true, new DefaultDiagnosticResult(allDiagnostics), generatedArtifact);
     }
 
     private Path emitBala(Path filePath) {
@@ -237,34 +264,34 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private List<PlatformLibrary> getPlatformLibraries(PackageId packageId) {
         Package pkg = packageCache.getPackageOrThrow(packageId);
-        PackageManifest.Platform javaPlatform = pkg.manifest().platform(jdkVersion.code());
-        if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
-            return Collections.emptyList();
-        }
-
+        Map<String, PackageManifest.Platform> platforms = pkg.manifest().platforms();
         List<PlatformLibrary> platformLibraries = new ArrayList<>();
-        for (Map<String, Object> dependency : javaPlatform.dependencies()) {
-            String artifactId = (String) dependency.get(JarLibrary.KEY_ARTIFACT_ID);
-            String version = (String) dependency.get(JarLibrary.KEY_VERSION);
-            String groupId = (String) dependency.get(JarLibrary.KEY_GROUP_ID);
-
-            String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
-            // If dependencyFilePath does not exists, resolve it using MavenResolver
-            if (dependencyFilePath == null || dependencyFilePath.isEmpty()) {
-                dependencyFilePath = getPlatformLibPath(groupId, artifactId, version);
+        for (PackageManifest.Platform javaPlatform : platforms.values()) {
+            if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
+                continue;
             }
+            for (Map<String, Object> dependency : javaPlatform.dependencies()) {
+                String artifactId = (String) dependency.get(JarLibrary.KEY_ARTIFACT_ID);
+                String version = (String) dependency.get(JarLibrary.KEY_VERSION);
+                String groupId = (String) dependency.get(JarLibrary.KEY_GROUP_ID);
 
-            // If the path is relative we will covert to absolute relative to Ballerina.toml file
-            Path jarPath = Paths.get(dependencyFilePath);
-            if (!jarPath.isAbsolute()) {
-                jarPath = pkg.project().sourceRoot().resolve(jarPath);
+                String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
+                // If dependencyFilePath does not exist, resolve it using MavenResolver
+                if (dependencyFilePath == null || dependencyFilePath.isEmpty()) {
+                    dependencyFilePath = getPlatformLibPath(groupId, artifactId, version);
+                }
+
+                // If the path is relative we will covert to absolute relative to Ballerina.toml file
+                Path jarPath = Paths.get(dependencyFilePath);
+                if (!jarPath.isAbsolute()) {
+                    jarPath = pkg.project().sourceRoot().resolve(jarPath);
+                }
+
+                PlatformLibraryScope scope = getPlatformLibraryScope(dependency);
+                platformLibraries.add(new JarLibrary(jarPath, scope, artifactId, groupId, version,
+                        pkg.packageOrg().value() + "/" + pkg.packageName().value()));
             }
-
-            PlatformLibraryScope scope = getPlatformLibraryScope(dependency);
-            platformLibraries.add(new JarLibrary(jarPath, scope, artifactId, groupId, version,
-                                                 pkg.packageOrg().value() + "/" + pkg.packageName().value()));
         }
-
         return platformLibraries;
     }
 
@@ -299,11 +326,11 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage);
         if (compiledJarFile == null) {
-            return;
+            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile);
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
@@ -320,7 +347,7 @@ public class JBallerinaBackend extends CompilerBackend {
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile);
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
@@ -370,8 +397,13 @@ public class JBallerinaBackend extends CompilerBackend {
                 new BufferedOutputStream(new FileOutputStream(executableFilePath.toString())))) {
             writeManifest(manifest, outStream);
 
+            // Sort jar libraries list to avoid inconsistent jar reporting
+            List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
+                    .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName()))
+                    .collect(Collectors.toList());
+
             // Copy all the jars
-            for (JarLibrary library : jarLibraries) {
+            for (JarLibrary library : sortedJarLibraries) {
                 copyJar(outStream, library, copiedEntries, serviceEntries);
             }
 
@@ -515,6 +547,117 @@ public class JBallerinaBackend extends CompilerBackend {
         return executableFilePath;
     }
 
+    private Path emitGraalExecutable(Path executableFilePath) {
+        // Run create executable
+        emitExecutable(executableFilePath);
+
+        String nativeImageName;
+        String[] command;
+        Project project = this.packageContext().project();
+        String nativeImageCommand = System.getenv("GRAALVM_HOME");
+
+        if (nativeImageCommand == null) {
+            throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
+                    "environment variable\nHINT: To install GraalVM, follow the link: " +
+                    "https://ballerina.io/learn/build-the-executable-locally/#configure-graalvm");
+        }
+        nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
+                + (OS.contains("win") ? "native-image.cmd" : "native-image");
+
+        File commandExecutable = Paths.get(nativeImageCommand).toFile();
+        if (!commandExecutable.exists()) {
+            throw new ProjectException("cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME/bin " +
+                    "directory. Install it using: gu install native-image");
+        }
+
+        String graalVMBuildOptions = project.buildOptions().graalVMBuildOptions();
+        List<String> nativeArgs = new ArrayList<>();
+        Path nativeConfigPath = packageContext.project().targetDir().resolve("cache");
+
+        if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+            String fileName = project.sourceRoot().toFile().getName();
+            nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
+            nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
+                    executableFilePath.toString(),
+                    "-H:Name=" + nativeImageName,
+                    "--no-fallback"));
+        } else {
+            nativeImageName = project.currentPackage().packageName().toString();
+            nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
+                    executableFilePath.toString(),
+                    "-H:Name=" + nativeImageName,
+                    "-H:Path=" + executableFilePath.getParent(),
+                    "--no-fallback"));
+        }
+
+        if (!Files.exists(nativeConfigPath)) {
+            try {
+                Files.createDirectories(nativeConfigPath);
+            } catch (IOException e) {
+                throw new ProjectException("error while generating the necessary graalvm argument file", e);
+            }
+        }
+
+        // There is a command line length limitations in Windows. Therefore, we need to write the arguments to a
+        // file and use it as an argument.
+        try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
+                .toString(), Charset.defaultCharset())) {
+            nativeArgumentWriter.write(String.join(" ", nativeArgs));
+            nativeArgumentWriter.flush();
+        } catch (IOException e) {
+            throw new ProjectException("error while generating the necessary graalvm argument file", e);
+        }
+
+        command = new String[]{
+                nativeImageCommand,
+                "@" + (nativeConfigPath.resolve("native-image-args.txt"))
+        };
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder();
+            builder.command(command);
+            builder.inheritIO();
+            Process process = builder.start();
+
+            if (process.waitFor() != 0) {
+                throw new ProjectException("unable to create native image");
+            }
+        } catch (IOException e) {
+            throw new ProjectException("unable to create native image : " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        Path graalexectablepath = Path.of(FilenameUtils.removeExtension(executableFilePath.toString()));
+        return graalexectablepath;
+    }
+
+    private Map<String, byte[]> getResources(ModuleContext moduleContext) {
+        Map<String, byte[]> resourceMap = new HashMap<>();
+        for (DocumentId documentId : moduleContext.resourceIds()) {
+            String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
+                    + moduleContext.descriptor().org().toString() + "/"
+                    + moduleContext.moduleName().toString() + "/"
+                    + moduleContext.descriptor().version().value().major() + "/"
+                    + moduleContext.resourceContext(documentId).name();
+            resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
+        }
+        return resourceMap;
+    }
+
+    private Map<String, byte[]> getAllResources(ModuleContext moduleContext) {
+        Map<String, byte[]> resourceMap = getResources(moduleContext);
+        for (DocumentId documentId : moduleContext.testResourceIds()) {
+            String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
+                    + moduleContext.descriptor().org() + "/"
+                    + moduleContext.moduleName().toString() + "/"
+                    + moduleContext.descriptor().version().value().major() + "/"
+                    + moduleContext.resourceContext(documentId).name();
+            resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
+        }
+        return resourceMap;
+    }
+
     private PlatformLibraryScope getPlatformLibraryScope(Map<String, Object> dependency) {
         PlatformLibraryScope scope;
         String scopeValue = (String) dependency.get(JarLibrary.KEY_SCOPE);
@@ -539,8 +682,8 @@ public class JBallerinaBackend extends CompilerBackend {
      */
     private String getPlatformLibPath(String groupId, String artifactId, String version) {
         String targetRepo =
-                this.packageContext.project().sourceRoot().toString() + File.separator + "target" + File.separator
-                        + "platform-libs";
+                this.packageContext.project().targetDir().resolve(ProjectConstants.TARGET_DIR_NAME).toString()
+                        + File.separator + "platform" + "-libs";
         MavenResolver resolver = new MavenResolver(targetRepo);
         try {
             Dependency dependency = resolver.resolve(groupId, artifactId, version, false);
@@ -556,6 +699,7 @@ public class JBallerinaBackend extends CompilerBackend {
     public enum OutputType {
         EXEC("exec"),
         BALA("bala"),
+        GRAAL_EXEC("graal_exec")
         ;
 
         private String value;
@@ -615,7 +759,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void addConflictedJars(JarLibrary jarLibrary, HashMap<String, JarLibrary> copiedEntries, String entryName) {
-        if (entryName.endsWith(".class") && !entryName.endsWith("module-info.class")) {
+        if (entryName.endsWith(CLASS_FILE_SUFFIX) && !entryName.endsWith("module-info.class")) {
             JarLibrary conflictingJar = copiedEntries.get(entryName);
 
             // Ignore if conflicting jars has same name

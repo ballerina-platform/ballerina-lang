@@ -17,14 +17,13 @@
  */
 package org.ballerinalang.test.endpoint;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -44,38 +43,35 @@ public class ClientObjectTest {
 
     @Test
     public void testRemoteFunctions() {
-        BValue[] returns = BRunUtil.invoke(remoteBasic, "test1", new BValue[] { new BInteger(4) });
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "false");
+        Object returns = BRunUtil.invoke(remoteBasic, "test1", new Object[] { (4) });
+        Assert.assertEquals(returns.toString(), "false");
 
-        returns = BRunUtil.invoke(remoteBasic, "test1", new BValue[] { new BInteger(10) });
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "true");
+        returns = BRunUtil.invoke(remoteBasic, "test1", new Object[] { (10) });
+        Assert.assertEquals(returns.toString(), "true");
     }
 
     @Test
     public void testFunctions() {
-        BValue[] returns = BRunUtil.invoke(remoteBasic, "test2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "5");
+        Object returns = BRunUtil.invoke(remoteBasic, "test2");
+        Assert.assertEquals(returns.toString(), "5");
     }
 
     @Test
     public void testEndPointDeclInALoop() {
-        BValue[] result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInLoop");
-        Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
+        Object result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInLoop");
+        Assert.assertEquals(result, 10L);
     }
 
     @Test
     public void testEndPointDeclInAIfStmtIfBlock() {
-        BValue[] result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatement");
-        Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
+        Object result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatement");
+        Assert.assertEquals(result, 10L);
     }
 
     @Test
     public void testEndPointDeclInAIfStmtElseBlock() {
-        BValue[] result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatementElseBlock");
-        Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
+        Object result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatementElseBlock");
+        Assert.assertEquals(result, 10L);
     }
 
     @Test
@@ -84,7 +80,7 @@ public class ClientObjectTest {
 
         BRunUtil.invoke(compileResult, "testCheck");
 
-        BRunUtil.invoke(compileResult, "testNewEP", new BValue[] { new BString("done") });
+        BRunUtil.invoke(compileResult, "testNewEP", new Object[] { StringUtils.fromString("done") });
     }
 
     @Test
@@ -138,5 +134,10 @@ public class ClientObjectTest {
                 String.format(doubleDeclMessage, "$anonType$_1.a"), 196, 25);
         BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol '$anonType$_2.a'", 206, 25);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        remoteBasic = null;
     }
 }

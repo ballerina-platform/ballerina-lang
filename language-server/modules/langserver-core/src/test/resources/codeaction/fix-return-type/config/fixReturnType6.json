@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 1,
+    "character": 15
+  },
+  "source": "fixReturnType2.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'regexp:RegExp'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 35
+            },
+            "end": {
+              "line": 0,
+              "character": 35
+            }
+          },
+          "newText": " returns regexp:RegExp"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

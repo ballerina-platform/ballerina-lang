@@ -6,6 +6,8 @@ inline = { parent.child = "hello" }
 
 emptyInline = {}
 
+arrSample = [{ first = "yagami", last = "light" }, { first = "Anjana", last = "Supun" }, "hello"]
+
 [table]
 inlineTable = { nested = { greeting = "hello"}, another = "Another one" }
 

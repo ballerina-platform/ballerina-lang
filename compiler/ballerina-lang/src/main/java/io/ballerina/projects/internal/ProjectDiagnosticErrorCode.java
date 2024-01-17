@@ -31,7 +31,20 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     OLD_DEPENDENCIES_TOML("BCE5001", "old.dependencies.toml"),
     LOCAL_PACKAGES_IN_DEPENDENCIES_TOML("BCE5002", "local.packages.in.dependencies.toml"),
     CORRUPTED_DEPENDENCIES_TOML("BCE5003", "corrupted.dependencies.toml"),
+    INCOMPATIBLE_DEPENDENCY_VERSIONS("BCE5004", "incompatible.dependency.versions"),
+    PACKAGE_NOT_FOUND("BCE5005", "package.not.found"),
+    MISSING_PKG_INFO_IN_BALLERINA_TOML("BCE5006", "missing.package.info"),
+    DEPRECATED_PACKAGE("BCE5007", "deprecated.package"),
+    BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION("BCE5008", "built.with.older.sl.update.distribution"),
+    CUSTOM_REPOSITORY_NOT_FOUND("BCE5009", "custom.repository.not.found"),
+    MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML("BCE5400", "missing.tool.properties"),
+    INCOMPATIBLE_TYPE_FOR_TOOL_PROPERTY("BCE5401", "incompatible.tool.properties"),
+    EMPTY_TOOL_PROPERTY("BCE5402", "empty.tool.properties"),
+    TOOL_OPTIONS_VALIDATION_SKIPPED("BCE5403", "tool.options.validation.skipped"),
+    RECURRING_TOOL_PROPERTIES("BCE5404", "recurring.tool.properties"),
     MODULE_NOT_FOUND("BCE5100", "module.not.found"),
+    UNSUPPORTED_COMPILER_PLUGIN_TYPE("BCE5200", "unsupported.compiler.plugin.type"),
+    CONFLICTING_PLATFORM_JAR_FILES("BCE5300", "conflicting.platform.jars.type"),
     ;
 
     private final String diagnosticId;

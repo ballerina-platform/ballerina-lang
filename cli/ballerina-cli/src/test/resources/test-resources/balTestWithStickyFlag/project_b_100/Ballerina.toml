@@ -1,0 +1,4 @@
+[package]
+org = "pramjs"
+name = "project_b"
+version = "0.1.0"

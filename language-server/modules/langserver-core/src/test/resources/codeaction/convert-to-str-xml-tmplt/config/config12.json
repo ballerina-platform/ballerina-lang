@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 32,
+    "character": 32
+  },
+  "source": "positional_args_source.bal",
+  "expected": [
+    {
+      "title": "Convert to 'string' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 32,
+              "character": 31
+            },
+            "end": {
+              "line": 32,
+              "character": 43
+            }
+          },
+          "newText": "string `sample str`"
+        }
+      ]
+    }
+  ],
+  "description": "Test method call positional argument context"
+}

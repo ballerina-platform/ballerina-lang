@@ -10,4 +10,5 @@ public function foo() {
     () i;
     "dulmina"[6] j;
     "mystring"? k;
+    (true|false?) b = true;
 }

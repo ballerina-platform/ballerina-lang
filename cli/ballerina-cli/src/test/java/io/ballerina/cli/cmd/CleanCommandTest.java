@@ -18,6 +18,8 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.projects.util.ProjectConstants;
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -28,8 +30,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Objects;
+
+import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 
 /**
  * Clean command tests.
@@ -53,11 +56,13 @@ public class CleanCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Test doc command on a ballerina project.")
+    @Test(description = "Test clean command on a ballerina project.")
     public void testCleanCommandInProject() throws IOException {
-        Path projectPath = this.testResources.resolve("validProjectWithTarget");
-        Files.move(projectPath.resolve("target-dir"), projectPath.resolve("target"),
-                StandardCopyOption.REPLACE_EXISTING);
+        Path projectPath = this.testResources.resolve("validProjectWithTargetAndGenerated");
+        FileUtils.copyDirectory(projectPath.resolve("target-dir").toFile(),
+                projectPath.resolve("target").toFile());
+        FileUtils.copyDirectory(projectPath.resolve("generated-dir").toFile(),
+                projectPath.resolve("generated").toFile());
 
         Assert.assertTrue(Objects.requireNonNull(
                 projectPath.resolve("target").resolve("bala").toFile().listFiles()).length > 0);
@@ -65,12 +70,63 @@ public class CleanCommandTest extends BaseCommandTest {
                 projectPath.resolve("target").resolve("cache").toFile().listFiles()).length > 0);
         Assert.assertTrue(Objects.requireNonNull(
                 projectPath.resolve("target").resolve("report").toFile().listFiles()).length > 0);
+        Assert.assertTrue(Objects.requireNonNull(
+                projectPath.resolve("generated").toFile().listFiles()).length > 0);
 
         CleanCommand cleanCommand = new CleanCommand(projectPath, false);
         cleanCommand.execute();
 
-        Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("bala")));
-        Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("cache")));
-        Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("report")));
+        Assert.assertFalse(Files.exists(projectPath.resolve("target")));
+        Assert.assertFalse(Files.exists(projectPath.resolve("generated")));
+    }
+
+    @Test(description = "Test clean command on a ballerina project with custom target dir.")
+    public void testCleanCommandInProjectWithCustomTarget() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithTargetAndGenerated");
+        Path customTargetDir = projectPath.resolve("customTargetDir4");
+        FileUtils.copyDirectory(projectPath.resolve("target-dir").toFile(), customTargetDir.toFile());
+
+
+        Assert.assertTrue(Objects.requireNonNull(
+                customTargetDir.resolve("bala").toFile().listFiles()).length > 0);
+        Assert.assertTrue(Objects.requireNonNull(
+                customTargetDir.resolve("cache").toFile().listFiles()).length > 0);
+        Assert.assertTrue(Objects.requireNonNull(
+                customTargetDir.resolve("report").toFile().listFiles()).length > 0);
+
+        CleanCommand cleanCommand = new CleanCommand(projectPath, printStream, false, customTargetDir);
+        cleanCommand.execute();
+
+        Assert.assertFalse(Files.exists(customTargetDir));
+    }
+
+    @Test(description = "Test clean command on a ballerina project with custom target dir.")
+    public void testCleanCommandNonExistentTargetAndGenerated() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithTargetAndGenerated");
+        Path customTargetDir = Paths.get("customTargetDirNotExists");
+        Path generatedDir = projectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);
+        Assert.assertTrue(Files.notExists(customTargetDir));
+
+        CleanCommand cleanCommand = new CleanCommand(projectPath, printStream, false, customTargetDir);
+        cleanCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("clean-non-existent-target.txt")
+                .replaceAll("%TARGET_LOCATION%", customTargetDir.toString()));
+    }
+
+    @Test(description = "Test clean command on a regular file as the custom target dir.")
+    public void testCleanCommandOnRegularFile() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithTargetAndGenerated");
+        Path generatedDir = projectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);
+        Path customTargetDir = projectPath.resolve("main.bal");
+        Assert.assertTrue(Files.exists(customTargetDir));
+
+        CleanCommand cleanCommand = new CleanCommand(projectPath, printStream, false, customTargetDir);
+        cleanCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("clean-regular-file.txt")
+                .replaceAll("%TARGET_LOCATION%", customTargetDir.toString()));
     }
 }

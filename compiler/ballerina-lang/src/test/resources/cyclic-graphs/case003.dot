@@ -1,0 +1,6 @@
+digraph "case003" {
+    "nipyf/js:1.0.2" -> "wso2/cache:2.0.1"
+    "wso2/cache:2.0.1" -> "nipyf/toml:1.0.0"
+    "nipyf/toml:1.0.0" -> "nipyf/yaml:0.1.0"
+    "nipyf/toml:1.0.0" -> "wso2/cache:2.0.1"
+}

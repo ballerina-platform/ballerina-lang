@@ -50,12 +50,18 @@ public class STToken extends STNode {
         this(kind, width, leadingMinutiae, trailingMinutiae, Collections.emptyList());
     }
 
+    STToken(SyntaxKind kind, int width, STNode leadingMinutiae, STNode trailingMinutiae,
+            Collection<STNodeDiagnostic> diagnostics) {
+        this(kind, width, leadingMinutiae, trailingMinutiae, diagnostics, false);
+    }
+
     STToken(SyntaxKind kind,
             int width,
             STNode leadingMinutiae,
             STNode trailingMinutiae,
-            Collection<STNodeDiagnostic> diagnostics) {
-        super(kind, diagnostics);
+            Collection<STNodeDiagnostic> diagnostics,
+            boolean isMissing) {
+        super(kind, diagnostics, isMissing);
         this.leadingMinutiae = leadingMinutiae;
         this.trailingMinutiae = trailingMinutiae;
 
@@ -145,9 +151,9 @@ public class STToken extends STNode {
     }
 
     private void updateDiagnostics(STNode leadingMinutiae, STNode trailingMinutiae) {
-        if (leadingMinutiae.flags.contains(STNodeFlags.HAS_DIAGNOSTICS) ||
-                trailingMinutiae.flags.contains(STNodeFlags.HAS_DIAGNOSTICS)) {
-            this.flags.add(STNodeFlags.HAS_DIAGNOSTICS);
+        if (STNodeFlags.isFlagSet(leadingMinutiae.flags, STNodeFlags.HAS_DIAGNOSTIC) ||
+                STNodeFlags.isFlagSet(trailingMinutiae.flags, STNodeFlags.HAS_DIAGNOSTIC)) {
+            this.flags = STNodeFlags.withFlag(this.flags, STNodeFlags.HAS_DIAGNOSTIC);
         }
     }
 }

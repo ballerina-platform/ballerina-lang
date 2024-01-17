@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BIntegerType} represents an integer which is a 32-bit signed number.
+ * {@code IntegerType} represents an integer which is a 32-bit signed number.
  *
  * @since 2.0.0
  */

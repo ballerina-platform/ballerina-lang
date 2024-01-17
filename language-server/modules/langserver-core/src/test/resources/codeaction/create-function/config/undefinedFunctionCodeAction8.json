@@ -1,0 +1,8 @@
+{
+  "position": {
+    "line": 4,
+    "character": 44
+  },
+  "source": "createUndefinedFunction6.bal",
+  "expected": []
+}

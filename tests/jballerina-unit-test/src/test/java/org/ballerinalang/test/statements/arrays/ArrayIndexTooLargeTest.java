@@ -17,12 +17,10 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,35 +40,35 @@ public class ArrayIndexTooLargeTest {
     }
 
     @Test(description = "Test adding too large index to an array",
-          expectedExceptions = {BLangRuntimeException.class },
+          expectedExceptions = {BLangTestException.class },
           expectedExceptionsMessageRegExp = ".*index number too large: 2,147,483,648.*")
     public void addTooLargeIndex() {
-        BValue[] args = {new BInteger(2147483648L), new BInteger(7)};
+        Object[] args = {(2147483648L), (7)};
         BRunUtil.invoke(compileResult, "addTooLargeIndex", args);
     }
 
     @Test(description = "Test accessing too large index from an array",
-          expectedExceptions = {BLangRuntimeException.class },
+          expectedExceptions = {BLangTestException.class },
           expectedExceptionsMessageRegExp = ".*index number too large: 2,147,483,648.*")
     public void accessTooLargeIndex() {
-        BValue[] args = {new BInteger(2147483648L)};
-        BValue[] returns =  BRunUtil.invoke(compileResult, "accessTooLargeIndex", args);
+        Object[] args = {(2147483648L)};
+        Object returns =  BRunUtil.invoke(compileResult, "accessTooLargeIndex", args);
     }
 
     @Test(description = "Test adding minus index to an array",
-          expectedExceptions = {BLangRuntimeException.class },
+          expectedExceptions = {BLangTestException.class },
           expectedExceptionsMessageRegExp = ".*array index out of range: index: -4, size: 0.*")
     public void addMinusIndex() {
-        BValue[] args = {new BInteger(-4), new BInteger(7)};
+        Object[] args = {(-4), (7)};
         BRunUtil.invoke(compileResult, "addMinusIndex", args);
     }
 
     @Test(description = "Test accessing minus index from an array",
-          expectedExceptions = {BLangRuntimeException.class },
+          expectedExceptions = {BLangTestException.class },
           expectedExceptionsMessageRegExp = ".*array index out of range: index: -4, size: 0.*")
     public void accessMinusIndex() {
-        BValue[] args = {new BInteger(-4)};
-        BValue[] returns =  BRunUtil.invoke(compileResult, "accessMinusIndex", args);
+        Object[] args = {(-4)};
+        Object returns =  BRunUtil.invoke(compileResult, "accessMinusIndex", args);
     }
 
     @AfterClass

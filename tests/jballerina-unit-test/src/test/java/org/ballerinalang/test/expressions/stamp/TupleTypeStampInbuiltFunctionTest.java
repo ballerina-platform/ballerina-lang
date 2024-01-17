@@ -1,31 +1,30 @@
 /*
-*   Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *   Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.test.expressions.stamp;
 
-import org.ballerinalang.core.model.types.BAnydataType;
-import org.ballerinalang.core.model.types.BMapType;
-import org.ballerinalang.core.model.types.BRecordType;
-import org.ballerinalang.core.model.types.BStringType;
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.types.BAnydataType;
+import io.ballerina.runtime.internal.types.BMapType;
+import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.BStringType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -33,6 +32,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 
 /**
  * Test cases for stamping Tuple type variables.
@@ -48,156 +49,163 @@ public class TupleTypeStampInbuiltFunctionTest {
         compileResult = BCompileUtil.compile("test-src/expressions/stamp/tuple-stamp-expr-test.bal");
     }
 
-
     //----------------------------- Tuple Type Stamp Test cases ------------------------------------------------------
 
     @Test
     public void testStampTupleValueV1() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampTupleValueV1");
-        Assert.assertEquals(results.length, 2);
+        Object arr = BRunUtil.invoke(compileResult, "stampTupleValueV1");
+        BArray results = (BArray) arr;
+        Assert.assertEquals(results.size(), 2);
 
-        BValue tupleValue1 = results[0];
-        BValue tupleValue2 = results[1];
+        Object tupleValue1 = results.get(0);
+        Object tupleValue2 = results.get(1);
 
-        Assert.assertEquals(tupleValue1.stringValue(), "Mohan");
-        Assert.assertEquals(tupleValue1.getType().getClass(), BStringType.class);
+        Assert.assertEquals(tupleValue1.toString(), "Mohan");
+        Assert.assertEquals(getType(tupleValue1).getClass(), BStringType.class);
 
-        Assert.assertEquals(tupleValue2.getType().getClass(), BRecordType.class);
-        Assert.assertEquals(tupleValue2.getType().getName(), "Teacher");
+        Assert.assertEquals(getType(tupleValue2).getClass(), BRecordType.class);
+        Assert.assertEquals(getType(tupleValue2).getName(), "Teacher");
 
         Assert.assertEquals(((BMap) tupleValue2).size(), 5);
 
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("name")).stringValue(), "Raja");
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("name")).getType().getClass(),
+        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
+        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).stringValue(), "25");
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).getType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("age")).toString(), "25");
+        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("age"))).getTag(),
+                TypeTags.INT_TAG);
 
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).stringValue(), "single");
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).getType().getClass(),
+        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
+        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("batch")).stringValue(), "LK2014");
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("batch")).getType().getClass(),
+        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
+        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).stringValue(), "Hindu College");
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).getType().getClass(),
+        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
+        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
     }
 
     @Test
     public void testStampTupleValueV2() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampTupleValueV2");
-        Assert.assertEquals(results.length, 2);
+        Object arr = BRunUtil.invoke(compileResult, "stampTupleValueV2");
+        BArray results = (BArray) arr;
+        Assert.assertEquals(results.size(), 2);
 
-        BValue tupleValue1 = results[0];
-        BValue tupleValue2 = results[1];
+        Object tupleValue1 = results.get(0);
+        Object tupleValue2 = results.get(1);
 
-        Assert.assertEquals(tupleValue1.stringValue(), "Mohan");
-        Assert.assertEquals(tupleValue1.getType().getClass(), BStringType.class);
+        Assert.assertEquals(tupleValue1.toString(), "Mohan");
+        Assert.assertEquals(getType(tupleValue1).getClass(), BStringType.class);
 
-        Assert.assertEquals(tupleValue2.getType().getClass(), BRecordType.class);
-        Assert.assertEquals(tupleValue2.getType().getName(), "Employee");
+        Assert.assertEquals(getType(tupleValue2).getClass(), BRecordType.class);
+        Assert.assertEquals(getType(tupleValue2).getName(), "Employee");
 
         Assert.assertEquals(((BMap) tupleValue2).size(), 5);
 
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("name")).stringValue(), "Raja");
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("name")).getType().getClass(),
+        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
+        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).stringValue(), "25");
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).getType().getTag(),
+        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("age")).toString(), "25");
+        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
 
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).stringValue(), "single");
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).getType().getClass(),
+        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
+        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("batch")).stringValue(), "LK2014");
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("batch")).getType().getClass(),
+        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
+        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).stringValue(), "Hindu College");
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).getType().getClass(),
+        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
+        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
     }
 
     @Test
     public void testStampTupleToAnydata() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampTupleToAnydata");
-        Assert.assertEquals(results.length, 2);
+        Object arr = BRunUtil.invoke(compileResult, "stampTupleToAnydata");
+        BArray results = (BArray) arr;
+        Assert.assertEquals(results.size(), 2);
 
-        BValue tupleValue1 = results[0];
-        BValue tupleValue2 = results[1];
+        Object tupleValue1 = results.get(0);
+        Object tupleValue2 = results.get(1);
 
-        Assert.assertEquals(tupleValue1.stringValue(), "Mohan");
-        Assert.assertEquals(tupleValue1.getType().getClass(), BStringType.class);
+        Assert.assertEquals(tupleValue1.toString(), "Mohan");
+        Assert.assertEquals(getType(tupleValue1).getClass(), BStringType.class);
 
-        Assert.assertEquals(tupleValue2.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) tupleValue2.getType()).getConstrainedType().getClass(), BAnydataType.class);
+        Assert.assertEquals(getType(tupleValue2).getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) getType(tupleValue2)).getConstrainedType().getClass(), BAnydataType.class);
     }
 
     @Test
     public void testStampTupleValueToArray() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampTupleValueToArray");
-        Assert.assertEquals(results.length, 2);
+        Object arr = BRunUtil.invoke(compileResult, "stampTupleValueToArray");
+        BArray results = (BArray) arr;
+        Assert.assertEquals(results.size(), 2);
 
-        BValue arrayValue1 = results[0];
-        BValue arrayValue2 = results[1];
+        Object arrayValue1 = results.get(0);
+        Object arrayValue2 = results.get(1);
 
-        Assert.assertEquals(arrayValue1.getType().getClass(), BRecordType.class);
-        Assert.assertEquals(arrayValue1.getType().getName(), "Employee");
+        Assert.assertEquals(getType(arrayValue1).getClass(), BRecordType.class);
+        Assert.assertEquals(getType(arrayValue1).getName(), "Employee");
 
-        Assert.assertEquals(arrayValue2.getType().getClass(), BRecordType.class);
-        Assert.assertEquals(arrayValue2.getType().getName(), "Employee");
+        Assert.assertEquals(getType(arrayValue2).getClass(), BRecordType.class);
+        Assert.assertEquals(getType(arrayValue2).getName(), "Employee");
 
-        Assert.assertEquals(arrayValue2.size(), 4);
+        Assert.assertEquals(((BMap) arrayValue2).size(), 4);
 
-        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("name")).stringValue(), "Raja");
-        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("name")).getType().getClass(),
+        Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("name")).toString(), "Raja");
+        Assert.assertEquals(getType(((BMap) arrayValue2).get(StringUtils.fromString("name"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("status")).stringValue(), "single");
-        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("status")).getType().getClass(),
+        Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("status")).toString(), "single");
+        Assert.assertEquals(getType(((BMap) arrayValue2).get(StringUtils.fromString("status"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("batch")).stringValue(), "LK2014");
-        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("batch")).getType().getClass(),
+        Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
+        Assert.assertEquals(getType(((BMap) arrayValue2).get(StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("school")).stringValue(), "Hindu College");
-        Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("school")).getType().getClass(),
+        Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
+        Assert.assertEquals(getType(((BMap) arrayValue2).get(StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
     }
 
     @Test
     public void testStampTupleToBasicArray() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampTupleToBasicArray");
-        Assert.assertEquals(((BValueArray) results[0]).getInt(0), 1);
-        Assert.assertEquals(((BValueArray) results[0]).getInt(1), 2);
+        Object arr = BRunUtil.invoke(compileResult, "stampTupleToBasicArray");
+        BArray results = (BArray) arr;
+        Assert.assertEquals(results.get(0), 1L);
+        Assert.assertEquals(results.get(1), 2L);
     }
 
     @Test
     public void testStampTupleToAnydataTuple() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampTupleToAnydataTuple");
-        Assert.assertEquals(((BInteger) results[0]).value().intValue(), 1);
-        Assert.assertEquals(((BInteger) results[1]).value().intValue(), 2);
+        Object arr = BRunUtil.invoke(compileResult, "stampTupleToAnydataTuple");
+        BArray results = (BArray) arr;
+        Assert.assertEquals(results.get(0), 1L);
+        Assert.assertEquals(results.get(1), 2L);
     }
 
     @Test
     public void testStampAnydataTupleToBasicTypeTuple() {
 
-        BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataTupleToBasicTypeTuple");
-        Assert.assertEquals(((BInteger) results[0]).value().intValue(), 1);
-        Assert.assertEquals(((BInteger) results[1]).value().intValue(), 2);
+        Object arr = BRunUtil.invoke(compileResult, "stampAnydataTupleToBasicTypeTuple");
+        BArray results = (BArray) arr;
+        Assert.assertEquals(results.get(0), 1L);
+        Assert.assertEquals(results.get(1), 2L);
     }
 
     @AfterClass

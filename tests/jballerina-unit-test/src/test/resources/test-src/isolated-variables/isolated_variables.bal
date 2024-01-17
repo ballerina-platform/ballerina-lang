@@ -25,7 +25,7 @@ isolated record {
     boolean[] j;
 } c = {
     i: x,
-    j: getBooleanArray(<int[2]> getIntArray())
+    j: getBooleanArray(<int[]> getIntArray())
 };
 
 isolated object {
@@ -225,5 +225,20 @@ isolated function testIsolationAnalysisWithOnFailStatement() {
         } on fail error e {
             i[i.length()] = 1;
         }
+    }
+}
+
+isolated int[] intArray = [];
+
+function testRangeExprBeingAnIsolatedExpression1() returns object {} {
+    lock {
+        return intArray[0] ... intArray[1] + 1;
+    }
+}
+
+function testRangeExprBeingAnIsolatedExpression2() returns object {} {
+    lock {
+        int m = intArray[0];
+        return m + 1 ..< m * 2;
     }
 }

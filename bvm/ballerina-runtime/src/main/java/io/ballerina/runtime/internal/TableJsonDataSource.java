@@ -19,8 +19,10 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BMap;
@@ -28,7 +30,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -88,7 +89,7 @@ public class TableJsonDataSource implements JsonDataSource {
             try {
                 values.append(this.objGen.transform(record));
             } catch (IOException e) {
-                throw new BallerinaException(e);
+                throw ErrorCreator.createError(e);
             }
         }
         return values;
@@ -115,6 +116,7 @@ public class TableJsonDataSource implements JsonDataSource {
 
     private static void constructJsonData(BMap<?, ?> record, MapValue<BString, Object> jsonObject,
                                           BString key, Type type) {
+        type = TypeUtils.getImpliedType(type);
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
                 jsonObject.put(key, record.getStringValue(key));
@@ -162,11 +164,12 @@ public class TableJsonDataSource implements JsonDataSource {
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
-                BString strVal = StringUtils.fromString(StringUtils.getStringValue(record.get(key), null));
+                BString strVal = StringUtils.fromString(StringUtils.getStringValue(record.get(key)));
                 jsonObject.put(key, strVal);
                 break;
             default:
-                throw new BallerinaException("cannot construct json object from '" + type + "' type data");
+                throw ErrorCreator.createError(StringUtils.fromString(
+                        "cannot construct json object from '" + type + "' type data"));
         }
     }
 

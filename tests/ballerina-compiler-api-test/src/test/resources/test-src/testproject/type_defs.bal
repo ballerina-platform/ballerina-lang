@@ -95,3 +95,62 @@ public class EmployeeObj {
         self.age = age;
     }
 }
+
+public type HumanObj readonly & object {
+    public int age;
+    public isolated function eatFunction() returns string;
+    public isolated function walkFunction() returns int;
+};
+
+public readonly class Human {
+    *HumanObj;
+
+    public isolated function init() {
+        self.age = 10;
+    }
+
+    public isolated function eatFunction() returns string {
+        return "Eating";
+    }
+
+    public isolated function walkFunction() returns int {
+        return 0;
+    }
+}
+
+public isolated function loadHuman() returns HumanObj {
+    return new Human();
+}
+
+public type Detail record {
+   int severity;
+};
+
+public type ApplicationResponseError error & error<Detail>;
+
+public function testAnonTypeDefSymbolsIsNotVisible() {
+    ApplicationResponseError err = error("",  severity = 1);
+    Detail _ = err.detail();
+}
+
+public type Service distinct service object {
+};
+
+public type FnTypeA function(int m, int n, float p) returns string;
+
+public type FnTypeB function(int m, function(int a, string... b) returns string fn2) returns string;
+
+//Test the pos of intersection type definition
+public type Address readonly & record {
+    int number;
+    string street;
+    string city;
+};
+
+public type InterceptorClient distinct isolated client object {
+    isolated remote function execute() returns anydata|error;
+};
+
+public type InterceptorService distinct isolated service object {
+    isolated remote function execute() returns anydata|error;
+};

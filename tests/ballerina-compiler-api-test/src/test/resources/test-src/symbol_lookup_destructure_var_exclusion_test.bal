@@ -32,6 +32,6 @@ type Person record {|
 type UserDefinedError error <BasicErrorDetail>;
 
 type BasicErrorDetail record {|
-    int basicErrorNo?;
+    int basicErrorNo;
     anydata...;
 |};

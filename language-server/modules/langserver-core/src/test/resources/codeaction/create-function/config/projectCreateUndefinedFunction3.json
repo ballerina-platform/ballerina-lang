@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 10,
+    "character": 32
+  },
+  "source": "testproject/main.bal",
+  "expected": [
+    {
+      "title": "Create function 'convertStudent(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 18,
+              "character": 1
+            },
+            "end": {
+              "line": 18,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction convertStudent(module1:Student student) returns module1:Student {\n    return {name: \"\", age: 0};\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "testproject/main.bal",
+        "range": {
+          "start": {
+            "line": 10,
+            "character": 32
+          },
+          "end": {
+            "line": 10,
+            "character": 55
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 10.0,
+              "character": 32.0
+            },
+            "end": {
+              "line": 10.0,
+              "character": 55.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

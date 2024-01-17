@@ -23,7 +23,7 @@ package io.ballerina.runtime.observability.metrics;
  */
 public class MetricConstants {
 
-    private MetricConstants(){}
+    private MetricConstants() {}
 
     public static final String COUNTER = "counter";
     public static final String GAUGE = "gauge";

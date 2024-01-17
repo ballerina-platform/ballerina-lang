@@ -32,7 +32,8 @@ type EmployeeValue record {|
     Employee value;
 |};
 
-function getPersonValue((record {| Person value; |}|error?)|(record {| Person value; |}?) returnedVal) returns PersonValue? {
+function getPersonValue((record {| Person value; |}|error?)|(record {| Person value; |}?) returnedVal)
+    returns PersonValue? {
     var result = returnedVal;
     if (result is PersonValue) {
         return result;
@@ -41,7 +42,8 @@ function getPersonValue((record {| Person value; |}|error?)|(record {| Person va
     }
 }
 
-function getEmployeeValue((record {| Employee value; |}|error?)|(record {| Employee value; |}?) returnedVal) returns EmployeeValue? {
+function getEmployeeValue((record {| Employee value; |}|error?)|(record {| Employee value; |}?) returnedVal)
+    returns EmployeeValue? {
     var result = returnedVal;
     if (result is EmployeeValue) {
         return result;
@@ -226,3 +228,46 @@ function testMapFuncWithRecordType() returns boolean {
     return  testPassed;
 }
 
+
+function testBasicTypeStream()  {
+     Person[] personList = getPersonList();
+
+    stream streamRef = personList.toStream();
+    stream<Person> personStream = <stream<Person>>streamRef;
+
+    stream<Employee> mappedEmpStream = personStream.'map(function (Person person) returns Employee {
+        Employee e = {
+          name: person.name,
+          company: "WSO2"
+        };
+        return e;
+
+        });
+
+    record {| Employee value; |}? nextValue = getEmployeeValue(mappedEmpStream.next());
+    Employee employee = <Employee>nextValue?.value;
+
+    assertValueEquality("Gima", employee.name);
+    assertValueEquality("WSO2", employee.company);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
+    if (actual is anydata && expected is anydata) {
+        return (actual == expected);
+    } else {
+        return (actual === expected);
+    }
+}
+
+function assertValueEquality(anydata|error expected, anydata|error actual) {
+    if isEqual(actual, expected) {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}

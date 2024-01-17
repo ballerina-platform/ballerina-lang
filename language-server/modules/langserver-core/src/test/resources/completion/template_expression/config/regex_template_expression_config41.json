@@ -1,0 +1,34 @@
+{
+  "position": {
+    "line": 14,
+    "character": 32
+  },
+  "source": "template_expression/source/regex_template_expression_source11.bal",
+  "description": "",
+  "items": [
+    {
+      "label": ":",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "m:",
+      "insertText": "m:",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "s",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "ms",
+      "insertText": "ms",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "x",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "mx",
+      "insertText": "mx",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

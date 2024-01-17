@@ -1,0 +1,6 @@
+[cliConfigPkg.util.foo]
+stringVar = "test string"
+testInt = 22
+testFloat = 12.4
+testString = "configurable variable inside test source"
+testBoolean = true

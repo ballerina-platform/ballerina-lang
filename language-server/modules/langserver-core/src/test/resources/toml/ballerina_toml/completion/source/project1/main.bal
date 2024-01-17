@@ -1,5 +1,5 @@
-import ballerina/io;
+import ballerina/module1;
 
 public function main() {
-    io:println("Hello World!");
+    module1:function3(1,2,3.0);
 }

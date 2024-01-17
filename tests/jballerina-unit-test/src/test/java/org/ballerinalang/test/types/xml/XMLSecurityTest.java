@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import org.testng.Assert;
@@ -36,8 +35,16 @@ public class XMLSecurityTest {
                 "<!ELEMENT foo ANY >" +
                 "<!ENTITY xxe SYSTEM \"https://www.w3schools.com/xml/note.xml\" >]>" +
                 "<foo>&xxe;</foo>";
-        BXml xmlDocument = XmlFactory.parse(xmlString);
-        Assert.assertEquals(xmlDocument.toString(), "<foo></foo>");
+        String expectedErrorMessage = "failed to parse xml: Encountered a reference to external entity \"xxe\", " +
+                "but stream reader has feature \"javax.xml.stream.isSupportingExternalEntities\" disabled" +
+                System.lineSeparator() + " at [row,col {unknown-source}]: [1,146]";
+        try {
+            XmlFactory.parse(xmlString);
+            Assert.fail("Negative test failed for: `" + xmlString + "'. Expected exception with message: " +
+                    expectedErrorMessage);
+        } catch (Exception e) {
+            Assert.assertEquals(e.getMessage(), expectedErrorMessage);
+        }
     }
 
     @Test (timeOut = 10000, expectedExceptions = ErrorValue.class)

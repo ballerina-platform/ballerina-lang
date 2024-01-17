@@ -29,14 +29,15 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.ReturnTypeFinder;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -65,7 +66,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Covers the following
             Ex: function test() {
@@ -75,9 +76,11 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
              */
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             Predicate<Symbol> filter = symbol -> symbol.kind() != SymbolKind.SERVICE_DECLARATION;
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
+            List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, nameRef, filter);
 
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+        } else if (onSuggestionsAfterQualifiers(context, nodeAtCursor)) {
+            completionItems.addAll(getCompletionItemsOnQualifiers(nodeAtCursor, context));
         } else {
             /*
             Covers the following
@@ -107,12 +110,21 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_WAIT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_START.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LET.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FAIL.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE16_LITERAL.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE64_LITERAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
 
         return completionItems;
@@ -182,6 +194,24 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_BREAK.get()));
         }
 
+        return completionItems;
+    }
+
+    @Override
+    protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));
+        if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
+            return completionItems;
+        }
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return completionItems;
+        }
+        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        if (lastQualifier.kind() == SyntaxKind.ISOLATED_KEYWORD) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
+        }
         return completionItems;
     }
 

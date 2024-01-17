@@ -29,12 +29,13 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
 
 /**
  * {@code UnionType} represents a union type in Ballerina.
@@ -42,12 +43,7 @@ import java.util.stream.Stream;
  * @since 0.966.0
  */
 public class BUnionType extends BType implements UnionType {
-
-    public BIntersectionType immutableType;
     public boolean resolvingToString = false;
-
-    private BIntersectionType intersectionType = null;
-
     private boolean nullable;
     private String cachedToString;
 
@@ -64,7 +60,7 @@ public class BUnionType extends BType implements UnionType {
     private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE);
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
 
-    protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
+    public BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
         this(tsymbol, memberTypes, memberTypes, nullable, readonly);
     }
 
@@ -184,15 +180,13 @@ public class BUnionType extends BType implements UnionType {
     public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.size());
 
-        boolean isImmutable = true;
-        boolean hasNilableType = false;
-
         if (types.isEmpty()) {
-            return new BUnionType(tsymbol, memberTypes, hasNilableType, isImmutable);
+            return new BUnionType(tsymbol, memberTypes, false, true);
         }
 
+        boolean isImmutable = true;
         for (BType memBType : toFlatTypeSet(types)) {
-            if (memBType.tag != TypeTags.NEVER) {
+            if (!isNeverType(memBType)) {
                 memberTypes.add(memBType);
             }
 
@@ -200,7 +194,12 @@ public class BUnionType extends BType implements UnionType {
                 isImmutable = false;
             }
         }
+        if (memberTypes.isEmpty()) {
+            memberTypes.add(new BNeverType());
+            return new BUnionType(tsymbol, memberTypes, false, isImmutable);
+        }
 
+        boolean hasNilableType = false;
         for (BType memberType : memberTypes) {
             if (memberType.isNullable() && memberType.tag != TypeTags.NIL) {
                 hasNilableType = true;
@@ -356,7 +355,7 @@ public class BUnionType extends BType implements UnionType {
         for (BType member : unionType.getMemberTypes()) {
             if (member instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) member;
-                if (arrayType.eType == unionType) {
+                if (getImpliedType(arrayType.eType) == unionType) {
                     BArrayType newArrayType = new BArrayType(this, arrayType.tsymbol, arrayType.size,
                             arrayType.state, arrayType.flags);
                     this.add(newArrayType);
@@ -364,21 +363,21 @@ public class BUnionType extends BType implements UnionType {
                 }
             } else if (member instanceof BMapType) {
                 BMapType mapType = (BMapType) member;
-                if (mapType.constraint == unionType) {
+                if (getImpliedType(mapType.constraint) == unionType) {
                     BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
                     this.add(newMapType);
                     continue;
                 }
             } else if (member instanceof BTableType) {
                 BTableType tableType = (BTableType) member;
-                if (tableType.constraint == unionType) {
+                if (getImpliedType(tableType.constraint) == unionType) {
                     BTableType newTableType = new BTableType(tableType.tag, this, tableType.tsymbol,
                             tableType.flags);
                     this.add(newTableType);
                     continue;
                 } else if (tableType.constraint instanceof BMapType) {
                     BMapType mapType = (BMapType) tableType.constraint;
-                    if (mapType.constraint == unionType) {
+                    if (getImpliedType(mapType.constraint) == unionType) {
                         BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
                         BTableType newTableType = new BTableType(tableType.tag, newMapType, tableType.tsymbol,
                                 tableType.flags);
@@ -400,11 +399,40 @@ public class BUnionType extends BType implements UnionType {
         return this.memberTypes.iterator();
     }
 
-    private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
+    public static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
-                .flatMap(type -> type.tag == TypeTags.UNION && !isTypeParamAvailable(type) ?
-                        ((BUnionType) type).memberTypes.stream() : Stream.of(type))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .flatMap(type -> {
+                    BType refType = getImpliedType(type);
+                    if (refType.tag == TypeTags.UNION && !isTypeParamAvailable(type)) {
+                        return ((BUnionType) refType).memberTypes.stream();
+                    }
+                    return Stream.of(type);
+                }).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    /**
+     * Retrieve the referred type if a given type is a type reference type or
+     * retrieve the effective type if the given type is an intersection type.
+     *
+     * @param type type to retrieve the implied type
+     * @return the implied type if provided with a type reference type or an intersection type,
+     * else returns the original type
+     */
+    public static BType getImpliedType(BType type) {
+        type = getReferredType(type);
+        if (type != null && type.tag == TypeTags.INTERSECTION) {
+            return getImpliedType(((BIntersectionType) type).effectiveType);
+        }
+
+        return type;
+    }
+
+    private static BType getReferredType(BType type) {
+        if (type != null && type.tag == TypeTags.TYPEREFDESC) {
+            return getReferredType(((BTypeReferenceType) type).referredType);
+        }
+
+        return type;
     }
 
     private static boolean isTypeParamAvailable(BType type) {
@@ -412,11 +440,6 @@ public class BUnionType extends BType implements UnionType {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
     }
 
     private String getQualifiedName(String pkg, String name) {
@@ -485,13 +508,19 @@ public class BUnionType extends BType implements UnionType {
                 typeStr;
     }
 
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
+    private static boolean isNeverType(BType type) {
+        if (type.tag == NEVER) {
+            return true;
+        } else if (type.tag == TypeTags.TYPEREFDESC) {
+            return isNeverType(getImpliedType(type));
+        } else if (type.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (!isNeverType(memberType)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }

@@ -1,0 +1,122 @@
+{
+  "position": {
+    "line": 14,
+    "character": 22
+  },
+  "source": "extract_to_function_exprs_with_quickpick.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "Extract to function",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "Extract to function",
+          "extract_to_function_exprs_with_quickpick.bal",
+          {
+            "3.14": [
+              {
+                "range": {
+                  "start": {
+                    "line": 17,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 17,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction extracted() returns float {\n    return 3.14;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 25
+                  }
+                },
+                "newText": "extracted()"
+              }
+            ],
+            "3.14 * 3": [
+              {
+                "range": {
+                  "start": {
+                    "line": 17,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 17,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction extracted() returns float {\n    return 3.14 * 3;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 29
+                  }
+                },
+                "newText": "extracted()"
+              }
+            ],
+            "3.14 * 3 * 4": [
+              {
+                "range": {
+                  "start": {
+                    "line": 17,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 17,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction extracted() returns float {\n    return 3.14 * 3 * 4;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 33
+                  }
+                },
+                "newText": "extracted()"
+              }
+            ]
+          },
+          {
+            "3.14": {
+              "line": 14,
+              "character": 21
+            },
+            "3.14 * 3": {
+              "line": 14,
+              "character": 21
+            },
+            "3.14 * 3 * 4": {
+              "line": 14,
+              "character": 21
+            }
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

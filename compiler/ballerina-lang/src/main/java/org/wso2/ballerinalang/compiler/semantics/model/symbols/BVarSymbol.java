@@ -21,7 +21,7 @@ import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.Annotatable;
-import org.ballerinalang.model.symbols.AnnotationSymbol;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.symbols.VariableSymbol;
@@ -38,7 +38,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VAR
  */
 public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
 
-    private List<BAnnotationSymbol> annots;
+    protected List<BAnnotationAttachmentSymbol> annotationAttachments;
     public boolean isDefaultable = false;
     public boolean isWildcard = false;
     public DiagnosticState state = DiagnosticState.VALID;
@@ -49,7 +49,7 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
     public BVarSymbol(long flags, Name name, Name originalName, PackageID pkgID, BType type, BSymbol owner,
                       Location pos, SymbolOrigin origin) {
         super(VARIABLE, flags, name, originalName, pkgID, type, owner, pos, origin);
-        this.annots = new ArrayList<>();
+        this.annotationAttachments = new ArrayList<>();
         this.kind = SymbolKind.VARIABLE;
     }
 
@@ -65,16 +65,16 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
     }
 
     @Override
-    public void addAnnotation(AnnotationSymbol symbol) {
+    public void addAnnotation(AnnotationAttachmentSymbol symbol) {
         if (symbol == null) {
             return;
         }
-        this.annots.add((BAnnotationSymbol) symbol);
+        this.annotationAttachments.add((BAnnotationAttachmentSymbol) symbol);
     }
 
     @Override
-    public List<? extends AnnotationSymbol> getAnnotations() {
-        return this.annots;
+    public List<? extends AnnotationAttachmentSymbol> getAnnotations() {
+        return this.annotationAttachments;
     }
 
     @Override

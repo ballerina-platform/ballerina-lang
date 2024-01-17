@@ -1,0 +1,8 @@
+[package]
+org = "lstest"
+name = "project2"
+version = "0.1.0"
+distribution = "2201.5.0-20230404-105200-b8aec90e"
+
+[build-options]
+observabilityIncluded = true

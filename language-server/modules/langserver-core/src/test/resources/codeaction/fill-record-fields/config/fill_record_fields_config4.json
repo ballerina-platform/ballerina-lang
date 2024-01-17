@@ -1,0 +1,8 @@
+{
+  "position": {
+    "line": 4,
+    "character": 29
+  },
+  "source": "fill_record_fields_source1.bal",
+  "expected": []
+}

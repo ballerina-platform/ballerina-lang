@@ -1,0 +1,168 @@
+[
+  {
+    "description": "Remove public keyword for a object field",
+    "oldCode": "service /demo on new http:Listener(8080){\npublic int x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tint x=5;\n\t}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "'public' qualifier is removed from object field 'x'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add public keyword for a object field",
+    "oldCode": "service /demo on new http:Listener(8080){\nint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic int x=5;\n\t}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "message": "'public' qualifier is added to object field 'x'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add Final keyword for a object field",
+    "oldCode": "service /demo on new http:Listener(8080){\nint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tfinal int x=5;\n\t}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'final' qualifier is added to object field 'x'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add final and public keyword for a object field",
+    "oldCode": "service /demo on new http:Listener(8080){\nint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic final int x=5;\n\t}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "message": "'public' qualifier is added to object field 'x'"
+                },
+                {
+                  "kind": "object field",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'final' qualifier is added to object field 'x'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove Final keyword from a object field",
+    "oldCode": "service /demo on new http:Listener(8080){\nfinal int x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tint x=5;\n\t}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "removed",
+                  "versionImpact": "patch",
+                  "message": "'final' qualifier is removed from object field 'x'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -23,6 +23,7 @@ import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -40,11 +41,11 @@ public class FunctionNameValidationTest extends BaseTestCase {
     }
 
     @Test
-    public void validateFunctionNamesTest() throws BallerinaTestException {
+    public void validateFunctionNamesTest() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"validate-function-names"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "function name verification failure");
+        AssertionUtils.assertOutput("FunctionNameValidationTest-validateFunctionNamesTest.txt", output);
     }
 
 }

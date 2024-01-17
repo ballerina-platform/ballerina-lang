@@ -17,33 +17,41 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import com.google.common.collect.Lists;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.CompletionSearchProvider;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.completions.providers.context.util.ImportDeclarationContextUtil.getImportCompletion;
@@ -76,6 +84,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             (3) import abc.xy<cursor>
             (4) import org/mod<cursor>
             (5) import org/mod v<cursor>
+            (6) import org/mod.<cursor>
             
             Suggests org names and the module names within the same directory
          */
@@ -95,20 +104,19 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             contextScope = ContextScope.OTHER;
         } else if (onSuggestAsKeyword(ctx, node)) {
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_AS.get()));
-            contextScope = ContextScope.SCOPE1;
+            contextScope = ContextScope.AS_KW;
         } else if (node.orgName().isPresent()) {
             /*
             Covers case (4)
              */
-            String orgName = node.orgName().get().orgName().text();
-            completionItems.addAll(this.moduleNameContextCompletions(ctx, orgName));
-            contextScope = ContextScope.SCOPE2;
+            completionItems.addAll(this.moduleNameContextCompletions(ctx, node));
+            contextScope = ContextScope.MODULE_NAME;
         } else {
             /*
             Covers cases (1) to (3)
              */
             completionItems.addAll(this.orgNameContextCompletions(ctx));
-            contextScope = ContextScope.SCOPE3;
+            contextScope = ContextScope.ORG_NAME;
         }
 
         this.sort(ctx, node, completionItems, contextScope);
@@ -125,22 +133,34 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             return;
         }
 
-        if (metaData[0] == ContextScope.SCOPE2) {
+        if (metaData[0] == ContextScope.MODULE_NAME) {
+            String modulePart = null;
+            // If the module name of the import declaration has more than one part (eg: abc.xyz), we take the module
+            // part until the last dot (eg: xyz) and compare that with the label when sorting completion items.
+            if (node.moduleName().size() > 1) {
+                StringBuilder modName = new StringBuilder();
+                for (int i = 0; i < node.moduleName().size() - 1; i++) {
+                    modName.append(node.moduleName().get(i).text());
+                    modName.append(".");
+                }
+                modulePart = modName.toString();
+            }
             /*
             Sorts only the completions when the org name is ballerina
             Context covered:
             (1) import ballerina/<cursor
             (2) import ballerina/a<cursor
+            (3) import ballerina/lang.<cursor>
              */
             for (LSCompletionItem completion : cItems) {
                 CompletionItem cItem = completion.getCompletionItem();
                 String label = cItem.getLabel();
-                cItem.setSortText(genSortText(this.rankModuleName(label)));
+                cItem.setSortText(genSortText(this.rankModuleName(label, modulePart)));
             }
             return;
         }
 
-        if (metaData[0] == ContextScope.SCOPE3) {
+        if (metaData[0] == ContextScope.ORG_NAME) {
             for (LSCompletionItem completion : cItems) {
                 CompletionItem cItem = completion.getCompletionItem();
                 String label = cItem.getLabel();
@@ -152,15 +172,27 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         super.sort(context, node, cItems, metaData);
     }
 
-    private int rankModuleName(String label) {
-        if (label.startsWith(LANGLIB_MODULE_PREFIX)) {
+    /**
+     * Ranks the module name based on the it's ballerina module, whether it's a langlib or starts with the module part
+     * user has already written.
+     *
+     * @param label      Module name
+     * @param modulePart The module name user has already written
+     * @return {@link Integer} rank
+     */
+    private int rankModuleName(String label, String modulePart) {
+        // If there's a module part partially written, check if the label starts with that.
+        if (modulePart != null && label.startsWith(modulePart)) {
             return 1;
         }
-        if (label.startsWith(BALLERINA_MODULE_PREFIX)) {
+        if (label.startsWith(LANGLIB_MODULE_PREFIX)) {
             return 2;
         }
+        if (label.startsWith(BALLERINA_MODULE_PREFIX)) {
+            return 3;
+        }
 
-        return 3;
+        return 4;
     }
 
     private int rankOrgName(String label) {
@@ -183,66 +215,42 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
     }
 
     private ArrayList<LSCompletionItem> orgNameContextCompletions(BallerinaCompletionContext ctx) {
-        List<String> orgNames = new ArrayList<>();
+        Set<String> orgNames = new HashSet<>();
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Package> pkgList = LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages();
-
-        pkgList.forEach(pkg -> {
+        List<LSPackageLoader.ModuleInfo> moduleList =
+                LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
+        moduleList.forEach(pkg -> {
             String orgName = pkg.packageOrg().value();
             String pkgName = pkg.packageName().value();
             if (orgName.equals(Names.BALLERINA_INTERNAL_ORG.getValue())
-                    || CommonUtil.matchingImportedModule(ctx, pkg).isPresent()) {
+                    || ModuleUtil.matchingImportedModule(ctx, pkg).isPresent()) {
                 // Avoid suggesting the ballerinai org name
                 return;
             }
-            String fullPkgNameLabel = orgName + Names.ORG_NAME_SEPARATOR.getValue() + pkgName;
-            String insertText = orgName + Names.ORG_NAME_SEPARATOR.getValue();
+            List<String> pkgNameComps = Arrays.stream(pkgName.split("\\."))
+                    .map(ModuleUtil::escapeModuleName)
+                    .map(CommonUtil::escapeReservedKeyword)
+                    .collect(Collectors.toList());
+            String label = pkg.packageOrg().value().isEmpty() ? String.join(".", pkgNameComps)
+                    : CommonUtil.getPackageLabel(pkg);
+            String insertText = orgName.isEmpty() ? "" : orgName + Names.ORG_NAME_SEPARATOR.getValue();
+
             if (orgName.equals(Names.BALLERINA_ORG.value)
                     && pkgName.startsWith(PackageName.LANG_LIB_PACKAGE_NAME_PREFIX + Names.DOT.getValue())) {
                 insertText += getLangLibModuleNameInsertText(pkgName);
             } else {
-                insertText += pkgName;
+                insertText += orgName.isEmpty() ? label : pkgName;
             }
             // Do not add the semicolon with the insert text since the user should be allowed to use the as keyword
-            LSCompletionItem fullPkgImport = getImportCompletion(ctx, fullPkgNameLabel, insertText);
+            LSCompletionItem fullPkgImport = getImportCompletion(ctx, label, insertText);
             completionItems.add(fullPkgImport);
-            if (!orgNames.contains(orgName)) {
+            if (!orgName.isEmpty() && !orgNames.contains(orgName)) {
                 LSCompletionItem orgNameImport =
                         getImportCompletion(ctx, orgName, (orgName + Names.ORG_NAME_SEPARATOR.getValue()));
                 completionItems.add(orgNameImport);
                 orgNames.add(orgName);
             }
         });
-        
-        /*
-        If within a project, suggest the project modules except the owner module of the file which being processed
-         */
-        Optional<Project> currentProject = ctx.workspace().project(ctx.filePath());
-        if (currentProject.isEmpty() || currentProject.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            return completionItems;
-        }
-
-        Package currentPackage = currentProject.get().currentPackage();
-        String currentPackageName = CommonUtil.escapeReservedKeyword(currentPackage.packageName().value());
-
-        completionItems.add(getImportCompletion(ctx, currentPackageName, currentPackageName + "."));
-        Optional<Module> currentModule = ctx.currentModule();
-        for (Module module : currentPackage.modules()) {
-            if (module.isDefaultModule()
-                    || (currentModule.isPresent() && module.moduleId().equals(currentModule.get().moduleId()))) {
-                continue;
-            }
-            String moduleNamePart = Arrays.stream(module.moduleName().moduleNamePart().split("\\."))
-                    .map(CommonUtil::escapeReservedKeyword)
-                    .collect(Collectors.joining("."));
-            String qualifiedModuleName = module.moduleName().packageName().value()
-                    + Names.DOT + moduleNamePart;
-            if (CommonUtil.matchingImportedModule(ctx, "", qualifiedModuleName).isPresent()) {
-                continue;
-            }
-            String label = currentPackageName + "." + moduleNamePart;
-            completionItems.add(getImportCompletion(ctx, label, label));
-        }
 
         return completionItems;
     }
@@ -269,11 +277,11 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                     + module.moduleName().moduleNamePart();
             if (module.isDefaultModule()
                     || (currentModule.isPresent() && module.moduleId().equals(currentModule.get().moduleId()))
-                    || CommonUtil.matchingImportedModule(context, "", qualifiedModuleName).isPresent()) {
+                    || ModuleUtil.matchingImportedModule(context, "", qualifiedModuleName).isPresent()) {
                 return;
             }
 
-            List<String> moduleNameParts = Arrays.asList(module.moduleName().moduleNamePart().split("\\."));
+            List<String> moduleNameParts = Lists.newArrayList(module.moduleName().moduleNamePart().split("\\."));
             moduleName.forEach(token -> moduleNameParts.remove(token.text()));
             String label = module.moduleName().moduleNamePart();
             String insertText = moduleNameParts.stream()
@@ -287,16 +295,54 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
     }
 
     private ArrayList<LSCompletionItem> moduleNameContextCompletions(BallerinaCompletionContext context,
-                                                                     String orgName) {
+                                                                     ImportDeclarationNode node) {
+        String orgName = node.orgName().get().orgName().text();
+        List<TextEdit> additionalEdits = new ArrayList<>();
+        // If the module name contains a dot, we should replace what's before the last dot to make sure a part
+        // of the module name is not repeated.
+        if (node.moduleName().size() > 1) {
+            // There can be 2 cases:
+            // 1) orgName/mod.xx<cursor>
+            // 2) orgName/mod.<cursor>
+            IdentifierToken lastModeNamePart = node.moduleName().get(node.moduleName().size() - 1);
+            LinePosition startPos = node.orgName().get().lineRange().endLine();
+            LinePosition endPos = lastModeNamePart.lineRange().endLine();
+            if (!lastModeNamePart.isMissing()) {
+                // Case (2) above
+                endPos = lastModeNamePart.lineRange().startLine();
+            }
+            Range editRange = new Range(PositionUtil.toPosition(startPos), PositionUtil.toPosition(endPos));
+            TextEdit removeModNameEdit = new TextEdit(editRange, "");
+            additionalEdits.add(removeModNameEdit);
+        }
+        
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> addedPkgNames = new ArrayList<>();
         LanguageServerContext serverContext = context.languageServercontext();
-        List<Package> packageList = LSPackageLoader.getInstance(serverContext).getDistributionRepoPackages();
-        packageList.forEach(ballerinaPackage -> {
+        List<LSPackageLoader.ModuleInfo> moduleList;
+
+        if (orgName.equals("ballerinax")) {
+            List<String> packageList = new ArrayList<>();
+            String prefix = node.moduleName().stream().filter(identifierToken -> !identifierToken.isMissing())
+                    .map(IdentifierToken::text)
+                    .collect(Collectors.joining("."));
+
+            moduleList = LSPackageLoader.getInstance(serverContext).getCentralPackages(serverContext);
+            moduleList.forEach(ballerinaPackage -> packageList.add(ballerinaPackage.packageName().value()));
+            List<String> filteredPackageNames = getFilteredPackages(packageList, prefix, context);
+            for (String filteredPackage : filteredPackageNames) {
+                LSCompletionItem completionItem = getImportCompletion(context, filteredPackage, filteredPackage);
+                completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
+                completionItems.add(completionItem);
+            }
+            return completionItems;
+        }
+        moduleList = LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
+        moduleList.forEach(ballerinaPackage -> {
             String packageName = ballerinaPackage.packageName().value();
             String insertText;
             if (orgName.equals(ballerinaPackage.packageOrg().value()) && !addedPkgNames.contains(packageName)
-                    && CommonUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
+                    && ModuleUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
                 if (orgName.equals(Names.BALLERINA_ORG.value)
                         && packageName.startsWith(Names.LANG.getValue() + Names.DOT.getValue())) {
                     insertText = getLangLibModuleNameInsertText(packageName);
@@ -304,12 +350,23 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                     insertText = packageName;
                 }
                 addedPkgNames.add(packageName);
-                // Do not add the semi colon at the end of the insert text since the user might type the as keyword
-                completionItems.add(getImportCompletion(context, packageName, insertText));
+                // Do not add the semicolon at the end of the insert text since the user might type the as keyword
+                LSCompletionItem completionItem = getImportCompletion(context, packageName, insertText);
+                completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
+                completionItems.add(completionItem);
             }
         });
 
         return completionItems;
+    }
+
+
+    private static List<String> getFilteredPackages(List<String> packageList, String prefix,
+                                                   BallerinaCompletionContext context) {
+        CompletionSearchProvider completionSearchProvider = CompletionSearchProvider
+                .getInstance(context.languageServercontext());
+        completionSearchProvider.indexNames(packageList);
+        return completionSearchProvider.getSuggestions(prefix);
     }
 
     private boolean onSuggestAsKeyword(BallerinaCompletionContext context, ImportDeclarationNode node) {
@@ -366,14 +423,14 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         if (semicolon.isMissing()) {
             return true;
         }
-        
+
         return cursor < semicolon.textRange().endOffset();
     }
 
     private enum ContextScope {
-        SCOPE1,
-        SCOPE2,
-        SCOPE3,
+        AS_KW,
+        MODULE_NAME,
+        ORG_NAME,
         OTHER
     }
 }

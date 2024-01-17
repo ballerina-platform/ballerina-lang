@@ -1,0 +1,331 @@
+{
+  "annotations": [],
+  "typedBindingPattern": {
+    "kind": "TypedBindingPattern",
+    "typeDescriptor": {
+      "kind": "StringTypeDesc",
+      "name": {
+        "kind": "StringKeyword",
+        "isToken": true,
+        "value": "string",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 0,
+          "endLine": 0,
+          "endColumn": 6
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ]
+      },
+      "source": "string ",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ],
+      "position": {
+        "startLine": 0,
+        "startColumn": 0,
+        "endLine": 0,
+        "endColumn": 6
+      },
+      "typeData": {}
+    },
+    "bindingPattern": {
+      "kind": "CaptureBindingPattern",
+      "variableName": {
+        "kind": "IdentifierToken",
+        "isToken": true,
+        "value": "fullName",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 7,
+          "endLine": 0,
+          "endColumn": 15
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ]
+      },
+      "source": "fullName ",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ],
+      "position": {
+        "startLine": 0,
+        "startColumn": 7,
+        "endLine": 0,
+        "endColumn": 15
+      },
+      "typeData": {}
+    },
+    "source": "string fullName ",
+    "syntaxDiagnostics": [],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ],
+    "position": {
+      "startLine": 0,
+      "startColumn": 0,
+      "endLine": 0,
+      "endColumn": 15
+    },
+    "typeData": {}
+  },
+  "equalsToken": {
+    "kind": "EqualToken",
+    "isToken": true,
+    "value": "=",
+    "isMissing": false,
+    "position": {
+      "startLine": 0,
+      "startColumn": 16,
+      "endLine": 0,
+      "endColumn": 17
+    },
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ]
+  },
+  "initializer": {
+    "kind": "BinaryExpression",
+    "lhsExpr": {
+      "kind": "BinaryExpression",
+      "lhsExpr": {
+        "kind": "SimpleNameReference",
+        "name": {
+          "kind": "IdentifierToken",
+          "isToken": true,
+          "value": "firstName",
+          "isMissing": false,
+          "position": {
+            "startLine": 0,
+            "startColumn": 18,
+            "endLine": 0,
+            "endColumn": 27
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": " ",
+              "isInvalid": false
+            }
+          ]
+        },
+        "source": "firstName ",
+        "syntaxDiagnostics": [],
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ],
+        "position": {
+          "startLine": 0,
+          "startColumn": 18,
+          "endLine": 0,
+          "endColumn": 27
+        },
+        "typeData": {}
+      },
+      "operator": {
+        "kind": "PlusToken",
+        "isToken": true,
+        "value": "+",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 28,
+          "endLine": 0,
+          "endColumn": 29
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ]
+      },
+      "rhsExpr": {
+        "kind": "SimpleNameReference",
+        "name": {
+          "kind": "IdentifierToken",
+          "isToken": true,
+          "value": "middleName",
+          "isMissing": false,
+          "position": {
+            "startLine": 0,
+            "startColumn": 30,
+            "endLine": 0,
+            "endColumn": 40
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": " ",
+              "isInvalid": false
+            }
+          ]
+        },
+        "source": "middleName ",
+        "syntaxDiagnostics": [],
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ],
+        "position": {
+          "startLine": 0,
+          "startColumn": 30,
+          "endLine": 0,
+          "endColumn": 40
+        },
+        "typeData": {}
+      },
+      "source": "firstName + middleName ",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ],
+      "position": {
+        "startLine": 0,
+        "startColumn": 18,
+        "endLine": 0,
+        "endColumn": 40
+      },
+      "typeData": {}
+    },
+    "operator": {
+      "kind": "PlusToken",
+      "isToken": true,
+      "value": "+",
+      "isMissing": false,
+      "position": {
+        "startLine": 0,
+        "startColumn": 41,
+        "endLine": 0,
+        "endColumn": 42
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ]
+    },
+    "rhsExpr": {
+      "kind": "StringLiteral",
+      "literalToken": {
+        "kind": "StringLiteralToken",
+        "isToken": true,
+        "value": "\"Hofstadter\"",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 43,
+          "endLine": 0,
+          "endColumn": 55
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": []
+      },
+      "source": "\"Hofstadter\"",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [],
+      "position": {
+        "startLine": 0,
+        "startColumn": 43,
+        "endLine": 0,
+        "endColumn": 55
+      },
+      "typeData": {}
+    },
+    "source": "firstName + middleName + \"Hofstadter\"",
+    "syntaxDiagnostics": [],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [],
+    "position": {
+      "startLine": 0,
+      "startColumn": 18,
+      "endLine": 0,
+      "endColumn": 55
+    },
+    "typeData": {}
+  },
+  "semicolonToken": {
+    "kind": "SemicolonToken",
+    "isToken": true,
+    "value": ";",
+    "isMissing": false,
+    "position": {
+      "startLine": 0,
+      "startColumn": 55,
+      "endLine": 0,
+      "endColumn": 56
+    },
+    "leadingMinutiae": [],
+    "trailingMinutiae": []
+  },
+  "source": "string fullName = firstName + middleName + \"Hofstadter\";",
+  "kind": "LocalVarDecl",
+  "syntaxDiagnostics": [],
+  "leadingMinutiae": [],
+  "trailingMinutiae": [],
+  "position": {
+    "startLine": 0,
+    "startColumn": 0,
+    "endLine": 0,
+    "endColumn": 56
+  },
+  "typeData": {}
+}

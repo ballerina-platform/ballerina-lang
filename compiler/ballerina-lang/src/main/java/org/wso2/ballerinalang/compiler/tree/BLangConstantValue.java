@@ -56,6 +56,10 @@ public class BLangConstantValue {
                 return false;
             }
 
+            if (this.value == null) {
+                return false;
+            }
+
             return this.value.equals(that.value);
         }
 

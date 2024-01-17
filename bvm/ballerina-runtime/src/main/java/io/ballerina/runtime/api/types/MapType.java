@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BMapType} represents a type of a map in Ballerina.
+ * {@code MapType} represents a type of a map in Ballerina.
  * <p>
  * Maps are defined using the map keyword as follows:
  * map mapName

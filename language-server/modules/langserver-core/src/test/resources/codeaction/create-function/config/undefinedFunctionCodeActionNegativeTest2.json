@@ -1,0 +1,14 @@
+{
+  "range": {
+    "start": {
+      "line": 4,
+      "character": 29
+    },
+    "end": {
+      "line": 4,
+      "character": 33
+    }
+  },
+  "source": "createUndefinedFunction4.bal",
+  "expected": []
+}

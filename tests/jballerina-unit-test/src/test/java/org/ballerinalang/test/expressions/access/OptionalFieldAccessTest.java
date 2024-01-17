@@ -17,12 +17,11 @@
  */
 package org.ballerinalang.test.expressions.access;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -61,6 +60,8 @@ public class OptionalFieldAccessTest {
                 "access", 58, 14);
         validateError(negativeResult, i++, "invalid operation: type 'map<string>?' does not support optional field " +
                 "access", 61, 19);
+        validateError(negativeResult, i++, "invalid operation: type '(map<xml>|map<json>)' does not support" +
+                " optional field access", 65, 20);
         validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 71, 15);
         validateError(negativeResult, i++, "invalid operation: type 'Qux' does not support optional field access", 87
                 , 9);
@@ -79,8 +80,8 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "recordOptionalFieldAccessFunctions")
     public void testRecordOptionalFieldAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "recordOptionalFieldAccessFunctions")
@@ -115,8 +116,8 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "laxOptionalFieldAccessFunctions")
     public void testLaxOptionalFieldAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "laxOptionalFieldAccessFunctions")
@@ -142,8 +143,8 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "optionalFieldAccessOnInvocationFunctions")
     public void testOptionalFieldAccessOnInvocation(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "optionalFieldAccessOnInvocationFunctions")
@@ -169,5 +170,11 @@ public class OptionalFieldAccessTest {
     @Test
     public void testNestedOptionalFieldAccessOnIntersectionTypes() {
         BRunUtil.invoke(result, "testNestedOptionalFieldAccessOnIntersectionTypes");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
     }
 }

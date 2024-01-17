@@ -79,7 +79,7 @@ class JInterop {
         }
 
         JType.JRefType jRefType = new JType.JRefType(jTypeClass.getName().replace('.', '/'));
-        jRefType.isArray = jTypeClass.isArray();
+        jRefType.isArray = false;
         jRefType.isInterface = jTypeClass.isInterface();
 
         return jRefType;

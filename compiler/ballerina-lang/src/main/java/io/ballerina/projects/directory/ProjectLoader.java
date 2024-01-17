@@ -18,7 +18,6 @@
 package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -39,7 +38,7 @@ import java.util.Optional;
 public class ProjectLoader {
 
     public static Project loadProject(Path path) {
-        return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder(), new BuildOptionsBuilder().build());
+        return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder(), BuildOptions.builder().build());
     }
 
     public static Project loadProject(Path path, BuildOptions buildOptions) {
@@ -47,7 +46,7 @@ public class ProjectLoader {
     }
 
     public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder) {
-        return loadProject(path, projectEnvironmentBuilder, new BuildOptionsBuilder().build());
+        return loadProject(path, projectEnvironmentBuilder, BuildOptions.builder().build());
     }
 
     /**
@@ -58,7 +57,7 @@ public class ProjectLoader {
      * @throws ProjectException if an invalid path is provided
      */
     public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder,
-                                      BuildOptions buildOptions) {
+                                      BuildOptions buildOptions) throws ProjectException {
         Path absFilePath = Optional.of(path.toAbsolutePath()).get();
         Path projectRoot;
         if (!Files.exists(path)) {
@@ -67,6 +66,13 @@ public class ProjectLoader {
         if (absFilePath.toFile().isDirectory()) {
             if (ProjectConstants.MODULES_ROOT.equals(
                     Optional.of(absFilePath.getParent()).get().toFile().getName())) {
+                projectRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
+            } else if (ProjectConstants.GENERATED_MODULES_ROOT.equals(absFilePath.toFile().getName())) {
+                // Generated default module
+                projectRoot = Optional.of(absFilePath.getParent()).get();
+            } else if (ProjectConstants.GENERATED_MODULES_ROOT.
+                    equals(Optional.of(absFilePath.getParent()).get().toFile().getName())) {
+                // Generated non default module
                 projectRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
             } else {
                 projectRoot = absFilePath;

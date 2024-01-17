@@ -54,3 +54,4 @@ public function test5() {
     j = j+1;
     test:assertEquals(j, 2);
 }
+

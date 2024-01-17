@@ -19,9 +19,11 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.plugins.CodeAnalyzer;
 import io.ballerina.projects.plugins.CodeGenerator;
+import io.ballerina.projects.plugins.CodeModifier;
 import io.ballerina.projects.plugins.CompilerLifecycleListener;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.projects.plugins.codeaction.CodeAction;
+import io.ballerina.projects.plugins.completion.CompletionProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +38,11 @@ class CompilerPluginContextIml implements CompilerPluginContext {
     private final CompilerPluginInfo compilerPluginInfo;
     private final List<CodeAnalyzerManager.CodeAnalyzerInfo> codeAnalyzers = new ArrayList<>();
     private final List<CodeGeneratorManager.CodeGeneratorInfo> codeGenerators = new ArrayList<>();
+    private final List<CodeModifierManager.CodeModifierInfo> codeModifiers = new ArrayList<>();
     private final List<CompilerLifecycleManager.LifecycleListenerInfo> lifecycleListeners = new ArrayList<>();
     private final List<CodeAction> codeActions = new ArrayList<>();
+
+    private final List<CompletionProvider> completionProviders = new ArrayList<>();
 
     CompilerPluginContextIml(CompilerPluginInfo compilerPluginInfo) {
         this.compilerPluginInfo = compilerPluginInfo;
@@ -51,6 +56,10 @@ class CompilerPluginContextIml implements CompilerPluginContext {
         codeGenerators.add(new CodeGeneratorManager.CodeGeneratorInfo(codeGenerator, compilerPluginInfo));
     }
 
+    public void addCodeModifier(CodeModifier codeModifier) {
+        codeModifiers.add(new CodeModifierManager.CodeModifierInfo(codeModifier, compilerPluginInfo));
+    }
+
     @Override
     public void addCompilerLifecycleListener(CompilerLifecycleListener lifecycleListener) {
         lifecycleListeners.add(
@@ -62,6 +71,11 @@ class CompilerPluginContextIml implements CompilerPluginContext {
         codeActions.add(codeAction);
     }
 
+    @Override
+    public void addCompletionProvider(CompletionProvider completionProvider) {
+        completionProviders.add(completionProvider);
+    }
+
     List<CodeAnalyzerManager.CodeAnalyzerInfo> codeAnalyzers() {
         return codeAnalyzers;
     }
@@ -70,12 +84,20 @@ class CompilerPluginContextIml implements CompilerPluginContext {
         return codeGenerators;
     }
 
+    List<CodeModifierManager.CodeModifierInfo> codeModifiers() {
+        return codeModifiers;
+    }
+
     public List<CompilerLifecycleManager.LifecycleListenerInfo> getLifecycleListeners() {
         return lifecycleListeners;
     }
 
     public List<CodeAction> codeActions() {
         return codeActions;
+    }
+
+    public List<CompletionProvider> completionProviders() {
+        return completionProviders;
     }
 
     public CompilerPluginInfo compilerPluginInfo() {

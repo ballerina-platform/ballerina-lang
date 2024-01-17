@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-class ObjectOne {
-    final int i = 1;
-}
+type ObjectOne readonly & object {
+    int i;
+};
 
 readonly class ObjectTwo {
     int j = 1;
@@ -30,7 +30,7 @@ class ObjectThree {
 }
 
 type ObjectFour object {
-    *ObjectOne;
+    *ObjectOne; // OK
     *ObjectTwo;
 };
 
@@ -55,7 +55,7 @@ isolated client class Qux {
 }
 
 class Quux {
-    *Foo;
+    *Foo; // OK
     *Bar;
     *Baz;
     *Qux;
@@ -71,7 +71,7 @@ class Quux {
 }
 
 type Quuz object {
-    *Foo;
+    *Foo; // OK
     *Bar;
     *Baz;
     *Qux;
@@ -101,7 +101,7 @@ readonly class Corge {
 
 object {
     int x;
-} invalidReadOnlyReferenceInObjectConstructorExpression = isolated object Foo {
+} invalidReadOnlyReferenceInObjectConstructorExpression = isolated object Corge {
     int x = 1;
     private stream<int> y;
 
@@ -208,4 +208,16 @@ isolated client class Class4 {
 isolated client class Class5 {
     *Class4;
     final int q = 1;
+}
+
+public type FooObj readonly & distinct service object {
+    isolated remote function execute(string aVar, int bVar) returns int;
+};
+
+readonly client class FooClass {
+    *FooObj;
+
+    isolated remote function execute(string aVar, int bVar) returns int {
+        return bVar;
+    }
 }

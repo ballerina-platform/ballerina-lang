@@ -30,7 +30,6 @@ import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -45,20 +44,24 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.testng.internal.collections.Pair;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
+import static io.ballerina.compiler.api.symbols.Qualifier.ISOLATED;
 import static io.ballerina.compiler.api.symbols.Qualifier.LISTENER;
 import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
 import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.ABSOLUTE_RESOURCE_PATH;
 import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.STRING_LITERAL;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
@@ -92,15 +95,15 @@ public class ServiceSemanticAPITest {
         ClassSymbol symbol = (ClassSymbol) model.symbol(srcFile, from(22, 14)).get();
 
         List<String> expMethods = List.of("foo", "get barPath", "get foo/path", "get .", "get foo/baz",
-                                          "get foo/*", "get foo/*/**");
+                                          "get foo/^", "get foo/^/^^");
         assertList(symbol.methods(), expMethods);
 
         MethodSymbol method = symbol.methods().get("foo");
-        assertEquals(method.qualifiers().size(), 1);
+        assertEquals(method.qualifiers().size(), 2);
         assertTrue(method.qualifiers().contains(Qualifier.REMOTE));
 
         method = symbol.methods().get("get barPath");
-        assertEquals(method.qualifiers().size(), 1);
+        assertEquals(method.qualifiers().size(), 2);
         assertTrue(method.qualifiers().contains(Qualifier.RESOURCE));
     }
 
@@ -146,8 +149,8 @@ public class ServiceSemanticAPITest {
     @DataProvider(name = "ServiceDeclMethodPos")
     public Object[][] getMethodPos() {
         return new Object[][]{
-                {70, 22, "get", List.of(RESOURCE)},
-                {72, 13, "createError", new ArrayList<Qualifier>()}
+                {70, 22, "get", List.of(RESOURCE, ISOLATED)},
+                {72, 13, "createError", List.of(ISOLATED)}
         };
     }
 
@@ -162,10 +165,11 @@ public class ServiceSemanticAPITest {
 
     @DataProvider(name = "LookupPosProvider")
     public Object[][] getLookupPos() {
-        List<String> moduleSymbols = List.of("AServiceType", "Listener", "lsn", "ProcessingService", "AServiceClass");
+        List<String> moduleSymbols = List.of("AServiceType", "Listener", "lsn", "ProcessingService", "AServiceClass",
+                "A", "B", "ClientClassA", "ClientClassB");
         return new Object[][]{
                 {68, 26, moduleSymbols},
-//                {70, 59, concatSymbols(moduleSymbols, "magic", "createError")} // TODO: Fix #27314
+                {70, 59, concatSymbols(moduleSymbols, "self", "magic", "createError")}
         };
     }
 
@@ -212,7 +216,7 @@ public class ServiceSemanticAPITest {
         ResourceMethodSymbol method = (ResourceMethodSymbol) model.symbol(srcFile, from(35, 22)).get();
         assertEquals(method.resourcePath().kind(), ResourcePath.Kind.DOT_RESOURCE_PATH);
         assertEquals(method.resourcePath().signature(), ".");
-        assertEquals(method.signature(), "resource function get . () returns string");
+        assertEquals(method.signature(), "isolated resource function get . () returns string");
     }
 
     @Test
@@ -220,7 +224,8 @@ public class ServiceSemanticAPITest {
         ResourceMethodSymbol method = (ResourceMethodSymbol) model.symbol(srcFile, from(47, 22)).get();
         assertEquals(method.resourcePath().kind(), ResourcePath.Kind.PATH_SEGMENT_LIST);
         assertEquals(method.resourcePath().signature(), "foo/[string s]/[string... r]");
-        assertEquals(method.signature(), "resource function get foo/[string s]/[string... r] () returns string");
+        assertEquals(method.signature(),
+                "isolated resource function get foo/[string s]/[string... r] () returns string");
 
         PathSegmentList resourcePath = (PathSegmentList) method.resourcePath();
 
@@ -230,8 +235,7 @@ public class ServiceSemanticAPITest {
         assertEquals(pathParams.get(0).getName().get(), "s");
 
         assertEquals(resourcePath.pathRestParameter().get().getName().get(), "r");
-        assertEquals(resourcePath.pathRestParameter().get().typeDescriptor().typeKind(),
-                     TypeDescKind.ARRAY);
+        assertEquals(resourcePath.pathRestParameter().get().typeDescriptor().typeKind(), STRING);
 
         List<PathSegment> segments = resourcePath.list();
         assertEquals(segments.size(), 3);
@@ -247,11 +251,11 @@ public class ServiceSemanticAPITest {
         ResourceMethodSymbol method = (ResourceMethodSymbol) model.symbol(srcFile, from(74, 22)).get();
         assertEquals(method.resourcePath().kind(), ResourcePath.Kind.PATH_REST_PARAM);
         assertEquals(method.resourcePath().signature(), "[int... rest]");
-        assertEquals(method.signature(), "resource function get [int... rest] () returns string");
+        assertEquals(method.signature(), "isolated resource function get [int... rest] () returns string");
 
         PathRestParam resourcePath = (PathRestParam) method.resourcePath();
         assertEquals(resourcePath.parameter().getName().get(), "rest");
-        assertEquals(resourcePath.parameter().typeDescriptor().typeKind(), ARRAY);
+        assertEquals(resourcePath.parameter().typeDescriptor().typeKind(), INT);
     }
 
     @Test
@@ -283,6 +287,31 @@ public class ServiceSemanticAPITest {
         assertTrue(symbol.isEmpty());
     }
 
+    @Test(dataProvider = "PathParamProvider")
+    public void testPathParams(int line, int col, List<Pair<String, Boolean>> pathParamInfo) {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), RESOURCE_METHOD);
+        ResourceMethodSymbol resourceMethodSymbol = (ResourceMethodSymbol) symbol.get();
+        assertEquals(resourceMethodSymbol.resourcePath().kind(), ResourcePath.Kind.PATH_SEGMENT_LIST);
+        List<PathParameterSymbol> pathParams = ((PathSegmentList) resourceMethodSymbol.resourcePath()).pathParameters();
+        assertEquals(pathParams.size(), pathParamInfo.size());
+        for (int i = 0; i < pathParams.size(); i++) {
+            PathParameterSymbol pathParam = pathParams.get(i);
+            assertEquals(pathParam.typeDescriptor().signature(), pathParamInfo.get(i).first());
+            assertEquals(pathParam.isTypeOnlyParam(), pathParamInfo.get(i).second().booleanValue());
+        }
+    }
+
+    @DataProvider(name = "PathParamProvider")
+    private Object[][] getPathParams() {
+        return new Object[][] {
+                {99, 22, List.of(Pair.of("\"SomeLongMsg\"", true))},
+                {104, 22, List.of(Pair.of("\"SomeLongMsg\"", false), Pair.of("float", false), Pair.of(
+                        "\"AnotherLongMsg\"", true))}
+        };
+    }
+
     private Object[][] getExpValues() {
         return new Object[][]{
                 {null, null, null, null},
@@ -297,5 +326,9 @@ public class ServiceSemanticAPITest {
                 .filter(s -> s.getModule().isPresent() &&
                         !"ballerina".equals(s.getModule().get().getModule().get().id().orgName()))
                 .collect(Collectors.toList());
+    }
+
+    private List<String> concatSymbols(List<String> moduleSymbols, String... symbols) {
+        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).collect(Collectors.toList());
     }
 }

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -34,10 +33,10 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testRuntimeObjEqNegative() {
 
         CompileResult compileResult = BCompileUtil.compile("test-src/object/RuntimeObjEgNegativeProject");
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
 
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types:" +
-                " 'pkg.org_foo:user' cannot be cast to 'pkg:userB'\"}");
+        Assert.assertEquals(returns.toString(), "error(\"{ballerina}TypeCastError\",message=\"incompatible types: " +
+                "'pkg.org_foo:user' cannot be cast to 'pkg:userB'\")");
     }
 
     @Test(description = "Test private field access")
@@ -57,9 +56,9 @@ public class ObjectWithPrivateFieldsNegativeTest {
         Assert.assertEquals(compileResult.getErrorCount(), 5);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         int i = 0;
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ParentFoo.init'", 4, 24);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.init'", 4, 32);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.init'", 12, 43);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ParentFoo.init'", 4, 23);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.init'", 4, 31);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.init'", 12, 40);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.init'", 16, 47);
         BAssertUtil.validateError(compileResult, i, expectedErrMsg1 + "'PrivatePerson.init'", 20, 27);
     }
@@ -68,18 +67,21 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testPrivateObjAccess1SemanticsNegative() {
         CompileResult compileResult
                 = BCompileUtil.compile("test-src/object/PrivateObjAccess1SemanticsNegativeProject");
-        Assert.assertEquals(compileResult.getErrorCount(), 8);
-        String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
-        String expectedErrMsg2 = "attempt to expose non-public symbol ";
+        
+        Assert.assertEquals(compileResult.getWarnCount(), 6);
+        Assert.assertEquals(compileResult.getErrorCount(), 2);
+        
+        String expectedErrMsg = "attempt to refer to non-accessible symbol ";
+        String expectedWaringMsg = "attempt to expose non-public symbol ";
         int i = 0;
         // First error is in a different package
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'ChildFoo'", 5, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'PrivatePerson'", 34, 45);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'PrivatePerson'", 38, 1);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'PrivatePerson'", 42, 1);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'PrivatePerson'", 42, 73);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'FooFamily'", 16, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'", 20, 5);
+        BAssertUtil.validateWarning(compileResult, i++, expectedWaringMsg + "'ChildFoo'", 5, 5);
+        BAssertUtil.validateWarning(compileResult, i++, expectedWaringMsg + "'PrivatePerson'", 34, 45);
+        BAssertUtil.validateWarning(compileResult, i++, expectedWaringMsg + "'PrivatePerson'", 38, 1);
+        BAssertUtil.validateWarning(compileResult, i++, expectedWaringMsg + "'PrivatePerson'", 42, 1);
+        BAssertUtil.validateWarning(compileResult, i++, expectedWaringMsg + "'PrivatePerson'", 42, 73);
+        BAssertUtil.validateWarning(compileResult, i++, expectedWaringMsg + "'FooFamily'", 16, 5);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'PrivatePerson'", 20, 5);
         BAssertUtil.validateError(compileResult, i, "unknown type 'PrivatePerson'", 20, 5);
     }
 
@@ -100,17 +102,19 @@ public class ObjectWithPrivateFieldsNegativeTest {
         CompileResult compileResult
                 = BCompileUtil.compile("test-src/object/PrivateObjAccess2SemanticsNegativeProject");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 8);
-        String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
-        String expectedErrMsg2 = "attempt to expose non-public symbol ";
+        Assert.assertEquals(compileResult.getWarnCount(), 6);
+        Assert.assertEquals(compileResult.getErrorCount(), 2);
+        
+        String expectedErrMsg = "attempt to refer to non-accessible symbol ";
+        String expectedWarningMsg = "attempt to expose non-public symbol ";
         int i = 0;
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'ChildFoo'", 5, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'PrivatePerson'", 34, 45);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'PrivatePerson'", 38, 1);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'PrivatePerson'", 42, 1);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'PrivatePerson'", 42, 73);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg2 + "'FooFamily'", 16, 5);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'address'", 10, 13);
+        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'ChildFoo'", 5, 5);
+        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'PrivatePerson'", 34, 45);
+        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'PrivatePerson'", 38, 1);
+        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'PrivatePerson'", 42, 1);
+        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'PrivatePerson'", 42, 73);
+        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 16, 5);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'address'", 10, 13);
         BAssertUtil.validateError(compileResult, i,
                 "undefined field 'address' in object 'test/pkg.org_foo_baz_sn:1.0.0:FooEmployee'", 10, 18);
     }

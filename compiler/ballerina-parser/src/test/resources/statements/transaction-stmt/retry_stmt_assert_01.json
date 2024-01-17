@@ -59,7 +59,7 @@
           "kind": "LIST",
           "children": [
             {
-              "kind": "ROLLBACK_STATEMENT",
+              "kind": "RETRY_STATEMENT",
               "children": [
                 {
                   "kind": "RETRY_KEYWORD",
@@ -112,7 +112,7 @@
               ]
             },
             {
-              "kind": "ROLLBACK_STATEMENT",
+              "kind": "RETRY_STATEMENT",
               "children": [
                 {
                   "kind": "RETRY_KEYWORD",
@@ -189,7 +189,7 @@
               ]
             },
             {
-              "kind": "ROLLBACK_STATEMENT",
+              "kind": "RETRY_STATEMENT",
               "children": [
                 {
                   "kind": "RETRY_KEYWORD",
@@ -299,7 +299,7 @@
               ]
             },
             {
-              "kind": "ROLLBACK_STATEMENT",
+              "kind": "RETRY_STATEMENT",
               "children": [
                 {
                   "kind": "RETRY_KEYWORD",

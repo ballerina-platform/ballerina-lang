@@ -231,7 +231,135 @@ function testTypeDefReferringToTypeDefDefinedAfter() {
     assertEquality(person, d);
 }
 
+type FuncTypeDef function (int x, int y) returns int;
+
+final FuncTypeDef sumFunc = function(int x, int y) returns int {
+    return x + y;
+};
+
+class C1 {
+    FuncTypeDef func = sumFunc;
+
+    function sum() returns int {
+        return self.func(4, 100);
+    }
+}
+
+function testFuncInvocation() {
+    var obj = new C1();
+    assertEquality(104, obj.sum());
+}
+
+function testClassDefn() {
+    FooFunction fn = new ("llvmFunction");
+    assertEquality("llvmFunction", fn.getFuncName());
+}
+
+type FunctionDecl FooFunction;
+
+class FooFunction {
+    string functionName;
+    function init(string functionName) {
+        self.functionName = functionName;
+    }
+
+    function getFuncName() returns string {
+        return self.functionName;
+    }
+}
+
+type Seconds decimal;
+
+type Bool boolean;
+
+type Ints int;
+
+type Bytes byte;
+
+function testBinaryExprAssignments() {
+    Seconds res1 = 20 * 30;
+    assertEquality(<Seconds>600, res1);
+
+    Seconds res2 = 20 + 30;
+    assertEquality(<Seconds>50, res2);
+
+    Seconds res3 = 50 - 30;
+    assertEquality(<Seconds>20, res3);
+
+    Seconds res4 = 50 * 30 - 20;
+    assertEquality(<Seconds>1480, res4);
+
+    Bool res5 = true && false;
+    assertEquality(<Bool>false, res5);
+
+    Bool res6 = true || false;
+    assertEquality(<Bool>true, res6);
+
+    Bool res7 = true && false && true;
+    assertEquality(<Bool>false, res7);
+
+    [Ints, Bytes, Bytes, Bytes] resTuple = [0, 0, 0, 0];
+    [Ints, Bytes, Bytes, Bytes] expectedTuple = [0, 10, 11, 0];
+
+    Ints a = 10;
+    Ints b = 20;
+    Bytes c = 63;
+    Bytes d = 11;
+
+    resTuple[0] = a & b;
+    resTuple[1] = a & c;
+    resTuple[2] = c & d;
+    resTuple[3] = b & d;
+
+    assertEquality(resTuple, expectedTuple);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
+
+public type X1 ["x"];
+public type X2 ["x", 2, ()];
+
+function testTupleWithSingletonTypes() {
+    X1 a = returnTupleWithSingletonType();
+    X2 b = returnTupleWithSingletonType2();
+
+    X1 c = ["x"];
+    X2 d = ["x", 2, ()];
+
+    assertEquality(a, c);
+    assertEquality(b, d);
+}
+
+public function returnTupleWithSingletonType() returns X1 {
+    return ["x"];
+}
+
+public function returnTupleWithSingletonType2() returns X2 {
+    return ["x", 2, ()];
+}
+
+type Data record {|
+    string value;
+|};
+
+const annotation Data dataAnon on type;
+
+@dataAnon {
+    value: "T1"
+}
+type Person2 record {|
+    string name;
+|};
+
+function testAnnotWithRecordTypeDefinition() {
+    Person2 foo = {name: "James"};
+    typedesc<any> t = typeof foo;
+    Data? annon = t.@dataAnon;
+    assertEquality("{\"value\":\"T1\"}", annon.toString());
+
+    Data data = {value: "T2"};
+    assertEquality("{\"value\":\"T2\"}" , data.toString());
+}
 
 function assertTrue(any|error actual) {
     assertEquality(true, actual);

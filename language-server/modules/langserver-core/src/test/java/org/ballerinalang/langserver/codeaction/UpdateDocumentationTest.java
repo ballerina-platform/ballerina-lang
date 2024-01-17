@@ -29,19 +29,19 @@ public class UpdateDocumentationTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"updateDocumentationConfig1.json", "updateDocumentation1.bal"},
-                {"updateDocumentationConfig2.json", "updateDocumentation2.bal"},
-                {"updateDocumentationConfig3.json", "updateDocumentation3.bal"},
-                {"updateDocumentationConfig4.json", "updateDocumentation4.bal"},
-                {"updateDocCodeActionWithDeprecatedConfig1.json", "updateDocCodeActionWithDeprecated1.bal"},
+                {"updateDocumentationConfig1.json"},
+                {"updateDocumentationConfig2.json"},
+                {"updateDocumentationConfig3.json"},
+                {"updateDocumentationConfig4.json"},
+                {"updateDocCodeActionWithDeprecatedConfig1.json"},
         };
     }
 

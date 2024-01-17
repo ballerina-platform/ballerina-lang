@@ -55,12 +55,13 @@ import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -69,6 +70,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OB
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOBJECT_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
@@ -98,7 +100,7 @@ public class JvmObjectCreatorGen {
                                      List<BIRTypeDefinition> objectTypeDefList,
                                      SymbolTable symbolTable) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, objectsClass, null, OBJECT, null);
+        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, objectsClass, null, OBJECT, null);
         String metadataVarName = JvmCodeGenUtil.getStrandMetadataVarName(CREATE_RECORD_VALUE);
         jvmValueCreatorGen.generateStaticInitializer(module, cw, objectsClass, CREATE_OBJECT_VALUE, metadataVarName);
         generateCreateObjectMethods(cw, objectTypeDefList, module.packageID, moduleInitClass, objectsClass,
@@ -106,7 +108,7 @@ public class JvmObjectCreatorGen {
 
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
-        jarEntries.put(objectsClass + ".class", bytes);
+        jarEntries.put(objectsClass + CLASS_FILE_SUFFIX, bytes);
     }
 
 
@@ -117,7 +119,7 @@ public class JvmObjectCreatorGen {
                 CREATE_OBJECT, null, null);
         mv.visitCode();
         if (objectTypeDefList.isEmpty()) {
-            createDefaultCase(mv, new Label(), 1, "No such object: ");
+            createDefaultCase(mv, new Label(), 0, "No such object: ");
         } else {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, 1);
@@ -130,7 +132,7 @@ public class JvmObjectCreatorGen {
             generateCreateObjectMethodSplits(cw, objectTypeDefList, moduleId, moduleInitClass, typeOwnerClass,
                     symbolTable, metadataVarName);
         }
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_OBJECT_VALUE, objectsClass);
         mv.visitEnd();
     }
 
@@ -196,6 +198,7 @@ public class JvmObjectCreatorGen {
             mv.visitVarInsn(ALOAD, schedulerIndex);
             mv.visitVarInsn(ALOAD, parentIndex);
             mv.visitVarInsn(ALOAD, propertiesIndex);
+            mv.visitInsn(ACONST_NULL);
             mv.visitMethodInsn(INVOKESPECIAL, STRAND_CLASS, JVM_INIT_METHOD,
                     INIT_STRAND, false);
             mv.visitVarInsn(ASTORE, strandVarIndex);
@@ -244,14 +247,14 @@ public class JvmObjectCreatorGen {
                             CREATE_OBJECT, false);
                     mv.visitInsn(ARETURN);
                 }
-                mv.visitMaxs(i + 10, i + 10);
+                mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
                 mv.visitEnd();
             }
         }
 
         if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
             createDefaultCase(mv, defaultCaseLabel, var1Index, "No such object: ");
-            mv.visitMaxs(i + 10, i + 10);
+            mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }
     }

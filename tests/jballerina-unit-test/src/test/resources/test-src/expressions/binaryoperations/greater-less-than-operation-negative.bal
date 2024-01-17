@@ -213,7 +213,7 @@ function checkComparisonWithUnorderedTypes11() {
 }
 
 function checkComparisonWithUnorderedTypes12() {
-    TwoInts a = 1;
+    TwoInts|float a = 1;
     TwoInts? b = 2;
 
     boolean x1 = a < b;
@@ -234,7 +234,7 @@ function checkComparisonWithUnorderedTypes13() {
 
 function checkComparisonWithUnorderedTypes14() {
     string? a = "1";
-    string b = "2";
+    string|int b = "2";
 
     boolean x1 = a < b;
     boolean x2 = a <= b;
@@ -270,4 +270,110 @@ function checkComparisonWithUnorderedTypes17() {
     boolean x2 = a <= b;
     boolean x3 = a > b;
     boolean x4 = a >= b;
+}
+
+type X1 [()|null]|[string...];
+type Y1 [FIVE|SIX];
+
+function checkComparisonWithUnorderedTypes18() {
+    Y1 a = [5];
+    X1 b = [null];
+
+    boolean _ = a < b;
+    boolean _ = a <= b;
+    boolean _ = a > b;
+    boolean _ = a >= b;
+    boolean _ = b < a;
+    boolean _ = b <= a;
+    boolean _ = b > a;
+    boolean _ = b >= a;
+}
+
+type X2 [()|null, (), (), (), int, (), null, string];
+type Y2 [FIVE|SIX];
+
+function checkComparisonWithUnorderedTypes19() {
+    Y2 a = [5];
+    X2 b = [null];
+
+    boolean _ = a < b;
+    boolean _ = a <= b;
+    boolean _ = a > b;
+    boolean _ = a >= b;
+    boolean _ = b < a;
+    boolean _ = b <= a;
+    boolean _ = b > a;
+    boolean _ = b >= a;
+}
+
+function checkComparisonWithTupleTypes1() {
+    [int, int, string...] a = [1, 2];
+    int[] b = [2, 1];
+
+    boolean _ = a < b;
+    boolean _ = a <= b;
+    boolean _ = a > b;
+    boolean _ = a >= b;
+    boolean _ = b < a;
+    boolean _ = b <= a;
+    boolean _ = b > a;
+    boolean _ = b >= a;
+}
+
+function checkComparisonWithTupleTypes2() {
+    [int, int, string] a = [1, 2];
+    int[3] b = [2, 1, 1];
+
+    boolean _ = a < b;
+    boolean _ = a <= b;
+    boolean _ = a > b;
+    boolean _ = a >= b;
+    boolean _ = b < a;
+    boolean _ = b <= a;
+    boolean _ = b > a;
+    boolean _ = b >= a;
+}
+
+function checkComparisonWithUnionTypes1() {
+    int:Signed8[2]|int:Unsigned16[2] & readonly a = [1, -1];
+    string[1]|string:Char[2] & readonly b = ["1", "1"];
+
+    boolean _ = a < b;
+    boolean _ = a <= b;
+    boolean _ = a > b;
+    boolean _ = a >= b;
+    boolean _ = b < a;
+    boolean _ = b <= a;
+    boolean _ = b > a;
+    boolean _ = b >= a;
+}
+
+function checkComparisonWithUnionTypes2() {
+    int:Unsigned8[2]|float[2] & readonly a = [1, -1];
+    string[1]|string:Char[2] & readonly b = ["1", "1"];
+
+    boolean _ = a < b;
+    boolean _ = a <= b;
+    boolean _ = a > b;
+    boolean _ = a >= b;
+    boolean _ = b < a;
+    boolean _ = b <= a;
+    boolean _ = b > a;
+    boolean _ = b >= a;
+}
+
+type ByteArr byte[2] & readonly;
+
+function checkComparisonWithUnionTypes3() {
+    ByteArr|int:Signed16[2]  a = [1, -1];
+    string[2]  b = ["1", "1"];
+
+    boolean _ = a < b;
+    boolean _ = a <= b;
+    boolean _ = a > b;
+    boolean _ = a >= b;
+    boolean _ = b < a;
+    boolean _ = b <= a;
+    boolean _ = b > a;
+    boolean _ = b >= a;
 }

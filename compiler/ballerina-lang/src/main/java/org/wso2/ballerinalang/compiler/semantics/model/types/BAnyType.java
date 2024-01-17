@@ -25,23 +25,17 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Optional;
-
 /**
  * @since 0.94
  */
 public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
-
-    private BIntersectionType intersectionType = null;
     private boolean nullable = true;
-    public BIntersectionType immutableType;
 
     public BAnyType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
     }
 
     public BAnyType(int tag, BTypeSymbol tsymbol, Name name, long flag) {
-
         super(tag, tsymbol);
         this.name = name;
         this.flags = flag;
@@ -53,7 +47,6 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     }
 
     public BAnyType(int tag, BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
-
         super(tag, tsymbol);
         this.name = name;
         this.flags = flags;
@@ -83,20 +76,5 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     public String toString() {
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 }

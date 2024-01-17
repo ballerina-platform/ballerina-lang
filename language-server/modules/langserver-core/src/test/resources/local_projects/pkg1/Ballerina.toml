@@ -1,0 +1,9 @@
+[package]
+org = "ballerina"
+name = "pkg1"
+version = "2.1.0"
+distribution = "2201.7.0"
+export = ["pkg1", "pkg1.mod1"]
+
+[build-options]
+observabilityIncluded = false

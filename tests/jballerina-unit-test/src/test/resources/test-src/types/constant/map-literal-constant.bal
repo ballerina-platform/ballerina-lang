@@ -255,3 +255,60 @@ const map<map<string>> complexData = { "data": data, "moreData": { "user": "WSO2
 function testNestedConstMapAccess() returns boolean {
     return complexData["data"]["user"] == "Ballerina" && complexData["data"]["ID"] == "1234";
 }
+
+// -----------------------------------------------------------
+
+const CONSTA = "b";
+const map<string> X = {a : "A", [CONSTA] : "B"};
+
+function testConstMapWithComputedField() {
+    assertEqual(X["a"], "A");
+    assertEqual(X["b"], "B");
+    assertEqual(X.toString(), "{\"a\":\"A\",\"b\":\"B\"}");
+}
+
+
+const map<string> CONST1 = {a: "a"};
+
+type Foo record {
+   CONST1 x;
+   int i;
+};
+
+const Foo F1 = {x: {a : "a"}, i: 1};
+const record{|CONST1 x; int i;|} F2 = {x: {a : "a"}, i: 1};
+
+Foo f1 = {x: {a : "a"}, i: 1};
+Foo f2 = {x: CONST1, i: 1};
+
+function testRecordAsExpectedType() {
+    assertEqual(F1.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+    assertEqual(F2.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+
+    assertEqual(f1.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+    assertEqual(f2.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+}
+
+const map<float>|map<decimal> mUnion1 = {a: 1, b: 2.0f};
+const map<int>|map<float>|map<decimal> mUnion2 = {a: 1, b: 2.0, c: 3d};
+
+function testUnionAsExpectedType() {
+    assertTrue(mUnion1["a"] is float);
+    assertTrue(mUnion1["b"] is float);
+    assertEqual(mUnion1.toString(), "{\"a\":1.0,\"b\":2.0}");
+
+    assertTrue(mUnion2["a"] is decimal);
+    assertTrue(mUnion2["b"] is decimal);
+    assertTrue(mUnion2["c"] is decimal);
+    assertEqual(mUnion2.toString(), "{\"a\":1,\"b\":2.0,\"c\":3}");
+}
+
+function assertTrue(boolean actual) {
+    assertEqual(actual, true);
+}
+
+function assertEqual(int|float|decimal|boolean|string actual, int|float|decimal|boolean|string expected) {
+    if (actual != expected) {
+        panic error(string `Assertion error: expected ${expected} found ${actual}`);
+    }
+}

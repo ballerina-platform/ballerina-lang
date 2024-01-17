@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
@@ -35,10 +36,13 @@ import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaProjectParams;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxTreeNodeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageComponentsRequest;
+import org.ballerinalang.langserver.extensions.ballerina.packages.PackageConfigSchemaRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataRequest;
 import org.eclipse.lsp4j.ClientCapabilities;
+import org.eclipse.lsp4j.CodeActionCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
+import org.eclipse.lsp4j.CodeActionResolveSupportCapabilities;
 import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionContext;
@@ -61,6 +65,7 @@ import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializedParams;
+import org.eclipse.lsp4j.InlayHintParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PrepareRenameParams;
 import org.eclipse.lsp4j.Range;
@@ -93,6 +98,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -131,6 +137,10 @@ public class TestUtil {
 
     private static final String CODE_ACTION = "textDocument/codeAction";
 
+    private static final String CODE_ACTION_RESOLVE = "codeAction/resolve";
+
+    private static final String INLAY_HINT = "textDocument/inlayHint";
+
     private static final String FORMATTING = "textDocument/formatting";
 
     private static final String RANGE_FORMATTING = "textDocument/rangeFormatting";
@@ -146,6 +156,8 @@ public class TestUtil {
     private static final String PACKAGE_METADATA = "ballerinaPackage/metadata";
 
     private static final String PACKAGE_COMPONENTS = "ballerinaPackage/components";
+
+    private static final String PACKAGE_CONFIG_SCHEMA = "ballerinaPackage/configSchema";
 
     private static final String DOCUMENT_SYNTAX_TREE_NODE = "ballerinaDocument/syntaxTreeNode";
 
@@ -202,6 +214,22 @@ public class TestUtil {
     }
 
     /**
+     * Get the textDocument/completion response.
+     *
+     * @param fileURI     URI of the Bal file
+     * @param position    Cursor Position
+     * @param endpoint    Service Endpoint to Language Server
+     * @param triggerChar trigger character
+     * @return {@link String}   Response as String
+     */
+    public static String getCompletionResponse(URI fileURI, Position position, Endpoint endpoint,
+                                               String triggerChar) {
+        CompletableFuture<?> result =
+                endpoint.request(COMPLETION, getCompletionParams(fileURI, position, triggerChar));
+        return getResponseString(result);
+    }
+
+    /**
      * Get the textDocument/signatureHelp response.
      *
      * @param filePath        Path of the Bal file
@@ -218,32 +246,32 @@ public class TestUtil {
     /**
      * Get the textDocument/definition response.
      *
-     * @param filePath        Path of the Bal file
+     * @param fileUri         Path of the Bal file
      * @param position        Cursor Position
      * @param serviceEndpoint Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
-    public static String getDefinitionResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture<?> result = serviceEndpoint.request(DEFINITION, getDefinitionParams(filePath, position));
+    public static String getDefinitionResponse(String fileUri, Position position, Endpoint serviceEndpoint) {
+        CompletableFuture<?> result = serviceEndpoint.request(DEFINITION, getDefinitionParams(fileUri, position));
         return getResponseString(result);
     }
 
     /**
      * Get the textDocument/reference response.
      *
-     * @param filePath        Path of the Bal file
+     * @param fileUri         URI of the Bal file
      * @param position        Cursor Position
      * @param serviceEndpoint Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
-    public static String getReferencesResponse(String filePath, Position position, Endpoint serviceEndpoint) {
+    public static String getReferencesResponse(String fileUri, Position position, Endpoint serviceEndpoint) {
         ReferenceParams referenceParams = new ReferenceParams();
 
         ReferenceContext referenceContext = new ReferenceContext();
         referenceContext.setIncludeDeclaration(true);
 
         referenceParams.setPosition(new Position(position.getLine(), position.getCharacter()));
-        referenceParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        referenceParams.setTextDocument(getTextDocumentIdentifier(URI.create(fileUri)));
         referenceParams.setContext(referenceContext);
 
         CompletableFuture<?> result = serviceEndpoint.request(REFERENCES, referenceParams);
@@ -301,8 +329,32 @@ public class TestUtil {
     public static String getCodeActionResponse(Endpoint serviceEndpoint, String filePath, Range range,
                                                CodeActionContext context) {
         TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
-        CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
+        return getCodeActionResponse(serviceEndpoint, identifier, range, context);
+    }
+
+    public static String getCodeActionResponse(Endpoint serviceEndpoint, TextDocumentIdentifier textDocument,
+                                               Range range, CodeActionContext context) {
+        CodeActionParams codeActionParams = new CodeActionParams(textDocument, range, context);
         CompletableFuture<?> result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
+        return getResponseString(result);
+    }
+
+    /**
+     * Get the resolvable code action response.
+     *
+     * @param serviceEndpoint Language server service endpoint
+     * @param codeAction      Code action data
+     * @return {@link String} Response as a string
+     */
+    public static String getCodeActionResolveResponse(Endpoint serviceEndpoint, Object codeAction) {
+        CompletableFuture<?> result = serviceEndpoint.request(CODE_ACTION_RESOLVE, codeAction);
+        return getResponseString(result);
+    }
+
+    public static String getInlayHintsResponse(Endpoint serviceEndpoint, String filePath, Range range) {
+        TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
+        InlayHintParams inlayHintsParams = new InlayHintParams(identifier, range);
+        CompletableFuture<?> result = serviceEndpoint.request(INLAY_HINT, inlayHintsParams);
         return getResponseString(result);
     }
 
@@ -413,6 +465,19 @@ public class TestUtil {
     }
 
     /**
+     * Get package service's config schema response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param projectPath     Project path to evaluate
+     * @return {@link String} Package config schema response
+     */
+    public static String getPackageConfigSchemaResponse(Endpoint serviceEndpoint, String projectPath) {
+        PackageConfigSchemaRequest packageConfigSchemaRequest = new PackageConfigSchemaRequest();
+        packageConfigSchemaRequest.setDocumentIdentifier(getTextDocumentIdentifier(projectPath));
+        return getResponseString(serviceEndpoint.request(PACKAGE_CONFIG_SCHEMA, packageConfigSchemaRequest));
+    }
+
+    /**
      * Returns syntaxTreeNode API response.
      *
      * @param serviceEndpoint Language Server Service endpoint
@@ -460,22 +525,36 @@ public class TestUtil {
      * @throws IOException Exception while reading the file content
      */
     public static void openDocument(Endpoint serviceEndpoint, Path filePath) throws IOException {
+        byte[] encodedContent = Files.readAllBytes(filePath);
+        openDocument(serviceEndpoint, filePath.toUri().toString(), new String(encodedContent));
+    }
+
+    /**
+     * Open a document.
+     *
+     * @param serviceEndpoint Language Server Service Endpoint
+     * @param fileUri         uri of the document to open
+     * @param content         File content
+     * @throws IOException Exception while reading the file content
+     */
+    public static void openDocument(Endpoint serviceEndpoint, String fileUri, String content) throws IOException {
         DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
         TextDocumentItem textDocumentItem = new TextDocumentItem();
-        TextDocumentIdentifier identifier = new TextDocumentIdentifier();
 
-        byte[] encodedContent = Files.readAllBytes(filePath);
-        identifier.setUri(filePath.toUri().toString());
-        textDocumentItem.setUri(identifier.getUri());
-        textDocumentItem.setText(new String(encodedContent));
+        textDocumentItem.setUri(fileUri);
+        textDocumentItem.setText(content);
         documentParams.setTextDocument(textDocumentItem);
 
         serviceEndpoint.notify("textDocument/didOpen", documentParams);
     }
 
     public static void didChangeDocument(Endpoint serviceEndpoint, Path filePath, String content) {
+        didChangeDocument(serviceEndpoint, filePath.toUri(), content);
+    }
+
+    public static void didChangeDocument(Endpoint serviceEndpoint, URI fileUri, String content) {
         VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier();
-        identifier.setUri(filePath.toUri().toString());
+        identifier.setUri(fileUri.toString());
 
         DidChangeTextDocumentParams didChangeTextDocumentParams = new DidChangeTextDocumentParams();
         didChangeTextDocumentParams.setTextDocument(identifier);
@@ -491,8 +570,19 @@ public class TestUtil {
      * @param filePath        File path of the file to be closed
      */
     public static void closeDocument(Endpoint serviceEndpoint, Path filePath) {
+        closeDocument(serviceEndpoint, filePath.toUri().toString());
+    }
+
+    /**
+     * Close an already opened document. File URI should be provided separately. Used to simulate scenarios where
+     * different URI schemes are used.
+     *
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @param fileUri         File URI
+     */
+    public static void closeDocument(Endpoint serviceEndpoint, String fileUri) {
         TextDocumentIdentifier documentIdentifier = new TextDocumentIdentifier();
-        documentIdentifier.setUri(filePath.toUri().toString());
+        documentIdentifier.setUri(fileUri);
         serviceEndpoint.notify("textDocument/didClose", new DidCloseTextDocumentParams(documentIdentifier));
     }
 
@@ -550,9 +640,9 @@ public class TestUtil {
 
     /**
      * Send the workspace/didChangeWatchedFiles notification.
-     * 
+     *
      * @param serviceEndpoint service endpoint
-     * @param params {@link DidChangeWatchedFilesParams} parameters for the change notification
+     * @param params          {@link DidChangeWatchedFilesParams} parameters for the change notification
      */
     public static void didChangeWatchedFiles(Endpoint serviceEndpoint, DidChangeWatchedFilesParams params) {
         serviceEndpoint.notify("workspace/didChangeWatchedFiles", params);
@@ -571,6 +661,13 @@ public class TestUtil {
         return getResponseString(result);
     }
 
+    /**
+     * Get the {@link TextDocumentIdentifier} given the file path. Use the one with the URI as the parameter.
+     *
+     * @param filePath {@link Path}
+     * @return {@link TextDocumentIdentifier}
+     */
+    @Deprecated
     public static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
         identifier.setUri(Paths.get(filePath).toUri().toString());
@@ -578,7 +675,20 @@ public class TestUtil {
         return identifier;
     }
 
-    private static TextDocumentPositionParams getTextDocumentPositionParams(String filePath, Position position) {
+    /**
+     * Get the {@link TextDocumentIdentifier} given the URI.
+     *
+     * @param fileUri {@link URI}
+     * @return {@link TextDocumentIdentifier}
+     */
+    public static TextDocumentIdentifier getTextDocumentIdentifier(URI fileUri) {
+        TextDocumentIdentifier identifier = new TextDocumentIdentifier();
+        identifier.setUri(fileUri.toString());
+
+        return identifier;
+    }
+
+    public static TextDocumentPositionParams getTextDocumentPositionParams(String filePath, Position position) {
         TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
         positionParams.setTextDocument(getTextDocumentIdentifier(filePath));
         positionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
@@ -594,9 +704,9 @@ public class TestUtil {
         return hoverParams;
     }
 
-    private static DefinitionParams getDefinitionParams(String filePath, Position position) {
+    private static DefinitionParams getDefinitionParams(String fileUri, Position position) {
         DefinitionParams definitionParams = new DefinitionParams();
-        definitionParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        definitionParams.setTextDocument(getTextDocumentIdentifier(URI.create(fileUri)));
         definitionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
 
         return definitionParams;
@@ -613,6 +723,22 @@ public class TestUtil {
     private static CompletionParams getCompletionParams(String filePath, Position position, String triggerChar) {
         CompletionParams completionParams = new CompletionParams();
         completionParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        completionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+        CompletionContext context = new CompletionContext();
+        if (triggerChar != null && !triggerChar.isEmpty()) {
+            context.setTriggerCharacter(triggerChar);
+            context.setTriggerKind(CompletionTriggerKind.TriggerCharacter);
+        } else {
+            context.setTriggerKind(CompletionTriggerKind.Invoked);
+        }
+        completionParams.setContext(context);
+
+        return completionParams;
+    }
+
+    private static CompletionParams getCompletionParams(URI fileURI, Position position, String triggerChar) {
+        CompletionParams completionParams = new CompletionParams();
+        completionParams.setTextDocument(getTextDocumentIdentifier(fileURI));
         completionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
         CompletionContext context = new CompletionContext();
         if (triggerChar != null && !triggerChar.isEmpty()) {
@@ -671,7 +797,27 @@ public class TestUtil {
         diagnostics.addAll(diagnosticResult.diagnostics());
         return diagnostics;
     }
-    
+
+    public static Optional<Package> compileAndGetPackage(Path sourcePath, WorkspaceManager workspaceManager,
+                                                         LanguageServerContext serverContext) throws IOException,
+                                                         WorkspaceDocumentException {
+        DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(sourcePath.toUri().toString(),
+                workspaceManager,
+                LSContextOperation.TXT_DID_OPEN,
+                serverContext);
+        DidOpenTextDocumentParams params = new DidOpenTextDocumentParams();
+        TextDocumentItem textDocument = new TextDocumentItem();
+        textDocument.setUri(sourcePath.toUri().toString());
+        textDocument.setText(new String(Files.readAllBytes(sourcePath)));
+        params.setTextDocument(textDocument);
+        context.workspace().didOpen(sourcePath, params);
+        Optional<Project> project = context.workspace().project(context.filePath());
+        if (project.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(project.get().currentPackage());
+    }
+
     public static LanguageServerBuilder newLanguageServer() {
         return new LanguageServerBuilder();
     }
@@ -686,6 +832,7 @@ public class TestUtil {
         private OutputStream outputStream;
         private InitializeParams initializeParams;
         private final Map<String, Object> initOptions = new HashMap<>();
+        private ExtendedLanguageClient client;
 
         public LanguageServerBuilder withLanguageServer(BallerinaLanguageServer languageServer) {
             this.languageServer = languageServer;
@@ -707,6 +854,11 @@ public class TestUtil {
             return this;
         }
 
+        public LanguageServerBuilder withClient(ExtendedLanguageClient client) {
+            this.client = client;
+            return this;
+        }
+
         public Endpoint build() {
             if (languageServer == null) {
                 languageServer = new BallerinaLanguageServer();
@@ -720,11 +872,14 @@ public class TestUtil {
                 outputStream = OutputStream.nullOutputStream();
             }
 
-            Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(this.languageServer,
-                    ExtendedLanguageClient.class, inputStream, outputStream);
-            ExtendedLanguageClient client = launcher.getRemoteProxy();
+            if (client == null) {
+                Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(this.languageServer,
+                        ExtendedLanguageClient.class, inputStream, outputStream);
+                this.client = launcher.getRemoteProxy();
+            }
+
             languageServer.connect(client);
-            
+
             if (initializeParams == null) {
                 initializeParams = new InitializeParams();
                 ClientCapabilities capabilities = new ClientCapabilities();
@@ -739,9 +894,17 @@ public class TestUtil {
 
                 textDocumentClientCapabilities.setCompletion(completionCapabilities);
                 textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
+                // Code action capabilities
+                CodeActionResolveSupportCapabilities resolveSupportCapabilities = 
+                        new CodeActionResolveSupportCapabilities(List.of("edit"));
+                CodeActionCapabilities codeActionCapabilities = new CodeActionCapabilities();
+                codeActionCapabilities.setResolveSupport(resolveSupportCapabilities);
+                textDocumentClientCapabilities.setCodeAction(codeActionCapabilities);
+                // Folding range capabilities
                 FoldingRangeCapabilities foldingRangeCapabilities = new FoldingRangeCapabilities();
                 foldingRangeCapabilities.setLineFoldingOnly(true);
                 textDocumentClientCapabilities.setFoldingRange(foldingRangeCapabilities);
+                // Rename capabilities
                 RenameCapabilities renameCapabilities = new RenameCapabilities();
                 renameCapabilities.setPrepareSupport(true);
                 renameCapabilities.setHonorsChangeAnnotations(true);
@@ -765,12 +928,13 @@ public class TestUtil {
 
             Map<String, Object> initializationOptions = new HashMap<>();
             initializationOptions.put(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS, true);
+            initializationOptions.put(InitializationOptions.KEY_ENABLE_INLAY_HINTS, true);
             initializationOptions.put(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, true);
             if (!initOptions.isEmpty()) {
                 initializationOptions.putAll(initOptions);
             }
             initializeParams.setInitializationOptions(GSON.toJsonTree(initializationOptions));
-            
+
             Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
             endpoint.request("initialize", initializeParams);
             endpoint.request("initialized", new InitializedParams());

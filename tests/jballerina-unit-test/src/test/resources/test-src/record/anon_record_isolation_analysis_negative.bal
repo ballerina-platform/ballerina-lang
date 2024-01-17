@@ -17,14 +17,14 @@
 function testRecordWithClosureTypeMutabilityNegative() {
     int j = 9;
     string n = "A";
-    record {| int i = j; |} a1 = {};
-    record {| int i = j; |}[] a2 = [];
-    [record {| int i = j; |}] a3 = [];
-    table<record {| int i = j; |}> a4 = table [];
-    record {| int i = j; record {| string m = n; |} k;|}[] a5 = [];
-    record {| int i = j; record {| string m = n; |}[] k;|}[] a6 = [];
-    record {| int i = j; |}|string a7 = {};
-    [map<record {| int i = j; |}|record {| string m = n; |}[]>, record {| int i = j; |}...] a8 = [];
+    record {| int i = j; |} _ = {};
+    record {| int i = j; |}[] _ = [];
+    [record {| int i = j; |}] _ = [];
+    table<record {| int i = j; |}> _ = table [];
+    record {| int i = j; record {| string m = n; |} k;|}[] _ = [];
+    record {| int i = j; record {| string m = n; |}[] k;|}[] _ = [];
+    record {| int i = j; |}|string _ = {};
+    [map<record {| int i = j; |}|record {| string m = n; |}[]>, record {| int i = j; |}...] _ = [];
     map<record {| int i = j; |}> a9;
     stream<record {| int i = j; |}> a10;
     stream<record {| int i = j; |}[]> a11;

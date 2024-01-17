@@ -25,8 +25,7 @@ import org.ballerinalang.langserver.commons.registration.BallerinaServerCapabili
 public class PerformanceAnalyzerServerCapabilities extends BallerinaServerCapability {
 
     private boolean getEndpoints;
-    private boolean getGraphData;
-    private boolean getRealtimeData;
+    private boolean getResourcesWithEndpoints;
 
     public boolean isGetEndpoints() {
         return getEndpoints;
@@ -36,20 +35,12 @@ public class PerformanceAnalyzerServerCapabilities extends BallerinaServerCapabi
         this.getEndpoints = getEndpoints;
     }
 
-    public boolean isGetGraphData() {
-        return getGraphData;
+    public boolean isGetResourcesWithEndpoints() {
+        return getResourcesWithEndpoints;
     }
 
-    public void setGetGraphData(boolean getGraphData) {
-        this.getGraphData = getGraphData;
-    }
-
-    public boolean isGetRealtimeData() {
-        return getRealtimeData;
-    }
-
-    public void setGetRealtimeData(boolean getRealtimeData) {
-        this.getRealtimeData = getRealtimeData;
+    public void setGetResourcesWithEndpoints(boolean getResourcesWithEndpoints) {
+        this.getResourcesWithEndpoints = getResourcesWithEndpoints;
     }
 
     public PerformanceAnalyzerServerCapabilities() {

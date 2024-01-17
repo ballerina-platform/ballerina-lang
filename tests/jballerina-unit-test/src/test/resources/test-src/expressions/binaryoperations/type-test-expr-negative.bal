@@ -128,20 +128,20 @@ function testArrays() {
     int[] x = [1, 2, 3];
     int[][] y = [[1, 2, 3], [4, 5, 6]];
 
-    boolean b0 = x is int[] && y is int[][];
-    boolean b1 = x is float[];
-    boolean b2 = y is json;
-    boolean b3 = y is json[];
-    boolean b4 = y is json[][];
+    boolean _ = x is int[] && y is int[][];
+    boolean _ = x is float[];
+    boolean _ = y is json;
+    boolean _ = y is json[];
+    boolean _ = y is json[][];
 }
 
 function testTuples() {
     [int, string] a = [4, "hello"];
 
-    boolean b0 = a is [int, string];
-    boolean b1 = a is [float, boolean];
-    boolean b2 = a is [any, any];
-    boolean b3 = a is [json, json];
+    boolean _ = a is [int, string];
+    boolean _ = a is [float, boolean];
+    boolean _ = a is [any, any];
+    boolean _ = a is [json, json];
 }
 
 function testTupleWithAssignableTypes() returns [boolean, boolean, boolean] {
@@ -239,12 +239,12 @@ type FooOne "foo"|1;
 function testFiniteTypeAsAlwaysTrueBroaderType() {
     FooBar f1 = "foo";
     if (f1 is string) {
-        string y = f1;
+        string _ = f1;
     }
 
     FooOne f2 = "foo";
     if (f2 is string|int) {
-        string|int y = f2;
+        string|int _ = f2;
     }
 }
 
@@ -253,7 +253,7 @@ type BazTwo "baz"|2;
 function testFiniteTypeAsNeverMatchingFiniteType() {
     FooBar f1 = "foo";
     if (f1 is BazTwo) {
-        BazTwo y = f1;
+        BazTwo _ = f1;
     }
 }
 
@@ -277,24 +277,24 @@ function testXMLNeverType() {
 
 function testRecordNegative() {
     Baz|int val = 11;
-    boolean b = val is Bar;
-    boolean b2 = val is Qux;
+    boolean _ = val is Bar;
+    boolean _ = val is Qux;
 
     Bar val2 = {};
-    boolean b3 = val2 is Baz;
-    boolean b4 = val2 is Quux;
+    boolean _ = val2 is Baz;
+    boolean _ = val2 is Quux;
 
     Qux val3 = {code: new};
-    boolean b5 = val3 is Baz;
-    boolean b6 = val3 is Quux;
+    boolean _ = val3 is Baz;
+    boolean _ = val3 is Quux;
 
     Quux val4 = {"i": 1, "j": 2};
-    boolean b7 = val4 is Bar;
-    boolean b8 = val4 is Qux;
-    boolean b9 = val4 is record {|int i; boolean b;|};
+    boolean _ = val4 is Bar;
+    boolean _ = val4 is Qux;
+    boolean _ = val4 is record {|int i; boolean b;|};
 
     ClosedRecordWithIntField val5 = {i: 100};
-    boolean b10 = val5 is record {| int i; string s; |};
+    boolean _ = val5 is record {| int i; string s; |};
 }
 
 type Baz record {
@@ -328,13 +328,13 @@ function testAnydataAgainstInvalidArray() {
     object {}[] arr1 = [];
 
     if arr1 is anydata {
-        anydata[] p = arr1;
+        anydata[] _ = arr1;
     }
 
     anydata arr2 = [];
 
     if arr2 is object {}[] {
-        object {}[] p = arr2;
+        object {}[] _ = arr2;
     }
 }
 
@@ -355,6 +355,6 @@ type Record record {|
 
 function testRecordNegative2() {
     Record rec = {i: 1, s: ""};
-    boolean b2 = rec is RecordWithIntFieldAndNeverRestField;
-    boolean b3 = rec is RecordWithIntFieldAndEffectivelyNeverRestField;
+    boolean _ = rec is RecordWithIntFieldAndNeverRestField;
+    boolean _ = rec is RecordWithIntFieldAndEffectivelyNeverRestField;
 }

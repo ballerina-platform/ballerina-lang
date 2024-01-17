@@ -1,9 +1,14 @@
 {
-  "line": 10,
-  "character": 12,
+  "line": 0,
+  "character": 0,
+  "position": {
+    "line": 10,
+    "character": 12
+  },
+  "source": "negative_modVarToListnerDecl1.bal",
   "expected": [
     {
-      "title": "Convert module variable 'ln' to listener declaration"
+      "title": "Convert module variable \u0027ln\u0027 to listener declaration"
     }
   ]
 }

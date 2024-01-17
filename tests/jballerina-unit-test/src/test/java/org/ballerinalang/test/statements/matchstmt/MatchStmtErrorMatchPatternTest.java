@@ -31,15 +31,17 @@ import org.testng.annotations.Test;
  * @since 2.0.0
  */
 public class MatchStmtErrorMatchPatternTest {
-    private CompileResult result, restPatternResult, resultNegative;
+    private CompileResult result, restPatternResult, resultNegative, moduleResult;
     private String patternNotMatched = "pattern will not be matched";
     private String unreachablePattern = "unreachable pattern";
+    private String unnecessaryCondition = "unnecessary condition: expression will always evaluate to 'true'";
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/error_match_pattern.bal");
         restPatternResult = BCompileUtil.compile("test-src/statements/matchstmt" +
                 "/error_match_pattern_with_rest_match_pattern.bal");
+        moduleResult = BCompileUtil.compile("test-src/statements/matchstmt/error-match-project");
         resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/error_match_pattern_negative.bal");
     }
 
@@ -124,6 +126,11 @@ public class MatchStmtErrorMatchPatternTest {
     }
 
     @Test
+    public void testErrorMatchPattern17() {
+        BRunUtil.invoke(result, "testErrorMatchPattern17");
+    }
+
+    @Test
     public void testErrorMatchPatternWithRestPattern1() {
         BRunUtil.invoke(restPatternResult, "testErrorMatchPattern1");
     }
@@ -139,22 +146,53 @@ public class MatchStmtErrorMatchPatternTest {
     }
 
     @Test
+    public void testErrorMatchWithQualifiedReference() {
+        BRunUtil.invoke(moduleResult, "testErrorMatchWithQualifiedReference");
+    }
+
+    @Test
     public void testErrorMatchPatternNegative() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         //Assert.assertEquals(resultNegative.getWarnCount(), 10);
         int i = 0;
-        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 23, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 28, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 33, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 40, 19);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 41, 28);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 42, 20);
+        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 31, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 36, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 41, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 48, 19);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 49, 28);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 50, 20);
         BAssertUtil.validateError(resultNegative, i++, "all match patterns should contain the same set of variables",
-                43, 9);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 43, 24);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 44, 42);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 45, 49);
-        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 47, 44);
+                51, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'a'", 51, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'b'", 51, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 51, 24);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 52, 42);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 53, 49);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 55, 44);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorA'", 62, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorB'", 63, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorC'", 68, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorD'", 69, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorA'", 76, 9);
+        BAssertUtil.validateHint(resultNegative, i++, unnecessaryCondition, 76, 23);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 78, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorB'", 78, 9);
+        BAssertUtil.validateHint(resultNegative, i++, unnecessaryCondition, 78, 23);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorC'", 84, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 85, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorD'", 85, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorA'", 92, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorB'", 93, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorC'", 98, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorD'", 99, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorA'", 106, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorB'", 107, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorC'", 112, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorD'", 113, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorA'", 120, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorB'", 121, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorC'", 126, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorD'", 127, 9);
     }
 
     @AfterClass
@@ -162,5 +200,6 @@ public class MatchStmtErrorMatchPatternTest {
         result = null;
         restPatternResult = null;
         resultNegative = null;
+        moduleResult = null;
     }
 }

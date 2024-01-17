@@ -161,7 +161,7 @@ public class BallerinaDocGenerator {
         centralLib.modules.sort((o1, o2) -> o1.id.compareToIgnoreCase(o2.id));
         writeAPIDocs(moduleLib, apiDocsRoot, true, false);
 
-        // Create the central standard library index json
+        // Create the central Ballerina library index JSON.
         String stdIndexJson = gson.toJson(centralLib);
         File stdIndexJsonFile = apiDocsRoot.resolve(CENTRAL_STDLIB_INDEX_JSON).toFile();
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(stdIndexJsonFile),
@@ -171,7 +171,7 @@ public class BallerinaDocGenerator {
             log.error("Failed to create {} file.", CENTRAL_STDLIB_INDEX_JSON, e);
         }
 
-        // Create the central standard library search json
+        // Create the central Ballerina library search JSON.
         String stdSearchJson = gson.toJson(genSearchJson(moduleLib));
         File stdSearchJsonFile = apiDocsRoot.resolve(CENTRAL_STDLIB_SEARCH_JSON).toFile();
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(stdSearchJsonFile),
@@ -267,6 +267,20 @@ public class BallerinaDocGenerator {
         }
     }
 
+    private static String getApiDocsVersion() {
+        String apiDocsVersion = "";
+        try (InputStream inputStream = BallerinaDocGenerator.class.getResourceAsStream("/META-INF/tool.properties")) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            apiDocsVersion = properties.getProperty("apiDocs.version").split("-")[0];
+
+            return apiDocsVersion;
+        } catch (IOException e) {
+            return "NOT_FOUND";
+        }
+    }
+
     private static void genApiDocsJson(ModuleLibrary moduleLib, Path destination, boolean excludeUI) {
         try {
             Files.createDirectories(destination);
@@ -275,6 +289,7 @@ public class BallerinaDocGenerator {
         }
 
         ApiDocsJson apiDocsJson = new ApiDocsJson();
+        apiDocsJson.apiDocsVersion = getApiDocsVersion();
         apiDocsJson.docsData = moduleLib;
         apiDocsJson.searchData = genSearchJson(moduleLib);
 

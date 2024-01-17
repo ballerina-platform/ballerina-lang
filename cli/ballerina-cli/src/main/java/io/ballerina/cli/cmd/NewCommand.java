@@ -19,8 +19,11 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -28,10 +31,17 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import static io.ballerina.cli.cmd.CommandUtil.DEFAULT_TEMPLATE;
+import static io.ballerina.cli.cmd.CommandUtil.balFilesExists;
+import static io.ballerina.cli.cmd.CommandUtil.checkPackageFilesExists;
+import static io.ballerina.cli.cmd.CommandUtil.initPackageFromCentral;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
@@ -40,35 +50,40 @@ import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = NEW_COMMAND, description = "Create a new Ballerina project")
+@CommandLine.Command(name = NEW_COMMAND, description = "Create a new Ballerina package")
 public class NewCommand implements BLauncherCmd {
 
-    private Path userDir;
     private PrintStream errStream;
     private boolean exitWhenFinish;
+    Path homeCache = RepoUtils.createAndGetHomeReposPath();
 
     @CommandLine.Parameters
-    private List<String> argList;
+    public List<String> argList;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
             "default: default")
-    private String template = "default";
+    public String template = "default";
 
     public NewCommand() {
-        this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.errStream = System.err;
         this.exitWhenFinish = true;
         CommandUtil.initJarFs();
     }
 
-    public NewCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish) {
-        this.userDir = userDir;
+    public NewCommand(PrintStream errStream, boolean exitWhenFinish) {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         CommandUtil.initJarFs();
+    }
+
+    public NewCommand(PrintStream errStream, boolean exitWhenFinish, Path customHomeCache) {
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        CommandUtil.initJarFs();
+        this.homeCache = customHomeCache;
     }
 
     @Override
@@ -80,11 +95,11 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
-        // Check if the project name is given
+        // Check if the project path is given
         if (null == argList) {
             CommandUtil.printError(errStream,
-                    "project name is not provided.",
-                    "bal new <project-name>",
+                    "project path is not provided.",
+                    "bal new <project-path>",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -93,40 +108,138 @@ public class NewCommand implements BLauncherCmd {
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
                     "too many arguments",
-                    "bal new <project-name>",
+                    "bal new <project-path>",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
-        // If the current directory is a ballerina project, fail the command.
-        if (ProjectUtils.isBallerinaProject(this.userDir)) {
-            CommandUtil.printError(errStream,
-                    "directory is already a Ballerina project.",
-                    null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
+        Path argPath = Paths.get(argList.get(0));
+        Path packagePath = argPath;
+        Path currentDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        List<Path> filesInDir = new ArrayList<>();
+        try {
+            Path relativeToCurrentDir = Paths.get(currentDir.toString(),
+                    packagePath.toString()).normalize();
+            Path relativeParent = relativeToCurrentDir.getParent();
+            Optional<Path> optionalRelativeParent = Optional.ofNullable(relativeToCurrentDir.getParent());
+            if (optionalRelativeParent.isPresent()) {
+                relativeParent = optionalRelativeParent.get();
+            }
+            if (Files.exists(relativeToCurrentDir) || Files.exists(relativeParent)) {
+                packagePath = relativeToCurrentDir;
+            }
+        } catch (InvalidPathException ignored) {
+            // If the path is not a valid path, use the given path as it is.
         }
 
-        String packageName = argList.get(0);
-        Path path = userDir.resolve(packageName);
-        // Check if the directory or file exists with the given project name
-        if (Files.exists(path)) {
+        CommandUtil.setPrintStream(errStream);
+        Path packageDirectory;
+        String packageName;
+        Optional<Path> optionalPackageName = Optional.ofNullable(packagePath.getFileName());
+        if (optionalPackageName.isEmpty()) {
             CommandUtil.printError(errStream,
-                    "destination '" + path.toString() + "' already exists.",
-                    "bal new <project-name>",
+                    "package name could not be derived",
+                    "bal new <project-path>",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
+        }
+        packageName = optionalPackageName.get().toString();
+        boolean balFilesExist = false;
+
+        // Check if the given path is a valid path
+        if (Files.exists((packagePath))) {
+            // If the given path is a ballerina project, fail the command.
+            if (ProjectUtils.isBallerinaProject(packagePath)) {
+                CommandUtil.printError(errStream,
+                        "directory is already a Ballerina project.",
+                        null,
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            if (FileUtils.checkBallerinaTomlInExistingDir(packagePath)) {
+                CommandUtil.printError(errStream,
+                        "Directory already contains a Ballerina project",
+                        null,
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+
+            //Check if package files/directories other than .bal files exist.
+            String packageFiles = checkPackageFilesExists(packagePath);
+            if (!packageFiles.equals("") && !template.equals(DEFAULT_TEMPLATE)) {
+                CommandUtil.printError(errStream,
+                        "Existing " + packageFiles.substring(0, packageFiles.length() - 2) +
+                                " file/directory(s) were found. " +
+                                "Please use a different directory or remove existing files.",
+                        null,
+                        false);
+                CommandUtil.exitError(exitWhenFinish);
+                return;
+            }
+
+            try {
+                balFilesExist = balFilesExists(packagePath);
+                if (balFilesExist && !template.equals(DEFAULT_TEMPLATE)) {
+                    CommandUtil.printError(errStream,
+                            "Existing .bal files found. " +
+                                    "Please use a different directory or remove existing files.",
+                            null,
+                            false);
+                    CommandUtil.exitError(exitWhenFinish);
+                    return;
+                }
+            } catch (IOException e) {
+                CommandUtil.printError(errStream,
+                        "error occurred while looking for existing package files: " + e.getMessage(),
+                        null,
+                        false);
+                CommandUtil.exitError(exitWhenFinish);
+                return;
+            }
+
+            packageDirectory = packagePath;
+            filesInDir = FileUtils.getFilesInDirectory(packageDirectory);
+        } else {
+            if (packagePath.getParent() == null) {
+                CommandUtil.printError(errStream,
+                        "destination '" + packagePath + "' does not exist.",
+                        "bal new <project-path>",
+                        true);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            Optional<Path> optionalPackageDirectory = Optional.ofNullable(packagePath.getParent());
+            packageDirectory = optionalPackageDirectory.get();
+            // Check if the parent directory path is a valid path
+            if (!Files.exists((packageDirectory))) {
+                CommandUtil.printError(errStream,
+                        "destination '" + packagePath + "' does not exist.",
+                        "bal new <project-path>",
+                        true);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            // If the parent directory is a ballerina project, fail the command.
+            if (ProjectUtils.isBallerinaProject(packageDirectory)) {
+                CommandUtil.printError(errStream,
+                        "parent directory is already a Ballerina project.",
+                        null,
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
         }
 
         // Check if the command is executed inside a ballerina project
-        Path projectRoot = ProjectUtils.findProjectRoot(path);
+        Path projectRoot = ProjectUtils.findProjectRoot(packageDirectory);
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
                     "directory is already within a Ballerina project :" +
-                            projectRoot.resolve(ProjectConstants.BALLERINA_TOML).toString(),
+                            projectRoot.resolve(ProjectConstants.BALLERINA_TOML),
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -143,52 +256,69 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
-        if (!ProjectUtils.validateUnderscoresOfName(packageName)) {
-            CommandUtil.printError(errStream,
-                                   "invalid package name : '" + packageName + "' :\n" +
-                                           ProjectUtils.getValidateUnderscoreError(packageName, "Package"),
-                                   null,
-                                   false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
         if (!ProjectUtils.validatePackageName(packageName)) {
-            errStream.println("unallowed characters in the project name were replaced by " +
-                    "underscores when deriving the package name. Edit the Ballerina.toml to change it.");
+            packageName = ProjectUtils.guessPkgName(packageName, template);
+            errStream.println("package name is derived as '" + packageName
+                    + "'. Edit the Ballerina.toml to change it.");
             errStream.println();
         }
 
-        // Check if the template exists
-        if (!CommandUtil.getTemplates().contains(template)) {
-            CommandUtil.printError(errStream,
-                    "template not found, use `bal new --help` to view available templates.",
-                    null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
         try {
-            Files.createDirectories(path);
-            CommandUtil.initPackageByTemplate(path, packageName, template);
+            // check if the template matches with one of the inbuilt template types
+            if (CommandUtil.getTemplates().contains(template)) {
+                // create package with inbuilt template
+                if (Files.exists((packagePath))) {
+                    String existingFiles = CommandUtil.checkTemplateFilesExists(template, packagePath);
+                    if (!existingFiles.equals("")) {
+                        CommandUtil.printError(errStream,
+                                "Existing " + existingFiles.substring(0, existingFiles.length() - 2) +
+                                        " file/directory(s) were found. " +
+                                        "Please use a different directory or remove existing files.",
+                                null,
+                                false);
+                        CommandUtil.exitError(exitWhenFinish);
+                        return;
+                    }
+                }
+                CommandUtil.initPackageByTemplate(packagePath, packageName, template, balFilesExist);
+            } else {
+                Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
+                        .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                        .resolve(ProjectConstants.BALA_DIR_NAME);
+                initPackageFromCentral(balaCache, packagePath, packageName, template, filesInDir);
+            }
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
                     "error occurred while creating project : " + "Insufficient Permission : " + e.getMessage(),
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
-            return;
+        } catch (BLauncherException e) {
+            if (Files.exists(packagePath)) {
+                try {
+                    Files.delete(packagePath);
+                } catch (IOException ignored) {
+                }
+            }
+            CommandUtil.printError(errStream, e.getDetailedMessages().get(0),
+                    null,
+                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
         } catch (IOException | URISyntaxException e) {
             CommandUtil.printError(errStream,
                     "error occurred while creating project : " + e.getMessage(),
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
-            return;
         }
-        errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
-                + "' at " + userDir.relativize(path) + ".");
+        if (Files.exists(packagePath)) {
+            errStream.println("Created new package '" + guessPkgName(packageName, template)
+                    + "' at " + packagePath + ".");
+        }
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
+        return;
     }
 
     @Override
@@ -198,12 +328,12 @@ public class NewCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("create a new Ballerina project");
+        out.append(BLauncherCmd.getCommandUsageInfo(NEW_COMMAND));
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal new <project-name> \n");
+        out.append("  bal new <project-path> \n");
     }
 
     @Override

@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 15,
+    "character": 19
+  },
+  "source": "changeVarType_in_query_expr.bal",
+  "expected": [
+    {
+      "title": "Change variable \u0027outputPersonList\u0027 type to \u0027string[]\u0027",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 7
+            }
+          },
+          "newText": "string[]"
+        }
+      ]
+    }
+  ]
+}

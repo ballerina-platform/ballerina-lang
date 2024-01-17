@@ -28,30 +28,53 @@ public class AddCheckCodeActionTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @Override
     @Test(dataProvider = "negative-test-data-provider")
-    public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.negativeTest(config, source);
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"add_check_codeaction_config1.json", "add_check_codeaction_source1.bal"},
-                {"add_check_codeaction_config2.json", "add_check_codeaction_source2.bal"},
-                {"add_check_codeaction_config3.json", "add_check_codeaction_source3.bal"},
+                {"add_check_codeaction_config1.json"},
+                {"add_check_codeaction_config2.json"},
+                {"add_check_codeaction_config3.json"},
+                {"add_check_codeaction_config4.json"},
+                {"add_check_codeaction_config5.json"},
+                {"add_check_codeaction_config6.json"},
+                {"add_check_codeaction_config7.json"},
+                {"add_check_codeaction_config8.json"},
+                {"add_check_codeaction_config9.json"},
+                {"add_check_codeaction_config10.json"},
+                {"add_check_codeaction_config11.json"},
+                {"add_check_codeaction_config12.json"},
+                {"add_check_codeaction_config13.json"},
+                {"add_check_codeaction_config14.json"},
+                {"add_check_codeaction_config15.json"},
+                {"add_check_codeaction_config16.json"},
+                {"add_check_codeaction_config17.json"},
+                {"add_check_with_parantheses_config1.json"},
+                {"add_check_codeaction_wait_action_config1.json"},
+                {"add_check_codeaction_wait_action_config1.json"},
+                {"add_check_in_local_var1.json"},
+                {"add_check_in_local_var2.json"},
+                {"add_check_in_module_var.json"},
+                {"add_check_on_field_access_config1.json"},
+                {"add_check_on_field_access_config2.json"}
         };
     }
 
     @DataProvider(name = "negative-test-data-provider")
     public Object[][] negativeDataProvider() {
         return new Object[][]{
-                {"negative_add_check_codeaction_config1.json", "negative_add_check_codeaction_source1.bal"},
+                {"negative_add_check_codeaction_config1.json"},
+                {"negative_add_check_external_treenode_list.json"},
         };
     }
 

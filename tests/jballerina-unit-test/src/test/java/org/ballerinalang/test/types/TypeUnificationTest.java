@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.types;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -43,78 +43,78 @@ public class TypeUnificationTest {
 
     @Test(description = "Test inline initializing of a struct and its fields")
     public void testMultiValuedStructInlineInit() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMultiValuedStructInlineInit");
+        Object returns = BRunUtil.invoke(compileResult, "testMultiValuedStructInlineInit");
 
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> person = ((BMap<String, BValue>) returns[0]);
+        Assert.assertTrue(returns instanceof BMap);
+        BMap<String, Object> person = ((BMap<String, Object>) returns);
 
-        Assert.assertEquals(person.get("name").stringValue(), "aaa");
-        Assert.assertEquals(((BInteger) person.get("age")).intValue(), 25);
+        Assert.assertEquals(person.get(StringUtils.fromString("name")).toString(), "aaa");
+        Assert.assertEquals((person.get(StringUtils.fromString("age"))), 25L);
 
         // check inner struct
-        Assert.assertTrue(person.get("parent") instanceof BMap);
-        BMap<String, BValue> parent = ((BMap<String, BValue>) person.get("parent"));
-        Assert.assertEquals(parent.get("name").stringValue(), "bbb");
-        Assert.assertEquals(((BInteger) parent.get("age")).intValue(), 50);
+        Assert.assertTrue(person.get(StringUtils.fromString("parent")) instanceof BMap);
+        BMap<String, Object> parent = ((BMap<String, Object>) person.get(StringUtils.fromString("parent")));
+        Assert.assertEquals(parent.get(StringUtils.fromString("name")).toString(), "bbb");
+        Assert.assertEquals((parent.get(StringUtils.fromString("age"))), 50L);
 
         // check inner json
-        Assert.assertTrue(person.get("info") instanceof BMap);
-        Assert.assertEquals(person.get("info").stringValue(), "{\"status\":\"single\"}");
+        Assert.assertTrue(person.get(StringUtils.fromString("info")) instanceof BMap);
+        Assert.assertEquals(person.get(StringUtils.fromString("info")).toString(), "{\"status\":\"single\"}");
 
         // check inner map
-        Assert.assertTrue(person.get("address") instanceof BMap);
-        BMap<String, ?> address = ((BMap<String, ?>) person.get("address"));
-        Assert.assertEquals(address.get("city").stringValue(), "Colombo");
-        Assert.assertEquals(address.get("country").stringValue(), "SriLanka");
+        Assert.assertTrue(person.get(StringUtils.fromString("address")) instanceof BMap);
+        BMap<String, ?> address = ((BMap<String, ?>) person.get(StringUtils.fromString("address")));
+        Assert.assertEquals(address.get(StringUtils.fromString("city")).toString(), "Colombo");
+        Assert.assertEquals(address.get(StringUtils.fromString("country")).toString(), "SriLanka");
     }
 
     @Test
     public void testAccessJsonInStruct() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessJsonInStruct");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testAccessJsonInStruct");
 
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "married");
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "married");
 
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), "married");
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(1).toString(), "married");
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "married");
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "married");
     }
 
     @Test
     public void testAccessMapInStruct() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessMapInStruct");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testAccessMapInStruct");
 
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Colombo");
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "Colombo");
 
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), "Colombo");
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(1).toString(), "Colombo");
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "Colombo");
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "Colombo");
 
-        Assert.assertTrue(returns[3] instanceof BString);
-        Assert.assertEquals(returns[3].stringValue(), "Colombo");
+        Assert.assertTrue(returns.get(3) instanceof BString);
+        Assert.assertEquals(returns.get(3).toString(), "Colombo");
     }
 
     @Test
     public void testAccessArrayInStruct() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessArrayInStruct");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testAccessArrayInStruct");
 
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 94);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 94L);
 
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 72);
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), 72L);
     }
 
     @Test
     public void testSetValueToJsonInStruct() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetValueToJsonInStruct");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{\"status\":\"widowed\", \"retired\":true}");
+        Object returns = BRunUtil.invoke(compileResult, "testSetValueToJsonInStruct");
+        Assert.assertTrue(returns instanceof BMap);
+        Assert.assertEquals(returns.toString(), "{\"status\":\"widowed\",\"retired\":true}");
     }
 
     @AfterClass

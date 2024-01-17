@@ -362,6 +362,133 @@ function testLetWithClass() {
     assert(6, foo2.m);
 }
 
+function testLetWithBLangXMLTextLiteral() {
+    xml x = xml `<Books>${xml `<Book>"${let int y = 5 in y}"</Book>`}</Books>`;
+    assert(xml `<Book>"5"</Book>`, (x[0]/*));
+
+    int i = 1;
+    xml z = xml `<Books>${xml `<Book>"${let function () returns int y = (() => i) in y()}"</Book>`}</Books>`;
+    assert(xml `<Books><Book>"1"</Book></Books>`, z);
+}
+
+function testLetExprWithBLangXMLCommentLiteral(){
+    xml x = xml `<Books>${xml `<Book><!--${let int y = 5 in y}--></Book>`}</Books>`;
+    assert(xml `<Book><!--5--></Book>`, (x[0]/*));
+
+    int i = 1;
+    xml z = xml `<Books>${xml `<Book><!--${let function () returns int y = (() => i) in y()}--></Book>`}</Books>`;
+    assert(xml `<Books><Book><!--1--></Book></Books>`, z);
+}
+
+function testLetExprWithBLangXMLQuotedString(){
+    xml x = xml `<Book x="${let int y = 5 in y}"></Book>`;
+    assert(xml `<Book x="5"/>`, x);
+    int i = 1;
+    xml z = xml `<Book x="${let function () returns int y = (() => i) in y()}"></Book>`;
+    assert(xml `<Book x="1"/>`, z);
+}
+
+function testLetExprWithQueryExpr() {
+    var a = let int n = 2
+        in from var i in [1, 2, 3]
+            where i == n
+            select n + i;
+    assert([4], a);
+
+    int[] b = let int n = 2
+        in from var i in [1, 2, 3, 4]
+            let int x = n + 1
+            where i > n
+            select n + i + x;
+    assert([8, 9], b);
+
+    int[] c = let int[] n = [2, 4, 6]
+        in from var i in [1, 2, 3, 4]
+            from int j in n
+            let int x = n[0] + 1
+            where i < n[1]
+            select i + x + j;
+    assert([6,8,10,7,9,11,8,10,12], c);
+}
+
+function testLetExprWithAnonFunc() {
+    var func = let null n = null
+        in function() returns boolean {
+            return n == ();
+        };
+    function () returns (boolean) func2 = func;
+    assert(true, func2());
+
+    var func3 = let int n = 2 in function () returns int => n * 10;
+    function () returns (int) func4 = func3;
+    assert(20, func4());
+
+    function () returns (int) func5 = let int n = 2
+        in function() returns int {
+            function () returns (int) v = let int m = 4 in function () returns int => n * 10 * m;
+            return v();
+        };
+    assert(80, func5());
+}
+
+function testLetExprWithObjectConstructorExpr() {
+    var obj = let null n = () in object {
+        null nx = n;
+        function getValue() returns boolean {
+            return self.nx == ();
+        }
+    };
+
+    assert(true, obj.getValue());
+    assert(true, obj.nx == ());
+
+    object { public boolean b; } obj2 = let boolean b1 = true in object { public boolean b = b1; };
+    assert(true, obj2.b);
+}
+
+class NilClass {
+    null n;
+    function init(null n) {
+        self.n = n;
+    }
+
+    function getNil() returns () {
+        return self.n;
+    }
+
+    function isNil(int? i) returns boolean {
+        return i == ();
+    }
+}
+
+class BoolClass {
+    boolean b1;
+    boolean b2;
+
+    function init(boolean b1, boolean b2) {
+        self.b1 = b1;
+        self.b2 = b2;
+    }
+
+    function foo() returns boolean {
+        return self.b1 && !self.b2;
+    }
+}
+
+function testLetExprWithNewExpr() {
+    var obj1 = let null n = () in new NilClass(n);
+    assert(true, obj1.getNil() == ());
+
+    NilClass obj2 = let null n = () in new (n);
+    assert(true, obj2.getNil() == ());
+
+    BoolClass obj3 = let boolean b1 = true, boolean b2 = false in new BoolClass(b1, b2);
+    assert(true, obj3.foo());
+
+    NilClass obj4 = new(null);
+    assert(true, let null n = () in obj4.isNil(n));
+}
+
 //// Util functions
 
 function assert(anydata expected, anydata actual) {

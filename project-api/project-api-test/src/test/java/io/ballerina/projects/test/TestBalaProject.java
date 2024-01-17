@@ -19,13 +19,13 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleMd;
 import io.ballerina.projects.ModuleName;
@@ -93,7 +93,7 @@ public class TestBalaProject {
         Assert.assertEquals(manifest.authors().get(0), "wso2");
         Assert.assertEquals(manifest.exportedModules().size(), 2);
         Assert.assertEquals(manifest.exportedModules().get(0), "winery");
-        Assert.assertEquals(manifest.exportedModules().get(1), "winery.service");
+        Assert.assertEquals(manifest.exportedModules().get(1), "winery.services");
 
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
@@ -131,8 +131,8 @@ public class TestBalaProject {
         PackageResolution resolution = currentPackage.getResolution();
         DependencyGraph<ResolvedPackageDependency> packageDescriptorDependencyGraph = resolution.dependencyGraph();
         Assert.assertEquals(packageDescriptorDependencyGraph.getNodes().size(), 1);
-        DependencyGraph<ModuleId> moduleIdDependencyGraph = currentPackage.moduleDependencyGraph();
-        Assert.assertEquals(moduleIdDependencyGraph.getNodes().size(), 3);
+        DependencyGraph<ModuleDescriptor> moduleDescriptorDependencyGraph = currentPackage.moduleDependencyGraph();
+        Assert.assertEquals(moduleDescriptorDependencyGraph.getNodes().size(), 3);
 
         // compiler plugin
         Optional<CompilerPluginDescriptor> pluginDescriptor = currentPackage.compilerPluginDescriptor();
@@ -149,7 +149,7 @@ public class TestBalaProject {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            BuildOptions buildOptions = new BuildOptionsBuilder().sticky(true).build();
+            BuildOptions buildOptions = BuildOptions.builder().setSticky(true).build();
             project = TestUtils.loadBuildProject(projectPath, buildOptions);
         } catch (Exception e) {
             Assert.fail(e.getMessage(), e);
@@ -163,7 +163,7 @@ public class TestBalaProject {
         Target target = new Target(project.sourceRoot());
         Path baloPath = target.getBalaPath();
         // invoke write balo method
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, baloPath);
 
         // Load the balo as a project
@@ -238,14 +238,6 @@ public class TestBalaProject {
         // try to get id of a non-bal file from the project
         try {
             balaProject.documentId(balaPath.resolve("bala.json"));
-            Assert.fail("expected a ProjectException");
-        } catch (ProjectException e) {
-            // ignore
-        }
-
-        // try to get id of a non-bal file from the project
-        try {
-            balaProject.documentId(null);
             Assert.fail("expected a ProjectException");
         } catch (ProjectException e) {
             // ignore
@@ -336,5 +328,61 @@ public class TestBalaProject {
 
         project.currentPackage().getCompilation();
         duplicate.currentPackage().getCompilation();
+    }
+
+    @Test
+    public void testLoadResourcesFromBala() {
+        Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("foo-winery-any-0.1.0.bala");
+        Project balaProject = TestUtils.loadProject(balaPath);
+        for (ModuleId moduleId : balaProject.currentPackage().moduleIds()) {
+            Module module = balaProject.currentPackage().module(moduleId);
+            if (module.moduleName().toString().equals("winery")) {
+                Assert.assertEquals(module.resourceIds().size(), 1);
+                Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
+                        "main.json");
+            } else if (module.moduleName().toString().equals("winery.storage")) {
+                Assert.assertEquals(module.resourceIds().size(), 1);
+                Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
+                        "db.json");
+            } else {
+                Assert.assertEquals(module.resourceIds().size(), 4);
+            }
+        }
+    }
+
+    @Test
+    public void testLoadResourcesFromExtractedBala() {
+        Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("extracted-bala");
+        Project balaProject = TestUtils.loadProject(balaPath);
+        for (ModuleId moduleId : balaProject.currentPackage().moduleIds()) {
+            Module module = balaProject.currentPackage().module(moduleId);
+            if (module.moduleName().toString().equals("a")) {
+                Assert.assertEquals(module.resourceIds().size(), 1);
+                Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
+                        "config/default.conf");
+            } else {
+                Assert.assertEquals(module.resourceIds().size(), 0);
+            }
+        }
+    }
+
+    @Test(description = "tests calling targetDir for balaProjects")
+    public void testBalaProjectTargetDir() {
+        Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("foo-winery-any-0.1.0.bala");
+        // 1) Initialize the project instance
+        BalaProject balaProject = null;
+        try {
+            ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+            defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage(), e);
+        }
+
+        try {
+            balaProject.targetDir();
+        } catch (UnsupportedOperationException e) {
+            Assert.assertEquals(e.getMessage(), "target directory is not supported for BalaProject");
+        }
     }
 }

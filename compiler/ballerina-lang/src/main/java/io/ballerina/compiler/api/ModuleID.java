@@ -58,4 +58,13 @@ public interface ModuleID {
      * @return Module prefix
      */
     String modulePrefix();
+
+    /**
+     * Get module is created for test sources.
+     *
+     * @return Module has tests
+     */
+    default boolean isTestable() {
+        return false;
+    }
 }

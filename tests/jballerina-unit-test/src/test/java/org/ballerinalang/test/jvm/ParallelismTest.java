@@ -17,8 +17,8 @@
 
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -40,8 +40,8 @@ public class ParallelismTest {
 
     @Test
     public void testOrdering() {
-        BValue[] result = BRunUtil.invoke(compileResult, "orderingTest");
-        Assert.assertEquals(result[0].stringValue(), "[\"child: end\", \"parent: end\"]");
+        Object result = BRunUtil.invoke(compileResult, "orderingTest");
+        Assert.assertEquals(result.toString(), "[\"child: end\",\"parent: end\"]");
     }
 
     @Test
@@ -51,13 +51,12 @@ public class ParallelismTest {
             sample[i] = sample.length - i;
         }
 
-        BValue[] args = new BValue[1];
-        BValueArray arr = new BValueArray(sample);
+        Object[] args = new Object[1];
+        BArray arr = ValueCreator.createArrayValue(sample);
         args[0] = arr;
-        BValue[] result = BRunUtil.invoke(compileResult, "testMergeSort", args);
-        Assert.assertEquals(result.length, 1);
-        Assert.assertTrue(result[0] instanceof BValueArray);
-        Assert.assertEquals(result[0].stringValue(), "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");
+        Object result = BRunUtil.invoke(compileResult, "testMergeSort", args);
+        Assert.assertTrue(result instanceof  BArray);
+        Assert.assertEquals(result.toString(), "[1,2,3,4,5,6,7,8,9,10]");
     }
 
     @AfterClass

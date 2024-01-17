@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BJSONType} represents a JSON value.
+ * {@code JSONType} represents a JSON value.
  *
  * @since 2.0.0
  */

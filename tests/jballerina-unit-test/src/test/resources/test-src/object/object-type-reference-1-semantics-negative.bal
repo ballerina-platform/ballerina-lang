@@ -155,3 +155,56 @@ class ObjWithRedeclaredFuncsViaRefs {
         return s;
     }
 }
+
+public type O1 readonly & object {
+    string a;
+};
+
+type O3 object {
+    object {
+        string a;
+    } body;
+};
+
+public type O4 object {
+    *O3;
+    O2 body; // error: unknown type 'O2'
+};
+
+public type O5 readonly & object {
+    stream<int>|int[] a;
+};
+
+type O6 object {
+    object {
+        byte[] a;
+    } body;
+};
+
+public type O7 object {
+    *O6;
+    O5 body; // error: included field 'body' of type 'object { byte[] a; }' cannot be overridden by a field of type 'O5': expected a subtype of 'object { byte[] a; }'
+};
+
+class C1 {
+    int|stream<int> i = 0;
+}
+
+public type O8 readonly & C1;
+
+class C2 {
+    object {
+        int:Unsigned8 i;
+    } body = object {
+        int:Unsigned8 i = 1;
+    };
+}
+
+class C3 {
+    *C2;
+    O8 body; // error:  included field 'body' of type 'object { int:Unsigned8 i; }' cannot be overridden by a field of type 'O8': expected a subtype of 'object { int:Unsigned8 i; }'
+
+    function init(O8 body) {
+        self.body = body;
+    }
+}

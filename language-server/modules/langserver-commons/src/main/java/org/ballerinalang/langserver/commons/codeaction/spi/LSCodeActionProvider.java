@@ -15,13 +15,7 @@
  */
 package org.ballerinalang.langserver.commons.codeaction.spi;
 
-import io.ballerina.tools.diagnostics.Diagnostic;
-import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.eclipse.lsp4j.CodeAction;
-
-import java.util.List;
 
 /**
  * Represents the SPI interface for the Ballerina Code Action Provider.
@@ -47,49 +41,6 @@ public interface LSCodeActionProvider {
     default boolean isEnabled(LanguageServerContext serverContext) {
         return true;
     }
-
-    /**
-     * Returns the list of code actions based on node type or diagnostics.
-     *
-     * @param context         language server context
-     * @param posDetails
-     * @return list of Code Actions
-     */
-    List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
-                                             NodeBasedPositionDetails posDetails);
-
-    /**
-     * Returns the list of code actions based on node type or diagnostics.
-     *
-     * @param diagnostic diagnostic to evaluate
-     * @param positionDetails   {@link DiagBasedPositionDetails}
-     * @param context    language server context
-     * @return list of Code Actions
-     */
-    List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                             DiagBasedPositionDetails positionDetails,
-                                             CodeActionContext context);
-
-    /**
-     * Returns True of node type based code actions are supported.
-     *
-     * @return True of node type based code actions are supported, False otherwise
-     */
-    boolean isNodeBasedSupported();
-
-    /**
-     * Returns True of code diagnostics type based code actions are supported.
-     *
-     * @return True of code diagnostics based code actions are supported, False otherwise
-     */
-    boolean isDiagBasedSupported();
-
-    /**
-     * returns the list of node types that the code action belongs to.
-     *
-     * @return list of code action node type
-     */
-    List<CodeActionNodeType> getCodeActionNodeTypes();
 
     /**
      * Get the name of the code action. Will be used for analytics and logging purposes.

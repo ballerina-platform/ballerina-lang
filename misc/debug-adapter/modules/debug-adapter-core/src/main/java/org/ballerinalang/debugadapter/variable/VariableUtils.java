@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.variable;
 
+import com.sun.jdi.ClassType;
 import com.sun.jdi.Field;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
@@ -51,6 +52,8 @@ public class VariableUtils {
     // Used to trim redundant beginning and ending double quotes from a string, if presents.
     private static final String ADDITIONAL_QUOTES_REMOVE_REGEX = "^\"|\"$";
     static final String INTERNAL_VALUE_PREFIX = "io.ballerina.runtime.internal.values.";
+    public static final String INTERNAL_TYPE_PREFIX = "io.ballerina.runtime.internal.types.";
+    public static final String INTERNAL_TYPE_REF_TYPE = "BTypeReferenceType";
 
     /**
      * Returns the corresponding ballerina variable type of a given ballerina backend jvm variable instance.
@@ -66,6 +69,32 @@ public class VariableUtils {
             ObjectReference valueRef = (ObjectReference) value;
             Field bTypeField = valueRef.referenceType().fieldByName(FIELD_TYPE);
             Value bTypeRef = valueRef.getValue(bTypeField);
+            Field typeNameField = ((ObjectReference) bTypeRef).referenceType().fieldByName(FIELD_TYPENAME);
+            Value typeNameRef = ((ObjectReference) bTypeRef).getValue(typeNameField);
+            return getStringFrom(typeNameRef);
+        } catch (Exception e) {
+            return UNKNOWN_VALUE;
+        }
+    }
+
+    /**
+     * Returns the corresponding ballerina variable type of a given ballerina record variable instance.
+     *
+     * @param value jdi value instance of the ballerina jvm variable.
+     * @return variable type in string form.
+     */
+    public static String getRecordBType(Value value) {
+        try {
+            if (!(value instanceof ObjectReference && value.type() instanceof ClassType)) {
+                return UNKNOWN_VALUE;
+            }
+            ClassType mapValueClass = ((ClassType) value.type()).superclass();
+            if (mapValueClass == null) {
+                return UNKNOWN_VALUE;
+            }
+
+            Field bTypeField = mapValueClass.fieldByName(FIELD_TYPE);
+            Value bTypeRef = ((ObjectReference) value).getValue(bTypeField);
             Field typeNameField = ((ObjectReference) bTypeRef).referenceType().fieldByName(FIELD_TYPENAME);
             Value typeNameRef = ((ObjectReference) bTypeRef).getValue(typeNameField);
             return getStringFrom(typeNameRef);
@@ -172,18 +201,48 @@ public class VariableUtils {
     }
 
     /**
-     * Verifies whether a given JDI value is a ballerina record variable instance.
+     * Verifies whether a given JDI value is a ballerina client object variable instance.
+     *
+     * @param value JDI value instance.
+     * @return true the given JDI value is a ballerina object variable instance.
+     */
+    static boolean isClientObject(Value value) {
+        try {
+            return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
+                    (JVMValueType.BTYPE_CLIENT.getString())).orElse(false);
+        } catch (DebugVariableException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Verifies whether a given JDI value is a ballerina record variable instance. (Ballerina record types are
+     * inherited from MapValue and, therefore need to check the `type` field of the super class to verify if the given
+     * value is a Ballerina record.)
      *
      * @param value JDI value instance.
      * @return true the given JDI value is a ballerina record variable instance.
      */
     static boolean isRecord(Value value) {
         try {
-            return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
-                    (JVMValueType.BTYPE_RECORD.getString())).orElse(false);
-        } catch (DebugVariableException e) {
+            if (!(value.type() instanceof ClassType)) {
+                return false;
+            }
+            ClassType mapValueClass = ((ClassType) value.type()).superclass();
+            if (mapValueClass == null) {
+                return false;
+            }
+
+            Field mapTypeField = mapValueClass.fieldByName(FIELD_TYPE);
+            Value mapType = ((ObjectReference) value).getValue(mapTypeField);
+            return isRecordType(mapType);
+        } catch (Exception e) {
             return false;
         }
+    }
+
+    private static boolean isRecordType(Value typeValue) {
+        return typeValue.type().name().endsWith(JVMValueType.BTYPE_RECORD.getString());
     }
 
     /**

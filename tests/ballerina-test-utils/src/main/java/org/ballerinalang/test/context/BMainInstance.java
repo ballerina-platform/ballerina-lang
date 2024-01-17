@@ -23,21 +23,21 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -51,6 +51,34 @@ public class BMainInstance implements BMain {
     private String agentArgs = "";
     private BalServer balServer;
 
+    private static class StreamGobbler extends Thread {
+        private InputStream inputStream;
+        private PrintStream printStream;
+
+        public StreamGobbler(InputStream inputStream, PrintStream printStream) {
+            this.inputStream = inputStream;
+            this.printStream = printStream;
+        }
+
+        @Override
+        public void run() {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            String lineContent = null;
+            while (true) {
+                try {
+                    lineContent = bufferedReader.readLine();
+                    if (lineContent == null) {
+                        break;
+                    }
+                    printStream.println(lineContent);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+
     public BMainInstance(BalServer balServer) throws BallerinaTestException {
         this.balServer = balServer;
         initialize();
@@ -59,16 +87,15 @@ public class BMainInstance implements BMain {
     /**
      * Initialize the server instance with properties.
      *
-     * @throws BallerinaTestException when an exception is thrown while initializing the server
      */
-    private void initialize() throws BallerinaTestException {
+    private void initialize() {
         configureAgentArgs();
     }
 
-    private void configureAgentArgs() throws BallerinaTestException {
+    private void configureAgentArgs() {
         // add jacoco agent
         String jacocoArgLine = "-javaagent:" + Paths.get(balServer.getServerHome())
-                .resolve("bre").resolve("lib").resolve("jacocoagent.jar").toString() + "=destfile=" +
+                .resolve("bre").resolve("lib").resolve("jacocoagent.jar") + "=destfile=" +
                 Paths.get(System.getProperty("user.dir"))
                         .resolve("build").resolve("jacoco").resolve("test.exec");
         agentArgs = jacocoArgLine + " ";
@@ -180,7 +207,7 @@ public class BMainInstance implements BMain {
                 envProperties, clientArgs, leechers, sourceRoot);
     }
 
-    private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
+    public synchronized void addJavaAgents(Map<String, String> envProperties) {
         String javaOpts = "";
         if (envProperties.containsKey(JAVA_OPTS)) {
             javaOpts = envProperties.get(JAVA_OPTS);
@@ -189,10 +216,14 @@ public class BMainInstance implements BMain {
             return;
         }
         javaOpts = agentArgs + javaOpts;
-        if ("".equals(javaOpts)) {
+        if (javaOpts.isEmpty()) {
             return;
         }
         envProperties.put(JAVA_OPTS, javaOpts);
+    }
+
+    public String getBalServerHome() {
+        return Paths.get(balServer.getServerHome()).toString();
     }
 
     /**
@@ -212,7 +243,7 @@ public class BMainInstance implements BMain {
         String[] cmdArray;
         try {
 
-            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+            if (Utils.isWindowsOS()) {
                 cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
                         File.separator + "bin" + File.separator + scriptName + ".bat", command};
             } else {
@@ -265,6 +296,48 @@ public class BMainInstance implements BMain {
         }
     }
 
+
+    /**
+     * Executing the sh or bat file to start the server and return the PID for service handling.
+     *
+     * @param command       command to run
+     * @param args          command line arguments to pass when executing the sh or bat file
+     * @param envProperties environment properties to be appended to the environment
+     * @param commandDir    where to execute the command
+     * @throws BallerinaTestException if starting services failed
+     */
+    public Process runCommandAndGetProcess(String command, String[] args, Map<String, String> envProperties,
+                                           String commandDir) throws BallerinaTestException {
+        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        String[] cmdArray;
+        try {
+            if (Utils.isWindowsOS()) {
+                cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
+                        File.separator + "bin" + File.separator + scriptName + ".bat", command};
+            } else {
+                cmdArray = new String[]{"bash", balServer.getServerHome() +
+                        File.separator + "bin/" + scriptName, command};
+            }
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
+            if (envProperties != null) {
+                Map<String, String> env = processBuilder.environment();
+                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+                    env.put(entry.getKey(), entry.getValue());
+                }
+            }
+            return processBuilder.start();
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error executing bal command", e);
+        }
+    }
+
+    public void waitForLeechers(List<LogLeecher> logLeechers, int timeout) throws BallerinaTestException {
+        for (LogLeecher leecher : logLeechers) {
+            leecher.waitForText(timeout);
+        }
+    }
+
     /**
      * Executing the sh or bat file to start the server in debug mode.
      *
@@ -292,7 +365,7 @@ public class BMainInstance implements BMain {
         }
 
         try {
-            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+            if (Utils.isWindowsOS()) {
                 cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
                         File.separator + "bin" + File.separator + scriptName + ".bat", command};
             } else {
@@ -577,7 +650,7 @@ public class BMainInstance implements BMain {
         String[] cmdArray;
         try {
 
-            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+            if (Utils.isWindowsOS()) {
                 cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
                         File.separator + "bin" + File.separator + scriptName + ".bat", command};
             } else {
@@ -586,26 +659,24 @@ public class BMainInstance implements BMain {
             }
 
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
-            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
-
+            ProcessBuilder processBuilder =
+                    new ProcessBuilder(cmdArgs).directory(new File(commandDir)).redirectErrorStream(true);
+            addJavaAgents(envProperties);
             Map<String, String> env = processBuilder.environment();
             env.putAll(envProperties);
 
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream out = new PrintStream(baos);
             Process process = processBuilder.start();
-
-            // Give a small timeout so that the output is given.
-            Thread.sleep(5000);
-
-            String output = "";
-            InputStream inputStream = readErrStream ? process.getErrorStream() : process.getInputStream();
-            try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                 BufferedReader buffer = new BufferedReader(inputStreamReader)) {
-                output = buffer.lines().collect(Collectors.joining("\n"));
-            } catch (Exception e) {
-                throw new BallerinaTestException("Error when reading from the stdout ", e);
-            }
-
+            StreamGobbler outputGobbler =
+                    new StreamGobbler(process.getInputStream(), out);
+            outputGobbler.start();
             process.waitFor();
+            outputGobbler.join();
+            String output = baos.toString();
+            if (output.endsWith("\n")) {
+                output = output.substring(0, output.length() - 1);
+            }
             return output;
         } catch (IOException e) {
             throw new BallerinaTestException("Error executing ballerina", e);

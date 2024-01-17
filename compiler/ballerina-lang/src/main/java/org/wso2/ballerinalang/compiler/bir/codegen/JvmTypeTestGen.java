@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.objectweb.asm.Opcodes.GOTO;
@@ -36,6 +35,7 @@ import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_ARG_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CHECK_IS_TYPE;
 
@@ -49,13 +49,15 @@ public class JvmTypeTestGen {
     private final Types types;
     private final MethodVisitor mv;
     private final JvmTypeGen jvmTypeGen;
+    private final JvmCastGen jvmCastGen;
 
-    public JvmTypeTestGen(JvmInstructionGen jvmInstructionGen, CompilerContext compilerContext, MethodVisitor mv,
-                          JvmTypeGen jvmTypeGen) {
+    public JvmTypeTestGen(JvmInstructionGen jvmInstructionGen, Types types, MethodVisitor mv, JvmTypeGen jvmTypeGen,
+                          JvmCastGen jvmCastGen) {
         this.jvmInstructionGen = jvmInstructionGen;
-        types = Types.getInstance(compilerContext);
+        this.types = types;
         this.mv = mv;
         this.jvmTypeGen = jvmTypeGen;
+        this.jvmCastGen = jvmCastGen;
     }
 
     void generateTypeTestIns(BIRNonTerminator.TypeTest typeTestIns) {
@@ -65,7 +67,8 @@ public class JvmTypeTestGen {
         // Optimization is done by avoiding the call to the TypeChecker and instead generating instructions with the
         // instanceof operator.
         if (canOptimizeNilCheck(sourceType, targetType) ||
-                canOptimizeNilUnionCheck(sourceType, targetType)) {
+                canOptimizeNilUnionCheck(sourceType, targetType) ||
+                sourceValue.name.value.startsWith(MAIN_ARG_VAR_PREFIX)) {
             handleNilUnionType(typeTestIns);
             return;
         }
@@ -91,7 +94,8 @@ public class JvmTypeTestGen {
      * @return whether instruction could be optimized using 'instanceof` check
      */
     private boolean canOptimizeNilCheck(BType sourceType, BType targetType) {
-        return targetType.tag == TypeTags.NIL && types.isAssignable(targetType, sourceType);
+        return JvmCodeGenUtil.getImpliedType(targetType).tag == TypeTags.NIL &&
+                types.isAssignable(targetType, sourceType);
     }
 
     /**
@@ -103,13 +107,14 @@ public class JvmTypeTestGen {
      * @return whether instruction could be optimized using 'instanceof` check for null
      */
     private boolean canOptimizeNilUnionCheck(BType sourceType, BType targetType) {
+        sourceType = JvmCodeGenUtil.getImpliedType(sourceType);
         if (isInValidUnionType(sourceType)) {
             return false;
         }
         boolean foundNil = false;
         BType otherType = null;
         for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
-            if (bType.tag == TypeTags.NIL) {
+            if (JvmCodeGenUtil.getImpliedType(bType).tag == TypeTags.NIL) {
                 foundNil = true;
             } else {
                 otherType = bType;
@@ -127,6 +132,8 @@ public class JvmTypeTestGen {
      * @return whether instruction could be optimized using 'instanceof` check for BError
      */
     private boolean canOptimizeErrorCheck(BType sourceType, BType targetType) {
+        sourceType = JvmCodeGenUtil.getImpliedType(sourceType);
+        targetType = JvmCodeGenUtil.getImpliedType(targetType);
         if (targetType.tag != TypeTags.ERROR || sourceType.tag != TypeTags.UNION) {
             return false;
         }
@@ -151,13 +158,14 @@ public class JvmTypeTestGen {
      * @return whether instruction could be optimized using 'instanceof` check for BError
      */
     private boolean canOptimizeErrorUnionCheck(BType sourceType, BType targetType) {
+        sourceType = JvmCodeGenUtil.getImpliedType(sourceType);
         if (isInValidUnionType(sourceType)) {
             return false;
         }
         BType otherType = null;
         int foundError = 0;
         for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
-            if (bType.tag == TypeTags.ERROR) {
+            if (JvmCodeGenUtil.getImpliedType(bType).tag == TypeTags.ERROR) {
                 foundError++;
             } else {
                 otherType = bType;
@@ -175,8 +183,9 @@ public class JvmTypeTestGen {
 
     private void handleNilUnionType(BIRNonTerminator.TypeTest typeTestIns) {
         jvmInstructionGen.loadVar(typeTestIns.rhsOp.variableDcl);
+        jvmCastGen.addBoxInsn(this.mv, typeTestIns.rhsOp.variableDcl.type);
         Label ifLabel = new Label();
-        if (typeTestIns.type.tag == TypeTags.NIL) {
+        if (JvmCodeGenUtil.getImpliedType(typeTestIns.type).tag == TypeTags.NIL) {
             mv.visitJumpInsn(IFNONNULL, ifLabel);
         } else {
             mv.visitJumpInsn(IFNULL, ifLabel);
@@ -197,7 +206,7 @@ public class JvmTypeTestGen {
     private void handleErrorUnionType(BIRNonTerminator.TypeTest typeTestIns) {
         jvmInstructionGen.loadVar(typeTestIns.rhsOp.variableDcl);
         mv.visitTypeInsn(INSTANCEOF, BERROR);
-        if (typeTestIns.type.tag != TypeTags.ERROR) {
+        if (JvmCodeGenUtil.getImpliedType(typeTestIns.type).tag != TypeTags.ERROR) {
             generateNegateBoolean();
         }
         jvmInstructionGen.storeToVar(typeTestIns.lhsOp.variableDcl);

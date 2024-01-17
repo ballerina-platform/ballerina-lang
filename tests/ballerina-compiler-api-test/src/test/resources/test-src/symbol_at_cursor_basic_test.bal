@@ -182,3 +182,37 @@ type AnnotRec record {
 };
 
 public annotation AnnotRec v5 on type;
+
+type AnnotRec2 record {
+
+};
+
+const annotation AnnotRec2 WorkerAnnot on source worker;
+
+function fn() {
+    future<int?> f = @WorkerAnnot start add(1, 2);
+}
+
+function add(int a, int b) returns int {
+    return 1;
+}
+
+int[] x1 = [1, 2 , 3];
+int[] y1 = [...x1, 4];
+
+function testListConstructorSpreadOp() {
+    int[] x2 = [1, 2 , 3];
+    int[] y2 = [...x2, 4];
+    int[] y3 = [...y1, 5];
+}
+
+function testTypeofSymbol(error result) {
+    string errPrefix = "Payload binding failed: ";
+    var errMsg = result.detail()["message"];
+}
+
+public type ReturnValue02 readonly & string;
+
+ReturnValue02 stringVar01 = "ballerina";
+
+public type ReadOnlyPrimitiveUnion readonly & string|int;

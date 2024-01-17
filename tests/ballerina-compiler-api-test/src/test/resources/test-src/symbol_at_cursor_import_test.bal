@@ -31,3 +31,37 @@ function testMethodUsage() {
     testproject:PersonObj p = new("John", 20);
     string s = p.getName();
 }
+
+function testMethodsInAbstractObject() {
+    testproject:HumanObj ho = testproject:loadHuman();
+    string eatResult = ho.eatFunction();
+    int walkResult = ho.walkFunction();
+    int age = ho.age;
+}
+
+listener HTTPListener ep = new ();
+
+@testproject:ServiceAnnot {
+    serviceName: "hello-service"
+}
+service Service "hello" on ep {
+    int count = 0;
+}
+
+public class HTTPListener {
+
+    public function attach(Service svc, string[]|string? name = ()) returns error? {
+    }
+
+    public isolated function detach(Service svc) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public isolated function gracefulStop() returns error? {
+    }
+
+    public isolated function immediateStop() returns error? {
+    }
+}

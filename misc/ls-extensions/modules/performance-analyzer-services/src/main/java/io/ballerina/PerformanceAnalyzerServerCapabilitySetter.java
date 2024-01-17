@@ -34,8 +34,7 @@ public class PerformanceAnalyzerServerCapabilitySetter extends
 
         PerformanceAnalyzerServerCapabilities capabilities = new PerformanceAnalyzerServerCapabilities();
         capabilities.setGetEndpoints(true);
-        capabilities.setGetGraphData(true);
-        capabilities.setGetRealtimeData(true);
+        capabilities.setGetResourcesWithEndpoints(true);
         return Optional.of(capabilities);
     }
 

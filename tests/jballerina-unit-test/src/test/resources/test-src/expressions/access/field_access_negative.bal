@@ -17,7 +17,7 @@
 type Employee record {
     string name;
     Employee? employer = ();
-    int id?;
+    int? id?;
 };
 
 type Person record {
@@ -157,7 +157,7 @@ function testUndeclared(R2 r2) {
 
 type R3 record {|
     int x;
-    int y?;
+    int? y?;
 |};
 
 function testOptionalInClosedRecord(R3 r) {
@@ -166,7 +166,7 @@ function testOptionalInClosedRecord(R3 r) {
 
 type R4 record {
     int x;
-    int y?;
+    int? y?;
 };
 
 function testOptionalInOpenRecord(R4 r) {
@@ -212,8 +212,8 @@ type RA record {
 };
 
 type SA record {
-    int a?;
-    int b?;
+    int? a?;
+    int? b?;
     int c;
     int z;
 };
@@ -221,20 +221,20 @@ type SA record {
 type TA record {|
     int a;
     int b;
-    int c?;
+    int? c?;
     int x;
     int y;
 |};
 
 type UA record {
-    int a?;
-    int b?;
+    int? a?;
+    int? b?;
     int c;
     int z;
 };
 
 type VA record {|
-    int a?;
+    int? a?;
     int b;
     int c;
     int y;
@@ -293,4 +293,123 @@ function testUndeclaredAndOptional() {
     anydata x = pqrstuv.x;
     anydata y = pqrstuv.y;
     anydata z = pqrstuv.z;
+}
+
+type FooOne record {|
+    int i?;
+|};
+
+type BarOne record {|
+    int? i;
+|};
+
+function testNilableAndOptional() {
+    FooOne|BarOne val = <BarOne> {i: 5};
+    int? i = val.i;
+}
+
+type AB record {
+    int x;
+    int? y?;
+    string z;
+};
+
+type BC record {
+    int? x?;
+    string? z?;
+};
+
+type CD record {
+    int y?;
+};
+
+function testUndeclaredAndOptionalAndNilable() {
+    AB r = {x: 5, y: 6, z: "test"};
+    (AB|BC|CD) abcd = r;
+    anydata x = abcd.x;
+    anydata y = abcd.y;
+    anydata z = abcd.z;
+}
+
+function testInvalidAccessWhenTypeIsAnUnion() {
+    string name;
+    AB|BC abbc = {};
+    abbc.id = "HR"; // error
+}
+
+service class ServiceClass {
+    remote function fn() {
+
+    }
+}
+
+client class ClientClass {
+    remote function fn() {
+
+    }
+}
+
+type ServiceObjectTypeDesc service object {
+    remote function fn(int i);
+};
+
+type ClientObjectTypeDesc client object {
+    remote function fn() returns int;
+};
+
+type RecordWithNetworkObjectField record {
+    ServiceObjectTypeDesc ser;
+};
+
+function testInvalidBoundMethodAccessWithRemoteMethod(ServiceClass a,
+                                                      ClientClass b,
+                                                      ServiceObjectTypeDesc c,
+                                                      ClientObjectTypeDesc d,
+                                                      RecordWithNetworkObjectField e) {
+    function _ = a.fn;
+
+    _ = b.fn;
+
+    function (int) _ = c.fn;
+
+    var _ = d.fn;
+
+    _ = e.ser.fn;
+}
+
+function testInvalidXMLMapFieldAccess1() returns error? {
+    map<xml> m = {a: xml `foo`};
+    xml x = check m.a; // error
+}
+
+function testInvalidXMLMapFieldAccess2() returns error? {
+    map<xml> m = {a: xml `foo`};
+    xml x = check m.b; // error
+}
+
+function testInvalidXMLMapFieldAccess3() returns error? {
+    map<xml> m = {};
+    m["a"] = xml `foo`;
+    xml x = check m.a; // error
+}
+
+function testInvalidXMLMapFieldAccess4() returns error? {
+    map<xml|json> m = {};
+    m["a"] = xml `foo`;
+    xml|json x = check m.a; // error
+}
+
+function testInvalidXMLMapFieldAccess5() returns error? {
+    map<xml> m = {a: xml `foo`};
+    xml x = m?.a; // error
+}
+
+function testInvalidXMLMapFieldAccess6() returns error? {
+    record {|map<xml> a; xml c;|} m = {a: {b: xml `foo`}, c: xml `bar`};
+    xml? x = m["a"]?.b.c;
+}
+
+function testInvalidXMLMapFieldAccess7() returns error? {
+    map<xml> m = {a: xml `foo`};
+    xml x = m?.b; // error
 }

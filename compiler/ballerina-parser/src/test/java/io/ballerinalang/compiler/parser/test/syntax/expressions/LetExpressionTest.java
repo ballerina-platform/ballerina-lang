@@ -85,4 +85,10 @@ public class LetExpressionTest extends AbstractExpressionsTest {
     public void testLetExprOperatorPrecedence() {
         test("let int a = b in c + let int d = e in f", "let-expr/let_expr_assert_13.json");
     }
+
+    @Test
+    public void testLetExprInLHS() {
+        testFile("let-expr/let_expr_source_14.bal", "let-expr/let_expr_assert_14.json");
+        testFile("let-expr/let_expr_source_15.bal", "let-expr/let_expr_assert_15.json");
+    }
 }

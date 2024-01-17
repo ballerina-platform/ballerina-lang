@@ -1,0 +1,5 @@
+[package]
+org = "adv_res"
+name = "package_a"
+version = "1.1.0"
+export = ["package_a", "package_a.mod_a1", "package_a.mod_a2"]

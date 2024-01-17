@@ -59,9 +59,13 @@ public class ItemResolverConstants {
     public static final String DESCENDING = "descending";
     public static final String DEFAULT = "default";
     public static final String ROLLBACK = "rollback";
-
+    public static final String INIT = "init";
+    public static final String PARANTHESIS = "()";
+    public static final String SQUARE_BRACKET = "[]";
+    
     public static final String ANON_FUNCTION = "function (..) {..}";
     public static final String FUNCTION = "function";
+    public static final String EXPRESSION_BODIED_FUNCTION = "function <name>(..) => <expression>";
     public static final String FUNCTION_SIGNATURE = "function <name>();";
     public static final String MAIN_FUNCTION = "public main function";
     public static final String SERVICE_HTTP = "service/http";
@@ -83,10 +87,14 @@ public class ItemResolverConstants {
     public static final String HTTP_RESOURCE = "http resource";
     public static final String RESOURCE = "resource";
     public static final String RESOURCE_FUNC_DEF = "resource function";
+    public static final String REG_EXP = "re ``";
+    public static final String STRING_TEMP = "string ``";
+    public static final String XML_TEMP = "xml ``";
     
     public static final String FROM_CLAUSE = "from clause";
     public static final String LET_CLAUSE = "let clause";
     public static final String JOIN_CLAUSE = "join clause";
+    public static final String GROUPBY_CLAUSE = "group by clause";
     public static final String ON_FAIL_CLAUSE = "on fail clause";
     public static final String ON_CONFLICT_CLAUSE = "on conflict";
 
@@ -102,14 +110,16 @@ public class ItemResolverConstants {
     public static final String MODULE_TYPE = "Module";
     public static final String KEYWORD_TYPE = "Keyword";
     public static final String SNIPPET_TYPE = "Snippet";
+    public static final String VALUE_TYPE = "Value";
+    
     public static final String STATEMENT_TYPE = "Statement";
     public static final String NONE = "none";
     public static final String OBJECT_TYPE = "type <ObjectName> object";
     public static final String OBJECT_TYPE_DESC = "object {}";
-    public static final String RECORD_TYPE = "type <RecordName> record";
+    public static final String RECORD_TYPE = "type <RecordName> record {}";
     public static final String RECORD_TYPE_DESC = "record {}";
     public static final String ERROR_TYPE = "type <ErrorName> error<?>";
-    public static final String CLOSED_RECORD_TYPE = "type <RecordName> closed record";
+    public static final String CLOSED_RECORD_TYPE = "type <RecordName> record {||}";
     public static final String CLOSED_RECORD_TYPE_DESC = "record {||}";
     public static final String TYPE_TYPE = "type";
     public static final String TABLE_TYPE = "type TypeName table<>;";
@@ -133,11 +143,12 @@ public class ItemResolverConstants {
     public static final String WAIT_KEYWORD = "wait";
     public static final String START_KEYWORD = "start";
     public static final String AS_KEYWORD = "as";
-    public static final String VERSION_KEYWORD = "version";
     public static final String FROM_KEYWORD = "from";
     public static final String WHERE_KEYWORD = "where";
     public static final String JOIN_KEYWORD = "join";
     public static final String ORDERBY_KEYWORD = "order by";
+    public static final String GROUPBY_KEYWORD = "group by";
+    public static final String COLLECT_KEYWORD = "collect";
     public static final String LIMIT_KEYWORD = "limit";
     public static final String SELECT_KEYWORD = "select";
     public static final String EQUALS_KEYWORD = "equals";
@@ -155,4 +166,5 @@ public class ItemResolverConstants {
     public static final String CONST_KEYWORD = "const";
     public static final String RECORD_KEYWORD = "record";
     public static final String OBJECT_KEYWORD = "object";
+    public static final String OUTER_KEYWORD = "outer";
 }

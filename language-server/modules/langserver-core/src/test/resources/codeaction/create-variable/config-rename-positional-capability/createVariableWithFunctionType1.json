@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 2,
+    "character": 5
+  },
+  "source": "createVariableWithFunctionType1.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 4
+            }
+          },
+          "newText": "(function () returns int)[] funcResult = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableWithFunctionType1.bal",
+          {
+            "line": 2,
+            "character": 32
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

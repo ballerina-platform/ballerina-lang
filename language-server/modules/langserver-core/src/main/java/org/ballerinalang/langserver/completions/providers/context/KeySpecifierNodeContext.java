@@ -18,15 +18,17 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
+import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.RawTypeSymbolWrapper;
+import org.ballerinalang.langserver.common.utils.RecordUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -37,6 +39,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -89,22 +92,30 @@ public class KeySpecifierNodeContext extends AbstractCompletionProvider<KeySpeci
             }
             rowTypeSymbol = CommonUtil.getRawType(typeSymbol.get());
         }
-        if (rowTypeSymbol.typeKind() != TypeDescKind.RECORD) {
-            return completionItems;
-        }
-        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) rowTypeSymbol;
+
         // Get existing keys
         Set<String> fieldNames = node.fieldNames().stream()
                 .filter(identifierToken -> !identifierToken.isMissing())
                 .map(Token::text)
                 .collect(Collectors.toSet());
-        // Get field symbols which are not already specified
-        List<RecordFieldSymbol> symbols = recordTypeSymbol.fieldDescriptors().values().stream()
-                .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent()
-                        && CommonUtil.isValidIdentifier(recordFieldSymbol.getName().get())
-                        && !fieldNames.contains(recordFieldSymbol.getName().get()))
+
+        List<RawTypeSymbolWrapper<RecordTypeSymbol>> recordTypeSymbols = RecordUtil.getRecordTypeSymbols(rowTypeSymbol);
+        List<RecordFieldSymbol> commonFields = recordTypeSymbols.stream()
+                .map(RawTypeSymbolWrapper::getRawType)
+                .map(RecordTypeSymbol::fieldDescriptors)
+                .reduce((map1, map2) -> map1.entrySet().stream()
+                        .filter(e -> map2.containsKey(e.getKey()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                )
+                .stream()
+                .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> !fieldNames.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
+                .filter(recordFieldSymbol -> SyntaxInfo.isIdentifier(recordFieldSymbol.getName().get()))
                 .collect(Collectors.toList());
-        completionItems.addAll(this.getCompletionItemList(symbols, context));
+
+        completionItems.addAll(this.getCompletionItemList(commonFields, context));
         return completionItems;
     }
 

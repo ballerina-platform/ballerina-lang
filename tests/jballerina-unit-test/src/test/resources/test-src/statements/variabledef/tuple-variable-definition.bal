@@ -227,6 +227,89 @@ function testIgnoreVariable() returns [int, int] {
     return [a, b];
 }
 
+type myErrorDetail record { int i; };
+
+function testTupleVariableWithErrorBP() {
+    [error<myErrorDetail>, [int, string]] [error(m, i = i, ...k), [p, n]] = [error("err", i = 1), [1, ""]];
+    assertEquality(m, "err");
+    assertEquality(i, 1);
+    assertEquality(p, 1);
+    assertEquality(n, "");
+}
+
+type T [int, int];
+
+function testTupleVarDeclWithTypeReferenceTypedExpr() {
+    T t = [1, 2];
+    var [a, b] = t;
+
+    assertEquality(1, a);
+    assertEquality(2, b);
+}
+
+function testTupleVarDefWithRestBPContainsErrorBPWithNamedArgs() {
+    [error<record {int a;}>, boolean...] [error(a = a), ...b] = [error("errorMsg", a = 6), true];
+    
+    assertEquality(6, a);
+    assertEquality(true, b[0]);
+}
+
+function testTupleVarDefWithRestBPContainsErrorBPWithRestBP() {
+    [error<record {|int...; |}>, boolean...] [error(...rest), ...b] = [error("errorMsg", a = 7), true];
+    
+    assertEquality(7, rest["a"]);
+    assertEquality(true, b[0]);
+}
+
+type ReadOnlyTuple readonly & [int[], string];
+
+function testReadOnlyListWithListBindingPatternInVarDecl() {
+    ReadOnlyTuple t1 = [[1, 2], "s1"];
+    ReadOnlyTuple [a, b] = t1;
+    int[] & readonly rArr = a;
+    assertEquality(<int[]> [1, 2], a);
+    assertEquality(<int[]> [1, 2], rArr);
+    string str = b;
+    assertEquality("s1", b);
+    assertEquality("s1", str);
+
+    ReadOnlyTuple t2 = [[3], "s2"];
+    var [c, d] = t2;
+    rArr = c;
+    assertEquality(<int[]> [3], c);
+    assertEquality(<int[]> [3], rArr);
+    str = d;
+    assertEquality("s2", d);
+    assertEquality("s2", str);
+
+    readonly & [int[], ReadOnlyTuple] r = [[12, 34, 56], t1];
+    var [e, f] = r;
+    readonly & int[] a1 = e;
+    assertEquality(<int[]> [12, 34, 56], a1);
+    ReadOnlyTuple b1 = f;
+    assertEquality(<ReadOnlyTuple> [[1, 2], "s1"], b1);
+}
+
+function getPersonDetails() returns PersonDetails {
+    PersonDetails details = [{name: "Jack", married: true}, 10];
+    return details;
+}
+
+type PersonDetails [record {|
+    string name;
+    boolean married;
+|}, int];
+
+function testTupleVariableWithAnonymousRecordType() {
+    [record {|
+        string name;
+        boolean married;
+    |}, int] [{name, married}, age] = checkpanic getPersonDetails().ensureType();
+    assertEquality("Jack", name);
+    assertEquality(true, married);
+    assertEquality(10, age);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any expected, any actual) {

@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -62,5 +63,10 @@ public class ObjectFieldFunctionPointerInvocationTest {
         validateError(neg, i++, "incompatible types: expected 'int', found 'string'", 33, 26);
         validateError(neg, i++, "incompatible types: expected 'int', found 'string'", 35, 19);
         Assert.assertEquals(i,  neg.getErrorCount());
+    }
+
+    @AfterClass
+    public void tearDown() {
+        funcInvocationExpResult = null;
     }
 }

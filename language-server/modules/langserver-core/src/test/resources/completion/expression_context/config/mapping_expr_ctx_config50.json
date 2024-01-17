@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 6,
+    "line": 7,
     "character": 12
   },
   "source": "expression_context/source/mapping_expr_ctx_source50.bal",
@@ -9,17 +9,34 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map1",
+      "kind": "Variable",
+      "detail": "map<RecordName>",
+      "sortText": "AB",
+      "insertText": "map1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "recMap",
       "kind": "Variable",
       "detail": "map<map<RecordName>>",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "recMap",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...map1",
+      "kind": "Variable",
+      "detail": "map<RecordName>",
+      "sortText": "AC",
+      "filterText": "map1",
+      "insertText": "...map1",
       "insertTextFormat": "Snippet"
     }
   ]

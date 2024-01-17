@@ -14,9 +14,6 @@
  * limitations under the License.
  *
  */
- 
-apply plugin: 'base'
-apply plugin: 'com.github.johnrengelman.shadow'
 
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
@@ -42,7 +39,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
     implementation 'commons-io:commons-io'
-    implementation 'com.google.code.gson:gson:2.8.7'
+    implementation "com.google.code.gson:gson:${project.gsonVersion}"
 
     distBal project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
 
@@ -90,42 +87,13 @@ artifacts {
     file("$sourceSets.main.output.resourcesDir/doc-ui/")
 }
 
-jar {
-    enabled = false
-    dependsOn(shadowJar { classifier = null })
-    manifest {
-        attributes(
-            'Main-Class': 'org.ballerinalang.docgen.docs.BallerinaDocGeneratorMain',
-            'Implementation-Title': 'Ballerina - Docerina',
-            'Specification-Title': 'Ballerina - Docerina',
-            'Specification-Vendor': 'WSO2',
-            'Implementation-Vendor-Id': 'org.ballerinalang',
-            'Implementation-Vendor': 'WSO2',
-            'Implementation-URL': 'https://ballerina.io/misc/docerina/'
-        )
-    }
-}
-
 processResources {
     include '**/properties'
     include 'doc-ui/index.html'
     include 'builtin-types-descriptions/'
     include 'keywords-descriptions/'
     include 'release-description.md'
-    filter { String line -> line.replace('${short.version}', "${project.shortVersion}")}
-}
-
-shadowJar {
-    configurations = [project.configurations.runtimeClasspath]
-    dependencies {
-        include(dependency('com.atlassian.commonmark:commonmark'))
-        include(dependency('com.atlassian.commonmark:commonmark-ext-gfm-tables'))
-        include(dependency(':ballerina-lang'))
-        include(dependency(':ballerina-parser'))
-        exclude('META-INF/*.SF')
-        exclude('META-INF/*.DSA')
-        exclude('META-INF/*.RSA')
-    }
+    filter { String line -> line.replace('${short.version}', "${project.version}")}
 }
 
 task copyBala(type: Copy) {

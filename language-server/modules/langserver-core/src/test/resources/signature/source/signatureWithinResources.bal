@@ -1,9 +1,9 @@
-import ballerina/http;
+import ballerina/httpx;
 
-listener http:MockListener mockEP = new(9090);
+listener httpx:MockListener mockEP = new(9090);
 
 service myService1 on mockEP {
-    resource function foo(http:Caller caller, http:Request req) {
+    resource function foo(httpx:Caller caller, httpx:Request req) {
         caller->respond()
     }
 }

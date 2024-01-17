@@ -35,7 +35,7 @@ public class Document {
     }
 
     public static Document from(DocumentConfig documentConfig, Module module) {
-        DocumentContext documentContext = DocumentContext.from(documentConfig);
+        DocumentContext documentContext = DocumentContext.from(documentConfig, false);
         return new Document(documentContext, module);
     }
 
@@ -102,7 +102,7 @@ public class Document {
         public Document apply() {
             DocumentConfig documentConfig = DocumentConfig.from(this.documentId, this.content,
                     this.name);
-            DocumentContext documentContext = DocumentContext.from(documentConfig);
+            DocumentContext documentContext = DocumentContext.from(documentConfig, false);
             Module newModule = oldModule.modify().updateDocument(documentContext).apply();
             return newModule.document(this.documentId);
         }

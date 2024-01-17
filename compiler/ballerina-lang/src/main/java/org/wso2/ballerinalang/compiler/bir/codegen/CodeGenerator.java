@@ -19,16 +19,15 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.bir.BIRGenUtils;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -39,27 +38,24 @@ import java.util.HashMap;
 public class CodeGenerator {
 
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
-    private SymbolTable symbolTable;
-    private PackageCache packageCache;
-    private BLangDiagnosticLog dlog;
-    private CompilerContext compilerContext;
+    private final SymbolTable symbolTable;
+    private final PackageCache packageCache;
+    private final BLangDiagnosticLog dlog;
+    private final Types types;
 
     private CodeGenerator(CompilerContext compilerContext) {
-
         compilerContext.put(CODE_GEN, this);
         this.symbolTable = SymbolTable.getInstance(compilerContext);
         this.packageCache = PackageCache.getInstance(compilerContext);
         this.dlog = BLangDiagnosticLog.getInstance(compilerContext);
-        this.compilerContext = compilerContext;
+        this.types = Types.getInstance(compilerContext);
     }
 
     public static CodeGenerator getInstance(CompilerContext context) {
-
         CodeGenerator codeGenerator = context.get(CODE_GEN);
         if (codeGenerator == null) {
             codeGenerator = new CodeGenerator(context);
         }
-
         return codeGenerator;
     }
 
@@ -73,49 +69,57 @@ public class CodeGenerator {
     }
 
     private CompiledJarFile generate(BPackageSymbol packageSymbol) {
-
         // Desugar BIR to include the observations
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
-        dlog.setCurrentPackageId(packageSymbol.pkgID);
-        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, compilerContext);
 
-        populateExternalMap(jvmPackageGen);
+        // Re-arrange basic blocks and error entries
+        BIRGenUtils.rearrangeBasicBlocks(packageSymbol.bir);
+
+        dlog.setCurrentPackageId(packageSymbol.pkgID);
+        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types);
 
         //Rewrite identifier names with encoding special characters
         HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
 
         // TODO Get-rid of the following assignment
-        packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
-
+        CompiledJarFile compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
+        cleanUpBirPackage(packageSymbol);
         //Revert encoding identifier names
         JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);
-        return packageSymbol.compiledJarFile;
+        return compiledJarFile;
     }
 
-    private void populateExternalMap(JvmPackageGen jvmPackageGen) {
-
-        String nativeMap = System.getenv("BALLERINA_NATIVE_MAP");
-        if (nativeMap == null) {
-            return;
-        }
-        File mapFile = new File(nativeMap);
-        if (!mapFile.exists()) {
-            return;
-        }
-
-        try (BufferedReader br = new BufferedReader(new FileReader(mapFile))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.startsWith("\"")) {
-                    int firstQuote = line.indexOf('"', 1);
-                    String key = line.substring(1, firstQuote);
-                    String value = line.substring(line.indexOf('"', firstQuote + 1) + 1, line.lastIndexOf('"'));
-                    jvmPackageGen.addExternClassMapping(key, value);
-                }
+    private static void cleanUpBirPackage(BPackageSymbol packageSymbol) {
+        packageSymbol.birPackageFile = null;
+        BIRNode.BIRPackage bir = packageSymbol.bir;
+        for (BIRNode.BIRTypeDefinition typeDef : bir.typeDefs) {
+            for (BIRNode.BIRFunction attachedFunc : typeDef.attachedFuncs) {
+                cleanUpBirFunction(attachedFunc);
             }
-        } catch (IOException e) {
-            //ignore because this is only important in langlibs users shouldn't see this error
+            typeDef.annotAttachments = null;
         }
+        bir.importedGlobalVarsDummyVarDcls.clear();
+        for (BIRNode.BIRFunction function : bir.functions) {
+            cleanUpBirFunction(function);
+        }
+        bir.annotations.clear();
+        bir.constants.clear();
+        bir.serviceDecls.clear();
+    }
+
+    private static void cleanUpBirFunction(BIRNode.BIRFunction function) {
+        function.receiver = null;
+        function.localVars = null;
+        function.returnVariable = null;
+        function.parameters = null;
+        function.basicBlocks = null;
+        function.errorTable = null;
+        function.workerChannels = null;
+        function.annotAttachments = null;
+        function.returnTypeAnnots = null;
+        function.dependentGlobalVars = null;
+        function.pathParams = null;
+        function.restPathParam = null;
     }
 }

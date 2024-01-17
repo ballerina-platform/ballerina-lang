@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 4,
-    "character": 11,
-    "expected": [
+    "character": 11
+  },
+  "source": "fixReturnTypeWithImports.bal",
+  "expected": [
+    {
+      "title": "Change return type to \u0027module1:TestRecord1\u0027",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Change return type to 'module1:TestRecord1'",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 2,
-                            "character": 22
-                        },
-                        "end": {
-                            "line": 2,
-                            "character": 22
-                        }
-                    },
-                    "newText": " returns module1:TestRecord1"
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 22
+            },
+            "end": {
+              "line": 2,
+              "character": 22
+            }
+          },
+          "newText": " returns module1:TestRecord1"
         }
-    ]
+      ]
+    }
+  ]
 }

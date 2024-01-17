@@ -1,16 +1,16 @@
 {
-  "source": {
-    "file": "projectls/defmodsource3.bal"
-  },
   "position": {
     "line": 2,
     "character": 33
+  },
+  "source": {
+    "file": "projectls/defmodsource3.bal"
   },
   "expected": {
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Mod3\n  \n  \n---  \n  \n### Fields  \n  \n`string` ***PERSON_KW*** : PERSON Keyword  \n  \n---  \n  \n### Methods  \n  \n+ `function () returns string`  \nGet name of the person  \n"
+        "value": "Mod3\n  \n  \n---  \n  \n### Fields  \n  \n`string` ***PERSON_KW*** : PERSON Keyword  \n  \n---  \n  \n### Methods  \n  \n+ `public function getName() returns string`  \nGet name of the person  \n"
       }
     },
     "id": {

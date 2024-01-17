@@ -1,0 +1,232 @@
+[
+  {
+    "description": "Change the type of a module variable",
+    "oldCode": "public int id = 102;",
+    "newCode": "public float id = 102;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module variable type changed from 'int' to 'float'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the type of a module variable int to string",
+    "oldCode": "public int id=1 ;",
+    "newCode": "public string id=\"1\" ;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module variable type changed from 'int' to 'string'"
+                },
+                {
+                  "kind": "module variable initializer",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module variable initializer is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the type of a module variable int to any",
+    "oldCode": "public int id=1 ;",
+    "newCode": "public any id=1 ;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module variable type changed from 'int' to 'any'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the type of a module variable any data to any",
+    "oldCode": "public anydata id=1 ;",
+    "newCode": "public any id=1 ;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module variable type changed from 'anydata' to 'any'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the int type ",
+    "oldCode": "int v = 2;",
+    "newCode": "int? v = 2;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module variable type changed from 'int' to 'int?'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change a particular type to union type",
+    "oldCode": "int x = 1;",
+    "newCode": "int|float x = 1;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module variable type changed from 'int' to 'int|float'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change a union type to particular type",
+    "oldCode": "string|decimal x = \"1\";",
+    "newCode": "string x = \"1\";",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module variable type changed from 'string|decimal' to 'string'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

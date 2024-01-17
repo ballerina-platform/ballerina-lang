@@ -16,14 +16,15 @@
 package org.ballerinalang.langserver.codeaction.providers.docs;
 
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Command;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.hasDocs;
 
@@ -41,19 +43,23 @@ import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.h
  * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
+public class AddDocumentationCodeAction implements RangeBasedCodeActionProvider {
 
     public static final String NAME = "Add Documentation";
 
-    public AddDocumentationCodeAction() {
-        super(Arrays.asList(CodeActionNodeType.FUNCTION,
-                CodeActionNodeType.OBJECT,
-                CodeActionNodeType.CLASS,
-                CodeActionNodeType.SERVICE,
-                CodeActionNodeType.RESOURCE,
-                CodeActionNodeType.RECORD,
-                CodeActionNodeType.OBJECT_FUNCTION,
-                CodeActionNodeType.CLASS_FUNCTION));
+    public List<SyntaxKind> getSyntaxKinds() {
+        return Arrays.asList(SyntaxKind.FUNCTION_DEFINITION,
+                SyntaxKind.OBJECT_TYPE_DESC,
+                SyntaxKind.CLASS_DEFINITION,
+                SyntaxKind.SERVICE_DECLARATION,
+                SyntaxKind.RESOURCE_ACCESSOR_DEFINITION,
+                SyntaxKind.RECORD_TYPE_DESC,
+                SyntaxKind.METHOD_DECLARATION,
+                SyntaxKind.OBJECT_METHOD_DEFINITION,
+                SyntaxKind.ANNOTATION_DECLARATION,
+                SyntaxKind.MODULE_VAR_DECL,
+                SyntaxKind.ENUM_DECLARATION,
+                SyntaxKind.CONST_DECLARATION);
     }
 
     @Override
@@ -61,22 +67,24 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
         return 999;
     }
 
+    @Override
+    public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
+        return positionDetails.matchedDocumentableNode().isPresent() 
+                && !hasDocs(positionDetails.matchedDocumentableNode().get())
+                && CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode());
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
-                                                    NodeBasedPositionDetails posDetails) {
+    public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {
         String docUri = context.fileUri();
-        NonTerminalNode matchedNode = posDetails.matchedTopLevelNode();
-        
-        if (hasDocs(matchedNode)) {
-            return Collections.emptyList();
-        }
+        Optional<NonTerminalNode> documentableNode = posDetails.matchedDocumentableNode();
 
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,
-                                                         CommonUtil.toRange(matchedNode.lineRange()));
+                PositionUtil.toRange(documentableNode.get().lineRange()));
         List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
 
         CodeAction action = new CodeAction(CommandConstants.ADD_DOCUMENTATION_TITLE);

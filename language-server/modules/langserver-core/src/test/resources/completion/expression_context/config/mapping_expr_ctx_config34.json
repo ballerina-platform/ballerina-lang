@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,16 +18,16 @@
       "label": "Ba2",
       "kind": "Field",
       "detail": "Bar.Ba2",
-      "sortText": "G",
-      "insertText": "Ba2: \"${1}\"",
+      "sortText": "K",
+      "insertText": "Ba2: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Ba1",
       "kind": "Field",
       "detail": "Bar.Ba1",
-      "sortText": "G",
-      "insertText": "Ba1: ${2:0}",
+      "sortText": "K",
+      "insertText": "Ba1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,7 +36,7 @@
       "detail": "Bar",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "Ba2: \"\",\nBa1: 0",
+      "insertText": "Ba2: ${1:\"\"},\nBa1: ${2:0}",
       "insertTextFormat": "Snippet"
     }
   ]

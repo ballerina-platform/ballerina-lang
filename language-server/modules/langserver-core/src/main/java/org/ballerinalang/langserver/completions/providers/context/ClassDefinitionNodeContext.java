@@ -18,22 +18,25 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.context.util.ClassDefinitionNodeContextUtil;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link ClassDefinitionNode} context.
@@ -52,10 +55,70 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.withinBody(context, node)) {
             completionItems.addAll(this.getClassBodyCompletions(context, node));
+        } else if (inQualifierContext(context, node)) {
+            completionItems.addAll(this.getCompletionsInQualifierContext(context, node));
         }
         this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+
+    private Collection<? extends LSCompletionItem> getCompletionsInQualifierContext(BallerinaCompletionContext context,
+                                                                                    ClassDefinitionNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        NodeList<Token> qualifiers = node.classTypeQualifiers();
+        List<Token> qualifiersAtCursor = CommonUtil.getQualifiersAtCursor(context);
+        if (qualifiers.isEmpty() || qualifiersAtCursor.isEmpty()) {
+            checkAndAddCompletionItemsForQualifierKinds(completionItems, qualifiers, context);
+            return completionItems;
+        }
+
+        Token lastQualifier = qualifiersAtCursor.get(qualifiersAtCursor.size() - 1);
+        //We do not suggest qualifiers after client and service keywords.
+        if (lastQualifier.kind() != SyntaxKind.SERVICE_KEYWORD
+                && lastQualifier.kind() != SyntaxKind.CLIENT_KEYWORD) {
+            checkAndAddCompletionItemsForQualifierKinds(completionItems, qualifiers, context);
+            return completionItems;
+        }
+        return completionItems;
+    }
+
+    private void checkAndAddCompletionItemsForQualifierKinds(List<LSCompletionItem> completionItems,
+                                                             NodeList<Token> existingQualifiers,
+                                                             BallerinaCompletionContext context) {
+
+        List<SyntaxKind> qualifierKinds = List.of(SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.READONLY_KEYWORD,
+                SyntaxKind.DISTINCT_KEYWORD, SyntaxKind.CLIENT_KEYWORD, SyntaxKind.SERVICE_KEYWORD);
+        qualifierKinds.stream().filter(kind -> !isQualifierKindAvailable(kind, existingQualifiers))
+                .forEach(qualifierKind -> {
+                    switch (qualifierKind) {
+                        case ISOLATED_KEYWORD:
+                            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+                            break;
+                        case CLIENT_KEYWORD:
+                            if (!isQualifierKindAvailable(SyntaxKind.SERVICE_KEYWORD, existingQualifiers)) {
+                                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
+                            }
+                            break;
+                        case SERVICE_KEYWORD:
+                            if (!isQualifierKindAvailable(SyntaxKind.CLIENT_KEYWORD, existingQualifiers)) {
+                                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
+                            }
+                            break;
+                        case READONLY_KEYWORD:
+                            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
+                            break;
+                        case DISTINCT_KEYWORD:
+                            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DISTINCT.get()));
+                            break;
+                        default:
+                            //ignore
+                    }
+                });
+    }
+
+    private boolean isQualifierKindAvailable(SyntaxKind qualifierKind, NodeList<Token> existingQualifiers) {
+        return existingQualifiers.stream().anyMatch(token -> token.kind().equals(qualifierKind));
     }
 
     @Override
@@ -63,8 +126,13 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         int cursor = context.getCursorPositionInTree();
         Token classKeyword = node.classKeyword();
 
-        return !classKeyword.isMissing() && cursor > classKeyword.textRange().endOffset()
-                && cursor <= node.closeBrace().textRange().startOffset();
+        if (withinBody(context, node)) {
+            return true;
+        }
+        if (classKeyword.isMissing() || !(cursor <= node.closeBrace().textRange().startOffset())) {
+            return false;
+        }
+        return inQualifierContext(context, node) || cursor > classKeyword.textRange().endOffset();
     }
 
     private boolean withinBody(BallerinaCompletionContext context, ClassDefinitionNode node) {
@@ -79,12 +147,19 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         return cursor >= openBrace.textRange().endOffset() && cursor <= closeBrace.textRange().startOffset();
     }
 
+    private boolean inQualifierContext(BallerinaCompletionContext context, ClassDefinitionNode node) {
+        Optional<Token> visibilityQualifier = node.visibilityQualifier();
+        int cursor = context.getCursorPositionInTree();
+        return visibilityQualifier.isPresent() && cursor >= visibilityQualifier.get().textRange().startOffset()
+                && cursor <= node.classKeyword().textRange().startOffset();
+    }
+
     private List<LSCompletionItem> getClassBodyCompletions(BallerinaCompletionContext context,
                                                            ClassDefinitionNode node) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
+            List<Symbol> typesInModule = QNameRefCompletionUtil.getTypesInModule(context, qNameRef);
             return this.getCompletionItemList(typesInModule, context);
         }
         if (onSuggestionsAfterQualifiers(context, context.getNodeAtCursor())) {

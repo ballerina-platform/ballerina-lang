@@ -20,10 +20,11 @@ package org.ballerinalang.testerina.natives;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -60,19 +61,19 @@ public class Executor {
                                          Object... paramValues) {
         try {
             Class<?> clazz = classLoader.loadClass(className);
-            int paramCount = paramValues.length * 2 + 1;
+            int paramCount = paramValues.length + 1;
             Object[] jvmArgs = new Object[paramCount];
             jvmArgs[0] = scheduler;
             for (int i = 0, j = 1; i < paramValues.length; i++) {
                 jvmArgs[j++] = paramValues[i];
-                jvmArgs[j++] = true;
             }
             Method method = getMethod(methodName, clazz);
             Function<Object[], Object> func = args -> {
                 try {
                     return method.invoke(null, args);
                 } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new BallerinaException(methodName + " function invocation failed: " + e.getMessage());
+                    throw ErrorCreator.createError(StringUtils.fromString(
+                            methodName + " function invocation failed: " + e.getMessage()));
                 }
             };
             CountDownLatch completeFunction = new CountDownLatch(1);
@@ -90,7 +91,7 @@ public class Executor {
             completeFunction.await();
             return futureValue.getResult();
         } catch (NoSuchMethodException | ClassNotFoundException | InterruptedException e) {
-            throw new BallerinaException("invocation failed: " + e.getMessage());
+            throw ErrorCreator.createError(StringUtils.fromString("invocation failed: " + e.getMessage()));
         }
     }
 

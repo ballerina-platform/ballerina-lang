@@ -40,16 +40,21 @@ public class BFiniteType extends BType implements FiniteType {
 
     public Set<Object> valueSpace;
     private int typeFlags;
+    private String originalName;
 
     public BFiniteType(String typeName) {
-        super(typeName, null, RefValue.class);
-        this.valueSpace = new LinkedHashSet<>();
+        this(typeName, new LinkedHashSet<>(), 0);
     }
 
     public BFiniteType(String typeName, Set<Object> values, int typeFlags) {
+        this(typeName, typeName, values, typeFlags);
+    }
+
+    public BFiniteType(String typeName, String originalName, Set<Object> values, int typeFlags) {
         super(typeName, null, RefValue.class);
         this.valueSpace = values;
         this.typeFlags = typeFlags;
+        this.originalName = originalName;
     }
 
     @Override
@@ -78,6 +83,11 @@ public class BFiniteType extends BType implements FiniteType {
         }
 
         return null;
+    }
+
+    @Override
+    public String getName() {
+        return this.originalName;
     }
 
     @Override
@@ -141,7 +151,7 @@ public class BFiniteType extends BType implements FiniteType {
 
     @Override
     public String toString() {
-        if (typeName != null && !typeName.isEmpty()) {
+        if (typeName != null && !typeName.isEmpty() && !typeName.startsWith("$anonType$")) {
             return typeName;
         }
         StringJoiner joiner = new StringJoiner("|");
@@ -153,10 +163,29 @@ public class BFiniteType extends BType implements FiniteType {
                 case TypeTags.DECIMAL_TAG:
                     joiner.add(value + "d");
                     break;
+                case TypeTags.STRING_TAG:
+                case TypeTags.CHAR_STRING_TAG:
+                    joiner.add("\"" + value + "\"");
+                    break;
+                case TypeTags.NULL_TAG:
+                    joiner.add("()");
+                    break;
                 default:
                     joiner.add(value.toString());
             }
         }
         return valueSpace.size() == 1 ? joiner.toString() : "(" + joiner + ")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BFiniteType)) {
+            return false;
+        }
+        BFiniteType that = (BFiniteType) o;
+        return this.valueSpace.size() == that.valueSpace.size() && this.valueSpace.containsAll(that.valueSpace);
     }
 }

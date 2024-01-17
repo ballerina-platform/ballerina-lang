@@ -1,0 +1,299 @@
+[
+  {
+    "description": "Change the type of parameter of a resource method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(int  id) {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "ambiguous",
+                      "message": "type of parameter 'id' is changed from 'string' to 'int'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the  parameter to readonly parameter of a resource method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(int id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(readonly & int  id) {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "ambiguous",
+                      "message": "type of parameter 'id' is changed from 'int' to 'readonly & int'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove parameter of a resource method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello() {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "major",
+                      "message": "required parameter 'id' is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the order of parameter in resource method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(int  id, int num){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(int num, int id) {\n} \n}",
+    "expectedOutput":{}
+  },
+  {
+    "description": "Change the  parameter type default to required in resource method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(int  id = 7){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(int id) {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "major",
+                      "message": "kind of parameter 'id' is changed from 'DEFAULTABLE_PARAM' to 'REQUIRED_PARAM'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the parameter required to default in resource method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(int  id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(int id = 10) {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "minor",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "minor",
+                      "message": "kind of parameter 'id' is changed from 'REQUIRED_PARAM' to 'DEFAULTABLE_PARAM'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add new parameter in resource method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(int  id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(int id, int num) {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "major",
+                      "message": "new required parameter 'num' is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the default value of parameter in resource method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(int  id = 5){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(int id = 7) {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "resource function",
+                  "type": "modified",
+                  "versionImpact": "minor",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "minor",
+                      "message": "default value of parameter 'Optional[id ]' is changed from '5' to '7'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add parameter annotation to a method.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(string id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(@tainted string  id) {\n} \n}",
+    "expectedOutput":{}
+  },
+  {
+    "description": "Remove parameter annotation from a method.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(@tainted string id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello( string  id) {\n} \n}",
+    "expectedOutput":{}
+  },
+  {
+    "description": "Modify parameter annotation in a method.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(@untainted string id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tresource function get hello(@tainted string  id) {\n} \n}",
+    "expectedOutput":{}
+  }
+]

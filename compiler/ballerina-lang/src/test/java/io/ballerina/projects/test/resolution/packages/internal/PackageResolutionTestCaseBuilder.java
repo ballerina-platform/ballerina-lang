@@ -36,11 +36,15 @@ import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -84,7 +88,7 @@ public class PackageResolutionTestCaseBuilder {
                 filePaths.expectedGraphNoStickyPath().orElse(null));
 
         BlendedManifest blendedManifest = BlendedManifest.from(dependencyManifest,
-                packageManifest, packageResolver.localRepo());
+                packageManifest, packageResolver.localRepo(), new HashMap<>(), false);
         ModuleResolver moduleResolver = new ModuleResolver(rootPkgDes,
                 getModulesInRootPackage(rootPkgDescWrapper, rootPkgDes),
                 blendedManifest, packageResolver, ResolutionOptions.builder().setSticky(sticky).build());
@@ -138,7 +142,7 @@ public class PackageResolutionTestCaseBuilder {
 
     private static DependencyManifest getDependencyManifest(Path dependenciesTomlPath) {
         if (dependenciesTomlPath == null) {
-            return DependencyManifest.from("2.0.0", Collections.emptyList());
+            return DependencyManifest.from("2.0.0", null, Collections.emptyList());
         }
 
         List<DependencyManifest.Package> recordedDeps = new ArrayList<>();
@@ -156,7 +160,7 @@ public class PackageResolutionTestCaseBuilder {
             recordedDeps.add(new DependencyManifest.Package(pkgDesc.name(), pkgDesc.org(), pkgDesc.version(),
                     scope.getValue(), isTransitive, Collections.emptyList(), Collections.emptyList()));
         }
-        return DependencyManifest.from("2.0.0", recordedDeps);
+        return DependencyManifest.from("2.0.0", null, recordedDeps);
     }
 
     private static PackageManifest getPackageManifest(Path balTomlPath, PackageDescriptor rootPkgDesc) {
@@ -180,7 +184,7 @@ public class PackageResolutionTestCaseBuilder {
             }
 
             dependencies.add(new PackageManifest.Dependency(pkgDesc.name(),
-                    pkgDesc.org(), pkgDesc.version(), repo));
+                    pkgDesc.org(), pkgDesc.version(), repo, new NullLocation()));
         }
 
         return PackageManifest.from(rootPkgDesc, null, Collections.emptyMap(), dependencies);
@@ -206,6 +210,18 @@ public class PackageResolutionTestCaseBuilder {
 
         public AbstractPackageRepository localRepo() {
             return localRepo;
+        }
+    }
+
+    private static class NullLocation implements Location {
+        @Override
+        public LineRange lineRange() {
+            return null;
+        }
+
+        @Override
+        public TextRange textRange() {
+            return null;
         }
     }
 }

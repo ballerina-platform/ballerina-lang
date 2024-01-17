@@ -56,7 +56,7 @@
   {
     "description": "Cannot update immutables.",
     "code": "addEntryToMap(m2, \"intValTwo\", 10);",
-    "stdout": "panic: {ballerina/lang.map}InvalidUpdate {\"message\":\"Invalid map insertion: modification not allowed on readonly value\"}\n",
+    "stdout": "panic: {ballerina/lang.map}InvalidUpdate {\"message\":\"Invalid map insertion: modification not allowed on readonly value\"}\nat addEntryToMap()\n",
     "error": "InvokerPanicException"
   },
   {

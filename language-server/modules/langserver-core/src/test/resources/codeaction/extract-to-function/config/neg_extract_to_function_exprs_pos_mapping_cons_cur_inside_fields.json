@@ -1,0 +1,13 @@
+{
+  "position": {
+    "line": 13,
+    "character": 26
+  },
+  "source": "extract_to_function_exprs_mapping_constructor.bal",
+  "expected": [
+    {
+      "title": "Extract to function"
+    }
+  ],
+  "description": "Extract to function for expressions, cursor inside the field name in mapping constructor"
+}

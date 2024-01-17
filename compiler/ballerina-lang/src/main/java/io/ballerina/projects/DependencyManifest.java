@@ -20,6 +20,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageContainer;
+import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -34,14 +35,17 @@ import java.util.Optional;
 public class DependencyManifest {
 
     private final String dependenciesTomlVersion;
+    private final SemanticVersion distributionVersion;
     private final List<Package> packages;
     private final DiagnosticResult diagnostics;
     private final PackageContainer<Package> pkgContainer;
 
     private DependencyManifest(String dependenciesTomlVersion,
+                               SemanticVersion distributionVersion,
                                List<Package> packages,
                                DiagnosticResult diagnostics) {
         this.dependenciesTomlVersion = dependenciesTomlVersion;
+        this.distributionVersion = distributionVersion;
         this.packages = Collections.unmodifiableList(packages);
         this.diagnostics = diagnostics;
 
@@ -53,19 +57,25 @@ public class DependencyManifest {
     }
 
     public static DependencyManifest from(String dependenciesTomlVersion,
+                                          SemanticVersion distributionVersion,
                                           List<Package> dependencies,
                                           DiagnosticResult diagnostics) {
-        return new DependencyManifest(dependenciesTomlVersion, dependencies, diagnostics);
+        return new DependencyManifest(dependenciesTomlVersion, distributionVersion, dependencies, diagnostics);
     }
 
     public static DependencyManifest from(String dependenciesTomlVersion,
+                                            SemanticVersion distributionVersion,
                                           List<Package> dependencies) {
-        return new DependencyManifest(dependenciesTomlVersion, dependencies,
+        return new DependencyManifest(dependenciesTomlVersion, distributionVersion, dependencies,
                                       new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public String dependenciesTomlVersion() {
         return dependenciesTomlVersion;
+    }
+
+    public SemanticVersion distributionVersion() {
+        return distributionVersion;
     }
 
     public Collection<Package> packages() {
@@ -95,15 +105,40 @@ public class DependencyManifest {
         private final PackageName packageName;
         private final PackageOrg packageOrg;
         private final PackageVersion version;
+        private final Location location;
         private final String scope;
         private final boolean transitive;
         private final List<Dependency> dependencies;
         private final List<Module> modules;
 
+        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion version, Location location) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.version = version;
+            this.location = location;
+            this.scope = null;
+            this.transitive = false;
+            this.dependencies = Collections.emptyList();
+            this.modules = Collections.emptyList();
+        }
+
+        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion version, String scope,
+                       boolean transitive, List<Dependency> dependencies, List<Module> modules, Location location) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.version = version;
+            this.scope = scope;
+            this.transitive = transitive;
+            this.dependencies = dependencies;
+            this.modules = modules;
+            this.location = location;
+        }
+
         public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion version) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.version = version;
+            this.location = null;
             this.scope = null;
             this.transitive = false;
             this.dependencies = Collections.emptyList();
@@ -119,6 +154,7 @@ public class DependencyManifest {
             this.transitive = transitive;
             this.dependencies = dependencies;
             this.modules = modules;
+            this.location = null;
         }
 
         public PackageName name() {
@@ -147,6 +183,10 @@ public class DependencyManifest {
 
         public List<Module> modules() {
             return modules;
+        }
+
+        public Optional<Location> location() {
+            return Optional.ofNullable(location);
         }
     }
 

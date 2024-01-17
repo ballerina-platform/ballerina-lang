@@ -50,6 +50,8 @@ public class StaticCompletionItem extends AbstractLSCompletionItem {
         MODULE,
         TYPE,
         KEYWORD,
+        SERVICE_TEMPLATE,
+        MAIN_FUNCTION,
         OTHER
     }
 }

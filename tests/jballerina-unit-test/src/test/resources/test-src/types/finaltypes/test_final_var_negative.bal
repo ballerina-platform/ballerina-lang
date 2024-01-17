@@ -91,12 +91,12 @@ function testAccessOfSubsequentlyPotentiallyInitializedFinalNoInitVar() {
     } else {
         b = true;
     }
-    int x = i;
+    int _ = i;
 
     final string s;
 
     while b {
         s = "initialized";
     }
-    string t = s; // should result in an error - see https://github.com/ballerina-platform/ballerina-lang/issues/25634
+    string t = s;
 }

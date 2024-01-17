@@ -8,7 +8,7 @@
     {
       "label": "ENUM1_FIELD1",
       "kind": "EnumMember",
-      "detail": "ENUM1_FIELD1",
+      "detail": "\"ENUM1_FIELD1\"",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -36,7 +36,7 @@
     {
       "label": "TEST_STRING_CONST1",
       "kind": "Variable",
-      "detail": "HELLO WORLD",
+      "detail": "\"HELLO WORLD\"",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -246,6 +246,55 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "TEST_FUTURE_INT",
+      "kind": "Variable",
+      "detail": "future<int>",
+      "sortText": "C",
+      "insertText": "TEST_FUTURE_INT",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GLOBAL_VAR",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "C",
+      "insertText": "GLOBAL_VAR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ClientError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Defines the possible client error types."
+      },
+      "sortText": "L",
+      "insertText": "ClientError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TargetType2",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The super type of all the types."
+      },
+      "sortText": "N",
+      "insertText": "TargetType2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TargetType",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The types of data values that are expected by the `client` to return after the data binding operation."
+      },
+      "sortText": "N",
+      "insertText": "TargetType",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -20,7 +20,7 @@ type Song record {|
 |};
 
 function duplicateKeyTest1() {
-     Song hello = {
+     Song _ = {
          name: "hello",
          length: 1,
          name: "hello"
@@ -37,7 +37,7 @@ function duplicateKeyTest2() {
 }
 
 function duplicateKeyTest3() {
-     Song hola = {
+     Song _ = {
          name: "hola",
          length: 1,
          "name": "hola"

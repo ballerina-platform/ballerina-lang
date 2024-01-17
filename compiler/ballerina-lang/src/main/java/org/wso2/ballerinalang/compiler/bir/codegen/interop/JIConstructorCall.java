@@ -19,9 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
-import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 
 import java.util.List;
 
@@ -30,9 +28,11 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-public class JIConstructorCall extends BIRTerminator {
+public class JIConstructorCall extends JTerminator {
 
+    public BIROperand receiver;
     public List<BIROperand> args;
+    public List<BIROperand> resourcePathArgs;
     public String jClassName;
     public String jMethodVMSig;
     public String name;
@@ -41,7 +41,8 @@ public class JIConstructorCall extends BIRTerminator {
 
     JIConstructorCall(Location pos) {
 
-        super(pos, InstructionKind.PLATFORM);
+        super(pos);
+        this.jTermKind = JTermKind.JI_CONSTRUCTOR_CALL;
     }
 
     @Override
@@ -52,6 +53,11 @@ public class JIConstructorCall extends BIRTerminator {
     @Override
     public BIROperand[] getRhsOperands() {
         return args.toArray(new BIROperand[0]);
+    }
+
+    @Override
+    public void setRhsOperands(BIROperand[] operands) {
+        this.args = List.of(operands);
     }
 
     @Override

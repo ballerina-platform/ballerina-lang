@@ -58,7 +58,7 @@ public class SerialExpressionValidator extends Validator {
      *
      * @param source string source
      * @return syntax tree node instance of the user expression
-     * @throws EvaluationException if any validation/parsing error is detected.
+     * @throws Exception if any validation/parsing error is detected.
      */
     public ExpressionNode validateAndParse(String source) throws Exception {
         this.validate(source);

@@ -1,0 +1,98 @@
+[
+  {
+    "description": "Add documentation in a module service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){}",
+    "newCode": "# Service on port 8080\nservice /demo on new http:Listener(8080){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "patch",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "new",
+                  "versionImpact": "patch",
+                  "kind": "documentation",
+                  "message": "documentation is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove the documentation in a module service declaration",
+    "oldCode": "# Service on port 8080\nservice /demo on new http:Listener(8080){}",
+    "newCode": "service /demo on new http:Listener(8080){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "patch",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "removed",
+                  "versionImpact": "patch",
+                  "kind": "documentation",
+                  "message": "documentation is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify the documentation in a module service declaration",
+    "oldCode": "# Description\nservice /demo on new http:Listener(8080){}",
+    "newCode": "# Service on port 8080\nservice /demo on new http:Listener(8080){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "patch",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "kind": "documentation",
+                  "message": "documentation is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

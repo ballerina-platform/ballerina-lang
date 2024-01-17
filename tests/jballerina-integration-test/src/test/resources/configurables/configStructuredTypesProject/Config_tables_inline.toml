@@ -1,0 +1,53 @@
+engineerTable = [{ name = "hinduja", id = 100 }, { name = "riyafa", id = 105 }]
+
+studentTable = [{ name = "manu", id = 100 }, { name = "riyafa", id = 105 }]
+
+employeeTable = [{ name = "hinduja", id = 102 }, { name = "manu", id = 100 }]
+
+employeeTable1 = [{ name = "waruna", id = 2 }, { name = "manu", id = 7 }]
+
+officerTable = [{ name = "hinduja", id = 102 }, { name = "manu", id = 100 }]
+
+officerTable1 = [{ name = "waruna", id = 4 }, { name = "gabilan", id = 5 }]
+
+managerTable = [{ name = "gabilan", id = 101 }, { name = "riyafa", id = 102 }]
+
+teacherTable = [{ name = "manu", id = 77 }, { name = "riyafa", id = 88 }]
+
+farmerTable = [{ name = "waruna", id = 444 }, { name = "hinduja", id = 888 }]
+
+personTable = [{ name = "riyafa", id = 13, address = { city = "Canberra", country = { name = "Australia" } } }, { name = "gabilan", id = 14, address = { city = "Paris", country = { name = "France" } } }]
+
+lecturerTable = [{ name = "manu", department1 = { name = "IT" }, department2 = { name = "Sales" }, department3 = { name = "HR" } }, { name = "waruna", department1 = { name = "IT" }, department3 = { name = "HR" } }]
+
+lawyerTable = [{ name = "gabilan", address1 = { city = "Colombo" }, address2 = { city = "Kandy" }, address3 = { city = "Galle" } }, { name = "riyafa", address1 = { city = "Matara" }, address3 = { city = "Gampaha" } }]
+
+lecturerTable2 = [{ name = "manu", department1 = { name = "IT" }, department2 = { name = "Sales" }, department3 = { name = "HR" } }, { name = "waruna", department1 = { name = "IT" }, department3 = { name = "HR" } }]
+
+lawyerTable2 = [{ name = "gabilan", place1 = { city = "Colombo" }, place2 = { city = "Kandy" }, place3 = { city = "Galle" } }, { name = "riyafa", place1 = { city = "Matara" }, place3 = { city = "Jaffna" } }]
+
+staffTable = [{ id = 222, salary = 34000.0 }, { id = 333, name = "Jane", salary = 45000.0 }]
+
+staffTable1 = [{ id = 444, salary = 56000.0 }, { id = 555, name = "Mary", salary = 67000.0 }]
+
+staffTable2 = [{ id = 666, salary = 78000.0 }, { id = 777, name = "Amy", salary = 89000.0 }]
+
+configTableType.imported_records.doctorTable = [{ name = "hinduja", id = 100 }, { name = "riyafa", id = 105 }]
+
+configTableType.imported_records.studentTable = [{ name = "manu", id = 100 }, { name = "riyafa", id = 105 }]
+
+configTableType.imported_records.employeeTable = [{ name = "hinduja", id = 102 }, { name = "manu", id = 100 }]
+
+configTableType.imported_records.employeeTable1 = [{ name = "gabilan", id = 2 }, { name = "riyafa", id = 3 }]
+
+configTableType.imported_records.officerTable = [{ name = "hinduja", id = 102 }, { name = "manu", id = 100 }]
+
+configTableType.imported_records.officerTable1 = [{ name = "hinduja", id = 7 }, { name = "waruna", id = 8 }]
+
+configTableType.imported_records.managerTable = [{ name = "gabilan", id = 101 }, { name = "riyafa", id = 102 }]
+
+configTableType.imported_records.teacherTable = [{ name = "gabilan", id = 66 }, { name = "riyafa", id = 77 }]
+
+configTableType.imported_records.farmerTable = [{ name = "riyafa", id = 555 }, { name = "hinduja", id = 666 }]
+
+configTableType.imported_records.personTable = [{ name = "gabilan", id = 133, address = { city = "Berlin", country = { name = "Germany" } } }, { name = "riyafa", id = 144, address = { city = "Madrid", country = { name = "Spain" } } }]

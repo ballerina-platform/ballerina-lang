@@ -18,10 +18,10 @@
   ~
   -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-new-parser-test-suite" time-out="120000">
-    <test name="jballerina-test" parallel="false">
+    <test name="jballerina-test">
         <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
             <package name="org.ballerinalang.test.access.*"/>
@@ -74,10 +74,12 @@
             <!--            <package name="org.ballerinalang.test.loc.*"/>-->
             <package name="org.ballerinalang.test.lock.*"/>
             <package name="org.ballerinalang.test.main.function.*"/>
+            <package name="org.ballerinalang.test.module.declarations.*"/>
             <package name="org.ballerinalang.test.narrowing.*"/>
             <package name="org.ballerinalang.test.nativeimpl.functions.*"/>
             <package name="org.ballerinalang.test.natives.*"/>
             <package name="org.ballerinalang.test.object.*" />
+            <package name="org.ballerinalang.test.observe.syntaxtree.*"/>
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.query.*"/>
 
@@ -87,9 +89,6 @@
             <package name="org.ballerinalang.test.reachability.*"/>
             <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.runtime.api.*"/>
-
-            <!--https://github.com/ballerina-platform/ballerina-lang/issues/30443-->
-            <!--org.ballerinalang.test.serializer.json-->
 
             <package name="org.ballerinalang.test.services.*"/>
 
@@ -112,6 +111,7 @@
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
             <package name="org.ballerinalang.test.statements.variabledef.*"/>
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
+            <package name="org.ballerinalang.test.statements.checkingstatement.*"/>
 
             <package name="org.ballerinalang.test.strand.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
@@ -149,10 +149,12 @@
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
             <package name="org.ballerinalang.test.types.var.*"/>
             <package name="org.ballerinalang.test.types.xml.*" />
+            <package name="org.ballerinalang.test.types.regexp.*" />
 
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
+            <package name="org.ballerinalang.test.visibility"/>
         </packages>
 
         <classes>

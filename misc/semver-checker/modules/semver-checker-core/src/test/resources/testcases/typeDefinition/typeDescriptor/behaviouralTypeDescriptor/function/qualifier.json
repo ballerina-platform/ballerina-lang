@@ -1,0 +1,38 @@
+[
+  {
+    "description": "Remove isolated qualifier",
+    "oldCode": "public type Person isolated function();\n",
+    "newCode": "public type Person function();\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add isolated qualifier\n",
+    "oldCode": "public type Person function();\n",
+    "newCode": "public type Person isolated function();\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove transactional qualifier\n",
+    "oldCode": "public type Person transactional function();\n",
+    "newCode": "public type Person function();\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add transactional qualifier\n",
+    "oldCode": "public type Person function();",
+    "newCode": "public type Person transactional function();\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add isolated qualifier for a function without signature\n",
+    "oldCode": "public type Person function;\n",
+    "newCode": "public type Person isolated function;\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove isolated qualifier for a function without signature\n",
+    "oldCode": "public type Person isolated function;",
+    "newCode": "public type Person function;",
+    "expectedOutput": {}
+  }
+]

@@ -26,17 +26,18 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Utility functions for dealing with ArrayValue.
@@ -69,7 +70,7 @@ public class ArrayUtils {
     }
 
     public static GetFunction getElementAccessFunction(Type arrType, String funcName) {
-        switch (arrType.getTag()) {
+        switch (TypeUtils.getImpliedType(arrType).getTag()) {
             case TypeTags.ARRAY_TAG:
                 return BArray::get;
             case TypeTags.TUPLE_TAG:
@@ -80,7 +81,13 @@ public class ArrayUtils {
     }
 
     public static void checkIsArrayOnlyOperation(Type arrType, String op) {
-        if (arrType.getTag() != TypeTags.ARRAY_TAG) {
+        if (TypeUtils.getImpliedType(arrType).getTag() != TypeTags.ARRAY_TAG) {
+            throw createOpNotSupportedError(arrType, op);
+        }
+    }
+
+    public static void checkIsClosedArray(ArrayType arrType, String op) {
+        if (arrType.getState() == ArrayType.ArrayState.CLOSED) {
             throw createOpNotSupportedError(arrType, op);
         }
     }
@@ -88,11 +95,11 @@ public class ArrayUtils {
     public static BError createOpNotSupportedError(Type type, String op) {
         return ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
                                                                 OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR, op, type));
+                ErrorHelper.getErrorDetails(ErrorCodes.OPERATION_NOT_SUPPORTED_ERROR, op, type));
     }
 
     public static BArray createEmptyArrayFromTuple(BArray arr) {
-        Type arrType = arr.getType();
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
         TupleType tupleType = (TupleType) arrType;
         List<Type> memTypes = new ArrayList<>();
         List<Type> tupleTypes = tupleType.getTupleTypes();

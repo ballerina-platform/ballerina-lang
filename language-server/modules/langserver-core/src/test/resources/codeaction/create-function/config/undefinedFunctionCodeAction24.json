@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 4,
+    "character": 36
+  },
+  "source": "create_function_in_groupby_clause.bal",
+  "expected": [
+    {
+      "title": "Create function 'getInt(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 1
+            },
+            "end": {
+              "line": 6,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getInt() returns int {\n    return 0;\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "create_function_in_groupby_clause.bal",
+        "range": {
+          "start": {
+            "line": 4,
+            "character": 32
+          },
+          "end": {
+            "line": 4,
+            "character": 40
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 4.0,
+              "character": 32.0
+            },
+            "end": {
+              "line": 4.0,
+              "character": 40.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

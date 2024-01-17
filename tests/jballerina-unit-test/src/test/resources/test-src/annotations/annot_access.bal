@@ -324,3 +324,57 @@ function testAnnotWithEmptyMappingConstructor4() returns boolean {
     }
     return false;
 }
+
+annotation record {int i;} ObjMethodAnnot on function;
+
+class MyClass {
+    function foo(int i) returns string => i.toString();
+
+    @ObjMethodAnnot {i: 101}
+    function bar(int i) returns string => i.toString();
+}
+
+function testAnnotOnBoundMethod() {
+    MyClass c = new;
+    typedesc t1 = typeof c.foo;
+    assertEquality((), t1.@ObjMethodAnnot);
+
+    typedesc t2 = typeof c.bar;
+    record {int i;}? r = t2.@ObjMethodAnnot;
+    assertEquality(true, r is record {int i;});
+    record {int i;} rec = <record {int i;}> r;
+    assertEquality(101, rec.i);
+}
+
+public type EntityConfig record {|
+    string[] key;
+|};
+
+public const annotation EntityConfig Entity on type;
+
+@Entity {
+    key: ["key1", "key2"]
+}
+type MedicalNeed record {
+
+};
+
+function testListExprInConstAnnot() {
+    EntityConfig? annot = MedicalNeed.@Entity;
+    assertTrue(annot is EntityConfig);
+
+    EntityConfig config = <EntityConfig> annot;
+    assertEquality(["key1", "key2"], config.key);
+}
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error(string `expected ${expected.toBalString()}, found ${actual.toBalString()}`);
+}

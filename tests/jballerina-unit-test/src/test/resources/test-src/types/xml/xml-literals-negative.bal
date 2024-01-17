@@ -127,3 +127,30 @@ function testXMLIncompatibleValueAssignment() {
 function testSyntaxErrorsInXMLCDATASections() {
     xml x1 = xml `<![CDATA[ some text -->< { } &`;
 }
+
+function testXmlNsInterpolationWithinQuery() {
+    string ns = "http://wso2.com/";
+    xml _ = xml `<empRecords xmlns:inlineNS="${ns}">
+             ${from int i in 1 ... 3
+            select xml `<empRecord employeeId="${i}"><inlineNS:id>${i}</inlineNS:id></empRecord>`}
+          </empRecords>;`;
+}
+
+function testQueryInXMLTemplateExprNegative() {
+    var _ = xml `<doc>${from string i in ["A", "B"] select i + "C"}</doc>`;
+    xml _ = xml `<doc>${from string i in ["A", "B"] select i + "C"}</doc>`;
+    xml<xml:Element> _ = xml `<doc>${from var i in [1, 2, 3] select i * 2}</doc>`;
+    var _ = xml `<doc>${from int i in 0..<2 select `<foo></foo>`}</doc>`;
+    var _ = xml `<doc>${<string>from int i in 0..<2 select `<foo></foo>`}</doc>`;
+}
+
+function textInvalidXmlSequence() {
+    xml<'xml:Text>|xml<'xml:Comment> x38 = xml `<!--comment-->text1`;
+    xml<'xml:Element>|'xml:Text x39 = xml `<root><foo><foo></foo>3</foo></root>3`;
+    xml<xml<'xml:Text>>|xml<xml<'xml:Comment>> x40 = xml `<!--comment-->text1`;
+}
+
+function testMissingClosingGTToken() {
+    xml x1 = xml `<a/a>`;
+    xml x2 = xml `<a n="a"/a>`;
+}

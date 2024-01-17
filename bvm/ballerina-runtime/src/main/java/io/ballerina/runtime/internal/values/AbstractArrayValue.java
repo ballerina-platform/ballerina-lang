@@ -20,12 +20,13 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,9 +35,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * <p>
@@ -122,15 +123,15 @@ public abstract class AbstractArrayValue implements ArrayValue {
 
     @Override
     public String getJSONString() {
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JsonGenerator gen = new JsonGenerator(byteOut);
-        try {
+        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+             JsonGenerator gen = new JsonGenerator(byteOut)) {
             gen.serialize(this);
             gen.flush();
+            return byteOut.toString();
         } catch (IOException e) {
-            throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "Error in converting JSON to a string: " + e.getMessage()), e);
         }
-        return byteOut.toString();
     }
 
     /**
@@ -150,7 +151,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         int newLength = (int) length;
         checkFixedLength(length);
         rangeCheck(length, size);
-        fillerValueCheck(newLength, size);
+        fillerValueCheck(newLength, size, newLength);
         resizeInternalArray(newLength);
         fillValues(newLength);
         size = newLength;
@@ -162,11 +163,11 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     protected void initializeIteratorNextReturnType() {
-        Type type;
-        if (getType().getTag() == TypeTags.ARRAY_TAG) {
+        Type type = TypeUtils.getImpliedType(getType());
+        if (type.getTag() == TypeTags.ARRAY_TAG) {
             type = getElementType();
         } else {
-            BTupleType tupleType = (BTupleType) getType();
+            BTupleType tupleType = (BTupleType) type;
             LinkedHashSet<Type> types = new LinkedHashSet<>(tupleType.getTupleTypes());
             if (tupleType.getRestType() != null) {
                 types.add(tupleType.getRestType());
@@ -192,9 +193,9 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * helper methods that are visible to the implementation classes.
      */
 
-    protected abstract void fillValues(int newLength);
+    protected abstract void fillValues(int index);
 
-    protected abstract void fillerValueCheck(int newLength, int size2);
+    protected abstract void fillerValueCheck(int index, int size, int expectedLength);
 
     protected abstract void resizeInternalArray(int newLength);
 
@@ -211,7 +212,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         }
 
         throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorDetails(INVALID_READONLY_VALUE_UPDATE));
+                                       ErrorHelper.getErrorDetails(INVALID_READONLY_VALUE_UPDATE));
     }
 
     /**

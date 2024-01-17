@@ -223,18 +223,33 @@ function testWorkerInteractionWithIL() {
      assertEquality(20, result);
 }
 
-function testMemberAccessWithIL() returns [string?, int?, string?, string?] {
-    'Person_ƮέŞŢ_\ \/\:\@\[\`\{\~\u{2324} person = {'1st_name: "Jack", 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324}: 50};
+function testMemberAccessWithIL() {
+    'Person_ƮέŞŢ_\ \/\:\@\[\`\{\~\u{2324} person = {'1st_name: "Jack", 'Ȧɢέ_\ \/\\\:\@\[\`\{\~\u{2324}: 50};
     map<string> personMap = {
-        '\ \/\:\@\[\`\{\~\u{2324}_First_name: "John",
+        '\ \/\\\:\@\[\`\{\~\u{2324}_First_name: "John",
         'Ȧɢέ: "25"
     };
-    return [person["1st_name"], person["Ȧɢέ_ /:@[`{~⌤"], personMap[" /:@[`{~⌤_First_name"], personMap["Ȧɢέ"]];
+
+    string? result1 = person["1st_name"];
+    assertEquality("Jack", result1);
+
+    int? result2 = person["Ȧɢέ_ /\\:@[`{~⌤"];
+    assertEquality(50, result2);
+
+    result1 = personMap[" /\\:@[`{~⌤_First_name"];
+    assertEquality("John", result1);
+    result1 = personMap["Ȧɢέ"];
+    assertEquality("25", result1);
+
+    int[] arr = [person["Ȧɢέ_ /\\:@[`{~⌤"], 22, 44];
+    int 'Ȧɢέ_\ \\\/\:\@\[\`\{\~\u{2324} = 0;
+    result2 = arr['Ȧɢέ_\ \\\/\:\@\[\`\{\~\u{2324}];
+    assertEquality(50, result2);
 }
 
 type 'Person_ƮέŞŢ_\ \/\:\@\[\`\{\~\u{2324} record {
     string '1st_name;
-    int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324};
+    int 'Ȧɢέ_\ \/\\\:\@\[\`\{\~\u{2324};
 };
 
 function testToStringWithIL() {
@@ -245,13 +260,13 @@ function testToStringWithIL() {
 }
 
 function testToStringStructFieldsWithIL() {
-    'Person_ƮέŞŢ_\ \/\:\@\[\`\{\~\u{2324} person = {'1st_name: "Jack", 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324}: 50};
+    'Person_ƮέŞŢ_\ \/\:\@\[\`\{\~\u{2324} person = {'1st_name: "Jack", 'Ȧɢέ_\ \/\\\:\@\[\`\{\~\u{2324}: 50};
     map<string> personMap = {
         '\ \/\:\@\[\`\{\~\u{2324}_First_name: "John",
         'Ȧɢέ: "25"
     };
     '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Connector testConnector = new("MyParam1", "MyParam2", 5);
-    assertEquality("{\"1st_name\":\"Jack\",\"Ȧɢέ_ /:@[`{~⌤\":50}", person.toString());
+    assertEquality("{\"1st_name\":\"Jack\",\"Ȧɢέ_ /\\:@[`{~⌤\":50}", person.toString());
     assertEquality("{\" /:@[`{~⌤_First_name\":\"John\",\"Ȧɢέ\":\"25\"}", personMap.toString());
     assertEquality("object  /:@[`{~⌤_ƮέŞŢ_Connector", value:toString(testConnector));
 }

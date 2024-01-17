@@ -62,19 +62,19 @@ function dataGen3() returns (json[][]) {
     return [[{"a": "a"}, {"b": "b"}, {"c": "c"}]];
 }
 
-@test:Config{
-    dataProvider: dataGen4
-}
-function tupleDataProviderTest ([int, int, [int, int]] result) {
-    int a = 10;
-    int b = 20;
-    [int, int] c = [30, 30];
-    test:assertEquals(result[0], a, msg = "tuple data provider failed");
-    test:assertEquals(result[1], b, msg = "tuple data provider failed");
-    test:assertEquals(result[2], c, msg = "tuple data provider failed");
-}
+// @test:Config{
+//     dataProvider: dataGen4
+// }
+// function tupleDataProviderTest ([int, int, [int, int]] result) {
+//     int a = 10;
+//     int b = 20;
+//     [int, int] c = [30, 30];
+//     test:assertEquals(result[0], a, msg = "tuple data provider failed");
+//     test:assertEquals(result[1], b, msg = "tuple data provider failed");
+//     test:assertEquals(result[2], c, msg = "tuple data provider failed");
+// }
 
-function dataGen4() returns ([int, int, [int, int]][]) {
-    return [[10, 20, [30, 30]]];
-}
+// function dataGen4() returns ([int, int, [int, int]][]) {
+//     return [[10, 20, [30, 30]]];
+// }
 

@@ -38,13 +38,19 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangAnnotation extends BLangNode implements AnnotationNode {
+
+    // BLangNodes
     public BLangIdentifier name;
-    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
-    public BSymbol symbol;
     public BLangType typeNode;
+
+    // Parser Flags and Data
+    public Set<Flag> flagSet;
     private Set<AttachPoint> attachPoints;
+
+    // Semantic Data
+    public BSymbol symbol;
 
     public BLangAnnotation() {
         this.flagSet = EnumSet.noneOf(Flag.class);
@@ -113,6 +119,16 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transformNode(this, props);
     }
 
     @Override

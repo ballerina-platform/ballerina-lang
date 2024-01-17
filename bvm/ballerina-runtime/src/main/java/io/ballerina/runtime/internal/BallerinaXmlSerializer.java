@@ -17,10 +17,9 @@
  */
 package io.ballerina.runtime.internal;
 
-import com.ctc.wstx.api.WstxOutputProperties;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.values.XmlComment;
 import io.ballerina.runtime.internal.values.XmlItem;
 import io.ballerina.runtime.internal.values.XmlPi;
@@ -60,21 +59,19 @@ public class BallerinaXmlSerializer extends OutputStream {
     private static final String PARSE_XML_OP = "parse xml";
     private static final String XML = "xml";
     private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XML_NS_URI + "}";
+    private static final String OUTPUT_VALIDATE_PROPERTY = "com.ctc.wstx.outputValidateStructure";
+    private static final String OUTPUT_FACTORY = "com.ctc.wstx.stax.WstxOutputFactory";
+    private static final String AUTOMATIC_END_ELEMENTS = "com.ctc.wstx.automaticEndElements";
 
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
     private boolean withinElement;
-    private static boolean isDefaultFactory = false;
 
     static {
         xmlOutputFactory = XMLOutputFactory.newInstance();
-        if (xmlOutputFactory.getClass().getName().equals("com.ctc.wstx.stax.WstxOutputFactory")) {
-            xmlOutputFactory.setProperty(WstxOutputProperties.P_OUTPUT_VALIDATE_STRUCTURE, false);
-        } else {
-            xmlOutputFactory.setProperty("escapeCharacters", false);
-            isDefaultFactory = true;
-        }
+        xmlOutputFactory.setProperty(OUTPUT_VALIDATE_PROPERTY, false);
+        xmlOutputFactory.setProperty(AUTOMATIC_END_ELEMENTS, false);
     }
 
     public BallerinaXmlSerializer(OutputStream outputStream) {
@@ -82,7 +79,7 @@ public class BallerinaXmlSerializer extends OutputStream {
             xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(outputStream);
             parentNSSet = new ArrayDeque<>();
         } catch (XMLStreamException e) {
-            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
+            ErrorHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -96,7 +93,7 @@ public class BallerinaXmlSerializer extends OutputStream {
         try {
             xmlStreamWriter.flush();
         } catch (XMLStreamException e) {
-            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
+            ErrorHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -105,7 +102,7 @@ public class BallerinaXmlSerializer extends OutputStream {
         try {
             xmlStreamWriter.close();
         } catch (XMLStreamException e) {
-            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
+            ErrorHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -134,7 +131,7 @@ public class BallerinaXmlSerializer extends OutputStream {
                     throw new IllegalStateException("Unexpected value: " + xmlValue.getNodeType());
             }
         } catch (XMLStreamException e) {
-            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
+            ErrorHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -149,7 +146,7 @@ public class BallerinaXmlSerializer extends OutputStream {
     private void writeXMLText(XmlText xmlValue) throws XMLStreamException {
         // No need to escape xml text when they are within xml element or if it is not from default stream writer.
         // It's handled by xml stream  writer.
-        if (this.withinElement && !isDefaultFactory) {
+        if (this.withinElement) {
             String textValue = xmlValue.getTextValue();
             if (!textValue.isEmpty()) {
                 xmlStreamWriter.writeCharacters(textValue);
@@ -258,10 +255,15 @@ public class BallerinaXmlSerializer extends OutputStream {
             throws XMLStreamException {
         String defaultNamespaceUri = setDefaultNamespace(nsPrefixMap, qName, currentNSLevel);
 
-        if (qName.getPrefix() == null || qName.getPrefix().isEmpty()) {
+        if (qName.getNamespaceURI().equals(defaultNamespaceUri)) {
             xmlStreamWriter.writeStartElement(qName.getLocalPart());
         } else {
-            xmlStreamWriter.writeStartElement(qName.getPrefix(), qName.getLocalPart(), qName.getNamespaceURI());
+            String prefix = getXmlNsUriPrefix(nsPrefixMap, qName.getNamespaceURI());
+            if (prefix != null) {
+                xmlStreamWriter.writeStartElement(prefix, qName.getLocalPart(), qName.getNamespaceURI());
+            } else {
+                xmlStreamWriter.writeStartElement(qName.getLocalPart());
+            }
         }
 
         if (defaultNamespaceUri == null) {
@@ -275,8 +277,17 @@ public class BallerinaXmlSerializer extends OutputStream {
         }
     }
 
+    private String getXmlNsUriPrefix(Map<String, String> nsPrefixMap, String uri) {
+        for (Map.Entry<String, String> entry : nsPrefixMap.entrySet()) {
+            if (entry.getValue().equals(uri)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
     private void writeAttributes(HashSet<String> curNSSet, Map<String, String> attributeMap) throws XMLStreamException {
-        String defaultNS = xmlStreamWriter.getNamespaceContext().getNamespaceURI(XMLNS);
+        String defaultNS = xmlStreamWriter.getNamespaceContext().getNamespaceURI("");
         for (Map.Entry<String, String> attributeEntry : attributeMap.entrySet()) {
             String key = attributeEntry.getKey();
             int closingCurlyPos = key.lastIndexOf('}');

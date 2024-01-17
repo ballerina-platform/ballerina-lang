@@ -20,7 +20,7 @@ package io.ballerina.runtime.api.types;
 import java.util.Map;
 
 /**
- * {@code BStructureType} represents a user defined structure type in Ballerina.
+ * {@code StructureType} represents a user defined structure type in Ballerina.
  *
  * @since 2.0.0
  */

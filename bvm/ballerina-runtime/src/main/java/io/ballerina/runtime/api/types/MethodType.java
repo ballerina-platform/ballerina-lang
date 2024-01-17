@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code {@link MethodType }} represents a function type in ballerina.
+ * {@code MethodType} represents a function type in ballerina.
  *
  * @since 2.0.0
  */
@@ -29,9 +29,9 @@ public interface MethodType extends FunctionType {
     FunctionType getType();
 
     /**
-     * Provides given @{@link MethodType} method is isolated.
+     * Provides given {@link MethodType} method is isolated.
      *
-     * @return true if @{@link MethodType} method is isolated otherwise false.
+     * @return true if {@link MethodType} method is isolated otherwise false.
      */
     boolean isIsolated();
 }

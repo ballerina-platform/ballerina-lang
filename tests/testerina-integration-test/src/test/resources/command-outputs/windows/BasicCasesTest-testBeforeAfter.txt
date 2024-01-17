@@ -1,0 +1,17 @@
+Compiling source
+	intg_tests/before_after:0.0.0
+
+Running Tests with Coverage
+
+	before_after
+		[pass] testFunc
+		[pass] testFunc2
+
+
+		2 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	before-after\target\report\test_results.json
+

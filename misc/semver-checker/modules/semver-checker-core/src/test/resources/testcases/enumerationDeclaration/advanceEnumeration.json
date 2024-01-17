@@ -1,0 +1,176 @@
+[
+  {
+    "description": "Remove enum member , Remove public qualifier",
+    "oldCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "enum color{\n\tRed,\n\tBlue\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "'public' qualifier is removed from enum 'color'"
+                },
+                {
+                  "kind": "enum member",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "enum member 'Green' is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add annotation , add a enum member",
+    "oldCode": "public enum color{\n\tRed,\n\tBlue\n}",
+    "newCode": "@tainted\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                [
+                  {
+                    "type": "new",
+                    "versionImpact": "ambiguous",
+                    "kind": "enum annotation",
+                    "message": "a new enum annotation list is added"
+                  }
+                ],
+                {
+                  "kind": "enum member",
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "message": "new enum member 'Green' is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove documentation, Add public qualifier",
+    "oldCode": "#Documentation\nenum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "removed",
+                  "versionImpact": "patch",
+                  "message": "documentation is removed"
+                },
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "message": "'public' qualifier is added to enum 'color'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add an enum member, remove an enum member, add annotation, remove documentation",
+    "oldCode": "#Documentation\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "@tainted\npublic enum color{\n\tRed,\n\tBlue,\n\tYellow\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "removed",
+                  "versionImpact": "patch",
+                  "message": "documentation is removed"
+                },
+                [
+                  {
+                    "type": "modified",
+                    "versionImpact": "ambiguous",
+                    "kind": "enum annotation",
+                    "message": "enum annotation list is modified"
+                  }
+                ],
+                {
+                  "kind": "enum member",
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "message": "new enum member 'Yellow' is added"
+                },
+                {
+                  "kind": "enum member",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "enum member 'Green' is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Compare two identical enum declarations",
+    "oldCode": "#Documentation\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "#Documentation\npublic  enum  color {  Red,  Blue,  Green }",
+    "expectedOutput": "No Changes"
+  }
+]

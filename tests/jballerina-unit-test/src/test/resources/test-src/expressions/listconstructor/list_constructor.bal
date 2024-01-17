@@ -51,16 +51,16 @@ function testListConstructorAutoFillExpr() {
     }
 }
 
-const TYPEDESC_ARRAY_ANY = "typedesc any[]";
+const TYPEDESC_ARRAY_ALL = "typedesc (any|error)[]";
 
 function testListConstructorWithAnyACET() {
     any a = [1, 2];
     typedesc<any> ta = typeof a;
-    assertEquality(TYPEDESC_ARRAY_ANY, ta.toString());
+    assertEquality(TYPEDESC_ARRAY_ALL, ta.toString());
 
-    any|any[] b = [];
+    any|((any|error)[]) b = [];
     ta = typeof b;
-    assertEquality(TYPEDESC_ARRAY_ANY, ta.toString());
+    assertEquality(TYPEDESC_ARRAY_ALL, ta.toString());
 }
 
 const TYPEDESC_ARRAY_ANYDATA = "typedesc anydata[]";

@@ -1,0 +1,18 @@
+{
+  "firstName": "Joe",
+  "lastName": "Root",
+  "address": {
+    "city": "Liverpool",
+    "zip": 12345,
+    "country": "England"
+  },
+  "friend": {
+    "firstName": "Joe",
+    "lastName": "Root",
+    "address": {
+      "houseNo": 12,
+      "city": "Liverpool",
+      "country": "England"
+    }
+  }
+}

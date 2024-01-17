@@ -51,8 +51,8 @@ isolated function invalidIsolatedFunctionWithMutableGlobalVarWrite() {
 }
 
 isolated function invalidIsolatedFunctionWithNonIsolatedFunctionCall() {
-    int x = 1;
-    int y = nonIsolated();
+    int _ = 1;
+    int _ = nonIsolated();
 }
 
 function nonIsolated() returns int => a;
@@ -65,14 +65,14 @@ class Foo {
 
 isolated function invalidIsolatedFunctionWithNonIsolatedMethodCall() {
     Foo f = new;
-    int x = f.getInt();
+    int _ = f.getInt();
 }
 
 isolated function invalidIsolatedFunctionWithWorkerDeclaration(int i) {
-    int j = i + 1;
+    int _ = i + 1;
 
     worker w1 {
-        string s = "hello world";
+        string _ = "hello world";
     }
 }
 
@@ -121,7 +121,7 @@ public class Listener {
 
 service /s1 on new Listener() {
     isolated resource function get res1(map<int> j) {
-        int x = a + <int> j["val"];
+        int _ = a + <int> j["val"];
     }
 
     resource isolated function get res2(string str) returns error? {
@@ -145,7 +145,7 @@ service object {} s2 = service object {
     }
 
     isolated function res3() {
-        int i = d[1];
+        int _ = d[1];
     }
 };
 
@@ -163,14 +163,14 @@ isolated function diffParamKinds(int a, string b = "hello", boolean|int... c) {
 }
 
 var testInvalidIsolatedModuleAnonFunc = isolated function () {
-    int y = nonIsolated() + d[0];
-    string s = c + "world";
+    int _ = nonIsolated() + d[0];
+    string _ = c + "world";
 };
 
 function testInvalidIsolatedAnonFunc() {
-    var testInvalidIsolatedModuleAnonFunc = isolated function () {
-        int y = nonIsolated() + d[0];
-        string s = c + "world";
+    var _ = isolated function () {
+        int _ = nonIsolated() + d[0];
+        string _ = c + "world";
     };
 }
 
@@ -189,8 +189,8 @@ function testInvalidArrowFuncAsIsolatedFunction() {
 public isolated function testInvalidNonIsolatedRemoteMethodCalls() {
     ClientClass f = new;
     f->bar();
-    int j = f->baz(a);
-    int k = f->baz(a, c, c);
+    int _ = f->baz(a);
+    int _ = f->baz(a, c, c);
 }
 
 client class ClientClass {
@@ -203,7 +203,7 @@ client class ClientClass {
 final int[] & readonly immutableIntArr = [0, 1];
 
 isolated function invalidIsolatedFunctionWithForkStatement(int i) {
-    int j = immutableIntArr[1] + i;
+    int _ = immutableIntArr[1] + i;
 
     fork {
         worker w1 {
@@ -268,8 +268,8 @@ Service ser2 = new;
 ReadOnlyService ser3 = new;
 
 isolated function testInvalidMutableServiceAccess() {
-    any x1 = ser1;
-    any x2 = ser2;
+    any _ = ser1;
+    any _ = ser2;
     any x3 = ser3;
 }
 
@@ -311,4 +311,78 @@ function testAnonIsolatedFuncAccessingImplicitlyFinalVarsNegative(int[] i) {
    isolated function () returns int[] fn8 = let int[] k = i in () => k;
 
    isolated function (int[]) returns int[] fn9 = let int[] k = i in (l) => k;
+}
+
+class TestInvalidAccessOfSelfAsCapturedVariableInIsolatedFunction {
+    string[] words = [];
+    int length = 3;
+
+    isolated function getCount() returns int =>
+        self.words.filter(
+            isolated function (string word) returns boolean => word.length() == self.length).length();
+}
+
+object {} testInvalidAccessOfSelfAsCapturedVariableInIsolatedFunction = object {
+    string[] words = [];
+    int length = 3;
+
+    isolated function getCount() returns int =>
+        self.words.filter(
+            isolated function (string word) returns boolean => self.length == word.length()).length();
+};
+
+final function () returns string nf1 = inferredButNotExplicitlyIsolatedFunc;
+final var nf2 = nonIsolated;
+
+isolated function testInvalidNonIsolatedFPCall() {
+    var f = inferredButNotExplicitlyIsolatedFunc;
+    string _ = f();
+
+    string _ = nf1();
+
+    var g = nf2;
+    int _ = g();
+
+    function () returns int i = nonIsolated;
+    _ = i();
+
+    function (int a, string b = "hello", boolean|int... c) j = diffParamKinds;
+    _ = j(1);
+
+    TestInvalidNonIsolatedBoundMethodFPCall k = new;
+    var f1 = k.nonIsolatedFn;
+    f1();
+
+    var f2 = k.isolatedFn;
+    f2();
+}
+
+function inferredButNotExplicitlyIsolatedFunc() returns string => "bar";
+
+class TestInvalidNonIsolatedBoundMethodFPCall {
+    isolated function testInvalidNonIsolatedBoundMethodFPCall() {
+        var f1 = self.nonIsolatedFn;
+        f1();
+
+        var f2 = self.isolatedFn;
+        f2();
+    }
+
+    public function nonIsolatedFn() {
+    }
+
+    public isolated function isolatedFn() {
+    }
+}
+
+public class TestInvalidNonIsolatedFunctionFieldFPCall {
+    private final function () returns string f = () => "hello";
+
+    isolated function testFunctionFieldFPCall() {
+        function () returns string f1 = self.f;
+        _ = f1();
+
+        var f2 = self.f;
+        string _ = f2();
+    }
 }

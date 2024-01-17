@@ -35,11 +35,18 @@ import org.eclipse.lsp4j.Range;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 
-import static io.ballerina.ProgramAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
-import static io.ballerina.ProgramAnalyzerNodeVisitor.ENDPOINTS_KEY;
+import static io.ballerina.Constants.ENDPOINT_RESOLVE_ERROR;
+import static io.ballerina.Constants.ERROR;
+import static io.ballerina.Constants.NEXT_NODE;
+import static io.ballerina.Constants.NO_DATA;
+import static io.ballerina.Constants.SUCCESS;
+import static io.ballerina.Constants.WORKERS;
+import static io.ballerina.PerformanceAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
+import static io.ballerina.PerformanceAnalyzerNodeVisitor.ENDPOINTS_KEY;
 
 /**
  * Implements functionality to find endpoints and action invocations.
@@ -56,26 +63,27 @@ public class EndpointsFinder {
      * @param range            range of file to find invocations
      * @return json of endpoints and invocations
      */
-    public static JsonObject getEndpoints(String fileUri, WorkspaceManager workspaceManager,
-                                          Range range) {
+    public static PerformanceAnalyzerResponse getEndpoints(String fileUri, WorkspaceManager workspaceManager,
+                                                           Range range, boolean isWorkerSupported) {
+
+        PerformanceAnalyzerResponse response = new PerformanceAnalyzerResponse();
 
         Path path = Path.of(fileUri);
         String file = StringUtils.substringAfterLast(fileUri, File.separator);
         try {
+
             Optional<SemanticModel> semanticModel = workspaceManager.semanticModel(path);
             Optional<Module> module = workspaceManager.module(path);
-            if (semanticModel.isEmpty() || module.isEmpty()) {
-                return null;
+            if (semanticModel.isEmpty() || module.isEmpty() || range == null) {
+                response.setType(ERROR);
+                response.setMessage(ENDPOINT_RESOLVE_ERROR);
+                return response;
             }
+
             Module defaultModule = module.get();
 
-            ProgramAnalyzerNodeVisitor nodeVisitor = new ProgramAnalyzerNodeVisitor();
-            nodeVisitor.setSemanticModel(semanticModel.get());
-            nodeVisitor.setFile(file);
-            if (range != null) {
-                nodeVisitor.setRange(range);
-            }
-
+            PerformanceAnalyzerNodeVisitor nodeVisitor =
+                    new PerformanceAnalyzerNodeVisitor(semanticModel.get(), file, range);
             for (DocumentId currentDocumentID : defaultModule.documentIds()) {
                 Document document = defaultModule.document(currentDocumentID);
 
@@ -83,28 +91,70 @@ public class EndpointsFinder {
                 nodeVisitor.setDocument(document);
                 syntaxTree.rootNode().accept(nodeVisitor);
             }
+
             GsonBuilder builder = new GsonBuilder();
             builder.serializeNulls();
             Gson gson = builder.create();
 
-            HashMap<String, Object> endpointsAndActionInvocations = nodeVisitor.getActionInvocations();
-            Node actionInvocations = (Node) endpointsAndActionInvocations.get(ACTION_INVOCATION_KEY);
+            HashMap<String, Object> endpointsAndActionInvocations;
+            JsonObject actionInvocationsJson = new JsonObject();
+
+            if (isWorkerSupported) {
+                endpointsAndActionInvocations = nodeVisitor.getWorkers();
+                HashMap<?, ?> workers = (HashMap<?, ?>)
+                        endpointsAndActionInvocations.get(ACTION_INVOCATION_KEY);
+
+                JsonObject workersJson = new JsonObject();
+                boolean isNoData = true;
+                for (Map.Entry<?, ?> worker : workers.entrySet()) {
+                    JsonObject workerJson = new JsonObject();
+                    JsonElement nextNode = gson.toJsonTree(((Node) worker.getValue()).getNextNode());
+                    workerJson.add(NEXT_NODE, nextNode);
+                    workersJson.add(worker.getKey().toString(), workerJson);
+
+                    if (!nextNode.isJsonNull()) {
+                        isNoData = false;
+                    }
+                }
+                actionInvocationsJson.add(WORKERS, workersJson);
+                if (isNoData) {
+                    response.setType(ERROR);
+                    response.setMessage(NO_DATA);
+                    return response;
+                }
+            } else {
+                if (!nodeVisitor.canGivePrediction()) {
+                    response.setType(ERROR);
+                    response.setMessage(ENDPOINT_RESOLVE_ERROR);
+                    return response;
+                }
+                endpointsAndActionInvocations = nodeVisitor.getActionInvocations();
+                Node actionInvocations = (Node) endpointsAndActionInvocations.get(ACTION_INVOCATION_KEY);
+
+                JsonElement nextNodesJson = gson.toJsonTree(actionInvocations.getNextNode());
+                actionInvocationsJson.add(NEXT_NODE, nextNodesJson);
+
+                if (nextNodesJson.isJsonNull()) {
+                    response.setType(ERROR);
+                    response.setMessage(NO_DATA);
+                }
+            }
 
             JsonElement endPointsJson = gson.toJsonTree(endpointsAndActionInvocations.get(ENDPOINTS_KEY));
-            JsonElement nextNodesJson = gson.toJsonTree(actionInvocations.getNextNode());
-            JsonObject actionInvocationsJson = new JsonObject();
-            actionInvocationsJson.add("nextNode", nextNodesJson);
 
-            JsonObject json = new JsonObject();
-            json.add(ENDPOINTS_KEY, endPointsJson);
-            json.add(ACTION_INVOCATION_KEY, actionInvocationsJson);
+            response.setType(SUCCESS);
+            response.setMessage(SUCCESS);
+            response.setEndpoints(endPointsJson.getAsJsonObject());
+            response.setActionInvocations(actionInvocationsJson);
 
-            return json;
+            return response;
         } catch (CancellationException ignore) {
             // Ignore the cancellation exception
         } catch (Throwable e) {
             //
         }
-        return null;
+        response.setType(ERROR);
+        response.setMessage(ENDPOINT_RESOLVE_ERROR);
+        return response;
     }
 }

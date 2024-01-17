@@ -59,3 +59,18 @@ configurable Parent p = ?;
 type CyclicUnion int|CyclicUnion[];
 
 configurable CyclicUnion unionVar = ?;
+
+configurable [int, string, float, decimal, anydata] a = ?;
+
+type Student record {|
+    () field1 = ();
+    string? field2 = "default value";
+|};
+
+configurable () nilVar = ();
+configurable ()[] nilArr = [];
+configurable string? nilUnion = "abc";
+configurable map<()> nilMap = {};
+configurable Student nilRecord1 = ?;
+configurable Student nilRecord2 = {field1: (), field2: "abc"};
+configurable table<map<()>> nilTable = table [];

@@ -1,0 +1,103 @@
+{
+  "packages": [
+    {
+      "org": "ballerina",
+      "name": "jballerina.java",
+      "version": "0.0.0",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
+    },
+    {
+      "org": "ballerina",
+      "name": "io",
+      "version": "1.4.1",
+      "transitive": false,
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "name": "jballerina.java",
+          "version": "0.0.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        },
+        {
+          "org": "ballerina",
+          "name": "lang.value",
+          "version": "0.0.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        }
+      ],
+      "modules": []
+    },
+    {
+      "org": "ballerina",
+      "name": "lang.value",
+      "version": "0.0.0",
+      "transitive": false,
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "name": "jballerina.java",
+          "version": "0.0.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        }
+      ],
+      "modules": []
+    },
+    {
+      "org": "testorg",
+      "name": "centralSample",
+      "version": "1.0.2",
+      "transitive": false,
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "name": "io",
+          "version": "1.4.1",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        }
+      ],
+      "modules": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "testorg",
+      "package_name": "centralSample",
+      "version": "1.0.2",
+      "module_name": "centralSample",
+      "dependencies": [
+        {
+          "org": "testorg",
+          "package_name": "centralSample",
+          "version": "1.0.2",
+          "module_name": "centralSample.mod1",
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "org": "testorg",
+      "package_name": "centralSample",
+      "version": "1.0.2",
+      "module_name": "centralSample.mod1",
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "package_name": "io",
+          "version": "1.4.1",
+          "module_name": "io",
+          "dependencies": []
+        }
+      ]
+    }
+  ]
+}

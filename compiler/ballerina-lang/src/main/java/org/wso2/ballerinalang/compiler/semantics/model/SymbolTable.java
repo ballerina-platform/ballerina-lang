@@ -22,15 +22,18 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -51,9 +54,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRegexpType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -74,6 +79,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -123,9 +129,11 @@ public class SymbolTable {
 
     public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BArrayType arrayType = new BArrayType(anyType);
+    public final BArrayType byteArrayType = new BArrayType(byteType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
-
-    public final BType tupleType = new BTupleType(Lists.of(noType));
+    BVarSymbol varSymbol = new BVarSymbol(0, null, null,
+            noType, null, null, SymbolOrigin.VIRTUAL);
+    public final BType tupleType = new BTupleType(Lists.of(new BTupleMember(noType, varSymbol)));
     public final BType recordType = new BRecordType(null);
     public final BType stringArrayType = new BArrayType(stringType);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
@@ -140,6 +148,8 @@ public class SymbolTable {
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
+    public final BType invokableType = new BInvokableType(null, null, null, null);
+    public final BType empty = new BType(TypeTags.EMPTY, null);
 
     public BConstructorSymbol errorConstructor;
     public BUnionType anyOrErrorType;
@@ -165,6 +175,7 @@ public class SymbolTable {
     public final BXMLSubType xmlPIType = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI);
     public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);
     public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY);
+    public final BRegexpType regExpType = new BRegexpType(TypeTags.REGEXP, Names.REGEXP_TYPE);
     public final BType xmlNeverType = new BXMLType(neverType,  null);
     public final BType xmlElementSeqType = new BXMLType(xmlElementType, null);
 
@@ -194,6 +205,7 @@ public class SymbolTable {
     public BPackageSymbol langErrorModuleSymbol;
     public BPackageSymbol langFloatModuleSymbol;
     public BPackageSymbol langFutureModuleSymbol;
+    public BPackageSymbol langFunctionModuleSymbol;
     public BPackageSymbol langIntModuleSymbol;
     public BPackageSymbol langMapModuleSymbol;
     public BPackageSymbol langObjectModuleSymbol;
@@ -209,10 +221,13 @@ public class SymbolTable {
     public BPackageSymbol langTransactionModuleSymbol;
     public BPackageSymbol internalTransactionModuleSymbol;
 
+    public BPackageSymbol langRegexpModuleSymbol;
+
     private Names names;
     private Types types;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
     public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
+    public Map<String, Map<SelectivelyImmutableReferenceType, BIntersectionType>> immutableTypeMaps = new HashMap<>();
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);
@@ -271,6 +286,7 @@ public class SymbolTable {
         initializeTSymbol(xmlPIType, Names.XML_PI, PackageID.XML);
         initializeTSymbol(xmlCommentType, Names.XML_COMMENT, PackageID.XML);
         initializeTSymbol(xmlTextType, Names.XML_TEXT, PackageID.XML);
+        initializeTSymbol(regExpType, Names.REGEXP_TYPE, PackageID.REGEXP);
 
         BLangLiteral trueLiteral = new BLangLiteral();
         trueLiteral.setBType(this.booleanType);
@@ -298,8 +314,18 @@ public class SymbolTable {
         }});
 
         this.anyAndReadonly =
-                ImmutableTypeCloner.getImmutableIntersectionType(this.anyType, this, names, this.types);
+                ImmutableTypeCloner.getImmutableIntersectionType(this.anyType, this, names, this.types,
+                                                                 rootPkgSymbol.pkgID);
         initializeType(this.anyAndReadonly, this.anyAndReadonly.effectiveType.name.getValue(), BUILTIN);
+
+        // Initialize the invokable type
+        this.invokableType.flags = Flags.ANY_FUNCTION;
+        BInvokableTypeSymbol tSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.ANY_FUNCTION,
+                rootPkgSymbol.pkgID, this.invokableType, rootPkgNode.symbol.scope.owner, builtinPos, BUILTIN);
+        tSymbol.params = null;
+        tSymbol.restParam = null;
+        tSymbol.returnType = null;
+        this.invokableType.tsymbol = tSymbol;
 
         defineReadonlyCompoundType();
     }
@@ -358,6 +384,10 @@ public class SymbolTable {
                 return unsigned8IntType;
             case TypeTags.CHAR_STRING:
                 return charStringType;
+            case TypeTags.REGEXP:
+                return regExpType;
+            case TypeTags.BYTE_ARRAY:
+                return byteArrayType;
             default:
                 return semanticError;
         }
@@ -388,6 +418,8 @@ public class SymbolTable {
                 return this.xmlCommentType;
             case Names.STRING_XML_TEXT:
                 return this.xmlTextType;
+            case Names.STRING_REGEXP:
+                return this.regExpType;
         }
         throw new IllegalStateException("LangLib Subtype not found: " + name);
     }
@@ -397,6 +429,7 @@ public class SymbolTable {
                                                 Map.entry(Names.DECIMAL, this.langDecimalModuleSymbol),
                                                 Map.entry(Names.ERROR, this.langErrorModuleSymbol),
                                                 Map.entry(Names.FLOAT, this.langFloatModuleSymbol),
+                                                Map.entry(Names.FUNCTION, this.langFunctionModuleSymbol),
                                                 Map.entry(Names.FUTURE, this.langFutureModuleSymbol),
                                                 Map.entry(Names.INT, this.langIntModuleSymbol),
                                                 Map.entry(Names.MAP, this.langMapModuleSymbol),
@@ -406,7 +439,8 @@ public class SymbolTable {
                                                 Map.entry(Names.TABLE, this.langTableModuleSymbol),
                                                 Map.entry(Names.TRANSACTION, this.langTransactionModuleSymbol),
                                                 Map.entry(Names.TYPEDESC, this.langTypedescModuleSymbol),
-                                                Map.entry(Names.XML, this.langXmlModuleSymbol));
+                                                Map.entry(Names.XML, this.langXmlModuleSymbol)
+                );
     }
 
     public void initializeType(BType type, String name, SymbolOrigin origin) {
@@ -430,6 +464,7 @@ public class SymbolTable {
 
     public void updateBuiltinSubtypeOwners() {
         updateIntSubtypeOwners();
+        updateRegExpTypeOwners();
         updateStringSubtypeOwners();
         updateXMLSubtypeOwners();
     }
@@ -453,6 +488,10 @@ public class SymbolTable {
         this.xmlPIType.tsymbol.owner = this.langXmlModuleSymbol;
         this.xmlTextType.tsymbol.owner = this.langXmlModuleSymbol;
     }
+    
+    public void updateRegExpTypeOwners() {
+        this.regExpType.tsymbol.owner = this.langRegexpModuleSymbol;
+    }
 
     public void defineOperators() {
         // Binary arithmetic operators
@@ -461,10 +500,14 @@ public class SymbolTable {
         // Binary arithmetic operators for nullable integer types
         defineNilableIntegerArithmeticOperations();
 
+        defineIntFloatingPointArithmeticOperations();
+
+        defineNilableIntFloatingPointArithmeticOperations();
+
         // Binary bitwise operators for nullable integer types
         defineNilableIntegerBitwiseAndOperations();
-        defineNilableIntegerBitwiseOperations(OperatorKind.BITWISE_OR);
-        defineNilableIntegerBitwiseOperations(OperatorKind.BITWISE_XOR);
+        defineNilableIntegerBitwiseOrAndXorOperations(OperatorKind.BITWISE_OR);
+        defineNilableIntegerBitwiseOrAndXorOperations(OperatorKind.BITWISE_XOR);
 
         // Binary shift operators for nullable integer types
         defineNilableIntegerLeftShiftOperations();
@@ -547,6 +590,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUALS, anydataType, nilType, booleanType);
         defineBinaryOperator(OperatorKind.EQUALS, nilType, anydataType, booleanType);
         defineBinaryOperator(OperatorKind.EQUALS, nilType, nilType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUAL, regExpType, regExpType, booleanType);
 
         // Binary reference equality operators ===, !==
         defineBinaryOperator(OperatorKind.REF_EQUAL, intType, intType, booleanType);
@@ -565,6 +609,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, stringType, stringType, booleanType);
         defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, intType, byteType, booleanType);
         defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, byteType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, regExpType, regExpType, booleanType);
 
         // Binary comparison operators <=, <, >=, >
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType);
@@ -626,14 +671,16 @@ public class SymbolTable {
         BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
                 unsigned16IntType, unsigned8IntType};
         for (BType type : intTypes) {
-            defineUnaryOperator(OperatorKind.ADD, type, intType);
+            defineUnaryOperator(OperatorKind.ADD, type, type);
             defineUnaryOperator(OperatorKind.SUB, type, intType);
             defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, type, intType);
         }
     }
 
     private BUnionType getNilableBType(BType type) {
-        return BUnionType.create(null, type, nilType);
+        BUnionType nilableType = BUnionType.create(null, type, nilType);
+        nilableType.setNullable(true);
+        return nilableType;
     }
 
     private void defineNilableIntegerUnaryOperations() {
@@ -687,6 +734,67 @@ public class SymbolTable {
         }
     }
 
+    private void defineIntFloatingPointArithmeticOperations() {
+        BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType, unsigned8IntType};
+
+        for (BType intType : intTypes) {
+            defineBinaryOperator(OperatorKind.MUL, decimalType, intType, decimalType);
+            defineBinaryOperator(OperatorKind.MUL, intType, decimalType, decimalType);
+            defineBinaryOperator(OperatorKind.MUL, floatType, intType, floatType);
+            defineBinaryOperator(OperatorKind.MUL, intType, floatType, floatType);
+            defineBinaryOperator(OperatorKind.DIV, decimalType, intType, decimalType);
+            defineBinaryOperator(OperatorKind.DIV, floatType, intType, floatType);
+            defineBinaryOperator(OperatorKind.MOD, decimalType, intType, decimalType);
+            defineBinaryOperator(OperatorKind.MOD, floatType, intType, floatType);
+        }
+    }
+
+    private void defineNilableIntFloatingPointArithmeticOperations() {
+        BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType, unsigned8IntType};
+        BUnionType nullableFloat = getNilableBType(floatType);
+        BUnionType nullableDecimal = getNilableBType(decimalType);
+
+        BUnionType[] nilableIntTypes = new BUnionType[8];
+
+        for (int i = 0; i < intTypes.length; i++) {
+            nilableIntTypes[i] = getNilableBType(intTypes[i]);
+        }
+
+        for (BType intType : intTypes) {
+            defineBinaryOperator(OperatorKind.MUL, nullableDecimal, intType, nullableDecimal);
+            defineBinaryOperator(OperatorKind.MUL, intType, nullableDecimal, nullableDecimal);
+            defineBinaryOperator(OperatorKind.MUL, nullableFloat, intType, nullableFloat);
+            defineBinaryOperator(OperatorKind.MUL, intType, nullableFloat, nullableFloat);
+            defineBinaryOperator(OperatorKind.DIV, nullableDecimal, intType, nullableDecimal);
+            defineBinaryOperator(OperatorKind.DIV, nullableFloat, intType, nullableFloat);
+            defineBinaryOperator(OperatorKind.MOD, nullableDecimal, intType, nullableDecimal);
+            defineBinaryOperator(OperatorKind.MOD, nullableFloat, intType, nullableFloat);
+        }
+
+        for (BUnionType nilableIntType : nilableIntTypes) {
+            defineBinaryOperator(OperatorKind.MUL, floatType, nilableIntType, nullableFloat);
+            defineBinaryOperator(OperatorKind.MUL, nilableIntType, floatType, nullableFloat);
+            defineBinaryOperator(OperatorKind.MUL, nilableIntType, nullableFloat, nullableFloat);
+            defineBinaryOperator(OperatorKind.MUL, nullableFloat, nilableIntType, nullableFloat);
+            defineBinaryOperator(OperatorKind.MUL, decimalType, nilableIntType, nullableDecimal);
+            defineBinaryOperator(OperatorKind.MUL, nilableIntType, decimalType, nullableDecimal);
+            defineBinaryOperator(OperatorKind.MUL, nilableIntType, nullableDecimal, nullableDecimal);
+            defineBinaryOperator(OperatorKind.MUL, nullableDecimal, nilableIntType, nullableDecimal);
+
+            defineBinaryOperator(OperatorKind.DIV, floatType, nilableIntType, nullableFloat);
+            defineBinaryOperator(OperatorKind.DIV, nullableFloat, nilableIntType, nullableFloat);
+            defineBinaryOperator(OperatorKind.DIV, decimalType, nilableIntType, nullableDecimal);
+            defineBinaryOperator(OperatorKind.DIV, nullableDecimal, nilableIntType, nullableDecimal);
+
+            defineBinaryOperator(OperatorKind.MOD, floatType, nilableIntType, nullableFloat);
+            defineBinaryOperator(OperatorKind.MOD, nullableFloat, nilableIntType, nullableFloat);
+            defineBinaryOperator(OperatorKind.MOD, decimalType, nilableIntType, nullableDecimal);
+            defineBinaryOperator(OperatorKind.MOD, nullableDecimal, nilableIntType, nullableDecimal);
+        }
+    }
+
     private void defineNilableIntegerArithmeticOperations() {
         BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
                 unsigned16IntType,
@@ -707,21 +815,6 @@ public class SymbolTable {
                 defineBinaryOperator(OperatorKind.DIV, lhs, rhs, intOptional);
                 defineBinaryOperator(OperatorKind.MUL, lhs, rhs, intOptional);
                 defineBinaryOperator(OperatorKind.MOD, lhs, rhs, intOptional);
-            }
-        }
-
-        for (BType lhs : intTypes) {
-            for (BUnionType rhs : nilableIntTypes) {
-                defineBinaryOperator(OperatorKind.ADD, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.ADD, rhs, lhs, intOptional);
-                defineBinaryOperator(OperatorKind.SUB, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.SUB, rhs, lhs, intOptional);
-                defineBinaryOperator(OperatorKind.DIV, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.DIV, rhs, lhs, intOptional);
-                defineBinaryOperator(OperatorKind.MUL, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.MUL, rhs, lhs, intOptional);
-                defineBinaryOperator(OperatorKind.MOD, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.MOD, rhs, lhs, intOptional);
             }
         }
     }
@@ -773,7 +866,7 @@ public class SymbolTable {
                 BType unsignedIntTypeLhs = unsignedIntTypes[i];
                 BType unsignedIntTypeRhs = unsignedIntTypes[j];
                 defineBinaryOperator(orOpKind, unsignedIntTypeLhs, unsignedIntTypeRhs,
-                                     i <= j ? unsignedIntTypeLhs : unsignedIntTypeRhs);
+                                     i >= j ? unsignedIntTypeLhs : unsignedIntTypeRhs);
             }
         }
 
@@ -841,7 +934,7 @@ public class SymbolTable {
         }
     }
 
-    private void defineNilableIntegerBitwiseOperations(OperatorKind opKind) {
+    private void defineNilableIntegerBitwiseOrAndXorOperations(OperatorKind opKind) {
         BType[] unsignedIntTypes = {byteType, unsigned8IntType, unsigned16IntType, unsigned32IntType};
         BType[] signedIntTypes = {intType, signed8IntType, signed16IntType, signed32IntType};
 
@@ -883,11 +976,11 @@ public class SymbolTable {
         for (int i = 0; i < unsignedNilableIntTypes.length; i++) {
             for (int j = 0; j < unsignedNilableIntTypes.length; j++) {
                 defineBinaryOperator(opKind, unsignedNilableIntTypes[i], unsignedNilableIntTypes[j],
-                        i <= j ? unsignedNilableIntTypes[i] : unsignedNilableIntTypes[j]);
+                        i >= j ? unsignedNilableIntTypes[i] : unsignedNilableIntTypes[j]);
                 defineBinaryOperator(opKind, unsignedNilableIntTypes[i], unsignedIntTypes[j],
-                        i <= j ? unsignedNilableIntTypes[i] : unsignedNilableIntTypes[j]);
+                        i >= j ? unsignedNilableIntTypes[i] : unsignedNilableIntTypes[j]);
                 defineBinaryOperator(opKind, unsignedIntTypes[i], unsignedNilableIntTypes[j],
-                        i <= j ? unsignedNilableIntTypes[i] : unsignedNilableIntTypes[j]);
+                        i >= j ? unsignedNilableIntTypes[i] : unsignedNilableIntTypes[j]);
             }
         }
     }
@@ -997,14 +1090,12 @@ public class SymbolTable {
 
     private void defineNilableFloatingPointOperations() {
         BType floatOptional = getNilableBType(floatType);
-        ((BUnionType) floatOptional).setNullable(true);
         BType decimalOptional = getNilableBType(decimalType);
-        ((BUnionType) decimalOptional).setNullable(true);
 
         OperatorKind[] binaryOperators = {OperatorKind.ADD, OperatorKind.SUB, OperatorKind.MUL,
                 OperatorKind.DIV, OperatorKind.MOD};
 
-        for (OperatorKind operator: binaryOperators) {
+        for (OperatorKind operator : binaryOperators) {
             defineBinaryOperator(operator, floatType, floatOptional, floatOptional);
             defineBinaryOperator(operator, floatOptional, floatType, floatOptional);
             defineBinaryOperator(operator, floatOptional, floatOptional, floatOptional);
@@ -1015,14 +1106,14 @@ public class SymbolTable {
 
         OperatorKind[] unaryOperators = {OperatorKind.ADD, OperatorKind.SUB, OperatorKind.BITWISE_COMPLEMENT};
 
-        for (OperatorKind operator: unaryOperators) {
+        for (OperatorKind operator : unaryOperators) {
             defineUnaryOperator(operator, floatOptional, floatOptional);
             defineUnaryOperator(operator, decimalOptional, decimalOptional);
         }
     }
 
     public void defineIntRangeOperations() {
-        BType[] intTypes = {intType, signed32IntType, signed16IntType, signed8IntType,
+        BType[] intTypes = {byteType, intType, signed32IntType, signed16IntType, signed8IntType,
                 unsigned32IntType, unsigned16IntType, unsigned8IntType};
         for (BType lhs : intTypes) {
             for (BType rhs : intTypes) {
@@ -1054,6 +1145,13 @@ public class SymbolTable {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos,
                                                      BUILTIN);
+
+        BInvokableTypeSymbol typeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.ANY_FUNCTION,
+                rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos, BUILTIN);
+
+        typeSymbol.returnType = retType;
+        opType.tsymbol = typeSymbol;
+
         rootScope.define(name, symbol);
     }
 
@@ -1114,8 +1212,13 @@ public class SymbolTable {
         jsonInternal.isCyclic = true;
 
         jsonType = new BJSONType(jsonInternal);
-        jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, rootPkgSymbol.pkgID, jsonType,
-                rootPkgSymbol, builtinPos, BUILTIN);
+        PackageID pkgID = rootPkgSymbol.pkgID;
+        Optional<BIntersectionType> immutableType = Types.getImmutableType(this, pkgID, jsonInternal);
+        if (immutableType.isPresent()) {
+            Types.addImmutableType(this, pkgID, jsonType, immutableType.get());
+        }
+        jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, pkgID, jsonType,
+                                           rootPkgSymbol, builtinPos, BUILTIN);
 
         arrayJsonType = new BArrayType(jsonType);
         mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
@@ -1127,8 +1230,14 @@ public class SymbolTable {
         addCyclicArrayMapTableOfMapMembers(anyDataInternal);
 
         anydataType = new BAnydataType(anyDataInternal);
-        anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, rootPkgSymbol.pkgID,
-                anydataType, rootPkgSymbol, builtinPos, BUILTIN);
+        PackageID pkgID = rootPkgSymbol.pkgID;
+        Optional<BIntersectionType> immutableType = Types.getImmutableType(this, pkgID, anyDataInternal);
+        if (immutableType.isPresent()) {
+            Types.addImmutableType(this, pkgID, anydataType, immutableType.get());
+        }
+
+        anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, pkgID,
+                                              anydataType, rootPkgSymbol, builtinPos, BUILTIN);
         arrayAnydataType = new BArrayType(anydataType);
         mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
         anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);

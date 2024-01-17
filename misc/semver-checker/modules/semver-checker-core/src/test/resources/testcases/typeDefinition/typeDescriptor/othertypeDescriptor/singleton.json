@@ -1,0 +1,26 @@
+[
+  {
+    "description": "Change the type nil-literal to sign int-literal\n",
+    "oldCode": "public type Person ();",
+    "newCode": "public type Person +45;",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the sign value\n",
+    "oldCode": "public type Person +12;\n",
+    "newCode": "public type Person -10;\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the type int-literal to float-literal\n",
+    "oldCode": "public type Person +13;\n",
+    "newCode": "public type Person -13.0;\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add a constant reference expression",
+    "oldCode": "public string Name;\n",
+    "newCode": "public string Name;\npublic type Person Name;\n",
+    "expectedOutput": {}
+  }
+]

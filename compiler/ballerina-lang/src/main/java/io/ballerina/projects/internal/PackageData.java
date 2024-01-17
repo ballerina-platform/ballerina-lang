@@ -18,7 +18,7 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.DependencyGraph;
-import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.PackageDescriptor;
 
 import java.nio.file.Path;
@@ -36,11 +36,12 @@ public class PackageData {
     private final ModuleData defaultModule;
     private final List<ModuleData> otherModules;
     private final DependencyGraph<PackageDescriptor> packageDesDependencyGraph;
-    private final DependencyGraph<ModuleId> moduleDependencyGraph;
+    private final DependencyGraph<ModuleDescriptor> moduleDependencyGraph;
     private final DocumentData ballerinaToml;
     private final DocumentData dependenciesToml;
     private final DocumentData cloudToml;
     private final DocumentData compilerPluginToml;
+    private final DocumentData balToolToml;
     private final DocumentData packageMd;
 
 
@@ -48,11 +49,12 @@ public class PackageData {
                         ModuleData defaultModule,
                         List<ModuleData> otherModules,
                         DependencyGraph<PackageDescriptor> packageDesDependencyGraph,
-                        DependencyGraph<ModuleId> moduleDependencyGraph,
+                        DependencyGraph<ModuleDescriptor> moduleDependencyGraph,
                         DocumentData ballerinaToml,
                         DocumentData dependenciesToml,
                         DocumentData cloudToml,
                         DocumentData compilerPluginToml,
+                        DocumentData balToolToml,
                         DocumentData packageMd) {
         this.packagePath = packagePath;
         this.defaultModule = defaultModule;
@@ -64,6 +66,7 @@ public class PackageData {
         this.dependenciesToml = dependenciesToml;
         this.cloudToml = cloudToml;
         this.compilerPluginToml = compilerPluginToml;
+        this.balToolToml = balToolToml;
     }
 
     public static PackageData from(Path packagePath,
@@ -73,24 +76,27 @@ public class PackageData {
                                    DocumentData dependenciesToml,
                                    DocumentData cloudToml,
                                    DocumentData compilerPluginToml,
+                                   DocumentData balToolToml,
                                    DocumentData packageMd) {
         return new PackageData(packagePath, defaultModule, otherModules, DependencyGraph.emptyGraph(),
                                DependencyGraph.emptyGraph(), ballerinaToml, dependenciesToml, cloudToml,
-                               compilerPluginToml, packageMd);
+                               compilerPluginToml, balToolToml, packageMd);
     }
 
     public static PackageData from(Path packagePath,
                                    ModuleData defaultModule,
                                    List<ModuleData> otherModules,
                                    DependencyGraph<PackageDescriptor> packageDesDependencyGraph,
-                                   DependencyGraph<ModuleId> moduleDependencyGraph,
+                                   DependencyGraph<ModuleDescriptor> moduleDependencyGraph,
                                    DocumentData ballerinaToml,
                                    DocumentData dependenciesToml,
                                    DocumentData cloudToml,
                                    DocumentData compilerPluginToml,
+                                   DocumentData balToolToml,
                                    DocumentData packageMd) {
         return new PackageData(packagePath, defaultModule, otherModules, packageDesDependencyGraph,
-                moduleDependencyGraph, ballerinaToml, dependenciesToml, cloudToml, compilerPluginToml, packageMd);
+                moduleDependencyGraph, ballerinaToml, dependenciesToml, cloudToml, compilerPluginToml,
+                balToolToml, packageMd);
     }
 
     public Path packagePath() {
@@ -109,7 +115,7 @@ public class PackageData {
         return packageDesDependencyGraph;
     }
 
-    public DependencyGraph<ModuleId> moduleDependencyGraph() {
+    public DependencyGraph<ModuleDescriptor> moduleDependencyGraph() {
         return moduleDependencyGraph;
     }
 
@@ -127,6 +133,10 @@ public class PackageData {
 
     public Optional<DocumentData> compilerPluginToml() {
         return Optional.ofNullable(compilerPluginToml);
+    }
+
+    public Optional<DocumentData> balToolToml() {
+        return Optional.ofNullable(balToolToml);
     }
 
     public Optional<DocumentData> packageMd() {

@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 17,
+    "character": 14
+  },
+  "source": "testproject/main.bal",
+  "expected": [
+    {
+      "title": "Create function 'generateIndex(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 18,
+              "character": 1
+            },
+            "end": {
+              "line": 18,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction generateIndex(int intake, string name) {\n    \n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "testproject/main.bal",
+        "range": {
+          "start": {
+            "line": 17,
+            "character": 4
+          },
+          "end": {
+            "line": 17,
+            "character": 39
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 17.0,
+              "character": 4.0
+            },
+            "end": {
+              "line": 17.0,
+              "character": 39.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

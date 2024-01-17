@@ -1,8 +1,8 @@
-import ballerina/io;
+import ballerina/iox;
 
 # Prints `Hello World`.
 function testPackageFunction(string param1) {
     int localVar1 = 12;
     string localVar2 = "Hello"; 
-    io:println("Hello World!");
+    iox:println("Hello World!");
 }

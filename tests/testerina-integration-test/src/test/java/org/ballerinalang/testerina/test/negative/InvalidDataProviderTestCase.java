@@ -53,60 +53,52 @@ public class InvalidDataProviderTestCase extends BaseTestCase {
     }
 
     @Test
-    public void testInvalidDataProvider() throws BallerinaTestException {
+    public void testInvalidDataProvider() throws BallerinaTestException, IOException {
         String errMsg1 = "[fail] testInvalidDataProvider:";
-        String errMsg2 = "org.ballerinalang.test.runtime.exceptions.BallerinaTestException: " +
-                "Error while invoking function 'testInvalidDataProvider'";
-        String errMsg3 = "If you are using data providers please check if types return from data provider match test " +
-                "function parameter types";
+        String errMsg2 = "[fail data provider for the function testInvalidDataProvider]";
+        String errMsg3 = "arguments of incompatible types: argument list '(int)' " +
+                "cannot be passed to function expecting parameter list '(string)'";
         String[] args = mergeCoverageArgs(new String[]{"invalid-data-provider-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(errMsg1) || !output.contains(errMsg2) || !output.contains(errMsg3)) {
-            AssertionUtils.assertForTestFailures(output, "error while handling invalid data providers");
-        }
+        AssertionUtils.assertOutput("InvalidDataProviderTestCase-testInvalidDataProvider.txt", output);
     }
 
     @Test
-    public void testInvalidDataProvider2() throws BallerinaTestException {
+    public void testInvalidDataProvider2() throws BallerinaTestException, IOException {
         String errMsg1 = "[fail] testInvalidDataProvider2:";
-        String errMsg2 = "org.ballerinalang.test.runtime.exceptions.BallerinaTestException: " +
-                "Error while invoking function 'testInvalidDataProvider2'";
-        String errMsg3 = "If you are using data providers please check if types return from data provider match test " +
-                "function parameter types";
+        String errMsg2 = "[fail data provider for the function testInvalidDataProvider2]";
+        String errMsg3 = "arguments of incompatible types: argument list '(int,int,int)' cannot be " +
+                "passed to function expecting parameter list '(string,string,string)'";
         String[] args = mergeCoverageArgs(new String[]{"invalid-data-provider-test2.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(errMsg1) || !output.contains(errMsg2) || !output.contains(errMsg3)) {
-            AssertionUtils.assertForTestFailures(output, "error while handling invalid data providers");
-        }
+        AssertionUtils.assertOutput("InvalidDataProviderTestCase-testInvalidDataProvider2.txt", output);
     }
 
     @Test
-    public void testInvalidTupleDataProvider() throws BallerinaTestException {
+    public void testInvalidTupleDataProvider() throws BallerinaTestException, IOException {
         String errMsg1 = "[fail] testInvalidTupleDataProvider:";
-        String errMsg2 = "org.ballerinalang.test.runtime.exceptions.BallerinaTestException: " +
-                "Error while invoking function 'testInvalidTupleDataProvider'";
-        String errMsg3 = "If you are using data providers please check if types return from data provider match" +
-                " test function parameter types";
+        String errMsg2 = "[fail data provider for the function testInvalidTupleDataProvider]";
+        String errMsg3 = "arguments of incompatible types: argument list '(string,int)' cannot be passed " +
+                "to function expecting parameter list '(string,string)'";
         String[] args = mergeCoverageArgs(new String[]{"invalid-data-provider-test3.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(errMsg1) || !output.contains(errMsg2) || !output.contains(errMsg3)) {
-            AssertionUtils.assertForTestFailures(output, "error while handling invalid data providers");
-        }
+        AssertionUtils.assertOutput("InvalidDataProviderTestCase-testInvalidTupleDataProvider.txt",
+                output);
     }
 
     @Test
-    public void testEmptyDataProvider() throws BallerinaTestException {
-        String errMsg1 = "[fail] test";
-        String errMsg2 = "[fail] test2";
-        String errMsg3 = "The provided data set is empty.";
+    public void testEmptyDataProvider() throws BallerinaTestException, IOException {
+        String errMsg1 = "ERROR [empty-data-provider-test.bal:(14:19,14:28)] incompatible types: " +
+                "expected 'function () returns (ballerina/test:0.0.0:DataProviderReturnType)?', " +
+                "found 'function () returns (int[])'";
+        String errMsg2 = "error: compilation contains errors";
         String[] args = mergeCoverageArgs(new String[]{"empty-data-provider-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(errMsg1) || !output.contains(errMsg2) || !output.contains(errMsg3)) {
-            AssertionUtils.assertForTestFailures(output, "error while handling empty data providers");
-        }
+        AssertionUtils.assertOutput("InvalidDataProviderTestCase-testEmptyDataProvider.txt",
+                output);
     }
 }

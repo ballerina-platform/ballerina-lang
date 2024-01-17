@@ -3,7 +3,7 @@
 # + color - color of the apple
 public class Apple {
     public string color = "red";
-};
+}
 
 # A Grapes Description
 public class Grapes {
@@ -13,7 +13,7 @@ public class Grapes {
      public function init(string color) {
         self.color = color;
      }
-};
+}
 
 public function main (string... args) {
    int a = 12;

@@ -15,14 +15,14 @@
 // under the License.
 //
 
-function unaryPlus(any value) returns any|error {
+function unaryPlus(any value) returns int|float|decimal|error {
     // Todo - Add proper syntax for for int and float, after fixing runtime exception.
-    any|error result;
-    if (value is int) {
+    int|float|decimal|error result;
+    if value is int {
         result = value;
-    } else if (value is float) {
+    } else if value is float {
         result = value;
-    } else if (value is decimal) {
+    } else if value is decimal {
         result = trap +value;
     } else {
         result = error("operator '+' not defined for '" + check getType(value) + "'");
@@ -30,13 +30,13 @@ function unaryPlus(any value) returns any|error {
     return result;
 }
 
-function unaryMinus(any value) returns any|error {
-    any|error result;
-    if (value is int) {
+function unaryMinus(any value) returns int|float|decimal|error {
+    int|float|decimal|error result;
+    if value is int {
         result = trap -value;
-    } else if (value is float) {
+    } else if value is float {
         result = trap -value;
-    } else if (value is decimal) {
+    } else if value is decimal {
         result = trap -value;
     } else {
         result = error("operator '-' not defined for '" + check getType(value) + "'");
@@ -44,9 +44,9 @@ function unaryMinus(any value) returns any|error {
     return result;
 }
 
-function unaryInvert(any value) returns any|error {
-    any|error result;
-    if (value is int) {
+function unaryInvert(any value) returns int|error {
+    int|error result;
+    if value is int {
         result = trap ~value;
     } else {
         result = error("operator '~' not defined for '" + check getType(value) + "'");
@@ -54,9 +54,9 @@ function unaryInvert(any value) returns any|error {
     return result;
 }
 
-function unaryNot(any value) returns any|error {
-    any|error result;
-    if (value is boolean) {
+function unaryNot(any value) returns boolean|error {
+    boolean|error result;
+    if value is boolean {
         result = trap !value;
     } else {
         result = error("operator '!' not defined for '" + check getType(value) + "'");

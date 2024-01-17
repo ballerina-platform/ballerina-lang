@@ -1,0 +1,62 @@
+name: Daily spec conformance test runner
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * *"
+
+jobs:
+  conformance_test:
+    name: Run conformance test suite on latest Ubuntu
+    runs-on: ubuntu-latest
+    timeout-minutes: 75 # random number
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: spec-conformance-test-runner
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Initialize sub-modules
+        run: |
+          git submodule update --init --recursive
+
+      - name: Update sub-modules to latest
+        run: git submodule update --remote --merge
+
+      - name: Run spec-conformance-tests
+        run: |
+          ./gradlew ballerina-spec-conformance-tests:test --configure-on-demand --no-daemon
+
+      - name: Spec conformance report
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: spec-conformance-test-report
+          path: tests/ballerina-spec-conformance-tests/build/reports/tests
+          if-no-files-found: error
+          retention-days: 5
+
+      # If failure inform the FE team
+      - name: Notify failure
+        if: ${{ failure() }}
+        run: |
+          curl -X POST \
+          --header 'Content-Type: application/json' \
+          -d '{"text": "*Daily spec conformance test run FAILED* \nPlease visit <https://github.com/${{github .repository}}/actions/runs/${{github.run_id}}|the execution page> for more information"}' \
+          'https://chat.googleapis.com/v1/spaces/${{ secrets.CONFORMANCE_FAIL_CHAT_ID }}/messages?key=${{ secrets.CONFORMANCE_FAIL_CHAT_KEY }}&token=${{ secrets.CONFORMANCE_FAIL_CHAT_TOKEN }}'
+
+      # if passed just inform "sub-team" so we know task ran on particular day
+      - name: Notify success
+        if: ${{ success() }}
+        run: |
+          curl -X POST \
+          --header 'Content-Type: application/json' \
+          -d '{"text": "*Daily spec conformance test run SUCESSFULL* \nPlease visit <https://github.com/${{github .repository}}/actions/runs/${{github.run_id}}|the execution page> for more information"}' \
+          'https://chat.googleapis.com/v1/spaces/${{ secrets.CONFORMANCE_PASS_CHAT_ID }}/messages?key=${{ secrets.CONFORMANCE_PASS_CHAT_KEY }}&token=${{ secrets.CONFORMANCE_PASS_CHAT_TOKEN }}'

@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -52,8 +53,8 @@ public class TypeCompletionItemBuilder {
     public static CompletionItem build(Symbol bSymbol, String label) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
-        String[] delimiterSeparatedTokens = (label).split("\\.");
-        item.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
+        String insertText = CommonUtil.escapeSpecialCharsInInsertText(label);
+        item.setInsertText(insertText);
         setMeta(item, bSymbol);
         return item;
     }
@@ -78,7 +79,8 @@ public class TypeCompletionItemBuilder {
         typeDescriptor = (typeDescriptor.isPresent() && typeDescriptor.get().typeKind() == TypeDescKind.TYPE_REFERENCE)
                 ? Optional.of(((TypeReferenceTypeSymbol) typeDescriptor.get()).typeDescriptor()) : typeDescriptor;
 
-        if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() == null) {
+        if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() == null || typeDescriptor.get().typeKind() ==
+                TypeDescKind.COMPILATION_ERROR) {
             item.setKind(CompletionItemKind.Unit);
             item.setDetail("type");
             return;
@@ -94,6 +96,14 @@ public class TypeCompletionItemBuilder {
                 // Union types
                 List<TypeSymbol> memberTypes = new ArrayList<>(((UnionTypeSymbol) typeDescriptor.get())
                         .memberTypeDescriptors());
+
+                // To handle cases where the source is incomplete and hence results in an empty union
+                if (memberTypes.isEmpty()) {
+                    item.setKind(CompletionItemKind.Unit);
+                    item.setDetail("type");
+                    return;
+                }
+
                 boolean allMatch = memberTypes.stream()
                         .allMatch(typeDesc -> typeDesc.typeKind() == memberTypes.get(0).typeKind());
                 if (allMatch) {

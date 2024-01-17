@@ -16,8 +16,89 @@
 
 import ballerina/test;
 import ballerina/jballerina.java;
+import ballerina/lang.runtime;
 
 int globalVar = 2;
+
+public class ObjectMethodsCallClass {
+    int n = 5;
+
+    function getFieldValWithNoArgs() returns int {
+        return self.n;
+    }
+
+    function getFieldValWithRequiredArg(int num) returns int {
+        self.n += num;
+        return self.n;
+    }
+
+    function getFieldValWithOptionalArg(string fieldName = "n") returns int {
+        if (fieldName == "n") {
+            return self.n;
+        } else {
+            return -1;
+        }
+    }
+
+    function getFieldValWithMultipleOptionalArgs(int a = 3, int b = a, int c = a + b) returns int {
+        return a + b + c;
+    }
+
+    function getFieldValWithMultipleOptionalArgsAsync(int a = asyncFunction(3), int b = asyncFunction(a),
+                                                      int c = asyncFunction(a + b)) returns int {
+        return a + b + c;
+    }
+
+    function getFieldValWithDefaultValSpecialChars(int param\.a = 3, int param\:b = param\.a, int param\;c = param\.a + param\:b) returns int {
+        return param\.a + param\:b + param\;c;
+    }
+
+    function getFieldValWithDefaultValSpecialCharsAsync(int param\.a = asyncFunction(3), int param\:b = asyncFunction(param\.a),
+                                                      int param\;c = asyncFunction(param\.a + param\:b)) returns int {
+        return param\.a + param\:b + param\;c;
+    }
+
+    public function callGetFieldValWithNoArgs() returns int = @java:Method {
+        name: "getFieldValWithNoArgs",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetFieldValWithRequiredArg(int num) returns int = @java:Method {
+        name: "getFieldValWithRequiredArg",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetFieldValWithOptionalArgDefaultVal() returns int = @java:Method {
+        name: "getFieldValWithOptionalArgDefaultVal",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetFieldValWithMultipleOptionalArgsDefaultVal() returns int = @java:Method {
+        name: "getFieldValWithMultipleOptionalArgsDefaultVal",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetFieldValWithMultipleOptionalArgsDefaultValAsync() returns int = @java:Method {
+        name: "getFieldValWithMultipleOptionalArgsDefaultValAsync",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetFieldValWithProvidedOptionalArgVal(string fieldName) returns int = @java:Method {
+        name: "getFieldValWithProvidedOptionalArgVal",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetFieldValWithDefaultValSpecialChars() returns int = @java:Method {
+        name: "getFieldValWithDefaultValSpecialChars",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetFieldValWithDefaultValSpecialCharsAsync() returns int = @java:Method {
+        name: "getFieldValWithDefaultValSpecialCharsAsync",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+}
+
 public isolated class IsolatedClass {
 
     public final int a = 1;
@@ -43,6 +124,11 @@ public isolated class IsolatedClass {
 
     public function isIsolatedFunction() returns boolean = @java:Method {
         name: "isolatedClassIsIsolatedFunction",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function isIsolatedFunctionWithName(string method) returns boolean = @java:Method {
+        name: "isIsolatedFunctionWithName",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 }
@@ -75,6 +161,11 @@ class NonIsolatedClass {
         name: "nonIsolatedClassIsIsolatedFunction",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
+
+    public function isIsolatedFunctionWithName(string method) returns boolean = @java:Method {
+        name: "isIsolatedFunctionWithName",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
 }
 
 isolated service class IsolatedServiceClass {
@@ -101,6 +192,11 @@ isolated service class IsolatedServiceClass {
 
     public function isIsolatedFunction() returns boolean = @java:Method {
         name: "isolatedServiceIsIsolatedFunction",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function isIsolatedFunctionWithName(string method) returns boolean = @java:Method {
+        name: "isIsolatedFunctionWithName",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 }
@@ -133,6 +229,16 @@ service class NonIsolatedServiceClass {
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 
+    public function isIsolatedFunctionWithName(string method) returns boolean = @java:Method {
+        name: "isIsolatedFunctionWithName",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+}
+
+function asyncFunction(int x) returns int {
+    runtime:sleep(0.1);
+    return x;
 }
 
 public function callAsyncNullObjectSequentially() returns int|error = @java:Method {
@@ -202,29 +308,43 @@ public service class NonIsolatedServiceClass2 {
 }
 
 public function main() {
+    ObjectMethodsCallClass objectMethodsCallClass = new ();
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithNoArgs(), 5);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithRequiredArg(10), 15);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithOptionalArgDefaultVal(), 15);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithMultipleOptionalArgsDefaultVal(), 12);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithMultipleOptionalArgsDefaultValAsync(), 12);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithProvidedOptionalArgVal("not a field"), -1);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithDefaultValSpecialChars(), 12);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithDefaultValSpecialCharsAsync(), 12);
+
     IsolatedClass isolatedClass = new ();
     test:assertEquals(isolatedClass.callGetA(), 1);
     test:assertEquals(isolatedClass.asyncGetA(), 1);
     test:assertTrue(isolatedClass.isIsolated());
     test:assertTrue(isolatedClass.isIsolatedFunction());
+    test:assertTrue(isolatedClass.isIsolatedFunctionWithName("getA"));
 
     NonIsolatedClass nonIsolatedClass = new ();
     test:assertEquals(nonIsolatedClass.callGetA(), 2);
     test:assertEquals(nonIsolatedClass.asyncGetA(), 2);
     test:assertFalse(nonIsolatedClass.isIsolated());
     test:assertFalse(nonIsolatedClass.isIsolatedFunction());
+    test:assertFalse(nonIsolatedClass.isIsolatedFunctionWithName("getA"));
 
     IsolatedServiceClass isolatedServiceClass = new ();
     test:assertEquals(isolatedServiceClass.callGetA(), 3);
     test:assertEquals(isolatedServiceClass.asyncGetA(), 3);
     test:assertTrue(isolatedServiceClass.isIsolated());
     test:assertTrue(isolatedServiceClass.isIsolatedFunction());
+    test:assertTrue(isolatedServiceClass.isIsolatedFunctionWithName("$gen$$getA$$0046"));
 
     NonIsolatedServiceClass nonIsolatedServiceClass = new ();
     test:assertEquals(nonIsolatedServiceClass.callGetA(), 4);
     test:assertEquals(nonIsolatedServiceClass.asyncGetA(), 4);
     test:assertFalse(nonIsolatedServiceClass.isIsolated());
     test:assertFalse(nonIsolatedServiceClass.isIsolatedFunction());
+    test:assertFalse(nonIsolatedServiceClass.isIsolatedFunctionWithName("$gen$$getA$$0046"));
 
     // invokeAsync api calls negative test cases
 

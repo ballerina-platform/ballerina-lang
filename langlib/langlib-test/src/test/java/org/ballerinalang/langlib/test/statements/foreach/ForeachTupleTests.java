@@ -18,16 +18,19 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * TestCases for foreach with Tuples.
@@ -45,18 +48,23 @@ public class ForeachTupleTests {
         program = BCompileUtil.compile("test-src/statements/foreach/foreach_tuples.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        program = null;
+        negative = null;
+        iValues = null;
+    }
+
     @Test
     public void testTupleWithBasicTypes() {
-        BValue[] returns = BRunUtil.invoke(program, "testTupleWithBasicTypes");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals("20stringtrue()15.520.2", returns[0].stringValue());
+        Object returns = BRunUtil.invoke(program, "testTupleWithBasicTypes");
+        Assert.assertEquals("20stringtrue()15.520.2", returns.toString());
     }
 
     @Test
     public void testTupleWithBasicTypesAddingInt() {
-        BValue[] returns = BRunUtil.invoke(program, "testTupleWithBasicTypesAddingInt");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
+        Object returns = BRunUtil.invoke(program, "testTupleWithBasicTypesAddingInt");
+        Assert.assertEquals(returns, 18L);
     }
 
     @Test
@@ -74,60 +82,54 @@ public class ForeachTupleTests {
                 sb.append(i).append(":").append(value).append(" ");
             }
         }
-        BValue[] returns = BRunUtil.invoke(program, "testIntTupleComplex");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), sum);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), negSum);
-        Assert.assertEquals(returns[2].stringValue(), sb.toString());
+        Object returns = BRunUtil.invoke(program, "testIntTupleComplex");
+        BArray result = (BArray) returns;
+        Assert.assertEquals(result.size(), 3);
+        Assert.assertEquals(result.get(0), (long) sum);
+        Assert.assertEquals(result.get(1), (long) negSum);
+        Assert.assertEquals(result.get(2).toString(), sb.toString());
     }
 
     @Test
     public void testTupleWithTypeAny() {
-        BValue[] returns = BRunUtil.invoke(program, "testTupleWithTypeAny");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
+        Object returns = BRunUtil.invoke(program, "testTupleWithTypeAny");
+        Assert.assertEquals(returns, 8L);
     }
 
     @Test
     public void testTupleWithTypeAnydata() {
-        BValue[] returns = BRunUtil.invoke(program, "testTupleWithTypeAnydata");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
+        Object returns = BRunUtil.invoke(program, "testTupleWithTypeAnydata");
+        Assert.assertEquals(returns, 8L);
     }
 
     @Test
     public void testBreak() {
-        BValue[] returns = BRunUtil.invoke(program, "testBreak");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:d0 break");
+        Object returns = BRunUtil.invoke(program, "testBreak");
+        Assert.assertEquals(returns.toString(), "0:d0 break");
     }
 
     @Test
     public void testContinue() {
-        BValue[] returns = BRunUtil.invoke(program, "testContinue");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:d0 continue 2:d2 ");
+        Object returns = BRunUtil.invoke(program, "testContinue");
+        Assert.assertEquals(returns.toString(), "0:d0 continue 2:d2 ");
     }
 
     @Test
     public void testReturn() {
-        BValue[] returns = BRunUtil.invoke(program, "testReturn");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:d0 ");
+        Object returns = BRunUtil.invoke(program, "testReturn");
+        Assert.assertEquals(returns.toString(), "0:d0 ");
     }
 
     @Test
     public void testNestedBreakContinue() {
-        BValue[] returns = BRunUtil.invoke(program, "testNestedWithBreakContinue");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:d0 13 1:d1 13 2:d2 13 3:d3 13 ");
+        Object returns = BRunUtil.invoke(program, "testNestedWithBreakContinue");
+        Assert.assertEquals(returns.toString(), "0:d0 13 1:d1 13 2:d2 13 3:d3 13 ");
     }
 
     @Test
     public void testTupleWithNullElements() {
-        BValue[] returns = BRunUtil.invoke(program, "testTupleWithNullElements");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:d0 1: 2:d2 3: ");
+        Object returns = BRunUtil.invoke(program, "testTupleWithNullElements");
+        Assert.assertEquals(returns.toString(), "0:d0 1: 2:d2 3: ");
     }
 
     @Test(dataProvider = "dataToTestTupleWithRestDescriptorInForeach")
@@ -148,6 +150,11 @@ public class ForeachTupleTests {
     }
 
     @Test
+    public void testIteratingEmptyTuple() {
+        BRunUtil.invoke(program, "testIteratingEmptyTuple");
+    }
+
+    @Test
     public void testNegativeTupleForeach() {
         negative = BCompileUtil.compile("test-src/statements/foreach/foreach_tuples_negative.bal");
         Assert.assertEquals(negative.getErrorCount(), 7);
@@ -161,8 +168,25 @@ public class ForeachTupleTests {
         BAssertUtil.validateError(negative, i++, "incompatible types: expected '([int,int...]|[int,int,int...]" +
                 "|int[2])', found '[int,int,int...]'", 45, 13);
         BAssertUtil.validateError(negative, i++, "invalid list binding pattern: attempted to infer a list type, " +
-                "but found '([int,int...]|[int,int,int...]|int)'", 52, 17);
+                "but found '([int,int...]|[int,int,int...]|int)'", 52, 13);
         BAssertUtil.validateError(negative, i, "invalid list binding pattern; member variable " +
-                "count mismatch with member type count", 58, 17);
+                "count mismatch with member type count", 58, 13);
+    }
+
+    @Test
+    public void testIteratingEmptyTupleNegative() {
+        CompileResult compileNegativeResult =
+                BCompileUtil.compile("test-src/statements/foreach/tuple_with_no_member_test_negative.bal");
+        int index = 0;
+        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 19, 13);
+        validateWarning(compileNegativeResult, index++, "unused variable 'x1'", 23, 9);
+        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 23, 18);
+        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 28, 13);
+        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 33, 17);
+        Assert.assertEquals(compileNegativeResult.getDiagnostics().length, index);
     }
 }

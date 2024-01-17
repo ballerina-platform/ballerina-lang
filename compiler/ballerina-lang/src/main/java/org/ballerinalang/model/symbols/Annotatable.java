@@ -28,16 +28,16 @@ import java.util.List;
 public interface Annotatable {
 
     /**
-     * Adds the specified annotation symbol to the annotatable symbol. If the specified symbol is null, it's ignored.
+     * Adds the specified annotation attachment symbol to the annotatable symbol.
      *
      * @param symbol The symbol of the annotation attached
      */
-    void addAnnotation(AnnotationSymbol symbol);
+    void addAnnotation(AnnotationAttachmentSymbol symbol);
 
     /**
      * Returns a list of the annotations attached to this symbol.
      *
-     * @return A list of annotation symbols
+     * @return A list of annotation attachment symbols
      */
-    List<? extends AnnotationSymbol> getAnnotations();
+    List<? extends AnnotationAttachmentSymbol> getAnnotations();
 }

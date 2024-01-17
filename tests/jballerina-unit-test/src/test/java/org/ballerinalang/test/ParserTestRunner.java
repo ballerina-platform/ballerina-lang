@@ -51,6 +51,7 @@ public class ParserTestRunner {
         // Therefore, when adding an item to the skip list, please create an issue.
         hashSet.add("func_def_source_08.bal");
         hashSet.add("match_stmt_source_13.bal");
+        hashSet.add("resiliency_source_04.bal");  // issue #35795
         return hashSet;
     }
 

@@ -42,7 +42,7 @@ function testAnonFuncs() {
 
     var fn2 = function (string s) returns int => y + 1;
 
-    function (int) returns int fn3 = (p) => p + y;
+    function (int) returns int fn3 = (param) => param + y;
 }
 
 function testMiscExprs() {
@@ -51,6 +51,12 @@ function testMiscExprs() {
     string strTemp = string `a string template: ${x}`;
 
     'object:RawTemplate rawTemp = `a raw template: ${b}`;
+
+    b = 10 + let int y = 20 in ;
+
+    function (int) returns int fn = (p) => let int y = 20 in ;
+
+    b = true ? (let int z = 0 in z) : (let int y = 1 in y);
 }
 
 // utils

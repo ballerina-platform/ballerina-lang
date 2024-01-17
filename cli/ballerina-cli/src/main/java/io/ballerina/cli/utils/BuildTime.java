@@ -31,11 +31,17 @@ public class BuildTime {
     public boolean compile;
     public long projectLoadDuration;
     public long packageResolutionDuration;
+    public long codeGeneratorPluginDuration;
+    public long codeModifierPluginDuration;
     public long packageCompilationDuration;
     public long codeGenDuration;
     public long emitArtifactDuration;
     public long testingExecutionDuration;
+    public long runningExecutableDuration;
     public long totalDuration;
+
+    private BuildTime() {
+    }
 
     public static BuildTime getInstance() {
         return instance;

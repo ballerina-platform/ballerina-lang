@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 7,
+    "character": 20
+  },
+  "source": "add_check_on_field_access_source2.bal",
+  "expected": [
+    {
+      "title": "Add 'check' error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 18
+            },
+            "end": {
+              "line": 7,
+              "character": 18
+            }
+          },
+          "newText": "check "
+        }
+      ]
+    }
+  ]
+}

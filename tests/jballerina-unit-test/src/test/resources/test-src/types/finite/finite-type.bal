@@ -543,6 +543,59 @@ function testEscapedTypeName() returns FT {
    return f;
 }
 
+type Mat 1f|1d|2d;
+type Mat2 1|1f|2d;
+type Mat3 Mat|2f;
+
+function testFiniteType() {
+    Mat f1 = 1;
+    Mat2 f2 = 1;
+    Mat3 f3 = 1;
+    "chiran"|5.0f f4 = 5;
+    0x0.00p00 f5 = 0x0.00p00;
+    assertEquality(f1 is 1f, true);
+    assertEquality(f2 is 1, true);
+    assertEquality(f3 is 1f, true);
+    assertEquality(f4 is 5.0f, true);
+    assertEquality(f5 is 0x0.00p00, true);
+}
+
+type UnaryType1 1|-3;
+type UnaryType2 -2;
+type UnaryType3 string|-3|int;
+type UnaryType4 UnaryType2|-3;
+type UnaryType5 anydata;
+type UnaryType6 -1f|-1|-1d|"string";
+
+function testFiniteTypeWithUnaryMinus() {
+    UnaryType1 x1 = -3;
+    UnaryType2 x2 = -2;
+    UnaryType3 x3 = -3;
+    UnaryType3 x7 = -5;
+    UnaryType4 x4 = -2;
+    UnaryType4 x5 = -3;
+    UnaryType5 x6 = -3;
+    UnaryType1 x8 = -(3);
+    UnaryType1 x9 = (-3);
+    UnaryType6 x10 = -1;
+
+    assertEquality(x1, -3);
+    assertEquality(x2, -2);
+    assertEquality(x3, -3);
+    assertEquality(x4, -2);
+    assertEquality(x5, -3);
+    assertEquality(x6, -3);
+    assertEquality(x7, -5);
+    assertEquality(x8, -3);
+    assertEquality(x9, -3);
+    assertEquality(x10, -1);
+}
+
+function testOutOfRangeFiniteType() {
+    9223372036854775808f x1 = 9223372036854775808;
+    assertEquality(x1, 9223372036854775808f);
+}
+
 const ASSERTION_ERROR_REASON = "TypeAssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

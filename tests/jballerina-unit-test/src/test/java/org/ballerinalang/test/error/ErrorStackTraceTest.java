@@ -66,6 +66,7 @@ public class ErrorStackTraceTest {
     @AfterClass
     public void tearDown() {
         compileResult = null;
+        compileResultWithInterop = null;
     }
 
 }

@@ -24,6 +24,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -34,11 +35,13 @@ public class ClassTest {
 
     private CompileResult compileResult;
     private CompileResult distinctCompUnit;
+    private CompileResult classDefCompileResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/klass/simple_class.bal");
         distinctCompUnit = BCompileUtil.compile("test-src/klass/distinct-class-def.bal");
+        classDefCompileResult = BCompileUtil.compile("test-src/klass/class_def_test.bal");
     }
 
     @Test
@@ -73,15 +76,18 @@ public class ClassTest {
 
     @Test(description = "Class definition negative")
     public void classDefNegative() {
-        CompileResult negative = BCompileUtil.compile("test-src/klass/class-def-negative.bal");
+        CompileResult negative = BCompileUtil.compile("test-src/klass/class_def_negative_test.bal");
         int i = 0;
-        String expectedErrorMsgPrefix = "invalid cyclic type reference in ";
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, A]'", 1, 1);
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, C, A]'", 1, 1);
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[B, A, B]'", 6, 1);
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[B, C, A, B]'", 6, 1);
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, A]'", 12, 1);
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[C, A, B, C]'", 12, 1);
+        BAssertUtil.validateError(negative, i++, "invalid cyclic type reference in '[A, B, A]'", 17, 1);
+        BAssertUtil.validateError(negative, i++, "invalid cyclic type reference in '[C, A, B, C]'", 28, 1);
+        BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
+                "function get name() returns (string)' of class 'ServiceClass'", 36, 1);
+        BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
+                "function get name() returns (string)' of class 'ClientClass'", 44, 1);
+        BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
+                "function get name() returns (string)' of class 'ClientClass2'", 52, 1);
+        BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
+                "function get name() returns (string)' of class 'ClientClass3'", 56, 1);
         Assert.assertEquals(negative.getErrorCount(), i);
     }
 
@@ -106,6 +112,17 @@ public class ClassTest {
         Assert.assertEquals(negative.getErrorCount(), i);
     }
 
+    @Test(description = "Negative tests to check fields that have been initialized using other fields")
+    public void classDefFieldsInitializedUsingAnotherField() {
+        CompileResult negative = BCompileUtil.compile("test-src/klass/class_def_field_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negative, i++, "undefined symbol 'a'", 19, 13);
+        BAssertUtil.validateError(negative, i++, "undefined symbol 'a'", 27, 19);
+        BAssertUtil.validateError(negative, i++, "undefined symbol 'name'", 36, 20);
+        BAssertUtil.validateError(negative, i++, "undefined symbol 'name'", 44, 20);
+        Assert.assertEquals(negative.getErrorCount(), i);
+    }
+
     @Test(description = "Dataflow negative tests for class defn")
     public void classDefDataflowNegative() {
         CompileResult negative = BCompileUtil.compile("test-src/klass/class-dataflow-negative.bal");
@@ -118,9 +135,23 @@ public class ClassTest {
         Assert.assertEquals(negative.getErrorCount(), i);
     }
 
+    @Test(dataProvider = "classDefTestFunctions")
+    public void testClassDef(String functionName) {
+        BRunUtil.invoke(classDefCompileResult, functionName);
+    }
+
+    @DataProvider(name = "classDefTestFunctions")
+    public Object[] classDefTestFunctions() {
+        return new String[]{
+                "testUnionTypeInInitParameter",
+                "testModuleLevelVariableAsFieldDefault"
+        };
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
         distinctCompUnit = null;
+        classDefCompileResult = null;
     }
 }

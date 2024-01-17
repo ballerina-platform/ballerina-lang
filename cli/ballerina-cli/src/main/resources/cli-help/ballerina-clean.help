@@ -2,9 +2,25 @@ NAME
        ballerina-clean - Remove the artifacts created during the build
 
 SYNOPSIS
-       bal clean
+       bal clean [OPTIONS]
 
 
 DESCRIPTION
-       Remove the artifacts generated inside the `target` directory during
-       the build. This command is only valid from within a Ballerina package.
+       Remove the 'target' directory created during the build. This will delete
+       all files and directories in the target directory.
+
+       The default target directory that will be cleaned is the
+       '<package-root>/target'. You may also provide a custom target to be
+       cleaned.
+
+
+OPTIONS
+       --target-dir <path>
+           Target directory path.
+
+EXAMPLES
+       Clean the default target directory of the current package.
+           $ bal clean
+
+       Clean the provided target directory.
+           $ bal clean <target-directory-path>

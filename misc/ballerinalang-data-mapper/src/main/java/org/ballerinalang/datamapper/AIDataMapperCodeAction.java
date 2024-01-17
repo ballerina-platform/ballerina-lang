@@ -20,24 +20,21 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
-import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -46,18 +43,25 @@ import java.util.Optional;
 /**
  * Code Action provider for automatic data mapping.
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider")
+public class AIDataMapperCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "AI Data Mapper";
+    public static final String GENERATE_MAPPING_FUNCTION = "Generate mapping function";
+
+    @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return CodeActionNodeValidator.validate(context.nodeAtRange());
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
         if (diagnostic.message().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
             getAIDataMapperCommand(diagnostic, positionDetails, context).map(actions::add);
@@ -100,19 +104,13 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
             if (typeDescriptor == TypeDescKind.UNION || typeDescriptor == TypeDescKind.RECORD ||
                     typeDescriptor == TypeDescKind.COMPILATION_ERROR) {
-                CodeAction action = new CodeAction("Generate mapping function");
-                action.setKind(CodeActionKind.QuickFix);
-
-                String uri = context.fileUri();
-                AIDataMapperCodeActionUtil dataMapperUtil = AIDataMapperCodeActionUtil.getInstance();
-                List<TextEdit> fEdits = dataMapperUtil.getAIDataMapperCodeActionEdits(positionDetails, context,
-                        diagnostic);
+                List<TextEdit> fEdits = AIDataMapperCodeActionUtil.getInstance()
+                        .getAIDataMapperCodeActionEdits(positionDetails, context, diagnostic);
                 if (fEdits.isEmpty()) {
                     return Optional.empty();
                 }
-                action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                        new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
-                action.setDiagnostics(new ArrayList<>());
+                CodeAction action = CodeActionUtil.createCodeAction(GENERATE_MAPPING_FUNCTION, fEdits,
+                        context.fileUri(), CodeActionKind.QuickFix);
                 return Optional.of(action);
             }
         } catch (IOException e) {

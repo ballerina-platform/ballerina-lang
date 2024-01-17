@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -40,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -72,16 +74,24 @@ public class DefinitionTest {
 
     @Test(description = "Test goto definitions for standard libs", dataProvider = "testStdLibDataProvider")
     public void testStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
-        performStdLibDefinitionTest(sourceRoot, configPath, configDir);
+        performStdLibDefinitionTest(sourceRoot, configPath, configDir, true);
+        performStdLibDefinitionTest(sourceRoot, configPath, configDir, false);
     }
 
     @Test(dataProvider = "testInterStdLibDataProvider")
     public void testInterStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
         Path ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME);
-        performStdLibDefinitionTest(ballerinaHome, configPath, configDir);
+        performStdLibDefinitionTest(ballerinaHome, configPath, configDir, true);
+        performStdLibDefinitionTest(ballerinaHome, configPath, configDir, false);
     }
 
-    private void performStdLibDefinitionTest(Path sourceRootPath, String configPath, String configDir)
+    /**
+     * Perform goto def tests for std lib files.
+     *
+     * @param withBalaScheme Whether to use bala scheme or not when fetching definition.
+     */
+    private void performStdLibDefinitionTest(Path sourceRootPath, String configPath, String configDir, 
+                                             boolean withBalaScheme)
             throws IOException, URISyntaxException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
@@ -89,9 +99,15 @@ public class DefinitionTest {
         Path sourcePath = sourceRootPath.resolve(source.get("file").getAsString());
         Position position = gson.fromJson(configObject.get("position"), Position.class);
 
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
-        String actualStr = TestUtil.getDefinitionResponse(sourcePath.toString(), position, serviceEndpoint);
-        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+        String fileUri = sourcePath.toUri().toString();
+        if (withBalaScheme) {
+            fileUri = PathUtil.getUriForPath(sourcePath, CommonUtil.URI_SCHEME_BALA);
+        }
+
+        byte[] encodedContent = Files.readAllBytes(sourcePath);
+        TestUtil.openDocument(serviceEndpoint, fileUri, new String(encodedContent));
+        String actualStr = TestUtil.getDefinitionResponse(fileUri, position, serviceEndpoint);
+        TestUtil.closeDocument(serviceEndpoint, fileUri);
 
         JsonArray expected = configObject.getAsJsonArray("result");
         JsonArray actual = JsonParser.parseString(actualStr).getAsJsonObject().getAsJsonObject("result")
@@ -104,7 +120,7 @@ public class DefinitionTest {
     protected void compareResults(Path sourcePath, Position position, JsonObject configObject, Path root)
             throws IOException {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        String actualStr = TestUtil.getDefinitionResponse(sourcePath.toString(), position, serviceEndpoint);
+        String actualStr = TestUtil.getDefinitionResponse(sourcePath.toUri().toString(), position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");
@@ -131,8 +147,12 @@ public class DefinitionTest {
                 {"defProject11.json", "project"},
                 {"defProject12.json", "project"},
                 {"def_record_config1.json", "project"},
-                // TODO Blocked by #30688 causing module of user defined errors to become lang.annotations
-                // {"def_error_config1.json", "project"},
+                {"def_error_config1.json", "project"},
+                {"def_annotation_on_obj_func_config1.json", "project"},
+                {"def_typereference.json", "project"},
+                {"def_typereference2.json", "project"},
+                {"def_typereference3.json", "project"},
+                {"defProject15.json", "project"},
         };
     }
 
@@ -142,7 +162,9 @@ public class DefinitionTest {
         return new Object[][]{
                 {"defProject8.json", "project"},
                 {"def_error_config2.json", "project"},
-                {"def_retry_spec_config1.json", "project"}
+                {"def_retry_spec_config1.json", "project"},
+                {"defProject14.json", "project"},
+                {"defProject14.json", "project"}
         };
     }
 
@@ -201,7 +223,7 @@ public class DefinitionTest {
             URI  uri = new URI(fileUri);
             Assert.assertEquals(uri.getScheme(), getExpectedUriScheme(),
                     String.format("Expected %s: URI scheme", getExpectedUriScheme()));
-            fileUri = CommonUtil.convertUriSchemeFromBala(fileUri);
+            fileUri = PathUtil.convertUriSchemeFromBala(fileUri);
             uri = new URI(fileUri);
             Assert.assertEquals(uri.getScheme(), CommonUtil.URI_SCHEME_FILE,
                     "Expected file URI scheme after conversion");

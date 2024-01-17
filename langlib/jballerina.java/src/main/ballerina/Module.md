@@ -1,4 +1,4 @@
-## Module Overview
+## Module overview
 
 This module provides library operations required for Java interoperability in Ballerina. It includes a set of
  Ballerina annotations with which Java constructors, methods, and fields can provide implementations of Ballerina

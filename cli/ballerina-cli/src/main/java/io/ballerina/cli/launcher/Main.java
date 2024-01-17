@@ -19,18 +19,25 @@
 package io.ballerina.cli.launcher;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.launcher.util.BalToolsUtil;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.compiler.BLangCompilerException;
 import picocli.CommandLine;
 
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
+
+import static io.ballerina.cli.cmd.Constants.HELP_COMMAND;
+import static io.ballerina.cli.cmd.Constants.HELP_OPTION;
+import static io.ballerina.cli.cmd.Constants.HELP_SHORT_OPTION;
+import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
 
 /**
  * This class executes a Ballerina program.
@@ -49,9 +56,6 @@ public class Main {
         try {
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
-        } catch (BLangRuntimeException e) {
-            errStream.println(e.getMessage());
-            Runtime.getRuntime().exit(1);
         } catch (BLangCompilerException e) {
             if (!(e.getMessage().contains(COMPILATION_ERROR_MESSAGE))) {
                 // print the error message only if the exception was not thrown due to compilation errors
@@ -81,7 +85,8 @@ public class Main {
             cmdParser.setStopAtPositional(true);
 
             // loading additional commands via SPI
-            ServiceLoader<BLauncherCmd> bCmds = ServiceLoader.load(BLauncherCmd.class);
+            ServiceLoader<BLauncherCmd> bCmds = loadAdditionalCommands(args);
+
             for (BLauncherCmd bCmd : bCmds) {
                 cmdParser.addSubcommand(bCmd.getName(), bCmd);
                 bCmd.setParentCmdParser(cmdParser);
@@ -98,7 +103,9 @@ public class Main {
                     // is not provided
                     .setEndOfOptionsDelimiter("");
             cmdParser.getSubcommands().get("build").setStopAtUnmatched(false).setStopAtPositional(true);
-            cmdParser.getSubcommands().get("test").setStopAtUnmatched(false).setStopAtPositional(true);
+            cmdParser.getSubcommands().get("test").setStopAtUnmatched(true).setStopAtPositional(true)
+                    .setUnmatchedOptionsArePositionalParams(true)
+                    .setEndOfOptionsDelimiter("");
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();
@@ -152,6 +159,23 @@ public class Main {
         }
     }
 
+    private static ServiceLoader<BLauncherCmd> loadAdditionalCommands(String ...args) {
+        BalToolsUtil.updateOldBalToolsToml();
+        if (null != args && args.length > 0 && BalToolsUtil.isToolCommand(args[0])) {
+            String commandName = args[0];
+            BalToolsUtil.addToolIfCommandIsABuiltInTool(commandName);
+            CustomToolClassLoader customToolClassLoader = BalToolsUtil.getCustomToolClassLoader(commandName);
+            Thread.currentThread().setContextClassLoader(customToolClassLoader);
+            return ServiceLoader.load(BLauncherCmd.class, customToolClassLoader);
+        } else if (null == args || args.length == 0
+                || Arrays.asList(HELP_COMMAND, HELP_OPTION, HELP_SHORT_OPTION).contains(args[0])) {
+            CustomToolClassLoader customToolClassLoader = BalToolsUtil.getCustomToolClassLoader(HELP_COMMAND);
+            Thread.currentThread().setContextClassLoader(customToolClassLoader);
+            return ServiceLoader.load(BLauncherCmd.class, customToolClassLoader);
+        }
+        return ServiceLoader.load(BLauncherCmd.class);
+    }
+
     private static void printUsageInfo(String commandName) {
         String usageInfo = BLauncherCmd.getCommandUsageInfo(commandName);
         errStream.println(usageInfo);
@@ -162,8 +186,11 @@ public class Main {
             Properties properties = new Properties();
             properties.load(inputStream);
 
-            String output = "Ballerina " + properties.getProperty("ballerina.channel") + " " +
-                    properties.getProperty("ballerina.versionDisplayName") + "\n";
+            String version = properties.getProperty("ballerina.packVersion").split("-")[0];
+            int minorVersion = Integer.parseInt(version.split("\\.")[1]);
+            String updateVersionText = minorVersion > 0 ? " Update " + minorVersion : "";
+            String output = "Ballerina " + version +
+                   " (" + properties.getProperty("ballerina.channel") + updateVersionText + ")\n";
             output += "Language specification " + properties.getProperty("spec.version") + "\n";
             outStream.print(output);
         } catch (Throwable ignore) {
@@ -204,10 +231,11 @@ public class Main {
         private CommandLine parentCmdParser;
 
         public void execute() {
+            Map<String, CommandLine> subCommands = parentCmdParser.getSubcommands();
             if (helpCommands == null) {
-                printUsageInfo(BallerinaCliCommands.HELP);
+                String generalHelp = LauncherUtils.generateGeneralHelp(subCommands);
+                outStream.println(generalHelp);
                 return;
-
             } else if (helpCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
             }
@@ -217,8 +245,8 @@ public class Main {
                 throw LauncherUtils.createUsageExceptionWithHelp("unknown help topic `" + userCommand + "`");
             }
 
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(userCommand);
-            errStream.println(commandUsageInfo);
+            String commandHelp = LauncherUtils.generateCommandHelp(userCommand, subCommands);
+            outStream.println(commandHelp);
         }
 
         @Override
@@ -239,6 +267,7 @@ public class Main {
         public void setParentCmdParser(CommandLine parentCmdParser) {
             this.parentCmdParser = parentCmdParser;
         }
+
     }
 
     /**
@@ -246,7 +275,7 @@ public class Main {
      *
      * @since 0.8.1
      */
-    @CommandLine.Command(name = "version", description = "Prints Ballerina version")
+    @CommandLine.Command(name = "version", description = "Print the Ballerina version")
     private static class VersionCmd implements BLauncherCmd {
 
         @CommandLine.Parameters(description = "Command name")
@@ -275,12 +304,12 @@ public class Main {
 
         @Override
         public void printLongDesc(StringBuilder out) {
-
+            out.append(BLauncherCmd.getCommandUsageInfo(VERSION_COMMAND));
         }
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  bal version\n");
+            out.append("Print the Ballerina version");
         }
 
         @Override
@@ -366,19 +395,25 @@ public class Main {
         @CommandLine.Parameters(arity = "0..1")
         private List<String> argList = new ArrayList<>();
 
+        private CommandLine parentCmdParser;
+
         @Override
         public void execute() {
+            Map<String, CommandLine> subCommands = parentCmdParser.getSubcommands();
+
             if (versionFlag) {
                 printVersionInfo();
                 return;
             }
 
             if (!argList.isEmpty()) {
-                printUsageInfo(argList.get(0));
+                String commandHelp = LauncherUtils.generateCommandHelp(argList.get(0), subCommands);
+                outStream.println(commandHelp);
                 return;
             }
 
-            printUsageInfo(BallerinaCliCommands.HELP);
+            String generalHelp = LauncherUtils.generateGeneralHelp(subCommands);
+            outStream.println(generalHelp);
         }
 
         @Override
@@ -397,6 +432,7 @@ public class Main {
 
         @Override
         public void setParentCmdParser(CommandLine parentCmdParser) {
+            this.parentCmdParser = parentCmdParser;
         }
     }
 }

@@ -17,6 +17,10 @@
   -->
 <FindBugsFilter>
     <Match>
+        <Class name="io.ballerina.projects.internal.repositories.MavenPackageRepository"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE, RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler" />
     </Match>
     <Match>
@@ -42,6 +46,9 @@
     </Match>
     <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.split.types" />
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.split.values" />
     </Match>
     <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.emit" />
@@ -98,6 +105,18 @@
     <Match>
         <Package name="io.ballerina.compiler.api.impl.symbols" />
         <Bug pattern="BC_UNCONFIRMED_CAST, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE, EQ_DOESNT_OVERRIDE_EQUALS" />
+    </Match>
+    <Match>
+        <Package name="io.ballerina.compiler.api.impl.type.builders" />
+        <Bug pattern="BC_UNCONFIRMED_CAST" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.compiler.api.Types" />
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.compiler.api.TypeBuilder" />
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
     </Match>
     <Match>
         <Class name = "org.ballerinalang.toml.model.Library"/>
@@ -171,6 +190,14 @@
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIROperand"/>
     </Match>
     <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.internal.CompilerPhaseRunner"/>
     </Match>
     <Match>
@@ -184,6 +211,10 @@
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIRRecordValueOptimizer"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.writer.ConstantPool"/>
@@ -332,6 +363,16 @@
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.util.FileUtils" />
+        <Method name="getFilesInDirectory" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.model.BalToolDescriptor"/>
+        <Method name="getToolJarsMatchingPattern"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.CodeAnalyzerManager$CompilationAnalysisTask"/>
         <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
     </Match>
@@ -352,6 +393,20 @@
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.CodeModifierManager$SourceModifierTask"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.CodeModifierManager"/>
+        <Method name="getSourceModifierTaskByPackage"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.CodeModifierManager"/>
+        <Method name="populatePkgSyntaxNodeTaskMap"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.SyntaxNodeAnalysisTask"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
@@ -364,5 +419,67 @@
         <Class name="io.ballerina.projects.internal.ManifestBuilder"/>
         <Method name="getBooleanFromBuildOptionsTableNode"/>
         <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.plugins.CompilerPlugins"/>
+        <Method name="getUri"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name = "org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType"/>
+        <Method name="getReferredType"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.directory.BuildProject" />
+        <Method name="writePackageTableArrayWithPackageName"/>
+        <Bug pattern="DM_DEFAULT_ENCODING" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.directory.BuildProject" />
+        <Method name="writePackageNameInsideExistingEmptyPackageTable"/>
+        <Bug pattern="DM_DEFAULT_ENCODING" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.directory.BuildProject" />
+        <Method name="writePackageNameInsideExistingPackageTable"/>
+        <Bug pattern="DM_DEFAULT_ENCODING" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.ManifestUtils" />
+        <Method name="getStringFromTomlTableNode"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.ManifestUtils" />
+        <Method name="getBuildToolTomlValueType"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.util.ProjectUtils" />
+        <Method name="addMatchingIncludePaths" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.compiler.api.impl.util.SymbolUtils" />
+        <Bug pattern="BC_UNCONFIRMED_CAST" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.plugins.completion.CompletionUtil" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.repositories.FileSystemRepository" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" />
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MS_EXPOSE_REP,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType" />
+        <Method name="getImpliedType"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
     </Match>
 </FindBugsFilter>

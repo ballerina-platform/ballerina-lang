@@ -18,7 +18,6 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.util.Collection;
 import java.util.Map;
@@ -116,19 +115,19 @@ public interface BTable<K, V> extends BRefValue, BCollection {
     void clear();
 
     /**
-     * Returns the value to which the specified key is mapped. A {@link BallerinaException} will be thrown
+     * Returns the value to which the specified key is mapped. A {@link BError} will be thrown
      * if the key does not exists.
      *
      * @param key the key whose associated value is to be returned
      * @return the value to which the specified key is mapped
-     * @throws BallerinaException if the key does not exists
+     * @throws BError if the key does not exists
      */
-    V getOrThrow(Object key);
+    V getOrThrow(Object key) throws BError;
 
     /**
      * Returns the value for the given key from map. If the key does not exist, but there exists a filler
-     * value for the expected type, a new value will be created and added and then returned. A {@link
-     * BallerinaException} will be thrown if the key does not exists and a filler value does not exist.
+     * value for the expected type, a new value will be created and added and then returned. A {@link BError}
+     * will be thrown if the key does not exists and a filler value does not exist.
      *
      * @param key key used to get the value
      * @return value associated with the key

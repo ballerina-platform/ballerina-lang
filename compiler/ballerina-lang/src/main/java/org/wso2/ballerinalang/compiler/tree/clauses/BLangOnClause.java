@@ -24,6 +24,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
@@ -34,13 +36,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangOnClause extends BLangNode implements OnClauseNode {
 
+    // BLangNodes
     public BLangExpression lhsExpr;
     public BLangExpression rhsExpr;
 
+    // Parser Flags and Data
+    public Location equalsKeywordPos;
+
+    // Semantic Data
     public SymbolEnv lhsEnv;
     public SymbolEnv rhsEnv;
 
-    public Location equalsKeywordPos;
 
     public BLangOnClause() {
     }
@@ -68,6 +74,16 @@ public class BLangOnClause extends BLangNode implements OnClauseNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

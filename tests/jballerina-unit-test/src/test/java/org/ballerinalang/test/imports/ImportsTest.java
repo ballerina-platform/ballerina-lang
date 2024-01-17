@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.imports;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -42,27 +41,37 @@ public class ImportsTest {
     }
 
     // https://github.com/ballerina-platform/ballerina-lang/issues/27371
-    @Test(description = "Test cyclic imports", enabled = false)
-    public void testCyclicImports() {
+    @Test(description = "Test cyclic module imports")
+    public void testCyclicModuleImports() {
         CompileResult result = BCompileUtil.compile("test-src/imports/cyclic-imports");
-        assertEquals(result.getErrorCount(), 3);
-        validateError(result, 0, "cyclic module imports detected " +
-                                 "'cyclic_imports/def:1.0.0 -> cyclic_imports/ghi:1.0.0 -> cyclic_imports/def:1.0.0'",
-                2, 1);
-        validateError(result, 1, "cyclic module imports detected " +
-                                 "'cyclic_imports/abc:1.0.0 -> cyclic_imports/def:1.0.0 -> " +
-                                 "cyclic_imports/ghi:1.0.0 -> cyclic_imports/jkl:1.0.0 -> cyclic_imports/abc:1.0.0'",
-                2, 1);
-        validateError(result, 2, "cyclic module imports detected 'cyclic_imports/abc:1.0.0 -> " +
-                                 "cyclic_imports/def:1.0.0 -> cyclic_imports/ghi:1.0.0 -> cyclic_imports/abc:1.0.0'",
-                3, 1);
+        validateError(result, 0, "cyclic module imports detected 'testorg/cyclic_imports.abc:0.1.0 -> " +
+                "testorg/cyclic_imports.def:0.1.0 -> testorg/cyclic_imports.ghi:0.1.0 -> " +
+                "testorg/cyclic_imports.abc:0.1.0'", 1, 1);
+        validateError(result, 1, "cyclic module imports detected 'testorg/cyclic_imports.def:0.1.0 -> " +
+                "testorg/cyclic_imports.ghi:0.1.0 -> testorg/cyclic_imports.def:0.1.0'", 1, 1);
+        validateError(result, 2, "cyclic module imports detected 'testorg/cyclic_imports.abc:0.1.0 -> " +
+                "testorg/cyclic_imports.def:0.1.0 -> testorg/cyclic_imports.ghi:0.1.0 -> " +
+                "testorg/cyclic_imports.jkl:0.1.0 -> testorg/cyclic_imports.abc:0.1.0'", 1, 1);
+    }
+
+    @Test(description = "Test cyclic imports between packages")
+    public void testCyclicPackageImports() {
+        BCompileUtil.compileAndCacheBala("test-src/imports/cyclic-packages/package_c_1");
+        BCompileUtil.compileAndCacheBala("test-src/imports/cyclic-packages/package_b");
+        BCompileUtil.compileAndCacheBala("test-src/imports/cyclic-packages/package_a");
+        CompileResult result = BCompileUtil.compile("test-src/imports/cyclic-packages/package_c_2");
+
+        validateError(result, 0, "cyclic module imports detected 'wso2/a:1.0.0 -> " +
+                "wso2/b:1.9.2 -> wso2/c:0.1.1 -> wso2/a:1.0.0'", 1, 1);
+        validateError(result, 1, "cyclic module imports detected 'wso2/b:1.9.2 -> " +
+                "wso2/c:0.1.1 -> wso2/b:1.9.2'", 1, 1);
     }
 
     @Test(description = "Test importing same module name but with different org names")
     public void testSameModuleNameDifferentOrgImports() {
         CompileResult result = BCompileUtil.compile("test-src/imports/lang.float");
-        BValue[] returns = BRunUtil.invoke(result, "getStringValueOfPI");
-        Assert.assertTrue((returns[0]).stringValue().startsWith("3.14"));
+        Object returns = BRunUtil.invoke(result, "getStringValueOfPI");
+        Assert.assertTrue(returns.toString().startsWith("3.14"));
     }
 
     @Test(description = "Test auto imports")

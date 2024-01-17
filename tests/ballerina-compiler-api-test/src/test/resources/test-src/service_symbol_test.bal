@@ -92,3 +92,16 @@ public class Listener {
     public function attach(service object {} s, string[]? name = ()) returns error? {
     }
 }
+
+const string A = "SomeLongMsg";
+const string B = "AnotherLongMsg";
+
+client class ClientClassA {
+    resource function accessor [A] () {
+    }
+}
+
+client class ClientClassB {
+    resource function accessor [A a]/[float f]/[B]/[string... s] () {
+    }
+}

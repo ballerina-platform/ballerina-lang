@@ -1,0 +1,7 @@
+[package]
+org = "balTests"
+name = "testPackage"
+version = "0.1.0"
+
+[build-options]
+observabilityIncluded = true

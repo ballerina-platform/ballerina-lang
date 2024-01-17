@@ -17,4 +17,7 @@ public function main() {
     int a = b ? c + boolean:e : f;
     int a = b ? c + <int>d : e;
     int a = b ? c + <int>d:e : f;
+    int i = b ? p.x : p.y;
+    boolean i = x ? rec.t : xx:bar();
+    var i = x ? a : b:c;
 }

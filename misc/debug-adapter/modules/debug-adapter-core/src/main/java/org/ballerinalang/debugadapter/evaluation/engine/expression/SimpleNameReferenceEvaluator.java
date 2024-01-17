@@ -21,7 +21,7 @@ import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
-import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.VARIABLE_EXECUTION_ERROR;
@@ -43,7 +43,8 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
-            return new BExpressionValue(context, VariableUtils.fetchVariableValue(context, nameReference));
+            return new BExpressionValue(context, EvaluationUtils.fetchNameReferenceValue(evaluationContext,
+                    nameReference));
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {

@@ -16,12 +16,14 @@
 
 import ballerina/jballerina.java;
 
+public type PositiveInt int;
+
 public client class PublicClientObject {
     remote function getRemoteCounter(int num, decimal value, string msg = "test message") {
     }
 
     public function testFunction(int num, decimal value, string msg = "test message") {
-    // do nothing
+        // do nothing
     }
 }
 
@@ -32,6 +34,72 @@ public isolated service class Service {
     }
 
     isolated remote function remoteFunction(int num, decimal value, string msg = "test message") {
+    }
+}
+
+public distinct class Common {
+
+}
+
+public distinct service class Iterable {
+    string name;
+
+    public function init(string name) {
+        self.name = name;
+    }
+
+    isolated resource function get name() returns string {
+        return self.name;
+    }
+}
+
+public distinct service class Collection {
+    *Iterable;
+    *Common;
+
+    public function init(string name) {
+        self.name = name;
+    }
+
+    isolated resource function get name() returns string {
+        return self.name;
+    }
+}
+
+public distinct class Fruit {
+    string color;
+
+    public function init(string color) {
+        self.color = color;
+    }
+
+    function getColor() returns string {
+        return self.color;
+    }
+}
+
+public distinct class Apple {
+    *Fruit;
+    *Common;
+
+    public function init(string color) {
+        self.color = color;
+    }
+
+    function getColor() returns string {
+        return self.color;
+    }
+}
+
+public class Person {
+    int id;
+    string name;
+    int age;
+
+    public function init(int id, string name, int age) {
+        self.id = id;
+        self.name = name;
+        self.age = age;
     }
 }
 
@@ -49,4 +117,13 @@ public function getParamTypesString(function func) returns string = @java:Method
 
 public function getConstituentTypes(any value) returns string[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public function getTypeIds(Common common) returns string[] = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public function getParamNamesFromObjectInit(Person person) returns string[] = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values",
+    name: "getParamNamesFromObjectInit"
 } external;

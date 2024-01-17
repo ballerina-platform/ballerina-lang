@@ -1,4 +1,4 @@
-import ballerina/http;
+import ballerina/httpx;
 import ballerina/task;
 
 public function returnInt(int n1, int n2, int n3) returns int {
@@ -59,8 +59,8 @@ public function complexInput(task:Scheduler scheduler) returns error? {
     return ();
 }
 
-public function complexReturnType(string url) returns http:Client {
-    http:Client myclient = new("https://postman-echo.com/get?foo1=bar1&foo2=bar2");
+public function complexReturnType(string url) returns httpx:Client {
+    httpx:Client myclient = new("https://postman-echo.com/get?foo1=bar1&foo2=bar2");
     return myclient;
 }
 

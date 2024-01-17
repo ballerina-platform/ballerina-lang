@@ -1,0 +1,66 @@
+[
+  {
+    "description": "Change the type",
+    "oldCode": "public type Person stream<int>;\n",
+    "newCode": "public type Person stream<string>;\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "type descriptor",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "type descriptor is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add a type\n",
+    "oldCode": "public type Person stream<int>;\n",
+    "newCode": "public type Person stream<int,string>;\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "type descriptor",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "type descriptor is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

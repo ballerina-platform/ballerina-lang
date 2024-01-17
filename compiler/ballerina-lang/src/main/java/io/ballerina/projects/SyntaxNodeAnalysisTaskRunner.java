@@ -46,7 +46,7 @@ class SyntaxNodeAnalysisTaskRunner {
     List<Diagnostic> runTasks() {
         // Here we are iterating through all the non-test documents in the current package.
         List<Diagnostic> reportedDiagnostics = new ArrayList<>();
-        PackageContext packageContext = compilation.packageContext();
+        PackageContext packageContext = this.currentPackage.packageContext();
         for (ModuleId moduleId : packageContext.moduleIds()) {
             runTasks(packageContext.moduleContext(moduleId), reportedDiagnostics);
         }
@@ -58,6 +58,12 @@ class SyntaxNodeAnalysisTaskRunner {
             DocumentContext documentContext = moduleContext.documentContext(srcDocumentId);
             runTasks(documentContext.syntaxTree(), moduleContext.moduleId(),
                     srcDocumentId, reportedDiagnostics);
+        }
+
+        for (DocumentId testSrcDocumentId : moduleContext.testSrcDocumentIds()) {
+            DocumentContext testSrcDocumentContext = moduleContext.documentContext(testSrcDocumentId);
+            runTasks(testSrcDocumentContext.syntaxTree(), moduleContext.moduleId(),
+                    testSrcDocumentId, reportedDiagnostics);
         }
     }
 

@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.elements.PackageID;
@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -54,13 +55,12 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
-import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
@@ -68,19 +68,19 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_M
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_CONFIG_DATA_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VARIABLE_KEY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_MODULE_CONFIG_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIGURABLES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INTI_VARIABLE_KEY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.POPULATE_CONFIG_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * Generates Jvm byte code for configurable related methods.
@@ -92,24 +92,24 @@ public class ConfigMethodGen {
 
     public void generateConfigMapper(List<PackageID> imprtMods, BIRNode.BIRPackage pkg, String moduleInitClass,
                                      JvmConstantsGen jvmConstantsGen, TypeHashVisitor typeHashVisitor,
-                                     Map<String, byte[]> jarEntries) {
+                                     Map<String, byte[]> jarEntries, SymbolTable symbolTable) {
         innerClassName = JvmCodeGenUtil.getModuleLevelClassName(pkg.packageID, CONFIGURATION_CLASS_NAME);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, innerClassName, null, OBJECT, null);
-        MethodVisitor mv = cw.visitMethod(ACC_PRIVATE, JVM_INIT_METHOD, "()V", null, null);
+        cw.visit(V17, ACC_PUBLIC | ACC_SUPER, innerClassName, null, OBJECT, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PRIVATE, JVM_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, OBJECT, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, OBJECT, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_INIT_METHOD, innerClassName);
         mv.visitEnd();
 
         generateConfigInit(cw, moduleInitClass, imprtMods, pkg.packageID);
 
         populateConfigDataMethod(cw, moduleInitClass, pkg, new JvmTypeGen(jvmConstantsGen, pkg.packageID,
-                typeHashVisitor));
+                typeHashVisitor, symbolTable));
         cw.visitEnd();
-        jarEntries.put(innerClassName + ".class", cw.toByteArray());
+        jarEntries.put(innerClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
     }
 
     private void generateConfigInit(ClassWriter cw, String moduleInitClass, List<PackageID> imprtMods,
@@ -119,7 +119,7 @@ public class ConfigMethodGen {
 
         mv.visitTypeInsn(NEW, HASH_MAP);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, HASH_MAP, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, HASH_MAP, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
 
         mv.visitVarInsn(ASTORE, 3);
 
@@ -134,7 +134,7 @@ public class ConfigMethodGen {
         mv.visitVarInsn(ALOAD, 2);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "initConfigurableVariables", INIT_CONFIGURABLES, false);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CONFIGURE_INIT, innerClassName);
         mv.visitEnd();
     }
 
@@ -153,9 +153,7 @@ public class ConfigMethodGen {
         mv.visitVarInsn(ALOAD, 3);
         mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
         mv.visitVarInsn(ALOAD, 4);
-
-        mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", MAP_PUT, true);
-        mv.visitInsn(POP);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "addModuleConfigData", ADD_MODULE_CONFIG_DATA, false);
         mv.visitLabel(elseLabel);
     }
 
@@ -199,17 +197,17 @@ public class ConfigMethodGen {
         }
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, POPULATE_CONFIG_DATA_METHOD, innerClassName);
         mv.visitEnd();
     }
 
     private String getOneBasedLocationString(BIRNode.BIRPackage module, Location location) {
         LineRange lineRange = location.lineRange();
-        String oneBasedLineTrace = lineRange.filePath() + ":" + (lineRange.startLine().line() + 1);
+        String oneBasedLineTrace = lineRange.fileName() + ":" + (lineRange.startLine().line() + 1);
         if (module.packageID.equals(JvmConstants.DEFAULT)) {
             return oneBasedLineTrace;
         }
-        return IdentifierUtils.decodeIdentifier(module.packageID.toString()) + "(" + oneBasedLineTrace + ")";
+        return Utils.decodeIdentifier(module.packageID.toString()) + "(" + oneBasedLineTrace + ")";
     }
 
     private int calculateConfigArraySize(List<BIRNode.BIRGlobalVariableDcl> globalVars) {

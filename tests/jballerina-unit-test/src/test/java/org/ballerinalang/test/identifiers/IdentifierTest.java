@@ -40,14 +40,14 @@ public class IdentifierTest {
 
     @DataProvider(name = "errorAsIdentifierFunctions")
     public Object[][] errorAsIdentifierFunctions() {
-        return new Object[][] {
-                { "testErrorNamedDefaultArgument" },
-                { "testErrorAsObjectField" },
-                { "testErrorDataWithErrorField" },
-                { "testErrorConstructorWithErrorField" },
-                { "testErrorNamedIncludedParam" },
-                { "testErrorNamedRequiredParam" },
-                { "testErrorNamedRestParam" },
+        return new Object[][]{
+                {"testErrorNamedDefaultArgument"},
+                {"testErrorAsObjectField"},
+                {"testErrorDataWithErrorField"},
+                {"testErrorConstructorWithErrorField"},
+                {"testErrorNamedIncludedParam"},
+                {"testErrorNamedRequiredParam"},
+                {"testErrorNamedRestParam"},
         };
     }
 
@@ -64,6 +64,7 @@ public class IdentifierTest {
         validateError(result, index++, "redeclared symbol 'error'", 19, 18);
         validateError(result, index++, "redeclared symbol 'error'", 30, 11);
         validateError(result, index++, "redeclared symbol 'error'", 37, 73);
+        validateError(result, index++, "redeclared symbol 'error'", 39, 39);
         validateError(result, index++, "redeclared symbol 'error'", 39, 72);
         validateError(result, index++, "redeclared symbol 'error'", 39, 96);
         validateError(result, index++, "redeclared symbol 'error'", 41, 94);
@@ -80,8 +81,8 @@ public class IdentifierTest {
     }
 
     @DataProvider(name = "functionsWithSelfAsIdentifier")
-    public  Object[] functionsWithSelfAsIdentifier() {
-        return new String[] {
+    public Object[] functionsWithSelfAsIdentifier() {
+        return new String[]{
                 "testFuncWithSelfAsParamName",
                 "testSelfAsIdentifier"
         };

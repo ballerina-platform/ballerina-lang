@@ -16,9 +16,9 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -40,130 +40,130 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 
-    @Test (enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30590
+    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30590
     public void forkWithTimeoutTest1() {
-        BValue[] vals = BRunUtil.invoke(result, "forkWithTimeoutTest1", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
+        Object vals = BRunUtil.invoke(result, "forkWithTimeoutTest1", new Object[0]);
+
         @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 15);
+        BMap<String, Long> map = (BMap<String, Long>) vals;
+        Assert.assertEquals((long) map.get(StringUtils.fromString("x")), 15);
     }
 
-    @Test (enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30590
+    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30590
     public void forkWithTimeoutTest2() {
-        BValue[] vals = BRunUtil.invoke(result, "forkWithTimeoutTest2", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
+        Object vals = BRunUtil.invoke(result, "forkWithTimeoutTest2", new Object[0]);
+
         @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 25);
+        BMap<String, Long> map = (BMap<String, Long>) vals;
+        Assert.assertEquals((long) map.get(StringUtils.fromString("x")), 25);
     }
 
     @Test
     public void forkWithMessagePassing() {
-        BValue[] vals = BRunUtil.invoke(result, "forkWithMessagePassing", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
+        Object vals = BRunUtil.invoke(result, "forkWithMessagePassing", new Object[0]);
+
         @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 90);
+        BMap<String, Long> map = (BMap<String, Long>) vals;
+        Assert.assertEquals((long) map.get(StringUtils.fromString("x")), 90);
     }
 
     @Test
     public void chainedWorkerSendReceive() {
-        BValue[] vals = BRunUtil.invoke(result, "chainedWorkerSendReceive", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
+        Object vals = BRunUtil.invoke(result, "chainedWorkerSendReceive", new Object[0]);
+
         @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 12);
+        BMap<String, Long> map = (BMap<String, Long>) vals;
+        Assert.assertEquals((long) map.get(StringUtils.fromString("x")), 12);
     }
 
     @Test
     public void forkWithWaitOnSomeSelectedWorkers1() {
-        BValue[] vals = BRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers1", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        BInteger xy = (BInteger) vals[0];
-        Assert.assertEquals(xy.intValue(), 75);
+        Object vals = BRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers1", new Object[0]);
+
+        long xy = (long) vals;
+        Assert.assertEquals(xy, 75);
     }
 
     @Test
     public void forkWithWaitOnSomeSelectedWorkers2() {
-        BValue[] vals = BRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers2", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
+        Object vals = BRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers2", new Object[0]);
+
         @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 320);
+        BMap<String, Long> map = (BMap<String, Long>) vals;
+        Assert.assertEquals((long) map.get(StringUtils.fromString("x")), 320);
     }
 
     @Test
     public void forkWithWaitOnSomeSelectedWorkers3() {
-        BValue[] vals = BRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers3", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
+        Object vals = BRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers3", new Object[0]);
+
         @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 160);
+        BMap<String, Long> map = (BMap<String, Long>) vals;
+        Assert.assertEquals((long) map.get(StringUtils.fromString("x")), 160);
     }
 
     @Test
     public void forkWithWaitOnAllSelectedWorkers1() {
-        BValue[] vals = BRunUtil.invoke(result, "forkWithWaitOnAllSelectedWorkers1", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
+        Object vals = BRunUtil.invoke(result, "forkWithWaitOnAllSelectedWorkers1", new Object[0]);
+
         @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 33);
+        BMap<String, Long> map = (BMap<String, Long>) vals;
+        Assert.assertEquals((long) map.get(StringUtils.fromString("x")), 33);
     }
 
     @Test
     public void forkWithWaitOnAllSelectedWorkers2() {
-        BValue[] vals = BRunUtil.invoke(result, "forkWithWaitOnAllSelectedWorkers2", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        BInteger result = (BInteger) vals[0];
-        Assert.assertEquals(result.intValue(), 777);
+        Object vals = BRunUtil.invoke(result, "forkWithWaitOnAllSelectedWorkers2", new Object[0]);
+
+        long result = (long) vals;
+        Assert.assertEquals(result, 777);
     }
 
     @Test
     public void forkWithinWorkers() {
-        BValue[] vals = BRunUtil.invoke(result, "forkWithinWorkers", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        BInteger ret = (BInteger) vals[0];
-        Assert.assertEquals(ret.intValue(), 30);
+        Object vals = BRunUtil.invoke(result, "forkWithinWorkers", new Object[0]);
+
+        long ret = (long) vals;
+        Assert.assertEquals(ret, 30);
     }
 
     @Test
     public void largeForkCreationTest() {
-        BValue[] vals = BRunUtil.invoke(result, "largeForkCreationTest", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        BInteger ret = (BInteger) vals[0];
-        Assert.assertEquals(ret.intValue(), 65000);
+        Object vals = BRunUtil.invoke(result, "largeForkCreationTest", new Object[0]);
+
+        long ret = (long) vals;
+        Assert.assertEquals(ret, 65000);
     }
 
     @Test
     public void forkWithStructTest() {
-        BValue[] vals = BRunUtil.invoke(result, "forkWithStruct", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(vals[0].stringValue(), "[block] sW1: w1[block] fW2: 10.344");
+        Object vals = BRunUtil.invoke(result, "forkWithStruct", new Object[0]);
+
+        Assert.assertEquals(vals.toString(), "[block] sW1: w1[block] fW2: 10.344");
     }
 
     @Test
     public void forkWithSameWorkerContent() {
-        BValue[] vals = BRunUtil.invoke(result, "forkWithSameWorkerContent", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(vals[0].stringValue(), "W3: data1, W4: data2");
+        Object vals = BRunUtil.invoke(result, "forkWithSameWorkerContent", new Object[0]);
+
+        Assert.assertEquals(vals.toString(), "W3: data1, W4: data2");
     }
 
-    @Test (enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30590
+    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30590
     public void testForkJoinWorkersWithNonBlockingConnector() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-blocking.bal");
-        BValue[] vals = BRunUtil.invoke(result, "testForkJoin", new BValue[0]);
-        Assert.assertEquals(vals.length, 2);
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 200);
-        Assert.assertEquals(((BInteger) vals[1]).intValue(), 100);
+        BArray vals = (BArray) BRunUtil.invoke(result, "testForkJoin", new Object[0]);
+        Assert.assertEquals(vals.size(), 2);
+        Assert.assertEquals(vals.get(0), 200);
+        Assert.assertEquals(vals.get(1), 100);
     }
 
     @Test
     public void testVoidFunctionWorkers() {
         CompileResult result = BCompileUtil.compile("test-src/workers/void-function-workers.bal");
-        BValue[] vals = BRunUtil.invoke(result, "testVoidFunction", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue((((BInteger) vals[0]).intValue() == 10) || ((BInteger) vals[0]).intValue() == 5);
+        Object vals = BRunUtil.invoke(result, "testVoidFunction", new Object[0]);
+
+        Assert.assertTrue(((long) vals == 10L) || ((long) vals == 5L));
     }
 
     @AfterClass

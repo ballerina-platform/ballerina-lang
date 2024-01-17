@@ -24,15 +24,15 @@ public class Messages {
     private static final String ARGUMENT_ERROR = "too many arguments." + System.lineSeparator()
             + "usage: only one argument, either a ballerina file name or a module "
             + "name, can be applied at a time with or without the option." + System.lineSeparator()
-            + "i.e: ballerina format [ballerinaFile | ModuleName] [-d | --dry-run]" + System.lineSeparator()
-            + System.lineSeparator() + "run `ballerina format -h` for more details.";
+            + "i.e: bal format [ballerinaFile | ModuleName] [-d | --dry-run]" + System.lineSeparator()
+            + System.lineSeparator() + "run `bal format -h` for more details.";
 
     private static final String SUCCESS_MESSAGE = "format successful.";
 
     private static final String NOT_BALLERINA_PROJECT = "not a valid Ballerina project." + System.lineSeparator()
-            + "usage: ballerina format should be run inside a ballerina project or pass in a ballerina file."
-            + System.lineSeparator() + "i.e. `ballerina format <ballerina-file>`"
-            + System.lineSeparator() + System.lineSeparator() + "run `ballerina format -h` for more details";
+            + "usage: bal format should be run inside a ballerina project or pass in a ballerina file."
+            + System.lineSeparator() + "i.e. `bal format <ballerina-file>`"
+            + System.lineSeparator() + System.lineSeparator() + "run `bal format -h` for more details";
 
     private static final String NO_MODULE_FOUND = "couldn't find an existing module by the name: ";
 
@@ -42,10 +42,17 @@ public class Messages {
 
     private static final String NOT_BALLERINA_FILE = "not a valid ballerina source file." + System.lineSeparator()
             + "usage: ballerina source files should have the file extension as `.bal`." + System.lineSeparator()
-            + "i.e. `ballerina format hello.bal`";
+            + "i.e. `bal format hello.bal`";
 
     private static final String NO_BALLERINA_FILE_OR_MODULE = "couldn't find an existing ballerina file or " +
             "module by the name: ";
+
+    private static final String CANT_ALLOW_BOTH_MODULE_AND_FILE_OPTIONS =
+            "using '--module' and '--file' options at the same time is not allowed in selective formatting.";
+
+    private static final String CANT_ALLOW_MODULE_OR_FILE_OPTIONS =
+            "the '--module' and '--file' options are not allowed in single file projects";
+
     private static final String NO_CHANGES = "no changes.";
 
     private static final String FILES_TO_MODIFY = "files to be modified:";
@@ -78,6 +85,14 @@ public class Messages {
 
     static String getNoBallerinaModuleOrFile(String fileName) {
         return NO_BALLERINA_FILE_OR_MODULE + fileName;
+    }
+
+    static String getCantAllowBothModuleAndFileOptions() {
+        return CANT_ALLOW_BOTH_MODULE_AND_FILE_OPTIONS;
+    }
+
+    static String getCantAllowModuleOrFileOptions() {
+        return CANT_ALLOW_MODULE_OR_FILE_OPTIONS;
     }
 
     static String getNotABallerinaFile() {

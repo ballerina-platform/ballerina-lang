@@ -22,7 +22,6 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
@@ -33,6 +32,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -54,11 +54,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Invoker that invokes a command to evaluate a list of snippets.
@@ -75,6 +77,8 @@ import java.util.function.Function;
 public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     /* Constants related to execution */
     protected static final String MODULE_RUN_METHOD_NAME = "__run";
+
+    protected static final String MODULE_STATEMENT_METHOD_NAME = "__stmt";
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String CONFIGURE_INIT_CLASS_NAME = "$configurationMapper";
     private static final String MODULE_INIT_METHOD_NAME = "$moduleInit";
@@ -121,14 +125,22 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     public abstract void reset();
 
     /**
-     * Executes snippets and returns the output lines.
+     * Executes snippets and returns the compilation.
      * Snippets parameter should only include newly added snippets.
      * Old snippets should be managed as necessary by the implementation.
      *
      * @param newSnippets New snippets to execute.
+     * @return compilation.
+     */
+    public abstract PackageCompilation getCompilation(Collection<Snippet> newSnippets) throws InvokerException;
+
+    /**
+     * Executes snippets and returns the output lines.
+     *
+     * @param compilation compilation.
      * @return Execution output result.
      */
-    public abstract Optional<Object> execute(Collection<Snippet> newSnippets) throws InvokerException;
+    public abstract Optional<Object> execute(Optional<PackageCompilation> compilation) throws InvokerException;
 
     /**
      * Deletes a collection of names from the evaluator state.
@@ -152,11 +164,44 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     public abstract List<String> availableVariables();
 
     /**
+     * Returns available variables in the module.
+     *
+     * @return Available variables as a list of AvailableVariable objects
+     * with name, type and value.
+     */
+    public abstract List<AvailableVariable> availableVariablesAsObjects();
+
+    /**
      * Returns available declarations in the module.
      *
      * @return Available declarations as a list of string.
      */
     public abstract List<String> availableModuleDeclarations();
+
+    /**
+     * Clears out the module declarations and variables definitions
+     * from the previous execution.
+     * Whether last invocation was successful or not this method needs to be
+     * called as for a new execution because stored values for newDefinedVariableNames
+     * and newModuleDeclnNames both are for the previous execution
+     */
+    public abstract void clearPreviousVariablesAndModuleDclnsNames();
+
+    /**
+     * Returns new variables in the module.
+     *
+     * @return New variables defined by the last executed code
+     * snippet as a list of string.
+     */
+    public abstract List<String> newVariableNames();
+
+    /**
+     * Returns new declarations in the module.
+     *
+     * @return new declarations declared by the last executed code
+     * snippet as a list of string.
+     */
+    public abstract List<String> newModuleDeclarations();
 
     /* Template methods */
 
@@ -203,7 +248,10 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     protected Project getProject(String source, boolean isOffline) throws InvokerException {
         try {
             File mainBal = writeToFile(source);
-            BuildOptions buildOptions = new BuildOptionsBuilder().offline(isOffline).build();
+            BuildOptions buildOptions = BuildOptions.builder()
+                    .setOffline(isOffline)
+                    .targetDir(ProjectUtils.getTemporaryTargetPath())
+                    .build();
             return SingleFileProject.load(mainBal.toPath(), buildOptions);
         } catch (IOException e) {
             addErrorDiagnostic("File writing failed: " + e.getMessage());
@@ -222,6 +270,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @throws InvokerException If compilation failed.
      */
     protected PackageCompilation compile(Project project) throws InvokerException {
+        boolean containErrors = false;
         try {
             Module module = project.currentPackage().getDefaultModule();
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
@@ -230,14 +279,18 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : diagnosticResult.diagnostics()) {
                 DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
                 if (severity == DiagnosticSeverity.ERROR) {
+                    containErrors = true;
                     addErrorDiagnostic(highlightedDiagnostic(module, diagnostic));
-                    addErrorDiagnostic("Compilation aborted due to errors.");
-                    throw new InvokerException();
                 } else if (severity == DiagnosticSeverity.WARNING) {
                     addWarnDiagnostic(highlightedDiagnostic(module, diagnostic));
                 } else {
                     addDebugDiagnostic(diagnostic.message());
                 }
+            }
+
+            if (containErrors) {
+                addErrorDiagnostic("Compilation aborted due to errors.");
+                throw new InvokerException();
             }
 
             return packageCompilation;
@@ -295,7 +348,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     protected void executeProject(ClassLoadContext context, String templateName) throws InvokerException {
         Project project = getProject(context, templateName);
         PackageCompilation compilation = compile(project);
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
         executeProject(jBallerinaBackend);
     }
 
@@ -335,7 +388,13 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                 errorStream.println("fail: " + failErrorMessage);
             }
         } catch (InvokerPanicException panicError) {
+            List<String> stacktrace = Arrays.stream(panicError.getCause().getStackTrace())
+                    .filter(element -> !(element.toString().contains(MODULE_STATEMENT_METHOD_NAME) ||
+                                        element.toString().contains(MODULE_RUN_METHOD_NAME)))
+                    .collect(Collectors.toList())
+                    .stream().map(element -> "at " + element.getMethodName() + "()").collect(Collectors.toList());
             errorStream.println("panic: " + StringUtils.getErrorStringValue(panicError.getCause()));
+            stacktrace.forEach(errorStream::println);
             addErrorDiagnostic("Execution aborted due to unhandled runtime error.");
             throw panicError;
         }
@@ -479,7 +538,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return File to use.
      * @throws IOException If file open failed.
      */
-    private File getBufferFile() throws IOException {
+    public File getBufferFile() throws IOException {
         if (this.bufferFile == null) {
             this.bufferFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
             addDebugDiagnostic("Using temp file: " + bufferFile.getAbsolutePath());

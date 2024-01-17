@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -40,16 +41,12 @@ public class OnFailClauseNode extends ClauseNode {
         return childInBucket(1);
     }
 
-    public TypeDescriptorNode typeDescriptor() {
-        return childInBucket(2);
-    }
-
-    public IdentifierToken failErrorName() {
-        return childInBucket(3);
+    public Optional<TypedBindingPatternNode> typedBindingPattern() {
+        return optionalChildInBucket(2);
     }
 
     public BlockStatementNode blockStatement() {
-        return childInBucket(4);
+        return childInBucket(3);
     }
 
     @Override
@@ -67,22 +64,19 @@ public class OnFailClauseNode extends ClauseNode {
         return new String[]{
                 "onKeyword",
                 "failKeyword",
-                "typeDescriptor",
-                "failErrorName",
+                "typedBindingPattern",
                 "blockStatement"};
     }
 
     public OnFailClauseNode modify(
             Token onKeyword,
             Token failKeyword,
-            TypeDescriptorNode typeDescriptor,
-            IdentifierToken failErrorName,
+            TypedBindingPatternNode typedBindingPattern,
             BlockStatementNode blockStatement) {
         if (checkForReferenceEquality(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement)) {
             return this;
         }
@@ -90,8 +84,7 @@ public class OnFailClauseNode extends ClauseNode {
         return NodeFactory.createOnFailClauseNode(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement);
     }
 
@@ -108,16 +101,14 @@ public class OnFailClauseNode extends ClauseNode {
         private final OnFailClauseNode oldNode;
         private Token onKeyword;
         private Token failKeyword;
-        private TypeDescriptorNode typeDescriptor;
-        private IdentifierToken failErrorName;
+        private TypedBindingPatternNode typedBindingPattern;
         private BlockStatementNode blockStatement;
 
         public OnFailClauseNodeModifier(OnFailClauseNode oldNode) {
             this.oldNode = oldNode;
             this.onKeyword = oldNode.onKeyword();
             this.failKeyword = oldNode.failKeyword();
-            this.typeDescriptor = oldNode.typeDescriptor();
-            this.failErrorName = oldNode.failErrorName();
+            this.typedBindingPattern = oldNode.typedBindingPattern().orElse(null);
             this.blockStatement = oldNode.blockStatement();
         }
 
@@ -135,17 +126,9 @@ public class OnFailClauseNode extends ClauseNode {
             return this;
         }
 
-        public OnFailClauseNodeModifier withTypeDescriptor(
-                TypeDescriptorNode typeDescriptor) {
-            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
-            this.typeDescriptor = typeDescriptor;
-            return this;
-        }
-
-        public OnFailClauseNodeModifier withFailErrorName(
-                IdentifierToken failErrorName) {
-            Objects.requireNonNull(failErrorName, "failErrorName must not be null");
-            this.failErrorName = failErrorName;
+        public OnFailClauseNodeModifier withTypedBindingPattern(
+                TypedBindingPatternNode typedBindingPattern) {
+            this.typedBindingPattern = typedBindingPattern;
             return this;
         }
 
@@ -160,8 +143,7 @@ public class OnFailClauseNode extends ClauseNode {
             return oldNode.modify(
                     onKeyword,
                     failKeyword,
-                    typeDescriptor,
-                    failErrorName,
+                    typedBindingPattern,
                     blockStatement);
         }
     }

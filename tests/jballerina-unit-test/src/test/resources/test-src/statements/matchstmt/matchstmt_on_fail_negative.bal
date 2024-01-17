@@ -6,35 +6,6 @@ type ErrorTypeB distinct error;
 
 const TYPE_B_ERROR_REASON = "TypeB_Error";
 
-function testUnreachableAfterFail(string | int | boolean a) returns string|error {
-    match a {
-        12 => {
-            return "Value is '12'";
-        }
-        "Hello" => {
-            return "Value is 'Hello'";
-        }
-        15 => {
-            return "Value is '15'";
-        }
-        true => {
-            return "Value is 'true'";
-        }
-        false => {
-            return "Value is 'false'";
-        }
-        "fail" => {
-             error err = error("custom error", message = "error value");
-             fail err;
-             return "After failure throw";
-        }
-    } on fail error e {
-        return "Value is 'error'";
-    }
-
-    return "Value is 'Default'";
-}
-
 function testIncompatibleErrorTypeOnFail(string | int | boolean a) returns string|error {
     match a {
         12 => {
@@ -87,7 +58,6 @@ function testUnreachableInOnFail(string | int | boolean a) returns string|error 
         }
     } on fail ErrorTypeB e {
         return "Value is 'error'";
-        str += "-> After returning string";
     }
 
     return "Value is 'Default'";
@@ -116,14 +86,42 @@ function testOnFailErrorType(string | int | boolean a) returns string|error {
             return "Value is 'true'";
         }
         false => {
-            int resA = check getTypeAError();
+            int _ = check getTypeAError();
         }
         "fail" => {
-            int resB = check getTypeBError();
+            int _ = check getTypeBError();
         }
     } on fail ErrorTypeB e {
         return "Value is 'error'";
     }
 
     return "Value is 'Default'";
+}
+
+type SampleErrorData record {|
+    int code;
+    string reason;
+|};
+
+type SampleError error<SampleErrorData>;
+
+type SampleComplexErrorData record {|
+    int code;
+    int[2] pos;
+    record {string moreInfo;} infoDetails;
+|};
+
+type SampleComplexError error<SampleComplexErrorData>;
+
+function testOnFailWithMultipleErrors() {
+    string matchString = "fail";
+    match matchString {
+        12 => {
+            fail error SampleComplexError("Transaction Failure", code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+        }
+        "fail" => {
+            fail error SampleError("Transaction Failure", code = 50, reason = "deadlock condition");
+        }
+    } on fail var error(msg) {
+    }
 }
