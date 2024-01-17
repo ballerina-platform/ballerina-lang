@@ -26,8 +26,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.maven.artifact.versioning.ComparableVersion;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
-import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
@@ -111,42 +109,6 @@ public class JarResolver {
         jarFiles.add(new JarLibrary(jBalBackend.runtimeLibrary().path(),
                 PlatformLibraryScope.DEFAULT,
                 getPackageName(rootPackageContext)));
-
-        // TODO: Move to a compiler extension once Compiler revamp is complete
-        // 4) Add the Observability Symbols Jar
-        if (rootPackageContext.compilationOptions().observabilityIncluded()) {
-            try {
-                // Generating an empty Jar which can be used by the Observability Symbol Collector
-                String packageName = rootPackageContext.packageOrg().value() + "-"
-                        + rootPackageContext.packageName().value();
-                Path observabilityJarPath = ProjectUtils.generateObservabilitySymbolsJar(packageName);
-
-                // Writing the Syntax Tree to the Jar
-                CompilerContext compilerContext = rootPackageContext.project().projectEnvironmentContext()
-                        .getService(CompilerContext.class);
-                ObservabilitySymbolCollector observabilitySymbolCollector
-                        = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
-                observabilitySymbolCollector.writeToExecutable(observabilityJarPath, rootPackageContext.project());
-                // Cache observability jar in target
-                Path observeJarCachePath = rootPackageContext.project().targetDir()
-                        .resolve(CACHES_DIR_NAME)
-                        .resolve(rootPackageContext.packageOrg().value())
-                        .resolve(rootPackageContext.packageName().value())
-                        .resolve(rootPackageContext.packageVersion().value().toString())
-                        .resolve("observe")
-                        .resolve(rootPackageContext.packageOrg().value() + "-"
-                                + rootPackageContext.packageName().value()
-                                + "-observability-symbols.jar");
-                Path observeCachePath = Optional.of(observeJarCachePath.getParent()).orElseThrow();
-                Files.createDirectories(observeCachePath);
-                Files.copy(observabilityJarPath, observeJarCachePath, StandardCopyOption.REPLACE_EXISTING);
-
-                jarFiles.add(new JarLibrary(observabilityJarPath, PlatformLibraryScope.DEFAULT,
-                        getPackageName(rootPackageContext)));
-            } catch (IOException e) {
-                err.println("\twarning: Failed to add Observability information to Jar due to: " + e.getMessage());
-            }
-        }
 
         // TODO Filter out duplicate jar entries
         return jarFiles;
