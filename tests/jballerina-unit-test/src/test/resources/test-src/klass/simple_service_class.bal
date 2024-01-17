@@ -79,7 +79,7 @@ function testServiceObjectValue() {
     var y = wait callMethod(s, "$get$foo$path");
     assertEquality(y, s.message + "foo");
 
-    // "$get$." is encorded into "$gen$$get$&0046"
+    // "$get$." is encoded into "$gen$$get$&0046"
     var z = wait callMethod(s, "$gen$$get$&0046");
     assertEquality(z, s.message + "dot");
 
