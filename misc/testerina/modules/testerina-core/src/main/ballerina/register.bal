@@ -31,9 +31,9 @@ type TestFunction record {|
     function? before = ();
     function? after = ();
     boolean alwaysRun = false;
-    string[] groups = [];
+    readonly & string[] groups = [];
     error? diagnostics = ();
-    function[] dependsOn = [];
+    readonly & function[] dependsOn = [];
     boolean parallelizable = true;
     TestConfig? config = ();
 |} & readonly;
@@ -447,7 +447,7 @@ isolated class TestRegistry {
 
     isolated function getFunctions() returns TestFunction[] {
         lock {
-            return self.rootRegistry.sort(array:ASCENDING, (item) => item.name).cloneReadOnly();
+            return self.rootRegistry.sort(array:ASCENDING, (item) => item.name).clone();
         }
     }
 
@@ -474,7 +474,7 @@ isolated class GroupRegistry {
     isolated function getFunctions(string 'group) returns TestFunction[]? {
         lock {
             if self.registry.hasKey('group) {
-                return self.registry.get('group).cloneReadOnly();
+                return self.registry.get('group).clone();
             }
             return;
         }

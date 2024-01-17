@@ -17,13 +17,13 @@
 type AnnotationProcessor function (string name, function f) returns boolean;
 
 AnnotationProcessor[] annotationProcessors = [
-    processConfigAnnotation,
     processBeforeSuiteAnnotation,
     processAfterSuiteAnnotation,
     processBeforeEachAnnotation,
     processAfterEachAnnotation,
     processBeforeGroupsAnnotation,
-    processAfterGroupsAnnotation
+    processAfterGroupsAnnotation,
+    processConfigAnnotation
 ];
 
 public function registerTest(string name, function f) {
@@ -50,8 +50,8 @@ function processConfigAnnotation(string name, function f) returns boolean {
         boolean isTestFunctionIsolated = f is isolated function;
         boolean isDataProviderIsolated = true;
         boolean isTestFunctionParamSafe = true;
-        boolean isSatisfiedParallelizableConditions = isTestFunctionIsolated;
         string[] reasonForSerialExecution = [];
+        boolean isSatisfiedParallelizableConditions = isTestFunctionIsolated && isBeforeAfterFuncSetIsolated(config, reasonForSerialExecution);
         DataProviderReturnType? params = ();
         error? diagnostics = ();
         if config.dataProvider != () {
@@ -59,7 +59,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
             if providerFn is function () returns (DataProviderReturnType?) {
                 isDataProviderIsolated = (<function>providerFn is isolated function);
                 isTestFunctionParamSafe = isFunctionParamConcurrencySafe(f);
-                isSatisfiedParallelizableConditions = isTestFunctionIsolated && isDataProviderIsolated && isTestFunctionParamSafe;
+                isSatisfiedParallelizableConditions = isSatisfiedParallelizableConditions && isDataProviderIsolated && isTestFunctionParamSafe;
                 DataProviderReturnType providerOutput = providerFn();
                 params = <DataProviderReturnType>providerOutput;
             } else {
@@ -80,7 +80,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
 
         // If the test function is not parallelizable, then print the reason for serial execution.
         if !isSatisfiedParallelizableConditions && !config.serialExecution && (conMgr.getConfiguredWorkers() > 1) {
-            println("WARNING: Test function '" + name + "' cannot be parallelized, reason: " + string:'join(",", ...reasonForSerialExecution));
+            println("WARNING: Test function '" + name + "' cannot be parallelized, reason: " + string:'join(", ", ...reasonForSerialExecution));
         }
 
         boolean enabled = config.enable && (filterGroups.length() == 0 ? true : hasGroup(config.groups, filterGroups))
@@ -94,6 +94,57 @@ function processConfigAnnotation(string name, function f) returns boolean {
         conMgr.createTestFunctionMetaData(functionName = name, dependsOnCount = config.dependsOn.length(), enabled = enabled);
     }
     return false;
+}
+
+function isBeforeAfterFuncSetIsolated(TestConfig config, string[] reasonForSerialExecution) returns boolean {
+    boolean isBeforeAfterFunctionSetIsolated = true;
+    if config.before != () {
+        if !(<function>config.before is isolated function) {
+            isBeforeAfterFunctionSetIsolated = false;
+            reasonForSerialExecution.push("non-isolated before function");
+        }
+    }
+    if config.after != () {
+        if !(<function>config.after is isolated function) {
+            isBeforeAfterFunctionSetIsolated = false;
+            reasonForSerialExecution.push("non-isolated after function");
+        }
+    }
+    foreach string 'group in config.groups {
+        TestFunction[]? beforeGroupFunctions = beforeGroupsRegistry.getFunctions('group);
+        if beforeGroupFunctions != () {
+            foreach TestFunction beforeGroupFunction in beforeGroupFunctions {
+                if !(beforeGroupFunction.executableFunction is isolated function) {
+                    isBeforeAfterFunctionSetIsolated = false;
+                    reasonForSerialExecution.push("non-isolated before group function");
+                }
+            }
+        }
+        TestFunction[]? afterGroupFunctions = afterGroupsRegistry.getFunctions('group);
+        if afterGroupFunctions != () {
+            foreach TestFunction afterGroupFunction in afterGroupFunctions {
+                if !(afterGroupFunction.executableFunction is isolated function) {
+                    isBeforeAfterFunctionSetIsolated = false;
+                    reasonForSerialExecution.push("non-isolated after group function");
+                }
+            }
+        }
+    }
+    TestFunction[] beforeEachFunctions = beforeEachRegistry.getFunctions();
+    foreach TestFunction beforeEachFunction in beforeEachFunctions {
+        if !(beforeEachFunction.executableFunction is isolated function) {
+            isBeforeAfterFunctionSetIsolated = false;
+            reasonForSerialExecution.push("non-isolated before each function");
+        }
+    }
+    TestFunction[] afterEachFunctions = afterEachRegistry.getFunctions();
+    foreach TestFunction afterEachFunction in afterEachFunctions {
+        if !(afterEachFunction.executableFunction is isolated function) {
+            isBeforeAfterFunctionSetIsolated = false;
+            reasonForSerialExecution.push("non-isolated after each function");
+        }
+    }
+    return isBeforeAfterFunctionSetIsolated;
 }
 
 function processBeforeSuiteAnnotation(string name, function f) returns boolean {
