@@ -22,7 +22,9 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
@@ -36,75 +38,104 @@ import static io.ballerina.projects.util.ProjectConstants.TOOL_CACHE_DIR;
 public class ToolContext {
 
     private final Package currentPackage;
-    private final String toolType;
     private final String toolId;
     private final String filePath;
     private final String targetModule;
-    private final TomlTableNode optionsTable;
-    private final Path cachePath;
-    private final Path outputPath;
-    private List<Diagnostic> diagnostics = new ArrayList<>();
+    private final Map<String, Object> options;
+    private final List<Diagnostic> diagnostics = new ArrayList<>();
 
-    ToolContext(Package currentPackage, String type, String toolId, String filePath,
+    ToolContext(Package currentPackage, String toolId, String filePath,
                 String targetModule, TomlTableNode optionsTable) {
         this.currentPackage = currentPackage;
-        this.toolType = type;
         this.toolId = toolId;
         this.filePath = filePath;
         this.targetModule = targetModule;
-        this.optionsTable = optionsTable;
-        Path sourceRoot = currentPackage.project().sourceRoot();
-        this.cachePath = sourceRoot.resolve(TARGET_DIR_NAME).resolve(TOOL_CACHE_DIR).resolve(toolId);
-        if (targetModule == null || targetModule.isEmpty()) {
-            this.outputPath = sourceRoot.resolve(GENERATED_MODULES_ROOT);
-        } else {
-            this.outputPath = sourceRoot.resolve(GENERATED_MODULES_ROOT).resolve(targetModule);
-        }
+        this.options = getOptions(optionsTable);
     }
 
     public static ToolContext from(PackageManifest.Tool tool, Package currentPackage) {
-        return new ToolContext(currentPackage, tool.getType(), tool.getId(),
+        return new ToolContext(currentPackage, tool.getId(),
                 tool.getFilePath(), tool.getTargetModule(),
                 tool.getOptionsTable());
     }
 
+    /**
+     * @return the id of the tool configuration.
+     */
     public String toolId() {
         return this.toolId;
     }
 
-    public String toolType() {
-        return this.toolType;
-    }
-
+    /**
+     * @return the filepath extracted from tool configuration.
+     */
     public String filePath() {
         return this.filePath;
     }
 
+    /**
+     * @return the target module extracted from tool configuration.
+     */
     public String targetModule() {
         return targetModule;
     }
 
-    public TomlTableNode optionsTable() {
-        return this.optionsTable;
+    /**
+     * @return a map of the optional tool configurations.
+     */
+    public Map<String, Object> options() {
+        return this.options;
     }
 
+    /**
+     * @return the cache path derived using the tool id.
+     */
     public Path cachePath() {
-        return cachePath;
+        Path sourceRoot = currentPackage.project().sourceRoot();
+        return sourceRoot.resolve(TARGET_DIR_NAME).resolve(TOOL_CACHE_DIR).resolve(toolId);
     }
 
+    /**
+     * @return the output path derived using the target module
+     */
     public Path outputPath() {
-        return outputPath;
+        Path sourceRoot = currentPackage.project().sourceRoot();
+        if (targetModule == null || targetModule.isEmpty()) {
+            return sourceRoot.resolve(GENERATED_MODULES_ROOT);
+        } else {
+            return sourceRoot.resolve(GENERATED_MODULES_ROOT).resolve(targetModule);
+        }
     }
 
+    /**
+     * @return the current package instance.
+     */
     public Package currentPackage() {
         return currentPackage;
     }
+
+    /**
+     * @return a list of tool diagnostics.
+     */
     public List<Diagnostic> diagnostics() {
         return diagnostics;
     }
 
+    /**
+     * Reports a diagnostic against the build tool executed.
+     *
+     * @param diagnostic the {@code Diagnostic} to be reported
+     */
     public void reportDiagnostic(Diagnostic diagnostic) {
         diagnostics.add(diagnostic);
+    }
+
+    private Map<String, Object> getOptions(TomlTableNode optionsTable) {
+        Map<String, Object> options = new HashMap<>();
+        for (String option: optionsTable.entries().keySet()) {
+            options.put(option, optionsTable.entries().get(option).toNativeObject());
+        }
+        return options;
     }
 }
 
