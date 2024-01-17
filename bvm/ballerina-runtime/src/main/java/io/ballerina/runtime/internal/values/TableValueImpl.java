@@ -661,10 +661,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                     return data;
                 }
             }
-            List<Map.Entry<K, V>> extEntries = entries.get(hash);
-            extEntries.add(entry);
-            List<V> extValues = values.get(hash);
-            extValues.add(data);
+            entryList.add(entry);
+            values.get(hash).add(data);
             return data;
         }
 
