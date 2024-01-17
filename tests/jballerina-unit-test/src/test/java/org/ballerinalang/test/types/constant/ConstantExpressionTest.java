@@ -61,8 +61,6 @@ public class ConstantExpressionTest {
         BAssertUtil.validateError(compileResult1, i++, "'-9.223372036854776E18' is out of range for 'int'", 47, 20);
         BAssertUtil.validateError(compileResult1, i++, "'9223372036854775808' is out of range for 'int'", 47, 21);
         BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[CONST5]'", 49, 1);
-        BAssertUtil.validateError(compileResult1, i++, "cannot declare a constant with type 'T', " +
-                "expected a subtype of 'anydata' that is not 'never'", 49, 7);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 

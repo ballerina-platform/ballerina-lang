@@ -50,9 +50,6 @@ public class SimpleConstantNegativeTest {
                 9, 14);
         BAssertUtil.validateError(compileResult, index++, "'_' is a keyword, and may not be used as an identifier",
                 10, 7);
-        BAssertUtil.validateError(compileResult, index++, "cannot declare a constant with type 'invalidType', " +
-                        "expected a subtype of 'anydata' that is not 'never'",
-                12, 7);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'invalidType'",
                 12, 7);
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", 26, 5);
@@ -115,9 +112,6 @@ public class SimpleConstantNegativeTest {
                 280, 7);
         BAssertUtil.validateError(compileResult, index++, "constant declaration not yet supported for " +
                 "type 'string:Char'", 286, 14);
-        BAssertUtil.validateError(compileResult, index++, "cannot declare a constant with type 'Bar', " +
-                        "expected a subtype of 'anydata' that is not 'never'",
-                294, 7);
         BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression",
                 294, 17);
         BAssertUtil.validateError(compileResult, index++, "constant declarations are allowed only at module level",
