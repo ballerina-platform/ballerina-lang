@@ -26,29 +26,21 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.maven.artifact.versioning.ComparableVersion;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
-import java.io.IOException;
-import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.projects.util.ProjectConstants.ANON_ORG;
-import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
@@ -64,7 +56,6 @@ public class JarResolver {
     private final JBallerinaBackend jBalBackend;
     private final PackageResolution pkgResolution;
     private final PackageContext rootPackageContext;
-    private final PrintStream err = System.err;
     private final List<Diagnostic> diagnosticList;
     private DiagnosticResult diagnosticResult;
 
