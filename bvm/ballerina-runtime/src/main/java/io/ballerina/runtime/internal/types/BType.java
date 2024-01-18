@@ -42,6 +42,7 @@ public abstract class BType implements Type {
     protected Module pkg;
     protected Class<? extends Object> valueClass;
     private int hashCode;
+    private Type impliedType = null;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -195,4 +196,13 @@ public abstract class BType implements Type {
         return 0;
     }
 
+    @Override
+    public synchronized void setImpliedType(Type impliedType) {
+        this.impliedType = impliedType;
+    }
+
+    @Override
+    public synchronized Type getImpliedType() {
+        return this.impliedType;
+    }
 }

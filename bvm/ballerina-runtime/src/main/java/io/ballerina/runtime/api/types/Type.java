@@ -91,4 +91,9 @@ public interface Type {
     void setImmutableType(IntersectionType immutableType);
 
     Module getPkg();
+
+    // TODO: add documentation
+    void setImpliedType(Type impliedType);
+
+    Type getImpliedType();
 }
