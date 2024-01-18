@@ -34,7 +34,6 @@ import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.types.BXmlType;
 
 import java.util.ArrayList;
 import java.util.HashSet;
