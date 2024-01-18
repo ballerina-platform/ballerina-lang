@@ -97,10 +97,6 @@ public class BTestMain {
                 boolean report = Boolean.parseBoolean(argsArr[3]);
                 boolean coverage = Boolean.parseBoolean(argsArr[4]);
 
-                if(report || coverage) {
-                    testReport = new TestReport();
-                }
-
                 out.println();
                 out.print("Running Tests");
                 if (coverage) {
