@@ -2374,6 +2374,12 @@ public type code string;
 
 public type uri string;
 
+public type ElementReadOnlyCyclic record {|
+    string id?;
+    Extension[] extension?;
+    ((ElementReadOnlyCyclic & readonly)|())...;
+|};
+
 public type Element record {|
     string id?;
     Extension[] extension?;
@@ -2403,7 +2409,30 @@ public type CodeableConcept record {|
     string text?;
 |};
 
+public type ExtensionExtension2 record {|
+    *ElementReadOnlyCyclic;
+
+    uri url;
+    Extension[] extension?;
+|};
+
+public type CodeableConceptExtension2 record {|
+    *ElementReadOnlyCyclic;
+
+    uri url;
+    CodeableConcept valueCodeableConcept;
+|};
+
+public type CodingExtension2 record {|
+    *ElementReadOnlyCyclic;
+
+    uri url;
+    Coding valueCoding;
+|};
+
 public type Extension CodeableConceptExtension|ExtensionExtension|CodingExtension;
+
+public type Extension2 CodeableConceptExtension2|ExtensionExtension2|CodingExtension2;
 
 function testCloneWithTypeToUnion() {
     int|float|[string, string] unionVar = 2;
@@ -2430,6 +2459,14 @@ function testCloneWithTypeToUnion() {
         "valueCoding": {"system": "http://loinc.org", "code": "LA29518-0", "display": "he/him/his/himself"}
     });
     assertEquality((typeof ext).toString(), "typedesc CodingExtension");
+
+    Extension2 ext2 = checkpanic extCoding.cloneWithType();
+    assertEquality(ext2, <Extension2>{
+        "url":
+    "http://open.epic.com/FHIR/StructureDefinition/extension/calculated-pronouns-to-use-for-text",
+        "valueCoding": {"system": "http://loinc.org", "code": "LA29518-0", "display": "he/him/his/himself"}
+    });
+    assertEquality((typeof ext2).toString(), "typedesc CodingExtension2");
 }
 
 type UnionTypedesc typedesc<float|decimal|[string, int]>;
