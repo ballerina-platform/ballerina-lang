@@ -683,12 +683,11 @@ public class TypeChecker {
     }
 
     private static SimpleSubtypeResult checkIsTypeSimple(SimpleType source, SimpleType target) {
-        S
-        impleType remainder = source.diff(target);
-        if (remainder.all == 0 && remainder.some == 0) {
+        SimpleType remainder = source.diff(target);
+        if (remainder.all() == 0 && remainder.some() == 0) {
             return SimpleSubtypeResult.TRUE;
         }
-        return remainder.some == 0 ? SimpleSubtypeResult.FALSE : SimpleSubtypeResult.UNKNOWN;
+        return remainder.some() == 0 ? SimpleSubtypeResult.FALSE : SimpleSubtypeResult.UNKNOWN;
     }
 
     private static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,

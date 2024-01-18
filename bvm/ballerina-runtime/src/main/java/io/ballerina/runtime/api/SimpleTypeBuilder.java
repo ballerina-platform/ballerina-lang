@@ -44,7 +44,7 @@ public class SimpleTypeBuilder {
 
     public static SimpleType createContainerSimpleType(Type constraint, SimpleTypeTag tag) {
         SimpleType constraintSimpleType = constraint.getSimpleType();
-        if (constraintSimpleType.all == ALL) {
+        if (constraintSimpleType.all() == ALL) {
             // no constraint mean it is the top type
             return new SimpleType(SimpleTypeBuilder.basicTypeBitset(tag), SimpleTypeBuilder.NONE);
         }

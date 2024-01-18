@@ -23,15 +23,7 @@ package io.ballerina.runtime.api;
 
 import java.util.stream.Stream;
 
-public class SimpleType {
-
-    public long all;
-    public long some;
-
-    public SimpleType(long all, long some) {
-        this.all = all;
-        this.some = some;
-    }
+public record SimpleType(long all, long some) {
 
     public SimpleType intersection(SimpleType other) {
         long all = this.all & other.all;
