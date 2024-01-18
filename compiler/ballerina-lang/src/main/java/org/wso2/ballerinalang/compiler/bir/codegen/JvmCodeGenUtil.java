@@ -521,7 +521,7 @@ public class JvmCodeGenUtil {
     static String cleanupObjectTypeName(String typeName) {
         int index = typeName.lastIndexOf("."); // Internal type names can contain dots hence use the `lastIndexOf`
         int typeNameLength = typeName.length();
-        if (index - 1 > 0 && typeName.charAt(index - 1) == '\\') { // Methods can contain escaped characters
+        if (index > 1 && typeName.charAt(index - 1) == '\\') { // Methods can contain escaped characters
             return typeName;
         } else if (index > 0 && index != typeNameLength - 1) { // Resource method name can contain . at the end 
             return typeName.substring(index + 1);
