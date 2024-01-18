@@ -291,7 +291,10 @@ public class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
-        return checkIsType(null, sourceVal, getType(sourceVal), targetType);
+        if (checkIsType(sourceVal, targetType, null)) {
+            return true;
+        }
+        return checkIsTypeFinalize(null, sourceVal, getType(sourceVal), targetType);
     }
 
     /**
@@ -308,6 +311,11 @@ public class TypeChecker {
             return true;
         }
 
+        return checkIsTypeFinalize(errors, sourceVal, sourceType, targetType);
+    }
+
+    private static boolean checkIsTypeFinalize(List<String> errors, Object sourceVal, Type sourceType,
+                                               Type targetType) {
         if (getImpliedType(sourceType).getTag() == TypeTags.XML_TAG && !targetType.isReadOnly()) {
             XmlValue val = (XmlValue) sourceVal;
             if (val.getNodeType() == XmlNodeType.SEQUENCE) {
@@ -321,6 +329,7 @@ public class TypeChecker {
 
         return checkIsLikeOnValue(errors, sourceVal, sourceType, targetType, new ArrayList<>(), false, null);
     }
+
 
     /**
      * Check whether a given value has the same shape as the given type.
@@ -690,6 +699,11 @@ public class TypeChecker {
         return remainder.some() == 0 ? SimpleSubtypeResult.FALSE : SimpleSubtypeResult.UNKNOWN;
     }
 
+    private static boolean checkIsType(Object sourceVal, Type targetType, List<TypePair> unresolvedTypes) {
+        // check if sourceVal is BValue if so type check using that else check is Type
+        return checkIsType(sourceVal, getType(sourceVal), targetType, unresolvedTypes);
+    }
+
     private static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,
                                        List<TypePair> unresolvedTypes) {
         sourceType = getImpliedType(sourceType);
@@ -703,6 +717,7 @@ public class TypeChecker {
 
     private static boolean checkIsTypeInner(Object sourceVal, Type sourceType, Type targetType,
                                             List<TypePair> unresolvedTypes) {
+        // FIXME: avoid getting the implied type twice
         sourceType = getImpliedType(sourceType);
         targetType = getImpliedType(targetType);
         int sourceTypeTag = sourceType.getTag();
