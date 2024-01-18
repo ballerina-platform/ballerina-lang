@@ -710,6 +710,10 @@ client class Client11 {
         return "Path3";
     }
 
+    resource function get v1\.\.2() returns string {
+        return "Path4";
+    }
+        
     function abc\.abc() returns string {
         return "abc.abc";
     }
@@ -735,8 +739,11 @@ function testAccessingResourceWithEscapedChars() {
     string c2 = cl->/["v1.2"]/["ab.c"]/greeting3;
     assertEquality(c2, "Path3");
     
-    string d1 = cl.abc\.abc();
-    assertEquality(d1, "abc.abc");    
+    string d1 = cl->/v1\.\.2;
+    assertEquality(d1, "Path4");
+    
+    string e1 = cl.abc\.abc();
+    assertEquality(e1, "abc.abc");    
 }
 
 function assertEquality(any|error actual, any|error expected) {
