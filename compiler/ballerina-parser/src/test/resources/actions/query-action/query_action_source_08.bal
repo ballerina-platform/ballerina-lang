@@ -8,7 +8,7 @@ function foo() {
     from var i in [1, 2, 3, 4]
     do {
         var income = from var {price, quantity} in orders
-            let var totPrice = price*quantity
+            let var totPrice = price * quantity
             collect sum(totPrice);
     };
 }

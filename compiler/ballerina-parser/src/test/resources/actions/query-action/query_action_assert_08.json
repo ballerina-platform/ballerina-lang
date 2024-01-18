@@ -1267,12 +1267,24 @@
                                                               "children": [
                                                                 {
                                                                   "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "price"
+                                                                  "value": "price",
+                                                                  "trailingMinutiae": [
+                                                                    {
+                                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                                      "value": " "
+                                                                    }
+                                                                  ]
                                                                 }
                                                               ]
                                                             },
                                                             {
-                                                              "kind": "ASTERISK_TOKEN"
+                                                              "kind": "ASTERISK_TOKEN",
+                                                              "trailingMinutiae": [
+                                                                {
+                                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                                  "value": " "
+                                                                }
+                                                              ]
                                                             },
                                                             {
                                                               "kind": "SIMPLE_NAME_REFERENCE",
