@@ -19,6 +19,7 @@
 package io.ballerina.cli.utils;
 
 import io.ballerina.projects.BalToolsManifest;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.central.client.model.Tool;
 
@@ -56,30 +57,35 @@ public class PrintUtils {
             }
         }
         int versionColWidth = 15;
+        int repositoryColWidth = 10;
         int padding = 2;
         int minimumToolIdColWidth = 20;
         int remainingWidth = Math.max(minimumToolIdColWidth, width - versionColWidth);
         int toolIdColWidth = Math.max(minimumToolIdColWidth, Math.min(maxToolIdNameLength, remainingWidth)) + padding;
 
-        printListLocalTableHeader(toolIdColWidth, versionColWidth);
+        printListLocalTableHeader(toolIdColWidth, versionColWidth, repositoryColWidth);
 
         for (BalToolsManifest.Tool tool: tools) {
+            String repository = ProjectConstants.LOCAL_REPOSITORY_NAME.equals(tool.repository()) ? "local" : "central";
             String activeIndicator = tool.active() ? "* " : "  ";
             printInCLI("|" + tool.id(), toolIdColWidth);
             printInCLI(activeIndicator + tool.version(), versionColWidth);
+            printInCLI(repository, repositoryColWidth);
             outStream.println();
         }
         outStream.println();
         outStream.println(tools.size() + " tools found.");
     }
 
-    private static void printListLocalTableHeader(int toolIdColWidth, int versionColWidth) {
+    private static void printListLocalTableHeader(int toolIdColWidth, int versionColWidth, int repositoryColWidth) {
         printInCLI("|TOOL ID", toolIdColWidth);
         printInCLI("VERSION", versionColWidth);
+        printInCLI("REPO", repositoryColWidth);
         outStream.println();
 
         printCharacter("|-", toolIdColWidth, "-", true);
         printCharacter("-", versionColWidth, "-", true);
+        printCharacter("-", repositoryColWidth, "-", true);
         outStream.println();
     }
 
