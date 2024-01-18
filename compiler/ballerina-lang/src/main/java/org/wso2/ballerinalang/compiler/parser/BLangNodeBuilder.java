@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
-import io.ballerina.compiler.syntax.tree.AlternateReceiveWorkerNode;
+import io.ballerina.compiler.syntax.tree.AlternateReceiveNode;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
@@ -203,12 +203,14 @@ import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SingleReceiveNode;
 import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadMemberNode;
 import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
+import io.ballerina.compiler.syntax.tree.StreamReceiveNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.SyncSendActionNode;
@@ -2527,25 +2529,23 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Location receiveActionPos = getPosition(receiveActionNode);
         Node receiveWorkers = receiveActionNode.receiveWorkers();
 
-        if (receiveWorkers.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            BLangWorkerReceive singleWorkerRecv =
-                    createSimpleWorkerReceive(((SimpleNameReferenceNode) receiveWorkers).name());
+        if (receiveWorkers.kind() == SyntaxKind.SINGLE_RECEIVE) {
+            SingleReceiveNode singleReceiveNode = (SingleReceiveNode) receiveWorkers;
+            BLangWorkerReceive singleWorkerRecv = createSimpleWorkerReceive(singleReceiveNode.worker().name());
             singleWorkerRecv.pos = receiveActionPos;
             return singleWorkerRecv;
         }
 
-        if (receiveWorkers.kind() == SyntaxKind.ALTERNATE_RECEIVE_WORKER) {
+        if (receiveWorkers.kind() == SyntaxKind.ALTERNATE_RECEIVE) {
             SeparatedNodeList<SimpleNameReferenceNode> alternateWorkers =
-                    ((AlternateReceiveWorkerNode) receiveWorkers).workers();
-            List<BLangWorkerReceive> workerReceives = new ArrayList<>(alternateWorkers.size());
-            for (SimpleNameReferenceNode w : alternateWorkers) {
-                workerReceives.add(createSimpleWorkerReceive(w.name()));
-            }
+                    ((AlternateReceiveNode) receiveWorkers).workers();
+            return createAlternateWorkerReceive(alternateWorkers, receiveActionPos);
+        }
 
-            BLangAlternateWorkerReceive alternateWorkerRecv = TreeBuilder.createAlternateWorkerReceiveNode();
-            alternateWorkerRecv.setWorkerReceives(workerReceives);
-            alternateWorkerRecv.pos = receiveActionPos;
-            return alternateWorkerRecv;
+        if (receiveWorkers.kind() == SyntaxKind.STREAM_RECEIVE) {
+            dlog.error(receiveActionPos, DiagnosticErrorCode.STREAM_RECEIVE_ACTION_NOT_YET_SUPPORTED);
+            // mock rest of the flow as an alternative receive
+            return createAlternateWorkerReceive(((StreamReceiveNode) receiveWorkers).workers(), receiveActionPos);
         }
 
         ReceiveFieldsNode receiveFieldsNode = (ReceiveFieldsNode) receiveWorkers;
@@ -2569,6 +2569,19 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         multipleWorkerRv.setReceiveFields(fields);
         multipleWorkerRv.pos = receiveActionPos;
         return multipleWorkerRv;
+    }
+
+    private BLangAlternateWorkerReceive createAlternateWorkerReceive(
+            SeparatedNodeList<SimpleNameReferenceNode> alternateWorkers, Location receiveActionPos) {
+        List<BLangWorkerReceive> workerReceives = new ArrayList<>(alternateWorkers.size());
+        for (SimpleNameReferenceNode w : alternateWorkers) {
+            workerReceives.add(createSimpleWorkerReceive(w.name()));
+        }
+
+        BLangAlternateWorkerReceive alternateWorkerRecv = TreeBuilder.createAlternateWorkerReceiveNode();
+        alternateWorkerRecv.setWorkerReceives(workerReceives);
+        alternateWorkerRecv.pos = receiveActionPos;
+        return alternateWorkerRecv;
     }
 
     private BLangWorkerReceive createSimpleWorkerReceive(Token workerRef) {

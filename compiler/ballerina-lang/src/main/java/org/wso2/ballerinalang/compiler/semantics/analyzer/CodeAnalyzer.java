@@ -3667,6 +3667,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return action.getKind() == NodeKind.WORKER_SYNC_SEND;
     }
 
+    private static boolean isWorkerSendOrReceive(BLangNode action) {
+        return switch (action.getKind()) {
+            case WORKER_ASYNC_SEND, WORKER_SYNC_SEND, WORKER_RECEIVE -> true;
+            default -> false;
+        };
+    }
+
     private static boolean isWaitAction(BLangNode action) {
         return action.getKind() == NodeKind.WAIT_EXPR;
     }
@@ -3900,8 +3907,23 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private void reportInvalidWorkerInteractionDiagnostics(WorkerActionSystem workerActionSystem) {
-        this.dlog.error(workerActionSystem.getRootPosition(), DiagnosticErrorCode.INVALID_WORKER_INTERACTION,
-                workerActionSystem.toString());
+        boolean hasSendReceivePairingError = false;
+        for (WorkerActionStateMachine worker : workerActionSystem.finshedWorkers) {
+            for (BLangNode action : worker.actions) {
+                if (isWorkerSendOrReceive(action) && ((BLangWorkerSendReceiveExpr) action).getChannel() == null) {
+                    hasSendReceivePairingError = true;
+                    DiagnosticErrorCode errorCode = action.getKind() == NodeKind.WORKER_RECEIVE ?
+                            DiagnosticErrorCode.INVALID_WORKER_RECEIVE_NO_MATCHING_WORKER_SEND :
+                            DiagnosticErrorCode.INVALID_WORKER_SEND_NO_MATCHING_WORKER_RECEIVE;
+                    dlog.error(action.pos, errorCode);
+                }
+            }
+        }
+
+        if (!hasSendReceivePairingError) {
+            this.dlog.error(workerActionSystem.getRootPosition(), DiagnosticErrorCode.INVALID_WORKER_INTERACTION,
+                    workerActionSystem.toString());
+        }
     }
 
     private void validateWorkerActionParameters(BLangWorkerSendReceiveExpr send, BLangWorkerReceive receive) {

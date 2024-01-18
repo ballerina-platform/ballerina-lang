@@ -119,8 +119,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("BCE2082", "worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("BCE2083", "worker.invalid.worker.interaction"),
     WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS("BCE2084", "worker.interactions.only.allowed.between.peers"),
-    // VACANT_ERROR("BCE2085", ""),
-    // VACANT_ERROR("BCE2086", ""),
+    INVALID_WORKER_SEND_NO_MATCHING_WORKER_RECEIVE("BCE2085", "invalid.worker.send.no.matching.worker.receive"),
+    INVALID_WORKER_RECEIVE_NO_MATCHING_WORKER_SEND("BCE2086", "invalid.worker.receive.no.matching.worker.send"),
     EXPLICIT_WORKER_CANNOT_BE_DEFAULT("BCE2087", "explicit.worker.cannot.be.default"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("BCE2088", "worker.multiple.fork.join.send"),
     INCOMPATIBLE_TYPE_REFERENCE("BCE2089", "incompatible.type.reference"),
@@ -815,7 +815,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "cannot.use.alternate.wait.action.within.multiple.wait.action"),
     EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected"),
     INSTANTIATION_ERROR("BCE4058", "instantiation.error"),
-    INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4059", "invalid.binding.pattern.in.on.fail")
+    INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4059", "invalid.binding.pattern.in.on.fail"),
+    STREAM_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE4060", "stream.receive.action.not.yet.supported")
     ;
 
     private String diagnosticId;

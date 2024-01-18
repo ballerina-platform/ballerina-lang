@@ -38,6 +38,11 @@ public class ReceiveActionTest extends AbstractActionTest {
         testFile("receive-action/receive_action_source_04.bal", "receive-action/receive_action_assert_04.json");
     }
 
+    @Test
+    public void testStreamReceiveAction() {
+        testFile("receive-action/receive_action_source_06.bal", "receive-action/receive_action_assert_06.json");
+    }
+
     // Recover tests
 
     @Test
@@ -53,5 +58,10 @@ public class ReceiveActionTest extends AbstractActionTest {
     @Test
     public void testAlternateReceiveActionRecovery() {
         testFile("receive-action/receive_action_source_05.bal", "receive-action/receive_action_assert_05.json");
+    }
+
+    @Test
+    public void testStreamReceiveActionRecovery() {
+        testFile("receive-action/receive_action_source_07.bal", "receive-action/receive_action_assert_07.json");
     }
 }

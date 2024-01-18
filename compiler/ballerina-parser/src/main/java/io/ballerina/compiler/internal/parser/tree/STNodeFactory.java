@@ -1826,10 +1826,10 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBrace);
     }
 
-    public static STNode createAlternateReceiveWorkerNode(
+    public static STNode createAlternateReceiveNode(
             STNode workers) {
 
-        return new STAlternateReceiveWorkerNode(
+        return new STAlternateReceiveNode(
                 workers);
     }
 
@@ -2729,6 +2729,26 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 fieldName,
                 colon,
                 peerWorker);
+    }
+
+    public static STNode createStreamReceiveNode(
+            STNode streamKeyword,
+            STNode openParenthesis,
+            STNode workers,
+            STNode closeParenthesis) {
+
+        return new STStreamReceiveNode(
+                streamKeyword,
+                openParenthesis,
+                workers,
+                closeParenthesis);
+    }
+
+    public static STNode createSingleReceiveNode(
+            STNode worker) {
+
+        return new STSingleReceiveNode(
+                worker);
     }
 }
 
