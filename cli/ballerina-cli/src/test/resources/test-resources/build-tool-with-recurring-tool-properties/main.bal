@@ -1,3 +1,3 @@
-public function main() {
-    return "Hello, World!";
+public function hello() returns string {
+    return ("Hello, World!");
 }

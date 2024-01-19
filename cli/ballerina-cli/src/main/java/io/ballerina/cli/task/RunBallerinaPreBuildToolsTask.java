@@ -56,7 +56,6 @@ public class RunBallerinaPreBuildToolsTask implements Task {
 
     @Override
     public void execute(Project project) {
-        this.outStream.println("\nExecuting pre build tools\n");
         // Print all build tool manifest diagnostics
         Collection<Diagnostic> toolManifestDiagnostics = project.currentPackage().manifest().diagnostics()
                 .diagnostics().stream().filter(diagnostic -> diagnostic.diagnosticInfo().code().startsWith("BCE54"))
@@ -73,8 +72,8 @@ public class RunBallerinaPreBuildToolsTask implements Task {
             try {
                 hasOptionErrors = validateOptionsToml(tool.getOptionsToml(), commandName);
             } catch (IOException e) {
-                outStream.println("\nWARNING: Skipping the validation of tool options due to: " +
-                        e.getMessage());
+                outStream.println("WARNING: Skipping validation of tool options for tool '" + tool.getType() +
+                        "' due to: " + e.getMessage());
             }
             if (!tool.hasErrorDiagnostic() && !hasOptionErrors) {
                 try {
@@ -93,8 +92,8 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                         toolContextMap.put(tool.getId(), toolContext);
                         continue;
                     }
-                    this.outStream.println("\nExecuting build tool '" + tool.getType() +
-                            "' for tool configurations '" + tool.getId() + "'.");
+                    this.outStream.println("Executing build tool '" + tool.getType() +
+                            "' for tool configurations '" + tool.getId() + "'.\n");
                     targetTool.execute(toolContext);
                     toolContext.diagnostics().forEach(outStream::println);
                     if (!Diagnostics.filterErrors(toolContext.diagnostics()).isEmpty()) {
