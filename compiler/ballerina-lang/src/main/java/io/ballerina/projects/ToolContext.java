@@ -132,6 +132,9 @@ public class ToolContext {
 
     private Map<String, Object> getOptions(TomlTableNode optionsTable) {
         Map<String, Object> options = new HashMap<>();
+        if (null == optionsTable) {
+            return options;
+        }
         for (String option: optionsTable.entries().keySet()) {
             options.put(option, optionsTable.entries().get(option).toNativeObject());
         }
