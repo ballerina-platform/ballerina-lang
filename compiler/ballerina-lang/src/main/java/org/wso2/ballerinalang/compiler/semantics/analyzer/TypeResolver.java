@@ -917,8 +917,7 @@ public class TypeResolver {
                     Name pkgAlias = names.fromIdNode(sizeReference.pkgAlias);
                     Name typeName = names.fromIdNode(sizeReference.variableName);
 
-                    BSymbol sizeSymbol =
-                            symResolver.lookupMainSpaceSymbolInPackage(size.pos, data.env, pkgAlias, typeName);
+                    BSymbol sizeSymbol = getSymbolOfVarRef(size.pos, data.env, pkgAlias, typeName);
                     sizeReference.symbol = sizeSymbol;
 
                     if (symTable.notFoundSymbol == sizeSymbol) {
@@ -2089,6 +2088,24 @@ public class TypeResolver {
         addAssociatedTypeDefinition(constant, intersectionType, symEnv);
         constant.setDeterminedType(null);
         symEnv.scope.define(constantSymbol.name, constantSymbol);
+    }
+
+    public BSymbol getSymbolOfVarRef(Location pos, SymbolEnv env, Name pkgAlias, Name varName) {
+        if (pkgAlias == Names.EMPTY && modTable.containsKey(varName.value)) {
+            // modTable contains the available constants in current module.
+            BLangNode node = modTable.get(varName.value);
+            if (node.getKind() == NodeKind.CONSTANT) {
+                if (!resolvedConstants.contains((BLangConstant) node)) {
+                    resolveConstant(env, modTable, (BLangConstant) node);
+                }
+            } else {
+                dlog.error(pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+                return symTable.notFoundSymbol;
+            }
+        }
+
+        // Search and get the referenced variable from different module.
+        return symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgAlias, varName);
     }
 
     public BLangTypeDefinition findTypeDefinition(List<BLangTypeDefinition> typeDefinitionArrayList, String name) {
