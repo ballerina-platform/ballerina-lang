@@ -116,7 +116,7 @@ function isBeforeAfterFuncSetIsolated(TestConfig config, string[] reasonForSeria
             foreach TestFunction beforeGroupFunction in beforeGroupFunctions {
                 if !(beforeGroupFunction.executableFunction is isolated function) {
                     isBeforeAfterFunctionSetIsolated = false;
-                    reasonForSerialExecution.push("non-isolated before group function");
+                    reasonForSerialExecution.push("non-isolated before-group function");
                 }
             }
         }
@@ -125,7 +125,7 @@ function isBeforeAfterFuncSetIsolated(TestConfig config, string[] reasonForSeria
             foreach TestFunction afterGroupFunction in afterGroupFunctions {
                 if !(afterGroupFunction.executableFunction is isolated function) {
                     isBeforeAfterFunctionSetIsolated = false;
-                    reasonForSerialExecution.push("non-isolated after group function");
+                    reasonForSerialExecution.push("non-isolated after-group function");
                 }
             }
         }
@@ -134,14 +134,14 @@ function isBeforeAfterFuncSetIsolated(TestConfig config, string[] reasonForSeria
     foreach TestFunction beforeEachFunction in beforeEachFunctions {
         if !(beforeEachFunction.executableFunction is isolated function) {
             isBeforeAfterFunctionSetIsolated = false;
-            reasonForSerialExecution.push("non-isolated before each function");
+            reasonForSerialExecution.push("non-isolated before-each function");
         }
     }
     TestFunction[] afterEachFunctions = afterEachRegistry.getFunctions();
     foreach TestFunction afterEachFunction in afterEachFunctions {
         if !(afterEachFunction.executableFunction is isolated function) {
             isBeforeAfterFunctionSetIsolated = false;
-            reasonForSerialExecution.push("non-isolated after each function");
+            reasonForSerialExecution.push("non-isolated after-each function");
         }
     }
     return isBeforeAfterFunctionSetIsolated;

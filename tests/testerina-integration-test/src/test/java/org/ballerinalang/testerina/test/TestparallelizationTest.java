@@ -185,6 +185,161 @@ public class TestparallelizationTest extends BaseTestCase {
     }
 
     @Test
+    public void testNonIsolatedAfterEach() throws BallerinaTestException, IOException {
+        String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
+                "non-isolated after-each function";
+        String[] args = mergeCoverageArgs(new String[]{"--workers=30", "non-isolated-after-each"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW30 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(output.contains(warningDiagnostics));
+
+        args = mergeCoverageArgs(new String[]{"--workers=2", "non-isolated-after-each"});
+        output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW1 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(output.contains(warningDiagnostics));
+        Assert.assertTrue(executionTimeW1 - executionTimeW30 < 1000);
+    }
+
+    @Test
+    public void testNonIsolatedBeforeEach() throws BallerinaTestException, IOException {
+        String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
+                "non-isolated before-each function";
+        String[] args = mergeCoverageArgs(new String[]{"--workers=30", "non-isolated-before-each"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW30 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(output.contains(warningDiagnostics));
+
+        args = mergeCoverageArgs(new String[]{"--workers=2", "non-isolated-before-each"});
+        output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW1 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(output.contains(warningDiagnostics));
+        Assert.assertTrue(executionTimeW1 - executionTimeW30 < 1000);
+    }
+
+    @Test
+    public void testNonIsolatedAfterFunc() throws BallerinaTestException, IOException {
+        String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
+                "non-isolated after function";
+        String[] args = mergeCoverageArgs(new String[]{"--workers=30", "non-isolated-after-func"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW30 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(output.contains(warningDiagnostics));
+
+        args = mergeCoverageArgs(new String[]{"--workers=2", "non-isolated-after-func"});
+        output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW1 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(output.contains(warningDiagnostics));
+        Assert.assertTrue(executionTimeW1 - executionTimeW30 < 1000);
+    }
+
+    @Test
+    public void testNonIsolatedBeforeFunc() throws BallerinaTestException, IOException {
+        String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
+                "non-isolated before function";
+        String[] args = mergeCoverageArgs(new String[]{"--workers=30", "non-isolated-before-func"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW30 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(output.contains(warningDiagnostics));
+
+        args = mergeCoverageArgs(new String[]{"--workers=2", "non-isolated-before-func"});
+        output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW1 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(output.contains(warningDiagnostics));
+        Assert.assertTrue(executionTimeW1 - executionTimeW30 < 1000);
+    }
+
+    @Test
+    public void testNonIsolatedAfterGroup() throws BallerinaTestException, IOException {
+        String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
+                "non-isolated after-group function";
+        String[] args = mergeCoverageArgs(new String[]{"--workers=30", "non-isolated-after-grp"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW30 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(output.contains(warningDiagnostics));
+
+        args = mergeCoverageArgs(new String[]{"--workers=2", "non-isolated-after-grp"});
+        output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW1 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(output.contains(warningDiagnostics));
+        Assert.assertTrue(executionTimeW1 - executionTimeW30 < 1000);
+    }
+
+    @Test
+    public void testNonIsolatedBeforeGroup() throws BallerinaTestException, IOException {
+        String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
+                "non-isolated before-group function";
+        String[] args = mergeCoverageArgs(new String[]{"--workers=30", "non-isolated-before-grp"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW30 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(output.contains(warningDiagnostics));
+
+        args = mergeCoverageArgs(new String[]{"--workers=2", "non-isolated-before-grp"});
+        output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW1 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(output.contains(warningDiagnostics));
+        Assert.assertTrue(executionTimeW1 - executionTimeW30 < 1000);
+    }
+
+    @Test
+    public void testIsolatedSetUpTearDown() throws BallerinaTestException, IOException {
+        String[] args = mergeCoverageArgs(new String[]{"--workers=40", "isolated-set-up-tear-down"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW30 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+
+        args = mergeCoverageArgs(new String[]{"--workers=1", "isolated-set-up-tear-down"});
+        output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW1 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(executionTimeW1 > 2 * executionTimeW30 );
+    }
+
+    @Test
+    public void testNegativeWorkerCount() throws BallerinaTestException, IOException {
+        String warningDiagnostics = "Warning: Workers can not be negative or zero. Test execution " +
+                "is proceeded with default worker count.";
+        String[] args = mergeCoverageArgs(new String[]{"--workers=1", "isolated-set-up-tear-down"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW30 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+
+        args = mergeCoverageArgs(new String[]{"--workers=-12", "isolated-set-up-tear-down"});
+        output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        Float executionTimeW1 = getTimeForTestExecution(output);
+        Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
+        Assert.assertTrue(output.contains(warningDiagnostics));
+        Assert.assertTrue(executionTimeW1 - executionTimeW30 < 1000);
+    }
+
+    @Test
     public void testNonParalallelizableMapDataProvider() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"--workers=30", "non-parallelisation-map-data-provider"});
         String output = balClient.runMainAndReadStdOut("test", args,
