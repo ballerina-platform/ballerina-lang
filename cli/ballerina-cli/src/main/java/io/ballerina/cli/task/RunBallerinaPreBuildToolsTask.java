@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.PackageManifest.Tool;
+import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_PREFIX;
 
 /**
  * Task for running tools integrated with the build.
@@ -58,8 +59,8 @@ public class RunBallerinaPreBuildToolsTask implements Task {
     public void execute(Project project) {
         // Print all build tool manifest diagnostics
         Collection<Diagnostic> toolManifestDiagnostics = project.currentPackage().manifest().diagnostics()
-                .diagnostics().stream().filter(diagnostic -> diagnostic.diagnosticInfo().code().startsWith("BCE54"))
-                .collect(Collectors.toList());
+                .diagnostics().stream().filter(diagnostic -> diagnostic.diagnosticInfo().code()
+                .startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX)).collect(Collectors.toList());
         toolManifestDiagnostics.forEach(outStream::println);
 
         //Build tool execution
