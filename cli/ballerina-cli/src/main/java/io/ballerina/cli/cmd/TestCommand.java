@@ -207,6 +207,9 @@ public class TestCommand implements BLauncherCmd {
             "'.jar' extension.")
     private String output;
 
+    @CommandLine.Option(names = "--emit", description =  "Emit the test executable fat jars")
+    private Boolean emitTestExecutable;
+
 
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
@@ -373,14 +376,18 @@ public class TestCommand implements BLauncherCmd {
                 disableGroupList, testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution);
         DumpBuildTimeTask dumpBuildTimeTask = new DumpBuildTimeTask(outStream);
 
+        TaskExecutor.TaskBuilder taskBuilder = new TaskExecutor.TaskBuilder();
 
-        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+        taskBuilder.addTask(cleanTargetCacheDirTask, isSingleFile) // clean the target cache dir(projects only)
                 .addTask(resolveMavenDependenciesTask) // resolve maven dependencies in Ballerina.toml
                 // compile the modules
-                .addTask(compileTask)
-//                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
-                .addTask(createTestExecutableTask) // create the uber jars for test modules
-                .addTask(runTestsTask, project.buildOptions().nativeImage())
+                .addTask(compileTask);
+
+        if (emitTestExecutable != null && createTestExecutableTask != null) {
+            taskBuilder.addTask(createTestExecutableTask);
+        }
+        //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
+        TaskExecutor taskExecutor = taskBuilder.addTask(runTestsTask, project.buildOptions().nativeImage())
                 .addTask(runNativeImageTestTask, !project.buildOptions().nativeImage())
                 .addTask(dumpBuildTimeTask, !project.buildOptions().dumpBuildTime())
                 .build();
@@ -407,7 +414,8 @@ public class TestCommand implements BLauncherCmd {
                 .setNativeImage(nativeImage)
                 .setEnableCache(enableCache)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
-                .setGraalVMBuildOptions(graalVMBuildOptions);
+                .setGraalVMBuildOptions(graalVMBuildOptions)
+                .setEmitTestExecutable(emitTestExecutable);
 
 
         if (targetDir != null) {
