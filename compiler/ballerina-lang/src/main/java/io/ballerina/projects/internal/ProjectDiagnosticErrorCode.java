@@ -27,6 +27,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
  */
 public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
 
+    // TODO: Assign specific codes for each error type and sort the error codes.
     INVALID_BALA_FILE("BCE5000", "invalid.bala.file"),
     OLD_DEPENDENCIES_TOML("BCE5001", "old.dependencies.toml"),
     LOCAL_PACKAGES_IN_DEPENDENCIES_TOML("BCE5002", "local.packages.in.dependencies.toml"),
@@ -37,11 +38,15 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     DEPRECATED_PACKAGE("BCE5007", "deprecated.package"),
     BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION("BCE5008", "built.with.older.sl.update.distribution"),
     CUSTOM_REPOSITORY_NOT_FOUND("BCE5009", "custom.repository.not.found"),
+
+    // Error codes related to build tools starting from BCE5400.
     MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML("BCE5400", "missing.tool.properties"),
     INCOMPATIBLE_TYPE_FOR_TOOL_PROPERTY("BCE5401", "incompatible.tool.properties"),
     EMPTY_TOOL_PROPERTY("BCE5402", "empty.tool.properties"),
     TOOL_OPTIONS_VALIDATION_SKIPPED("BCE5403", "tool.options.validation.skipped"),
     RECURRING_TOOL_PROPERTIES("BCE5404", "recurring.tool.properties"),
+    BUILD_TOOL_NOT_FOUND("BCE5405", "build.tool.not.found"),
+
     MODULE_NOT_FOUND("BCE5100", "module.not.found"),
     UNSUPPORTED_COMPILER_PLUGIN_TYPE("BCE5200", "unsupported.compiler.plugin.type"),
     CONFLICTING_PLATFORM_JAR_FILES("BCE5300", "conflicting.platform.jars.type"),

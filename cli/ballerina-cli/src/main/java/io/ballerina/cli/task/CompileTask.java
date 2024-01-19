@@ -29,6 +29,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.ToolContext;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.PackageDiagnostic;
@@ -185,7 +186,11 @@ public class CompileTask implements Task {
                 diagnostics.addAll(project.currentPackage().manifest().diagnostics().diagnostics());
                 // add dependency manifest diagnostics
                 diagnostics.addAll(project.currentPackage().dependencyManifest().diagnostics().diagnostics());
-                diagnostics.forEach(d -> err.println(d.toString()));
+                diagnostics.forEach(d -> {
+                    if (!d.diagnosticInfo().code().startsWith("BCE54")) {
+                        err.println(d);
+                    }
+                });
                 throw createLauncherException("package resolution contains errors");
             }
 
@@ -205,14 +210,22 @@ public class CompileTask implements Task {
 
             // Report package compilation and backend diagnostics
             diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
+            diagnostics.forEach(d -> {
+                if (d.diagnosticInfo().code() == null || (!d.diagnosticInfo().code().equals(
+                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId()) &&
+                        !d.diagnosticInfo().code().startsWith("BCE54"))) {
+                    err.println(d);
+                }
+            });
+
+            //Report build tool execution diagnostics
+            for (ToolContext tool: project.currentPackage().toolContextMap().values()) {
+                diagnostics.addAll(tool.diagnostics());
+            }
             boolean hasErrors = false;
             for (Diagnostic d : diagnostics) {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
                     hasErrors = true;
-                }
-                if (d.diagnosticInfo().code() == null || !d.diagnosticInfo().code().equals(
-                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId())) {
-                    err.println(d);
                 }
             }
             if (hasErrors) {
