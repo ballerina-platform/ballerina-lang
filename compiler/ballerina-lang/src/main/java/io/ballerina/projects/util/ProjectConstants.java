@@ -134,4 +134,5 @@ public class ProjectConstants {
     public static final String CONFIG_DIR = ".config";
     public static final String PROFILER_DIR_NAME = "profiler";
     public static final String TOOL_CACHE_DIR = "tool-cache";
+    public static final String TOOL_DIAGNOSTIC_CODE_PREFIX = "BCE54";
 }

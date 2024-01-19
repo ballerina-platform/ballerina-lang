@@ -48,6 +48,7 @@ import java.util.Set;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_PREFIX;
 
 /**
  * Task for compiling a package.
@@ -187,7 +188,7 @@ public class CompileTask implements Task {
                 // add dependency manifest diagnostics
                 diagnostics.addAll(project.currentPackage().dependencyManifest().diagnostics().diagnostics());
                 diagnostics.forEach(d -> {
-                    if (!d.diagnosticInfo().code().startsWith("BCE54")) {
+                    if (!d.diagnosticInfo().code().startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX)) {
                         err.println(d);
                     }
                 });
@@ -213,7 +214,7 @@ public class CompileTask implements Task {
             diagnostics.forEach(d -> {
                 if (d.diagnosticInfo().code() == null || (!d.diagnosticInfo().code().equals(
                         ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId()) &&
-                        !d.diagnosticInfo().code().startsWith("BCE54"))) {
+                        !d.diagnosticInfo().code().startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX))) {
                     err.println(d);
                 }
             });
