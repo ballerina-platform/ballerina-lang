@@ -607,12 +607,13 @@ public class ManifestBuilder {
         return dependencies;
     }
 
+    // TODO: Fix code and messageFormat parameters in usages.
     private void reportDiagnostic(TopLevelNode tomlTableNode,
                                   String message,
                                   String messageFormat,
                                   DiagnosticSeverity severity) {
         DiagnosticInfo diagnosticInfo =
-                new DiagnosticInfo(null, messageFormat, severity);
+                new DiagnosticInfo(messageFormat, messageFormat, severity);
         TomlDiagnostic tomlDiagnostic = new TomlDiagnostic(
                 tomlTableNode.location(),
                 diagnosticInfo,
