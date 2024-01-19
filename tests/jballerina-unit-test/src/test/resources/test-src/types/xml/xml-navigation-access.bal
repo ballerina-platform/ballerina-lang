@@ -148,3 +148,32 @@ function testXMLNavigationDescendantsStepWithXMLSubtypeOnLHS() {
         }
         panic error("Assertion error, expected: `<baz>1</baz>`, found: " + s);
 }
+
+function testXMLNavigationWithEscapeCharacter() {
+    xmlns "foo" as ns;
+    xml x1 = xml `<person><name>John</name><home-address>some address</home-address></person>`;
+    xml x2 = xml `<ns:root><ns:child-node></ns:child-node></ns:root>`;
+
+    xml x3 = x1/<home\-address>;
+    assert(x3, xml `<home-address>some address</home-address>`);
+
+    xml x4 = x2/<ns:child\-node>;
+    assert(x4, xml `<ns:child-node xmlns:ns="foo"/>`);
+
+    xml x5 = x1/**/<person>/<home\-address>;
+    assert(x5, xml `<home-address>some address</home-address>`);
+
+    xml x6 = x1/**/<person>/<name|home\-address>;
+    assert(x6, xml `<name>John</name><home-address>some address</home-address>`);
+
+    xml x7 = x1/**/<person>/<name|home\-address>.<home\-address>;
+    assert(x7, xml `<home-address>some address</home-address>`);
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        string reason = "expected `" + expected.toString() + "`, but found `" + actual.toString() + "`";
+        error e = error(reason);
+        panic e;
+    }
+}

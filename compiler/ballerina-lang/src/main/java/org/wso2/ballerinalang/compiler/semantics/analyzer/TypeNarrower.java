@@ -345,8 +345,12 @@ public class TypeNarrower extends BLangNodeVisitor {
         var nonLoggingContext = Types.IntersectionContext.typeTestIntersectionCalculationContext();
         if (operator == OperatorKind.AND) {
             trueType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsTrueType, this.env);
-            BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsFalseType, this.env);
-            falseType = getTypeUnion(lhsFalseType, tmpType);
+            BType tmpType1 = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsFalseType, this.env);
+            BType tmpType2 = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsTrueType, this.env);
+            if (tmpType1.tag == TypeTags.SEMANTIC_ERROR) {
+                tmpType1 = tmpType2;
+            }
+            falseType = getTypeUnion(lhsFalseType, tmpType1);
         } else {
             BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsTrueType, this.env);
             trueType = lhsTypes.containsKey(symbol) ? getTypeUnion(lhsTrueType, tmpType) :
