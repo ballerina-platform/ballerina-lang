@@ -1203,8 +1203,7 @@ public class BuildCommandTest extends BaseCommandTest {
             String buildLog = readOutput(true);
             Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput(outputFile));
-            Assert.assertTrue(e.getDetailedMessages().get(0)
-                .equals(error));
+            Assert.assertEquals(error, e.getDetailedMessages().get(0));
 
         }
     }
@@ -1218,7 +1217,7 @@ public class BuildCommandTest extends BaseCommandTest {
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
-            getOutput("build-bal-project.txt"));
+            getOutput("build-bal-project-with-build-tool.txt"));
     }
 
     private String getNewVersionForOldDistWarning() {

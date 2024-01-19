@@ -217,11 +217,13 @@ public class CompileTask implements Task {
                     err.println(d);
                 }
             });
-
             //Report build tool execution diagnostics
-            for (ToolContext tool: project.currentPackage().toolContextMap().values()) {
-                diagnostics.addAll(tool.diagnostics());
+            if (project.currentPackage().toolContextMap() != null) {
+                for (ToolContext tool : project.currentPackage().toolContextMap().values()) {
+                    diagnostics.addAll(tool.diagnostics());
+                }
             }
+
             boolean hasErrors = false;
             for (Diagnostic d : diagnostics) {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {

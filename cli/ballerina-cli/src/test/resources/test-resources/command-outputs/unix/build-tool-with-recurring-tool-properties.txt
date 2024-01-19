@@ -1,4 +1,16 @@
-ERROR [Ballerina.toml:(6:1,10:24)] recurring target module 'delivery' found in Ballerina.toml. Target module must be unique for each tool
-ERROR [Ballerina.toml:(6:1,10:24)] recurring tool id 'generate-delivery-client' found in Ballerina.toml. Tool id must be unique for each tool
 WARNING [Ballerina.toml:(12:1,15:24)] missing key '[targetModule]' in table '[tool.openapi]'. Default module will be taken as target module.
+ERROR [Ballerina.toml:(12:1,15:24)] recurring tool id 'generate-delivery-client' found in Ballerina.toml. Tool id must be unique for each tool
+ERROR [Ballerina.toml:(17:1,20:26)] recurring target module found in Ballerina.toml. Target module must be unique for each tool
 WARNING [Ballerina.toml:(17:1,20:26)] tool options validation skipped due to: Schema file not found: grpc-options-schema.json
+Executing build tool 'openapi' for tool configurations 'generate-delivery-client'.
+
+ERROR [openAPI sample build tool:(1:1,1:1)] The provided filePath does not exist
+WARNING: Execution of Build tool 'openapi' for tool configurations 'generate-delivery-client' contains errors
+
+WARNING: Skipping execution of build tool 'openapi' as tool configurations in Ballerina.toml contains errors
+
+WARNING: Skipping validation of tool options for tool 'grpc' due to: No tool options found
+WARNING: Skipping execution of build tool 'grpc' as tool configurations in Ballerina.toml contains errors
+
+Compiling source
+	foo/winery:0.1.0
