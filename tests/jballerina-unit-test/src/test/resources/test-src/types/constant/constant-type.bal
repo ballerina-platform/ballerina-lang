@@ -370,6 +370,20 @@ function testConstByteArrLiteral() {
     assertEqual(data10[1], 187);
 }
 
+const BEFORE_TYPE_DEF_1 = 1;
+const int[BEFORE_TYPE_DEF_1] TYPE_DEF_1 = [1];
+const int[AFTER_TYPE_DEF_2] TYPE_DEF_2 = [1];
+const AFTER_TYPE_DEF_2 = 1;
+type Array int[AFTER_TYPE_DEF_3];
+const AFTER_TYPE_DEF_3 = 4;
+
+function testDefiningArrayTypesWithConstSizes() {
+    assertEqual(TYPE_DEF_1, [1]);
+    assertEqual(TYPE_DEF_2, [1]);
+    Array array = [1, 2, 3, 4];
+    assertEqual(array, [1, 2, 3, 4]);
+}
+
 function assertInvalidUpdateError(error? res, string expectedDetailMessage) {
     assertTrue(res is error);
     error err = <error> res;

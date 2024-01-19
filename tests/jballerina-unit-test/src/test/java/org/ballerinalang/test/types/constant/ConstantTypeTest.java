@@ -54,7 +54,8 @@ public class ConstantTypeTest {
            "testConstTypesInline",
            "testInvalidRuntimeUpdateOfConstMaps",
            "testResolvingConstValForConstantsOfUserDefinedTypes",
-           "testConstByteArrLiteral"
+           "testConstByteArrLiteral",
+           "testDefiningArrayTypesWithConstSizes"
         };
     }
 
