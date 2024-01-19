@@ -34,7 +34,16 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.io.Writer;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -69,7 +78,7 @@ public class BTestMain {
         int exitStatus = 0;
         int result;
 
-        if(args.length == 0) {
+        if(args.length == 0) { //running using the uber jar
             List<String> mainArgs = new ArrayList<>();
 
             try (InputStream in = BTestMain.class.getResourceAsStream(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE_DIR + ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
@@ -121,7 +130,7 @@ public class BTestMain {
             }
             Runtime.getRuntime().exit(exitStatus);
         }
-        else if (args.length >= 4) {
+        else if (args.length >= 4) { //running using the suite json
             Path targetPath = Paths.get(args[0]);
             Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
                     .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);

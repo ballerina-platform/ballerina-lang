@@ -68,16 +68,20 @@ import java.util.stream.Stream;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
+import static io.ballerina.cli.utils.TestUtils.addMockClasses;
+import static io.ballerina.cli.utils.TestUtils.addOtherNeededArgs;
 import static io.ballerina.cli.utils.TestUtils.cleanTempCache;
+import static io.ballerina.cli.utils.TestUtils.clearFailedTestsJson;
+import static io.ballerina.cli.utils.TestUtils.getInitialCmdArgs;
+import static io.ballerina.cli.utils.TestUtils.getJacocoAgentJarPath;
+import static io.ballerina.cli.utils.TestUtils.getResolvedModuleName;
 import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
+import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.FULLY_QULAIFIED_MODULENAME_SEPRATOR;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.STANDALONE_SRC_PACKAGENAME;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.WILDCARD;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.IGNORE_PATTERN;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.*;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
@@ -100,11 +104,17 @@ public class RunTestsTask implements Task {
     private boolean report;
     private boolean coverage;
     private String coverageReportFormat;
+
+    public boolean isRerunTestExecution() {
+        return isRerunTestExecution;
+    }
+
     private boolean isRerunTestExecution;
     private String singleExecTests;
     private Map<String, Module> coverageModules;
     private boolean listGroups;
     private final List<String> cliArgs;
+    private boolean emitTestExecutable;
 
     private final boolean isParallelExecution;
 
@@ -155,6 +165,7 @@ public class RunTestsTask implements Task {
 
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
+        emitTestExecutable = project.buildOptions().emitTestExecutable();
 
         if (report || coverage) {
             testReport = new TestReport();
@@ -177,17 +188,127 @@ public class RunTestsTask implements Task {
             throw createLauncherException("error while creating target directory: ", e);
         }
 
+        boolean hasTests = false;
+
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
-        TestProcessor testProcessor = new TestProcessor(jarResolver);
-        List<ModuleName> moduleNamesList = new ArrayList<>();
-        HashSet<String> exclusionClassList = new HashSet<>();
 
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
 
+        if (emitTestExecutable) {
+            HashSet<String> exclusionClassList = new HashSet<>();
+            List<ModuleName> moduleNamesList = new ArrayList<>();
+            runTestsUsingEmits(project, moduleNamesList, target, exclusionClassList, testsCachePath, jBallerinaBackend);
+        }
+        else {
+            runTestsUsingSuiteJSON(project, jarResolver, hasTests, target, testsCachePath, jBallerinaBackend, cachesRoot);
+        }
+
+
+        // Cleanup temp cache for SingleFileProject
+        cleanTempCache(project, cachesRoot);
+        if (project.buildOptions().dumpBuildTime()) {
+            BuildTime.getInstance().testingExecutionDuration = System.currentTimeMillis() - start;
+        }
+    }
+
+    private void runTestsUsingSuiteJSON(Project project, JarResolver jarResolver,
+                                        boolean hasTests, Target target, Path testsCachePath,
+                                        JBallerinaBackend jBallerinaBackend, Path cachesRoot) {
+        TestProcessor testProcessor = new TestProcessor(jarResolver);
+        List<String> moduleNamesList = new ArrayList<>();
+        Map<String, TestSuite> testSuiteMap = new HashMap<>();
+        List<String> updatedSingleExecTests;
+        List<String> mockClassNames = new ArrayList<>();
+
+        hasTests = createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap,
+                moduleNamesList, mockClassNames, this.isRerunTestExecution, this.report, this.coverage);
+
+        writeToTestSuiteJson(testSuiteMap, testsCachePath);
+
+        if (hasTests) {
+            int testResult;
+            try {
+                Set<String> exclusionClassList = new HashSet<>();
+                testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames,
+                        exclusionClassList);
+
+                if (report || coverage) {
+                    for (String moduleName : moduleNamesList) {
+                        ModuleStatus moduleStatus = loadModuleStatusFromFile(
+                                testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+                        if (moduleStatus == null) {
+                            continue;
+                        }
+
+                        if (!moduleName.equals(project.currentPackage().packageName().toString())) {
+                            moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
+                        }
+                        testReport.addModuleStatus(moduleName, moduleStatus);
+                    }
+                    try {
+                        generateCoverage(project, testReport, jBallerinaBackend, this.includesInCoverage,
+                                this.coverageReportFormat, this.coverageModules, exclusionClassList);
+                        generateTesterinaReports(project, testReport, this.out, target);
+                    } catch (IOException e) {
+                        cleanTempCache(project, cachesRoot);
+                        throw createLauncherException("error occurred while generating test report :", e);
+                    }
+                }
+            } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                cleanTempCache(project, cachesRoot);
+                throw createLauncherException("error occurred while running tests", e);
+            }
+
+            if (testResult != 0) {
+                cleanTempCache(project, cachesRoot);
+                throw createLauncherException("there are test failures");
+            }
+        } else {
+            out.println("\tNo tests found");
+        }
+    }
+
+    public static boolean createTestSuiteIfHasTests(Project project, Target target,
+                                              TestProcessor testProcessor, Map<String, TestSuite> testSuiteMap,
+                                              List<String> moduleNamesList, List<String> mockClassNames,
+                                              boolean isRerunTestExecution, boolean report, boolean coverage) {
+        boolean hasTests = false;
+        for (ModuleDescriptor moduleDescriptor :
+                project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+            Module module = project.currentPackage().module(moduleDescriptor.name());
+            ModuleName moduleName = module.moduleName();
+
+            TestSuite suite = testProcessor.testSuite(module).orElse(null);
+            if (suite == null) {
+                continue;
+            }
+
+            if(!hasTests) {
+                hasTests = true;
+            }
+
+            if (!isRerunTestExecution) {
+                clearFailedTestsJson(target.path());
+            }
+            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                suite.setSourceFileName(project.sourceRoot().getFileName().toString());
+            }
+            suite.setReportRequired(report || coverage);
+            String resolvedModuleName =
+                    getResolvedModuleName(module, moduleName);
+            testSuiteMap.put(resolvedModuleName, suite);
+            moduleNamesList.add(resolvedModuleName);
+
+            addMockClasses(suite, mockClassNames);
+        }
+        return hasTests;
+    }
+
+    private void runTestsUsingEmits(Project project, List<ModuleName> moduleNamesList, Target target, HashSet<String> exclusionClassList, Path testsCachePath, JBallerinaBackend jBallerinaBackend) {
         for (ModuleDescriptor moduleDescriptor :
                 project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
             int testResult = 0;
@@ -243,12 +364,6 @@ public class RunTestsTask implements Task {
                 throw createLauncherException("error occurred while generating test report :", e);
             }
         }
-
-        // Cleanup temp cache for SingleFileProject
-        cleanTempCache(project, cachesRoot);
-        if (project.buildOptions().dumpBuildTime()) {
-            BuildTime.getInstance().testingExecutionDuration = System.currentTimeMillis() - start;
-        }
     }
 
     private int runTestModule(Path testExecutablePath, Target target, Package currentPackage,
@@ -256,7 +371,7 @@ public class RunTestsTask implements Task {
                               String packageName, String orgName)
             throws IOException, InterruptedException, ClassNotFoundException {
 
-        List<String> cmdArgs = getInitialCmdArgs();
+        List<String> cmdArgs = getInitialCmdArgs(null, null);
 
         if (coverage) {
             String agentCommand = getAgentCommand(target, currentPackage, exclusionClassList,
@@ -285,10 +400,7 @@ public class RunTestsTask implements Task {
         String packageName = currentPackage.packageName().toString();
         String orgName = currentPackage.packageOrg().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
-        List<String> cmdArgs = new ArrayList<>();
-        cmdArgs.add(System.getProperty("java.command"));
-        cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
-        cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
+        List<String> cmdArgs = getInitialCmdArgs(null, null);
 
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
         String jacocoAgentJarPath = getJacocoAgentJarPath();
@@ -316,15 +428,9 @@ public class RunTestsTask implements Task {
         // Adds arguments to be read at the Test Runner
         cmdArgs.add(target.path().toString());
         cmdArgs.add(jacocoAgentJarPath);
-        cmdArgs.add(Boolean.toString(report));
-        cmdArgs.add(Boolean.toString(coverage));
-        cmdArgs.add(this.groupList != null ? this.groupList : "");
-        cmdArgs.add(this.disableGroupList != null ? this.disableGroupList : "");
-        cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
-        cmdArgs.add(Boolean.toString(isRerunTestExecution));
-        cmdArgs.add(Boolean.toString(listGroups));
-        cmdArgs.add(Boolean.toString(isParallelExecution));
-        cmdArgs.addAll(cliArgs);
+
+        addOtherNeededArgs(cmdArgs, this.report, this.coverage, this.groupList, this.disableGroupList,
+                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
@@ -355,20 +461,6 @@ public class RunTestsTask implements Task {
         return agentCommand;
     }
 
-    private String getJacocoAgentJarPath() {
-        return Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
-    }
-
-    private List<String> getInitialCmdArgs() {
-        List<String> cmdArgs = new ArrayList<>();
-        cmdArgs.add(System.getProperty("java.command"));
-        cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
-        cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
-
-        return cmdArgs;
-    }
-
     private List<String> getTestRunnerCmdArgs(Target target, String packageName, String moduleName) {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(getJacocoAgentJarPath());
@@ -376,16 +468,8 @@ public class RunTestsTask implements Task {
         cmdArgs.add(target.path().toString());
         cmdArgs.add(packageName);
         cmdArgs.add(moduleName);
-        cmdArgs.add(Boolean.toString(report));
-        cmdArgs.add(Boolean.toString(coverage));
-        cmdArgs.add(this.groupList != null ? this.groupList : "");
-        cmdArgs.add(this.disableGroupList != null ? this.disableGroupList : "");
-        cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
-        cmdArgs.add(Boolean.toString(isRerunTestExecution));
-        cmdArgs.add(Boolean.toString(listGroups));
-        cliArgs.forEach((arg) -> {
-            cmdArgs.add(arg);
-        });
+        addOtherNeededArgs(cmdArgs, this.report, this.coverage, this.groupList, this.disableGroupList,
+                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs);
         return cmdArgs;
     }
 

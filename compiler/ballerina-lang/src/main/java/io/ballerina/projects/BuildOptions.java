@@ -203,6 +203,11 @@ public class BuildOptions {
         } else {
             buildOptionsBuilder.setShowDependencyDiagnostics(this.showDependencyDiagnostics);
         }
+        if(theirOptions.emitTestExecutable != null) {
+            buildOptionsBuilder.setEmitTestExecutable(theirOptions.emitTestExecutable);
+        } else {
+            buildOptionsBuilder.setEmitTestExecutable(this.emitTestExecutable);
+        }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
         buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
