@@ -1989,11 +1989,9 @@ public class TypeResolver {
         if (xmlnsNode.namespaceURI.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) xmlnsNode.namespaceURI;
             BLangNode node = modTable.get(varRef.variableName.value);
-            if (node != null && node.getKind() == NodeKind.CONSTANT) {
-                if (!resolvedConstants.contains((BLangConstant) node)) {
-
-                    resolveConstant(symEnv, modTable, (BLangConstant) node);
-                }
+            if (node != null && node.getKind() == NodeKind.CONSTANT &&
+                    !resolvedConstants.contains((BLangConstant) node)) {
+                resolveConstant(symEnv, modTable, (BLangConstant) node);
             }
         }
         symEnter.defineXMLNS(symEnv, xmlnsNode);
