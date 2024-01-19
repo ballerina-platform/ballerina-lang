@@ -85,7 +85,6 @@ import io.ballerina.runtime.internal.values.XmlValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -151,14 +150,7 @@ public class TypeChecker {
 
         List<String> errors = new ArrayList<>();
         Type sourceType = getImpliedType(getType(sourceVal));
-        TypeCheckMemoKey memoKey = new TypeCheckMemoKey(sourceType, targetType);
-        // FIXME: think about thread safety (maybe double synchronize) here
-        // We don't need to synchronize this as long as we don't care about the actual value being stored in the map
-        if (typeCheckMemo.containsKey(memoKey)) {
-            return sourceVal;
-        }
         if (checkIsType(errors, sourceVal, sourceType, targetType)) {
-            typeCheckMemo.put(memoKey, true);
             return sourceVal;
         }
 
@@ -307,11 +299,20 @@ public class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
-        if (checkIsType(sourceVal, sourceType, targetType, null)) {
-            return true;
+        TypeCheckMemoKey key = new TypeCheckMemoKey(sourceType, targetType);
+        Boolean result = typeCheckMemo.get(key);
+        if (result != null) {
+            return result;
         }
-
-        return checkIsTypeFinalize(errors, sourceVal, sourceType, targetType);
+        result = checkIsType(sourceVal, sourceType, targetType, null) ||
+                checkIsTypeFinalize(errors, sourceVal, sourceType, targetType);
+//        if (result != null && result != actual) {
+//            throw new RuntimeException("unexpected");
+//        } else {
+//
+        typeCheckMemo.put(key, result);
+//        }
+        return result;
     }
 
     private static boolean checkIsTypeFinalize(List<String> errors, Object sourceVal, Type sourceType,
@@ -575,7 +576,19 @@ public class TypeChecker {
      * @return flag indicating the the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
-        return checkIsType(sourceType, targetType, (List<TypePair>) null);
+        TypeCheckMemoKey key = new TypeCheckMemoKey(sourceType, targetType);
+        Boolean result = typeCheckMemo.get(key);
+        if (result != null) {
+            return result;
+        }
+        result = checkIsType(sourceType, targetType, (List<TypePair>) null);
+//        if (result != null && result != actual) {
+//            throw new RuntimeException("unexpected");
+//        } else {
+
+        typeCheckMemo.put(key, result);
+//        }
+        return result;
     }
 
     @Deprecated
@@ -3688,7 +3701,7 @@ public class TypeChecker {
     }
 
     // FIXME:
-    private static class TypeCheckMemoTable<V> implements Map<TypeCheckMemoKey, V> {
+    private static class TypeCheckMemoTable<V> {
 
         private static final int CACHE_SIZE = 100;
         private final Map<TypeCheckMemoKey, V> cache;
@@ -3703,32 +3716,10 @@ public class TypeChecker {
             };
         }
 
-        @Override
-        public int size() {
-            return cache.size();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return cache.isEmpty();
-        }
-
-        @Override
-        public boolean containsKey(Object key) {
-            return cache.containsKey(key);
-        }
-
-        @Override
-        public boolean containsValue(Object value) {
-            return cache.containsValue(value);
-        }
-
-        @Override
-        public V get(Object key) {
+        public V get(TypeCheckMemoKey key) {
             return cache.get(key);
         }
 
-        @Override
         public V put(TypeCheckMemoKey key, V value) {
             // FIXME:
             if (key.sourceType().isReadOnly() || key.destinationType().isReadOnly()) {
@@ -3737,60 +3728,29 @@ public class TypeChecker {
             return cache.put(key, value);
         }
 
-        @Override
-        public V remove(Object key) {
-            return cache.remove(key);
-        }
-
-        @Override
-        public void putAll(Map<? extends TypeCheckMemoKey, ? extends V> m) {
-            cache.putAll(m);
-        }
-
-        @Override
-        public void clear() {
-            cache.clear();
-        }
-
-        @Override
-        public Set<TypeCheckMemoKey> keySet() {
-            return cache.keySet();
-        }
-
-        @Override
-        public Collection<V> values() {
-            return cache.values();
-        }
-
-        @Override
-        public Set<Entry<TypeCheckMemoKey, V>> entrySet() {
-            return cache.entrySet();
-        }
     }
 
     /**
      * @param sourceType TODO: better field names
      */
     private record TypeCheckMemoKey(Type sourceType, Type destinationType) {
-
-        // TODO: do something better
         @Override
-        public int hashCode() {
-            return sourceType.hashCode() | destinationType.hashCode();
+        public String toString() {
+            return sourceType.toString() + ":" + destinationType.toString();
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof TypeCheckMemoKey other)) {
+            if (!(obj instanceof TypeCheckMemoKey)) {
                 return false;
             }
-            // We are not trying to do type checking here just checking if the same object
-            return this.sourceType == other.sourceType && this.destinationType == other.destinationType;
+            TypeCheckMemoKey other = (TypeCheckMemoKey) obj;
+            return sourceType == other.sourceType && destinationType == other.destinationType;
         }
 
         @Override
-        public String toString() {
-            return sourceType.toString() + ":" + destinationType.toString();
+        public int hashCode() {
+            return sourceType.hashCode() | destinationType.hashCode();
         }
     }
 }
