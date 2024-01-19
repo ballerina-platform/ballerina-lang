@@ -68,16 +68,11 @@ import java.util.stream.Stream;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
-import static io.ballerina.cli.utils.TestUtils.cleanTempCache;
-import static io.ballerina.cli.utils.TestUtils.generateCoverage;
-import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
-import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
+import static io.ballerina.cli.utils.TestUtils.*;
+import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.FULLY_QULAIFIED_MODULENAME_SEPRATOR;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.STANDALONE_SRC_PACKAGENAME;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.WILDCARD;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.IGNORE_PATTERN;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.*;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
@@ -105,6 +100,7 @@ public class RunTestsTask implements Task {
     private Map<String, Module> coverageModules;
     private boolean listGroups;
     private final List<String> cliArgs;
+    private boolean emitTestExecutable;
 
     private final boolean isParallelExecution;
 
@@ -155,6 +151,7 @@ public class RunTestsTask implements Task {
 
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
+        emitTestExecutable = project.buildOptions().emitTestExecutable();
 
         if (report || coverage) {
             testReport = new TestReport();
@@ -177,17 +174,133 @@ public class RunTestsTask implements Task {
             throw createLauncherException("error while creating target directory: ", e);
         }
 
+        boolean hasTests = false;
+
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
-        TestProcessor testProcessor = new TestProcessor(jarResolver);
-        List<ModuleName> moduleNamesList = new ArrayList<>();
-        HashSet<String> exclusionClassList = new HashSet<>();
 
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
 
+        if (emitTestExecutable) {
+            HashSet<String> exclusionClassList = new HashSet<>();
+            List<ModuleName> moduleNamesList = new ArrayList<>();
+            runTestsUsingEmits(project, moduleNamesList, target, exclusionClassList, testsCachePath, jBallerinaBackend);
+        }
+        else {
+            runTestsUsingSuiteJSON(project, jarResolver, hasTests, target, testsCachePath, jBallerinaBackend, cachesRoot);
+        }
+
+
+        // Cleanup temp cache for SingleFileProject
+        cleanTempCache(project, cachesRoot);
+        if (project.buildOptions().dumpBuildTime()) {
+            BuildTime.getInstance().testingExecutionDuration = System.currentTimeMillis() - start;
+        }
+    }
+
+    private void runTestsUsingSuiteJSON(Project project, JarResolver jarResolver, boolean hasTests, Target target, Path testsCachePath, JBallerinaBackend jBallerinaBackend, Path cachesRoot) {
+        TestProcessor testProcessor = new TestProcessor(jarResolver);
+        List<String> moduleNamesList = new ArrayList<>();
+        Map<String, TestSuite> testSuiteMap = new HashMap<>();
+        List<String> updatedSingleExecTests;
+        List<String> mockClassNames = new ArrayList<>();
+
+        for (ModuleDescriptor moduleDescriptor :
+                project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+            Module module = project.currentPackage().module(moduleDescriptor.name());
+            ModuleName moduleName = module.moduleName();
+
+            TestSuite suite = testProcessor.testSuite(module).orElse(null);
+            if (suite == null) {
+                continue;
+            }
+
+            //Set 'hasTests' flag if there are any tests available in the package
+            if (!hasTests) {
+                hasTests = true;
+            }
+
+            if (!isRerunTestExecution) {
+                clearFailedTestsJson(target.path());
+            }
+            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                suite.setSourceFileName(project.sourceRoot().getFileName().toString());
+            }
+            suite.setReportRequired(report || coverage);
+            String resolvedModuleName =
+                    module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
+            testSuiteMap.put(resolvedModuleName, suite);
+            moduleNamesList.add(resolvedModuleName);
+            Map<String, String> mockFunctionMap = suite.getMockFunctionNamesMap();
+            for (Map.Entry<String, String> entry : mockFunctionMap.entrySet()) {
+                String key = entry.getKey();
+                String functionToMockClassName;
+                // Find the first delimiter and compare the indexes
+                // The first index should always be a delimiter. Which ever one that is denotes the mocking type
+                if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                } else {
+                    if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
+                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                    } else {
+                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                    }
+                }
+                mockClassNames.add(functionToMockClassName);
+            }
+        }
+
+        writeToTestSuiteJson(testSuiteMap, testsCachePath);
+
+        if (hasTests) {
+            int testResult;
+            try {
+                Set<String> exclusionClassList = new HashSet<>();
+                testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames,
+                        exclusionClassList);
+
+                if (report || coverage) {
+                    for (String moduleName : moduleNamesList) {
+                        ModuleStatus moduleStatus = loadModuleStatusFromFile(
+                                testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+                        if (moduleStatus == null) {
+                            continue;
+                        }
+
+                        if (!moduleName.equals(project.currentPackage().packageName().toString())) {
+                            moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
+                        }
+                        testReport.addModuleStatus(moduleName, moduleStatus);
+                    }
+                    try {
+                        generateCoverage(project, testReport, jBallerinaBackend, this.includesInCoverage,
+                                this.coverageReportFormat, this.coverageModules, exclusionClassList);
+                        generateTesterinaReports(project, testReport, this.out, target);
+                    } catch (IOException e) {
+                        cleanTempCache(project, cachesRoot);
+                        throw createLauncherException("error occurred while generating test report :", e);
+                    }
+                }
+            } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                cleanTempCache(project, cachesRoot);
+                throw createLauncherException("error occurred while running tests", e);
+            }
+
+            if (testResult != 0) {
+                cleanTempCache(project, cachesRoot);
+                throw createLauncherException("there are test failures");
+            }
+        } else {
+            out.println("\tNo tests found");
+        }
+    }
+
+    private void runTestsUsingEmits(Project project, List<ModuleName> moduleNamesList, Target target, HashSet<String> exclusionClassList, Path testsCachePath, JBallerinaBackend jBallerinaBackend) {
         for (ModuleDescriptor moduleDescriptor :
                 project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
             int testResult = 0;
@@ -242,12 +355,6 @@ public class RunTestsTask implements Task {
             } catch (IOException e) {
                 throw createLauncherException("error occurred while generating test report :", e);
             }
-        }
-
-        // Cleanup temp cache for SingleFileProject
-        cleanTempCache(project, cachesRoot);
-        if (project.buildOptions().dumpBuildTime()) {
-            BuildTime.getInstance().testingExecutionDuration = System.currentTimeMillis() - start;
         }
     }
 
