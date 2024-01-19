@@ -1220,6 +1220,18 @@ public class BuildCommandTest extends BaseCommandTest {
             getOutput("build-bal-project-with-build-tool.txt"));
     }
 
+    @Test(description = "Build a project with a build tool not found")
+    public void testBuildProjectWithBuildToolNotFound() throws IOException {
+        Path projectPath = this.testResources.resolve("build-tool-not-found");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-bal-project-with-build-tool-not-found.txt"));
+    }
+
     private String getNewVersionForOldDistWarning() {
         SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
         String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
