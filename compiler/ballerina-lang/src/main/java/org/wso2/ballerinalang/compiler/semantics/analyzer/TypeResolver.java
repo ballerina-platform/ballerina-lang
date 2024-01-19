@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -213,10 +214,13 @@ public class TypeResolver {
     public void defineBTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
         this.pkgEnv = pkgEnv;
         typePrecedence = 0;
-        for (BLangNode typeAndClassDef : moduleDefs) {
-            String typeOrClassName = symEnter.getTypeOrClassName(typeAndClassDef);
+        for (BLangNode moduleDef : moduleDefs) {
+            if (moduleDef.getKind() == NodeKind.XMLNS) {
+                continue;
+            }
+            String typeOrClassName = symEnter.getTypeOrClassName(moduleDef);
             if (!modTable.containsKey(typeOrClassName)) {
-                modTable.put(typeOrClassName, typeAndClassDef);
+                modTable.put(typeOrClassName, moduleDef);
             }
         }
 
@@ -229,6 +233,8 @@ public class TypeResolver {
                 updateEffectiveTypeOfCyclicIntersectionTypes(pkgEnv);
             } else if (def.getKind() == NodeKind.CONSTANT) {
                 resolveConstant(pkgEnv, modTable, (BLangConstant) def);
+            } else if (def.getKind() == NodeKind.XMLNS) {
+                resolveXMLNS(pkgEnv, modTable, (BLangXMLNS) def);
             } else {
                 BLangTypeDefinition typeDefinition = (BLangTypeDefinition) def;
                 intersectionTypeList = new HashMap<>();
@@ -1977,6 +1983,20 @@ public class TypeResolver {
         resolvingConstants.remove(constant);
         resolvedConstants.add(constant);
         checkUniqueness(constant);
+    }
+
+    public void resolveXMLNS(SymbolEnv symEnv, Map<String, BLangNode> modTable, BLangXMLNS xmlnsNode) {
+        if (xmlnsNode.namespaceURI.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) xmlnsNode.namespaceURI;
+            BLangNode node = modTable.get(varRef.variableName.value);
+            if (node != null && node.getKind() == NodeKind.CONSTANT) {
+                if (!resolvedConstants.contains((BLangConstant) node)) {
+
+                    resolveConstant(symEnv, modTable, (BLangConstant) node);
+                }
+            }
+        }
+        symEnter.defineXMLNS(symEnv, xmlnsNode);
     }
 
     private void checkUniqueness(BLangConstant constant) {

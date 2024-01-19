@@ -423,6 +423,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BLangNode> typeAndClassDefs = new ArrayList<>();
         pkgNode.constants.forEach(constant -> typeAndClassDefs.add(constant));
         pkgNode.typeDefinitions.forEach(typDef -> typeAndClassDefs.add(typDef));
+        pkgNode.xmlnsList.forEach(xmlns -> typeAndClassDefs.add(xmlns));
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
 
@@ -1166,6 +1167,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
+        defineXMLNS(env, xmlnsNode);
+    }
+
+    public void defineXMLNS(SymbolEnv symEnv, BLangXMLNS xmlnsNode) {
         String nsURI = "";
         if (xmlnsNode.namespaceURI.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) xmlnsNode.namespaceURI;
@@ -1185,14 +1190,15 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         Name prefix = names.fromIdNode(xmlnsNode.prefix);
         Location nsSymbolPos = prefix.value.isEmpty() ? xmlnsNode.pos : xmlnsNode.prefix.pos;
-        BXMLNSSymbol xmlnsSymbol = Symbols.createXMLNSSymbol(prefix, nsURI, env.enclPkg.symbol.pkgID, env.scope.owner,
-                                                             nsSymbolPos, getOrigin(prefix));
+        BXMLNSSymbol xmlnsSymbol =
+                Symbols.createXMLNSSymbol(prefix, nsURI, symEnv.enclPkg.symbol.pkgID, symEnv.scope.owner,
+                        nsSymbolPos, getOrigin(prefix));
         xmlnsNode.symbol = xmlnsSymbol;
 
         // First check for package-imports with the same alias.
         // Here we do not check for owner equality, since package import is always at the package
         // level, but the namespace declaration can be at any level.
-        BSymbol foundSym = symResolver.lookupSymbolInPrefixSpace(env, xmlnsSymbol.name);
+        BSymbol foundSym = symResolver.lookupSymbolInPrefixSpace(symEnv, xmlnsSymbol.name);
         if ((foundSym.tag & SymTag.PACKAGE) != SymTag.PACKAGE) {
             foundSym = symTable.notFoundSymbol;
         }
@@ -1546,7 +1552,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public String getTypeOrClassName(BLangNode node) {
         if (node.getKind() == NodeKind.TYPE_DEFINITION || node.getKind() == NodeKind.CONSTANT) {
             return ((TypeDefinition) node).getName().getValue();
-        } else  {
+        } else {
             return ((BLangClassDefinition) node).getName().getValue();
         }
     }
