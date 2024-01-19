@@ -384,7 +384,7 @@ isolated function skipDataDrivenTest(TestFunction testFunction, string suffix, T
     }
 
     // check if no filterSubTests found for a given prefix
-    boolean suffixMatch = testOptions.isFilterSubTestsContains(functionKey);
+    boolean suffixMatch = !testOptions.isFilterSubTestsContains(functionKey);
 
     // if a subtest is found specified
     if (!suffixMatch) {
