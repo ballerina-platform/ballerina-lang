@@ -110,7 +110,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                         "' as tool configurations in Ballerina.toml contains errors\n");
             }
         }
-        project.currentPackage().setPackageContextTools(toolContextMap);
+        project.setToolContextMap(toolContextMap);
     }
 
     private CodeGeneratorTool getTargetTool(String commandName, ServiceLoader<CodeGeneratorTool> buildRunners) {
