@@ -52,7 +52,7 @@ class PackageContext {
 
     private final CompilationOptions compilationOptions;
     private ModuleContext defaultModuleContext;
-    private Map<String, ToolContext> toolContextMap;
+
     /**
      * This variable holds the dependency graph cached in a project.
      * At the moment, we cache the dependency graph in a bala file.
@@ -179,10 +179,6 @@ class PackageContext {
 
     Collection<ModuleId> moduleIds() {
         return moduleIds;
-    }
-
-    Map<String, ToolContext> toolContextMap() {
-        return toolContextMap;
     }
 
     ModuleContext moduleContext(ModuleId moduleId) {
@@ -318,9 +314,5 @@ class PackageContext {
                 this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
                 this.cloudTomlContext, this.compilerPluginTomlContext, this.balToolTomlContext, this.packageMdContext,
                 this.compilationOptions, duplicatedModuleContextMap, this.pkgDescDependencyGraph);
-    }
-
-    void setToolContextMap(Map<String, ToolContext> toolContextMap) {
-        this.toolContextMap = toolContextMap;
     }
 }

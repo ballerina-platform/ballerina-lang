@@ -158,10 +158,6 @@ public class Package {
         return this.packageContext.getResolution(compilationOptions);
     }
 
-    public void setPackageContextTools(Map<String, ToolContext> toolContextMap) {
-        this.packageContext.setToolContextMap(toolContextMap);
-    }
-
     public DependencyGraph<ModuleDescriptor> moduleDependencyGraph() {
         // Each Package should know the packages that it depends on and packages that depends on it
         // Each Module should know the modules that it depends on and modules that depends on it
@@ -174,15 +170,6 @@ public class Package {
 
     public CompilationOptions compilationOptions() {
         return packageContext.compilationOptions();
-    }
-
-    /**
-     * returns a map of build tools.
-     *
-     * @return map of {@code ToolContext}
-     */
-    public Map<String, ToolContext> toolContextMap() {
-        return packageContext.toolContextMap();
     }
 
     public Optional<BallerinaToml> ballerinaToml() {
