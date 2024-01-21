@@ -46,3 +46,16 @@ function tupleDestructureTest4() returns [int, int] {
     [a, b] = x;
     return [a, b];
 }
+
+function tupleDestructureTest5() returns [int, int] {
+    int a;
+    int b;
+    int c;
+    int d;
+    int[] e;
+
+    [{a, b}] = [{a: 1, b: 2}];
+    [a, [b, {c, d}]] = [1, [2, {c: 3, d: 4}]];
+    [a, [b, {c, d}], ...e] = [1, [2, {c: 3, d: 4}], 5, 6, 7, 8];
+    [a, b, {c, d}, ...e] = [1, ...[2], {c: 3, d: 4}, 5, 6, 7];
+}
