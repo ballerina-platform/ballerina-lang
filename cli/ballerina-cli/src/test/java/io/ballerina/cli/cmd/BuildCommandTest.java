@@ -1226,10 +1226,15 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
-        String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-bal-project-with-build-tool-not-found.txt"));
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                    getOutput("build-bal-project-with-build-tool-not-found.txt"));
+            Assert.assertEquals("error: compilation contains errors", e.getDetailedMessages().get(0));
+
+        }
     }
 
     private String getNewVersionForOldDistWarning() {
