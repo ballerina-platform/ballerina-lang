@@ -103,9 +103,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     public MapValueImpl(TypedescValue typedesc) {
         this(typedesc.getDescribingType());
-        if (!type.isReadOnly()) {
-            this.typedesc = typedesc;
-        }
+        this.typedesc = typedesc;
     }
 
     public MapValueImpl(Type type) {
