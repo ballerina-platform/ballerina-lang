@@ -847,17 +847,30 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void createTypedescVariableDef(BLangType typeNode) {
-        Name name = new Name(TYPEDESC + typedescCount++);
-        Location pos = typeNode.pos;
-        BType type = typeNode.getBType();
-        BType typedescType = new BTypedescType(type, symTable.typeDesc.tsymbol);
-        BSymbol owner = this.env.scope.owner;
-        BVarSymbol varSymbol  = new BVarSymbol(0, name, owner.pkgID, typedescType, owner, pos, VIRTUAL);
-        BLangTypedescExpr typedescExpr = ASTBuilderUtil.createTypedescExpr(pos, typedescType, type);
+        BType targetType = typeNode.getBType();
+        Name variableName = generateTypedescVariableName(targetType);
+        Location position = typeNode.pos;
+
+        BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
+        BSymbol ownerSymbol = this.env.scope.owner;
+        BVarSymbol typedescVarSymbol = new BVarSymbol(0, variableName, ownerSymbol.pkgID, typedescType,
+                                                      ownerSymbol, position, VIRTUAL);
+
+        BLangTypedescExpr typedescExpr = ASTBuilderUtil.createTypedescExpr(position, typedescType, targetType);
         typedescExpr.typeNode = typeNode;
-        BLangSimpleVariableDef simpleVariableDef = createSimpleVariableDef(pos, name.value, typedescType, typedescExpr,
-                                                                           varSymbol);
-        typedescList.add(simpleVariableDef);
+
+        BLangSimpleVariableDef variableDef = createSimpleVariableDef(position, variableName.value, typedescType,
+                                                                     typedescExpr, typedescVarSymbol);
+
+        typedescList.add(variableDef);
+    }
+
+    private Name generateTypedescVariableName(BType targetType) {
+        if (targetType.tsymbol.name.value.isEmpty()) {
+            return new Name(TYPEDESC + typedescCount++);
+        } else {
+            return new Name(TYPEDESC + targetType.tsymbol.name.value);
+        }
     }
 
     private BLangSimpleVariableDef createSimpleVariableDef(Location pos, String name, BType type, BLangExpression expr,
@@ -8606,12 +8619,15 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangQueryExpr queryExpr) {
         boolean prevIsVisitingQuery = this.isVisitingQuery;
         boolean prevDesugarToReturn = this.desugarToReturn;
+        List<BLangSimpleVariableDef> prevTypedescList = this.typedescList;
         this.isVisitingQuery = true;
         this.desugarToReturn = true;
+        this.typedescList = new ArrayList<>();
         BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env, getVisibleXMLNSStmts(env));
         result = rewrite(stmtExpr, env);
         this.isVisitingQuery = prevIsVisitingQuery;
         this.desugarToReturn = prevDesugarToReturn;
+        this.typedescList = prevTypedescList;
     }
 
     List<BLangStatement> getVisibleXMLNSStmts(SymbolEnv env) {
