@@ -234,7 +234,9 @@ public class JvmTypeGen {
             }
             String name = typeDef.internalName.value;
             generateTypeField(cw, name);
-            generateTypedescField(cw, name);
+            if (bTypeTag != TypeTags.RECORD && bTypeTag != TypeTags.TUPLE) {
+                generateTypedescField(cw, name);
+            }
         }
     }
 
@@ -895,7 +897,7 @@ public class JvmTypeGen {
     }
 
     public String getTypedescFieldName(String name) {
-        return "$typedesce$" + name;
+        return "$typedesc$" + name;
     }
 
     private void loadFutureType(MethodVisitor mv, BFutureType bType) {
