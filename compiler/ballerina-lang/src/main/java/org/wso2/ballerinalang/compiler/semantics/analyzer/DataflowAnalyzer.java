@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -1113,6 +1114,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 expr = ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expr).expr;
             }
             analyzeNode(expr, env);
+        }
+        BType type = Types.getImpliedType(listConstructorExpr.getBType());
+        if (type.tag == TypeTags.TUPLE) {
+            analyzeTupleMembers((BTupleType) type);
+        }
+    }
+
+    void analyzeTupleMembers(BTupleType tupleType) {
+        for (BType member : tupleType.getTupleTypes()) {
+            BType impliedType = Types.getImpliedType(member);
+            if (impliedType.tag == TypeTags.RECORD) {
+                recordGlobalVariableReferenceRelationship(impliedType.tsymbol);
+            } else if (impliedType.tag == TypeTags.TUPLE) {
+                analyzeTupleMembers((BTupleType) impliedType);
+            }
         }
     }
 
@@ -2456,6 +2472,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         for (BLangRecordVariable.BLangRecordVariableKeyValue recordVariableKeyValue :
                                                                                 bLangRecordVariable.variableList) {
             symbolOwner.put(recordVariableKeyValue.valueBindingPattern.symbol, bLangRecordVariable.symbol);
+        }
+        if (bLangRecordVariable.restParam != null) {
+            BLangVariable restParam = bLangRecordVariable.restParam;
+            symbolOwner.put(restParam.symbol, bLangRecordVariable.symbol);
+            recordGlobalVariableReferenceRelationship(Types.getImpliedType(restParam.getBType()).tsymbol);
         }
         analyzeNode(bLangRecordVariable.expr, env);
         this.currDependentSymbolDeque.pop();
