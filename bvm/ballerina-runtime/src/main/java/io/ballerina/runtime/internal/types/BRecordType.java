@@ -129,7 +129,7 @@ public class BRecordType extends BStructureType implements RecordType {
             return (V) ValueCreator.createReadonlyRecordValue(this.pkg, typeName, new HashMap<>());
         }
         BMap<BString, Object> recordValue = ValueCreator.createRecordValue(this.pkg, typeName);
-        ValueUtils.populateDefaultValues(recordValue, this, new HashSet<>());
+        ValueUtils.populateDefaultValues(recordValue, new HashSet<>());
         if (defaultValues.isEmpty()) {
             return (V) recordValue;
         }

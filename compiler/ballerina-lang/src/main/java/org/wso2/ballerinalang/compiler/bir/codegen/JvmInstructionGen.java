@@ -246,7 +246,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_DEFA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_ON_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TWO_OBJECTS_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_ADD_CHILDREN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_CHILDREN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_CHILDREN_FROM_STRING;
@@ -630,7 +629,8 @@ public class JvmInstructionGen {
             BType elementType = JvmCodeGenUtil.getImpliedType(((BArrayType) instType).eType);
             if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
                     ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
-                visitNewRecordArray(elementType);
+                this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
+                                        INIT_ARRAY_WITH_INITIAL_VALUES, false);
             } else {
                 this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
                         INIT_ARRAY, false);
@@ -1566,7 +1566,9 @@ public class JvmInstructionGen {
             BType elementType = JvmCodeGenUtil.getImpliedType(((BArrayType) instType).eType);
 
             if (elementType.tag == TypeTags.RECORD) {
-                visitNewRecordArray(elementType);
+                this.loadVar(inst.typedescOp.variableDcl);
+                this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
+                                        INIT_ARRAY_WITH_INITIAL_VALUES, false);
             } else {
                 this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
                         INIT_ARRAY, false);
@@ -1580,16 +1582,6 @@ public class JvmInstructionGen {
                     INSTANTIATE_WITH_INITIAL_VALUES, true);
             this.storeToVar(inst.lhsOp.variableDcl);
         }
-    }
-
-    private void visitNewRecordArray(BType type) {
-        BType elementType = JvmCodeGenUtil.getImpliedType(type);
-        String typeOwner = JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
-        String typedescFieldName =
-                jvmTypeGen.getTypedescFieldName(toNameString(elementType));
-        this.mv.visitFieldInsn(GETSTATIC, typeOwner, typedescFieldName, "L" + TYPEDESC_VALUE + ";");
-        this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
-                INIT_ARRAY_WITH_INITIAL_VALUES, false);
     }
 
     void generateArrayStoreIns(BIRNonTerminator.FieldAccess inst) {
@@ -2163,21 +2155,34 @@ public class JvmInstructionGen {
         BIROperand annotations = newTypeDesc.annotations;
         if (annotations != null) {
             this.loadVar(annotations.variableDcl);
-            this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS,
-                    false);
         } else {
-            this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
+            mv.visitInsn(ACONST_NULL);
         }
+        loadDefaultValues(newTypeDesc.initialValues);
+        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
         this.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }
 
-    private boolean isNonReferredRecord(BType type) {
-        if (type.tag != TypeTags.TYPEREFDESC) {
-            return false;
+    private void loadDefaultValues(List<BIRNode.BIRMappingConstructorEntry> initialValues) {
+        int arraySize = initialValues.size();
+        mv.visitLdcInsn((long) arraySize);
+        mv.visitInsn(L2I);
+
+        mv.visitTypeInsn(ANEWARRAY, B_MAPPING_INITIAL_VALUE_ENTRY);
+
+        for (int i = 0; i < arraySize; i++) {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+
+            BIRNode.BIRMappingConstructorEntry initialValue = initialValues.get(i);
+            if (initialValue.isKeyValuePair()) {
+                createKeyValueEntry(mv, (BIRNode.BIRMappingConstructorKeyValueEntry) initialValue);
+            } else {
+                createSpreadFieldEntry(mv, (BIRNode.BIRMappingConstructorSpreadFieldEntry) initialValue);
+            }
+            mv.visitInsn(AASTORE);
         }
-        BType referredType = ((BTypeReferenceType) type).referredType;
-        return referredType.tag == TypeTags.RECORD &&
-                type.getQualifiedTypeName().equals(referredType.getQualifiedTypeName());
     }
 
     void loadVar(BIRNode.BIRVariableDcl varDcl) {
