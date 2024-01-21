@@ -324,18 +324,13 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BType type;
         public List<BIRListConstructorEntry> values;
 
-        public NewArray(Location location, BType type, BIROperand lhsOp, BIROperand sizeOp,
+        public NewArray(Location location, BType type, BIROperand lhsOp, BIROperand typedescOp, BIROperand sizeOp,
                         List<BIRListConstructorEntry> values) {
             super(location, InstructionKind.NEW_ARRAY);
             this.type = type;
             this.lhsOp = lhsOp;
             this.sizeOp = sizeOp;
             this.values = values;
-        }
-
-        public NewArray(Location location, BType type, BIROperand lhsOp, BIROperand typedescOp, BIROperand sizeOp,
-                        List<BIRListConstructorEntry> values) {
-            this(location, type, lhsOp, sizeOp, values);
             this.typedescOp = typedescOp;
         }
 

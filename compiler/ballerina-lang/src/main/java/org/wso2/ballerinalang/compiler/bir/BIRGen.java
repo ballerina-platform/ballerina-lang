@@ -2792,15 +2792,18 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
+        BIRNonTerminator newArrayInst;
         if (referredType.tag == TypeTags.TUPLE) {
-            setScopeAndEmit(createNewArrayInst(initialValues, listConstructorExprType, sizeOp, toVarRef, referredType,
-                                               listConstructorExpr.pos));
-
+            newArrayInst = createNewArrayInst(initialValues, listConstructorExprType, sizeOp, toVarRef, referredType,
+                                              listConstructorExpr.pos);
         } else {
-            setScopeAndEmit(
-                    new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, sizeOp,
-                            initialValues));
+            BType elementType = Types.getImpliedType(((BArrayType) referredType).eType);
+            BIROperand typedescOperand =
+                   (getTypedescVariable(elementType) != null) ? new BIROperand(getTypedescVariable(elementType)) : null;
+            newArrayInst = new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef,
+                                                         typedescOperand, sizeOp, initialValues);
         }
+        setScopeAndEmit(newArrayInst);
         this.env.targetOperand = toVarRef;
         this.env.isInArrayOrStructure--;
     }
