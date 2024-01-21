@@ -245,8 +245,10 @@ import static org.ballerinalang.model.tree.NodeKind.LIST_CONSTRUCTOR_EXPR;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
+import static org.ballerinalang.model.tree.NodeKind.RECORD_VARIABLE_REF;
 import static org.ballerinalang.model.tree.NodeKind.REG_EXP_CAPTURING_GROUP;
 import static org.ballerinalang.model.tree.NodeKind.REG_EXP_CHARACTER_CLASS;
+import static org.ballerinalang.model.tree.NodeKind.TUPLE_VARIABLE_REF;
 
 /**
  * @since 0.94
@@ -2342,22 +2344,67 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         setTypeOfVarRef(tupleDeStmt.varRef, data);
 
-        if (tupleDeStmt.expr.getKind() == LIST_CONSTRUCTOR_EXPR) {
-            BLangListConstructorExpr  listConstrExpr = (BLangListConstructorExpr) tupleDeStmt.expr;
-            for (BLangExpression expression : listConstrExpr.exprs) {
-                if (expression.getKind() == RECORD_LITERAL_EXPR) {
-                    dlog.error(expression.getPosition(),
-                            DiagnosticErrorCode.RECORD_LITERAL_WITHIN_LIST_CONSTR_NOT_SUPPORTED_IN_LIST_BP);
-                }
-            }
-        }
-
         BType type = typeChecker.checkExpr(tupleDeStmt.expr, data.env, tupleDeStmt.varRef.getBType(), data.prevEnvs,
                 data.commonAnalyzerData);
 
         if (type.tag != TypeTags.SEMANTIC_ERROR) {
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
                                         tupleDeStmt.expr.getBType(), tupleDeStmt.expr.pos, data);
+            if (tupleDeStmt.expr.getKind() == LIST_CONSTRUCTOR_EXPR) {
+                analyzeListConstrExprInTupleDestructure(tupleDeStmt.varRef,
+                        (BLangListConstructorExpr) tupleDeStmt.expr);
+            }
+        }
+    }
+
+    private void analyzeListConstrExprInTupleDestructure(BLangTupleVarRef tupleVarRef,
+                                                         BLangListConstructorExpr listExpr) {
+        List<BLangExpression> exprs = listExpr.exprs;
+        List<BLangExpression> tupleVars = tupleVarRef.expressions;
+
+        int nonRestTupleVarIndex = 0;
+        int noOfNonRestVars = tupleVars.size();
+
+        for (BLangExpression expr: exprs) {
+            int remainingNonRestVars = noOfNonRestVars - nonRestTupleVarIndex;
+
+            if (remainingNonRestVars == 0) {
+                return;
+            }
+
+            // remainingNonRestVars > 0
+            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+                int noOfSpreadMembers = switch (spreadOpExpr.getBType().tag) {
+                    case TypeTags.ARRAY -> {
+                        BArrayType spreadArrayType = (BArrayType) spreadOpExpr.getBType();
+                        yield spreadArrayType.size;
+                    }
+                    case TypeTags.TUPLE -> {
+                        BTupleType spreadTupleType = (BTupleType) spreadOpExpr.getBType();
+                        yield spreadTupleType.getTupleTypes().size();
+                    }
+                    default -> 0;
+                };
+
+                if (remainingNonRestVars < noOfSpreadMembers) {
+                    return;
+                }
+
+                nonRestTupleVarIndex = nonRestTupleVarIndex + noOfSpreadMembers;
+                continue;
+            }
+
+            BLangExpression tupleMemberVar = tupleVars.get(nonRestTupleVarIndex++);
+            if (expr.getKind() == LIST_CONSTRUCTOR_EXPR && tupleMemberVar.getKind() == TUPLE_VARIABLE_REF) {
+                analyzeListConstrExprInTupleDestructure(
+                        (BLangTupleVarRef) tupleMemberVar, (BLangListConstructorExpr) expr);
+                continue;
+            }
+
+            if (expr.getKind() == RECORD_LITERAL_EXPR && tupleMemberVar.getKind() == RECORD_VARIABLE_REF) {
+                dlog.error(expr.getPosition(), DiagnosticErrorCode.INVALID_RECORD_LITERAL_BINDING_PATTERN);
+            }
         }
     }
 
