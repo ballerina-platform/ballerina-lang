@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BInitialValueEntry;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -43,6 +44,7 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
@@ -96,17 +98,18 @@ public class ValueUtils {
     private static BMap<BString, Object> getPopulatedRecordValue(ValueCreator valueCreator, String recordTypeName,
                                                                  Set<String> providedFields) {
         MapValue<BString, Object> recordValue = valueCreator.createRecordValue(recordTypeName);
-        BRecordType type = (BRecordType) TypeUtils.getImpliedType(recordValue.getType());
-        return populateDefaultValues(recordValue, type, providedFields);
+        return populateDefaultValues(recordValue, providedFields);
     }
 
-    public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type,
+    public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue,
                                                               Set<String> providedFields) {
-        Map<String, BFunctionPointer<Object, ?>> defaultValues = type.getDefaultValues();
-        if (defaultValues.isEmpty()) {
+        BInitialValueEntry[] initialValues = ((TypedescValueImpl) recordValue.getTypedesc()).getInitialValues();
+        if (initialValues.length == 0) {
             return recordValue;
         }
-        defaultValues = getNonProvidedDefaultValues(defaultValues, providedFields);
+
+        Map<String, BFunctionPointer<Object, ?>> defaultValues =
+                                                            getNonProvidedDefaultValues(initialValues, providedFields);
         Strand strand = Scheduler.getStrandNoException();
         if (strand == null) {
             try {
@@ -127,11 +130,13 @@ public class ValueUtils {
     }
 
     private static Map<String, BFunctionPointer<Object, ?>> getNonProvidedDefaultValues(
-            Map<String, BFunctionPointer<Object, ?>> defaultValues, Set<String> providedFields) {
+                                                       BInitialValueEntry[] initialValues, Set<String> providedFields) {
         Map<String, BFunctionPointer<Object, ?>> result = new HashMap<>();
-        for (Map.Entry<String, BFunctionPointer<Object, ?>> entry : defaultValues.entrySet()) {
-            if (!providedFields.contains(entry.getKey())) {
-                result.put(entry.getKey(), entry.getValue());
+
+        for (BInitialValueEntry initialValue : initialValues) {
+            MappingInitialValueEntry.KeyValueEntry entry = (MappingInitialValueEntry.KeyValueEntry) initialValue;
+            if (!providedFields.contains(entry.key)) {
+                result.put(((BString) entry.key).getValue(), (BFunctionPointer<Object, ?>) entry.value);
             }
         }
         return result;

@@ -54,6 +54,7 @@ public class TypedescValueImpl implements TypedescValue {
     final Type type;
     final Type describingType; // Type of the value describe by this typedesc.
     public MapValue annotations;
+    BInitialValueEntry[] initialValues;
     private BTypedesc typedesc;
 
     @Deprecated
@@ -62,10 +63,16 @@ public class TypedescValueImpl implements TypedescValue {
         this.describingType = describingType;
     }
 
-    public TypedescValueImpl(Type describingType, MapValue annotations) {
+    public TypedescValueImpl(Type describingType, BInitialValueEntry[] initialValues) {
+        this.type = new BTypedescType(describingType);
+        this.describingType = describingType;
+        this.initialValues = initialValues;
+    }
+
+    public TypedescValueImpl(Type describingType, MapValue annotations, BInitialValueEntry[] initialValues) {
         this(describingType);
         this.annotations = annotations;
-        ((BAnnotatableType) describingType).setAnnotations(annotations);
+        this.initialValues = initialValues;
     }
 
     /**
@@ -117,6 +124,10 @@ public class TypedescValueImpl implements TypedescValue {
     @Override
     public Type getType() {
         return type;
+    }
+
+    public BInitialValueEntry[] getInitialValues() {
+        return this.initialValues;
     }
 
     @Override
