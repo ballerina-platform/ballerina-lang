@@ -29,18 +29,15 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.ValueUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -57,8 +54,6 @@ public class BRecordType extends BStructureType implements RecordType {
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
-
-    private final Map<String, BFunctionPointer<Object, ?>> defaultValues = new LinkedHashMap<>();
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -130,13 +125,6 @@ public class BRecordType extends BStructureType implements RecordType {
         }
         BMap<BString, Object> recordValue = ValueCreator.createRecordValue(this.pkg, typeName);
         ValueUtils.populateDefaultValues(recordValue, new HashSet<>());
-        if (defaultValues.isEmpty()) {
-            return (V) recordValue;
-        }
-        for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
-            recordValue.put(StringUtils.fromString(field.getKey()),
-                    field.getValue().call(new Object[] {Scheduler.getStrand()}));
-        }
         return (V) recordValue;
     }
 
@@ -209,13 +197,4 @@ public class BRecordType extends BStructureType implements RecordType {
     public int getTypeFlags() {
         return typeFlags;
     }
-
-    public void setDefaultValue(String fieldName, BFunctionPointer<Object, ?> defaultValue) {
-        defaultValues.put(fieldName, defaultValue);
-    }
-
-    public Map<String, BFunctionPointer<Object, ?>> getDefaultValues() {
-        return defaultValues;
-    }
-
 }

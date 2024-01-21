@@ -501,7 +501,6 @@ public class JvmSignatures {
     public static final String GET_TOML_DETAILS = "()L" + TOML_DETAILS + ";";
     public static final String GET_TEST_CONFIG_PATH = "(L" + MODULE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
             ";)L" + TOML_DETAILS + ";";
-    public static final String SET_DEFAULT_VALUE_METHOD = "(L" + STRING_VALUE + ";L" + B_FUNCTION_POINTER + ";)V";
 
     private JvmSignatures() {
     }

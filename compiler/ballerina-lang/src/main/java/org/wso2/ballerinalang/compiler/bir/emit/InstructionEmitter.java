@@ -87,8 +87,6 @@ class InstructionEmitter {
                 return emitInsNewError((BIRNonTerminator.NewError) ins, tabs);
             case FP_LOAD:
                 return emitInsFPLoad((BIRNonTerminator.FPLoad) ins, tabs);
-            case RECORD_DEFAULT_FP_LOAD:
-                return emitInsRecordDefaultFpLoad((BIRNonTerminator.RecordDefaultFPLoad) ins, tabs);
             case MAP_LOAD:
             case MAP_STORE:
             case ARRAY_LOAD:
@@ -136,23 +134,6 @@ class InstructionEmitter {
                         ((BIRAbstractInstruction) ins).getRhsOperands(), tabs);
 
         }
-    }
-
-    private static String emitInsRecordDefaultFpLoad(BIRNonTerminator.RecordDefaultFPLoad ins, int tabs) {
-        String anonLoadIns = "";
-        anonLoadIns += emitTabs(tabs);
-        anonLoadIns += "_";
-        anonLoadIns += emitSpaces(1);
-        anonLoadIns += "=";
-        anonLoadIns += emitSpaces(1);
-        anonLoadIns += emitTypeRef(ins.enclosedType, tabs);
-        anonLoadIns += " Default => ";
-        anonLoadIns += ins.fieldName;
-        anonLoadIns += emitSpaces(1);
-        anonLoadIns += "<";
-        anonLoadIns += emitVarRef(ins.lhsOp);
-        anonLoadIns += ">";
-        return anonLoadIns;
     }
 
     private static String emitBIRInstruction(String ins, BIROperand lhsOp, BIROperand[] rhsOperands, int tabs) {

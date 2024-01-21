@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -48,16 +47,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
@@ -160,7 +156,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTIL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SELF_INSTANCE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
@@ -242,7 +237,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_OBJ_CTR_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_DECIMAL_RETURN_DECIMAL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_DEFAULT_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_ON_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TWO_OBJECTS_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR;
@@ -1839,27 +1833,6 @@ public class JvmInstructionGen {
         asyncDataCollector.add(lambdaName, inst);
     }
 
-    private void generateRecordDefaultFPLoadIns(BIRNonTerminator.RecordDefaultFPLoad inst) {
-        jvmTypeGen.loadType(this.mv, inst.enclosedType);
-        this.mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
-        this.mv.visitLdcInsn(Utils.unescapeBallerina(inst.fieldName));
-        this.loadVar(inst.lhsOp.variableDcl);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setDefaultValue", SET_DEFAULT_VALUE_METHOD,
-                false);
-        Optional<BIntersectionType> immutableType = Types.getImmutableType(symbolTable,
-                inst.enclosedType.tsymbol.pkgID, (SelectivelyImmutableReferenceType) inst.enclosedType);
-        if (immutableType.isEmpty()) {
-            return;
-        }
-        BRecordType effectiveType = (BRecordType) immutableType.get().effectiveType;
-        jvmTypeGen.loadType(this.mv, effectiveType);
-        this.mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
-        this.mv.visitLdcInsn(Utils.unescapeBallerina(inst.fieldName));
-        this.loadVar(inst.lhsOp.variableDcl);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setDefaultValue", SET_DEFAULT_VALUE_METHOD,
-                false);
-    }
-
     void generateNewXMLElementIns(BIRNonTerminator.NewXMLElement newXMLElement) {
 
         this.loadVar(newXMLElement.startTagOp.variableDcl);
@@ -2406,9 +2379,6 @@ public class JvmInstructionGen {
                     break;
                 case PLATFORM:
                     generatePlatformIns((JInstruction) inst, localVarOffset);
-                    break;
-                case RECORD_DEFAULT_FP_LOAD:
-                    generateRecordDefaultFPLoadIns((BIRNonTerminator.RecordDefaultFPLoad) inst);
                     break;
                 default:
                     throw new BLangCompilerException("JVM generation is not supported for operation " + inst);

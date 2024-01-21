@@ -491,13 +491,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         });
     }
 
-    @Override
-    public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
-        recordDefaultFPLoad.lhsOp.accept(this);
-        writeType(recordDefaultFPLoad.enclosedType);
-        buf.writeInt(addStringCPEntry(recordDefaultFPLoad.fieldName));
-    }
-
     public void visit(BIRTerminator.Panic birPanic) {
         birPanic.errorOp.accept(this);
     }

@@ -213,7 +213,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
@@ -225,7 +224,6 @@ import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.createBI
 import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRAnnotAttachments;
 import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRConstantVal;
 import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATION_DATA;
-import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
  * Lower the AST to BIR.
@@ -844,35 +842,7 @@ public class BIRGen extends BLangNodeVisitor {
                 lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
                 lambdaExpr.function.symbol.schedulerPolicy, isWorker);
         setScopeAndEmit(fpLoad);
-        BType targetType = getRecordTargetType(funcName.value);
-        if (lambdaExpr.function.flagSet.contains(Flag.RECORD) && targetType != null &&
-                targetType.tag == TypeTags.RECORD) {
-            // If the function is for record type and has captured variables, then we need to create a
-            // temp value in the type and keep it
-            setScopeAndEmit(
-                    new BIRNonTerminator.RecordDefaultFPLoad(lhsOp.pos, lhsOp, targetType,
-                            getFieldName(funcName.value, targetType.tsymbol.name.value)));
-        }
         this.env.targetOperand = lhsOp;
-    }
-
-    private String getFieldName(String funcName, String typeName) {
-        String[] splitNames = funcName.split(Pattern.quote(typeName + RECORD_DELIMITER));
-        return splitNames[splitNames.length - 1];
-    }
-
-    private BType getRecordTargetType(String funcName) {
-        if (!funcName.contains(RECORD_DELIMITER)) {
-            return null;
-        }
-        String[] split = funcName.split(Pattern.quote(RECORD_DELIMITER));
-        String typeName = split[split.length - 2];
-        for (BIRTypeDefinition type : this.env.enclPkg.typeDefs) {
-            if (typeName.equals(type.originalName.value)) {
-                return type.type;
-            }
-        }
-        return null;
     }
 
     private List<BIROperand> getClosureMapOperands(BLangLambdaFunction lambdaExpr) {

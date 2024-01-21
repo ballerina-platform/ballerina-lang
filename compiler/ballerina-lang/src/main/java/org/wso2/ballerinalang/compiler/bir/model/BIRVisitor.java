@@ -293,10 +293,6 @@ public abstract class BIRVisitor {
         throw new UnsupportedOperationException();
     }
 
-    public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
-        throw new UnsupportedOperationException();
-    }
-
     // Operands
     public void visit(BIROperand birVarRef) {
         throw new UnsupportedOperationException();

@@ -757,11 +757,6 @@ public class BIROptimizer {
         }
 
         @Override
-        public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
-            this.optimizeNode(recordDefaultFPLoad.lhsOp, this.env);
-        }
-
-        @Override
         public void visit(JMethodCallInstruction jMethodCallInstruction) {
             for (BIROperand arg : jMethodCallInstruction.args) {
                 this.optimizeNode(arg, this.env);
