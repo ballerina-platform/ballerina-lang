@@ -369,7 +369,7 @@ function testMappingBindingWithSingleNameFieldBinding() {
     assertEquality("bar4", b);
 }
 
-function testMappingBindingPatternsAsMemberBindingPatterns() {
+function testMappingBindingPatternAgainstOpenRecordInTupleDestructuring() {
     [Some, Some] r1 = [{var1: "A", var2: "B"}, {var1: "C", var2: "D"}];
     string xVar1;
     string xVar2;
