@@ -5,5 +5,4 @@ module compiler.plugin.test.plugin.with.two.dependencies {
     requires compiler.plugin.test.diagnostic.utils.lib;
     requires compiler.plugin.test.string.utils.lib;
 
-    exports io.samjs.plugins.twodependencies;
 }
