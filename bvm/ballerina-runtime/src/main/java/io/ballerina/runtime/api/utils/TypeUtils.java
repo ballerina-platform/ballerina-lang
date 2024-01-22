@@ -167,16 +167,16 @@ public class TypeUtils {
      * else returns the original type
      */
     public static Type getImpliedType(Type type) {
-        Type memo = type.getImpliedType();
-        if (memo != null) {
-            return memo;
-        }
+//        Type memo = type.getImpliedType();
+//        if (memo != null) {
+//            return memo;
+//        }
         Type result = getReferredType(type);
 
         if (result.getTag() == TypeTags.INTERSECTION_TAG) {
             result = getImpliedType(((IntersectionType) result).getEffectiveType());
         }
-        type.setImpliedType(result);
+//        type.setImpliedType(result);
         return result;
     }
 }

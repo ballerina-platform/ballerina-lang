@@ -95,6 +95,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANY;
@@ -3706,9 +3708,11 @@ public class TypeChecker {
         private static final int CACHE_SIZE = 100;
         private final Map<TypeCheckMemoKey, V> cache;
 
+        private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
+
         private TypeCheckMemoTable() {
             // NOTE: accessOrdered mean get is also a structural modification
-            this.cache = new LinkedHashMap<>(CACHE_SIZE, 0.75f, true) {
+            this.cache = new LinkedHashMap<>(CACHE_SIZE, 0.75f, false) {
                 @Override
                 protected boolean removeEldestEntry(Map.Entry<TypeCheckMemoKey, V> eldest) {
                     return size() > CACHE_SIZE;
@@ -3717,15 +3721,20 @@ public class TypeChecker {
         }
 
         public V get(TypeCheckMemoKey key) {
-            return cache.get(key);
+//            rwLock.readLock().lock();
+            V val = cache.get(key);
+//            rwLock.readLock().unlock();
+            return val;
         }
 
-        public V put(TypeCheckMemoKey key, V value) {
+        public void put(TypeCheckMemoKey key, V value) {
             // FIXME:
             if (key.sourceType().isReadOnly() || key.destinationType().isReadOnly()) {
-                return value;
+                return;
             }
-            return cache.put(key, value);
+//            rwLock.writeLock().lock();
+            cache.put(key, value);
+//            rwLock.writeLock().unlock();
         }
 
     }

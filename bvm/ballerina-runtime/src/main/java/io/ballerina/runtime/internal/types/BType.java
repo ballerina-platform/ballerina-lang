@@ -204,13 +204,13 @@ public abstract class BType implements Type {
         return 0;
     }
 
-    @Override
-    public synchronized void setImpliedType(Type impliedType) {
-        this.impliedType = impliedType;
-    }
-
-    @Override
-    public synchronized Type getImpliedType() {
-        return this.impliedType;
-    }
+//    @Override
+//    public synchronized void setImpliedType(Type impliedType) {
+//        this.impliedType = impliedType;
+//    }
+//
+//    @Override
+//    public synchronized Type getImpliedType() {
+//        return this.impliedType;
+//    }
 }

@@ -96,7 +96,7 @@ public interface Type {
     Module getPkg();
 
     // TODO: add documentation
-    void setImpliedType(Type impliedType);
-
-    Type getImpliedType();
+//    void setImpliedType(Type impliedType);
+//
+//    Type getImpliedType();
 }
