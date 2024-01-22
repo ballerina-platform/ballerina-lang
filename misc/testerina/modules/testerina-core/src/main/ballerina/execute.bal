@@ -73,7 +73,7 @@ function executeTests() returns error? {
     while !conMgr.isExecutionDone() {
         if conMgr.getAvailableWorkers() != 0 {
             conMgr.populateExecutionQueues();
-            if conMgr.getSerialQueueLength() != 0 && conMgr.getAvailableWorkers() == conMgr.getConfiguredWorkers() {
+            if conMgr.getSerialQueueLength() != 0 && conMgr.countTestInExecution() == 0 {
                 TestFunction testFunction = conMgr.getSerialTest();
                 conMgr.addTestInExecution(testFunction);
                 conMgr.allocateWorker();
@@ -217,8 +217,8 @@ isolated function enableExit() {
 
 isolated function isTestReadyToExecute(TestFunction testFunction, DataProviderReturnType? testFunctionArgs) returns boolean {
     if !conMgr.isEnabled(testFunction.name) {
-        conMgr.setExecutionSuspended(testFunction.name);
         conMgr.releaseWorker();
+        conMgr.setExecutionSuspended(testFunction.name);
         return false;
     }
 
@@ -227,8 +227,8 @@ isolated function isTestReadyToExecute(TestFunction testFunction, DataProviderRe
         reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunctionArgs));
         println("\n" + testFunction.name + " has failed.\n");
         enableExit();
-        conMgr.setExecutionSuspended(testFunction.name);
         conMgr.releaseWorker();
+        conMgr.setExecutionSuspended(testFunction.name);
         return false;
     }
     return true;
@@ -240,8 +240,8 @@ isolated function finishTestExecution(TestFunction testFunction, boolean shouldS
             conMgr.setSkip(dependent.name);
         });
     }
-    conMgr.setExecutionDone(testFunction.name);
     conMgr.releaseWorker();
+    conMgr.setExecutionDone(testFunction.name);
 }
 
 isolated function handleBeforeGroupOutput(TestFunction testFunction, string 'group, ExecutionError? err) {
