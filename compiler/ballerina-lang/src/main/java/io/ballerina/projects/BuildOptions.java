@@ -137,6 +137,11 @@ public class BuildOptions {
     public boolean showDependencyDiagnostics() {
         return toBooleanDefaultIfNull(this.showDependencyDiagnostics);
     }
+    public boolean optimizeCodegen() {
+//        return toBooleanDefaultIfNull(this.compilationOptions.optimizeCodegen);
+        return this.compilationOptions.optimizeCodegen();
+//        return true;
+    }
 
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
@@ -213,6 +218,7 @@ public class BuildOptions {
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
         buildOptionsBuilder.setRemoteManagement(compilationOptions.remoteManagement);
         buildOptionsBuilder.setOptimizeDependencyCompilation(compilationOptions.optimizeDependencyCompilation);
+        buildOptionsBuilder.setOptimizeCodegen(compilationOptions.optimizeCodegen);
 
         return buildOptionsBuilder.build();
     }
@@ -425,6 +431,11 @@ public class BuildOptions {
          */
         public BuildOptionsBuilder setOptimizeDependencyCompilation(Boolean value) {
             compilationOptionsBuilder.setOptimizeDependencyCompilation(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setOptimizeCodegen(Boolean value) {
+            compilationOptionsBuilder.setOptimizeCodegen(value);
             return this;
         }
 

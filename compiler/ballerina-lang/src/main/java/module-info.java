@@ -8,6 +8,7 @@ module io.ballerina.lang {
     requires com.google.gson;
     requires java.xml;
     requires org.objectweb.asm;
+    requires org.objectweb.asm.tree;
     requires io.ballerina.runtime;
     requires io.netty.buffer;
     requires io.ballerina.parser;
@@ -88,4 +89,5 @@ module io.ballerina.lang {
             io.ballerina.language.server.core;
     exports io.ballerina.projects.plugins.completion;
     exports io.ballerina.projects.buildtools;
+    exports org.wso2.ballerinalang.compiler.bir.codegen.bytecodeOptimizer;
 }

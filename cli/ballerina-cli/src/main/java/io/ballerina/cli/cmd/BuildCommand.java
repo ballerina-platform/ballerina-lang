@@ -209,6 +209,8 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--optimize-dependency-compilation", hidden = true,
             description = "experimental memory optimization for large projects")
     private Boolean optimizeDependencyCompilation;
+    @CommandLine.Option(names = "--optimize", description = "generate optimized executable jar", defaultValue = "false")
+    private Boolean optimizeCodegen;
 
     @Override
     public void execute() {
@@ -327,6 +329,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
                 .setOptimizeDependencyCompilation(optimizeDependencyCompilation);
+                .setShowDependencyDiagnostics(showDependencyDiagnostics);
+                .setOptimizeCodegen(optimizeCodegen);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
