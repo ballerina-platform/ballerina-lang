@@ -272,7 +272,7 @@ public class ManifestBuilder {
                     } catch (IOException e) {
                         reportDiagnostic(dependencyNode,
                             "tool options validation skipped due to: " + e.getMessage(),
-                            ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_SKIPPED.diagnosticId(),
+                            ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_SKIPPED,
                             DiagnosticSeverity.WARNING);
                     }
                 }
@@ -285,13 +285,13 @@ public class ManifestBuilder {
                 if (!toolIdsSet.add(id)) {
                     reportDiagnostic(dependencyNode, "recurring tool id '" + id + "' found in Ballerina.toml. " +
                                     "Tool id must be unique for each tool",
-                            ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES.diagnosticId(),
+                            ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES,
                             DiagnosticSeverity.ERROR);
                 }
                 if (!targetModuleSet.add(targetModule)) {
                     reportDiagnostic(dependencyNode, "recurring target module found in Ballerina.toml. Target " +
                                     "module must be unique for each tool",
-                            ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES.diagnosticId(),
+                            ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES,
                             DiagnosticSeverity.ERROR);
                 }
 
@@ -311,7 +311,7 @@ public class ManifestBuilder {
         if (!requiredFields.isEmpty()) {
             for (String field: requiredFields) {
                 reportDiagnostic(toolNode, "missing required field '" + field + "'",
-                    ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY.diagnosticId(), DiagnosticSeverity.ERROR);
+                    ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY, DiagnosticSeverity.ERROR);
             }
         }
     }
@@ -330,7 +330,7 @@ public class ManifestBuilder {
 
         if (tomlTableNode.entries().isEmpty()) {
             reportDiagnostic(tomlTableNode, errorMessage,
-                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML,
                     DiagnosticSeverity.WARNING);
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
@@ -338,7 +338,7 @@ public class ManifestBuilder {
         TopLevelNode topLevelPkgNode = tomlTableNode.entries().get(PACKAGE);
         if (topLevelPkgNode == null || topLevelPkgNode.kind() != TomlType.TABLE) {
             reportDiagnostic(tomlTableNode, errorMessage,
-                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML,
                     DiagnosticSeverity.WARNING);
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
@@ -350,7 +350,7 @@ public class ManifestBuilder {
             org = defaultOrg().value();
             reportDiagnostic(pkgNode, "missing key 'org' in table '[package]' in 'Ballerina.toml'. " +
                             "Defaulting to 'org = \"" + org + "\"'",
-                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML,
                     DiagnosticSeverity.WARNING);
         }
         name = getStringValueFromTomlTableNode(pkgNode, "name");
@@ -358,7 +358,7 @@ public class ManifestBuilder {
             name = defaultName(this.projectPath).value();
             reportDiagnostic(pkgNode, "missing key 'name' in table '[package]' in 'Ballerina.toml'. " +
                             "Defaulting to 'name = \"" + name + "\"'",
-                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML,
                     DiagnosticSeverity.WARNING);
         }
         version = getStringValueFromTomlTableNode(pkgNode, VERSION);
@@ -366,7 +366,7 @@ public class ManifestBuilder {
             version = defaultVersion().value().toString();
             reportDiagnostic(pkgNode, "missing key 'version' in table '[package]' in 'Ballerina.toml'. " +
                             "Defaulting to 'version = \"" + version + "\"'",
-                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML,
                     DiagnosticSeverity.WARNING);
         }
 
@@ -404,7 +404,7 @@ public class ManifestBuilder {
                 // if file path does not exist, throw this error
                 reportDiagnostic(pkgNode.entries().get(ICON),
                         "could not locate icon path '" + icon + "'",
-                        "error.invalid.path", DiagnosticSeverity.ERROR);
+                        ProjectDiagnosticErrorCode.INVALID_PATH, DiagnosticSeverity.ERROR);
             } else {
                 // validate file content
                 // if other file types renamed as png, throw this error
@@ -412,7 +412,7 @@ public class ManifestBuilder {
                     if (!FileUtils.isValidPng(iconPath)) {
                         reportDiagnostic(pkgNode.entries().get("icon"),
                                 "invalid 'icon' under [package]: 'icon' can only have 'png' images",
-                                "error.invalid.icon", DiagnosticSeverity.ERROR);
+                                ProjectDiagnosticErrorCode.INVALID_ICON, DiagnosticSeverity.ERROR);
                     }
                 } catch (IOException e) {
                     // should not reach to this line
@@ -533,7 +533,7 @@ public class ManifestBuilder {
                             if (Files.notExists(path)) {
                                 reportDiagnostic(platformEntryTable.entries().get("path"),
                                         "could not locate dependency path '" + pathValue + "'",
-                                        "error.invalid.path", DiagnosticSeverity.ERROR);
+                                        ProjectDiagnosticErrorCode.INVALID_PATH, DiagnosticSeverity.ERROR);
                             }
                         }
                         platformEntryMap.put("path",
@@ -610,10 +610,10 @@ public class ManifestBuilder {
     // TODO: Fix code and messageFormat parameters in usages.
     private void reportDiagnostic(TopLevelNode tomlTableNode,
                                   String message,
-                                  String messageFormat,
+                                  ProjectDiagnosticErrorCode errorCode,
                                   DiagnosticSeverity severity) {
         DiagnosticInfo diagnosticInfo =
-                new DiagnosticInfo(messageFormat, messageFormat, severity);
+                new DiagnosticInfo(errorCode.diagnosticId(), errorCode.messageKey(), severity);
         TomlDiagnostic tomlDiagnostic = new TomlDiagnostic(
                 tomlTableNode.location(),
                 diagnosticInfo,
@@ -814,12 +814,12 @@ public class ManifestBuilder {
         if (topLevelNode == null) {
             if (!key.equals("targetModule")) {
                 reportDiagnostic(toolNode, errorMessage,
-                        ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML.diagnosticId(),
+                        ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML,
                         DiagnosticSeverity.ERROR);
                 return null;
             }
             reportDiagnostic(toolNode, errorMessage + " Default module will be taken as target module.",
-                    ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML.diagnosticId(),
+                    ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML,
                     DiagnosticSeverity.WARNING);
             return null;
         }
@@ -830,18 +830,18 @@ public class ManifestBuilder {
             if (!key.equals("targetModule")) {
                 reportDiagnostic(toolNode, "empty string found for key '[" + key + "]' in table '[tool."
                                 + toolCode + "]'.",
-                    ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY.diagnosticId(),
+                    ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY,
                     DiagnosticSeverity.ERROR);
                 return null;
             }
             reportDiagnostic(toolNode, "empty string found for key '[" + key + "]' in table '[tool."
                             + toolCode + "]'. " + "Default module will be taken as the target module",
-                    ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY.diagnosticId(),
+                    ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY,
                     DiagnosticSeverity.WARNING);
             return null;
         } else if (ToolNodeValueType.NON_STRING.equals(toolNodeValueType)) {
             reportDiagnostic(toolNode, "incompatible type found for key '[" + key + "]': expected 'STRING'",
-                ProjectDiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_TOOL_PROPERTY.diagnosticId(),
+                ProjectDiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_TOOL_PROPERTY,
                 DiagnosticSeverity.ERROR);
             return null;
         }
