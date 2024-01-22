@@ -417,6 +417,11 @@ function testMappingBindingPatternsAsMemberBindingPatterns() {
     assertEquality(14, p4);
     assertEquality(15, p5);
 
+    [record {| int a; int b; anydata...; |}] r6 = [{a: 1, b: 2}];
+    [{a, b}] = r6;
+    assertEquality(1, a);
+    assertEquality(2, b);
+
     int x1;
     int x2;
     var getMap = function() returns record {record {int x1; int x2;} x3;} => {x3: {x1: 2, x2: 3}};
