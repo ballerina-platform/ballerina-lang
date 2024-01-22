@@ -37,12 +37,13 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.projects.util.ProjectConstants.ANON_ORG;
@@ -150,7 +151,7 @@ public class JarResolver {
                     // Add generated thin jar of every module in the package represented by the packageContext
                     addCodeGeneratedLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, jarFiles);
                     // All platform-specific libraries(specified in Ballerina.toml) having the default scope
-                    addUsedPlatformLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT,jarFiles , pkgWiseUsedNativeClassPaths);
+                    addUsedPlatformLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, jarFiles, pkgWiseUsedNativeClassPaths);
                 });
 
         // 3) Add the runtime library path
@@ -324,13 +325,8 @@ public class JarResolver {
     }
 
     private boolean isUsedDependency(JarLibrary otherJarDependency, HashSet<String> usedNativeClassPaths) {
-        if (otherJarDependency.packageName().get().equals("ballerina/observe") ||
-                otherJarDependency.packageName().get().equals("ballerinai/observe")) {
-
-            return true;
-        }
-
-        if (otherJarDependency.artifactId().isPresent() && otherJarDependency.artifactId().get().contains("netty")) {
+        String pkgName = otherJarDependency.packageName().get();
+        if (pkgName.equals("ballerina/observe") || pkgName.equals("ballerinai/observe")) {
             return true;
         }
 
@@ -339,16 +335,14 @@ public class JarResolver {
         }
 
         try {
-            ZipFile zipFile = new ZipFile(otherJarDependency.path().toFile());
-            Enumeration<ZipArchiveEntry> zipArchiveEntries = zipFile.getEntriesInPhysicalOrder();
+            JarFile jarFile = new JarFile(otherJarDependency.path().toFile());
 
-            while (zipArchiveEntries.hasMoreElements()) {
-                if (usedNativeClassPaths.contains(zipArchiveEntries.nextElement().getName())) {
-                    zipFile.close();
+            for (String classPath : usedNativeClassPaths) {
+                ZipEntry usedClassEntry = jarFile.getJarEntry(classPath);
+                if (usedClassEntry != null) {
                     return true;
                 }
             }
-            zipFile.close();
             return false;
         } catch (IOException e) {
             throw new RuntimeException(e);
