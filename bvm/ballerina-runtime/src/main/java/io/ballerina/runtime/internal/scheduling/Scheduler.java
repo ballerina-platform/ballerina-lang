@@ -455,7 +455,9 @@ public class Scheduler {
     }
 
     private void cleanUp(Strand justCompleted) {
-        justCompleted.scheduler = null;
+        if (daemonStrand != null && !daemonStrand.scheduler.equals(justCompleted.scheduler)) {
+            justCompleted.scheduler = null;
+        }
         justCompleted.frames = null;
         justCompleted.waitingContexts = null;
 
