@@ -178,6 +178,12 @@ isolated class ConcurrentExecutionManager {
         }
     }
 
+    isolated function countTestInExecution() returns int {
+        lock {
+            return self.testsInExecution.length();
+        }
+    }
+
     isolated function addTestInExecution(TestFunction testFunction) {
         lock {
             self.testsInExecution.push(testFunction);
@@ -205,7 +211,6 @@ isolated class ConcurrentExecutionManager {
     isolated function isExecutionDone() returns boolean {
         lock {
             return self.parallelTestExecutionList.length() == 0 &&
-                self.getAvailableWorkers() == self.intialWorkers &&
                 self.serialTestExecutionList.length() == 0 &&
                 self.testsInExecution.length() == 0;
         }
