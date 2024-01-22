@@ -51,6 +51,7 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     TOOL_OPTIONS_VALIDATION_SKIPPED("BCE5404", "tool.options.validation.skipped"),
     RECURRING_TOOL_PROPERTIES("BCE5405", "recurring.tool.properties"),
     BUILD_TOOL_NOT_FOUND("BCE5406", "build.tool.not.found"),
+    TOOL_OPTIONS_VALIDATION_FAILED("BCE5407", "tool.options.validation.failed"),
 
     // Error codes used for compiler plugins.
     UNSUPPORTED_COMPILER_PLUGIN_TYPE("BCE5301", "unsupported.compiler.plugin.type"),

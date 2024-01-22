@@ -69,9 +69,20 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         ServiceLoader<CodeGeneratorTool> buildRunners = ServiceLoader.load(CodeGeneratorTool.class);
         for (Tool tool : tools) {
             String commandName = tool.getType();
+            ToolContext toolContext = ToolContext.from(tool, project.currentPackage());
             boolean hasOptionErrors = false;
             try {
                 hasOptionErrors = validateOptionsToml(tool.getOptionsToml(), commandName);
+                if (hasOptionErrors) {
+                    DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                            ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_FAILED.diagnosticId(),
+                            ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_FAILED.messageKey(),
+                            DiagnosticSeverity.ERROR);
+                    PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
+                            tool.getType());
+                    toolContext.reportDiagnostic(diagnostic);
+                    toolContextMap.put(tool.getId(), toolContext);
+                }
             } catch (IOException e) {
                 outStream.println("WARNING: Skipping validation of tool options for tool '" + tool.getType() +
                         "' due to: " + e.getMessage());
@@ -79,7 +90,6 @@ public class RunBallerinaPreBuildToolsTask implements Task {
             if (!tool.hasErrorDiagnostic() && !hasOptionErrors) {
                 try {
                     CodeGeneratorTool targetTool = getTargetTool(commandName, buildRunners);
-                    ToolContext toolContext = ToolContext.from(tool, project.currentPackage());
                     if (targetTool == null) {
                         // TODO: Installing tool if not found to be implemented at a later phase
                         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
