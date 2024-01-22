@@ -93,6 +93,8 @@ public class CreateExecutableTask implements Task {
                     out.println(warnings);
                 }
                 emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.GRAAL_EXEC, executablePath);
+            } else if (project.buildOptions().optimizeCodegen()) {
+                emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.OPTIMIZE_CODEGEN, executablePath);
             } else {
                 emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
             }
@@ -119,7 +121,7 @@ public class CreateExecutableTask implements Task {
             throw createLauncherException(e.getMessage());
         }
 
-        if (!project.buildOptions().nativeImage() && !isHideTaskOutput) {
+        if (!project.buildOptions().nativeImage() && !isHideTaskOutput && !project.buildOptions().optimizeCodegen()) {
             Path relativePathToExecutable = currentDir.relativize(executablePath);
 
             if (project.buildOptions().getTargetPath() != null) {
@@ -130,6 +132,26 @@ public class CreateExecutableTask implements Task {
                     this.out.println("\t" + executablePath);
                 } else {
                     this.out.println("\t" + relativePathToExecutable);
+                }
+            }
+        }
+
+        if (project.buildOptions().optimizeCodegen()) {
+            Path relativePathToExecutable = currentDir.relativize(executablePath);
+            String relativePathToExecutableString =
+                    relativePathToExecutable.toString().replace(".jar", "_OPTIMIZE.jar");
+
+            String executablePathString =
+                    executablePath.toString().replace(".jar", "_OPTIMIZE.jar");
+
+            if (project.buildOptions().getTargetPath() != null) {
+                this.out.println("\t" + relativePathToExecutableString);
+            } else {
+                if (relativePathToExecutableString.toString().contains("..") ||
+                        relativePathToExecutableString.toString().contains("." + File.separator)) {
+                    this.out.println("\t" + executablePathString);
+                } else {
+                    this.out.println("\t" + relativePathToExecutableString);
                 }
             }
         }
