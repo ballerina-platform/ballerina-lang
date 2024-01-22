@@ -44,6 +44,7 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.DeadBIRNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.bytecodeOptimizer.NativeDependencyOptimizer;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
@@ -114,8 +115,6 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-    public HashMap<String, HashSet<String>> pkgWiseDeletedEntries = new HashMap<>();
-
     private final PackageResolution pkgResolution;
     private final JvmTarget jdkVersion;
     private final PackageContext packageContext;
@@ -208,55 +207,53 @@ public class JBallerinaBackend extends CompilerBackend {
             }
 
             ModuleContext.shrinkDocuments(moduleContext);
-//            if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
-//                moduleContext.cleanBLangPackage();
-//            }
         }
 
-        long startTime = System.currentTimeMillis();
+        if (this.packageContext.project().buildOptions().optimizeCodegen()) {
+            long startTime = System.currentTimeMillis();
+            UsedBIRNodeAnalyzer deadBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
 
-        UsedBIRNodeAnalyzer deadBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
-
-        // TODO Refactor the logic here
-        for (int i = pkgResolution.topologicallySortedModuleList().size() - 1; i >= 0; i--) {
-            ModuleContext moduleContext = pkgResolution.topologicallySortedModuleList().get(i);
-            // Default module is analyzed first to find its immediate dependencies
-            if (pkgResolution.packageContext().defaultModuleContext().moduleId() == moduleContext.moduleId()) {
-                deadBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
-                updateNativeDependencyMap(moduleContext);
-                continue;
-            }
-            // Omitting the LangLibs and other modules that does not have BIRPkgNodes
-            // TODO find a way to get the BIRPkgNodes of langlibs as well
-            else if (moduleContext.currentCompilationState() != ModuleCompilationState.PLATFORM_LIBRARY_GENERATED) {
-                continue;
-            }
-            // Only analyzing used modules
-            if (moduleContext.bLangPackage().symbol.invocationData2.moduleIsUsed) {
-                deadBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
-                updateNativeDependencyMap(moduleContext);
-            }
-        }
-
-        long endTime = System.currentTimeMillis();
-        System.out.println("Duration for dead code analysis : " + (endTime - startTime));
-
-        // Generate optimized thin JAR byte streams
-        for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
-            if (moduleContext.currentCompilationState() == ModuleCompilationState.PLATFORM_LIBRARY_GENERATED &&
-                    !moduleContext.moduleId().moduleName().contains("observe")) {
-                if (!moduleContext.bLangPackage().symbol.invocationData2.moduleIsUsed) {
-                    unusedPackageIds.add(moduleContext.moduleId().packageId());
-                    unusedModuleIds.add(moduleContext.moduleId());
-                    unusedPackageIDs.add(moduleContext.bLangPackage().symbol.pkgID);
+            // TODO Refactor the logic here
+            for (int i = pkgResolution.topologicallySortedModuleList().size() - 1; i >= 0; i--) {
+                ModuleContext moduleContext = pkgResolution.topologicallySortedModuleList().get(i);
+                // Default module is analyzed first to find its immediate dependencies
+                if (pkgResolution.packageContext().defaultModuleContext().moduleId() == moduleContext.moduleId()) {
+                    deadBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
+                    updateNativeDependencyMap(moduleContext);
                     continue;
                 }
-                performOptimizedCodeGen(moduleContext);
+                // Omitting the LangLibs and other modules that does not have BIRPkgNodes
+                // TODO find a way to get the BIRPkgNodes of langlibs as well
+                else if (moduleContext.currentCompilationState() != ModuleCompilationState.PLATFORM_LIBRARY_GENERATED) {
+                    continue;
+                }
+                // Only analyzing used modules
+                if (moduleContext.bLangPackage().symbol.invocationData2.moduleIsUsed) {
+                    deadBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
+                    updateNativeDependencyMap(moduleContext);
+                }
             }
 
-            // Moved the cleaning down because codegen was also moved down
-            if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
-                moduleContext.cleanBLangPackage();
+            long endTime = System.currentTimeMillis();
+            System.out.println("Duration for BIR level dead code analysis : " + (endTime - startTime) + "ms");
+
+            // Generate optimized thin JAR byte streams
+            for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
+                if (moduleContext.currentCompilationState() == ModuleCompilationState.PLATFORM_LIBRARY_GENERATED &&
+                        !moduleContext.moduleId().moduleName().contains("observe")) {
+                    if (!moduleContext.bLangPackage().symbol.invocationData2.moduleIsUsed) {
+                        unusedPackageIds.add(moduleContext.moduleId().packageId());
+                        unusedModuleIds.add(moduleContext.moduleId());
+                        unusedPackageIDs.add(moduleContext.bLangPackage().symbol.pkgID);
+                        continue;
+                    }
+                    performOptimizedCodeGen(moduleContext);
+                }
+
+                // Moved the cleaning down because codegen was also moved down
+                if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
+                    moduleContext.cleanBLangPackage();
+                }
             }
         }
         // add compilation diagnostics
@@ -269,13 +266,9 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void updateNativeDependencyMap(ModuleContext moduleContext) {
-        if (pkgWiseUsedNativeClassPaths.containsKey(moduleContext.moduleId().packageId())) {
-            pkgWiseUsedNativeClassPaths.get(moduleContext.moduleId().packageId())
-                    .addAll(moduleContext.bLangPackage().symbol.invocationData2.usedNativeClassPaths);
-        } else {
-            pkgWiseUsedNativeClassPaths.put(moduleContext.moduleId().packageId(),
-                    moduleContext.bLangPackage().symbol.invocationData2.usedNativeClassPaths);
-        }
+        pkgWiseUsedNativeClassPaths.putIfAbsent(moduleContext.moduleId().packageId(), new HashSet<>());
+        pkgWiseUsedNativeClassPaths.get(moduleContext.moduleId().packageId())
+                .addAll(moduleContext.bLangPackage().symbol.invocationData2.usedNativeClassPaths);
     }
     private boolean hasErrors(List<Diagnostic> diagnostics) {
         for (Diagnostic diagnostic : diagnostics) {
@@ -307,6 +300,9 @@ public class JBallerinaBackend extends CompilerBackend {
                 break;
             case BALA:
                 generatedArtifact = emitBala(filePath);
+                break;
+            case OPTIMIZE_CODEGEN:
+                generatedArtifact = emitOptimizedExecutable(filePath);
                 break;
             default:
                 throw new RuntimeException("Unexpected output type: " + outputType);
@@ -499,7 +495,7 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
 
-        bPackageSymbol.imports.removeIf(pkgSymbol -> unusedPackageIDs.contains(pkgSymbol.pkgID));
+        bPackageSymbol.imports.removeIf(pkgSymbol -> pkgSymbol != null && unusedPackageIDs.contains(pkgSymbol.pkgID));
         birPackage.importModules.removeIf(module -> unusedPackageIDs.contains(module.packageID));
         birPackage.functions.removeIf(currentFunc -> currentFunc.usedState == UsedState.UNUSED);
         birPackage.typeDefs.removeIf(typeDef -> typeDef.usedState == UsedState.UNUSED);
@@ -672,6 +668,85 @@ public class JBallerinaBackend extends CompilerBackend {
         }
     }
 
+    private void assembleOptimizedExecutableJar(Path executableFilePath,
+                                       Manifest manifest,
+                                       Collection<JarLibrary> jarLibraries) throws IOException {
+        // Used to prevent adding duplicated entries during the final jar creation.
+        HashMap<String, JarLibrary> copiedEntries = new HashMap<>();
+
+        // Used to process SPI related metadata entries separately. The reason is unlike the other entry types,
+        // service loader related information should be merged together in the final executable jar creation.
+        HashMap<String, StringBuilder> serviceEntries = new HashMap<>();
+
+//        SeekableByteChannel seekableByteChannel = new SeekableInMemoryByteChannel();
+//        ZipArchiveOutputStream outStream =
+//                new ZipArchiveOutputStream(new BufferedOutputStream(Channels.newOutputStream(seekableByteChannel),40184830));
+
+        ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(
+                new BufferedOutputStream(new FileOutputStream(executableFilePath.toString())));
+
+        try {
+            writeManifest(manifest, outStream);
+
+            // Sort jar libraries list to avoid inconsistent jar reporting
+            List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
+                    .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName()))
+                    .collect(Collectors.toList());
+
+            // Copy all the jars
+            for (JarLibrary library : sortedJarLibraries) {
+                copyJar(outStream, library, copiedEntries, serviceEntries);
+            }
+
+//            emitCodeGenOptimizationReport();
+
+            // Copy merged spi services.
+            for (Map.Entry<String, StringBuilder> entry : serviceEntries.entrySet()) {
+                String s = entry.getKey();
+                StringBuilder service = entry.getValue();
+                JarArchiveEntry e = new JarArchiveEntry(s);
+                outStream.putArchiveEntry(e);
+                outStream.write(service.toString().getBytes(StandardCharsets.UTF_8));
+                outStream.closeArchiveEntry();
+            }
+//            outStream.flush();
+//            outStream.finish();
+//            ZipFile originalFatJar = new ZipFile(seekableByteChannel, "fatExecutable.jar", "UTF8", true);
+//            ZipFile originalFatJar = new ZipFile(new File(executableFilePath.toString()));
+
+            outStream.close();
+            ZipFile originalFatJar = new ZipFile(executableFilePath.toString());
+
+            HashSet<String> startPoints = new HashSet<>();
+            startPoints.add(getMainClassFileName(this.packageContext()));
+            ZipArchiveOutputStream optimizedJarStream = new ZipArchiveOutputStream(
+                    new FileOutputStream(executableFilePath.toString().replace(".jar", "_OPTIMIZED.jar")));
+
+            NativeDependencyOptimizer nativeDependencyOptimizer =
+                    new NativeDependencyOptimizer(startPoints, originalFatJar, optimizedJarStream);
+
+            nativeDependencyOptimizer.analyzeServiceProviders();
+            nativeDependencyOptimizer.analyzeUsedClasses();
+            nativeDependencyOptimizer.copyUsedEntries();
+
+            optimizedJarStream.close();
+            File originalJar = new File(executableFilePath.toString());
+            originalJar.delete();
+//            seekableByteChannel.close();
+//            outStream.close();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private static String getMainClassFileName(PackageContext rootPkgContext) {
+        String orgName = rootPkgContext.descriptor().org().toString();
+        String pkgName = rootPkgContext.descriptor().name().toString();
+        return String.format("%s/%s/0/$_init", orgName, pkgName);
+    }
+
     private void writeManifest(Manifest manifest, ZipArchiveOutputStream outStream) throws IOException {
         JarArchiveEntry e = new JarArchiveEntry(JarFile.MANIFEST_NAME);
         outStream.putArchiveEntry(e);
@@ -750,9 +825,6 @@ public class JBallerinaBackend extends CompilerBackend {
     private void copyJar(ZipArchiveOutputStream outStream, JarLibrary jarLibrary,
                          HashMap<String, JarLibrary> copiedEntries, HashMap<String, StringBuilder> services)
             throws IOException {
-        HashSet<String> currentEntry = new HashSet<>();
-        pkgWiseDeletedEntries.putIfAbsent(jarLibrary.packageName().get(), currentEntry);
-
         ZipFile dynamicZipFile;
         ByteArrayOutputStream optimizedStream = getOptimizedStream(jarLibrary.path().toString());
         if (optimizedStream == null) {
@@ -887,15 +959,26 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private Path emitExecutable(Path executableFilePath) {
-//        Manifest manifest = createManifest();
+        Manifest manifest = createManifest();
+        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
+
+        try {
+            assembleExecutableJar(executableFilePath, manifest, jarLibraries);
+        } catch (IOException e) {
+            throw new ProjectException("error while creating the executable jar file for package '" +
+                    this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
+        }
+        return executableFilePath;
+    }
+
+    private Path emitOptimizedExecutable(Path executableFilePath) {
         Manifest manifest = createOptimizedFileManifest();
-//        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
         Collection<JarLibrary> jarLibraries =
                 jarResolver.getJarFilePathsRequiredForOptimizedExecution(unusedPackageIds, unusedModuleIds,
                         pkgWiseUsedNativeClassPaths);
 
         try {
-            assembleExecutableJar(executableFilePath, manifest, jarLibraries);
+            assembleOptimizedExecutableJar(executableFilePath, manifest, jarLibraries);
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package '" +
                     this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
@@ -1055,7 +1138,8 @@ public class JBallerinaBackend extends CompilerBackend {
     public enum OutputType {
         EXEC("exec"),
         BALA("bala"),
-        GRAAL_EXEC("graal_exec")
+        GRAAL_EXEC("graal_exec"),
+        OPTIMIZE_CODEGEN("optimize_codegen")
         ;
 
         private String value;

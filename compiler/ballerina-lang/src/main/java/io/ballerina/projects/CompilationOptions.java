@@ -39,13 +39,13 @@ public class CompilationOptions {
     Boolean exportComponentModel;
     Boolean enableCache;
     Boolean disableSyntaxTree;
-    Boolean optimizeJar = true;
+    static Boolean optimizeCodegen;
 
-    CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
-                       Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
-                       Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
-                       Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
-                       Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree) {
+    CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
+                       String cloud, Boolean listConflictedClasses, Boolean sticky, Boolean dumpGraph,
+                       Boolean dumpRawGraphs, Boolean withCodeGenerators, Boolean withCodeModifiers,
+                       Boolean configSchemaGen, Boolean exportOpenAPI, Boolean exportComponentModel,
+                       Boolean enableCache, Boolean disableSyntaxTree, Boolean optimizeCodegen) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
@@ -61,6 +61,9 @@ public class CompilationOptions {
         this.exportOpenAPI = exportOpenAPI;
         this.exportComponentModel = exportComponentModel;
         this.enableCache = enableCache;
+        if (CompilationOptions.optimizeCodegen == null) {
+            CompilationOptions.optimizeCodegen = optimizeCodegen;
+        }
         this.disableSyntaxTree = disableSyntaxTree;
     }
 
@@ -122,6 +125,10 @@ public class CompilationOptions {
 
     public boolean enableCache() {
         return toBooleanDefaultIfNull(this.enableCache);
+    }
+
+    public boolean optimizeCodegen() {
+        return toBooleanDefaultIfNull(this.optimizeCodegen);
     }
 
     /**
@@ -207,6 +214,11 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setEnableCache(this.enableCache);
         }
+        if (theirOptions.optimizeCodegen != null) {
+            compilationOptionsBuilder.setOptimizeCodegen(theirOptions.optimizeCodegen);
+        } else {
+            compilationOptionsBuilder.setOptimizeCodegen(this.optimizeCodegen);
+        }
         return compilationOptionsBuilder.build();
     }
 
@@ -239,6 +251,10 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.disableSyntaxTree);
     }
 
+    public boolean optimizeCodeGen() {
+        return toBooleanDefaultIfNull(this.optimizeCodegen);
+    }
+
     /**
      * A builder for the {@code CompilationOptions}.
      *
@@ -261,6 +277,7 @@ public class CompilationOptions {
         private Boolean exportComponentModel;
         private Boolean enableCache;
         private Boolean disableSyntaxTree;
+        private Boolean optimizeCodegen;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -337,6 +354,13 @@ public class CompilationOptions {
             return this;
         }
 
+        CompilationOptionsBuilder setOptimizeCodegen(Boolean value) {
+            if (optimizeCodegen == null) {
+                optimizeCodegen = value;
+            }
+            return this;
+        }
+
         public CompilationOptionsBuilder setEnableCache(Boolean value) {
             enableCache = value;
             return this;
@@ -346,7 +370,7 @@ public class CompilationOptions {
             return new CompilationOptions(offline, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
                     withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
-                    exportComponentModel, enableCache, disableSyntaxTree);
+                    exportComponentModel, enableCache, disableSyntaxTree, optimizeCodegen);
         }
     }
 }

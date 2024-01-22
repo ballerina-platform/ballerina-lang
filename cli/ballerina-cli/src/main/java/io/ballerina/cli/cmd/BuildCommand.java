@@ -191,6 +191,9 @@ public class BuildCommand implements BLauncherCmd {
             "generation")
     private String graalVMBuildOptions;
 
+    @CommandLine.Option(names = "--optimize", description = "generate optimized executable jar", defaultValue = "false")
+    private Boolean optimizeCodegen;
+
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -313,7 +316,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setEnableCache(enableCache)
                 .setNativeImage(nativeImage)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
-                .setGraalVMBuildOptions(graalVMBuildOptions);
+                .setGraalVMBuildOptions(graalVMBuildOptions)
+                .setOptimizeCodegen(optimizeCodegen);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
