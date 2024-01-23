@@ -20,8 +20,6 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.SimpleType;
-import io.ballerina.runtime.api.SimpleTypeBuilder;
-import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.DecimalType;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -43,10 +41,13 @@ public class BDecimalType extends BType implements DecimalType {
      */
 
     private final SimpleType simpleType =
-            new SimpleType(SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.DECIMAL), SimpleTypeBuilder.NONE);
+            new SimpleType(
+                    SimpleType.Builder.basicTypeBitset(SimpleType.Tag.DECIMAL),
+                    SimpleType.Builder.NONE);
     public BDecimalType(String typeName, Module pkg) {
         super(typeName, pkg, DecimalValue.class,
-                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.INT)));
+                new SimpleType(SimpleType.Builder.NONE,
+                        SimpleType.Builder.basicTypeBitset(SimpleType.Tag.INT)));
     }
 
     @Override

@@ -17,8 +17,6 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.SimpleTypeBuilder;
-import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -59,8 +57,9 @@ public class TypedescValueImpl implements TypedescValue {
     public MapValue[] closures;
     public MapValue annotations;
     private BTypedesc typedesc;
-    private SimpleType simpleType = new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(
-            SimpleTypeTag.TYPEDESC));
+    private SimpleType simpleType =
+            new SimpleType(SimpleType.Builder.NONE, SimpleType.Builder.basicTypeBitset(
+                    SimpleType.Tag.TYPEDESC));
 
     @Deprecated
     public TypedescValueImpl(Type describingType) {

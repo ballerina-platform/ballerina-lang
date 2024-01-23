@@ -19,7 +19,6 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.SimpleType;
-import io.ballerina.runtime.api.SimpleTypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
@@ -54,7 +53,8 @@ public class BFiniteType extends BType implements FiniteType {
 
     public BFiniteType(String typeName, String originalName, Set<Object> values, int typeFlags) {
         // FIXME:
-        super(typeName, null, RefValue.class, new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.ALL));
+        super(typeName, null, RefValue.class, new SimpleType(
+                SimpleType.Builder.NONE, SimpleType.Builder.ALL));
         this.valueSpace = values;
         this.typeFlags = typeFlags;
         this.originalName = originalName;

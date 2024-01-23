@@ -17,8 +17,6 @@
 
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.SimpleTypeBuilder;
-import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -106,8 +104,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     private final Map<String, Object> nativeData = new HashMap<>();
     private BTypedesc typedesc;
-    private final SimpleType simpleType = new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(
-            SimpleTypeTag.TABLE));
+    private final SimpleType simpleType = new SimpleType(
+            SimpleType.Builder.NONE, SimpleType.Builder.basicTypeBitset(
+            SimpleType.Tag.TABLE));
 
     public TableValueImpl(TableType tableType) {
         this.type = this.tableType = tableType;

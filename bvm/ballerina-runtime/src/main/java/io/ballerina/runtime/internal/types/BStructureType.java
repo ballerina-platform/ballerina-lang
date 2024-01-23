@@ -19,8 +19,6 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.SimpleType;
-import io.ballerina.runtime.api.SimpleTypeBuilder;
-import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.StructureType;
 
@@ -46,8 +44,9 @@ public abstract class BStructureType extends BAnnotatableType implements Structu
      * @param valueClass of the structure type
      */
     public BStructureType(String typeName, Module pkg, long flags, Class<? extends Object> valueClass) {
-        super(typeName, pkg, valueClass, new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(
-                SimpleTypeTag.MAPPING)));
+        super(typeName, pkg, valueClass,
+                new SimpleType(SimpleType.Builder.NONE, SimpleType.Builder.basicTypeBitset(
+                        SimpleType.Tag.MAPPING)));
         this.flags = flags;
         fields = new HashMap<>();
     }
@@ -63,8 +62,9 @@ public abstract class BStructureType extends BAnnotatableType implements Structu
      */
     public BStructureType(String typeName, Module pkg, long flags, Class<? extends Object> valueClass,
                           Map<String, Field> fields) {
-        super(typeName, pkg, valueClass, new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(
-                SimpleTypeTag.MAPPING)));
+        super(typeName, pkg, valueClass,
+                new SimpleType(SimpleType.Builder.NONE, SimpleType.Builder.basicTypeBitset(
+                        SimpleType.Tag.MAPPING)));
         this.flags = flags;
         this.fields = fields;
     }

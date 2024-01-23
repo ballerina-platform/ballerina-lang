@@ -18,8 +18,6 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.SimpleType;
-import io.ballerina.runtime.api.SimpleTypeBuilder;
-import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
@@ -67,8 +65,9 @@ public abstract class AbstractObjectValue implements ObjectValue {
     private final Type type;
 
     private final HashMap<String, Object> nativeData = new HashMap<>();
-    private final SimpleType simpleType = new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(
-            SimpleTypeTag.OBJECT));
+    private final SimpleType simpleType = new SimpleType(
+            SimpleType.Builder.NONE, SimpleType.Builder.basicTypeBitset(
+            SimpleType.Tag.OBJECT));
 
     public AbstractObjectValue(Type type) {
         this.type = type;

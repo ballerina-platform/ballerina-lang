@@ -20,8 +20,6 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.SimpleType;
-import io.ballerina.runtime.api.SimpleTypeBuilder;
-import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -60,8 +58,9 @@ public class BTupleType extends BAnnotatableType implements TupleType {
      * @param typeList of the tuple type
      */
     public BTupleType(List<Type> typeList) {
-        super(null, null, Object.class, new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(
-                SimpleTypeTag.LIST)));
+        super(null, null, Object.class,
+                new SimpleType(SimpleType.Builder.NONE, SimpleType.Builder.basicTypeBitset(
+                        SimpleType.Tag.LIST)));
         this.tupleTypes = typeList;
         this.restType = null;
         checkAllMembers();
@@ -86,7 +85,8 @@ public class BTupleType extends BAnnotatableType implements TupleType {
      */
     public BTupleType(List<Type> typeList, Type restType, int typeFlags, boolean isCyclic, boolean readonly) {
         super(null, null, Object.class,
-                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.LIST)));
+                new SimpleType(SimpleType.Builder.NONE,
+                        SimpleType.Builder.basicTypeBitset(SimpleType.Tag.LIST)));
         if (readonly) {
             this.resolvingReadonly = true;
             this.tupleTypes = getReadOnlyTypes(typeList);
@@ -103,7 +103,8 @@ public class BTupleType extends BAnnotatableType implements TupleType {
 
     public BTupleType(String name, Module pkg, int typeFlags, boolean isCyclic, boolean readonly) {
         super(name, pkg, Object.class,
-                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.LIST)));
+                new SimpleType(SimpleType.Builder.NONE,
+                        SimpleType.Builder.basicTypeBitset(SimpleType.Tag.LIST)));
         this.typeFlags = typeFlags;
         this.tupleTypes = new ArrayList<>(0);
         this.restType = null;

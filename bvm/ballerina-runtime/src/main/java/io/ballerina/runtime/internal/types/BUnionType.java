@@ -19,7 +19,6 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.SimpleType;
-import io.ballerina.runtime.api.SimpleTypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -74,7 +73,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
 
     private BUnionType(List<Type> memberTypes, List<Type> originalMemberTypes, int typeFlags, boolean isCyclic,
                        long flags) {
-        super(null, null, Object.class, SimpleTypeBuilder.union(Stream.concat(memberTypes.stream(),
+        super(null, null, Object.class, SimpleType.Builder.union(Stream.concat(memberTypes.stream(),
                 originalMemberTypes.stream()).collect(Collectors.toList())));
         this.typeFlags = typeFlags;
         this.readonly = isReadOnlyFlagOn(flags);
@@ -84,7 +83,8 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     public BUnionType(int typeFlags, boolean isCyclic, long flags) {
-        super(null, null, Object.class, new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.ALL));
+        super(null, null, Object.class,
+                new SimpleType(SimpleType.Builder.NONE, SimpleType.Builder.ALL));
         this.typeFlags = typeFlags;
         this.readonly = isReadOnlyFlagOn(flags);
         this.memberTypes = new ArrayList<>(0);
@@ -97,7 +97,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     public BUnionType(String typeName, Module pkg, List<Type> memberTypes, boolean readonly) {
-        super(typeName, pkg, Object.class, SimpleTypeBuilder.union(memberTypes));
+        super(typeName, pkg, Object.class, SimpleType.Builder.union(memberTypes));
         this.readonly = readonly;
         setMemberTypes(memberTypes);
     }
@@ -107,7 +107,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     public BUnionType(List<Type> memberTypes, boolean readonly, boolean isCyclic) {
-        super(null, null, Object.class, SimpleTypeBuilder.union(memberTypes));
+        super(null, null, Object.class, SimpleType.Builder.union(memberTypes));
         this.typeFlags = 0;
         this.readonly = readonly;
         setMemberTypes(memberTypes);
@@ -123,7 +123,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     public BUnionType(List<Type> memberTypes, String name, Module pkg, int typeFlags, boolean isCyclic, long flags) {
-        super(name, pkg, Object.class, SimpleTypeBuilder.union(memberTypes));
+        super(name, pkg, Object.class, SimpleType.Builder.union(memberTypes));
         this.typeFlags = typeFlags;
         this.readonly = isReadOnlyFlagOn(flags);
         this.memberTypes = memberTypes;
@@ -136,7 +136,8 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     protected BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {
-        super(typeName, pkg, valueClass, new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.NONE));
+        super(typeName, pkg, valueClass,
+                new SimpleType(SimpleType.Builder.NONE, SimpleType.Builder.NONE));
         this.readonly = readonly;
     }
 
@@ -158,8 +159,8 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     public BUnionType(Type[] memberTypes, Type[] originalMemberTypes, String name, Module pkg, int typeFlags,
                       boolean isCyclic, long flags) {
         super(name, pkg, Object.class,
-                SimpleTypeBuilder.union(List.of(memberTypes))
-                        .union(SimpleTypeBuilder.union(List.of(originalMemberTypes))));
+                SimpleType.Builder.union(List.of(memberTypes))
+                        .union(SimpleType.Builder.union(List.of(originalMemberTypes))));
         this.typeFlags = typeFlags;
         this.readonly = isReadOnlyFlagOn(flags);
         this.isCyclic = isCyclic;

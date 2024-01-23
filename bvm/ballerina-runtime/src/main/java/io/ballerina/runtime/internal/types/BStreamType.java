@@ -21,8 +21,6 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.SimpleType;
-import io.ballerina.runtime.api.SimpleTypeBuilder;
-import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.StreamType;
@@ -52,7 +50,8 @@ public class BStreamType extends BType implements StreamType {
     public BStreamType(String typeName, Type constraint, Type completionType, Module pkgPath) {
         // FIXME: what is the correct top type
         super(typeName, pkgPath, StreamValue.class,
-                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.STREAM)));
+                new SimpleType(SimpleType.Builder.NONE,
+                        SimpleType.Builder.basicTypeBitset(SimpleType.Tag.STREAM)));
         this.constraint = constraint;
         this.completionType = completionType;
     }

@@ -19,8 +19,6 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.SimpleTypeBuilder;
-import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -59,8 +57,9 @@ public class DecimalValue implements SimpleValue, BDecimal {
     private static final BigDecimal MIN_DECIMAL_MAGNITUDE =
             new BigDecimal("1.000000000000000000000000000000000e-6143", MathContext.DECIMAL128);
 
-    private final SimpleType simpleType = new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(
-            SimpleTypeTag.DECIMAL));
+    private final SimpleType simpleType = new SimpleType(
+            SimpleType.Builder.NONE, SimpleType.Builder.basicTypeBitset(
+            SimpleType.Tag.DECIMAL));
 
     // Variable used to track the kind of a decimal value.
     @Deprecated

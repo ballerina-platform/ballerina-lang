@@ -19,8 +19,6 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.SimpleType;
-import io.ballerina.runtime.api.SimpleTypeBuilder;
-import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.StringType;
@@ -42,17 +40,19 @@ public class BStringType extends BType implements StringType {
      */
     public BStringType(String typeName, Module pkg) {
         super(typeName, pkg, String.class,
-                new SimpleType(SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.STRING), SimpleTypeBuilder.NONE));
+                new SimpleType(SimpleType.Builder.basicTypeBitset(SimpleType.Tag.STRING),
+                        SimpleType.Builder.NONE));
         tag = TypeTags.STRING_TAG;
     }
 
     public BStringType(String typeName, Module pkg, int tag) {
         // FIXME: formatting
         super(typeName, pkg, String.class,
-                tag == TypeTags.STRING_TAG ? new SimpleType(SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.STRING),
-                        SimpleTypeBuilder.NONE) :
-                        new SimpleType(SimpleTypeBuilder.NONE,
-                                SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.STRING)));
+                tag == TypeTags.STRING_TAG ?
+                        new SimpleType(SimpleType.Builder.basicTypeBitset(SimpleType.Tag.STRING),
+                                SimpleType.Builder.NONE) :
+                        new SimpleType(SimpleType.Builder.NONE,
+                                SimpleType.Builder.basicTypeBitset(SimpleType.Tag.STRING)));
         this.tag = tag;
     }
 

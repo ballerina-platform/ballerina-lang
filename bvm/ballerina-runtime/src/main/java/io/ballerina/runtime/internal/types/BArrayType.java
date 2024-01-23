@@ -18,8 +18,6 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.SimpleType;
-import io.ballerina.runtime.api.SimpleTypeBuilder;
-import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -79,7 +77,8 @@ public class BArrayType extends BType implements ArrayType {
     public BArrayType(int typeFlags, int size, boolean readonly, boolean hasFillerValue) {
         // FIXME: properly differentiate list top type
         super(null, null, ArrayValue.class,
-                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.LIST)));
+                new SimpleType(SimpleType.Builder.NONE,
+                        SimpleType.Builder.basicTypeBitset(SimpleType.Tag.LIST)));
         this.typeFlags = typeFlags;
         if (size != -1) {
             state = ArrayState.CLOSED;

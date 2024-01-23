@@ -21,6 +21,9 @@
 
 package io.ballerina.runtime.api;
 
+import io.ballerina.runtime.api.types.Type;
+
+import java.util.List;
 import java.util.stream.Stream;
 
 public record SimpleType(long all, long some) {
@@ -47,31 +50,100 @@ public record SimpleType(long all, long some) {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof SimpleType other)) {
-            return false;
-        }
-        return this.all == other.all && this.some == other.some;
-    }
-
-    @Override
     public String toString() {
-        SimpleTypeTag[] allTags =
-                Stream.of(SimpleTypeTag.values()).filter(tag -> (all & (1L << tag.ordinal())) != 0)
-                        .toArray(SimpleTypeTag[]::new);
-        SimpleTypeTag[] someTags =
-                Stream.of(SimpleTypeTag.values()).filter(tag -> (some & (1L << tag.ordinal())) != 0)
-                        .toArray(SimpleTypeTag[]::new);
+        Tag[] allTags =
+                Stream.of(Tag.values()).filter(tag -> (all & (1L << tag.ordinal())) != 0)
+                        .toArray(Tag[]::new);
+        Tag[] someTags =
+                Stream.of(Tag.values()).filter(tag -> (some & (1L << tag.ordinal())) != 0)
+                        .toArray(Tag[]::new);
         StringBuilder sb = new StringBuilder();
         sb.append("SimpleType all: {");
-        for (SimpleTypeTag tag : allTags) {
+        for (Tag tag : allTags) {
             sb.append(tag).append(", ");
         }
         sb.append("} some: {");
-        for (SimpleTypeTag tag : someTags) {
+        for (Tag tag : someTags) {
             sb.append(tag).append(", ");
         }
         sb.append("}");
         return sb.toString();
+    }
+
+    public enum Tag {
+        NIL,
+        BOOLEAN,
+        INT,
+        FLOAT,
+        DECIMAL,
+        STRING,
+        ERROR,
+        TYPEDESC,
+        HANDLE,
+        FUNCTION,
+
+        // Inherently mutable
+        FUTURE,
+        STREAM,
+
+        // Selectively immutable
+        LIST,
+        MAPPING,
+        TABLE,
+        XML,
+        OBJECT,
+        CELL
+    }
+
+    public static class Builder {
+
+        public static final long NONE = 0;
+        public static final long ALL = (1L << (Tag.values().length + 1)) - 1;
+
+        public static long basicTypeUnionBitset(Tag... basicTypes) {
+            long bits = 0;
+            for (Tag basicType : basicTypes) {
+                bits |= (1L << basicType.ordinal());
+            }
+            return bits;
+        }
+
+        public static long basicTypeBitset(Tag basicType) {
+            return 1L << basicType.ordinal();
+        }
+
+        public static SimpleType createContainerSimpleType(Type constraint, Tag tag) {
+            SimpleType constraintSimpleType = constraint.getSimpleType();
+            if (constraintSimpleType.all == ALL) {
+                // no constraint mean it is the top type
+                return new SimpleType(Builder.basicTypeBitset(tag), Builder.NONE);
+            }
+            return new SimpleType(Builder.NONE, Builder.basicTypeBitset(tag));
+        }
+
+        public static long except(Tag... basicTypes) {
+            long bits = ALL;
+            for (Tag basicType : basicTypes) {
+                bits &= ~(1L << basicType.ordinal());
+            }
+            return bits;
+        }
+
+        public static SimpleType intersection(List<Type> types) {
+            if (types.isEmpty()) {
+                // I assume this (and union) is because we are modifying types after the fact
+                return new SimpleType(NONE, NONE);
+            }
+            return types.stream().skip(1).map(Type::getSimpleType)
+                    .reduce(types.get(0).getSimpleType(), SimpleType::intersection);
+        }
+
+        public static SimpleType union(List<Type> types) {
+            if (types.isEmpty()) {
+                return new SimpleType(NONE, NONE);
+            }
+            return types.stream().skip(1).map(Type::getSimpleType)
+                    .reduce(types.get(0).getSimpleType(), SimpleType::union);
+        }
     }
 }

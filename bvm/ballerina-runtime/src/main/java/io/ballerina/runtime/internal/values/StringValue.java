@@ -18,7 +18,6 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.SimpleTypeBuilder;
 import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
@@ -26,7 +25,7 @@ import io.ballerina.runtime.api.values.BString;
 
 import java.util.Map;
 
-import static io.ballerina.runtime.api.SimpleTypeTag.STRING;
+import static io.ballerina.runtime.api.SimpleType.Tag.STRING;
 
 /**
  * Class representing ballerina strings.
@@ -37,7 +36,8 @@ public abstract class StringValue implements BString, SimpleValue {
 
     final String value;
     final boolean isNonBmp;
-    final SimpleType simpleType = new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(STRING));
+    final SimpleType simpleType =
+            new SimpleType(SimpleType.Builder.NONE, SimpleType.Builder.basicTypeBitset(STRING));
 
     protected StringValue(String value, boolean isNonBmp) {
         this.value = value;

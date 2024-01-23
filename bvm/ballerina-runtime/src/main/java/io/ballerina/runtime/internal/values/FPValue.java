@@ -17,8 +17,6 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.SimpleTypeBuilder;
-import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
@@ -52,7 +50,8 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     final Type type;
     private BTypedesc typedesc;
     private SimpleType simpleType =
-            new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.FUNCTION));
+            new SimpleType(SimpleType.Builder.NONE,
+                    SimpleType.Builder.basicTypeBitset(SimpleType.Tag.FUNCTION));
     Function<T, R> function;
     public boolean isConcurrent;
     public String strandName;

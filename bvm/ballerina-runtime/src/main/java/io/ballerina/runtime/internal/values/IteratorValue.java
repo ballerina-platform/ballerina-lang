@@ -18,8 +18,6 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.SimpleTypeBuilder;
-import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BIterator;
@@ -42,7 +40,8 @@ public interface IteratorValue extends RefValue, BIterator {
 
     BTypedesc TYPEDESC = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
     SimpleType TAGGED_TYPE =
-            new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.OBJECT));
+            new SimpleType(SimpleType.Builder.NONE,
+                    SimpleType.Builder.basicTypeBitset(SimpleType.Tag.OBJECT));
 
     /* Default implementation */
 

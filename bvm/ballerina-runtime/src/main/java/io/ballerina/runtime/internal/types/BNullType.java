@@ -19,8 +19,6 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.SimpleType;
-import io.ballerina.runtime.api.SimpleTypeBuilder;
-import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.NullType;
 
@@ -39,7 +37,8 @@ public class BNullType extends BType implements NullType {
      */
     public BNullType(String typeName, Module pkg) {
         super(typeName, pkg, null,
-                new SimpleType(SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.NIL), SimpleTypeBuilder.NONE));
+                new SimpleType(SimpleType.Builder.basicTypeBitset(SimpleType.Tag.NIL),
+                        SimpleType.Builder.NONE));
     }
 
     public <V extends Object> V getZeroValue() {
