@@ -285,10 +285,8 @@ public class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
-        if (checkIsType(sourceVal, targetType, null)) {
-            return true;
-        }
-        return checkIsTypeFinalize(null, sourceVal, getType(sourceVal), targetType);
+        return checkIsType(sourceVal, targetType, null) ||
+                checkIsTypeFinalize(null, sourceVal, getType(sourceVal), targetType);
     }
 
     /**
@@ -301,20 +299,8 @@ public class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
-        TypeCheckMemoKey key = new TypeCheckMemoKey(sourceType, targetType);
-        Boolean result = typeCheckMemo.get(key);
-        if (result != null) {
-            return result;
-        }
-        result = checkIsType(sourceVal, sourceType, targetType, null) ||
+        return checkIsType(sourceVal, sourceType, targetType, null) ||
                 checkIsTypeFinalize(errors, sourceVal, sourceType, targetType);
-//        if (result != null && result != actual) {
-//            throw new RuntimeException("unexpected");
-//        } else {
-//
-        typeCheckMemo.put(key, result);
-//        }
-        return result;
     }
 
     private static boolean checkIsTypeFinalize(List<String> errors, Object sourceVal, Type sourceType,
@@ -578,19 +564,7 @@ public class TypeChecker {
      * @return flag indicating the the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
-        TypeCheckMemoKey key = new TypeCheckMemoKey(sourceType, targetType);
-        Boolean result = typeCheckMemo.get(key);
-        if (result != null) {
-            return result;
-        }
-        result = checkIsType(sourceType, targetType, (List<TypePair>) null);
-//        if (result != null && result != actual) {
-//            throw new RuntimeException("unexpected");
-//        } else {
-
-        typeCheckMemo.put(key, result);
-//        }
-        return result;
+        return checkIsType(sourceType, targetType, null);
     }
 
     @Deprecated
@@ -726,7 +700,21 @@ public class TypeChecker {
         return switch (checkIsTypeSimple(sourceType.getSimpleType(), targetType.getSimpleType())) {
             case TRUE -> true;
             case FALSE -> false;
-            case UNKNOWN -> checkIsTypeInner(sourceVal, sourceType, targetType, unresolvedTypes);
+            case UNKNOWN -> {
+                TypeCheckMemoKey key = new TypeCheckMemoKey(sourceVal, sourceType, targetType);
+                Boolean cachedResult = typeCheckMemo.get(key);
+                if (cachedResult != null) {
+                    yield cachedResult;
+                }
+                boolean result = checkIsTypeInner(sourceVal, sourceType, targetType, unresolvedTypes);
+                typeCheckMemo.put(key, result);
+//                if (cachedResult == null) {
+//                    typeCheckMemo.put(key, result);
+//                } else if (cachedResult != result) {
+//                    throw new AssertionError("Unexpected");
+//                }
+                yield result;
+            }
         };
     }
 
@@ -3703,10 +3691,10 @@ public class TypeChecker {
     }
 
     // FIXME:
-    private static class TypeCheckMemoTable<V> {
+    private static final class TypeCheckMemoTable<V> {
 
         private static final int CACHE_SIZE = 100;
-        private final Map<TypeCheckMemoKey, V> cache;
+        private final Map<TypeCheckMemoKey, TypeCheckMemoData<V>> cache;
 
         private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
@@ -3714,35 +3702,53 @@ public class TypeChecker {
             // NOTE: accessOrdered mean get is also a structural modification
             this.cache = new LinkedHashMap<>(CACHE_SIZE, 0.75f, false) {
                 @Override
-                protected boolean removeEldestEntry(Map.Entry<TypeCheckMemoKey, V> eldest) {
+                protected boolean removeEldestEntry(Map.Entry<TypeCheckMemoKey, TypeCheckMemoData<V>> eldest) {
                     return size() > CACHE_SIZE;
                 }
             };
         }
 
         public V get(TypeCheckMemoKey key) {
-//            rwLock.readLock().lock();
-            V val = cache.get(key);
-//            rwLock.readLock().unlock();
-            return val;
+            rwLock.readLock().lock();
+            TypeCheckMemoData<V> data = cache.get(key);
+            rwLock.readLock().unlock();
+            if (data == null) {
+                return null;
+            }
+            if (data.shouldInvalidate(key)) {
+                // not sure if invalidation is the right move here maybe we should just return null
+                // -- this  prevents us from potentially reusing the results but should reduce the lookup costs?
+                rwLock.writeLock().lock();
+                // We are not using clear sine multiple threads could do this sequentially
+                cache.put(key, null);
+                rwLock.writeLock().unlock();
+                return null;
+            }
+            return data.data();
         }
 
         public void put(TypeCheckMemoKey key, V value) {
-            // FIXME:
-            if (key.sourceType().isReadOnly() || key.destinationType().isReadOnly()) {
-                return;
-            }
-//            rwLock.writeLock().lock();
-            cache.put(key, value);
-//            rwLock.writeLock().unlock();
+            rwLock.writeLock().lock();
+            TypeCheckMemoData<V> valueData = new TypeCheckMemoData<>(value, key.sourceValue);
+            cache.put(key, valueData);
+            rwLock.writeLock().unlock();
         }
-
     }
 
-    /**
-     * @param sourceType TODO: better field names
-     */
-    private record TypeCheckMemoKey(Type sourceType, Type destinationType) {
+    private record TypeCheckMemoData<V>(V data, Object sourceValue) {
+
+        // TODO: add comment
+        public boolean shouldInvalidate(TypeCheckMemoKey key) {
+            int sourceTypeTag = key.sourceType.getTag();
+            if (sourceTypeTag != TypeTags.RECORD_TYPE_TAG && sourceTypeTag != TypeTags.OBJECT_TYPE_TAG) {
+                return false;
+            }
+            return key.sourceValue != sourceValue;
+        }
+    }
+
+    // NOTE: we are using sourceValue to invalidate cache for record types
+    private record TypeCheckMemoKey(Object sourceValue, Type sourceType, Type destinationType) {
         @Override
         public String toString() {
             return sourceType.toString() + ":" + destinationType.toString();
