@@ -86,6 +86,8 @@ public class IntersectionTypeTest {
         validateError(result, index++, "invalid intersection type '(Baz & readonly)': no intersection", 32,
                       45);
         validateError(result, index++, "incompatible types: 'Y' is not a record", 42, 6);
+        validateError(result, index++, "incompatible types: expected " +
+                "'((stream<int>|ballerina/lang.string:0.0.0:RegExp) & readonly)', found 'stream<int>'", 48, 48);
 
         assertEquals(result.getErrorCount(), index);
     }
