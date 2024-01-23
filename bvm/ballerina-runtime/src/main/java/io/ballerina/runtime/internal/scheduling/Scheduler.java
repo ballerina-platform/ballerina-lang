@@ -89,6 +89,7 @@ public class Scheduler {
 
     public static void setDaemonStrand(Strand strand) {
         daemonStrand = strand;
+        daemonStrand.isDaemon = true;
     }
 
     public static Strand getDaemonStrand() {
@@ -455,7 +456,7 @@ public class Scheduler {
     }
 
     private void cleanUp(Strand justCompleted) {
-        if (daemonStrand != null && !daemonStrand.equals(justCompleted)) {
+        if (!justCompleted.isDaemon) {
             justCompleted.scheduler = null;
         }
         justCompleted.frames = null;
