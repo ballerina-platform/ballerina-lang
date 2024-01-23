@@ -621,7 +621,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         if (funcNode.mapSymbolUpdated) {
             return;
         }
-        BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(funcNode.pos, symTable.mapType);
+        BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(funcNode.pos, symTable.mapAllType);
         BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(funcNode.pos, funcNode.mapSymbol.name.value,
                                                                    funcNode.mapSymbol.type, emptyRecord,
                                                                    funcNode.mapSymbol);
