@@ -31,34 +31,44 @@ import org.testng.annotations.Test;
  *
  * @since 2201.9.0
  */
-public class XMLNSDefTest {
+public class XMLNSTest {
 
     private CompileResult result;
-    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/xml/xmlns-def.bal");
-        negativeResult = BCompileUtil.compile("test-src/types/xml/xmlns-def-negative.bal");
+        result = BCompileUtil.compile("test-src/types/xml/xmlns.bal");
     }
 
     @Test
-    public void testXMLNSDefinitionUsingConstant() {
-        BRunUtil.invoke(result, "testXMLNSDefinitionUsingConstant");
+    public void testXMLNSDeclUsingConstant() {
+        BRunUtil.invoke(result, "testXMLNSDeclUsingConstant");
+    }
+
+    @Test
+    public void testXMLNSDeclStmtUsingConstant() {
+        BRunUtil.invoke(result, "testXMLNSDeclStmtUsingConstant");
+    }
+
+    @Test
+    public void testXMLNSUsageInModuleVar() {
+        BRunUtil.invoke(result, "testXMLNSUsageInModuleVar");
     }
 
     @Test
     public void testXMLNSNegativeDefinition() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/types/xml/xmlns_negative.bal");
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 4, 7);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 5, 7);
-        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'C'", 6, 7);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 21, 7);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 22, 7);
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'D'", 23, 7);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 26, 11);
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'E'", 27, 11);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @AfterClass
     public void tearDown() {
         result = null;
-        negativeResult = null;
     }
 }
