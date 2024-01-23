@@ -334,9 +334,9 @@ public class PackageResolution {
             }
         }
 
-        if (compilationOptions.optimizeJar) {
+//        if (compilationOptions.optimizeCodegen()) {
 //            loadLangLibModuleRequests(allModuleLoadRequests);
-        }
+//        }
 
         // TODO Can we make this a builtin compiler plugin
         if ("k8s".equals(compilationOptions.getCloud()) || "docker".equals(compilationOptions.getCloud()) ||
