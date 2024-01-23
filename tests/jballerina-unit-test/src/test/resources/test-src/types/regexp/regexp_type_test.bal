@@ -117,9 +117,14 @@ type Foo record {|
 Foo & readonly rf = {e: 1, f: re `test`};
 
 function testRegExpReadonlyLocalVars() {
-    string:RegExp & readonly _ = re `test`;
-    T1 & readonly _ = re `test`;
-    (T2 & readonly) & string:RegExp _ = re `test`;
+    string:RegExp & readonly r1 = re `test`;
+    assertEquality(true, r1 is readonly);
+
+    T1 & readonly r2 = re `test`;
+    assertEquality(true, r2 is readonly);
+
+    (T2 & readonly) & string:RegExp r3 = re `test`;
+    assertEquality(true, r3 is readonly);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
