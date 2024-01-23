@@ -48,7 +48,7 @@
         "arguments": [
           "extractToVariableInQueryExpression.bal",
           {
-            "line": 3,
+            "line": 4,
             "character": 24
           }
         ]
