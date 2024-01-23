@@ -89,14 +89,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANY;
@@ -3696,42 +3694,28 @@ public class TypeChecker {
         private static final int CACHE_SIZE = 100;
         private final Map<TypeCheckMemoKey, TypeCheckMemoData<V>> cache;
 
-        private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
-
         private TypeCheckMemoTable() {
-            // NOTE: accessOrdered mean get is also a structural modification
-            this.cache = new LinkedHashMap<>(CACHE_SIZE, 0.75f, false) {
-                @Override
-                protected boolean removeEldestEntry(Map.Entry<TypeCheckMemoKey, TypeCheckMemoData<V>> eldest) {
-                    return size() > CACHE_SIZE;
-                }
-            };
+            this.cache = new ConcurrentHashMap<>(CACHE_SIZE);
         }
 
         public V get(TypeCheckMemoKey key) {
-            rwLock.readLock().lock();
             TypeCheckMemoData<V> data = cache.get(key);
-            rwLock.readLock().unlock();
             if (data == null) {
                 return null;
             }
             if (data.shouldInvalidate(key)) {
-                // not sure if invalidation is the right move here maybe we should just return null
-                // -- this  prevents us from potentially reusing the results but should reduce the lookup costs?
-                rwLock.writeLock().lock();
-                // We are not using clear sine multiple threads could do this sequentially
-                cache.put(key, null);
-                rwLock.writeLock().unlock();
+                cache.remove(key);
                 return null;
             }
-            return data.data();
+            return data.data;
         }
 
         public void put(TypeCheckMemoKey key, V value) {
-            rwLock.writeLock().lock();
+            if (cache.size() > CACHE_SIZE) {
+                cache.clear();
+            }
             TypeCheckMemoData<V> valueData = new TypeCheckMemoData<>(value, key.sourceValue);
             cache.put(key, valueData);
-            rwLock.writeLock().unlock();
         }
     }
 
