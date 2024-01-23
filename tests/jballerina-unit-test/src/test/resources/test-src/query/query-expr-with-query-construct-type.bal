@@ -1639,16 +1639,16 @@ function testQueryConstructingMapWithOnConflictsWithVarRef() {
         select [i.toString(), value]
         on conflict error(string `Duplicate Key: ${i} Value: ${value}`);
 
-    assertEqual(true, mp1 is error);
-    assertEqual("Duplicate Key: 1 Value: A1", (<error>mp1).message());
+    assertEqual(mp1 is error, true);
+    assertEqual((<error>mp1).message(), "Duplicate Key: 1 Value: A1");
 
     int duplicateKey = 1;
     map<string>|error mp2 = map from int i in [1, 2, 3, 1, 2, 3]
         let string value = "A" + i.toString()
         select [i.toString(), value]
         on conflict error(string `Duplicate Key: ${duplicateKey} Value: ${value}`);
-    assertEqual(true, mp2 is error);
-    assertEqual("Duplicate Key: 1 Value: A1", (<error>mp2).message());
+    assertEqual(mp2 is error, true);
+    assertEqual((<error>mp2).message(), "Duplicate Key: 1 Value: A1");
 }
 
 function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError2() {
@@ -1869,6 +1869,40 @@ function testInnerQueryConstructedWithCEP() {
     assertEqual([["01",["func1",["foo",["int","string"],"boolean"]]],["02"]], decl);
 }
 
+error onConflictError = error("Key Conflict", message = "cannot insert.");
+
+function testTableConstructQueryWithNonConflictingKeys() {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+    Customer[] customerList = [c1, c2, c3];
+    CustomerTable|error customerTable = getQueryResult(onConflictError, customerList);
+    assertEqual(true, customerTable is CustomerTable);
+    CustomerTable expectedTableValue = table [{id: 1, name: "Melina", noOfItems: 12},
+                             {id: 2, name: "James", noOfItems: 5},
+                             {id: 3, name: "Anne", noOfItems: 20}];
+    assertEqual(customerTable, expectedTableValue);
+}
+
+function testTableConstructQueryWithConflictingKeys() {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+    Customer[] customerList = [c1, c2, c3, c1];
+    CustomerTable|error customerTable = getQueryResult(onConflictError, customerList);
+    assertEqual(customerTable is error, true);
+    assertEqual((<error>customerTable).message(), "Key Conflict");
+}
+
+function getQueryResult(error onConflictError, Customer[] customerList) returns CustomerTable|error {
+    return <CustomerTable|error> table key(id, name) from var customer in customerList
+    select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+    }
+    on conflict onConflictError;
+}
 
 function assertEqual(anydata|error actual, anydata|error expected) {
     anydata expectedValue = (expected is error)? (<error> expected).message() : expected;
