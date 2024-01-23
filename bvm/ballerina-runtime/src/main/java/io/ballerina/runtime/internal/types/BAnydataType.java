@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -40,6 +41,11 @@ public class BAnydataType extends BUnionType implements AnydataType {
      */
     public BAnydataType(String typeName, Module pkg, boolean readonly) {
         super(typeName, pkg, readonly, RefValue.class);
+        simpleType = new SimpleType(
+                SimpleType.Builder.basicTypeUnionBitset(SimpleType.Tag.NIL, SimpleType.Tag.BOOLEAN, SimpleType.Tag.INT,
+                        SimpleType.Tag.FLOAT, SimpleType.Tag.DECIMAL, SimpleType.Tag.STRING, SimpleType.Tag.XML),
+                SimpleType.Builder.basicTypeUnionBitset(SimpleType.Tag.LIST, SimpleType.Tag.MAPPING,
+                        SimpleType.Tag.TABLE));
         if (!readonly) {
             BAnydataType immutableAnydataType = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME, pkg, true);
             this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},

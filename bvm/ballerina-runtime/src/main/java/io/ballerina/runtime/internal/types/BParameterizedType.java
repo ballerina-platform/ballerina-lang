@@ -33,8 +33,7 @@ public class BParameterizedType extends BType implements ParameterizedType {
     private int paramIndex;
 
     public BParameterizedType(Type paramValueType, int paramIndex) {
-        super(null, null, null,
-                paramValueType.getSimpleType());
+        super(null, null, null, paramValueType.getSimpleType());
         this.paramValueType = paramValueType;
         this.paramIndex = paramIndex;
     }

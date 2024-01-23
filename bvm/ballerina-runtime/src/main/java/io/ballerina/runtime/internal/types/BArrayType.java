@@ -75,10 +75,8 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     public BArrayType(int typeFlags, int size, boolean readonly, boolean hasFillerValue) {
-        // FIXME: properly differentiate list top type
         super(null, null, ArrayValue.class,
-                new SimpleType(SimpleType.Builder.NONE,
-                        SimpleType.Builder.basicTypeBitset(SimpleType.Tag.LIST)));
+                new SimpleType(SimpleType.Builder.basicTypeBitset(SimpleType.Tag.LIST), SimpleType.Builder.NONE));
         this.typeFlags = typeFlags;
         if (size != -1) {
             state = ArrayState.CLOSED;
@@ -90,6 +88,7 @@ public class BArrayType extends BType implements ArrayType {
 
     public void setElementType(Type elementType, int dimensions, boolean elementRO) {
         this.elementType = readonly && !elementRO ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
+        this.simpleType = SimpleType.Builder.createContainerSimpleType(elementType, SimpleType.Tag.LIST);
         this.dimensions = dimensions;
     }
 

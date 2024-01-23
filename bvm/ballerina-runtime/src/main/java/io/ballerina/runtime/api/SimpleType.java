@@ -97,6 +97,7 @@ public record SimpleType(long all, long some) {
 
     public static class Builder {
 
+        // TODO: Move these to SimpleType?
         public static final long NONE = 0;
         public static final long ALL = (1L << (Tag.values().length + 1)) - 1;
 
@@ -112,6 +113,7 @@ public record SimpleType(long all, long some) {
             return 1L << basicType.ordinal();
         }
 
+        // TODO: container is not a good name?
         public static SimpleType createContainerSimpleType(Type constraint, Tag tag) {
             SimpleType constraintSimpleType = constraint.getSimpleType();
             if (constraintSimpleType.all == ALL) {

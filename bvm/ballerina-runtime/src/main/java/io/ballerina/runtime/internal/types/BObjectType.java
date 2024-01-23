@@ -64,9 +64,8 @@ public class BObjectType extends BStructureType implements ObjectType {
     private String cachedToString;
     private boolean resolving;
     // FIXME:
-    private final SimpleType simpleType =
-            new SimpleType(SimpleType.Builder.NONE,
-                    SimpleType.Builder.basicTypeBitset(SimpleType.Tag.OBJECT));
+    private static final SimpleType simpleType =
+            new SimpleType(SimpleType.Builder.NONE, SimpleType.Builder.basicTypeBitset(SimpleType.Tag.OBJECT));
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.

@@ -40,7 +40,6 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
     private IntersectionType intersectionType = null;
 
     public BErrorType(String typeName, Module pkg, Type detailType) {
-        // FIXME:
         super(typeName, pkg, ErrorValue.class,
                 new SimpleType(SimpleType.Builder.NONE,
                         SimpleType.Builder.basicTypeBitset(SimpleType.Tag.ERROR)));
@@ -49,8 +48,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
 
     public BErrorType(String typeName, Module pkg) {
         super(typeName, pkg, ErrorValue.class,
-                new SimpleType(SimpleType.Builder.NONE,
-                        SimpleType.Builder.basicTypeBitset(SimpleType.Tag.ERROR)));
+                new SimpleType(SimpleType.Builder.basicTypeBitset(SimpleType.Tag.ERROR), SimpleType.Builder.NONE));
     }
 
     public void setTypeIdSet(BTypeIdSet typeIdSet) {
@@ -74,6 +72,8 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
 
     public void setDetailType(Type detailType) {
         this.detailType = detailType;
+        this.simpleType =
+                new SimpleType(SimpleType.Builder.NONE, SimpleType.Builder.basicTypeBitset(SimpleType.Tag.ERROR));
     }
 
     @Override

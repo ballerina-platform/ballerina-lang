@@ -48,8 +48,7 @@ public class BAnyType extends BType implements AnyType {
      */
     public BAnyType(String typeName, Module pkg, boolean readonly) {
         super(typeName, pkg, RefValue.class,
-                new SimpleType(SimpleType.Builder.NONE,
-                        SimpleType.Builder.except(SimpleType.Tag.ERROR)));
+                new SimpleType(SimpleType.Builder.except(SimpleType.Tag.ERROR), SimpleType.Builder.NONE));
         this.readonly = readonly;
 
         if (!readonly) {
