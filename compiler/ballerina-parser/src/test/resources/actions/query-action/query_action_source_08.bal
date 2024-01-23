@@ -7,8 +7,8 @@ function foo() {
     ];
     from var i in [1, 2, 3, 4]
     do {
-        var quantities = from var {itemName, quantity} in orders
-            group by itemName
-            select {itemName, quantity: sum(quantity)};
+        var income = from var {price, quantity} in orders
+            let var totPrice = price * quantity
+            collect sum(totPrice);
     };
 }

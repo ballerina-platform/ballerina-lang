@@ -359,7 +359,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_ANNOTATIONS_NOT_ALLOWED_FOR_TUPLE_REST_DESCRIPTOR("BCE0684",
             "error.annotations.not.allowed.for.tuple.rest.descriptor"),
     ERROR_INVALID_RE_SYNTAX_CHAR("BCE0685", "error.invalid.syntax.char"),
-    ERROR_MORE_CLAUSES_AFTER_COLLECT_CLAUSE("BCE0686", "error.more.clauses.after.collect.clause")
+    ERROR_MORE_CLAUSES_AFTER_COLLECT_CLAUSE("BCE0686", "error.more.clauses.after.collect.clause"),
+    ERROR_COLLECT_CLAUSE_IN_QUERY_ACTION("BCE0687", "error.collect.clause.in.query.action")
     ;
 
     String diagnosticId;
