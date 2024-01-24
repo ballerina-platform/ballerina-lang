@@ -5990,7 +5990,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return null;
         }
 
-        if (pkgSymbol.getKind() == SymbolKind.PACKAGE && !PackageID.isLangLibPackageID(pkgSymbol.pkgID)) {
+        if (!PackageID.isLangLibPackageID(pkgSymbol.pkgID)) {
             pkgSymbol.isUsed = true;
             return constantSymbol;
         }
