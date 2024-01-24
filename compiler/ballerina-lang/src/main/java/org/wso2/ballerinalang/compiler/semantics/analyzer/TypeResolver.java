@@ -234,7 +234,7 @@ public class TypeResolver {
             } else if (def.getKind() == NodeKind.CONSTANT) {
                 resolveConstant(pkgEnv, modTable, (BLangConstant) def);
             } else if (def.getKind() == NodeKind.XMLNS) {
-                resolveXMLNS(pkgEnv, modTable, (BLangXMLNS) def);
+                resolveXMLNS(pkgEnv, (BLangXMLNS) def);
             } else {
                 BLangTypeDefinition typeDefinition = (BLangTypeDefinition) def;
                 intersectionTypeList = new HashMap<>();
@@ -1985,16 +1985,31 @@ public class TypeResolver {
         checkUniqueness(constant);
     }
 
-    public void resolveXMLNS(SymbolEnv symEnv, Map<String, BLangNode> modTable, BLangXMLNS xmlnsNode) {
+    public void resolveXMLNS(SymbolEnv symEnv, BLangXMLNS xmlnsNode) {
         if (xmlnsNode.namespaceURI.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) xmlnsNode.namespaceURI;
-            BLangNode node = modTable.get(varRef.variableName.value);
-            if (node != null && node.getKind() == NodeKind.CONSTANT &&
-                    !resolvedConstants.contains((BLangConstant) node)) {
-                resolveConstant(symEnv, modTable, (BLangConstant) node);
-            }
+            varRef.symbol = getSymbolOfVarRef(varRef.pos, symEnv, names.fromIdNode(varRef.pkgAlias),
+                            names.fromIdNode(varRef.variableName));
         }
         symEnter.defineXMLNS(symEnv, xmlnsNode);
+    }
+
+    public BSymbol getSymbolOfVarRef(Location pos, SymbolEnv env, Name pkgAlias, Name varName) {
+        if (pkgAlias == Names.EMPTY && modTable.containsKey(varName.value)) {
+            // modTable contains the available constants in current module.
+            BLangNode node = modTable.get(varName.value);
+            if (node.getKind() == NodeKind.CONSTANT) {
+                if (!resolvedConstants.contains((BLangConstant) node)) {
+                    resolveConstant(env, modTable, (BLangConstant) node);
+                }
+            } else {
+                dlog.error(pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+                return symTable.notFoundSymbol;
+            }
+        }
+
+        // Search and get the referenced variable from different module.
+        return symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgAlias, varName);
     }
 
     private void checkUniqueness(BLangConstant constant) {

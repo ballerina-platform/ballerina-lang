@@ -420,15 +420,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Treat constants and type definitions in the same manner, since constants can be used as
         // types. Also, there can be references between constant and type definitions in both ways.
         // Thus visit them according to the precedence.
-        List<BLangNode> typeAndClassDefs = new ArrayList<>();
-        pkgNode.constants.forEach(constant -> typeAndClassDefs.add(constant));
-        pkgNode.typeDefinitions.forEach(typDef -> typeAndClassDefs.add(typDef));
-        pkgNode.xmlnsList.forEach(xmlns -> typeAndClassDefs.add(xmlns));
+        List<BLangNode> moduleDefs = new ArrayList<>();
+        pkgNode.constants.forEach(constant -> moduleDefs.add(constant));
+        pkgNode.typeDefinitions.forEach(typDef -> moduleDefs.add(typDef));
+        pkgNode.xmlnsList.forEach(xmlns -> moduleDefs.add(xmlns));
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
-        classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
+        classDefinitions.forEach(classDefn -> moduleDefs.add(classDefn));
 
         this.env = pkgEnv;
-        typeResolver.defineBTypes(typeAndClassDefs, pkgEnv);
+        typeResolver.defineBTypes(moduleDefs, pkgEnv);
 
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way
@@ -436,19 +436,19 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Sort type definitions with precedence, before defining their members.
         pkgNode.typeDefinitions.sort(getTypePrecedenceComparator());
-        typeAndClassDefs.sort(getTypePrecedenceComparator());
+        moduleDefs.sort(getTypePrecedenceComparator());
 
         // Define error details.
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def members (if any)
-        defineFunctions(typeAndClassDefs, pkgEnv);
+        defineFunctions(moduleDefs, pkgEnv);
 
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
         // them and set the fields and members of the relevant immutable type.
         validateIntersectionTypeDefinitions(pkgNode.typeDefinitions, pkgNode.packageID);
-        defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, typeAndClassDefs, pkgEnv);
+        defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, moduleDefs, pkgEnv);
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
