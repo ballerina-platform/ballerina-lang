@@ -144,13 +144,21 @@ public class TypeChecker {
 
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
     private static final String REG_EXP_TYPENAME = "RegExp";
-    private static final TypeCheckCache<Boolean> typeCheckCache = new TypeCheckCache<>();
+    private static final TypeCheckCache<Boolean> castCheckCache = new TypeCheckCache<>();
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
         List<String> errors = new ArrayList<>();
         Type sourceType = getImpliedType(getType(sourceVal));
-        if (checkIsType(errors, sourceVal, sourceType, targetType)) {
+        TypeCheckMemoKey key = new TypeCheckMemoKey(sourceType, targetType);
+        Boolean cachedResult = castCheckCache.get(key);
+        if (cachedResult == null) {
+            boolean typeCheckResult = checkIsType(errors, sourceVal, sourceType, targetType);
+            castCheckCache.put(key, typeCheckResult);
+            if (typeCheckResult) {
+                return sourceVal;
+            }
+        } else if (cachedResult) {
             return sourceVal;
         }
 
@@ -698,16 +706,7 @@ public class TypeChecker {
         return switch (checkIsTypeSimple(sourceType.getSimpleType(), targetType.getSimpleType())) {
             case TRUE -> true;
             case FALSE -> false;
-            case UNKNOWN -> {
-                TypeCheckMemoKey key = new TypeCheckMemoKey(sourceType, targetType);
-                Boolean cachedResult = typeCheckCache.get(key);
-                if (cachedResult != null) {
-                    yield cachedResult;
-                }
-                boolean result = checkIsTypeInner(sourceVal, sourceType, targetType, unresolvedTypes);
-                typeCheckCache.put(key, result);
-                yield result;
-            }
+            case UNKNOWN -> checkIsTypeInner(sourceVal, sourceType, targetType, unresolvedTypes);
         };
     }
 
@@ -3683,7 +3682,6 @@ public class TypeChecker {
     private TypeChecker() {
     }
 
-    // FIXME:
     private static final class TypeCheckCache<V> {
 
         private static final int CACHE_SIZE = 100;
@@ -3702,19 +3700,16 @@ public class TypeChecker {
                 return;
             }
             if (cache.size() > CACHE_SIZE) {
+                // A more sophisticated cache replacement policy like LRU should be better if we can do it efficiently
+                // while remaining threadsafe.
                 cache.clear();
             }
             cache.put(key, value);
         }
 
-        // For record/object types we may have readonly/final fields, so the type check result may depend on the value
         private boolean isCacheable(TypeCheckMemoKey key) {
-            int sourceTypeTag = key.sourceType.getTag();
-            if (sourceTypeTag != TypeTags.RECORD_TYPE_TAG && sourceTypeTag != TypeTags.OBJECT_TYPE_TAG) {
-                return true;
-            }
-            int destinationTypeTag = key.destinationType.getTag();
-            return destinationTypeTag == TypeTags.ANY_TAG || destinationTypeTag == TypeTags.READONLY_TAG;
+            // If either types are readonly then actual type check result may depend on runtime values.
+            return !key.sourceType.isReadOnly() && !key.destinationType.isReadOnly();
         }
     }
 
