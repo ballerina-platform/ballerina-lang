@@ -11949,10 +11949,11 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        if (peek().kind == SyntaxKind.DO_KEYWORD && (!isNestedQueryExpr() || selectClause == null)) {
+        if (peek().kind == SyntaxKind.DO_KEYWORD && 
+                (!isNestedQueryExpr() || (selectClause == null && collectClause == null))) {
             STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
             STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
-            return parseQueryAction(queryConstructType, queryPipeline, selectClause);
+            return parseQueryAction(queryConstructType, queryPipeline, selectClause, collectClause);
         }
 
         if (selectClause == null && collectClause == null) {
@@ -13553,7 +13554,8 @@ public class BallerinaParser extends AbstractParser {
      * @param selectClause       Select clause if any This is only for validation.
      * @return Query action node
      */
-    private STNode parseQueryAction(STNode queryConstructType, STNode queryPipeline, STNode selectClause) {
+    private STNode parseQueryAction(STNode queryConstructType, STNode queryPipeline, STNode selectClause,
+                                    STNode collectClause) {
         if (queryConstructType != null) {
             queryPipeline = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(queryPipeline, queryConstructType,
                     DiagnosticErrorCode.ERROR_QUERY_CONSTRUCT_TYPE_IN_QUERY_ACTION);
@@ -13561,6 +13563,10 @@ public class BallerinaParser extends AbstractParser {
         if (selectClause != null) {
             queryPipeline = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(queryPipeline, selectClause,
                     DiagnosticErrorCode.ERROR_SELECT_CLAUSE_IN_QUERY_ACTION);
+        }
+        if (collectClause != null) {
+            queryPipeline = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(queryPipeline, collectClause,
+                    DiagnosticErrorCode.ERROR_COLLECT_CLAUSE_IN_QUERY_ACTION);
         }
 
         startContext(ParserRuleContext.DO_CLAUSE);

@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 29,
+    "character": 34
+  },
+  "source": {
+    "file": "hover_for_resource_path.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Description.\n  \n  \n---  \n  \n### Parameters  \n  \n`int` ***ids*** : parameter description  \n  \n---  \n  \n### Return  \n`string` : return value description"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}
