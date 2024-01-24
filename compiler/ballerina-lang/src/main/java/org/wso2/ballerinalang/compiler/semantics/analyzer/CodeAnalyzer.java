@@ -285,7 +285,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
 public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerData> {
 
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY = new CompilerContext.Key<>();
-    private static final String NO_MESSAGE_ERROR_TYPE = "NoMessageError";
+    private static final String NO_MESSAGE_ERROR_TYPE = "NoMessage";
 
     private final SymbolResolver symResolver;
     private final SymbolTable symTable;
