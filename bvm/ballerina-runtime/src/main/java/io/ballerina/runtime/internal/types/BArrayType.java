@@ -88,7 +88,7 @@ public class BArrayType extends BType implements ArrayType {
 
     public void setElementType(Type elementType, int dimensions, boolean elementRO) {
         this.elementType = readonly && !elementRO ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
-        this.simpleType = SimpleType.Builder.createContainerSimpleType(elementType, SimpleType.Tag.LIST);
+        this.simpleType = SimpleType.Builder.createConstrainedType(elementType, SimpleType.Tag.LIST);
         this.dimensions = dimensions;
     }
 

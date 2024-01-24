@@ -59,7 +59,7 @@ public class BTableType extends BType implements TableType {
         super(TypeConstants.TABLE_TNAME,
                 null,
                 TableValue.class,
-                SimpleType.Builder.createContainerSimpleType(constraint, SimpleType.Tag.TABLE));
+                SimpleType.Builder.createConstrainedType(constraint, SimpleType.Tag.TABLE));
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
     }

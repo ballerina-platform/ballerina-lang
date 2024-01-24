@@ -97,7 +97,7 @@ public record SimpleType(long all, long some) {
 
     public static class Builder {
 
-        // TODO: Move these to SimpleType?
+        // Helper values to construct types
         public static final long NONE = 0;
         public static final long ALL = (1L << (Tag.values().length + 1)) - 1;
 
@@ -114,13 +114,13 @@ public record SimpleType(long all, long some) {
         }
 
         // TODO: container is not a good name?
-        public static SimpleType createContainerSimpleType(Type constraint, Tag tag) {
+        public static SimpleType createConstrainedType(Type constraint, Tag baseType) {
             SimpleType constraintSimpleType = constraint.getSimpleType();
             if (constraintSimpleType.all == ALL) {
-                // no constraint mean it is the top type
-                return new SimpleType(Builder.basicTypeBitset(tag), Builder.NONE);
+                // no constraint mean it is the base type
+                return new SimpleType(Builder.basicTypeBitset(baseType), Builder.NONE);
             }
-            return new SimpleType(Builder.NONE, Builder.basicTypeBitset(tag));
+            return new SimpleType(Builder.NONE, Builder.basicTypeBitset(baseType));
         }
 
         public static long except(Tag... basicTypes) {
@@ -133,7 +133,6 @@ public record SimpleType(long all, long some) {
 
         public static SimpleType intersection(List<Type> types) {
             if (types.isEmpty()) {
-                // I assume this (and union) is because we are modifying types after the fact
                 return new SimpleType(NONE, NONE);
             }
             return types.stream().skip(1).map(Type::getSimpleType)

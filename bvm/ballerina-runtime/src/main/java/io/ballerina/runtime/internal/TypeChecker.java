@@ -701,9 +701,9 @@ public class TypeChecker {
 
     private static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,
                                        List<TypePair> unresolvedTypes) {
-        sourceType = getImpliedType(sourceType);
-        targetType = getImpliedType(targetType);
-        return switch (checkIsTypeSimple(sourceType.getSimpleType(), targetType.getSimpleType())) {
+        SimpleType sourceSimpleType =
+                sourceVal instanceof BValue ? ((BValue) sourceVal).getSimpleType() : sourceType.getSimpleType();
+        return switch (checkIsTypeSimple(sourceSimpleType, targetType.getSimpleType())) {
             case TRUE -> true;
             case FALSE -> false;
             case UNKNOWN -> checkIsTypeInner(sourceVal, sourceType, targetType, unresolvedTypes);
@@ -712,7 +712,6 @@ public class TypeChecker {
 
     private static boolean checkIsTypeInner(Object sourceVal, Type sourceType, Type targetType,
                                             List<TypePair> unresolvedTypes) {
-        // FIXME: avoid getting the implied type twice
         sourceType = getImpliedType(sourceType);
         targetType = getImpliedType(targetType);
         int sourceTypeTag = sourceType.getTag();

@@ -70,7 +70,7 @@ public class BMapType extends BType implements MapType {
 
     public BMapType(String typeName, Type constraint, Module pkg, boolean readonly) {
         super(typeName, pkg, MapValueImpl.class,
-                SimpleType.Builder.createContainerSimpleType(constraint, SimpleType.Tag.MAPPING));
+                SimpleType.Builder.createConstrainedType(constraint, SimpleType.Tag.MAPPING));
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
     }

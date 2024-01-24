@@ -52,7 +52,7 @@ public class BXmlType extends BType implements XmlType {
      */
     public BXmlType(String typeName, Type constraint, Module pkg) {
         super(typeName, pkg, XmlValue.class,
-                SimpleType.Builder.createContainerSimpleType(constraint, SimpleType.Tag.XML));
+                SimpleType.Builder.createConstrainedType(constraint, SimpleType.Tag.XML));
         this.constraint = constraint;
         this.tag = TypeTags.XML_TAG;
         this.readonly = false;

@@ -22,9 +22,11 @@ import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
+import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -52,12 +54,26 @@ public class BFiniteType extends BType implements FiniteType {
     }
 
     public BFiniteType(String typeName, String originalName, Set<Object> values, int typeFlags) {
-        // FIXME:
-        super(typeName, null, RefValue.class, new SimpleType(
-                SimpleType.Builder.NONE, SimpleType.Builder.ALL));
-        this.valueSpace = values;
+        super(typeName, null, RefValue.class, simpleType(values));
+        this.valueSpace = Collections.unmodifiableSet(values);
         this.typeFlags = typeFlags;
         this.originalName = originalName;
+    }
+
+    private static SimpleType simpleType(Set<Object> values) {
+        SimpleType ty = new SimpleType(SimpleType.Builder.NONE, SimpleType.Builder.NONE);
+        for (Object value : values) {
+            if (!(value instanceof BValue)) {
+                return new SimpleType(SimpleType.Builder.NONE, SimpleType.Builder.ALL);
+            }
+            SimpleType valueTy = ((BValue) value).getSimpleType();
+            // FIXME: why fallowing don't work? (TypeCastExpressionTest)
+//            SimpleType valueTy = TypeChecker.getType(value).getSimpleType();
+//            SimpleType valueTy = value instanceof BValue ? ((BValue) value).getSimpleType() :
+//                    TypeChecker.getType(value).getSimpleType();
+            ty = ty.union(valueTy);
+        }
+        return ty;
     }
 
     @Override
