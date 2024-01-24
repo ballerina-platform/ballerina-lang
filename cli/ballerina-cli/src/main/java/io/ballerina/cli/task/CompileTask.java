@@ -218,7 +218,7 @@ public class CompileTask implements Task {
                     err.println(d);
                 }
             });
-            //Report build tool execution diagnostics
+            // Report build tool execution diagnostics
             if (project.getToolContextMap() != null) {
                 for (ToolContext tool : project.getToolContextMap().values()) {
                     diagnostics.addAll(tool.diagnostics());
