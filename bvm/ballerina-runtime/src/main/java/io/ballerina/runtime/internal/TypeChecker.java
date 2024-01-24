@@ -144,24 +144,15 @@ public class TypeChecker {
 
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
     private static final String REG_EXP_TYPENAME = "RegExp";
-    private static final TypeCheckCache<Boolean> castCheckCache = new TypeCheckCache<>();
+    private static final TypeCheckCache<Boolean> typeCheckCache = new TypeCheckCache<>();
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
         List<String> errors = new ArrayList<>();
         Type sourceType = getImpliedType(getType(sourceVal));
-        TypeCheckMemoKey key = new TypeCheckMemoKey(sourceType, targetType);
-        Boolean cachedResult = castCheckCache.get(key);
-        if (cachedResult == null) {
-            boolean typeCheckResult = checkIsType(errors, sourceVal, sourceType, targetType);
-            castCheckCache.put(key, typeCheckResult);
-            if (typeCheckResult) {
-                return sourceVal;
-            }
-        } else if (cachedResult) {
+        if (checkIsType(errors, sourceVal, sourceType, targetType)) {
             return sourceVal;
         }
-
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && targetType.getTag() <= TypeTags.BOOLEAN_TAG) {
             return TypeConverter.castValues(targetType, sourceVal);
         }
@@ -714,6 +705,12 @@ public class TypeChecker {
                                             List<TypePair> unresolvedTypes) {
         sourceType = getImpliedType(sourceType);
         targetType = getImpliedType(targetType);
+
+        TypeCheckMemoKey key = new TypeCheckMemoKey(sourceType, targetType);
+        Boolean cachedResult = typeCheckCache.get(key);
+        if (cachedResult != null) {
+            return cachedResult;
+        }
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
@@ -732,26 +729,31 @@ public class TypeChecker {
         //
         // where `Bar b = {i: 100};`, `b is Foo` should evaluate to true.
         if (sourceTypeTag != TypeTags.RECORD_TYPE_TAG && sourceTypeTag != TypeTags.OBJECT_TYPE_TAG) {
-            return checkIsType(sourceType, targetType);
+            return cacheAndReturnResult(key, checkIsType(sourceType, targetType));
         }
 
         if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
-            return true;
+            return cacheAndReturnResult(key, true);
         }
 
         if (targetType.isReadOnly() && !sourceType.isReadOnly()) {
-            return false;
+            return cacheAndReturnResult(key, false);
         }
 
         switch (targetTypeTag) {
             case TypeTags.ANY_TAG:
-                return checkIsAnyType(sourceType);
+                return cacheAndReturnResult(key, checkIsAnyType(sourceType));
             case TypeTags.READONLY_TAG:
-                return isInherentlyImmutableType(sourceType) || sourceType.isReadOnly();
+                return cacheAndReturnResult(key, isInherentlyImmutableType(sourceType) || sourceType.isReadOnly());
             default:
                 return checkIsRecursiveTypeOnValue(sourceVal, sourceType, targetType, sourceTypeTag, targetTypeTag,
                                                    unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
         }
+    }
+
+    private static boolean cacheAndReturnResult(TypeCheckMemoKey key, boolean result) {
+        typeCheckCache.put(key, result);
+        return result;
     }
 
     // Private methods
@@ -3695,20 +3697,13 @@ public class TypeChecker {
         }
 
         public void put(TypeCheckMemoKey key, V value) {
-            if (!isCacheable(key)) {
-                return;
-            }
             if (cache.size() > CACHE_SIZE) {
                 // A more sophisticated cache replacement policy like LRU should be better if we can do it efficiently
                 // while remaining threadsafe.
+                // TODO: randomly remove someone and see perf
                 cache.clear();
             }
             cache.put(key, value);
-        }
-
-        private boolean isCacheable(TypeCheckMemoKey key) {
-            // If either types are readonly then actual type check result may depend on runtime values.
-            return !key.sourceType.isReadOnly() && !key.destinationType.isReadOnly();
         }
     }
 
