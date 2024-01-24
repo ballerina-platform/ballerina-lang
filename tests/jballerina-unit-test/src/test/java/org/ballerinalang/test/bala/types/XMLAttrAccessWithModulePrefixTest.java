@@ -32,9 +32,11 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
+ * Tests for xml attribute access using module constants.
+ *
  * @since 2201.9.0
  */
-public class XMLAttrAccessWithModulePrefix {
+public class XMLAttrAccessWithModulePrefixTest {
     CompileResult compileResult;
     CompileResult negative;
 
