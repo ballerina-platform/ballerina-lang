@@ -144,7 +144,7 @@ public class TypeChecker {
 
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
     private static final String REG_EXP_TYPENAME = "RegExp";
-    private static final TypeCheckMemoTable<Boolean> typeCheckMemo = new TypeCheckMemoTable<>();
+    private static final TypeCheckCache<Boolean> typeCheckCache = new TypeCheckCache<>();
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
@@ -699,18 +699,13 @@ public class TypeChecker {
             case TRUE -> true;
             case FALSE -> false;
             case UNKNOWN -> {
-                TypeCheckMemoKey key = new TypeCheckMemoKey(sourceVal, sourceType, targetType);
-                Boolean cachedResult = typeCheckMemo.get(key);
+                TypeCheckMemoKey key = new TypeCheckMemoKey(sourceType, targetType);
+                Boolean cachedResult = typeCheckCache.get(key);
                 if (cachedResult != null) {
                     yield cachedResult;
                 }
                 boolean result = checkIsTypeInner(sourceVal, sourceType, targetType, unresolvedTypes);
-                typeCheckMemo.put(key, result);
-//                if (cachedResult == null) {
-//                    typeCheckMemo.put(key, result);
-//                } else if (cachedResult != result) {
-//                    throw new AssertionError("Unexpected");
-//                }
+                typeCheckCache.put(key, result);
                 yield result;
             }
         };
@@ -3689,50 +3684,41 @@ public class TypeChecker {
     }
 
     // FIXME:
-    private static final class TypeCheckMemoTable<V> {
+    private static final class TypeCheckCache<V> {
 
         private static final int CACHE_SIZE = 100;
-        private final Map<TypeCheckMemoKey, TypeCheckMemoData<V>> cache;
+        private final Map<TypeCheckMemoKey, V> cache;
 
-        private TypeCheckMemoTable() {
+        private TypeCheckCache() {
             this.cache = new ConcurrentHashMap<>(CACHE_SIZE);
         }
 
         public V get(TypeCheckMemoKey key) {
-            TypeCheckMemoData<V> data = cache.get(key);
-            if (data == null) {
-                return null;
-            }
-            if (data.shouldInvalidate(key)) {
-                cache.remove(key);
-                return null;
-            }
-            return data.data;
+            return cache.get(key);
         }
 
         public void put(TypeCheckMemoKey key, V value) {
+            if (!isCacheable(key)) {
+                return;
+            }
             if (cache.size() > CACHE_SIZE) {
                 cache.clear();
             }
-            TypeCheckMemoData<V> valueData = new TypeCheckMemoData<>(value, key.sourceValue);
-            cache.put(key, valueData);
+            cache.put(key, value);
         }
-    }
 
-    private record TypeCheckMemoData<V>(V data, Object sourceValue) {
-
-        // TODO: add comment
-        public boolean shouldInvalidate(TypeCheckMemoKey key) {
+        // For record/object types we may have readonly/final fields, so the type check result may depend on the value
+        private boolean isCacheable(TypeCheckMemoKey key) {
             int sourceTypeTag = key.sourceType.getTag();
             if (sourceTypeTag != TypeTags.RECORD_TYPE_TAG && sourceTypeTag != TypeTags.OBJECT_TYPE_TAG) {
-                return false;
+                return true;
             }
-            return key.sourceValue != sourceValue;
+            int destinationTypeTag = key.destinationType.getTag();
+            return destinationTypeTag == TypeTags.ANY_TAG || destinationTypeTag == TypeTags.READONLY_TAG;
         }
     }
 
-    // NOTE: we are using sourceValue to invalidate cache for record types
-    private record TypeCheckMemoKey(Object sourceValue, Type sourceType, Type destinationType) {
+    private record TypeCheckMemoKey(Type sourceType, Type destinationType) {
         @Override
         public String toString() {
             return sourceType.toString() + ":" + destinationType.toString();
