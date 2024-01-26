@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -52,6 +53,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -191,6 +193,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MULTIPLE_RECEIVE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PANIC_IF_IN_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.REMOVE_WORKER_DATA_CHANNEL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_LOCAL;
@@ -1414,6 +1417,22 @@ public class JvmTerminatorGen {
 
     public void genReturnTerm(int returnVarRefIndex, BIRNode.BIRFunction func, int invocationVarIndex,
                               int localVarOffset) {
+        if (func.workerChannels != null) {
+            Arrays.stream(func.workerChannels).distinct().forEach(channel -> {
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
+                if (Symbols.isFlagOn(func.flags, Flags.WORKER)) {
+                    this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "parent", GET_STRAND);
+                }
+                this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
+                this.mv.visitVarInsn(ILOAD, invocationVarIndex);
+                this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
+                        new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
+                                HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false), channel.name
+                                + START_OF_HEADING_WITH_SEMICOLON);
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "removeCompletedChannels",
+                        REMOVE_WORKER_DATA_CHANNEL, false);
+            });
+        }
         BType bType = unifier.build(func.type.retType);
         generateReturnTermFromType(returnVarRefIndex, bType, func, invocationVarIndex, localVarOffset);
     }

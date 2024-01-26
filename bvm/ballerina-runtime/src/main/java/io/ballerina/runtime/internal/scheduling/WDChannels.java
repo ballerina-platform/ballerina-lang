@@ -91,6 +91,7 @@ public class WDChannels {
             BMap<BString, Object> map = strand.workerReceiveMap;
             strand.workerReceiveMap = null;
             strand.channelCount = 0;
+            strand.setState(State.RUNNABLE);
             return map;
         }
         return null;
@@ -142,6 +143,8 @@ public class WDChannels {
             } else if (!allChannelsClosed) {
                 strand.setState(BLOCK_AND_YIELD);
             }
+        } else {
+            strand.setState(State.RUNNABLE);
         }
         return getResultValue(result);
     }
@@ -150,6 +153,16 @@ public class WDChannels {
         for (String channelName : channels) {
             WorkerDataChannel channel = getWorkerDataChannel(channelName);
             channel.close();
+            channel.setRemovable();
+        }
+    }
+
+    public synchronized void removeCompletedChannels(String channelName) {
+        if (this.wDChannels != null) {
+            WorkerDataChannel channel = this.wDChannels.get(channelName);
+            if (channel != null && (channel.callCount == 2 || channel.isRemovable)) {
+                this.wDChannels.remove(channelName);
+            }
         }
     }
 

@@ -264,6 +264,7 @@ public class JvmSignatures {
     public static final String GET_TYPE_REF_TYPE_IMPL = "L" + TYPE_REF_TYPE_IMPL + ";";
     public static final String GET_WD_CHANNELS = "L" + WD_CHANNELS + ";";
     public static final String GET_WORKER_DATA_CHANNEL = "(L" + STRING_VALUE + ";)L" + WORKER_DATA_CHANNEL + ";";
+    public static final String REMOVE_WORKER_DATA_CHANNEL = "(L" + STRING_VALUE + ";)V";
     public static final String GET_XML = "L" + XML_VALUE + ";";
     public static final String HANDLE_CHANNEL_ERROR = "([L" + CHANNEL_DETAILS + ";L" + ERROR_VALUE + ";)V";
     public static final String HANDLE_ERROR_RETURN = "(L" + OBJECT + ";)V";
