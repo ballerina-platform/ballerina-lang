@@ -94,6 +94,11 @@ public class RunTestsTask implements Task {
     private boolean report;
     private boolean coverage;
     private String coverageReportFormat;
+
+    public boolean isRerunTestExecution() {
+        return isRerunTestExecution;
+    }
+
     private boolean isRerunTestExecution;
     private String singleExecTests;
     private Map<String, Module> coverageModules;
@@ -196,59 +201,17 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private void runTestsUsingSuiteJSON(Project project, JarResolver jarResolver, boolean hasTests, Target target, Path testsCachePath, JBallerinaBackend jBallerinaBackend, Path cachesRoot) {
+    private void runTestsUsingSuiteJSON(Project project, JarResolver jarResolver,
+                                        boolean hasTests, Target target, Path testsCachePath,
+                                        JBallerinaBackend jBallerinaBackend, Path cachesRoot) {
         TestProcessor testProcessor = new TestProcessor(jarResolver);
         List<String> moduleNamesList = new ArrayList<>();
         Map<String, TestSuite> testSuiteMap = new HashMap<>();
         List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
 
-        for (ModuleDescriptor moduleDescriptor :
-                project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
-            Module module = project.currentPackage().module(moduleDescriptor.name());
-            ModuleName moduleName = module.moduleName();
-
-            TestSuite suite = testProcessor.testSuite(module).orElse(null);
-            if (suite == null) {
-                continue;
-            }
-
-            //Set 'hasTests' flag if there are any tests available in the package
-            if (!hasTests) {
-                hasTests = true;
-            }
-
-            if (!isRerunTestExecution) {
-                clearFailedTestsJson(target.path());
-            }
-            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                suite.setSourceFileName(project.sourceRoot().getFileName().toString());
-            }
-            suite.setReportRequired(report || coverage);
-            String resolvedModuleName =
-                    module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
-            testSuiteMap.put(resolvedModuleName, suite);
-            moduleNamesList.add(resolvedModuleName);
-            Map<String, String> mockFunctionMap = suite.getMockFunctionNamesMap();
-            for (Map.Entry<String, String> entry : mockFunctionMap.entrySet()) {
-                String key = entry.getKey();
-                String functionToMockClassName;
-                // Find the first delimiter and compare the indexes
-                // The first index should always be a delimiter. Which ever one that is denotes the mocking type
-                if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
-                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-                } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
-                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
-                } else {
-                    if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
-                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-                    } else {
-                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
-                    }
-                }
-                mockClassNames.add(functionToMockClassName);
-            }
-        }
+        hasTests = createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap,
+                moduleNamesList, mockClassNames, this.isRerunTestExecution, this.report, this.coverage);
 
         writeToTestSuiteJson(testSuiteMap, testsCachePath);
 
@@ -292,6 +255,64 @@ public class RunTestsTask implements Task {
             }
         } else {
             out.println("\tNo tests found");
+        }
+    }
+
+    public static boolean createTestSuiteIfHasTests(Project project, Target target,
+                                              TestProcessor testProcessor, Map<String, TestSuite> testSuiteMap,
+                                              List<String> moduleNamesList, List<String> mockClassNames,
+                                              boolean isRerunTestExecution, boolean report, boolean coverage) {
+        boolean hasTests = false;
+        for (ModuleDescriptor moduleDescriptor :
+                project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+            Module module = project.currentPackage().module(moduleDescriptor.name());
+            ModuleName moduleName = module.moduleName();
+
+            TestSuite suite = testProcessor.testSuite(module).orElse(null);
+            if (suite == null) {
+                continue;
+            }
+
+            if(!hasTests) {
+                hasTests = true;
+            }
+
+            if (!isRerunTestExecution) {
+                clearFailedTestsJson(target.path());
+            }
+            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                suite.setSourceFileName(project.sourceRoot().getFileName().toString());
+            }
+            suite.setReportRequired(report || coverage);
+            String resolvedModuleName =
+                    module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
+            testSuiteMap.put(resolvedModuleName, suite);
+            moduleNamesList.add(resolvedModuleName);
+
+            addMockClasses(suite, mockClassNames);
+        }
+        return hasTests;
+    }
+
+    private static void addMockClasses(TestSuite suite, List<String> mockClassNames) {
+        Map<String, String> mockFunctionMap = suite.getMockFunctionNamesMap();
+        for (Map.Entry<String, String> entry : mockFunctionMap.entrySet()) {
+            String key = entry.getKey();
+            String functionToMockClassName;
+            // Find the first delimiter and compare the indexes
+            // The first index should always be a delimiter. Which ever one that is denotes the mocking type
+            if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
+                functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+            } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
+                functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+            } else {
+                if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                } else {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                }
+            }
+            mockClassNames.add(functionToMockClassName);
         }
     }
 
@@ -387,10 +408,7 @@ public class RunTestsTask implements Task {
         String packageName = currentPackage.packageName().toString();
         String orgName = currentPackage.packageOrg().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
-        List<String> cmdArgs = new ArrayList<>();
-        cmdArgs.add(System.getProperty("java.command"));
-        cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
-        cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
+        List<String> cmdArgs = getInitialCmdArgs();
 
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
         String jacocoAgentJarPath = getJacocoAgentJarPath();
@@ -418,16 +436,8 @@ public class RunTestsTask implements Task {
         // Adds arguments to be read at the Test Runner
         cmdArgs.add(target.path().toString());
         cmdArgs.add(jacocoAgentJarPath);
-        cmdArgs.add(Boolean.toString(report));
-        cmdArgs.add(Boolean.toString(coverage));
-        cmdArgs.add(this.groupList != null ? this.groupList : "");
-        cmdArgs.add(this.disableGroupList != null ? this.disableGroupList : "");
-        cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
-        cmdArgs.add(Boolean.toString(isRerunTestExecution));
-        cmdArgs.add(Boolean.toString(listGroups));
-        cliArgs.forEach((arg) -> {
-            cmdArgs.add(arg);
-        });
+
+        addOtherNeededArgs(cmdArgs);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
@@ -479,6 +489,11 @@ public class RunTestsTask implements Task {
         cmdArgs.add(target.path().toString());
         cmdArgs.add(packageName);
         cmdArgs.add(moduleName);
+        addOtherNeededArgs(cmdArgs);
+        return cmdArgs;
+    }
+
+    private void addOtherNeededArgs(List<String> cmdArgs) {
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
         cmdArgs.add(this.groupList != null ? this.groupList : "");
@@ -489,7 +504,22 @@ public class RunTestsTask implements Task {
         cliArgs.forEach((arg) -> {
             cmdArgs.add(arg);
         });
-        return cmdArgs;
+    }
+
+    //overload method to add other needed args
+    public static void addOtherNeededArgs(List<String> cmdArgs, boolean report, boolean coverage, String groupList,
+                                    String disableGroupList, String singleExecTests, boolean isRerunTestExecution,
+                                    boolean listGroups, List<String> cliArgs) {
+        cmdArgs.add(Boolean.toString(report));
+        cmdArgs.add(Boolean.toString(coverage));
+        cmdArgs.add(groupList != null ? groupList : "");
+        cmdArgs.add(disableGroupList != null ? disableGroupList : "");
+        cmdArgs.add(singleExecTests != null ? singleExecTests : "");
+        cmdArgs.add(Boolean.toString(isRerunTestExecution));
+        cmdArgs.add(Boolean.toString(listGroups));
+        cliArgs.forEach((arg) -> {
+            cmdArgs.add(arg);
+        });
     }
 
     //to load the correct class file for the test module
