@@ -17,6 +17,8 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.List;
+
 /**
  * Represents a language construct in a Ballerina module.
  */
@@ -26,15 +28,18 @@ public class Construct {
     @Expose
     public String description;
     @Expose
+    public List<String> descriptionSections;
+    @Expose
     public boolean isDeprecated;
     @Expose
     public Type inclusionType = null;
     @Expose
     public boolean isReadOnly;
 
-    public Construct(String name, String description, boolean isDeprecated) {
+    public Construct(String name, String description, List<String> descriptionSections, boolean isDeprecated) {
         this.name = name;
         this.description = description;
+        this.descriptionSections = descriptionSections;
         this.isDeprecated = isDeprecated;
     }
 

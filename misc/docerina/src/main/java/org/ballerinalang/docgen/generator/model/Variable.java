@@ -17,6 +17,8 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.List;
+
 /**
  * Represents a variable.
  */
@@ -24,8 +26,9 @@ public class Variable extends Construct {
     @Expose
     public Type type;
 
-    public Variable(String name, String description, boolean isDeprecated, Type type) {
-        super(name, description, isDeprecated);
+    public Variable(String name, String description, boolean isDeprecated,
+                    Type type) {
+        super(name, description, null, isDeprecated);
         this.type = type;
     }
 
