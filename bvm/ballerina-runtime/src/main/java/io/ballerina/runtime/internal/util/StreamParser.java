@@ -486,12 +486,13 @@ public class StreamParser {
                 case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG:
                     // finite types cannot come inside the method, if they come it is an error, goes to the default case
                     if (TypeUtils.getImpliedType(TypeChecker.getType(parentNode)).getTag() == TypeTags.MAP_TAG) {
-                        ((MapValueImpl<BString, Object>) parentNode).put(StringUtils.fromString(fieldNames.pop()),
-                                currentJsonNode);
+                        ((MapValueImpl<BString, Object>) parentNode).putForcefully(
+                                StringUtils.fromString(fieldNames.pop()), currentJsonNode);
                         this.currentJsonNode = parentNode;
                         return FIELD_END_STATE;
                     }
-                    ((ArrayValue) parentNode).append(this.currentJsonNode);
+                    ArrayValueImpl arrayValue = (ArrayValueImpl) parentNode;
+                    arrayValue.addRefValue(arrayValue.size(), this.currentJsonNode);
                     // TODO: check BStrings, think they are handled, but need to verify
                     this.currentJsonNode = parentNode;
                     return ARRAY_ELEMENT_END_STATE;
@@ -1122,7 +1123,8 @@ public class StreamParser {
                                 sm.listIndices.set(sm.listIndices.size() - 1, listIndex + 1);
                                 break;
                             case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG:
-                                ((ArrayValue) sm.currentJsonNode).append(bString);
+                                ArrayValueImpl arrayValue = (ArrayValueImpl) sm.currentJsonNode;
+                                arrayValue.addRefValue(arrayValue.size(), bString);
                                 break;
                             default:
                                 throw new StreamParserException("unsupported type");
@@ -1382,12 +1384,11 @@ public class StreamParser {
         private void setValueToJsonType(ValueType type, Object value) {
             switch (type) {
                 case ARRAY_ELEMENT:
-                    // TODO: can use addRefValue
-                    ((ArrayValue) this.currentJsonNode).append(value);
+                    ArrayValueImpl arrayValue = (ArrayValueImpl) this.currentJsonNode;
+                    arrayValue.addRefValue(arrayValue.size(), value);
                     break;
                 case FIELD:
-                    // TODO: use putForcefully
-                    ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
+                    ((MapValueImpl<BString, Object>) this.currentJsonNode).putForcefully(
                             StringUtils.fromString(this.fieldNames.pop()), value);
                     break;
                 default:
