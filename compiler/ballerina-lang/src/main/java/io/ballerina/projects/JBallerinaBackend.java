@@ -210,7 +210,7 @@ public class JBallerinaBackend extends CompilerBackend {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
-            return new EmitResult(false, diagnosticResult, generatedArtifact);
+            return getFailedEmitResult(generatedArtifact);
         }
 
         switch (outputType) {
@@ -227,11 +227,19 @@ public class JBallerinaBackend extends CompilerBackend {
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
 
+        return getEmitResult(filePath, generatedArtifact, true, ArtifactType.BUILD);
+    }
+
+    public EmitResult getEmitResult(Path filePath, Path generatedArtifact, boolean shouldNotifyCompilation, ArtifactType artifactType) {
         ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
-        List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion(filePath);
-        if (!pluginDiagnostics.isEmpty()) {
-            diagnostics.addAll(pluginDiagnostics);
+
+        if (shouldNotifyCompilation && filePath != null) {
+            List<Diagnostic> pluginDiagnostics = notifyCompilationCompletion(filePath, artifactType);
+            if (!pluginDiagnostics.isEmpty()) {
+                diagnostics.addAll(pluginDiagnostics);
+            }
         }
+
         diagnosticResult = new DefaultDiagnosticResult(diagnostics);
 
         List<Diagnostic> allDiagnostics = new ArrayList<>(diagnostics);
@@ -242,11 +250,19 @@ public class JBallerinaBackend extends CompilerBackend {
         return new EmitResult(true, new DefaultDiagnosticResult(allDiagnostics), generatedArtifact);
     }
 
-    public EmitResult emit(OutputType outputType, Path filePath, ModuleName moduleName, List<String> cmdArgs) {
+    public List<Diagnostic> notifyCompilationCompletion(Path filePath, ArtifactType artifactType) {
+        return packageCompilation.notifyCompilationCompletion(filePath, artifactType);
+    }
+
+    public EmitResult getFailedEmitResult(Path generatedArtifact) {
+        return new EmitResult(false, diagnosticResult, generatedArtifact);
+    }
+
+    public Path generateTestArtifact(OutputType outputType, Path filePath, ModuleName moduleName, List<String> cmdArgs) {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
-            return new EmitResult(false, diagnosticResult, generatedArtifact);
+            return null;
         }
 
         if (outputType == OutputType.TEST) {
@@ -255,19 +271,7 @@ public class JBallerinaBackend extends CompilerBackend {
             throw new RuntimeException("Unexpected output type: " + outputType);
         }
 
-        ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
-        List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion(filePath);
-        if (!pluginDiagnostics.isEmpty()) {
-            diagnostics.addAll(pluginDiagnostics);
-        }
-        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
-
-        List<Diagnostic> allDiagnostics = new ArrayList<>(diagnostics);
-        jarResolver().diagnosticResult().diagnostics().stream().forEach(
-                diagnostic -> allDiagnostics.add(diagnostic));
-
-        // TODO handle the EmitResult properly
-        return new EmitResult(true, new DefaultDiagnosticResult(allDiagnostics), generatedArtifact);
+        return generatedArtifact;
     }
 
     private Path emitBala(Path filePath) {
