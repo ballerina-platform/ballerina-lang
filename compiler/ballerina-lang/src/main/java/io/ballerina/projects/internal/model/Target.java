@@ -139,6 +139,14 @@ public class Target {
         return getTestBinPath().resolve(name + ProjectConstants.TEST_UBER_JAR_SUFFIX + ProjectConstants.BLANG_COMPILED_JAR_EXT);
     }
 
+    public Path getTestExecutableBasePath() throws IOException {
+        if (outputPath != null) {
+            return outputPath;
+        }
+
+        return getTestBinPath();
+    }
+
     /**
      * Returns the bin directory path.
      *
