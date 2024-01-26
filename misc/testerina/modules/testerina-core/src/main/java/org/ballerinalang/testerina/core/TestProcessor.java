@@ -148,6 +148,30 @@ public class TestProcessor {
      */
     private TestSuite generateTestSuite(Module module, JarResolver jarResolver) {
         String testModuleName = getTestModuleName(module);
+        TestSuite testSuite = createTestSuite(module, testModuleName);
+
+        //skip if we are emitting the test executable and cloud is set
+        if (jarResolver != null &&
+                !module.project().buildOptions().emitTestExecutable() &&
+                module.project().buildOptions().cloud().isEmpty()) {
+            addTestExecutionDependencies(module, jarResolver, testSuite);
+        }
+
+        // TODO: Remove redundancy in addUtilityFunctions
+        addUtilityFunctions(module, testSuite);
+        populateMockFunctionNamesMap(module, testSuite);
+        return testSuite;
+    }
+
+    private static void addTestExecutionDependencies(Module module, JarResolver jarResolver, TestSuite testSuite) {
+        List<Path> jarPaths = new ArrayList<>();
+        for (JarLibrary jarLibrary : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
+            jarPaths.add(jarLibrary.path());
+        }
+        testSuite.addTestExecutionDependencies(jarPaths);
+    }
+
+    private TestSuite createTestSuite(Module module, String testModuleName) {
         TestSuite testSuite = new TestSuite(module.descriptor().name().toString(), testModuleName,
                 module.descriptor().packageName().toString(), module.descriptor().org().value(),
                 module.descriptor().version().toString(), getExecutePath(module));
@@ -155,18 +179,6 @@ public class TestProcessor {
                 module.descriptor().name().toString(), testSuite);
         testSuite.setPackageName(module.descriptor().packageName().toString());
         testSuite.setSourceRootPath(module.project().sourceRoot().toString());
-
-        if (jarResolver != null) {
-            List<Path> jarPaths = new ArrayList<>();
-            for (JarLibrary jarLibrary : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
-                jarPaths.add(jarLibrary.path());
-            }
-            testSuite.addTestExecutionDependencies(jarPaths);
-        }
-
-        // TODO: Remove redundancy in addUtilityFunctions
-        addUtilityFunctions(module, testSuite);
-        populateMockFunctionNamesMap(module, testSuite);
         return testSuite;
     }
 
