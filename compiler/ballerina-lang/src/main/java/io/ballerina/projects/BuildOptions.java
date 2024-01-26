@@ -188,6 +188,11 @@ public class BuildOptions {
         } else {
             buildOptionsBuilder.setGraalVMBuildOptions(this.graalVMBuildOptions);
         }
+        if(theirOptions.emitTestExecutable != null) {
+            buildOptionsBuilder.setEmitTestExecutable(theirOptions.emitTestExecutable);
+        } else {
+            buildOptionsBuilder.setEmitTestExecutable(this.emitTestExecutable);
+        }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
         buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
