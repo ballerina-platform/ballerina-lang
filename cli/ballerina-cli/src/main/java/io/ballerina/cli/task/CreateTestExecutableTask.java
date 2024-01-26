@@ -1,23 +1,22 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
-import io.ballerina.projects.EmitResult;
-import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JvmTarget;
+import io.ballerina.cli.utils.TestUtils;
+import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleDescriptor;
-import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.ballerinalang.testerina.core.TestProcessor;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -37,7 +36,6 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
 
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
         Target target = getTarget(project);
-        EmitResult emitResult;
 
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
@@ -63,13 +61,41 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                         moduleDescriptor
                 );
 
-                emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.TEST,
+                //create the fat jar for the test module
+                Path generatedTestArtifact = jBallerinaBackend.generateTestArtifact(
+                        JBallerinaBackend.OutputType.TEST,
                         testExecutablePath,
                         module.moduleName(),
                         allArgs
                 );
 
-                diagnostics.addAll(emitResult.diagnostics().diagnostics());
+                if (generatedTestArtifact != null) {
+                    diagnostics.addAll(jBallerinaBackend.getEmitResult(
+                            testExecutablePath,
+                            generatedTestArtifact,
+                            false, ArtifactType.TEST).diagnostics().diagnostics());
+                }
+                else {
+                    diagnostics.addAll(jBallerinaBackend.getFailedEmitResult(
+                            null)
+                            .diagnostics().diagnostics());
+                }
+            }
+
+
+            if(project.buildOptions().cloud() != null) {
+                //if cloud is enabled, we need to create the docker artifacts
+                //create the test suite suitable for docker
+                Path basePath = getTestExecutableBasePath(target);
+                boolean status = createTestSuiteForCloudArtifacts(project, jBallerinaBackend.jarResolver(), target);
+
+                if (status) {
+                    //now notify the compilation completion
+                    List<Diagnostic> pluginDiagnostics = jBallerinaBackend.
+                            notifyCompilationCompletion(basePath, ArtifactType.TEST);
+                    diagnostics.addAll(pluginDiagnostics);
+                }
+
             }
 
             if (project.buildOptions().dumpBuildTime()) {
@@ -102,6 +128,35 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         // todo following call has to be refactored after introducing new plugin architecture
         notifyPlugins(project, target);
     }
+
+    private boolean createTestSuiteForCloudArtifacts(Project project, JarResolver jarResolver, Target target) {
+        boolean report = project.buildOptions().testReport();
+        boolean coverage = project.buildOptions().codeCoverage();
+
+        TestProcessor testProcessor = new TestProcessor(jarResolver);
+        List<String> moduleNamesList = new ArrayList<>();
+        Map<String, TestSuite> testSuiteMap = new HashMap<>();
+        List<String> updatedSingleExecTests;
+        List<String> mockClassNames = new ArrayList<>();
+
+        boolean status = RunTestsTask.createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap, moduleNamesList,
+                mockClassNames, runTestsTask.isRerunTestExecution(), report, coverage);
+
+        if (status) {
+            //now write the map to a json file
+            try{
+                TestUtils.writeToTestSuiteJson(testSuiteMap, target.getTestsCachePath());
+                return true;
+            }
+            catch(IOException e) {
+                throw createLauncherException("error while writing to test suite json file: " + e.getMessage());
+            }
+        }
+        else{
+            return false;
+        }
+    }
+
     private Path getTestExecutablePath(Target target, Module module) {
         Path executablePath;
         try {
@@ -110,5 +165,14 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
             throw createLauncherException(e.getMessage());
         }
         return executablePath;
+    }
+
+    private Path getTestExecutableBasePath(Target target) {
+        try {
+            return target.getTestExecutableBasePath();
+        }
+        catch (IOException e) {
+            throw createLauncherException(e.getMessage());
+        }
     }
 }
