@@ -1823,16 +1823,13 @@ public class StreamParser {
                 return new TupleValueImpl(targetRefType, tupleValues);
             case TypeTags.TABLE_TAG:
                 TableType tableType = (TableType) targetType;
-                Object[] tableValues = new Object[array.size()];
                 for (int i = 0; i < array.size(); i++) {
-                    BMap<?, ?> bMap = (BMap<?, ?>) convert(array.get(i), tableType.getConstrainedType(),
-                            unresolvedValues);
-                    tableValues[i] = bMap;
+                    Object bMap = convert(array.get(i), tableType.getConstrainedType(), unresolvedValues);
+                    array.setRefValueForcefully(i, bMap);
                 }
-                BArray data = ValueCreator
-                        .createArrayValue(tableValues, TypeCreator.createArrayType(tableType.getConstrainedType()));
+                array.setArrayTypeForcefully(TypeCreator.createArrayType(tableType.getConstrainedType()));
                 BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-                return new TableValueImpl(targetRefType, (ArrayValue) data, (ArrayValue) fieldNames);
+                return new TableValueImpl(targetRefType, array, (ArrayValue) fieldNames);
             default:
                 break;
         }

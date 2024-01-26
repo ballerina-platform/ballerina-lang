@@ -567,6 +567,17 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
+    public void setRefValueForcefully(int index, Object refValue) {
+        this.refValues[index] = refValue;
+    }
+
+    public void setArrayTypeForcefully(ArrayType type) {
+        this.type = this.arrayType = type;
+        this.size = this.refValues.length;
+        this.elementType = type.getElementType();
+        this.elementReferredType = TypeUtils.getImpliedType(this.elementType);
+    }
+
     public void addInt(long index, long value) {
         if (intValues != null) {
             prepareForAdd(index, value, PredefinedTypes.TYPE_INT, intValues.length);
