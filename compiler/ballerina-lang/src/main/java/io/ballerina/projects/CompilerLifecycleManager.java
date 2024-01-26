@@ -64,9 +64,9 @@ class CompilerLifecycleManager {
         return lifecycleTasks;
     }
 
-    public List<Diagnostic> runCodeGeneratedTasks(Path binaryPath) {
+    public List<Diagnostic> runCodeGeneratedTasks(Path binaryPath, ArtifactType artifactType) {
         CompilerLifecycleEventContextImpl lifecycleEventContext =
-                new CompilerLifecycleEventContextImpl(this.currentPackage, this.compilation);
+                new CompilerLifecycleEventContextImpl(this.currentPackage, this.compilation, artifactType);
         lifecycleEventContext.setBinaryPath(binaryPath);
 
         for (List<CodeGenerationCompletedTask> taskList : lifecycleTasks.codeGenerationCompletedTasks.values()) {
@@ -191,12 +191,15 @@ class CompilerLifecycleManager {
         private final Package currentPackage;
         private final PackageCompilation compilation;
 
+        private final ArtifactType artifactType;
+
         private Path binaryPath;
         private final List<Diagnostic> diagnostics = new ArrayList<>();
 
-        public CompilerLifecycleEventContextImpl(Package currentPackage, PackageCompilation compilation) {
+        public CompilerLifecycleEventContextImpl(Package currentPackage, PackageCompilation compilation, ArtifactType artifactType) {
             this.currentPackage = currentPackage;
             this.compilation = compilation;
+            this.artifactType = artifactType;
         }
 
         @Override
@@ -213,6 +216,8 @@ class CompilerLifecycleManager {
         public void reportDiagnostic(Diagnostic diagnostic) {
             diagnostics.add(diagnostic);
         }
+
+        public ArtifactType artifactType() { return artifactType; }
 
         void setBinaryPath(Path binaryPath) {
             this.binaryPath = binaryPath;
