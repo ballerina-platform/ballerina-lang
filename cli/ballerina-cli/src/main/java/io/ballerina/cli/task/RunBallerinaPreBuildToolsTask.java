@@ -107,7 +107,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                         toolContextMap.put(tool.getId(), toolContext);
                         continue;
                     }
-                    this.outStream.println(String.format("\n\t%s(%s)\n", tool.getType(), tool.getId()));
+                    this.outStream.println(String.format("%n\t%s(%s)%n", tool.getType(), tool.getId()));
                     targetTool.execute(toolContext);
                     toolContext.diagnostics().forEach(outStream::println);
                     toolContextMap.put(tool.getId(), toolContext);
@@ -116,7 +116,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                 }
             } else {
                 outStream.println(String.format("WARNING: Skipping execution of build tool %s(%s) as Ballerina.toml " +
-                        "contains errors\n", tool.getType(), tool.getId() != null ? tool.getId() : ""));
+                        "contains errors%n", tool.getType(), tool.getId() != null ? tool.getId() : ""));
             }
         }
         project.setToolContextMap(toolContextMap);
