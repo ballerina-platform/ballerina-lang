@@ -25,5 +25,8 @@ OPTIONS
 
 EXAMPLES
 
-       Deprecates the package ballerina/io:1.1.1
-            bal deprecate ballerina/io:1.1.1
+       Deprecate all versions of the package ballerina/io
+           $ bal deprecate ballerina/io
+
+       Deprecate a specific version of the package ballerina/io
+           $ bal deprecate ballerina/io:1.1.1
