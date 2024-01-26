@@ -90,7 +90,6 @@ public class Strand {
     public Stack<TransactionLocalContext> trxContexts;
     private State state;
     private final ReentrantLock strandLock;
-    public boolean isDaemon = false;
 
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
                   Map<String, Object> properties) {
