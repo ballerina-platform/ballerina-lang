@@ -26,6 +26,7 @@ import io.ballerina.projects.ToolContext;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.toml.api.Toml;
+import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -64,6 +65,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         toolManifestDiagnostics.forEach(outStream::println);
 
         //Build tool execution
+        this.outStream.println("Executing Build Tools");
         Map<String, ToolContext> toolContextMap = new HashMap<>();
         List<Tool> tools = project.currentPackage().manifest().tools();
         ServiceLoader<CodeGeneratorTool> buildRunners = ServiceLoader.load(CodeGeneratorTool.class);
@@ -84,8 +86,8 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                     toolContextMap.put(tool.getId(), toolContext);
                 }
             } catch (IOException e) {
-                outStream.println("WARNING: Skipping validation of tool options for tool '" + tool.getType() +
-                        "' due to: " + e.getMessage());
+                outStream.println(String.format("WARNING: Skipping validation of tool options for tool %s(%s) " +
+                        "due to: %s", tool.getType(), tool.getId(), e.getMessage()));
             }
             if (!tool.hasErrorDiagnostic() && !hasOptionErrors) {
                 try {
@@ -103,21 +105,16 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                         toolContextMap.put(tool.getId(), toolContext);
                         continue;
                     }
-                    this.outStream.println("Executing build tool '" + tool.getType() +
-                            "' for tool configurations '" + tool.getId() + "'.\n");
+                    this.outStream.println(String.format("\n\t%s(%s)\n", tool.getType(), tool.getId()));
                     targetTool.execute(toolContext);
                     toolContext.diagnostics().forEach(outStream::println);
-                    if (!Diagnostics.filterErrors(toolContext.diagnostics()).isEmpty()) {
-                        outStream.println("WARNING: Execution of Build tool '" + tool.getType() +
-                            "' for tool configurations '" + tool.getId() + "' contains errors\n");
-                    }
                     toolContextMap.put(tool.getId(), toolContext);
                 } catch (Exception e) {
                     throw createLauncherException(e.getMessage());
                 }
             } else {
-                outStream.println("WARNING: Skipping execution of build tool '" + tool.getType() +
-                        "' as tool configurations in Ballerina.toml contains errors\n");
+                outStream.println(String.format("WARNING: Skipping execution of build tool %s(%s) as Ballerina.toml " +
+                        "contains errors\n", tool.getType(), tool.getId() != null ? tool.getId() : ""));
             }
         }
         project.setToolContextMap(toolContextMap);
@@ -134,10 +131,31 @@ public class RunBallerinaPreBuildToolsTask implements Task {
 
     private boolean validateOptionsToml(Toml optionsToml, String toolName) throws IOException {
         if (optionsToml == null) {
-            throw new IOException("No tool options found");
+            return validateEmptyOptionsToml(toolName);
         }
         FileUtils.validateToml(optionsToml, toolName);
         optionsToml.diagnostics().forEach(outStream::println);
         return !Diagnostics.filterErrors(optionsToml.diagnostics()).isEmpty();
+    }
+
+    private boolean validateEmptyOptionsToml(String toolName) throws IOException {
+        Schema schema = Schema.from(io.ballerina.projects.util.FileUtils
+                .readFileAsString(toolName + "-options-schema.json"));
+        List<String> requiredFields = schema.required();
+        if (!requiredFields.isEmpty()) {
+            for (String field: requiredFields) {
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                        ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML.diagnosticId(),
+                        String.format("missing required optional field '%s'", field),
+                        DiagnosticSeverity.ERROR);
+                PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
+                        toolName);
+                this.outStream.println(diagnostic);
+            }
+            return true;
+        }
+        this.outStream.println(String.format("WARNING: Skipping validation of tool options for tool %s due to: " +
+                "No tool options found", toolName));
+        return false;
     }
 }

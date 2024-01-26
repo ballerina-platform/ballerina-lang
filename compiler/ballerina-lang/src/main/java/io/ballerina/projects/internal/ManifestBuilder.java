@@ -266,16 +266,6 @@ public class ManifestBuilder {
                     "targetModule", toolCode);
                 Toml optionsToml = getToml(dependencyNode, "options");
                 TopLevelNode topLevelNode = dependencyNode.entries().get("options");
-                if (topLevelNode == null) {
-                    try {
-                        validateEmptyOptionsToml(dependencyNode, toolCode);
-                    } catch (IOException e) {
-                        reportDiagnostic(dependencyNode,
-                            "tool options validation skipped due to: " + e.getMessage(),
-                            ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_SKIPPED,
-                            DiagnosticSeverity.WARNING);
-                    }
-                }
                 TomlTableNode optionsNode = null;
                 if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
                     optionsNode = (TomlTableNode) topLevelNode;
@@ -303,17 +293,6 @@ public class ManifestBuilder {
             }
         }
         return tools;
-    }
-
-    private void validateEmptyOptionsToml(TomlTableNode toolNode, String toolName) throws IOException {
-        Schema schema = Schema.from(FileUtils.readFileAsString(toolName + "-options-schema.json"));
-        List<String> requiredFields = schema.required();
-        if (!requiredFields.isEmpty()) {
-            for (String field: requiredFields) {
-                reportDiagnostic(toolNode, "missing required field '" + field + "'",
-                    ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY, DiagnosticSeverity.ERROR);
-            }
-        }
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
@@ -816,11 +795,7 @@ public class ManifestBuilder {
                 reportDiagnostic(toolNode, errorMessage,
                         ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML,
                         DiagnosticSeverity.ERROR);
-                return null;
             }
-            reportDiagnostic(toolNode, errorMessage + " Default module will be taken as target module.",
-                    ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML,
-                    DiagnosticSeverity.WARNING);
             return null;
         }
         ToolNodeValueType toolNodeValueType = getBuildToolTomlValueType(topLevelNode);
@@ -832,12 +807,7 @@ public class ManifestBuilder {
                                 + toolCode + "]'.",
                     ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY,
                     DiagnosticSeverity.ERROR);
-                return null;
             }
-            reportDiagnostic(toolNode, "empty string found for key '[" + key + "]' in table '[tool."
-                            + toolCode + "]'. " + "Default module will be taken as the target module",
-                    ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY,
-                    DiagnosticSeverity.WARNING);
             return null;
         } else if (ToolNodeValueType.NON_STRING.equals(toolNodeValueType)) {
             reportDiagnostic(toolNode, "incompatible type found for key '[" + key + "]': expected 'STRING'",
