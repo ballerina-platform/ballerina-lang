@@ -65,9 +65,11 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         toolManifestDiagnostics.forEach(outStream::println);
 
         //Build tool execution
-        this.outStream.println("Executing Build Tools");
         Map<String, ToolContext> toolContextMap = new HashMap<>();
         List<Tool> tools = project.currentPackage().manifest().tools();
+        if (!tools.isEmpty()) {
+            this.outStream.println("\nExecuting Build Tools");
+        }
         ServiceLoader<CodeGeneratorTool> buildRunners = ServiceLoader.load(CodeGeneratorTool.class);
         for (Tool tool : tools) {
             String commandName = tool.getType();
