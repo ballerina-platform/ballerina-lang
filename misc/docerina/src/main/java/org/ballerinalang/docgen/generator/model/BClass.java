@@ -41,9 +41,9 @@ public class BClass extends Construct {
     @Expose
     public boolean isService;
 
-    public BClass(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
+    public BClass(String name, String description, List<String> descriptionSections, boolean isDeprecated, List<DefaultableVariable> fields,
                   List<Function> methods, boolean isReadOnly, boolean isIsolated, boolean isService) {
-        super(name, description, isDeprecated);
+        super(name, description, descriptionSections, isDeprecated);
         this.fields = fields;
         this.methods = methods;
         Optional<Function> initMethod = getInitMethod(methods);
