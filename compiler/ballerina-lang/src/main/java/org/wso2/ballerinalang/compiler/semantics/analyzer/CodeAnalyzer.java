@@ -172,6 +172,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSendReceiveExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -2058,14 +2059,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         boolean withinIf = !invalidSendPos && withinIf(data.env.enclInvokable.body, data.env.node);
-        asyncSendExpr.sendType =
-                createAccumulatedErrorTypeForMatchingReceive(asyncSendExpr.expr.getBType(), withinIf, data);
+        setWorkerSendSendTypeDetails(asyncSendExpr, asyncSendExpr.expr.getBType(), withinIf, data);
         was.addWorkerAction(asyncSendExpr);
         analyzeExpr(asyncSendExpr.expr, data);
         validateActionParentNode(asyncSendExpr.pos, asyncSendExpr.expr);
     }
 
-    private BType createAccumulatedErrorTypeForMatchingReceive(BType exprType, boolean withinIf, AnalyzerData data) {
+    private void setWorkerSendSendTypeDetails(BLangWorkerSendExpr workerSendExpr, BType exprType,
+                                              boolean withinIf, AnalyzerData data) {
         Set<BType> returnTypesUpToNow = data.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<>() {
             {
@@ -2082,18 +2083,32 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         returnTypeAndSendType.add(exprType);
 
-        if (withinIf || hasNonErrorReturn) {
+        BType sendTypeWithNoMsgIgnored;
+        if (returnTypeAndSendType.size() > 1) {
+            sendTypeWithNoMsgIgnored = BUnionType.create(null, returnTypeAndSendType);
+        } else {
+            sendTypeWithNoMsgIgnored = exprType;
+        }
+
+        BType sendType;
+        boolean noMessagePossible = withinIf || hasNonErrorReturn;
+        if (noMessagePossible) {
             // There is a possibility that the send action may not be executed, thus adding NoMessageError type.
             BSymbol noMsgErrSymbol = symTable.langErrorModuleSymbol.scope.
                     lookup(Names.fromString(NO_MESSAGE_ERROR_TYPE)).symbol;
             returnTypeAndSendType.add(noMsgErrSymbol.getType());
+            if (returnTypeAndSendType.size() > 1) {
+                sendType = BUnionType.create(null, returnTypeAndSendType);
+            } else {
+                sendType = exprType;
+            }
+        } else {
+            sendType = sendTypeWithNoMsgIgnored;
         }
 
-        if (returnTypeAndSendType.size() > 1) {
-            return BUnionType.create(null, returnTypeAndSendType);
-        } else {
-            return exprType;
-        }
+        workerSendExpr.sendType = sendType;
+        workerSendExpr.sendTypeWithNoMsgIgnored = sendTypeWithNoMsgIgnored;
+        workerSendExpr.noMessagePossible = noMessagePossible;
     }
 
     @Override
@@ -2130,14 +2145,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         syncSendExpr.setBType(BUnionType.create(null, symTable.nilType, symTable.errorType));
         boolean withinIf = !invalidSendPos && withinIf(data.env.enclInvokable.body, data.env.node);
-        syncSendExpr.sendType =
-                createAccumulatedErrorTypeForMatchingReceive(syncSendExpr.expr.getBType(), withinIf, data);
+        setWorkerSendSendTypeDetails(syncSendExpr, syncSendExpr.expr.getBType(), withinIf, data);
         was.addWorkerAction(syncSendExpr);
         analyzeExpr(syncSendExpr.expr, data);
     }
 
     @Override
     public void visit(BLangAlternateWorkerReceive altWorkerReceive, AnalyzerData data) {
+        data.workerActionSystemStack.peek().alternateWorkerReceives.add(altWorkerReceive);
         for (BLangWorkerReceive bLangWorkerReceive : altWorkerReceive.getWorkerReceives()) {
             analyzeExpr(bLangWorkerReceive, data);
         }
@@ -3728,7 +3743,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     continue;
                 }
                 BLangWorkerReceive receive = (BLangWorkerReceive) otherSM.currentAction();
-                BLangWorkerSendReceiveExpr send = (BLangWorkerSendReceiveExpr) currentAction;
+                BLangWorkerSendExpr send = (BLangWorkerSendExpr) currentAction;
                 validateWorkerActionParameters(send, receive);
 
                 BLangWorkerSendReceiveExpr.Channel channel = createChannel(workerActionSystem, worker, otherSM);
@@ -3756,9 +3771,42 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
         } while (systemRunning);
 
-        if (!workerActionSystem.everyoneDone()) {
+        if (workerActionSystem.everyoneDone()) {
+            // By now, alternative receive corresponding senders have been paired. Hence, doing type-checking here
+            for (BLangAlternateWorkerReceive alternateWorkerRv : workerActionSystem.alternateWorkerReceives) {
+                typeCheckAlternateReceive(alternateWorkerRv);
+            }
+        } else {
             this.reportInvalidWorkerInteractionDiagnostics(workerActionSystem);
         }
+    }
+
+    private void typeCheckAlternateReceive(BLangAlternateWorkerReceive altWorkerRv) {
+        LinkedHashSet<BType> altTypes = new LinkedHashSet<>();
+        boolean noMessagePossible = true;
+
+        // Result will have error:NoMessage if and only if all receives have it.
+        for (BLangWorkerReceive workerRv : altWorkerRv.getWorkerReceives()) {
+            altTypes.add(workerRv.send.sendTypeWithNoMsgIgnored);
+            if (!workerRv.send.noMessagePossible) {
+                noMessagePossible = false;
+            }
+        }
+
+        if (noMessagePossible) {
+            BSymbol noMsgErrSymbol = symTable.langErrorModuleSymbol.scope.
+                    lookup(Names.fromString(NO_MESSAGE_ERROR_TYPE)).symbol;
+            altTypes.add(noMsgErrSymbol.getType());
+        }
+
+        BType actualType;
+        if (altTypes.size() > 1) {
+            actualType = BUnionType.create(null, altTypes);
+        } else {
+            actualType = altTypes.iterator().next();
+        }
+
+        types.checkType(altWorkerRv, actualType, altWorkerRv.expectedType);
     }
 
     private static BLangWorkerSendReceiveExpr.Channel createChannel(WorkerActionSystem workerActionSystem,
@@ -3926,31 +3974,27 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    private void validateWorkerActionParameters(BLangWorkerSendReceiveExpr send, BLangWorkerReceive receive) {
-        if (isWorkerSyncSend(send)) {
-            validateWorkerActionParameters((BLangWorkerSyncSendExpr) send, receive);
-        } else if (isWorkerSend(send)) {
-            validateWorkerActionParameters((BLangWorkerAsyncSendExpr) send, receive);
-        }
-    }
-
-    private void validateWorkerActionParameters(BLangWorkerAsyncSendExpr send, BLangWorkerReceive receive) {
+    private void validateWorkerActionParameters(BLangWorkerSendExpr send, BLangWorkerReceive receive) {
         send.receive = receive;
-        types.checkType(send.pos, symTable.nilType, send.expectedType,
-                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+        receive.send = send;
 
-        types.checkType(receive, send.sendType, receive.getBType());
-        addImplicitCast(send.sendType, receive);
-        NodeKind kind = receive.parent.getKind();
-        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR ||
-                kind == NodeKind.FAIL) {
+        NodeKind parentKind = receive.parent.getKind();
+        if (NodeKind.ALTERNATE_WORKER_RECEIVE != receive.parent.getKind()) {
+            types.checkType(receive, send.sendType, receive.getBType());
+            addImplicitCast(send.sendType, receive);
+        }
+
+        if (parentKind == NodeKind.TRAP_EXPR || parentKind == NodeKind.CHECK_EXPR ||
+                parentKind == NodeKind.CHECK_PANIC_EXPR || parentKind == NodeKind.FAIL) {
             typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
         }
-        receive.sendExpression = send.expr;
-    }
 
-    private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {
-        send.receive = receive;
+        if (send.getKind() == NodeKind.WORKER_ASYNC_SEND) {
+            types.checkType(send.pos, symTable.nilType, send.expectedType,
+                    DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+            return;
+        }
+
         NodeKind parentNodeKind = send.parent.getKind();
         if (parentNodeKind == NodeKind.VARIABLE) {
             BLangSimpleVariable variable = (BLangSimpleVariable) send.parent;
@@ -3972,17 +4016,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             dlog.error(send.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED, send.workerSymbol);
         } else {
             types.checkType(send.pos, receive.matchingSendsError, send.expectedType,
-                            DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                    DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
-
-        types.checkType(receive, send.sendType, receive.getBType());
-
-        addImplicitCast(send.sendType, receive);
-        NodeKind kind = receive.parent.getKind();
-        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR) {
-            typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
-        }
-        receive.sendExpression = send;
     }
 
     private void addImplicitCast(BType actualType, BLangWorkerReceive receive) {
@@ -4108,6 +4143,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
      */
     private static class WorkerActionSystem {
 
+        public final List<BLangAlternateWorkerReceive> alternateWorkerReceives = new ArrayList<>();
         public List<WorkerActionStateMachine> finshedWorkers = new ArrayList<>();
         private Stack<WorkerActionStateMachine> workerActionStateMachines = new Stack<>();
         private Map<BLangNode, SymbolEnv> workerInteractionEnvironments = new IdentityHashMap<>();
