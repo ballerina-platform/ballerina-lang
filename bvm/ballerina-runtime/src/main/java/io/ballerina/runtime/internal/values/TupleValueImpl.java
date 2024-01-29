@@ -338,6 +338,11 @@ public class TupleValueImpl extends AbstractArrayValue {
         refValues[(int) index] = value;
     }
 
+    public void addRefValueForcefully(int index, Object value) {
+        prepareForAddForcefully(index, refValues.length);
+        refValues[index] = value;
+    }
+
     /**
      * Add int value to the given array index.
      * 
@@ -739,6 +744,12 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     // private methods
+
+    private void prepareForAddForcefully(int index, int currentArraySize) {
+        ensureCapacity(index + 1, currentArraySize);
+        fillValues(index);
+        resetSize(index);
+    }
 
     private void prepareForAdd(long index, Object value, int currentArraySize) {
         int intIndex = (int) index;

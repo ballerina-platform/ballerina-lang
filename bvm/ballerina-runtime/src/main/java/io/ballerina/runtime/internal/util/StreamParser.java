@@ -462,23 +462,12 @@ public class StreamParser {
                     return FIELD_END_STATE;
                 case TypeTags.ARRAY_TAG:
                     int listIndex = this.listIndices.get(this.listIndices.size() - 1);
-                    ArrayType arrayType = (ArrayType) parentTargetType;
-                    int targetSize = arrayType.getSize();
-                    if (arrayType.getState() == ArrayType.ArrayState.CLOSED && targetSize <= listIndex) {
-                        throw new StreamParserException("'" + parentTargetType
-                                + "' array size is not enough for the provided values");
-                    }
                     ((ArrayValueImpl) parentNode).addRefValue(listIndex, currentJsonNode);
                     this.listIndices.set(this.listIndices.size() - 1, listIndex + 1);
                     this.currentJsonNode = parentNode;
                     return ARRAY_ELEMENT_END_STATE;
                 case TypeTags.TUPLE_TAG:
                     int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
-                    TupleType tupleType = (TupleType) parentTargetType;
-                    if ((tupleType.getTupleTypes().size() <= tupleListIndex) && (tupleType.getRestType() == null)) {
-                        throw new StreamParserException("'" + parentTargetType
-                                + "' tuple size is not enough for the provided values");
-                    }
                     ((TupleValueImpl) parentNode).addRefValue(tupleListIndex, currentJsonNode);
                     this.listIndices.set(this.listIndices.size() - 1, tupleListIndex + 1);
                     this.currentJsonNode = parentNode;
@@ -492,8 +481,7 @@ public class StreamParser {
                         return FIELD_END_STATE;
                     }
                     ArrayValueImpl arrayValue = (ArrayValueImpl) parentNode;
-                    arrayValue.addRefValue(arrayValue.size(), this.currentJsonNode);
-                    // TODO: check BStrings, think they are handled, but need to verify
+                    arrayValue.addRefValueForcefully(arrayValue.size(), this.currentJsonNode);
                     this.currentJsonNode = parentNode;
                     return ARRAY_ELEMENT_END_STATE;
                 default:
@@ -1083,48 +1071,17 @@ public class StreamParser {
                         switch (targetType.getTag()) {
                             case TypeTags.ARRAY_TAG:
                                 int listIndex = sm.listIndices.get(sm.listIndices.size() - 1);
-                                ArrayType arrayType = (ArrayType) targetType;
-                                int targetSize = arrayType.getSize();
-                                if (arrayType.getState() == ArrayType.ArrayState.CLOSED && targetSize <= listIndex) {
-                                    throw new StreamParserException("'" + arrayType
-                                            + "' array size is not enough for the provided values");
-                                }
-                                if (!TypeChecker.checkIsType(bString, arrayType.getElementType())) {
-                                    throw new StreamParserException(
-                                            "string value cannot be converted to the type '"
-                                                    + arrayType.getElementType());
-                                }
                                 ((ArrayValueImpl) sm.currentJsonNode).addRefValue(listIndex, bString);
                                 sm.listIndices.set(sm.listIndices.size() - 1, listIndex + 1);
                                 break;
                             case TypeTags.TUPLE_TAG:
                                 listIndex = sm.listIndices.get(sm.listIndices.size() - 1);
-                                TupleType tupleType = (TupleType) targetType;
-                                List<Type> tupleTypes = tupleType.getTupleTypes();
-                                int targetTupleSize = tupleTypes.size();
-                                Type tupleRestType = tupleType.getRestType();
-                                boolean noRestType = tupleRestType == null;
-                                Type tupleElementType;
-                                if (targetTupleSize <= listIndex) {
-                                    if (noRestType) {
-                                        throw new StreamParserException("'" + tupleType
-                                                + "' tuple size is not enough for the provided values");
-                                    } else {
-                                        tupleElementType = TypeUtils.getImpliedType(tupleRestType);
-                                    }
-                                } else {
-                                    tupleElementType = TypeUtils.getImpliedType(tupleTypes.get(listIndex));
-                                }
-                                if (!TypeChecker.checkIsType(bString, tupleElementType)) {
-                                    throw new StreamParserException("string value cannot be converted to the type '"
-                                                    + tupleElementType);
-                                }
                                 ((TupleValueImpl) sm.currentJsonNode).addRefValue(listIndex, bString);
                                 sm.listIndices.set(sm.listIndices.size() - 1, listIndex + 1);
                                 break;
                             case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG:
                                 ArrayValueImpl arrayValue = (ArrayValueImpl) sm.currentJsonNode;
-                                arrayValue.addRefValue(arrayValue.size(), bString);
+                                arrayValue.addRefValueForcefully(arrayValue.size(), bString);
                                 break;
                             default:
                                 throw new StreamParserException("unsupported type");
@@ -1328,11 +1285,6 @@ public class StreamParser {
                 case TypeTags.ARRAY_TAG:
                     int listIndex = this.listIndices.get(this.listIndices.size() - 1);
                     ArrayType arrayType = (ArrayType) referredType;
-                    int targetSize = arrayType.getSize();
-                    if (arrayType.getState() == ArrayType.ArrayState.CLOSED && targetSize <= listIndex) {
-                        throw new StreamParserException("'" + arrayType
-                                + "' array size is not enough for the provided values");
-                    }
                     Type elementType = TypeUtils.getImpliedType(arrayType.getElementType());
                     ((ArrayValueImpl) this.currentJsonNode).addRefValue(listIndex, convertValues(elementType, str));
                     this.listIndices.set(this.listIndices.size() - 1, listIndex + 1);
@@ -1348,14 +1300,14 @@ public class StreamParser {
                     if (targetTupleSize <= tupleListIndex) {
                         if (noRestType) {
                             throw new StreamParserException("'" + tupleType
-                                    + "' tuple size is not enough for the provided values");
+                                    + "' tuple size is not enough for the provided values"); // change error message
                         } else {
                             tupleElementType = TypeUtils.getImpliedType(tupleRestType);
                         }
                     } else {
                         tupleElementType = TypeUtils.getImpliedType(tupleTypes.get(tupleListIndex));
                     }
-                    ((TupleValueImpl) this.currentJsonNode).addRefValue(tupleListIndex,
+                    ((TupleValueImpl) this.currentJsonNode).addRefValueForcefully(tupleListIndex,
                             convertValues(tupleElementType, str));
                     this.listIndices.set(this.listIndices.size() - 1, tupleListIndex + 1);
                     break;
@@ -1385,7 +1337,7 @@ public class StreamParser {
             switch (type) {
                 case ARRAY_ELEMENT:
                     ArrayValueImpl arrayValue = (ArrayValueImpl) this.currentJsonNode;
-                    arrayValue.addRefValue(arrayValue.size(), value);
+                    arrayValue.addRefValueForcefully(arrayValue.size(), value);
                     break;
                 case FIELD:
                     ((MapValueImpl<BString, Object>) this.currentJsonNode).putForcefully(
