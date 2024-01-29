@@ -223,24 +223,6 @@ public class FileRecoveryLog implements RecoveryLog {
         }
     }
 
-    public void cleanUpAfterRecovery() {
-        int latestVersion = findLatestVersion();
-        File oldFile = recoveryLogDir.resolve(baseFileName + latestVersion + ".log").toFile();
-        if (oldFile.exists()) {
-               oldFile.delete();
-            }
-
-        File newFile = recoveryLogDir.resolve(baseFileName + (latestVersion + 1) + ".log").toFile();
-        try {
-            Files.createDirectories(recoveryLogDir); // create directory if not exists
-            newFile.createNewFile();
-            initAppendChannel(newFile);
-        } catch (IOException e) {
-            log.error("An error occurred while creating the new recovery log file.");
-        }
-        file = newFile;
-    }
-
     @Override
     public void close() {
     }

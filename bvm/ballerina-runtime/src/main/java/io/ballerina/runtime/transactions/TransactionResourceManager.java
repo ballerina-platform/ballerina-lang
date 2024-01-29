@@ -101,8 +101,7 @@ public class TransactionResourceManager {
     private boolean transactionManagerEnabled;
     private static final PrintStream stderr = System.err;
 
-    private FileRecoveryLog fileRecoveryLog;
-    private InMemoryRecoveryLog inMemoryRecoveryLog;
+    private LogManager logManager;
     private RecoveryManager recoveryManager;
 
     Map<ByteBuffer, Object> transactionInfoMap;
@@ -119,13 +118,8 @@ public class TransactionResourceManager {
             userTransactionManager = new UserTransactionManager();
         } else {
             xidRegistry = new HashMap<>();
-            fileRecoveryLog = new FileRecoveryLog(
-                    getRecoveryLogBaseName(),
-                    getCheckpointInterval(),
-                    getRecoveryLogDir(),
-                    getDeleteOldLogs()
-            );
-            inMemoryRecoveryLog = new InMemoryRecoveryLog();
+            logManager = new LogManager(getRecoveryLogBaseName(), getCheckpointInterval(),
+                    getRecoveryLogDir(), getDeleteOldLogs());
             recoveryManager = new RecoveryManager();
         }
     }
@@ -141,12 +135,8 @@ public class TransactionResourceManager {
         return transactionResourceManager;
     }
 
-    public static FileRecoveryLog getFileRecoveryLog() {
-        return transactionResourceManager.fileRecoveryLog;
-    }
-
-    public static InMemoryRecoveryLog getInMemoryLog() {
-        return transactionResourceManager.inMemoryRecoveryLog;
+    public LogManager getLogManager() {
+        return transactionResourceManager.logManager;
     }
 
     public RecoveryManager getRecoveryManager() {
