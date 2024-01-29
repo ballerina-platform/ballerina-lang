@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.ArrayList;
@@ -157,11 +158,12 @@ public class WDChannels {
         }
     }
 
-    public synchronized void removeCompletedChannels(String channelName) {
+    public synchronized void removeCompletedChannels(Strand strand, String channelName) {
         if (this.wDChannels != null) {
             WorkerDataChannel channel = this.wDChannels.get(channelName);
             if (channel != null && (channel.callCount == 2 || channel.isRemovable)) {
                 this.wDChannels.remove(channelName);
+                strand.channelDetails.remove(new ChannelDetails(channelName, true, false));
             }
         }
     }

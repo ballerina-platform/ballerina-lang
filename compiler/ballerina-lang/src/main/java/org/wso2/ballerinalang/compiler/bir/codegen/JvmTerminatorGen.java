@@ -1424,6 +1424,7 @@ public class JvmTerminatorGen {
                     this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "parent", GET_STRAND);
                 }
                 this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
                 this.mv.visitVarInsn(ILOAD, invocationVarIndex);
                 this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
                         new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
