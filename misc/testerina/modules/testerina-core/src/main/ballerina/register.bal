@@ -52,9 +52,8 @@ isolated class ConcurrentExecutionManager {
     private final TestFunction[] parallelTestExecutionList = [];
     private final TestFunction[] serialTestExecutionList = [];
     private final TestFunction[] testsInExecution = [];
-    private int unAllocatedTestWorkers = 1;
-    private int intialWorkers = 1;
     private final map<TestFunctionMetaData> testMetaData = {};
+    private boolean isParalleleExecutionEnabled = false;
 
     isolated function createTestFunctionMetaData(string functionName, *TestFunctionMetaData intialMetaData) {
         lock {
@@ -147,10 +146,15 @@ isolated class ConcurrentExecutionManager {
         }
     }
 
-    isolated function setIntialWorkers(int workers) {
+    isolated function setParallelExecutionStatus(boolean isParalleleExecutionEnabled) {
         lock {
-            self.intialWorkers = workers;
-            self.unAllocatedTestWorkers = workers;
+            self.isParalleleExecutionEnabled = isParalleleExecutionEnabled;
+        }
+    }
+
+    isolated function isParallelExecutionEnabled() returns boolean {
+        lock {
+            return self.isParalleleExecutionEnabled;
         }
     }
 
@@ -190,12 +194,6 @@ isolated class ConcurrentExecutionManager {
         }
     }
 
-    isolated function getConfiguredWorkers() returns int {
-        lock {
-            return self.intialWorkers;
-        }
-    }
-
     isolated function getSerialQueueLength() returns int {
         lock {
             return self.serialTestExecutionList.length();
@@ -213,24 +211,6 @@ isolated class ConcurrentExecutionManager {
             return self.parallelTestExecutionList.length() == 0 &&
                 self.serialTestExecutionList.length() == 0 &&
                 self.testsInExecution.length() == 0;
-        }
-    }
-
-    isolated function allocateWorker() {
-        lock {
-            self.unAllocatedTestWorkers -= 1;
-        }
-    }
-
-    isolated function releaseWorker() {
-        lock {
-            self.unAllocatedTestWorkers += 1;
-        }
-    }
-
-    isolated function getAvailableWorkers() returns int {
-        lock {
-            return self.unAllocatedTestWorkers;
         }
     }
 

@@ -132,8 +132,8 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "start in remote debugging mode")
     private String debugPort;
 
-    @CommandLine.Option(names = "--workers", description = "maximum number of parallel test jobs", defaultValue = "1")
-    private int workers;
+    @CommandLine.Option(names = "--parallel", description = "enable parallel execution", defaultValue = "false")
+    private boolean isParallelExecution;
 
     @CommandLine.Option(names = "--list-groups", description = "list the groups available in the tests")
     private boolean listGroups;
@@ -282,11 +282,6 @@ public class TestCommand implements BLauncherCmd {
             return;
         }
 
-        if (workers < 1) {
-            this.outStream.println("\nWarning: Workers can not be negative or zero. Test execution is proceeded " +
-                    "with default worker count.\n");
-        }
-
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
         if (this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
@@ -351,10 +346,10 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList, testList,
-                        includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs, workers),
+                        includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs, isParallelExecution),
                         project.buildOptions().nativeImage())
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, coverageFormat, moduleMap, listGroups, workers),
+                        testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution),
                         !project.buildOptions().nativeImage())
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();

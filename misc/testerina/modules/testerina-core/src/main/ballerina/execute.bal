@@ -71,29 +71,19 @@ function executeTests() returns error? {
         _ = testFunction.parallelizable ? conMgr.addInitialParallelTest(testFunction) : conMgr.addInitialSerialTest(testFunction);
     }
     while !conMgr.isExecutionDone() {
-        if conMgr.getAvailableWorkers() != 0 {
-            conMgr.populateExecutionQueues();
-            if conMgr.getSerialQueueLength() != 0 && conMgr.countTestInExecution() == 0 {
-                TestFunction testFunction = conMgr.getSerialTest();
-                conMgr.addTestInExecution(testFunction);
-                conMgr.allocateWorker();
-                executeTest(testFunction);
-            } else if conMgr.getParallelQueueLength() != 0 && conMgr.getSerialQueueLength() == 0 {
-                TestFunction testFunction = conMgr.getParallelTest();
-                conMgr.addTestInExecution(testFunction);
-                conMgr.allocateWorker();
-                DataProviderReturnType? testFunctionArgs = dataDrivenTestParams[testFunction.name];
-                if testFunctionArgs is map<readonly[]>|readonly[][] {
-                    testFunctionArgs = testFunctionArgs.cloneReadOnly();
-                }
-                future<()> parallelWaiter = start executeTestIso(testFunction, testFunctionArgs);
-
-                // For data driven tests, wait for the worker allocation to complete 
-                // before proceeding to the next test
-                if isDataDrivenTest(dataDrivenTestParams[testFunction.name]) {
-                    any _ = check wait parallelWaiter;
-                }
+        conMgr.populateExecutionQueues();
+        if conMgr.getSerialQueueLength() != 0 && conMgr.countTestInExecution() == 0 {
+            TestFunction testFunction = conMgr.getSerialTest();
+            conMgr.addTestInExecution(testFunction);
+            executeTest(testFunction);
+        } else if conMgr.getParallelQueueLength() != 0 && conMgr.getSerialQueueLength() == 0 {
+            TestFunction testFunction = conMgr.getParallelTest();
+            conMgr.addTestInExecution(testFunction);
+            DataProviderReturnType? testFunctionArgs = dataDrivenTestParams[testFunction.name];
+            if testFunctionArgs is map<readonly[]>|readonly[][] {
+                testFunctionArgs = testFunctionArgs.cloneReadOnly();
             }
+            _ = start executeTestIso(testFunction, testFunctionArgs);
         }
     }
     println("\n\t\tTest execution time :" + (currentTimeInMillis() - startTime).toString() + "ms\n");
@@ -217,7 +207,6 @@ isolated function enableExit() {
 
 isolated function isTestReadyToExecute(TestFunction testFunction, DataProviderReturnType? testFunctionArgs) returns boolean {
     if !conMgr.isEnabled(testFunction.name) {
-        conMgr.releaseWorker();
         conMgr.setExecutionSuspended(testFunction.name);
         return false;
     }
@@ -227,7 +216,6 @@ isolated function isTestReadyToExecute(TestFunction testFunction, DataProviderRe
         reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunctionArgs));
         println("\n" + testFunction.name + " has failed.\n");
         enableExit();
-        conMgr.releaseWorker();
         conMgr.setExecutionSuspended(testFunction.name);
         return false;
     }
@@ -240,7 +228,6 @@ isolated function finishTestExecution(TestFunction testFunction, boolean shouldS
             conMgr.setSkip(dependent.name);
         });
     }
-    conMgr.releaseWorker();
     conMgr.setExecutionDone(testFunction.name);
 }
 

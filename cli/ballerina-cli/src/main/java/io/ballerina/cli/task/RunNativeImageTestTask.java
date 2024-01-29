@@ -136,13 +136,13 @@ public class RunNativeImageTestTask implements Task {
     private boolean isRerunTestExecution;
     private String singleExecTests;
     private boolean listGroups;
-    private int testWorkers;
+    private final boolean  isParallelExecution;
 
     TestReport testReport;
 
     public RunNativeImageTestTask(PrintStream out, boolean rerunTests, String groupList,
                                   String disableGroupList, String testList, String includes, String coverageFormat,
-                                  Map<String, Module> modules, boolean listGroups, int workers) {
+                                  Map<String, Module> modules, boolean listGroups, boolean isParallelExecution) {
         this.out = out;
         this.isRerunTestExecution = rerunTests;
 
@@ -156,12 +156,7 @@ public class RunNativeImageTestTask implements Task {
             singleExecTests = testList;
         }
         this.listGroups = listGroups;
-
-        if (workers <= 0) {
-            testWorkers = DEFAULT_TEST_WORKERS;
-        } else {
-            testWorkers = workers;
-        }
+        this.isParallelExecution = isParallelExecution;
     }
 
 
@@ -564,7 +559,7 @@ public class RunNativeImageTestTask implements Task {
             cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
             cmdArgs.add(Boolean.toString(isRerunTestExecution));
             cmdArgs.add(Boolean.toString(listGroups));                              // 8
-            cmdArgs.add(Integer.toString(testWorkers));
+            cmdArgs.add(Boolean.toString(isParallelExecution));
 
             builder.command(cmdArgs.toArray(new String[0]));
             process = builder.start();

@@ -74,7 +74,6 @@ import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.DEFAULT_TEST_WORKERS;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FULLY_QULAIFIED_MODULENAME_SEPRATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.IGNORE_PATTERN;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
@@ -109,7 +108,7 @@ public class RunTestsTask implements Task {
     private boolean listGroups;
     private final List<String> cliArgs;
 
-    private int testWorkers;
+    private final boolean isParallelExecution;
 
     TestReport testReport;
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
@@ -126,17 +125,13 @@ public class RunTestsTask implements Task {
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
                         Map<String, Module> modules, boolean listGroups, String excludes, String[] cliArgs,
-                        int workers)  {
+                        boolean isParallelExecution)  {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
         this.cliArgs = List.of(cliArgs);
+        this.isParallelExecution = isParallelExecution;
 
-        if (workers <= 0) {
-            testWorkers = DEFAULT_TEST_WORKERS;
-        } else {
-            testWorkers = workers;
-        }
 
         if (disableGroupList != null) {
             this.disableGroupList = disableGroupList;
@@ -359,7 +354,7 @@ public class RunTestsTask implements Task {
         cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
         cmdArgs.add(Boolean.toString(isRerunTestExecution));
         cmdArgs.add(Boolean.toString(listGroups));
-        cmdArgs.add(Integer.toString(testWorkers));
+        cmdArgs.add(Boolean.toString(isParallelExecution));
         cliArgs.forEach((arg) -> {
             cmdArgs.add(arg);
         });
