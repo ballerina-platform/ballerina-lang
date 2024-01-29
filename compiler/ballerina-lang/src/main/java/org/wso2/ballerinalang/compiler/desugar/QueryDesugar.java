@@ -2736,7 +2736,6 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.sendExpression = rewrite(workerReceiveNode.sendExpression);
         result = workerReceiveNode;
     }
 

@@ -17,7 +17,7 @@
 import ballerina/jballerina.java;
 
 # Error type representing the no message error in worker interactions.
-public type NoMessageError distinct error;
+public type NoMessage distinct error;
 
 # Type for value that can be cloned.
 # This is the same as in lang.value, but is copied here to avoid a dependency.

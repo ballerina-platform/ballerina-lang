@@ -15,9 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.test.worker;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -32,12 +32,13 @@ import org.testng.annotations.Test;
  */
 public class WorkerAlternateReceiveTest {
 
-    private CompileResult result;
+    private CompileResult result, negativeResult;
 
     @BeforeClass
     public void setup() {
-        this.result = BCompileUtil.compile("test-src/workers/workers_alt_receive.bal");
+        result = BCompileUtil.compile("test-src/workers/workers_alt_receive.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
+        negativeResult = BCompileUtil.compile("test-src/workers/workers_alt_receive_negative.bal");
     }
 
     @Test(dataProvider = "functionProvider")
@@ -66,8 +67,29 @@ public class WorkerAlternateReceiveTest {
         };
     }
 
+    @Test(description = "Test negative scenarios of alternate receive action.")
+    public void testAltWorkerReceiveNegative() {
+        int index = 0;
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'", 53,
+                20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found '" +
+                "(int|ballerina/lang.error:0.0.0:NoMessage)'", 54, 20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'", 55,
+                20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'", 56,
+                20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'", 57,
+                20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found '" +
+                "(decimal|string|int|boolean)'", 58, 20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found '" +
+                "(decimal|string|int|boolean|ballerina/lang.error:0.0.0:NoMessage)'", 59, 20);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
+        negativeResult = null;
     }
 }
