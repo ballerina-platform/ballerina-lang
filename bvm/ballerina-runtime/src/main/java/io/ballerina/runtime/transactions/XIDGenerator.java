@@ -20,7 +20,6 @@ package io.ballerina.runtime.transactions;
 import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.ballerina.runtime.transactions.TransactionConstants.PLACEHOLDER_BQUAL;
 
 /**
  * Generates XID for the distributed transactions.
@@ -35,6 +34,10 @@ public class XIDGenerator {
         final byte[] branchQualifier = trxId.split(":")[1].getBytes();
         final byte[] globalTransactionId = trxId.split(":")[0].getBytes();
         return new XATransactionID(DEFAULT_FORMAT, branchQualifier, globalTransactionId);
+    }
+
+    public static int getDefaultFormat() {
+        return DEFAULT_FORMAT;
     }
 
     private XIDGenerator() {
