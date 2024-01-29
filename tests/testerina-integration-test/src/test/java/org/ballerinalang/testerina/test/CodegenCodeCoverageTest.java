@@ -44,12 +44,6 @@ import java.util.Map;
  * Test class to test report for Codegen ballerina projects.
  */
 public class CodegenCodeCoverageTest extends BaseTestCase {
-    private BMainInstance balClient;
-    private String projectPath;
-    Path repoBalaPath;
-    private Path resultsJsonPath;
-    private JsonObject resultObj;
-
     private static final String TOTAL_TESTS = "totalTests";
     private static final String PASSED_TESTS = "passed";
     private static final String FAILED_TESTS = "failed";
@@ -58,13 +52,13 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
     private static final String FOO_MISSED = "fooMissed";
     private static final String MAIN_COVERED = "mainCovered";
     private static final String MAIN_MISSED = "mainMissed";
+    Path repoBalaPath;
+    private BMainInstance balClient;
+    private JsonObject resultObj;
 
     @BeforeClass
     public void setup() throws BallerinaTestException, IOException {
         balClient = new BMainInstance(balServer);
-        projectPath = projectBasedTestsPath.resolve("codegen-coverage-test").toString();
-        resultsJsonPath = projectBasedTestsPath.resolve("codegen-coverage-test").resolve("target").resolve("report")
-                .resolve("test_results.json");
         FileUtils.copyFolder(Paths.get("build").resolve("compiler-plugin-jars"),
                 projectBasedTestsPath.resolve("compiler-plugin-jars"));
         repoBalaPath = Paths.get(balServer.getServerHome()).resolve("repo");
@@ -74,7 +68,9 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
     public Object[][] provideCoverageData() {
         return new Object[][]{
                 {
-                    "package_comp_plugin_code_modify_add_function",
+                        // adds a new function to all files
+                        "line-insert-test",
+                        "package_comp_plugin_code_modify_add_function",
                         Map.of(TOTAL_TESTS, 2, PASSED_TESTS, 2, FAILED_TESTS, 0, SKIPPED_TESTS, 0),
                         Map.of(
                                 FOO_COVERED, new int[]{3, 4},
@@ -82,15 +78,41 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
                                 MAIN_COVERED, new int[]{8, 9},
                                 MAIN_MISSED, new int[]{3, 4, 5}
                         )
+                },
+                {
+                        // remove "bar" function if available from all files
+                        "line-remove-test",
+                        "package_comp_plugin_code_modify_remove_function",
+                        Map.of(TOTAL_TESTS, 2, PASSED_TESTS, 2, FAILED_TESTS, 0, SKIPPED_TESTS, 0),
+                        Map.of(
+                                FOO_COVERED, new int[]{3, 4},
+                                FOO_MISSED, new int[]{11, 12},
+                                MAIN_COVERED, new int[]{8, 9},
+                                MAIN_MISSED, new int[]{3, 4, 5}
+                        )
+                },
+                {
+                        // remove empty functions and add a new function.
+                        "line-insert-and-remove-test",
+                        "package_comp_plugin_code_modify_add_remove_function",
+                        Map.of(TOTAL_TESTS, 2, PASSED_TESTS, 2, FAILED_TESTS, 0, SKIPPED_TESTS, 0),
+                        Map.of(
+                                FOO_COVERED, new int[]{3, 4},
+                                FOO_MISSED, new int[]{9, 10},
+                                MAIN_COVERED, new int[]{17, 18},
+                                MAIN_MISSED, new int[]{3, 4, 5}
+                        )
                 }
         };
     }
 
-    @Test(description = "Test code coverage report generation for a codegen project", dataProvider = "provideCoverageData")
-    public void codegenCoverageTest(String compilerPluginName, Map<String, Integer> status, Map<String, int[]> coverage) throws BallerinaTestException, IOException {
+    @Test(description = "Test code coverage report generation for a codegen project",
+            dataProvider = "provideCoverageData")
+    public void codegenCoverageTest(String projectName, String compilerPluginName, Map<String,
+            Integer> status, Map<String, int[]> coverage) throws BallerinaTestException, IOException {
         publishCompilerPlugin(compilerPluginName);
-        String[] args = new String[] {"--code-coverage"};
-        runCommand(args);
+        String[] args = new String[]{"--code-coverage"};
+        runCommand(projectName, args);
         validateStatus(status);
         validateCoverage(coverage);
     }
@@ -167,14 +189,16 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
     }
 
     private void validateStatus(Map<String, Integer> status, JsonObject obj, String msg) {
-        Assert.assertEquals(obj.get("totalTests").getAsInt(), status.get(TOTAL_TESTS), msg);
-        Assert.assertEquals(obj.get("passed").getAsInt(), status.get(PASSED_TESTS), msg);
-        Assert.assertEquals(obj.get("failed").getAsInt(), status.get(FAILED_TESTS), msg);
-        Assert.assertEquals(obj.get("skipped").getAsInt(), status.get(SKIPPED_TESTS), msg);
+        Assert.assertEquals(obj.get(TOTAL_TESTS).getAsInt(), status.get(TOTAL_TESTS), msg);
+        Assert.assertEquals(obj.get(PASSED_TESTS).getAsInt(), status.get(PASSED_TESTS), msg);
+        Assert.assertEquals(obj.get(FAILED_TESTS).getAsInt(), status.get(FAILED_TESTS), msg);
+        Assert.assertEquals(obj.get(SKIPPED_TESTS).getAsInt(), status.get(SKIPPED_TESTS), msg);
     }
 
-    private void runCommand(String[] args) throws BallerinaTestException {
-        balClient.runMain("test", args, null, new String[]{}, new LogLeecher[]{}, projectPath);
+    private void runCommand(String projectName, String[] args) throws BallerinaTestException {
+        Path projectPath = projectBasedTestsPath.resolve("code-coverage-report-test").resolve(projectName);
+        Path resultsJsonPath = projectPath.resolve("target").resolve("report").resolve("test_results.json");
+        balClient.runMain("test", args, null, new String[]{}, new LogLeecher[]{}, projectPath.toString());
         Gson gson = new Gson();
         try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
             resultObj = gson.fromJson(bufferedReader, JsonObject.class);

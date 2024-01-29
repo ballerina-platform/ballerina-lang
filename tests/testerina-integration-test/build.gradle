@@ -53,6 +53,8 @@ dependencies {
     implementation group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: "${project.javaDiffUtilsVersion}"
 
     compilerPluginJar project(':project-api-test-artifact:init-function-code-modify-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:remove-function-code-modify-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:add-remove-function-code-modify-compiler-plugin')
     compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
 }
 
