@@ -22,7 +22,7 @@ isolated final TestOptions testOptions = new ();
 
 public function setTestOptions(string inTargetPath, string inPackageName, string inModuleName, string inReport,
         string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed,
-        string inListGroups, string inTestWorkers) {
+        string inListGroups, string inIsParallelExecution) {
     testOptions.setModuleName(inModuleName);
     testOptions.setPackageName(inPackageName);
     testOptions.setTargetPath(inTargetPath);
@@ -32,8 +32,8 @@ public function setTestOptions(string inTargetPath, string inPackageName, string
     boolean testReport = parseBooleanInput(inReport, "test-report");
     boolean codeCoverage = parseBooleanInput(inCoverage, "code-coverage");
     listGroups = parseBooleanInput(inListGroups, "list-groups");
-    int testWorkers = parseIntegerInput(inTestWorkers, "testWorkers");
-    conMgr.setIntialWorkers(testWorkers);
+    boolean isParallelExecution = parseBooleanInput(inIsParallelExecution, "isParallelExecution");
+    conMgr.setParallelExecutionStatus(isParallelExecution);
 
     if rerunFailed {
         error? err = parseRerunJson();

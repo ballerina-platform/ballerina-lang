@@ -26,6 +26,8 @@ public type TestError distinct error;
 
 type ExecutionError distinct error<record {|string functionName;|}>;
 
+public type serialExecutionType true|();
+
 type ModuleRerunJson record {|
     string[] testNames;
     map<string?> testModuleNames;

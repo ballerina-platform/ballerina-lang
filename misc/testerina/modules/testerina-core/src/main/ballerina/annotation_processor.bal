@@ -79,7 +79,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
         }
 
         // If the test function is not parallelizable, then print the reason for serial execution.
-        if !isSatisfiedParallelizableConditions && !config.serialExecution && (conMgr.getConfiguredWorkers() > 1) {
+        if !isSatisfiedParallelizableConditions && !(config.serialExecution == () ? false : true) && conMgr.isParallelExecutionEnabled() {
             println("WARNING: Test function '" + name + "' cannot be parallelized, reason: " + string:'join(", ", ...reasonForSerialExecution));
         }
 
@@ -89,7 +89,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
         dataDrivenTestParams[name] = params;
         testRegistry.addFunction(name = name, executableFunction = f, before = config.before,
             after = config.after, groups = config.groups.cloneReadOnly(), diagnostics = diagnostics, dependsOn = config.dependsOn.cloneReadOnly(),
-            parallelizable = (!config.serialExecution && isSatisfiedParallelizableConditions && (conMgr.getConfiguredWorkers() > 1)),
+            parallelizable = (!(config.serialExecution == () ? false : true) && isSatisfiedParallelizableConditions && conMgr.isParallelExecutionEnabled()),
             config = config.cloneReadOnly());
         conMgr.createTestFunctionMetaData(functionName = name, dependsOnCount = config.dependsOn.length(), enabled = enabled);
     }

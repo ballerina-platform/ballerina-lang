@@ -55,22 +55,23 @@ isolated function executeDataDrivenTestSetIso(TestFunction testFunction, DataPro
     string[] keys = [];
     AnyOrErrorOrReadOnlyType[][] values = [];
     TestType testType = prepareDataSet(testFunctionArgs, keys, values);
+    map<future> futures = {};
 
-    boolean isIntialJob = true;
     while keys.length() != 0 {
-        if isIntialJob || conMgr.getAvailableWorkers() > 0 {
-            string key = keys.remove(0);
-            ReadOnlyType[] value = <ReadOnlyType[]>values.remove(0);
-            if !isIntialJob {
-                conMgr.allocateWorker();
-            }
-            future<()> _ = start prepareDataDrivenTestIso(testFunction, key, value.clone(), testType);
-        }
-        isIntialJob = false;
+        string key = keys.remove(0);
+        ReadOnlyType[] value = <ReadOnlyType[]>values.remove(0);
+        future<()> futureResult = start prepareDataDrivenTestIso(testFunction, key, value.clone(), testType);
+        futures[key] = futureResult;
     }
-
-    if !isIntialJob {
-        conMgr.allocateWorker();
+    foreach [string, future<any|error>] futureResult in futures.entries() {
+        string suffix = futureResult[0];
+        any|error parallelDataProviderResult = wait futureResult[1];
+        if parallelDataProviderResult is error {
+            reportData.onFailed(name = testFunction.name, suffix = suffix, message = "[fail data provider for the function " + testFunction.name
+                + "]\n" + getErrorMessage(parallelDataProviderResult), testType = testType);
+            println("\n" + testFunction.name + ":" + suffix + " has failed.\n");
+            enableExit();
+        }
     }
 }
 
@@ -118,7 +119,6 @@ isolated function prepareDataDrivenTestIso(TestFunction testFunction, string key
         executeDataDrivenTestIso(testFunction, key, testType, value);
         var _ = executeAfterFunctionIso(testFunction);
     }
-    conMgr.releaseWorker();
 }
 
 isolated function executeDataDrivenTestIso(TestFunction testFunction, string suffix, TestType testType, AnyOrErrorOrReadOnlyType[] params) {

@@ -228,10 +228,10 @@ public isolated function when(MockFunction mockFunction) returns FunctionStub {
 }
 
 # Represents a MockFunction object.
-public class MockFunction {
-    string functionToMock = "";
-    string functionToMockPackage = "";
-    string[] mockFunctionClasses = [];
+public isolated class MockFunction {
+    private string functionToMock = "";
+    private string functionToMockPackage = "";
+    private string[] mockFunctionClasses = [];
 }
 
 # Represents an object that allows stubbing function invocations.
