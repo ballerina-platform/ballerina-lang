@@ -63,14 +63,8 @@ public class BFiniteType extends BType implements FiniteType {
     private static SimpleType simpleType(Set<Object> values) {
         SimpleType ty = new SimpleType(SimpleType.Builder.NONE, SimpleType.Builder.NONE);
         for (Object value : values) {
-            if (!(value instanceof BValue)) {
-                return new SimpleType(SimpleType.Builder.NONE, SimpleType.Builder.ALL);
-            }
-            SimpleType valueTy = ((BValue) value).getSimpleType();
-            // FIXME: why fallowing don't work? (TypeCastExpressionTest)
-//            SimpleType valueTy = TypeChecker.getType(value).getSimpleType();
-//            SimpleType valueTy = value instanceof BValue ? ((BValue) value).getSimpleType() :
-//                    TypeChecker.getType(value).getSimpleType();
+            SimpleType valueTy = value instanceof BValue ? ((BValue) value).getSimpleType() :
+                    SimpleType.Builder.asSome(TypeChecker.getType(value).getSimpleType());
             ty = ty.union(valueTy);
         }
         return ty;

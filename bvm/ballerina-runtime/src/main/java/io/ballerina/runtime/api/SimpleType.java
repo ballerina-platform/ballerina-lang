@@ -131,6 +131,10 @@ public record SimpleType(long all, long some) {
             return bits;
         }
 
+        public static SimpleType asSome(SimpleType type) {
+            return new SimpleType(NONE, type.all | type.some);
+        }
+
         public static SimpleType intersection(List<Type> types) {
             if (types.isEmpty()) {
                 return new SimpleType(NONE, NONE);

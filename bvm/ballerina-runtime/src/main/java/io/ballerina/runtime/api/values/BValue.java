@@ -31,7 +31,10 @@ import java.util.Map;
  */
 public interface BValue {
 
-    SimpleType getSimpleType();
+    // TODO: remove this default implementation once all standard library classes are fixed
+    default SimpleType getSimpleType() {
+        return getType().getSimpleType();
+    }
     /**
      * Method to perform a deep copy, recursively copying all structural values and their members.
      *
