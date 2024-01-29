@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.transactions.TransactionConstants.IN_MEMORY_CHECKPOINT_INTERVAL;
 
@@ -15,13 +16,13 @@ public class InMemoryRecoveryLog implements RecoveryLog {
     private int numOfPutsSinceLastCheckpoint;
 
     public InMemoryRecoveryLog() {
-        this.transactionLogs = new HashMap<>();
+        this.transactionLogs = new ConcurrentHashMap<>();
         this.numOfPutsSinceLastCheckpoint = 0;
     }
 
     @Override
     public void put(TransactionLogRecord trxRecord) {
-        transactionLogs.put(trxRecord.transactionId, trxRecord);
+        transactionLogs.put(trxRecord.getCombinedId(), trxRecord);
         ifNeedWriteCheckpoint();
     }
 
@@ -41,7 +42,7 @@ public class InMemoryRecoveryLog implements RecoveryLog {
      *
      * @return Map of pending transactions
      */
-    private Map<String, TransactionLogRecord> getPendingTransactions() {
+    public Map<String, TransactionLogRecord> getPendingTransactions() {
         Map<String, TransactionLogRecord> pendingTransactions = new HashMap<>();
 
         Iterator<Map.Entry<String, TransactionLogRecord>> iterator = transactionLogs.entrySet().iterator();
@@ -50,10 +51,12 @@ public class InMemoryRecoveryLog implements RecoveryLog {
             String trxId = entry.getKey();
             TransactionLogRecord trxRecord = entry.getValue();
 
-            if (!trxRecord.isCompleted()) {
-                pendingTransactions.put(trxId, trxRecord);
+            if (trxRecord.isCompleted()) {
                 iterator.remove();
+                continue;
             }
+            pendingTransactions.put(trxId, trxRecord);
+            iterator.remove();
         }
 
         return pendingTransactions;

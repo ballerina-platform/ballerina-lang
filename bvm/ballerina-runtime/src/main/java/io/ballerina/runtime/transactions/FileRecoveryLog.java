@@ -119,7 +119,7 @@ public class FileRecoveryLog implements RecoveryLog {
      */
     private void initAppendChannel(File file) {
         try {
-            appendChannel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+            appendChannel = FileChannel.open(file.toPath(), StandardOpenOption.APPEND);
             FileLock lock = appendChannel.tryLock();
             if (lock == null) {
                 log.error("Could not acquire lock on recovery log file.");
@@ -216,7 +216,7 @@ public class FileRecoveryLog implements RecoveryLog {
 
     public void ifNeedWriteCheckpoint() {
         if (numOfPutsSinceLastCheckpoint >= checkpointInterval) {
-            log.info("Checkpoint needed. Cleaning up finished logs.");
+            System.out.println("Checkpoint needed. Cleaning up finished logs.");
             numOfPutsSinceLastCheckpoint = 0; // need to set here otherwise it will just keep creating new files
             File newFile = createNextVersion();
             file = newFile;
