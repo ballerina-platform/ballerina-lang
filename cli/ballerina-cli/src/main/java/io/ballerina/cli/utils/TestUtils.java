@@ -20,11 +20,8 @@ package io.ballerina.cli.utils;
 
 import com.google.gson.Gson;
 import io.ballerina.cli.launcher.LauncherUtils;
-import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -67,8 +64,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TOOLS_DIR_NAME;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.*;
 
 /**
  * Utility functions and classes for Run Test Task.
@@ -277,5 +273,51 @@ public class TestUtils {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             ProjectUtils.deleteDirectory(cachesRoot);
         }
+    }
+
+    public static String getJacocoAgentJarPath() {
+        return Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
+    }
+
+    public static List<String> getInitialCmdArgs(String javaCommand, String userDir) {
+        List<String> cmdArgs = new ArrayList<>();
+
+        if(javaCommand == null) {
+            cmdArgs.add(System.getProperty("java.command"));
+        }
+        else{
+            cmdArgs.add(javaCommand);
+        }
+
+        cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
+
+        if (userDir == null) {
+            cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
+        }
+        else {
+            cmdArgs.add("-XX:HeapDumpPath=" + userDir);
+        }
+
+        return cmdArgs;
+    }
+
+    public static void addOtherNeededArgs(List<String> cmdArgs, boolean report, boolean coverage, String groupList,
+                                          String disableGroupList, String singleExecTests, boolean isRerunTestExecution,
+                                          boolean listGroups, List<String> cliArgs) {
+        cmdArgs.add(Boolean.toString(report));
+        cmdArgs.add(Boolean.toString(coverage));
+        cmdArgs.add(groupList != null ? groupList : "");
+        cmdArgs.add(disableGroupList != null ? disableGroupList : "");
+        cmdArgs.add(singleExecTests != null ? singleExecTests : "");
+        cmdArgs.add(Boolean.toString(isRerunTestExecution));
+        cmdArgs.add(Boolean.toString(listGroups));
+        cliArgs.forEach((arg) -> {
+            cmdArgs.add(arg);
+        });
+    }
+
+    public static String getResolvedModuleName(Module module, ModuleName moduleName) {
+        return module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
     }
 }
