@@ -245,6 +245,11 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
+    public ArrayValueImpl(Type type, long size) {
+        this((ArrayType) TypeUtils.getImpliedType(type), size);
+        this.type = type;
+    }
+
     // Used when the array value is created from a type reference type
     public ArrayValueImpl(Type type, long size, BListInitialValueEntry[] initialValues) {
         this(type, size, initialValues, null);
@@ -319,6 +324,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
             default:
                 return refValues[(int) index];
         }
+    }
+
+    public Object getRefValueForcefully(int index) {
+        return refValues[index];
     }
 
     /**
@@ -531,6 +540,41 @@ public class ArrayValueImpl extends AbstractArrayValue {
         addBString(index, value);
     }
 
+    public void addRefValueForcefully(int index, Object value) {
+        switch (this.elementReferredType.getTag()) {
+            case TypeTags.BOOLEAN_TAG:
+                prepareForAddForcefully(index, booleanValues.length);
+                this.booleanValues[index] = (Boolean) value;
+                return;
+            case TypeTags.FLOAT_TAG:
+                prepareForAddForcefully(index, floatValues.length);
+                this.floatValues[index] = (Double) value;
+                return;
+            case TypeTags.BYTE_TAG:
+                prepareForAddForcefully(index, byteValues.length);
+                this.byteValues[index] = ((Number) value).byteValue();
+                return;
+            case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
+                prepareForAddForcefully(index, intValues.length);
+                this.intValues[index] = (Long) value;
+                return;
+            case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
+                prepareForAddForcefully(index, bStringValues.length);
+                this.bStringValues[index] = (BString) value;
+                return;
+            default:
+                prepareForAddForcefully(index, refValues.length);
+                this.refValues[index] = value;
+        }
+    }
+
     public void addRefValue(long index, Object value) {
         Type type = TypeChecker.getType(value);
         switch (this.elementReferredType.getTag()) {
@@ -571,7 +615,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this.refValues[index] = refValue;
     }
 
-    public void setArrayTypeForcefully(ArrayType type) {
+    public void setArrayRefTypeForcefully(ArrayType type) {
         this.type = this.arrayType = type;
         this.size = this.refValues.length;
         this.elementType = type.getElementType();
@@ -1166,6 +1210,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     // Private methods
+
+    private void prepareForAddForcefully(int intIndex, int currentArraySize) {
+        ensureCapacity(intIndex + 1, currentArraySize);
+        fillValues(intIndex);
+        resetSize(intIndex);
+    }
 
     private void prepareForAdd(long index, Object value, Type sourceType, int currentArraySize) {
         // check types

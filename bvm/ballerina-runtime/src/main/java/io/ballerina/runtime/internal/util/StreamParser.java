@@ -1802,14 +1802,12 @@ public class StreamParser {
         switch (targetType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 ArrayType arrayType = (ArrayType) targetType;
-                BListInitialValueEntry[] arrayValues = new BListInitialValueEntry[array.size()];
+                ArrayValueImpl newArray = new ArrayValueImpl(targetRefType, arrayType.getSize());
                 for (int i = 0; i < array.size(); i++) {
-                    Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues);
-                    arrayValues[i] = ValueCreator.createListInitialValueEntry(newValue);
+                    newArray.addRefValueForcefully(i, convert(array.getRefValueForcefully(i),
+                            arrayType.getElementType(), unresolvedValues));
                 }
-                // TODO: instead of creating new ArrayValueImpl reuse the one made for json[]
-                //  and avoid creating ListInitialValueEntry
-                return new ArrayValueImpl(targetRefType, arrayType.getSize(), arrayValues);
+                return newArray;
             case TypeTags.TUPLE_TAG:
                 TupleType tupleType = (TupleType) targetType;
                 int minLen = tupleType.getTupleTypes().size();
@@ -1827,7 +1825,7 @@ public class StreamParser {
                     Object bMap = convert(array.get(i), tableType.getConstrainedType(), unresolvedValues);
                     array.setRefValueForcefully(i, bMap);
                 }
-                array.setArrayTypeForcefully(TypeCreator.createArrayType(tableType.getConstrainedType()));
+                array.setArrayRefTypeForcefully(TypeCreator.createArrayType(tableType.getConstrainedType()));
                 BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
                 return new TableValueImpl(targetRefType, array, (ArrayValue) fieldNames);
             default:
