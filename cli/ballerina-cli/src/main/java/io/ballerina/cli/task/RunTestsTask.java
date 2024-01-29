@@ -68,7 +68,15 @@ import java.util.stream.Stream;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
-import static io.ballerina.cli.utils.TestUtils.*;
+import static io.ballerina.cli.utils.TestUtils.addOtherNeededArgs;
+import static io.ballerina.cli.utils.TestUtils.cleanTempCache;
+import static io.ballerina.cli.utils.TestUtils.clearFailedTestsJson;
+import static io.ballerina.cli.utils.TestUtils.getInitialCmdArgs;
+import static io.ballerina.cli.utils.TestUtils.getJacocoAgentJarPath;
+import static io.ballerina.cli.utils.TestUtils.getResolvedModuleName;
+import static io.ballerina.cli.utils.TestUtils.generateCoverage;
+import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
+import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
@@ -290,7 +298,7 @@ public class RunTestsTask implements Task {
             }
             suite.setReportRequired(report || coverage);
             String resolvedModuleName =
-                    module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
+                    getResolvedModuleName(module, moduleName);
             testSuiteMap.put(resolvedModuleName, suite);
             moduleNamesList.add(resolvedModuleName);
 
@@ -384,7 +392,7 @@ public class RunTestsTask implements Task {
                               String packageName, String orgName)
             throws IOException, InterruptedException, ClassNotFoundException {
 
-        List<String> cmdArgs = getInitialCmdArgs();
+        List<String> cmdArgs = getInitialCmdArgs(null, null);
 
         if (coverage) {
             String agentCommand = getAgentCommand(target, currentPackage, exclusionClassList,
@@ -413,7 +421,7 @@ public class RunTestsTask implements Task {
         String packageName = currentPackage.packageName().toString();
         String orgName = currentPackage.packageOrg().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
-        List<String> cmdArgs = getInitialCmdArgs();
+        List<String> cmdArgs = getInitialCmdArgs(null, null);
 
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
         String jacocoAgentJarPath = getJacocoAgentJarPath();
@@ -442,7 +450,8 @@ public class RunTestsTask implements Task {
         cmdArgs.add(target.path().toString());
         cmdArgs.add(jacocoAgentJarPath);
 
-        addOtherNeededArgs(cmdArgs);
+        addOtherNeededArgs(cmdArgs, this.report, this.coverage, this.groupList, this.disableGroupList,
+                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
@@ -473,20 +482,6 @@ public class RunTestsTask implements Task {
         return agentCommand;
     }
 
-    private String getJacocoAgentJarPath() {
-        return Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
-    }
-
-    private List<String> getInitialCmdArgs() {
-        List<String> cmdArgs = new ArrayList<>();
-        cmdArgs.add(System.getProperty("java.command"));
-        cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
-        cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
-
-        return cmdArgs;
-    }
-
     private List<String> getTestRunnerCmdArgs(Target target, String packageName, String moduleName) {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(getJacocoAgentJarPath());
@@ -494,39 +489,9 @@ public class RunTestsTask implements Task {
         cmdArgs.add(target.path().toString());
         cmdArgs.add(packageName);
         cmdArgs.add(moduleName);
-        addOtherNeededArgs(cmdArgs);
+        addOtherNeededArgs(cmdArgs, this.report, this.coverage, this.groupList, this.disableGroupList,
+                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs);
         return cmdArgs;
-    }
-
-    private void addOtherNeededArgs(List<String> cmdArgs) {
-        cmdArgs.add(Boolean.toString(report));
-        cmdArgs.add(Boolean.toString(coverage));
-        cmdArgs.add(this.groupList != null ? this.groupList : "");
-        cmdArgs.add(this.disableGroupList != null ? this.disableGroupList : "");
-        cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
-        cmdArgs.add(Boolean.toString(isRerunTestExecution));
-        cmdArgs.add(Boolean.toString(listGroups));
-        cmdArgs.add(Boolean.toString(isParallelExecution));
-        cliArgs.forEach((arg) -> {
-            cmdArgs.add(arg);
-        });
-    }
-
-    //overload method to add other needed args
-    public static void addOtherNeededArgs(List<String> cmdArgs, boolean report, boolean coverage, String groupList,
-                                    String disableGroupList, String singleExecTests, boolean isRerunTestExecution,
-                                    boolean listGroups, boolean isParallelExecution, List<String> cliArgs) {
-        cmdArgs.add(Boolean.toString(report));
-        cmdArgs.add(Boolean.toString(coverage));
-        cmdArgs.add(groupList != null ? groupList : "");
-        cmdArgs.add(disableGroupList != null ? disableGroupList : "");
-        cmdArgs.add(singleExecTests != null ? singleExecTests : "");
-        cmdArgs.add(Boolean.toString(isRerunTestExecution));
-        cmdArgs.add(Boolean.toString(listGroups));
-        cmdArgs.add(Boolean.toString(isParallelExecution));
-        cliArgs.forEach((arg) -> {
-            cmdArgs.add(arg);
-        });
     }
 
     //to load the correct class file for the test module
