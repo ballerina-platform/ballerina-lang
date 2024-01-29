@@ -172,8 +172,8 @@ public class TupleValueImpl extends AbstractArrayValue {
 
         int index = 0;
         for (BListInitialValueEntry listEntry : initialValues) {
-            if (listEntry instanceof ListInitialValueEntry.ExpressionEntry) {
-                addRefValue(index++, ((ListInitialValueEntry.ExpressionEntry) listEntry).value);
+            if (listEntry instanceof ListInitialValueEntry.ExpressionEntry expressionEntry) {
+                addRefValue(index++, expressionEntry.value);
             } else {
                 BArray values = ((ListInitialValueEntry.SpreadEntry) listEntry).values;
                 BIterator<?> iterator = values.getIterator();

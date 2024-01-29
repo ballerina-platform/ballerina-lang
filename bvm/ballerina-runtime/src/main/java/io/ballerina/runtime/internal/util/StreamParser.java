@@ -1814,10 +1814,9 @@ public class StreamParser {
                 BListInitialValueEntry[] tupleValues = new BListInitialValueEntry[array.size()];
                 for (int i = 0; i < array.size(); i++) {
                     Type elementType = (i < minLen) ? tupleType.getTupleTypes().get(i) : tupleType.getRestType();
-                    Object newValue = convert(array.get(i), elementType, unresolvedValues);
-                    tupleValues[i] = ValueCreator.createListInitialValueEntry(newValue);
+                    tupleValues[i] = ValueCreator.createListInitialValueEntry(
+                            convert(array.getRefValueForcefully(i), elementType, unresolvedValues));
                 }
-                // TODO: can optimize this also
                 return new TupleValueImpl(targetRefType, tupleValues);
             case TypeTags.TABLE_TAG:
                 TableType tableType = (TableType) targetType;
