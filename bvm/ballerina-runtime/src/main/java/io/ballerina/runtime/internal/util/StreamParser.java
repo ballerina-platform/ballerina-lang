@@ -86,7 +86,9 @@ import static io.ballerina.runtime.internal.ValueUtils.createRecordValueWithDefa
 
 /**
  * This class represents a {@link InputStream} parser which creates a value of the given target type
- * which should be a subtype of {@link io.ballerina.runtime.api.types.JsonType} type.
+ * which should be a subtype of {@link io.ballerina.runtime.api.types.AnydataType} type. The {@link InputStream} should
+ * only contain a sequence of characters that can be parsed as {@link io.ballerina.runtime.api.types.JsonType},
+ * otherwise a {@link BError} is thrown.
  *
  * @since 2201.9.0
  */
@@ -167,7 +169,7 @@ public class StreamParser {
     }
 
     /**
-     * Represents the state machine used for JSON parsing.
+     * Represents the state machine used for input stream parsing.
      */
     private static class StateMachine {
 

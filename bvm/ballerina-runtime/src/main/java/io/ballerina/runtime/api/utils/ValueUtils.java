@@ -51,8 +51,9 @@ public class ValueUtils {
 
     /**
      * Parses the given input stream and create a value which is a subtype of {@link AnydataType}
-     * given by the target type.
-     * User needs to close the stream.
+     * given by the target type. The {@link InputStream} should only contain a sequence of characters
+     * that can be parsed as {@link io.ballerina.runtime.api.types.JsonType}, otherwise a {@link BError} is thrown.
+     * User needs to close the {@link InputStream}.
      *
      * @param   in          input stream which contains the value content
      * @param   targetType  target type
