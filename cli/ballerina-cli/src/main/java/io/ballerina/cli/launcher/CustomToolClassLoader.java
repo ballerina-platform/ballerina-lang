@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Custom class loader used to load the tool implementation classes.
@@ -60,7 +61,7 @@ public class CustomToolClassLoader extends URLClassLoader {
             }
         }
         if (resolve) {
-            resolveClass(loadedClass);
+            resolveClass(Objects.requireNonNull(loadedClass));
         }
         return loadedClass;
     }
