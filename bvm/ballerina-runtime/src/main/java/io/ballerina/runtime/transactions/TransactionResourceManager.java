@@ -27,6 +27,8 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
@@ -103,7 +105,9 @@ public class TransactionResourceManager {
 
     private LogManager logManager;
     private RecoveryManager recoveryManager;
+    private boolean startupRecoverySuccessful = false;
 
+    RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
     Map<ByteBuffer, Object> transactionInfoMap;
 
     private TransactionResourceManager() {
@@ -121,6 +125,9 @@ public class TransactionResourceManager {
             logManager = new LogManager(getRecoveryLogBaseName(), getCheckpointInterval(),
                     getRecoveryLogDir(), getDeleteOldLogs());
             recoveryManager = new RecoveryManager();
+            if (!diagnosticLog.getDiagnosticList().isEmpty()) {
+                RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
+            }
         }
     }
 
@@ -263,14 +270,11 @@ public class TransactionResourceManager {
             } else if (value instanceof Integer) {
                 checkpointInterval = (Integer) value;
             } else {
-                // TODO : change logging, log.debug doesn't work
-                System.out.println("Invalid value provided for checkpointInterval. Using default value " +
-                        DEFAULT_CHECKPOINT_INTERVAL + ".");
+                diagnosticLog.warn(ErrorCodes.TRANSACTION_INVALID_CHECKPOINT_VALUE, null, DEFAULT_CHECKPOINT_INTERVAL);
                 return DEFAULT_CHECKPOINT_INTERVAL;
             }
             if (checkpointInterval < 0 && checkpointInterval != -1) {
-                System.out.println("Invalid value provided for checkpointInterval. Using default value " +
-                        DEFAULT_CHECKPOINT_INTERVAL + ".");
+                diagnosticLog.warn(ErrorCodes.TRANSACTION_INVALID_CHECKPOINT_VALUE, null, DEFAULT_CHECKPOINT_INTERVAL);
                 return DEFAULT_CHECKPOINT_INTERVAL;
             } else {
                 return checkpointInterval;

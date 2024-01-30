@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Path;
@@ -26,6 +27,7 @@ public class FileRecoveryLog implements RecoveryLog {
     private File file;
     private FileChannel appendChannel = null;
     private Map<String, TransactionLogRecord> existingLogs;
+    private static final PrintStream stderr = System.err;
 
     /**
      * Initializes a new FileRecoveryLog instance with the given base file name.
@@ -83,7 +85,7 @@ public class FileRecoveryLog implements RecoveryLog {
                 }
             }
         } catch (IOException e) {
-            log.error("An error occurred while creating the new recovery log file.");
+            stderr.println("error: failed to create recovery log file in " + recoveryLogDir);
         }
         return newFile;
     }
@@ -122,10 +124,10 @@ public class FileRecoveryLog implements RecoveryLog {
             appendChannel = FileChannel.open(file.toPath(), StandardOpenOption.APPEND);
             FileLock lock = appendChannel.tryLock();
             if (lock == null) {
-                log.error("Could not acquire lock on recovery log file.");
+                stderr.println("error: failed to acquire lock on recovery log file " + file.toPath());
             }
         } catch (IOException e) {
-            log.error("An error occurred while opening the recovery log file.");
+            stderr.println("error: failed to acquire lock on recovery log file " + file.toPath());
         }
     }
 
@@ -169,9 +171,8 @@ public class FileRecoveryLog implements RecoveryLog {
         try {
             appendChannel.write(java.nio.ByteBuffer.wrap(bytes));
             appendChannel.force(force);
-            log.debug(String.format("Wrote to recovery log file: " + str));
         } catch (IOException e) {
-            log.error("An error occurred while writing to the recovery log file.");
+            stderr.println("error: failed to write to recovery log file " + file.toPath());
         }
     }
 
@@ -195,7 +196,7 @@ public class FileRecoveryLog implements RecoveryLog {
                 }
             }
         } catch (IOException e) {
-            log.error("An error occurred while reading the recovery log file.", e);
+            stderr.println("error: failed to read the recovery log file " + file.toPath());
         }
         return logMap;
     }
@@ -216,7 +217,6 @@ public class FileRecoveryLog implements RecoveryLog {
 
     public void ifNeedWriteCheckpoint() {
         if (numOfPutsSinceLastCheckpoint >= checkpointInterval) {
-            System.out.println("Checkpoint needed. Cleaning up finished logs.");
             numOfPutsSinceLastCheckpoint = 0; // need to set here otherwise it will just keep creating new files
             File newFile = createNextVersion();
             file = newFile;

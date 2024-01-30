@@ -1,11 +1,15 @@
 package io.ballerina.runtime.transactions;
 
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -230,7 +234,7 @@ public class RecoveryManager {
                     ret = true;
                     break;
                 default:
-                    log.error("Error while replaying commit for transaction: " + xid + " " + e.getMessage());
+                    log.error("transient error while replaying commit for transaction: " + xid + " " + e.getMessage());
             }
         }
         return ret;
@@ -262,7 +266,8 @@ public class RecoveryManager {
                     ret = true;
                     break;
                 default:
-                    System.out.println("Error while replaying abort for transaction: " + xid + " " + e.getMessage());
+                    log.error("transient error while replaying abort for transaction: " + xid + " " + e.getMessage());
+
             }
         }
         return ret;
@@ -303,7 +308,7 @@ public class RecoveryManager {
                 forgetXidInXaResource(xid, xaResource);
                 break;
             case XAException.XA_HEURMIX:
-                System.out.println("Transaction was heuristically mixed: " + xid + " " + e.getMessage());
+                reportUserOfHueristics(e, xid, decisionCommit);
                 forgetXidInXaResource(xid, xaResource);
                 break;
             case XAException.XA_HEURHAZ:

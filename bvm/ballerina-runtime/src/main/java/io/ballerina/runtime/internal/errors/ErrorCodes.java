@@ -149,7 +149,17 @@ public enum ErrorCodes implements DiagnosticCode {
     REGEXP_INVALID_HEX_DIGIT("regexp.invalid.hex.digit", "RUNTIME_0120"),
     CONFIG_TOML_INVALID_MODULE_STRUCTURE_WITH_VARIABLE("config.toml.invalid.module.structure.with.variable",
                                                                "RUNTIME_0121"),
-    EMPTY_XML_SEQUENCE_HAS_NO_ATTRIBUTES("empty.xml.sequence.no.attributes", "RUNTIME_0122");
+    EMPTY_XML_SEQUENCE_HAS_NO_ATTRIBUTES("empty.xml.sequence.no.attributes", "RUNTIME_0122"),
+
+    // transaction recovery errors
+    TRANSACTION_INVALID_CHECKPOINT_VALUE("transaction.invalid.checkpoint.value", "RUNTIME_0123"),
+    TRANSACTION_IN_HUERISTIC_STATE("transaction.in.heuristic.state", "RUNTIME_0124"),
+    TRANSACTION_IN_HAZARD_STATE("transaction.in.hazard.state", "RUNTIME_0125"),
+    TRANSACTION_IN_MIXED_STATE("transaction.in.mixed.state", "RUNTIME_0126"),
+    TRANSACTION_STARTUP_RECOVERY_FAILED("transaction.startup.recovery.failed", "RUNTIME_0127"),
+    TRANSACTION_CANNOT_CREATE_LOG_FILE("transaction.cannot.create.log.file", "RUNTIME_0128"),
+    TRANSACTION_CANNOT_COLLECT_XIDS_IN_RESOURCE("transaction.cannot.collect.xids.in.resource", "RUNTIME_0129");
+
 
     private final String errorMsgKey;
     private final String errorCode;
