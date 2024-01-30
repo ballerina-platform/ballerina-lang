@@ -68,6 +68,7 @@ import java.util.stream.Stream;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
+import static io.ballerina.cli.utils.TestUtils.addMockClasses;
 import static io.ballerina.cli.utils.TestUtils.addOtherNeededArgs;
 import static io.ballerina.cli.utils.TestUtils.cleanTempCache;
 import static io.ballerina.cli.utils.TestUtils.clearFailedTestsJson;
@@ -305,28 +306,6 @@ public class RunTestsTask implements Task {
             addMockClasses(suite, mockClassNames);
         }
         return hasTests;
-    }
-
-    private static void addMockClasses(TestSuite suite, List<String> mockClassNames) {
-        Map<String, String> mockFunctionMap = suite.getMockFunctionNamesMap();
-        for (Map.Entry<String, String> entry : mockFunctionMap.entrySet()) {
-            String key = entry.getKey();
-            String functionToMockClassName;
-            // Find the first delimiter and compare the indexes
-            // The first index should always be a delimiter. Which ever one that is denotes the mocking type
-            if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
-                functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-            } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
-                functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
-            } else {
-                if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
-                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-                } else {
-                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
-                }
-            }
-            mockClassNames.add(functionToMockClassName);
-        }
     }
 
     private void runTestsUsingEmits(Project project, List<ModuleName> moduleNamesList, Target target, HashSet<String> exclusionClassList, Path testsCachePath, JBallerinaBackend jBallerinaBackend) {
