@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
+            JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
             List<Diagnostic> diagnostics = new ArrayList<>();
 
@@ -48,11 +50,17 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                 start = System.currentTimeMillis();
             }
 
+            HashSet<JarLibrary> testExecDependencies = new HashSet<>();
+
             for (ModuleDescriptor moduleDescriptor :
                     project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
 
                 Module module = project.currentPackage().module(moduleDescriptor.name());
                 Path testExecutablePath = getTestExecutablePath(target, module);
+
+                testExecDependencies.addAll(jarResolver
+                        .getJarFilePathsRequiredForTestExecution(module.moduleName())
+                );
 
                 List<String> allArgs = this.runTestsTask.getAllTestArgs(target,
                         project.currentPackage().packageName().toString(),
@@ -73,14 +81,23 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                     diagnostics.addAll(jBallerinaBackend.getEmitResult(
                             testExecutablePath,
                             generatedTestArtifact,
-                            false, ArtifactType.TEST).diagnostics().diagnostics());
+                            false, ArtifactType.TEST).diagnostics().diagnostics()
+                    );
                 }
                 else {
                     diagnostics.addAll(jBallerinaBackend.getFailedEmitResult(
                             null)
-                            .diagnostics().diagnostics());
+                            .diagnostics().diagnostics()
+                    );
                 }
             }
+
+            //create the single fat jar for all the test modules
+            EmitResult result = jBallerinaBackend.emit(
+                    JBallerinaBackend.OutputType.TEST,
+                    getTestExecutableBasePath(target),
+                    testExecDependencies
+            );
 
 
             if(project.buildOptions().cloud() != null) {
