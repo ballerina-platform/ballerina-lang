@@ -25,11 +25,9 @@ public class Listener {
     }
 
     public function 'start() returns error? {
-      
     }
 
     public function gracefulStop() returns error? {
-       
     }
 
     public function immediateStop() returns error? {
@@ -45,7 +43,6 @@ public class Listener {
 public function main() {
     Listener l = new("TestListener");
     runtime:registerListener(l);
-    
 }
 
 public type MutualSslHandshake record {|
@@ -53,14 +50,6 @@ public type MutualSslHandshake record {|
     string? base64EncodedCert = ();
 |};
 
-# Defines the possible values for the mutual ssl status.
-#
-# `passed`: Mutual SSL handshake is successful.
-# `failed`: Mutual SSL handshake has failed.
 public type MutualSslStatus PASSED|FAILED|();
-
-# Mutual SSL handshake is successful.
 public const PASSED = "passed";
-
-# Mutual SSL handshake has failed.
 public const FAILED = "failed";
