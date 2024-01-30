@@ -38,11 +38,6 @@ public class LogManager {
         return inMemoryRecoveryLog.getFailedTransactions();
     }
 
-    public Map<String, TransactionLogRecord> getPendingLogs() {
-        return inMemoryRecoveryLog.getPendingTransactions();
-    }
-
-
     public void close() {
         fileRecoveryLog.close();
     }
