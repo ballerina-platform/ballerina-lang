@@ -224,6 +224,23 @@ public class JBallerinaBackend extends CompilerBackend {
         return getEmitResult(filePath, generatedArtifact, true, ArtifactType.BUILD);
     }
 
+    public EmitResult emit(OutputType outputType, Path filePath, HashSet<JarLibrary> jarDependencies) {
+        Path generatedArtifact = null;
+
+        if (diagnosticResult.hasErrors()) {
+            return getFailedEmitResult(generatedArtifact);
+        }
+
+        if (outputType == OutputType.TEST) {
+            generatedArtifact = emitTest(filePath, jarDependencies, null);
+        }
+        else {
+            throw new RuntimeException("Unexpected output type: " + outputType);
+        }
+
+        return getEmitResult(filePath, generatedArtifact, true, ArtifactType.BUILD);
+    }
+
     public EmitResult getEmitResult(Path filePath, Path generatedArtifact, boolean shouldNotifyCompilation, ArtifactType artifactType) {
         ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
 
@@ -621,12 +638,10 @@ public class JBallerinaBackend extends CompilerBackend {
         return executableFilePath;
     }
 
-    private Path emitTest(Path executableFilePath, ModuleName moduleName, List<String> cmdArgs) {
+    private Path emitTest(Path executableFilePath, HashSet<JarLibrary> jarDependencies, List<String> cmdArgs) {
         Manifest manifest = createTestManifest();
-        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
-
         try {
-            assembleExecutableJar(executableFilePath, manifest, jarLibraries, cmdArgs);
+            assembleExecutableJar(executableFilePath, manifest, jarDependencies, cmdArgs);
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package '" +
                     this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
