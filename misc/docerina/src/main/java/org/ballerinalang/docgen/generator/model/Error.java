@@ -28,7 +28,8 @@ public class Error extends Construct {
     @Expose
     public boolean isDistinct;
 
-    public Error(String name, String description, List<String> descriptionSections, boolean isDeprecated, Type detailType) {
+    public Error(String name, String description, List<String> descriptionSections, boolean isDeprecated,
+                 Type detailType) {
         super(name, description, descriptionSections, isDeprecated);
         this.detailType = detailType;
     }

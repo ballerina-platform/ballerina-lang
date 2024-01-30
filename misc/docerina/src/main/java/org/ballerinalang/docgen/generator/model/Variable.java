@@ -17,8 +17,6 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
-import java.util.List;
-
 /**
  * Represents a variable.
  */

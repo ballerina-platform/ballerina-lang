@@ -28,7 +28,8 @@ public class Annotation extends Construct {
     @Expose
     public String attachmentPoints;
 
-    public Annotation(String name, String description, List<String> descriptionSections, boolean isDeprecated, Type type, String attachmentPoints) {
+    public Annotation(String name, String description, List<String> descriptionSections, boolean isDeprecated,
+                      Type type, String attachmentPoints) {
         super(name, description, descriptionSections, isDeprecated);
         this.type = type;
         this.attachmentPoints = attachmentPoints;
