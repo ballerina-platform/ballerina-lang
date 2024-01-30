@@ -560,7 +560,8 @@ public class Generator {
                     isIsolated, isService);
         } else if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.LISTENER_KEYWORD)
                 || isListenerModel(functions)) {
-            return new Listener(name, description, descriptionSections, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
+            return new Listener(name, description, descriptionSections, isDeprecated, fields, functions, isReadOnly,
+                    isIsolated, isService);
         } else {
             return new BClass(name, description, descriptionSections, isDeprecated, fields, functions, isReadOnly,
                     isIsolated, isService);
@@ -946,7 +947,8 @@ public class Generator {
         if (docLines != null) {
             for (Node docLine : docLines.documentationLines()) {
                 if (docLine instanceof MarkdownDocumentationLineNode) {
-                    String docLineString = getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements());
+                    String docLineString = getDocLineString(((MarkdownDocumentationLineNode) docLine).
+                            documentElements());
                     if (docLineString.startsWith(DOC_HEADER_PREFIX)) {
                         break;
                     }
