@@ -551,13 +551,20 @@ public class StreamParser {
                 }
             }
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
-            switch (targetType.getTag()) {
+            int targetTypeTag = targetType.getTag();
+            switch (targetTypeTag) {
                 case TypeTags.MAP_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
                     this.currentJsonNode = new MapValueImpl<>(targetType);
                     break;
                 case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG:
-                    this.currentJsonNode = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
+                    if (targetType.isReadOnly()
+                            && (targetTypeTag == TypeTags.JSON_TAG || targetTypeTag == TypeTags.ANYDATA_TAG)) {
+                        this.currentJsonNode = new MapValueImpl<>(
+                                new BMapType(PredefinedTypes.TYPE_READONLY_JSON, true));
+                    } else {
+                        this.currentJsonNode = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
+                    }
                     if (this.nodesStackSizeWhenUnionStarts == -1) {
                         this.nodesStackSizeWhenUnionStarts = this.nodesStack.size();
                     }
@@ -628,7 +635,8 @@ public class StreamParser {
                 }
             }
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
-            switch (targetType.getTag()) {
+            int targetTypeTag = targetType.getTag();
+            switch (targetTypeTag) {
                 case TypeTags.ARRAY_TAG:
                     this.currentJsonNode = new ArrayValueImpl((ArrayType) targetType);
                     this.listIndices.add(0);
@@ -638,7 +646,13 @@ public class StreamParser {
                     this.listIndices.add(0);
                     break;
                 case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG:
-                    this.currentJsonNode = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
+                    if (targetType.isReadOnly()
+                            && (targetTypeTag == TypeTags.JSON_TAG || targetTypeTag == TypeTags.ANYDATA_TAG)) {
+                        this.currentJsonNode = new ArrayValueImpl(
+                                new BArrayType(PredefinedTypes.TYPE_READONLY_JSON, true));
+                    } else {
+                        this.currentJsonNode = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
+                    }
                     if (this.nodesStackSizeWhenUnionStarts == -1) {
                         this.nodesStackSizeWhenUnionStarts = this.nodesStack.size();
                     }
