@@ -2,7 +2,6 @@ ERROR [Ballerina.toml:(12:1,15:24)] recurring tool id 'generate-delivery-client'
 ERROR [Ballerina.toml:(17:1,20:26)] recurring target module found in Ballerina.toml. Target module must be unique for each tool
 
 Executing Build Tools
-
 	openapi(generate-delivery-client)
 
 ERROR [openAPI sample build tool:(1:1,1:1)] The provided filePath does not exist
