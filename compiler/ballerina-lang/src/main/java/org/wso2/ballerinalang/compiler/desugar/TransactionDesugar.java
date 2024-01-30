@@ -81,6 +81,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.ROLLBACK_TRANSACTION;
 import static org.wso2.ballerinalang.compiler.util.Names.START_TRANSACTION;
 import static org.wso2.ballerinalang.compiler.util.Names.START_TRANSACTION_COORDINATOR;
 import static org.wso2.ballerinalang.compiler.util.Names.TRANSACTION_INFO_RECORD;
+import static org.wso2.ballerinalang.compiler.util.Names.STARTUP_CRASH_RECOVERY;
 
 /**
  * Class responsible for desugar transaction statements into actual Ballerina code.
@@ -161,7 +162,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private BLangBlockStmt desugarTransactionBody(BLangTransaction transactionNode, SymbolEnv env, Location pos) {
         BLangBlockStmt transactionBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         transactionBlockStmt.scope = transactionNode.transactionBody.scope;
-
+        transactionBlockStmt.stmts.add(createVarDefForStartupRecovery(env, pos));
         //boolean $shouldCleanUp$ = false;
         BVarSymbol shouldCleanUpSymbol = new BVarSymbol(0, new Name(SHOULD_CLEANUP_SYMBOL + UNDERSCORE + uniqueId),
                 env.scope.owner.pkgID, symTable.booleanType, env.scope.owner, pos, VIRTUAL);
@@ -363,6 +364,16 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createVariableDef(pos, outputVariable);
     }
 
+    private BLangSimpleVariableDef createVarDefForStartupRecovery(SymbolEnv env, Location pos) {
+        BLangExpression invocation = createStartupCrashRecoveryStmt(pos);
+        BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$startupRecoveryErr$"),
+                env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner, pos, VIRTUAL);
+        BLangSimpleVariable outputVariable =
+                ASTBuilderUtil.createVariable(pos, "$startupRecoveryErr$", symTable.errorOrNilType,
+                        invocation, outputVarSymbol);
+        return ASTBuilderUtil.createVariableDef(pos, outputVariable);
+    }
+
     public void startTransactionCoordinatorOnce(SymbolEnv env, Location pos) {
         if (!trxCoordinatorServiceStarted) {
             BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) env.enclPkg.initFunction.body;
@@ -481,6 +492,15 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 createInvocationExprForMethod(pos, cleanupTrxInvokableSymbol, args, symResolver);
         cleanupTrxInvocation.argExprs = args;
         return cleanupTrxInvocation;
+    }
+
+    public BLangInvocation createStartupCrashRecoveryStmt(Location pos) {
+        List<BLangExpression> args = new ArrayList<>();
+        BInvokableSymbol startupCrashRecoveryInvokableSymbol =
+                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(STARTUP_CRASH_RECOVERY);
+        BLangInvocation startupCrashRecoveryInvocation = ASTBuilderUtil.
+                createInvocationExprForMethod(pos, startupCrashRecoveryInvokableSymbol, args, symResolver);
+        return startupCrashRecoveryInvocation;
     }
 
     BLangStatementExpression invokeRollbackFunc(Location pos, BLangExpression rollbackExpr,

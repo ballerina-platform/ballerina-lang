@@ -14,13 +14,12 @@ import java.util.Map;
 
 public class RecoveryManager {
     private static final Logger log = LoggerFactory.getLogger(RecoveryManager.class);
-    private Map<String, TransactionLogRecord> transactionsToRecover;
-//    private Map<String, TransactionLogRecord> failedParticipantsToRecover; // needed later?
-    private Map<XAResource, ArrayList<TransactionLogRecord>> failedToRecoverResources;
     private Map<String, TransactionLogRecord> failedTransactions;
     private Collection<XAResource> failedToRecoverResources;
     private Collection<XAResource> xaResources;
 
+    private final RuntimeDiagnosticLog diagnosticLog;
+    private static final PrintStream stderr = System.err;
 
     public RecoveryManager() {
         this.failedTransactions = new HashMap<>();
@@ -45,14 +44,6 @@ public class RecoveryManager {
         return this.failedTransactions;
     }
 
-    public void recoverXAResource(XAResource xaResource) {
-        transactionsToRecover = TransactionResourceManager.getFileRecoveryLog().getPendingLogs();
-        if (transactionsToRecover == null) {
-            return;
-        }
-        if (transactionsToRecover.isEmpty()) {
-            return;
-        }
     /**
      * Add a xa resource to the list of resources to recover.
      * XAResources should be added from the relavent library side during their initialization.
@@ -71,60 +62,6 @@ public class RecoveryManager {
         xaResources.add(xaResource);
     }
 
-        Iterable<TransactionLogRecord> iterablePLogs = transactionsToRecover.values();
-        boolean recoverSuccessful = false;
-        try {
-            Map<String, Xid> recoveredXids = retrievePreparedXids(xaResource);
-            if (recoveredXids.isEmpty()) {
-                System.out.println("No in-doubt transactions in XA Resource.");
-                return;
-            }
-            for (TransactionLogRecord pLog : iterablePLogs) {
-                Xid currentXid = XIDGenerator.createXID(pLog.getCombinedId());
-                switch (pLog.getTransactionState()) {
-                    case COMMITTING:
-                        recoverSuccessful = replayCommit(xaResource, currentXid);
-                        break;
-                    case ABORTING:
-                        recoverSuccessful = handleAbort(xaResource, currentXid);
-                        break;
-                    case COMMITTED, ABORTED:
-                        forgetXidInXaResource(currentXid, xaResource);
-                        recoverSuccessful = true;
-                        break;
-                    case MIXED:
-                        System.out.println("Transaction" + pLog.getCombinedId() + " in mixed state. " +
-                                "Should be handled.");
-                        break;
-                    case HAZARD:
-                        System.out.println("Transaction" + pLog.getCombinedId() + " in hazard state. " +
-                                "Check your data for consistency.");
-                        break;
-                    default:
-                        log.error("Transaction" + pLog.getCombinedId() + " in invalid state: " + pLog.getTransactionState());
-                        //TODO: handle properly
-                }
-                if (recoverSuccessful){
-
-//                    if (failedToRecoverResources.containsKey(xaResource)) {
-//                        if (failedToRecoverResources.get(xaResource).contains(pLog)) {
-//                            failedToRecoverResources.get(xaResource).remove(pLog);
-//                            if (failedToRecoverResources.get(xaResource).isEmpty()) {
-//                                failedToRecoverResources.remove(xaResource);
-//                            }
-//                        }
-//                    }
-//                } else {
-//                    if (!failedToRecoverResources.containsKey(xaResource)) {
-//                        failedToRecoverResources.put(xaResource, new ArrayList<>());
-//                    }
-//                    failedToRecoverResources.get(xaResource).add(pLog);
-                }
-            }
-        } catch (XAException ex) {
-            System.out.println("Error while recovering XA Resource: " + ex.getMessage());
-            log.error("Error while recovering XA Resource: " + ex.getMessage());
-        }
     public boolean performRecoveryPass(){
         boolean allOk = true;
 
@@ -136,8 +73,10 @@ public class RecoveryManager {
             String combinedId = logRecord.getCombinedId();
             switch (logRecord.getTransactionState()) {
                 case MIXED:
+                    diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_MIXED_STATE, null, combinedId);
                     break;
                 case HAZARD:
+                    diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HAZARD_STATE, null, combinedId);
                     break;
                 default:
                     break;
@@ -153,6 +92,7 @@ public class RecoveryManager {
                 try {
                     recoveredXids = retrievePreparedXids(xaResource);
                 } catch (XAException e) {
+                    diagnosticLog.warn(ErrorCodes.TRANSACTION_CANNOT_COLLECT_XIDS_IN_RESOURCE, null, xaResource);
                     failedToRecoverResources.add(xaResource);
                     continue;
                 }
@@ -165,6 +105,14 @@ public class RecoveryManager {
             }
         }
 
+        if (!allOk) {
+            diagnosticLog.error(ErrorCodes.TRANSACTION_STARTUP_RECOVERY_FAILED, null);
+        }
+
+        // notify the user of all startup recovery warns and errors
+        if (!diagnosticLog.getDiagnosticList().isEmpty()) {
+            RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
+        }
         return allOk;
     }
 
@@ -344,13 +292,13 @@ public class RecoveryManager {
         switch (e.errorCode) {
             case XAException.XA_HEURCOM:
                 if(!decisionCommit){
-                    System.out.println("Transaction was heuristically committed: " + xid + " " + e.getMessage());
-                    canForget = false;
+                    reportUserOfHueristics(e, xid, decisionCommit);
                 }
                 forgetXidInXaResource(xid, xaResource);
                 break;
             case XAException.XA_HEURRB:
                 if(decisionCommit) {
+                    reportUserOfHueristics(e, xid, decisionCommit);
                 }
                 forgetXidInXaResource(xid, xaResource);
                 break;
@@ -358,19 +306,41 @@ public class RecoveryManager {
                 System.out.println("Transaction was heuristically mixed: " + xid + " " + e.getMessage());
                 forgetXidInXaResource(xid, xaResource);
                 break;
-            case XAException.XA_HEURRB:
-                if(decisionCommit) {
-                    System.out.println("Transaction was heuristically rolled back: " + xid + " " + e.getMessage());
-                    canForget = false;
-                }
-                forgetXidInXaResource(xid, xaResource);
             case XAException.XA_HEURHAZ:
+                reportUserOfHueristics(e, xid, decisionCommit);
                 canForget = false;
                 break;
             default:
                 break;
         }
         return canForget;
+    }
+
+    private void reportUserOfHueristics(XAException e, Xid xid, boolean decisionCommit) {
+        String transactionID = new String(xid.getGlobalTransactionId());
+        String transactionBlockId = new String(xid.getBranchQualifier());
+        String combinedId = transactionID + ":" + transactionBlockId;
+        String decision = decisionCommit ? "commit" : "rollback";
+        switch (e.errorCode){
+            case XAException.XA_HEURCOM:
+                diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
+                        combinedId, "heuristic commit", decision);
+                break;
+            case XAException.XA_HEURRB:
+                diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
+                        combinedId, "heuristic rollback", decision);
+                break;
+            case XAException.XA_HEURMIX:
+                diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
+                        combinedId, "heuristic mixed", decision);
+                break;
+            case XAException.XA_HEURHAZ:
+                diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
+                        combinedId, "heuristic hazard", decision);
+                break;
+            default:
+                break;
+        }
     }
 
     /**
