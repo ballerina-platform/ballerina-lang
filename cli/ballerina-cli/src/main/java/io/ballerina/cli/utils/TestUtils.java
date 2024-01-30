@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -54,6 +55,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.StringJoiner;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.*;
@@ -236,7 +239,7 @@ public class TestUtils {
             }
         }
 
-        Path jsonFilePath = Paths.get(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
+        Path jsonFilePath = getJsonFilePath(testsCachePath);
         File jsonFile = new File(jsonFilePath.toString());
         try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
             try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
@@ -249,6 +252,16 @@ public class TestUtils {
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e);
         }
+    }
+
+    public static Path getJsonFilePath(Path testsCachePath) {
+        return Paths.get(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
+    }
+
+    public static String getJsonFilePathInFatJar(String separator) {
+        return ProjectConstants.CACHES_DIR_NAME
+                + separator + ProjectConstants.TESTS_CACHE_DIR_NAME
+                + separator + ProjectConstants.TEST_SUITE_JSON;
     }
 
     public static void clearFailedTestsJson(Path targetPath) {
@@ -295,9 +308,14 @@ public class TestUtils {
         return cmdArgs;
     }
 
-    public static void addOtherNeededArgs(List<String> cmdArgs, boolean report, boolean coverage, String groupList,
-                                          String disableGroupList, String singleExecTests, boolean isRerunTestExecution,
+    public static void addOtherNeededArgs(List<String> cmdArgs, String target, String jacocoAgentJarPath,
+                                          String testSuiteJsonPath, boolean report,
+                                          boolean coverage, String groupList, String disableGroupList,
+                                          String singleExecTests, boolean isRerunTestExecution,
                                           boolean listGroups, List<String> cliArgs) {
+        cmdArgs.add(testSuiteJsonPath);
+        cmdArgs.add(target);
+        cmdArgs.add(jacocoAgentJarPath);
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
         cmdArgs.add(groupList != null ? groupList : "");
@@ -321,18 +339,101 @@ public class TestUtils {
             String functionToMockClassName;
             // Find the first delimiter and compare the indexes
             // The first index should always be a delimiter. Which ever one that is denotes the mocking type
-            if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
-                functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-            } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
-                functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
-            } else {
-                if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
-                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-                } else {
-                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
-                }
-            }
+            functionToMockClassName = getFunctionToMockClassName(key);
             mockClassNames.add(functionToMockClassName);
         }
+    }
+
+    private static String getFunctionToMockClassName(String id) {
+        String functionToMockClassName;
+        if (id.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
+            functionToMockClassName = id.substring(0, id.indexOf(MOCK_FN_DELIMITER));
+        } else if (id.indexOf(MOCK_FN_DELIMITER) == -1) {
+            functionToMockClassName = id.substring(0, id.indexOf(MOCK_LEGACY_DELIMITER));
+        } else {
+            if (id.indexOf(MOCK_FN_DELIMITER) < id.indexOf(MOCK_LEGACY_DELIMITER)) {
+                functionToMockClassName = id.substring(0, id.indexOf(MOCK_FN_DELIMITER));
+            } else {
+                functionToMockClassName = id.substring(0, id.indexOf(MOCK_LEGACY_DELIMITER));
+            }
+        }
+        return functionToMockClassName;
+    }
+
+    public static String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
+
+        List<Path> dependencies = getTestDependencyPaths(currentPackage, jarResolver);
+
+        List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
+        dependencies.removeAll(jarList);
+
+        StringJoiner classPath = joinClassPaths(dependencies);
+        return classPath.toString();
+    }
+
+    public static StringJoiner joinClassPaths(List<Path> dependencies) {
+        StringJoiner classPath = new StringJoiner(File.pathSeparator);
+        dependencies.stream().map(Path::toString).forEach(classPath::add);
+        return classPath;
+    }
+
+    public static List<Path> getTestDependencyPaths(Package currentPackage, JarResolver jarResolver) {
+        List<Path> dependencies = new ArrayList<>();
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
+
+            // Skip getting file paths for execution if module doesnt contain a testable jar
+            if (!module.testDocumentIds().isEmpty() || module.project().kind()
+                    .equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                for (JarLibrary jarLibs : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
+                    dependencies.add(jarLibs.path());
+                }
+            }
+        }
+        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
+        return dependencies;
+    }
+
+    public static List<Path> getModuleJarPaths(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
+        List<Path> moduleJarPaths = new ArrayList<>();
+
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
+
+            moduleJarPaths.addAll(getModuleJarPathsForModule(currentPackage, jBallerinaBackend, module));
+        }
+
+        for (ResolvedPackageDependency resolvedPackageDependency : currentPackage.getResolution().allDependencies()) {
+            Package pkg = resolvedPackageDependency.packageInstance();
+            for (ModuleId moduleId : pkg.moduleIds()) {
+                Module module = pkg.module(moduleId);
+                moduleJarPaths.add(
+                        jBallerinaBackend.codeGeneratedLibrary(pkg.packageId(), module.moduleName()).path());
+            }
+        }
+
+        return moduleJarPaths.stream().distinct().collect(Collectors.toList());
+    }
+
+    private static PlatformLibrary getCodeGeneratedTestLibrary(JBallerinaBackend jBallerinaBackend, Package currentPackage, Module module) {
+        return jBallerinaBackend.codeGeneratedTestLibrary(
+                currentPackage.packageId(), module.moduleName());
+    }
+
+    private static PlatformLibrary getPlatformLibrary(JBallerinaBackend jBallerinaBackend, Package currentPackage, Module module) {
+        return jBallerinaBackend.codeGeneratedLibrary(currentPackage.packageId(),
+                module.moduleName());
+    }
+
+    public static List<Path> getModuleJarPathsForModule(Package currentPackage, JBallerinaBackend jBallerinaBackend, Module module) {
+        List<Path> moduleJarPaths = new ArrayList<>();
+        PlatformLibrary generatedJarLibrary = getPlatformLibrary(jBallerinaBackend, currentPackage, module);
+        moduleJarPaths.add(generatedJarLibrary.path());
+        if (!module.testDocumentIds().isEmpty()) {
+            PlatformLibrary codeGeneratedTestLibrary = getCodeGeneratedTestLibrary(jBallerinaBackend, currentPackage, module);
+            moduleJarPaths.add(codeGeneratedTestLibrary.path());
+        }
+        return moduleJarPaths;
     }
 }

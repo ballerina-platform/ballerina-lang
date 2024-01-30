@@ -5,6 +5,7 @@ import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.testerina.core.TestProcessor;
@@ -15,9 +16,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.zip.ZipFile;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
@@ -40,6 +43,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
+            JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
             List<Diagnostic> diagnostics = new ArrayList<>();
 
@@ -48,55 +52,78 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                 start = System.currentTimeMillis();
             }
 
+            HashSet<JarLibrary> testExecDependencies = new HashSet<>();
+            Map<String, TestSuite> testSuiteMap = new HashMap<>();
+
+            //write the test suite json that is used to execute the tests
+            boolean status = createTestSuiteForCloudArtifacts(project, jBallerinaBackend, target, testSuiteMap);
+
+            //get all the dependencies required for test execution for each module
             for (ModuleDescriptor moduleDescriptor :
                     project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
 
                 Module module = project.currentPackage().module(moduleDescriptor.name());
-                Path testExecutablePath = getTestExecutablePath(target, module);
-
-                List<String> allArgs = this.runTestsTask.getAllTestArgs(target,
-                        project.currentPackage().packageName().toString(),
-                        module.moduleName().toString(),
-                        project,
-                        moduleDescriptor
+                testExecDependencies.addAll(jarResolver
+                        .getJarFilePathsRequiredForTestExecution(module.moduleName())
                 );
+            }
 
-                //create the fat jar for the test module
-                Path generatedTestArtifact = jBallerinaBackend.generateTestArtifact(
-                        JBallerinaBackend.OutputType.TEST,
-                        testExecutablePath,
-                        module.moduleName(),
-                        allArgs
-                );
+            //add the jacoco agent jar to the test exec dependencies so that it will be included in the fat jar
+            String jacocoAgentJar = TestUtils.getJacocoAgentJarPath();
+            JarLibrary jacocoAgent = jarResolver.createJacocoAgentJarLibrary(jacocoAgentJar);
+            testExecDependencies.add(jacocoAgent);
 
-                if (generatedTestArtifact != null) {
-                    diagnostics.addAll(jBallerinaBackend.getEmitResult(
-                            testExecutablePath,
-                            generatedTestArtifact,
-                            false, ArtifactType.TEST).diagnostics().diagnostics());
-                }
-                else {
-                    diagnostics.addAll(jBallerinaBackend.getFailedEmitResult(
-                            null)
-                            .diagnostics().diagnostics());
+
+            if (status) {
+                //create the single fat jar for all the test modules that includes the test suite json
+                try {
+                    List<Path> moduleJarPaths = TestUtils.getModuleJarPaths(jBallerinaBackend, project.currentPackage());
+
+                    List<String> excludingClassPaths = new ArrayList<>();
+
+                    for (Path moduleJarPath : moduleJarPaths) {
+                        ZipFile zipFile = new ZipFile(moduleJarPath.toFile());
+
+                        zipFile.stream().forEach(entry -> {
+                            if (entry.getName().endsWith(".class")) {
+                                excludingClassPaths.add(entry.getName().replace("/", ".")
+                                        .replace(".class", ""));
+                            }
+                        });
+                    }
+
+                    EmitResult result = jBallerinaBackend.emit(
+                            JBallerinaBackend.OutputType.TEST,
+                            getTestExecutableBasePath(target).resolve(
+                                    project.currentPackage().packageName().toString() +
+                                            ProjectConstants.TEST_UBER_JAR_SUFFIX +
+                                            ProjectConstants.BLANG_COMPILED_JAR_EXT),
+                            testExecDependencies,
+                            TestUtils.getJsonFilePath(target.getTestsCachePath()),
+                            TestUtils.getJsonFilePathInFatJar("/"),
+                            excludingClassPaths,
+                            ProjectConstants.EXCLUDING_CLASSES_FILE
+                    );
+                    diagnostics.addAll(result.diagnostics().diagnostics());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
 
-
-            if(project.buildOptions().cloud() != null) {
-                //if cloud is enabled, we need to create the docker artifacts
-                //create the test suite suitable for docker
-                Path basePath = getTestExecutableBasePath(target);
-                boolean status = createTestSuiteForCloudArtifacts(project, jBallerinaBackend.jarResolver(), target);
-
-                if (status) {
-                    //now notify the compilation completion
-                    List<Diagnostic> pluginDiagnostics = jBallerinaBackend.
-                            notifyCompilationCompletion(basePath, ArtifactType.TEST);
-                    diagnostics.addAll(pluginDiagnostics);
-                }
-
-            }
+//            if(project.buildOptions().cloud() != null) {
+//                //if cloud is enabled, we need to create the docker artifacts
+//                //create the test suite suitable for docker
+//                Path basePath = getTestExecutableBasePath(target);
+//                boolean status1 = createTestSuiteForCloudArtifacts(project, jBallerinaBackend, target);
+//
+//                if (status1) {
+//                    //now notify the compilation completion
+//                    List<Diagnostic> pluginDiagnostics = jBallerinaBackend.
+//                            notifyCompilationCompletion(basePath, ArtifactType.TEST);
+//                    diagnostics.addAll(pluginDiagnostics);
+//                }
+//
+//            }
 
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
@@ -129,27 +156,42 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         notifyPlugins(project, target);
     }
 
-    private boolean createTestSuiteForCloudArtifacts(Project project, JarResolver jarResolver, Target target) {
+    private boolean createTestSuiteForCloudArtifacts(Project project, JBallerinaBackend jBallerinaBackend,
+                                                     Target target, Map<String, TestSuite> testSuiteMap) {
         boolean report = project.buildOptions().testReport();
         boolean coverage = project.buildOptions().codeCoverage();
 
-        TestProcessor testProcessor = new TestProcessor(jarResolver);
+        TestProcessor testProcessor = new TestProcessor(jBallerinaBackend.jarResolver());
         List<String> moduleNamesList = new ArrayList<>();
-        Map<String, TestSuite> testSuiteMap = new HashMap<>();
         List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
 
-        boolean status = RunTestsTask.createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap, moduleNamesList,
-                mockClassNames, runTestsTask.isRerunTestExecution(), report, coverage);
+        boolean status = RunTestsTask.createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap,
+                moduleNamesList, mockClassNames, runTestsTask.isRerunTestExecution(), report, coverage);
+
+        //set the module names list and the mock classes to the run tests task
+        this.runTestsTask.setModuleNamesList(moduleNamesList);
+        this.runTestsTask.setMockClasses(mockClassNames);
 
         if (status) {
             //now write the map to a json file
             try{
                 TestUtils.writeToTestSuiteJson(testSuiteMap, target.getTestsCachePath());
+
+                //check mock classes and create the jacoco instrumentation files
+                if (coverage) {
+                    if (!mockClassNames.isEmpty()) {
+                        runTestsTask.jacocoOfflineInstrumentation(target, project.currentPackage(),
+                                jBallerinaBackend, mockClassNames);
+                    }
+                }
+
                 return true;
             }
             catch(IOException e) {
                 throw createLauncherException("error while writing to test suite json file: " + e.getMessage());
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
         }
         else{

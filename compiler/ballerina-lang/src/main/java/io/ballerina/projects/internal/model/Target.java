@@ -136,7 +136,9 @@ public class Target {
             return outputPath;
         }
         String name = module.moduleName().toString();
-        return getTestBinPath().resolve(name + ProjectConstants.TEST_UBER_JAR_SUFFIX + ProjectConstants.BLANG_COMPILED_JAR_EXT);
+        return getTestBinPath().resolve(name +
+                ProjectConstants.TEST_UBER_JAR_SUFFIX +
+                ProjectConstants.BLANG_COMPILED_JAR_EXT);
     }
 
     public Path getTestExecutableBasePath() throws IOException {
