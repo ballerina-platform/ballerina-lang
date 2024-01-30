@@ -64,7 +64,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                 .startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX)).collect(Collectors.toList());
         toolManifestDiagnostics.forEach(outStream::println);
 
-        //Build tool execution
+        // Build tool execution
         Map<String, ToolContext> toolContextMap = new HashMap<>();
         List<Tool> tools = project.currentPackage().manifest().tools();
         if (!tools.isEmpty()) {
@@ -72,24 +72,24 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         }
         ServiceLoader<CodeGeneratorTool> buildRunners = ServiceLoader.load(CodeGeneratorTool.class);
         for (Tool tool : tools) {
-            String commandName = tool.getType();
+            String commandName = tool.type();
             ToolContext toolContext = ToolContext.from(tool, project.currentPackage());
             boolean hasOptionErrors = false;
             try {
-                hasOptionErrors = validateOptionsToml(tool.getOptionsToml(), commandName);
+                hasOptionErrors = validateOptionsToml(tool.optionsToml(), commandName);
                 if (hasOptionErrors) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_FAILED.diagnosticId(),
                             ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_FAILED.messageKey(),
                             DiagnosticSeverity.ERROR);
                     PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
-                            tool.getType());
+                            tool.type());
                     toolContext.reportDiagnostic(diagnostic);
-                    toolContextMap.put(tool.getId(), toolContext);
+                    toolContextMap.put(tool.id(), toolContext);
                 }
             } catch (IOException e) {
                 outStream.println(String.format("WARNING: Skipping validation of tool options for tool %s(%s) " +
-                        "due to: %s", tool.getType(), tool.getId(), e.getMessage()));
+                        "due to: %s", tool.type(), tool.id(), e.getMessage()));
             }
             if (!tool.hasErrorDiagnostic() && !hasOptionErrors) {
                 try {
@@ -98,25 +98,25 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                         // TODO: Installing tool if not found to be implemented at a later phase
                         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                                 ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(),
-                                "Build tool '" + tool.getType() + "' not found",
+                                "Build tool '" + tool.type() + "' not found",
                                 DiagnosticSeverity.ERROR);
                         PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
-                                tool.getType());
+                                tool.type());
                         this.outStream.println(diagnostic);
                         toolContext.reportDiagnostic(diagnostic);
-                        toolContextMap.put(tool.getId(), toolContext);
+                        toolContextMap.put(tool.id(), toolContext);
                         continue;
                     }
-                    this.outStream.println(String.format("%n\t%s(%s)%n", tool.getType(), tool.getId()));
+                    this.outStream.println(String.format("\t%s(%s)%n", tool.type(), tool.id()));
                     targetTool.execute(toolContext);
                     toolContext.diagnostics().forEach(outStream::println);
-                    toolContextMap.put(tool.getId(), toolContext);
+                    toolContextMap.put(tool.id(), toolContext);
                 } catch (Exception e) {
                     throw createLauncherException(e.getMessage());
                 }
             } else {
                 outStream.println(String.format("WARNING: Skipping execution of build tool %s(%s) as Ballerina.toml " +
-                        "contains errors%n", tool.getType(), tool.getId() != null ? tool.getId() : ""));
+                        "contains errors%n", tool.type(), tool.id() != null ? tool.id() : ""));
             }
         }
         project.setToolContextMap(toolContextMap);

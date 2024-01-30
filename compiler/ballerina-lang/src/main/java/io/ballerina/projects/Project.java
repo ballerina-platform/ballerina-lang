@@ -96,15 +96,16 @@ public abstract class Project {
     }
 
     /**
-     * returns a map of build tools.
+     * Returns a map of build tools.
      *
      * @return map of {@code ToolContext}
-     */public Map<String, ToolContext> getToolContextMap() {
+     */
+    public Map<String, ToolContext> getToolContextMap() {
         return toolContextMap;
     }
 
     /**
-     * assigns a map of build tools.
+     * Assigns a map of build tools.
      * @param toolContextMap map of {@code ToolContext}
      */
     public void setToolContextMap(Map<String, ToolContext> toolContextMap) {

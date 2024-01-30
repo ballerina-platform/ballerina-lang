@@ -54,12 +54,14 @@ public class ToolContext {
     }
 
     public static ToolContext from(PackageManifest.Tool tool, Package currentPackage) {
-        return new ToolContext(currentPackage, tool.getId(),
-                tool.getFilePath(), tool.getTargetModule(),
-                tool.getOptionsTable());
+        return new ToolContext(currentPackage, tool.id(),
+                tool.filePath(), tool.targetModule(),
+                tool.optionsTable());
     }
 
     /**
+     * Returns the tool id.
+     *
      * @return the id of the tool configuration.
      */
     public String toolId() {
@@ -67,6 +69,8 @@ public class ToolContext {
     }
 
     /**
+     * Returns the filepath.
+     *
      * @return the filepath extracted from tool configuration.
      */
     public String filePath() {
@@ -74,6 +78,8 @@ public class ToolContext {
     }
 
     /**
+     * Returns the target module.
+     *
      * @return the target module extracted from tool configuration.
      */
     public String targetModule() {
@@ -81,6 +87,8 @@ public class ToolContext {
     }
 
     /**
+     * Returns the tool-specific configurations.
+     *
      * @return a map of the optional tool configurations.
      */
     public Map<String, Object> options() {
@@ -88,6 +96,8 @@ public class ToolContext {
     }
 
     /**
+     * Returns the cache path.
+     *
      * @return the cache path derived using the tool id.
      */
     public Path cachePath() {
@@ -96,6 +106,8 @@ public class ToolContext {
     }
 
     /**
+     * Returns the output path.
+     *
      * @return the output path derived using the target module
      */
     public Path outputPath() {
@@ -108,6 +120,8 @@ public class ToolContext {
     }
 
     /**
+     * Returns the current package instance.
+     *
      * @return the current package instance.
      */
     public Package currentPackage() {
@@ -115,6 +129,8 @@ public class ToolContext {
     }
 
     /**
+     * Returns the tool diagnostics list.
+     *
      * @return a list of tool diagnostics.
      */
     public List<Diagnostic> diagnostics() {

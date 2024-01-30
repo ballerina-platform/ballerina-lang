@@ -441,48 +441,62 @@ public class PackageManifest {
         }
 
         /**
+         * Returns the tool id.
+         *
          * @return the tool id.
          */
-        public String getId() {
+        public String id() {
             return id;
         }
 
         /**
+         * Returns the filepath.
+         *
          * @return the filepath.
          */
-        public String getFilePath() {
+        public String filePath() {
             return this.filePath;
         }
 
         /**
+         * Returns the target module.
+         *
          * @return the tool's target module.
          */
-        public String getTargetModule() {
+        public String targetModule() {
             return this.targetModule;
         }
 
         /**
+         * Returns the tool-specific options as a TomlTableNode.
+         *
          * @return the tool options table.
          */
-        public TomlTableNode getOptionsTable() {
+        public TomlTableNode optionsTable() {
             return this.optionsTable;
         }
 
         /**
+         * Returns the type of the tool.
+         *
          * @return the tool type.
          */
-        public String getType() {
+        public String type() {
             return type;
         }
 
         /**
+         * Returns the tool-specific options as a Toml.
+         *
          * @return the options toml.
          */
-        public Toml getOptionsToml() {
+        public Toml optionsToml() {
             return optionsToml;
         }
 
         /**
+         * Returns a flag indicating whether the tool has error diagnostics.
+         *
          * @return whether the tool has error diagnostics.
          */
         public boolean hasErrorDiagnostic() {
