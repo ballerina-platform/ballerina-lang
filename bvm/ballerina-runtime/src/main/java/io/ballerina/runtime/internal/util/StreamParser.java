@@ -381,7 +381,7 @@ public class StreamParser {
         private State finalizeObject() throws StreamParserException {
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
             switch (targetType.getTag()) {
-                case TypeTags.UNION_TAG:
+                case TypeTags.UNION_TAG, TypeTags.TABLE_TAG:
                     // finite types cannot come inside the method, if they come it is an error, goes to the default case
                     if (this.nodesStackSizeWhenUnionStarts == this.nodesStack.size()) {
                         this.targetTypes.remove(this.targetTypes.size() - 1);
@@ -474,7 +474,7 @@ public class StreamParser {
                     this.listIndices.set(this.listIndices.size() - 1, tupleListIndex + 1);
                     this.currentJsonNode = parentNode;
                     return ARRAY_ELEMENT_END_STATE;
-                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG:
+                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG:
                     // finite types cannot come inside the method, if they come it is an error, goes to the default case
                     if (TypeUtils.getImpliedType(TypeChecker.getType(parentNode)).getTag() == TypeTags.MAP_TAG) {
                         ((MapValueImpl<BString, Object>) parentNode).putForcefully(
@@ -543,7 +543,7 @@ public class StreamParser {
                             this.addTargetType(field.getFieldType());
                         }
                         break;
-                    case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG:
+                    case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG:
                         break;
                     default:
                         // finite types cannot come inside the method, if they come it is an error
@@ -556,7 +556,7 @@ public class StreamParser {
                 case TypeTags.RECORD_TYPE_TAG:
                     this.currentJsonNode = new MapValueImpl<>(targetType);
                     break;
-                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG:
+                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG:
                     this.currentJsonNode = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
                     if (this.nodesStackSizeWhenUnionStarts == -1) {
                         this.nodesStackSizeWhenUnionStarts = this.nodesStack.size();
@@ -637,7 +637,7 @@ public class StreamParser {
                     this.currentJsonNode = new TupleValueImpl((TupleType) targetType);
                     this.listIndices.add(0);
                     break;
-                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG:
+                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG:
                     this.currentJsonNode = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
                     if (this.nodesStackSizeWhenUnionStarts == -1) {
                         this.nodesStackSizeWhenUnionStarts = this.nodesStack.size();
@@ -1030,7 +1030,7 @@ public class StreamParser {
                                             "string value cannot be converted to the type '" + targetType);
                                 }
                                 break;
-                            case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG:
+                            case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG, TypeTags.TABLE_TAG:
                                 break;
                             default:
                                 throw new StreamParserException("unsupported type");
@@ -1281,7 +1281,7 @@ public class StreamParser {
                     processNonStringValueAsJson(str, type);
                     this.currentJsonNode = convert(this.currentJsonNode, targetType);
                     break;
-                case TypeTags.ANYDATA_TAG, TypeTags.JSON_TAG:
+                case TypeTags.ANYDATA_TAG, TypeTags.JSON_TAG, TypeTags.TABLE_TAG:
                     processNonStringValueAsJson(str, type);
                     break;
                 case TypeTags.ARRAY_TAG:
@@ -1778,7 +1778,8 @@ public class StreamParser {
                     Object bMap = convert(array.get(i), tableType.getConstrainedType(), unresolvedValues);
                     array.setRefValueForcefully(i, bMap);
                 }
-                array.setArrayRefTypeForcefully(TypeCreator.createArrayType(tableType.getConstrainedType()));
+                array.setArrayRefTypeForcefully(TypeCreator.createArrayType(tableType.getConstrainedType()),
+                        array.size());
                 BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
                 return new TableValueImpl(targetRefType, array, (ArrayValue) fieldNames);
             default:

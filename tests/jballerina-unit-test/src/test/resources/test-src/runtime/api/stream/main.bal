@@ -137,6 +137,15 @@ type Rec1ReadOnly Rec1 & readonly;
 type Rec2ReadOnly Rec2 & readonly;
 type Rec3ReadOnly Rec3 & readonly;
 
+type Employee record {|
+   	readonly string name;
+   	int salary;
+|};
+
+type TableType1 table<Employee> key(name);
+
+type anydataType anydata;
+
 public function main() {
     testParsingCharacterStreamToTypes();
 //    testStreamsAndTypesBal();
@@ -259,7 +268,11 @@ function testParsingCharacterStreamToTypes() {
     [string `12.4`, Union1],
     [string `12.4`, Union1Decimal],
     [string `"hey"`, Union1],
-    [string `{"gain": 122, "age": 130}`, Union1] // add cases with strings also
+    [string `{"gain": 122, "age": 130}`, Union1], // add cases with strings also
+
+    [string `[[1], 2]`, anydataType],
+    [string `[{"name": "John", "salary": 100 }]`, TableType1],
+    [string `[{"name": "John", "salary": 100 }, { "name": "Jane", "salary": 200 }]`, TableType1]
     ];
 
     [string, typedesc<anydata>][] negativeCases = [
