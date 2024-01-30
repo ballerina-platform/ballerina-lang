@@ -38,7 +38,7 @@ public class AnnotationAttachmentNegativeTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 285);
+        Assert.assertEquals(compileResult.getErrorCount(), 289);
     }
 
     @Test
@@ -522,15 +522,19 @@ public class AnnotationAttachmentNegativeTest {
 
     public void testInvalidAnnotationAttachmentOnField() {
         int index = 277;
-        int line = 980;
-        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line, 6);
-        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 1, 6);
-        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 1, 7);
-        validateError(compileResult, index++, "undefined annotation 'annot'", line += 1, 14);
-        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 13, 2);
-        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 2, 17);
+        int line = 989;
+        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line, 2);
+        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 2, 10);
+        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 2, 16);
         validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 2, 12);
         validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 2, 16);
+        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 3, 6);
+        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 1, 6);
+        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 1, 7);
+        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 1, 14);
+        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 1, 20);
+        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 1, 16);
+        validateError(compileResult, index, "undefined annotation 'UndefinedAnnotation'", line += 1, 20);
     }
 
     @AfterClass
