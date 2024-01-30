@@ -7,6 +7,7 @@ module io.ballerina.cli {
 
     requires io.ballerina.runtime;
     requires io.ballerina.lang;
+    requires io.ballerina.parser;
     requires io.ballerina.tools.api;
     requires io.ballerina.testerina.runtime;
     requires io.ballerina.testerina.core;
