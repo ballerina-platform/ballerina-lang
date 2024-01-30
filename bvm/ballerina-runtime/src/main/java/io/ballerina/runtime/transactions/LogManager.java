@@ -34,12 +34,8 @@ public class LogManager {
         fileRecoveryLog.put(trxRecord);
     }
 
-    public FileRecoveryLog getFileRecoveryLog() {
-        return fileRecoveryLog;
-    }
-
-    public InMemoryRecoveryLog getInMemoryRecoveryLog() {
-        return inMemoryRecoveryLog;
+    public Map<String, TransactionLogRecord> getFailedTransactionLogs() {
+        return inMemoryRecoveryLog.getFailedTransactions();
     }
 
     public Map<String, TransactionLogRecord> getPendingLogs() {

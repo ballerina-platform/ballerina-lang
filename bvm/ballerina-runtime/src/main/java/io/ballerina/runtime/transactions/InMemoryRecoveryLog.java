@@ -31,7 +31,7 @@ public class InMemoryRecoveryLog implements RecoveryLog {
      */
     public void ifNeedWriteCheckpoint() {
         if (numOfPutsSinceLastCheckpoint >= IN_MEMORY_CHECKPOINT_INTERVAL){
-            Map<String, TransactionLogRecord> pendingTransactions = getPendingTransactions();
+            Map<String, TransactionLogRecord> pendingTransactions = getFailedTransactions();
             transactionLogs.clear();
             transactionLogs.putAll(pendingTransactions);
         }
@@ -42,8 +42,8 @@ public class InMemoryRecoveryLog implements RecoveryLog {
      *
      * @return Map of pending transactions
      */
-    public Map<String, TransactionLogRecord> getPendingTransactions() {
-        Map<String, TransactionLogRecord> pendingTransactions = new HashMap<>();
+    public Map<String, TransactionLogRecord> getFailedTransactions() {
+        Map<String, TransactionLogRecord> failedTransactions = new HashMap<>();
 
         Iterator<Map.Entry<String, TransactionLogRecord>> iterator = transactionLogs.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -55,11 +55,11 @@ public class InMemoryRecoveryLog implements RecoveryLog {
                 iterator.remove();
                 continue;
             }
-            pendingTransactions.put(trxId, trxRecord);
+            failedTransactions.put(trxId, trxRecord);
             iterator.remove();
         }
 
-        return pendingTransactions;
+        return failedTransactions;
     }
 
     public Map<String, TransactionLogRecord> getAllLogs() {
