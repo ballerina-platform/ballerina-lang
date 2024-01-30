@@ -90,6 +90,8 @@ function getPeople() returns Person[] {
     return [p1, p2];
 }
 
+
+
 Student[] moduleStudents = getStudents();
 Person[] modulePeople = getPeople();
 

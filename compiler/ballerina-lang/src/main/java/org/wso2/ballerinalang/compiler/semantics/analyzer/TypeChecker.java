@@ -5293,11 +5293,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     public void visit(BLangElvisExpr elvisExpr, AnalyzerData data) {
         BType lhsType = checkExpr(elvisExpr.lhsExpr, data);
-        BType actualType = lhsType == symTable.semanticError ?
+        BType lhsActualType = lhsType == symTable.semanticError ?
                 symTable.semanticError : validateElvisExprLhsExpr(elvisExpr, lhsType);
         BType rhsActualType = silentTypeCheckExpr(elvisExpr.rhsExpr, symTable.noType, data);
         BType rhsReturnType = checkExpr(elvisExpr.rhsExpr, data.expType, data);
-        BType lhsReturnType = types.checkType(elvisExpr.lhsExpr.pos, actualType, data.expType,
+        BType lhsReturnType = types.checkType(elvisExpr.lhsExpr.pos, lhsActualType, data.expType,
                 DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         if (rhsReturnType == symTable.semanticError || lhsReturnType == symTable.semanticError) {
             data.resultType = symTable.semanticError;
@@ -5307,7 +5307,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             data.resultType = data.expType;
         }
 
-        elvisExpr.setDeterminedType(getConditionalExprType(actualType, rhsActualType));
+        elvisExpr.setDeterminedType(getConditionalExprType(lhsActualType, rhsActualType));
     }
 
     @Override
