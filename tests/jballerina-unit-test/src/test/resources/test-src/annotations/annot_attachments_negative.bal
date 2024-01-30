@@ -995,4 +995,8 @@ function getPerson() returns Person {
 
 [@UndefinedAnnotation int, int] [w, e] = [1, 2];
 
-error<record {| @UndefinedAnnotation int i; |}> err = error("hi", i = 33);
+error<record {| @UndefinedAnnotation int i; |}> err = error("err", i = 33);
+
+error<map<[@UndefinedAnnotation int]>> error () = error("err");
+
+error<record {|@UndefinedAnnotation int x = 10;|}> error () = error("err");

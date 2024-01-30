@@ -38,7 +38,7 @@ public class AnnotationAttachmentNegativeTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 283);
+        Assert.assertEquals(compileResult.getErrorCount(), 285);
     }
 
     @Test
@@ -529,6 +529,8 @@ public class AnnotationAttachmentNegativeTest {
         validateError(compileResult, index++, "undefined annotation 'annot'", line += 1, 14);
         validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 13, 2);
         validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 2, 17);
+        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 2, 12);
+        validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 2, 16);
     }
 
     @AfterClass
