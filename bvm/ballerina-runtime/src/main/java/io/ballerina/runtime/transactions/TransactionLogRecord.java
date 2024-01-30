@@ -46,8 +46,7 @@ public class TransactionLogRecord {
 
     // Need to move or change
     public String getCombinedId(){
-        String combinedId =  transactionId + ":" + transactionBlockId;
-        return combinedId;
+        return transactionId + ":" + transactionBlockId;
     }
 
     public String getTransactionLogRecord() {

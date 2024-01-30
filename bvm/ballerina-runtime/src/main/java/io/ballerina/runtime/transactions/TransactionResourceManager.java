@@ -732,6 +732,19 @@ public class TransactionResourceManager {
     }
 
     /**
+     * Handles initial recovery after a crash.
+     * This method is called after all the resources are added and before a new transaction begins.
+     */
+    public synchronized void startupCrashRecovery() {
+        if (!startupRecoverySuccessful){
+            boolean allRecovered = recoveryManager.performRecoveryPass();
+            if (allRecovered) {
+                startupRecoverySuccessful = true;
+            }
+        }
+    }
+
+    /**
      * This method writes a transaction log record to the recovery log file.
      * Skips if the atomikos tm is used.
      *
