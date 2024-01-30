@@ -56,14 +56,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_JSON_FILE;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.TOOLS_DIR_NAME;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.*;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.*;
 
 /**
@@ -319,5 +312,27 @@ public class TestUtils {
 
     public static String getResolvedModuleName(Module module, ModuleName moduleName) {
         return module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
+    }
+
+    public static void addMockClasses(TestSuite suite, List<String> mockClassNames) {
+        Map<String, String> mockFunctionMap = suite.getMockFunctionNamesMap();
+        for (Map.Entry<String, String> entry : mockFunctionMap.entrySet()) {
+            String key = entry.getKey();
+            String functionToMockClassName;
+            // Find the first delimiter and compare the indexes
+            // The first index should always be a delimiter. Which ever one that is denotes the mocking type
+            if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
+                functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+            } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
+                functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+            } else {
+                if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                } else {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                }
+            }
+            mockClassNames.add(functionToMockClassName);
+        }
     }
 }
