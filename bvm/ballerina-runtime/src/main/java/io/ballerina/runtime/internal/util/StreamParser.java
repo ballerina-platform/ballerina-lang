@@ -123,7 +123,7 @@ public class StreamParser {
             return parse(new InputStreamReader(new BufferedInputStream(in), charsetName), targetType);
         } catch (IOException e) {
             throw ErrorCreator
-                    .createError(StringUtils.fromString(("error in parsing data: " + e.getMessage())));
+                    .createError(StringUtils.fromString(("error in parsing input stream: " + e.getMessage())));
         }
     }
 
