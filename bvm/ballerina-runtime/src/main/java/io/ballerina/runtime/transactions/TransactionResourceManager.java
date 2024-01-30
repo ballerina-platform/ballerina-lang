@@ -541,6 +541,7 @@ public class TransactionResourceManager {
     public void cleanupTransactionContext() {
         Strand strand = Scheduler.getStrand();
         TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
+        writeToLog(transactionLocalContext.getGlobalTransactionId(), transactionLocalContext.getCurrentTransactionBlockId(), RecoveryState.TERMINATED);
         transactionLocalContext.removeTransactionInfo();
         strand.removeCurrentTrxContext();
     }
@@ -728,5 +729,22 @@ public class TransactionResourceManager {
             }
             return null;
         }
+    }
+
+    /**
+     * This method writes a transaction log record to the recovery log file.
+     * Skips if the atomikos tm is used.
+     *
+     * @param globalTransactionId      the global transaction id
+     * @param currentTransactionBlockId the block id of the transaction
+     * @param recoveryState            the state of the transaction
+     */
+    public void writeToLog(String globalTransactionId, String currentTransactionBlockId, RecoveryState recoveryState) {
+        if (transactionManagerEnabled) {
+            return;
+        }
+        TransactionLogRecord logRecord = new TransactionLogRecord(globalTransactionId, currentTransactionBlockId,
+                recoveryState);
+        getInstance().getLogManager().put(logRecord);
     }
 }
