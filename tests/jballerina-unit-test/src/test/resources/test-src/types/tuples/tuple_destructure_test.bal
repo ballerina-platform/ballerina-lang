@@ -109,3 +109,23 @@ function tupleDestructureTest9() returns [boolean, string, [int, float]] {
 
     return [a, b, c];
 }
+
+function tupleDestructureTest10() {
+    Employee[2] employees = [employee1, employee2];
+
+    Employee e1;
+    Employee e2;
+    [e1, e2] = [...employees];
+
+    Employee e3;
+    Employee e4;
+    [e3, e4] = [...[employee1, employee2]];
+
+    Employee e5;
+    Employee e6;
+    [[e5, e6]] = [...[...[employees]]];
+
+    Employee e7;
+    Employee e8;
+    [[e7, e8]] = [[...[...[employee1, employee2]]]];
+}
