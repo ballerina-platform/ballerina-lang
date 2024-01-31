@@ -30,21 +30,12 @@ public class AnnotateDiagnostics {
         if (diagnostic instanceof PackageDiagnostic packageDiagnostic) {
             DiagnosticAnnotation diagnosticAnnotation = getDiagnosticLineFromSyntaxAPI(
                     packageDiagnostic.diagnosticFilePath(), packageDiagnostic.location());
-            return diagnosticAnnotation + "\n" + diagnostic;
+            return diagnostic + "\n" + diagnosticAnnotation;
         }
 
         return diagnostic.toString();
     }
 
-    private static String getDiagnosticLineFromText(Path diagnosticFilePath, Location location) {
-        String text = getSourceText(diagnosticFilePath);
-        int lineNumber = location.lineRange().startLine().line();
-        String[] lines = text.split("\n");
-        String line = lines[lineNumber];
-        int start = location.textRange().startOffset();
-        int end = location.textRange().endOffset();
-        return line;
-    }
 
     private static DiagnosticAnnotation getDiagnosticLineFromSyntaxAPI(Path diagnosticFilePath, Location location) {
         String text = getSourceText(diagnosticFilePath);
@@ -53,28 +44,35 @@ public class AnnotateDiagnostics {
         boolean isMultiline = location.lineRange().startLine().line() != location.lineRange().endLine().line();
         int start = location.textRange().startOffset();
         int end = location.textRange().endOffset();
-        int startLine = location.lineRange().startLine().line() + 1;
+        int startLine = location.lineRange().startLine().line();
+        int endLine = location.lineRange().endLine().line();
         NonTerminalNode diagnosticNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(
                 TextRange.from(start, end - start), true);
-        NonTerminalNode statementNode = climbUpToStatementNode(diagnosticNode);
+        NonTerminalNode statementNode = climbUpToStatementNode(diagnosticNode, startLine, endLine);
 
         return new DiagnosticAnnotation(
                 statementNode.toString(),
-                diagnosticNode.textRangeWithMinutiae().startOffset() -
-                        statementNode.textRangeWithMinutiae().startOffset(),
-                diagnosticNode.textRangeWithMinutiae().endOffset() -
-                        diagnosticNode.textRangeWithMinutiae().startOffset(),
-                isMultiline, startLine);
+
+                diagnosticNode.textRange().startOffset() - statementNode.textRangeWithMinutiae().startOffset(),
+                diagnosticNode.textRange().endOffset() - diagnosticNode.textRange().startOffset(),
+                isMultiline, startLine + 1);
     }
 
-    private static NonTerminalNode climbUpToStatementNode(NonTerminalNode node) {
-        if (node.parent() == null) {
+    private static NonTerminalNode climbUpToStatementNode(NonTerminalNode node, int start, int end) {
+        NonTerminalNode parent = node.parent();
+
+        if (parent == null) {
             return node;
         }
-        if (STATEMENT_NODES.contains(node.parent().kind())) {
-            return node.parent();
+
+        if (parent.lineRange().startLine().line() < start || parent.lineRange().endLine().line() > end) {
+            return node;
         }
-        return climbUpToStatementNode(node.parent());
+
+        if (STATEMENT_NODES.contains(parent.kind())) {
+            return parent;
+        }
+        return climbUpToStatementNode(parent, start, end);
     }
 
     private static String getSourceText(Path sourceFilePath) {

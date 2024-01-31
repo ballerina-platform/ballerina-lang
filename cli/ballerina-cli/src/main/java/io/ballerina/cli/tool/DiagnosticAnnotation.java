@@ -9,8 +9,8 @@ public class DiagnosticAnnotation {
     private final int startLine;
 
     public DiagnosticAnnotation(String line, int start, int length, boolean isMultiline, int startLine) {
-        this.line = line;
-        this.start = start;
+        this.start = start + 3 * countTabChars(line, start);
+        this.line = replaceTabs(line, start);
         this.length = length;
         this.isMultiline = isMultiline;
         this.startLine = startLine;
@@ -18,9 +18,9 @@ public class DiagnosticAnnotation {
 
     public String toString() {
         String line_ = line;
-//            remove leading and trailing newline
+//            replace leading and trailing newlines
         if (line_.startsWith("\n")) {
-            line_ = line_.substring(1);
+            line_ = " " + line_.substring(1);
         }
         if (line_.endsWith("\n")) {
             line_ = line_.substring(0, line_.length() - 1);
@@ -46,8 +46,8 @@ public class DiagnosticAnnotation {
         }
         return padding + "| " + "\n"
                 + String.format("%" + n_digits_end + "d ", startLine) + "| " + lines[0] + "\n"
-                + ":" + " ".repeat(n_digits_end) + "| " + "\n"
-                + ":" + " ".repeat(n_digits_end) + "| " + "\n"
+                + " :" + " ".repeat(n_digits_end - 1) + "| " + "\n"
+                + " :" + " ".repeat(n_digits_end - 1) + "| " + "\n"
                 + String.format("%" + n_digits_end + "d ", startLine + lines.length - 1) + "| "
                 + lines[lines.length - 1] + "\n"
                 + padding + "| " + "\n";
@@ -56,5 +56,28 @@ public class DiagnosticAnnotation {
 
     private static String getCaretLine(int offset, int length) {
         return " ".repeat(offset) + "^".repeat(length);
+    }
+
+    private static int countTabChars(String line, int end) {
+        int count = 0;
+        for (int i = 0; i < end; i++) {
+            if (line.charAt(i) == '\t') {
+                count++;
+            }
+        }
+        return count;
+    }
+
+
+    private static String replaceTabs(String line, int end) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < end; i++) {
+            if (line.charAt(i) == '\t') {
+                sb.append("    ");
+            } else {
+                sb.append(line.charAt(i));
+            }
+        }
+        return sb + line.substring(end);
     }
 }
