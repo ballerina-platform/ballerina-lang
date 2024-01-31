@@ -47,7 +47,7 @@ function tupleDestructureTest4() returns [int, int] {
     return [a, b];
 }
 
-function tupleDestructureTest5() returns [int, int] {
+function tupleDestructureTest5() {
     int a;
     int b;
     int c;
