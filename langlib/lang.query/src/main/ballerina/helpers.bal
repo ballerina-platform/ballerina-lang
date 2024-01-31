@@ -218,7 +218,7 @@ function addToTableForOnConflict(stream<Type, CompletionType> strm, table<map<Ty
 function createTableForOnConflict(stream<Type, CompletionType> strm, table<map<Type>> tbl) 
     returns table<map<Type>>|error {
     record {| Type value; |}|CompletionType v = strm.next();
-    while (v is record {| Type value; |}) {
+    while v is record {| Type value; |} {
         record {|Type v; error? err;|}|error value = trap (<record {|Type v; error? err;|}> checkpanic v.value);
         if value is error {
             return value;
@@ -253,7 +253,7 @@ function addToMap(stream<Type, CompletionType> strm, map<Type> mp, boolean isRea
 
 function createMap(stream<Type, CompletionType> strm, map<Type> mp) returns map<Type>|error {
     record {| Type value; |}|CompletionType v = strm.next();
-    while (v is record {| Type value; |}) {
+    while v is record {| Type value; |} {
         [string, Type]|error value = trap (<[string, Type]> checkpanic v.value);
         if value !is error {
             string key = value[0];
@@ -285,7 +285,7 @@ function addToMapForOnConflict(stream<Type, CompletionType> strm, map<Type> mp, 
 
 function createMapForOnConflict(stream<Type, CompletionType> strm, map<Type> mp) returns map<Type>|error {
     record {| Type value; |}|CompletionType v = strm.next();
-    while (v is record {| Type value; |}) {
+    while v is record {| Type value; |} {
         record {|Type v; error? err;|}|error value = trap (<record {|Type v; error? err;|}> checkpanic v.value);
         if value is error {
             return value;

@@ -118,8 +118,7 @@ class _StreamPipeline {
     
     public function getStreamForOnConflict() returns stream<Type, CompletionType> {
         OnConflictIterHelper itrObj = new (self, self.constraintTd);
-        var strm = internal:construct(self.constraintTd, self.completionTd, itrObj);
-        return strm;
+        return internal:construct(self.constraintTd, self.completionTd, itrObj);
     }
 }
 
@@ -988,9 +987,8 @@ class OnConflictIterHelper {
             error? err = <error?>f["$error$"];
             record {|Type v; error? err;|} value = {v, err};
             return internal:setNarrowType(self.outputType, {value: value});
-        } else {
-            return f;
         }
+        return f;
     }
 }
 
