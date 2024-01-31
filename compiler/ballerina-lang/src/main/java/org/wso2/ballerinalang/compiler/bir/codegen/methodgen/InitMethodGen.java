@@ -280,7 +280,7 @@ public class InitMethodGen {
         int argsCount = 0;
         int defaultParamCount = 0;
         BIRNode.BIRFunctionParameter cliArgVar;
-        List<BIROperand> tempFuncArgs = new ArrayList<>();
+        List<BIROperand> defaultableArgRefs = new ArrayList<>();
 
         if (mainFunc != null) {
             List<BIRNode.BIRFunctionParameter> mainParameters = mainFunc.parameters;
@@ -306,7 +306,7 @@ public class InitMethodGen {
                             new Name("%tempVar" + param.jvmVarName), VarScope.FUNCTION, VarKind.TEMP, null);
                     BIROperand tempVarRef = new BIROperand(tempParamVar);
                     modExecFunc.localVars.add(tempParamVar);
-                    tempFuncArgs.add(tempVarRef);
+                    defaultableArgRefs.add(tempVarRef);
                     defaultParamCount += 1;
                 }
             }
@@ -329,7 +329,7 @@ public class InitMethodGen {
                             new Name("%tempVar" + param.jvmVarName), VarScope.FUNCTION, VarKind.TEMP, null);
                     BIROperand tempVarRef = new BIROperand(tempParamVar);
                     modExecFunc.localVars.add(tempParamVar);
-                    tempFuncArgs.add(tempVarRef);
+                    defaultableArgRefs.add(tempVarRef);
                     defaultParamCount += 1;
                 }
             }
@@ -347,8 +347,8 @@ public class InitMethodGen {
         addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_INIT_METHOD, retVarRef, boolRef);
 
         if (mainFunc != null) {
-            injectCLIArgInvocation(modExecFunc, functionArgs, tempFuncArgs);
-            injectDefaultArgs(functionArgs, mainFunc, modExecFunc, boolRef, pkg.globalVars, tempFuncArgs,
+            injectCLIArgInvocation(modExecFunc, functionArgs, defaultableArgRefs);
+            injectDefaultArgs(functionArgs, mainFunc, modExecFunc, boolRef, pkg.globalVars, defaultableArgRefs,
                     defaultParamCount);
             addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, MAIN_METHOD, retVarRef, boolRef,
                     functionArgs, mainFunc.annotAttachments);
@@ -376,7 +376,7 @@ public class InitMethodGen {
         jiMethodCall.jMethodVMSig = GET_MAIN_ARGS;
         jiMethodCall.name = "getMainArgs";
         jiMethodCall.thenBB = addAndGetNextBasicBlock(modExecFunc);
-        jiMethodCall.tempFunctionArgs = tempFuncArgs;
+        jiMethodCall.defaultFunctionArgs = tempFuncArgs;
         lastBB.terminator = jiMethodCall;
     }
 
