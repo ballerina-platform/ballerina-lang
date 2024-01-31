@@ -263,6 +263,28 @@ function testRuntimeTypeNameOfIntersectionType() {
 
 type Error error<record { string message; }>;
 
+type READONLY_REF1 readonly;
+type READONLY_REF2 readonly;
+type READONLY_REF3 readonly;
+
+type ReadonlyObjectType1 object {
+    int atb1;
+    function call() returns int;
+};
+
+type IntersectionType1 READONLY_REF3 & record {|
+    int a;
+|};
+
+type FooType record {|
+    int a;
+|};
+
+type IntersectionType2 READONLY_REF3 & FooType;
+type IntersectionType3 FooType & READONLY_REF3;
+type IntersectionType4 READONLY_REF3 & ReadonlyObjectType1;
+type IntersectionType5 ReadonlyObjectType1 & READONLY_REF3;
+
 function assertError(any|error value, string errorMessage, string expDetailMessage) {
     if value is Error {
         if (value.message() != errorMessage) {

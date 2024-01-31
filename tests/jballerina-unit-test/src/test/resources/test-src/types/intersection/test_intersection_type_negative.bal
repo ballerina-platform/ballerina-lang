@@ -43,3 +43,7 @@ type Z record {
     X x;
     Y y;
 };
+
+type READONLY_REF1 readonly;
+type ImmutableTypeRef future<int>;
+type T2 ImmutableTypeRef & READONLY_REF1;
