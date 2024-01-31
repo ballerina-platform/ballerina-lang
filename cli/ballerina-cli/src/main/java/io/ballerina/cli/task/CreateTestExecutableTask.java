@@ -104,7 +104,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                 //if cloud is enabled, we need to create the docker artifacts
                 //create the test suite suitable for docker
                 Path basePath = getTestExecutableBasePath(target);
-                boolean status = createTestSuiteForCloudArtifacts(project, jBallerinaBackend.jarResolver(), target);
+                boolean status = createTestSuiteForCloudArtifacts(project, jBallerinaBackend, target);
 
                 if (status) {
                     //now notify the compilation completion
@@ -146,27 +146,38 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         notifyPlugins(project, target);
     }
 
-    private boolean createTestSuiteForCloudArtifacts(Project project, JarResolver jarResolver, Target target) {
+    private boolean createTestSuiteForCloudArtifacts(Project project, JBallerinaBackend jBallerinaBackend, Target target) {
         boolean report = project.buildOptions().testReport();
         boolean coverage = project.buildOptions().codeCoverage();
 
-        TestProcessor testProcessor = new TestProcessor(jarResolver);
+        TestProcessor testProcessor = new TestProcessor(jBallerinaBackend.jarResolver());
         List<String> moduleNamesList = new ArrayList<>();
         Map<String, TestSuite> testSuiteMap = new HashMap<>();
         List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
 
-        boolean status = RunTestsTask.createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap, moduleNamesList,
-                mockClassNames, runTestsTask.isRerunTestExecution(), report, coverage);
+        boolean status = RunTestsTask.createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap,
+                moduleNamesList, mockClassNames, runTestsTask.isRerunTestExecution(), report, coverage);
 
         if (status) {
             //now write the map to a json file
             try{
                 TestUtils.writeToTestSuiteJson(testSuiteMap, target.getTestsCachePath());
+
+                //check mock classes and create the jacoco instrumentation files
+                if (coverage) {
+                    if (!mockClassNames.isEmpty()) {
+                        runTestsTask.jacocoOfflineInstrumentation(target, project.currentPackage(),
+                                jBallerinaBackend, mockClassNames);
+                    }
+                }
+
                 return true;
             }
             catch(IOException e) {
                 throw createLauncherException("error while writing to test suite json file: " + e.getMessage());
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
         }
         else{
