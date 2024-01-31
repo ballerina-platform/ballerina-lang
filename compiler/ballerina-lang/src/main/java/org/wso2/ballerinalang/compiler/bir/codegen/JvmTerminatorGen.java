@@ -537,22 +537,19 @@ public class JvmTerminatorGen {
                 VarScope.FUNCTION, VarKind.TEMP);
         int resultIndex = this.getJVMIndexOfVarRef(tempVar);
         this.mv.visitVarInsn(ASTORE, resultIndex);
-        int paramIndex = 1;
-        for (int i = 0; i < terminator.lhsArgs.size() - terminator.tempFunctionArgs.size(); i++) {
-            BIROperand lhsArg = terminator.lhsArgs.get(i);
+        int nonDefaultArgsCount = terminator.lhsArgs.size() - terminator.defaultFunctionArgs.size();
+        int index = 0;
+        for (BIROperand lhsArg : terminator.lhsArgs) {
             this.mv.visitVarInsn(ALOAD, resultIndex);
-            this.mv.visitIntInsn(BIPUSH, paramIndex);
+            this.mv.visitIntInsn(BIPUSH, index + 1);
             this.mv.visitInsn(AALOAD);
-            jvmCastGen.addUnboxInsn(this.mv, lhsArg.variableDcl.type);
-            paramIndex += 1;
+            if (index < nonDefaultArgsCount) {
+                jvmCastGen.addUnboxInsn(this.mv, lhsArg.variableDcl.type);
+            } else {
+                lhsArg = terminator.defaultFunctionArgs.get(index - nonDefaultArgsCount);
+            }
+            index++;
             this.storeToVar(lhsArg.variableDcl);
-        }
-        for (BIROperand localVar : terminator.tempFunctionArgs) {
-            mv.visitVarInsn(ALOAD, resultIndex);
-            mv.visitIntInsn(BIPUSH, paramIndex);
-            mv.visitInsn(AALOAD);
-            paramIndex += 1;
-            this.storeToVar(localVar.variableDcl);
         }
         this.mv.visitLabel(notBlockedOnExternLabel);
     }
