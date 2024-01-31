@@ -407,14 +407,10 @@ public class RunTestsTask implements Task {
 
         if (coverage) {
             if (!mockClassNames.isEmpty()) {
-                // If we have mock function we need to use jacoco offline instrumentation since jacoco doesn't
-                // support dynamic class file transformations while instrumenting.
-                List<URL> jarUrlList = getModuleJarUrlList(jBallerinaBackend, currentPackage);
-                Path instrumentDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
-                        .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR);
-                JacocoInstrumentUtils.instrumentOffline(jarUrlList, instrumentDir, mockClassNames);
+                jacocoOfflineInstrumentation(target, currentPackage, jBallerinaBackend, mockClassNames);
             }
-            String agentCommand = getAgentCommand(target, currentPackage, exclusionClassList, jacocoAgentJarPath, packageName, orgName);
+            String agentCommand = getAgentCommand(target, currentPackage, exclusionClassList,
+                    jacocoAgentJarPath, packageName, orgName);
 
             cmdArgs.add(agentCommand);
         }
@@ -435,6 +431,17 @@ public class RunTestsTask implements Task {
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
         return proc.waitFor();
+    }
+
+    public void jacocoOfflineInstrumentation(Target target, Package currentPackage,
+                                              JBallerinaBackend jBallerinaBackend, List<String> mockClassNames)
+            throws IOException, ClassNotFoundException {
+        // If we have mock function we need to use jacoco offline instrumentation since jacoco doesn't
+        // support dynamic class file transformations while instrumenting.
+        List<URL> jarUrlList = getModuleJarUrlList(jBallerinaBackend, currentPackage);
+        Path instrumentDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
+                .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR);
+        JacocoInstrumentUtils.instrumentOffline(jarUrlList, instrumentDir, mockClassNames);
     }
 
     private String getAgentCommand(Target target, Package currentPackage, Set<String> exclusionClassList, String jacocoAgentJarPath, String packageName, String orgName) throws IOException {
