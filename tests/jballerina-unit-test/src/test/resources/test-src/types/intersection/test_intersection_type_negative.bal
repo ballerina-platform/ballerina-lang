@@ -44,8 +44,3 @@ type Z record {
     Y y;
 };
 
-function testUnsupportedIntersectionWithReadonly(stream<int> strm) {
-    (stream<int>|string:RegExp) & readonly x = strm;
-}
-
-
