@@ -1450,7 +1450,7 @@ public class TypeResolver {
         Iterator<BType> iterator = intersectionType.getConstituentTypes().iterator();
         BType effectiveType = iterator.next();
         BLangType bLangEffectiveType = bLangTypeItr.next();
-        if (effectiveType.tag == TypeTags.READONLY && iterator.hasNext()) {
+        if (Types.getImpliedType(effectiveType).tag == TypeTags.READONLY && iterator.hasNext()) {
             intersectionType.flags = intersectionType.flags | TypeTags.READONLY;
             effectiveType = iterator.next();
             bLangEffectiveType = bLangTypeItr.next();
@@ -1459,7 +1459,7 @@ public class TypeResolver {
         while (iterator.hasNext()) {
             BType type = iterator.next();
             BLangType bLangType = bLangTypeItr.next();
-            if (type.tag == TypeTags.READONLY) {
+            if (Types.getImpliedType(type).tag == TypeTags.READONLY) {
                 intersectionType.flags = intersectionType.flags | TypeTags.READONLY;
                 continue;
             }
