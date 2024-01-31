@@ -36,7 +36,11 @@ public class OperandTest {
                 {"operand_rest_param_only", new String[]{"Riyafa", "John"}},
                 {"operand_rest_param_without_value", new String[0]},
                 {"operand_rest_param_without_value", new String[0]}, {"option_defaultable_optional_with_arg",
-                new String[]{"--name=Riyafa", "--score=100", "--height=5.6"}}};
+                new String[]{"--name=Riyafa", "--score=100", "--height=5.6"}},
+                {"operands_with_defaultable_values",
+                        new String[]{"10", "12", "0", " ", "0", "0", "0"}}
+        };
+
     }
 
     @Test(dataProvider = "fileAndParameters")
