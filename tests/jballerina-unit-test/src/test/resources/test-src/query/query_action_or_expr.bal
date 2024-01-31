@@ -1019,8 +1019,7 @@ function testQueryActionWithLetExpression() {
             float gpaVal = let var sGpa = gpa in sGpa;
             actualGpaList.push(gpaVal);
         };
-    float[] expectedGpaList = [3.5, 1.9, 3.7, 4.0];
-    assertEquality(expectedGpaList, actualGpaList);
+    assertEquality([3.5, 1.9, 3.7, 4.0], actualGpaList);
 
     int[] actualValues = [];
     int weight = 2;
@@ -1029,8 +1028,7 @@ function testQueryActionWithLetExpression() {
             int gpaVal = let var sGpa = i in weight * i;
             actualValues.push(gpaVal);
         };
-    int[] expectedValues = [2, 4, 6, 8];
-    assertEquality(actualValues, expectedValues);
+    assertEquality([2, 4, 6, 8], actualValues);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
