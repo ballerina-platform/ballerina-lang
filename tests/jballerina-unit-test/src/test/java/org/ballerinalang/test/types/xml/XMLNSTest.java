@@ -59,11 +59,12 @@ public class XMLNSTest {
     public void testXMLNSNegativeDefinition() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/types/xml/xmlns_negative.bal");
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 21, 7);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 22, 7);
-        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'D'", 23, 7);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 26, 11);
-        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'E'", 27, 11);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 23, 7);
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'D'", 24, 7);
+        BAssertUtil.validateError(negativeResult, i++, "cannot bind prefix 'ns3' to the empty namespace name", 25, 1);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 28, 11);
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'F'", 29, 11);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

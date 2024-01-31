@@ -13,18 +13,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import testorg/foo;
 
-const A = 1;
-const string|int B = A;
-const C = 2;
-const E = "";
-
-xmlns A as ns0;
-xmlns B as ns1;
-xmlns D as ns2;
-xmlns E as ns3;
+xmlns foo:XMLNSD as ns0;
+xmlns foo:XMLNSE as ns1;
 
 function foo() {
-    xmlns C as ns4;
-    xmlns F as ns5;
+    xmlns foo:XMLNSF as ns3;
+    xmlns foo:XMLNSG as ns4;
 }

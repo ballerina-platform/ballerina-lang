@@ -14,17 +14,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const A = 1;
-const string|int B = A;
-const C = 2;
-const E = "";
+import testorg/foo;
 
-xmlns A as ns0;
-xmlns B as ns1;
-xmlns D as ns2;
-xmlns E as ns3;
+xmlns foo:XMLNSA as ns0;
+xmlns foo:XMLNSB as ns1;
 
-function foo() {
-    xmlns C as ns4;
-    xmlns F as ns5;
+function testXMLNSDeclUsingModuleConstant() {
+    string s1 = ns0:foo;
+    assert(s1, "{http://ballerina.com/a}foo");
+
+    string s2 = ns1:foo;
+    assert(s2, "{http://ballerina.com/b}foo");
+}
+
+function testXMLNSDeclStmtUsingModuleConstant() {
+    xmlns foo:XMLNSC as ns2;
+    string s1 = ns2:baz;
+    assert(s1, "{http://ballerina.com/c}baz");
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        panic error("expected `" + expected.toString() + "`, but found `" + actual.toString() + "`");
+    }
 }

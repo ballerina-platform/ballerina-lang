@@ -14,17 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const A = 1;
-const string|int B = A;
-const C = 2;
-const E = "";
+public const XMLNSA = "http://ballerina.com/a";
+public const string|int XMLNSB = "http://ballerina.com/b";
+public const string XMLNSC = "http://ballerina.com/c";
 
-xmlns A as ns0;
-xmlns B as ns1;
-xmlns D as ns2;
-xmlns E as ns3;
-
-function foo() {
-    xmlns C as ns4;
-    xmlns F as ns5;
-}
+public const XMLNSD = 1;
+public const string|int XMLNSE = D;
+public const XMLNSF = 2;
+public const XMLNSG = "";
