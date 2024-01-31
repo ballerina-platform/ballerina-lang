@@ -150,6 +150,9 @@ public class RecoveryManager {
     private boolean recoverFailedTrxInXAResource(XAResource xaResource, Xid xid, RecoveryState state) {
         boolean recovered = false;
         switch (state) {
+            case PREPARING: // failed during prepare, no decision record found
+                recovered = handleAbort(xaResource, xid);
+                break;
             case COMMITTING:
                 recovered = replayCommit(xaResource, xid);
                 break;
