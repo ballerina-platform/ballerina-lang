@@ -118,31 +118,6 @@ public class LangLibTableTest {
     }
 
     @Test
-    public void testHashCollisionHandlingScenarios() {
-        BRunUtil.invoke(compileResult, "testHashCollisionHandlingScenarios");
-    }
-
-    @Test
-    public void testHashCollisionInQueryWithAdd() {
-        BRunUtil.invoke(compileResult, "testHashCollisionInQueryWithAdd");
-    }
-
-    @Test
-    public void testHashCollisionInQueryWithPut() {
-        BRunUtil.invoke(compileResult, "testHashCollisionInQueryWithPut");
-    }
-
-    @Test
-    public void testHashCollisionInFilter() {
-        BRunUtil.invoke(compileResult, "testHashCollisionInFilter");
-    }
-
-    @Test
-    public void testGetKeysOfHashCollidedKeys() {
-        BRunUtil.invoke(compileResult, "testGetKeysOfHashCollidedKeys");
-    }
-
-    @Test
     public void testGetKeyList() {
         Object result = BRunUtil.invoke(compileResult, "testGetKeyList");
         BArray returns = (BArray) result;
@@ -611,5 +586,21 @@ public class LangLibTableTest {
         BRunUtil.invoke(compileResult, "testTableIterationAfterPut2");
         BRunUtil.invoke(compileResult, "testTableIterationAfterPut3");
         BRunUtil.invoke(compileResult, "testTableIterationAfterPut4");
+    }
+
+    @Test(dataProvider = "functionsToTestHashCollisionInTable")
+    public void testHashCollisionInTable(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider
+    public Object[] functionsToTestHashCollisionInTable() {
+        return new String[]{
+                "testHashCollisionHandlingScenarios",
+                "testHashCollisionInQueryWithAdd",
+                "testHashCollisionInQueryWithPut",
+                "testHashCollisionInFilter",
+                "testGetKeysOfHashCollidedKeys"
+        };
     }
 }
