@@ -29,6 +29,8 @@ public class BLangTestablePackage extends BLangPackage {
     // Semantic Data
     //Map to maintain all the mock functions
     private Map<String, String> mockFunctionNamesMap = new HashMap<>();
+
+    private final Map<String, String> mockFunctionTypeMap = new HashMap<>();
     public Map<String, String> getMockFunctionNamesMap() {
         return mockFunctionNamesMap;
     }
@@ -45,5 +47,13 @@ public class BLangTestablePackage extends BLangPackage {
     @Override
     public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
         return modifier.transform(this, props);
+    }
+
+    public Map<String, String> getMockFunctionTypeMap() {
+        return mockFunctionTypeMap;
+    }
+
+    public void addMockFunctionType(String id, String type) {
+        this.mockFunctionTypeMap.put(id, type);
     }
 }
