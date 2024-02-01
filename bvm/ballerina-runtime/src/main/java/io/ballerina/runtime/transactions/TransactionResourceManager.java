@@ -221,9 +221,8 @@ public class TransactionResourceManager {
                 new VariableKey(TRANSACTION_PACKAGE_ID, "recoveryLogName", PredefinedTypes.TYPE_STRING, false);
         if (!ConfigMap.containsKey(recoveryLogNameKey)) {
             return "recoveryLog";
-        } else {
-            return ((BString) ConfigMap.get(recoveryLogNameKey)).getValue();
         }
+        return ((BString) ConfigMap.get(recoveryLogNameKey)).getValue();
     }
 
     /**
@@ -237,18 +236,14 @@ public class TransactionResourceManager {
                 new VariableKey(TRANSACTION_PACKAGE_ID, "recoveryLogDir", PredefinedTypes.TYPE_STRING, false);
         if (!ConfigMap.containsKey(recoveryLogDirKey)) {
             return projectRoot;
-        } else {
-            String logDir = ((BString) ConfigMap.get(recoveryLogDirKey)).getValue();
-            Path logDirPath = Paths.get(logDir);
-            Path recoveryLogDirectory;
-            if (!logDirPath.isAbsolute()) {
-                logDir = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
-                recoveryLogDirectory = Paths.get(logDir);
-            } else {
-                recoveryLogDirectory = logDirPath;
-            }
-            return recoveryLogDirectory;
         }
+        String logDir = ((BString) ConfigMap.get(recoveryLogDirKey)).getValue();
+        Path logDirPath = Paths.get(logDir);
+        if (!logDirPath.isAbsolute()) {
+            logDir = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
+            return Paths.get(logDir);
+        }
+        return logDirPath;
     }
 
     /**
