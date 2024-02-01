@@ -39,41 +39,41 @@ public class WorkerFailTest {
         String receiveNotAllowedError = "invalid worker receive statement position, " +
                 "must be a top level statement in a worker";
         int index = 0;
-        validateError(result, index++, sendNotAllowedError, 4, 13);
-        validateError(result, index++, sendNotAllowedError, 8, 13);
+        validateError(result, index++, sendNotAllowedError, 20, 13);
+        validateError(result, index++, sendNotAllowedError, 24, 13);
         validateError(result, index++, "using send action within the lock statement is not allowed to prevent " +
-                "possible deadlocks", 12, 13);
-        validateError(result, index++, receiveNotAllowedError, 50, 17);
-        validateError(result, index++, receiveNotAllowedError, 54, 17);
+                "possible deadlocks", 28, 13);
+        validateError(result, index++, receiveNotAllowedError, 66, 17);
+        validateError(result, index++, receiveNotAllowedError, 70, 17);
         validateError(result, index++, "using receive action within the lock statement is not allowed to prevent " +
-                "possible deadlocks", 58, 17);
-        validateError(result, index++, receiveNotAllowedError, 63, 15);
-        validateError(result, index++, receiveNotAllowedError, 65, 21);
+                "possible deadlocks", 74, 17);
+        validateError(result, index++, receiveNotAllowedError, 79, 15);
+        validateError(result, index++, receiveNotAllowedError, 81, 21);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
     @Test
     public void testMismatchInSendReceivePairing() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worker-send-receive.bal");
+        CompileResult result = BCompileUtil.compile("test-src/workers/send-receive-mismatch.bal");
         String invalidSendErrMsg = "invalid worker send, no matching worker receive";
         String invalidReceiveErrMsg = "invalid worker receive, no matching worker send";
         int index = 0;
-        validateError(result, index++, invalidSendErrMsg, 3, 9);
-        validateError(result, index++, invalidSendErrMsg, 7, 9);
-        validateError(result, index++, invalidReceiveErrMsg, 13, 17);
-        validateError(result, index++, invalidReceiveErrMsg, 17, 20);
-        validateError(result, index++, invalidSendErrMsg, 29, 9);
-        validateError(result, index++, invalidReceiveErrMsg, 44, 21);
-        validateError(result, index++, invalidReceiveErrMsg, 54, 34);
-        validateError(result, index++, invalidReceiveErrMsg, 67, 20);
-        validateError(result, index++, invalidReceiveErrMsg, 67, 27);
-        validateError(result, index++, invalidReceiveErrMsg, 67, 34);
-        validateError(result, index++, invalidSendErrMsg, 71, 9);
-        validateWarning(result, index++, "unused variable 'b'", 79, 13);
-        validateError(result, index++, invalidReceiveErrMsg, 81, 17);
-        validateWarning(result, index++, "unused variable 'b'", 85, 13);
-        validateWarning(result, index++, "unused variable 'a'", 90, 13);
-        validateWarning(result, index++, "unused variable 'b'", 91, 13);
+        validateError(result, index++, invalidSendErrMsg, 19, 9);
+        validateError(result, index++, invalidSendErrMsg, 23, 9);
+        validateError(result, index++, invalidReceiveErrMsg, 29, 17);
+        validateError(result, index++, invalidReceiveErrMsg, 33, 20);
+        validateError(result, index++, invalidSendErrMsg, 45, 9);
+        validateError(result, index++, invalidReceiveErrMsg, 60, 21);
+        validateError(result, index++, invalidReceiveErrMsg, 70, 34);
+        validateError(result, index++, invalidReceiveErrMsg, 83, 20);
+        validateError(result, index++, invalidReceiveErrMsg, 83, 27);
+        validateError(result, index++, invalidReceiveErrMsg, 83, 34);
+        validateError(result, index++, invalidSendErrMsg, 87, 9);
+        validateWarning(result, index++, "unused variable 'b'", 95, 13);
+        validateError(result, index++, invalidReceiveErrMsg, 97, 17);
+        validateWarning(result, index++, "unused variable 'b'", 101, 13);
+        validateWarning(result, index++, "unused variable 'a'", 106, 13);
+        validateWarning(result, index++, "unused variable 'b'", 107, 13);
         Assert.assertEquals(result.getErrorCount(), index - 4);
         Assert.assertEquals(result.getWarnCount(), 4);
     }
