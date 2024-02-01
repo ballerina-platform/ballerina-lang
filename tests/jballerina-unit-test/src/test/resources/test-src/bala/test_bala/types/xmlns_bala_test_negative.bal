@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import testorg/foo;
 
 xmlns foo:XMLNSD as ns0;

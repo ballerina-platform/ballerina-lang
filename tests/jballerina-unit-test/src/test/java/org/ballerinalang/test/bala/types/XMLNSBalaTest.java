@@ -58,9 +58,9 @@ public class XMLNSBalaTest {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/bala/test_bala/types/xmlns_bala_test_negative.bal");
         int i = 0;
-        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 18, 7);
-        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 22, 11);
-        validateError(negativeResult, i++, "cannot bind prefix 'ns4' to the empty namespace name", 23, 5);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 19, 7);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 23, 11);
+        validateError(negativeResult, i++, "cannot bind prefix 'ns4' to the empty namespace name", 24, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

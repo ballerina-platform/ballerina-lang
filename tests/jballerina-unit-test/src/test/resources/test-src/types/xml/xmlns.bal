@@ -31,17 +31,10 @@ final string f2 = ns2:ijk;
 string s = ns3:pqr;
 
 function testXMLNSDeclUsingConstant() {
-    string s1 = ns0:foo;
-    assert(s1, "{http://ballerina.com/a}foo");
-
-    string s2 = ns1:foo;
-    assert(s2, "{http://www.w3.org/2000/xmlns/}foo");
-
-    string s3 = ns2:bar;
-    assert(s3, "{http://ballerina.com/b}bar");
-
-    string s4 = ns3:bar;
-    assert(s4, "{http://ballerina.com/c}bar");
+    assert(ns0:foo, "{http://ballerina.com/a}foo");
+    assert(ns1:foo, "{http://www.w3.org/2000/xmlns/}foo");
+    assert(ns2:bar, "{http://ballerina.com/b}bar");
+    assert(ns3:bar, "{http://ballerina.com/c}bar");
 }
 
 function testXMLNSUsageInModuleVar() {
@@ -52,16 +45,13 @@ function testXMLNSUsageInModuleVar() {
 
 function testXMLNSDeclStmtUsingConstant() {
     xmlns E as ns4;
-    string s1 = ns4:baz;
-    assert(s1, "{http://ballerina.com/e}baz");
+    assert(ns4:baz, "{http://ballerina.com/e}baz");
 
     xmlns xml:XMLNS_NAMESPACE_URI as ns5;
-    string s2 = ns5:baz;
-    assert(s2, "{http://www.w3.org/2000/xmlns/}baz");
+    assert(ns5:baz, "{http://www.w3.org/2000/xmlns/}baz");
 
     xmlns F as ns6;
-    string s3 = ns6:abc;
-    assert(s3, "{http://ballerina.com/f}abc");
+    assert(ns6:abc, "{http://ballerina.com/f}abc");
 }
 
 function assert(anydata actual, anydata expected) {
