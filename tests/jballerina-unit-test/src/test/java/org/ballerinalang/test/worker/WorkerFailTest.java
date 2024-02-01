@@ -32,6 +32,27 @@ import static org.ballerinalang.test.BAssertUtil.validateWarning;
 public class WorkerFailTest {
 
     @Test
+    public void testSendReceiveAllowedSyntacticPositions() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/send-receive-allowed-positions.bal");
+        String sendNotAllowedError = "worker send statement position not supported yet, " +
+                "must be a top level statement in a worker";
+        String receiveNotAllowedError = "invalid worker receive statement position, " +
+                "must be a top level statement in a worker";
+        int index = 0;
+        validateError(result, index++, sendNotAllowedError, 4, 13);
+        validateError(result, index++, sendNotAllowedError, 8, 13);
+        validateError(result, index++, "using send action within the lock statement is not allowed to prevent " +
+                "possible deadlocks", 12, 13);
+        validateError(result, index++, receiveNotAllowedError, 50, 17);
+        validateError(result, index++, receiveNotAllowedError, 54, 17);
+        validateError(result, index++, "using receive action within the lock statement is not allowed to prevent " +
+                "possible deadlocks", 58, 17);
+        validateError(result, index++, receiveNotAllowedError, 63, 15);
+        validateError(result, index++, receiveNotAllowedError, 65, 21);
+        Assert.assertEquals(result.getErrorCount(), index);
+    }
+
+    @Test
     public void testMismatchInSendReceivePairing() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worker-send-receive.bal");
         String invalidSendErrMsg = "invalid worker send, no matching worker receive";
