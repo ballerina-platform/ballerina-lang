@@ -350,6 +350,34 @@ public class WorkerTest {
         BAssertUtil.validateError(result, 0, "multiple receive action not yet supported", 23, 25);
     }
 
+    @Test(description = "Test multiple receive type checking")
+    public void testMultipleWorkerReceiveTypeChecking() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/workers/multiple-receive-type-checking.bal");
+        int index = 0;
+        BAssertUtil.validateError(negativeResult, index++, "invalid multiple receive: duplicate key 'a'", 11, 24);
+        BAssertUtil.validateError(negativeResult, index++, "invalid multiple receive: duplicate key 'a'", 22, 24);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in " +
+                "type 'int'", 39, 17);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " 'record {| int c; int a; int b; |}'", 41, 45);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " 'record {| |} & readonly'", 46, 25);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " 'ABCRecord'", 51, 23);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " '(string|record {| int a; int b; int c; anydata...; |}|int)'", 56, 54);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " '(string|boolean|int)'", 57, 32);
+        BAssertUtil.validateError(negativeResult, index++, "ambiguous type '(map<int>|record {| int a; int b; anydata" +
+                "...; |})'", 58, 45);
+        BAssertUtil.validateError(negativeResult, index++, "ambiguous type '(map<int>|record {| int...; |})'", 59, 42);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " '(int|record {| int a; int c; anydata...; |})'", 61, 40);
+        BAssertUtil.validateError(negativeResult, index++, "a type compatible with multiple receive not found in type" +
+                " 'record {| readonly int a; readonly int c; |} & readonly'", 69, 49);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
