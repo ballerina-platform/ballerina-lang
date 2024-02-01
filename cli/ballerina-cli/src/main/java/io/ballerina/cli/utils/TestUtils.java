@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -54,6 +55,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.StringJoiner;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.*;
@@ -334,5 +337,69 @@ public class TestUtils {
             }
             mockClassNames.add(functionToMockClassName);
         }
+    }
+
+    public static String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
+
+        List<Path> dependencies = getTestDependencyPaths(currentPackage, jarResolver);
+
+        List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
+        dependencies.removeAll(jarList);
+
+        StringJoiner classPath = joinClassPaths(dependencies);
+        return classPath.toString();
+    }
+
+    public static StringJoiner joinClassPaths(List<Path> dependencies) {
+        StringJoiner classPath = new StringJoiner(File.pathSeparator);
+        dependencies.stream().map(Path::toString).forEach(classPath::add);
+        return classPath;
+    }
+
+    public static List<Path> getTestDependencyPaths(Package currentPackage, JarResolver jarResolver) {
+        List<Path> dependencies = new ArrayList<>();
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
+
+            // Skip getting file paths for execution if module doesnt contain a testable jar
+            if (!module.testDocumentIds().isEmpty() || module.project().kind()
+                    .equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                for (JarLibrary jarLibs : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
+                    dependencies.add(jarLibs.path());
+                }
+            }
+        }
+        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
+        return dependencies;
+    }
+
+    public static List<Path> getModuleJarPaths(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
+        List<Path> moduleJarPaths = new ArrayList<>();
+
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
+
+            PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(currentPackage.packageId(),
+                    module.moduleName());
+            moduleJarPaths.add(generatedJarLibrary.path());
+
+            if (!module.testDocumentIds().isEmpty()) {
+                PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
+                        currentPackage.packageId(), module.moduleName());
+                moduleJarPaths.add(codeGeneratedTestLibrary.path());
+            }
+        }
+
+        for (ResolvedPackageDependency resolvedPackageDependency : currentPackage.getResolution().allDependencies()) {
+            Package pkg = resolvedPackageDependency.packageInstance();
+            for (ModuleId moduleId : pkg.moduleIds()) {
+                Module module = pkg.module(moduleId);
+                moduleJarPaths.add(
+                        jBallerinaBackend.codeGeneratedLibrary(pkg.packageId(), module.moduleName()).path());
+            }
+        }
+
+        return moduleJarPaths.stream().distinct().collect(Collectors.toList());
     }
 }
