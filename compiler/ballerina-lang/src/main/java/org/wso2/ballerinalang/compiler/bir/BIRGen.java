@@ -281,11 +281,11 @@ public class BIRGen extends BLangNodeVisitor {
     public BLangPackage genBIR(BLangPackage astPkg) {
         boolean skipTest = astPkg.moduleContextDataHolder.skipTests();
         String sourceRoot = astPkg.moduleContextDataHolder.sourceRoot().toString();
-//        BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName, astPkg.packageID.pkgName,
-//                astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName,
-//                sourceRoot, skipTest);
+        BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName, astPkg.packageID.pkgName,
+                astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName,
+                sourceRoot, skipTest);
 
-        BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID, sourceRoot, skipTest, false);
+//        BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID, sourceRoot, skipTest, false);
         astPkg.symbol.bir = birPkg; //TODO try to remove this
 
         this.env = new BIRGenEnv(birPkg);
@@ -294,11 +294,11 @@ public class BIRGen extends BLangNodeVisitor {
         this.birOptimizer.optimizePackage(birPkg);
         if (!astPkg.moduleContextDataHolder.skipTests() && astPkg.hasTestablePackage()) {
             astPkg.getTestablePkgs().forEach(testPkg -> {
-//                BIRPackage testBirPkg = new BIRPackage(testPkg.pos, testPkg.packageID.orgName,
-//                        testPkg.packageID.pkgName, testPkg.packageID.name, testPkg.packageID.version,
-//                        testPkg.packageID.sourceFileName, sourceRoot, skipTest, true);
+                BIRPackage testBirPkg = new BIRPackage(testPkg.pos, testPkg.packageID.orgName,
+                        testPkg.packageID.pkgName, testPkg.packageID.name, testPkg.packageID.version,
+                        testPkg.packageID.sourceFileName, sourceRoot, skipTest, true);
 
-                BIRPackage testBirPkg = new BIRPackage(testPkg.pos, testPkg.packageID, sourceRoot, skipTest, true);
+//                BIRPackage testBirPkg = new BIRPackage(testPkg.pos, testPkg.packageID, sourceRoot, skipTest, true);
                 this.env = new BIRGenEnv(testBirPkg);
                 testPkg.accept(this);
                 this.birOptimizer.optimizePackage(testBirPkg);
