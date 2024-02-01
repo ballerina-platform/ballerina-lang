@@ -41,6 +41,7 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
@@ -295,6 +296,33 @@ public class ValueConverter {
                 tableType.getConstrainedType()));
         BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
         return new TableValueImpl<>(targetRefType, (ArrayValue) data, (ArrayValue) fieldNames);
+    }
+
+    public static Object getConvertedStringValue(BString bString, Type targetType)
+            throws BError {
+        if (TypeChecker.checkIsType(bString, targetType)) {
+            return bString;
+        } else {
+            List<Type> xmlTargetTypes = TypeConverter.getXmlTargetTypes(targetType);
+            if (xmlTargetTypes.isEmpty()) {
+                throw ErrorUtils.createConversionError(bString, targetType);
+            }
+            BXml xmlValue;
+            try {
+                xmlValue = TypeConverter.stringToXml(bString.getValue());
+            } catch (BError e) {
+                throw ErrorUtils.createConversionError(bString, targetType);
+            }
+            for (Type xmlTargetType : xmlTargetTypes) {
+                if (TypeChecker.checkIsLikeType(xmlValue, xmlTargetType)) {
+                    if (xmlTargetType.isReadOnly()) {
+                        xmlValue.freezeDirect();
+                    }
+                    return xmlValue;
+                }
+            }
+            throw ErrorUtils.createConversionError(bString, targetType);
+        }
     }
 
 }

@@ -44,6 +44,7 @@ import io.ballerina.runtime.internal.BalStringUtils;
 import io.ballerina.runtime.internal.CloneUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeConverter;
+import io.ballerina.runtime.internal.ValueConverter;
 import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
@@ -1024,12 +1025,14 @@ public class StreamParser {
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
                         Type targetType = sm.targetTypes.get(sm.targetTypes.size() - 1);
-                        BString bString = StringUtils.fromString(sm.value());
+                        Object bString = StringUtils.fromString(sm.value());
                         switch (targetType.getTag()) {
                             case TypeTags.MAP_TAG:
-                                if (!TypeChecker.checkIsType(bString, ((MapType) targetType).getConstrainedType())) {
-                                    throw new StreamParserException(
-                                            "string value cannot be converted to the type '" + targetType);
+                                try {
+                                    bString = ValueConverter.getConvertedStringValue((BString) bString,
+                                            ((MapType) targetType).getConstrainedType());
+                                } catch (BError e) {
+                                    throw new StreamParserException(e.getMessage());
                                 }
                                 break;
                             case TypeTags.RECORD_TYPE_TAG:
@@ -1039,9 +1042,10 @@ public class StreamParser {
                                 Map<String, Field> fields = recordType.getFields();
                                 Field field = fields.get(fieldName);
                                 Type fieldType = field == null ? recordType.restFieldType : field.getFieldType();
-                                if (!TypeChecker.checkIsType(bString, fieldType)) {
-                                    throw new StreamParserException(
-                                            "string value cannot be converted to the type '" + targetType);
+                                try {
+                                    bString = ValueConverter.getConvertedStringValue((BString) bString, fieldType);
+                                } catch (BError e) {
+                                    throw new StreamParserException(e.getMessage());
                                 }
                                 break;
                             case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG, TypeTags.TABLE_TAG:
@@ -1087,12 +1091,22 @@ public class StreamParser {
                         switch (targetType.getTag()) {
                             case TypeTags.ARRAY_TAG:
                                 int listIndex = sm.listIndices.get(sm.listIndices.size() - 1);
-                                ((ArrayValueImpl) sm.currentJsonNode).addRefValue(listIndex, bString);
+                                try {
+                                    ((ArrayValueImpl) sm.currentJsonNode).convertStringAndAddRefValue(listIndex,
+                                            bString);
+                                } catch (BError e) {
+                                    throw new StreamParserException(e.getMessage());
+                                }
                                 sm.listIndices.set(sm.listIndices.size() - 1, listIndex + 1);
                                 break;
                             case TypeTags.TUPLE_TAG:
                                 listIndex = sm.listIndices.get(sm.listIndices.size() - 1);
-                                ((TupleValueImpl) sm.currentJsonNode).addRefValue(listIndex, bString);
+                                try {
+                                    ((TupleValueImpl) sm.currentJsonNode).convertStringAndAddRefValue(listIndex,
+                                            bString);
+                                } catch (BError e) {
+                                    throw new StreamParserException(e.getMessage());
+                                }
                                 sm.listIndices.set(sm.listIndices.size() - 1, listIndex + 1);
                                 break;
                             case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG:
@@ -1215,10 +1229,15 @@ public class StreamParser {
                     if (ch == sm.currentQuoteChar) {
                         Type targetType = sm.targetTypes.get(sm.targetTypes.size() - 1);
                         BString bString = StringUtils.fromString(sm.value());
-                        if (sm.nodesStackSizeWhenUnionStarts == -1 && !TypeChecker.checkIsType(bString, targetType)) {
-                            throw new StreamParserException("not a string, string expected");
+                        if (sm.nodesStackSizeWhenUnionStarts == -1) {
+                            try {
+                                sm.currentJsonNode = ValueConverter.getConvertedStringValue(bString, targetType);
+                            } catch (BError e) {
+                                throw new StreamParserException(e.getMessage());
+                            }
+                        } else {
+                            sm.currentJsonNode = bString;
                         }
-                        sm.currentJsonNode = bString;
                         state = DOC_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_VAL_ESC_CHAR_PROCESSING_STATE;
@@ -1843,5 +1862,6 @@ public class StreamParser {
         // should never reach here
         throw createConversionError(map, targetType);
     }
+
 
 }

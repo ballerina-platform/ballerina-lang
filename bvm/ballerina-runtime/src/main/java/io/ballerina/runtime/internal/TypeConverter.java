@@ -23,7 +23,10 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.utils.XmlUtils;
@@ -53,6 +56,7 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RegExpValue;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1274,5 +1278,30 @@ public class TypeConverter {
     }
 
     private TypeConverter() {
+    }
+
+    static List<Type> getXmlTargetTypes(Type targetType) {
+        List<Type> xmlTargetTypes = new ArrayList<>();
+        return switch (targetType.getTag()) {
+            case TypeTags.XML_TAG, TypeTags.XML_PI_TAG, TypeTags.XML_COMMENT_TAG, TypeTags.XML_ELEMENT_TAG,
+                    TypeTags.XML_TEXT_TAG -> {
+                xmlTargetTypes.add(targetType); yield xmlTargetTypes;
+            }
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG -> {
+                xmlTargetTypes.addAll(getXmlTargetTypes(((ReferenceType) targetType).getReferredType()));
+                yield xmlTargetTypes;
+            }
+            case TypeTags.INTERSECTION_TAG -> {
+                xmlTargetTypes.addAll(getXmlTargetTypes(((IntersectionType) targetType).getEffectiveType()));
+                yield xmlTargetTypes;
+            }
+            case TypeTags.UNION_TAG -> {
+                for (Type memberType : ((UnionType) targetType).getMemberTypes()) {
+                    xmlTargetTypes.addAll(getXmlTargetTypes(memberType));
+                }
+                yield xmlTargetTypes;
+            }
+            default -> xmlTargetTypes;
+        };
     }
 }
