@@ -32,13 +32,12 @@ import org.testng.annotations.Test;
  */
 public class WorkerAlternateReceiveTest {
 
-    private CompileResult result, negativeResult;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/workers/workers_alt_receive.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
-        negativeResult = BCompileUtil.compile("test-src/workers/workers_alt_receive_negative.bal");
     }
 
     @Test(dataProvider = "functionProvider")
@@ -67,8 +66,9 @@ public class WorkerAlternateReceiveTest {
         };
     }
 
-    @Test(description = "Test negative scenarios of alternate receive action.")
-    public void testAltWorkerReceiveNegative() {
+    @Test(description = "Test alternate receive type checking")
+    public void testAltWorkerReceiveTypeChecking() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/workers/alternate_receive_type_checking.bal");
         int index = 0;
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'", 53,
                 20);
@@ -90,6 +90,5 @@ public class WorkerAlternateReceiveTest {
     @AfterClass
     public void tearDown() {
         result = null;
-        negativeResult = null;
     }
 }
