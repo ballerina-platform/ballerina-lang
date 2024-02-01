@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 public class RecoveryManager {
+
     private static final Logger log = LoggerFactory.getLogger(RecoveryManager.class);
     private Map<String, TransactionLogRecord> failedTransactions;
     private Collection<XAResource> failedToRecoverResources;
@@ -52,6 +53,7 @@ public class RecoveryManager {
 
     /**
      * Add a transaction log record to the list of records to recover.
+     *
      * @param transactionLogRecords the record to add
      */
     private void putFailedTransactionRecords(Map<String, TransactionLogRecord> transactionLogRecords) {
@@ -60,6 +62,7 @@ public class RecoveryManager {
 
     /**
      * Get the list of transaction log records that are waiting to be recovered.
+     *
      * @return the list of transaction log records to recover
      */
     public Map<String, TransactionLogRecord> getPendingTransactionRecords() {
@@ -67,8 +70,9 @@ public class RecoveryManager {
     }
 
     /**
-     * Add a xa resource to the list of resources to recover.
-     * XAResources should be added from the relavent library side during their initialization.
+     * Add a xa resource to the list of resources to recover. XAResources should be added from the relavent library side
+     * during their initialization.
+     *
      * @param xaResource the resource to add
      */
     public void addXAResourceToRecover(XAResource xaResource) {
@@ -84,11 +88,12 @@ public class RecoveryManager {
         xaResources.add(xaResource);
     }
 
-    public boolean performRecoveryPass(){
+    public boolean performRecoveryPass() {
         boolean allOk = true;
 
         // Get all the transaction records without terminated logs;
-        putFailedTransactionRecords(TransactionResourceManager.getInstance().getLogManager().getFailedTransactionLogs());
+        putFailedTransactionRecords(
+                TransactionResourceManager.getInstance().getLogManager().getFailedTransactionLogs());
 
         // Warn user of hazards and mixed outcomes
         for (TransactionLogRecord logRecord : failedTransactions.values()) {
@@ -106,7 +111,7 @@ public class RecoveryManager {
         }
 
         // Recover all the recoverable XA Resources
-        if (!xaResources.isEmpty()){
+        if (!xaResources.isEmpty()) {
             // Get prepared Xids from all the resources
             Map<XAResource, Map<String, Xid>> preparedXids = new HashMap<>();
             for (XAResource xaResource : xaResources) {
@@ -166,25 +171,19 @@ public class RecoveryManager {
     }
 
     private boolean recoverFailedTrxInXAResource(XAResource xaResource, Xid xid, RecoveryState state) {
-        boolean recovered = false;
         switch (state) {
             case PREPARING: // failed during prepare, no decision record found
-                recovered = handleAbort(xaResource, xid);
-                break;
-            case COMMITTING:
-                recovered = replayCommit(xaResource, xid);
-                break;
             case ABORTING:
-                recovered = handleAbort(xaResource, xid);
-                break;
-            case COMMITTED, ABORTED:
+                return handleAbort(xaResource, xid);
+            case COMMITTING:
+                return replayCommit(xaResource, xid);
+            case COMMITTED:
+            case ABORTED:
                 forgetXidInXaResource(xid, xaResource);
-                recovered = true;
-                break;
+                return true;
             default:
-                break;
+                return false;
         }
-        return recovered;
     }
 
     /**
@@ -197,7 +196,7 @@ public class RecoveryManager {
     private Map<String, Xid> retrievePreparedXids(XAResource xaResource) throws XAException {
         Map<String, Xid> retrievedXids = new HashMap<>();
         ArrayList<Xid> recoverdXidsFromScan = new ArrayList<>();
-        
+
         Xid[] xidsFromScan = null;
         xidsFromScan = xaResource.recover(XAResource.TMSTARTRSCAN);
         while (xidsFromScan != null && xidsFromScan.length > 0) {
@@ -214,7 +213,7 @@ public class RecoveryManager {
                 if (xid == null) {
                     continue;
                 }
-                if (xid.getFormatId() != (XIDGenerator.getDefaultFormat())){
+                if (xid.getFormatId() != (XIDGenerator.getDefaultFormat())) {
                     continue;
                 }
                 String globalTransactionIdStr = new String(xid.getGlobalTransactionId());
@@ -233,113 +232,103 @@ public class RecoveryManager {
      * Handle commit of a transaction in transaction recovery
      *
      * @param xaResource the resource that the transaction is associated with
-     * @param xid the xid of the transaction
+     * @param xid        the xid of the transaction
      * @return true if the commit is successful and the log can be forgotten, false otherwise
      */
     private boolean replayCommit(XAResource xaResource, Xid xid) {
-        boolean ret = false;
         try {
             xaResource.commit(xid, false);
-            ret = true;
+            return true;
         } catch (XAException e) {
-            switch (e.errorCode){
+            switch (e.errorCode) {
                 // case: transaction already heuristically terminated by resource
-                case XAException.XA_HEURCOM,
-                        XAException.XA_HEURHAZ,
-                        XAException.XA_HEURMIX,
-                        XAException.XA_HEURRB:
-                    ret = handleHeuristicTermination(xid, xaResource, e, true);
-                    break;
+                case XAException.XA_HEURCOM:
+                case XAException.XA_HEURHAZ:
+                case XAException.XA_HEURMIX:
+                case XAException.XA_HEURRB:
+                    return handleHeuristicTermination(xid, xaResource, e, true);
                 // case : transaction terminated in resource by a concurrent commit; xid no longer know by resource
-                case XAException.XAER_NOTA, XAException.XAER_INVAL:
-                    ret = true;
-                    break;
+                case XAException.XAER_NOTA:
+                case XAException.XAER_INVAL:
+                    return true;
                 default:
                     log.error("transient error while replaying commit for transaction: " + xid + " " + e.getMessage());
+                    return false;
             }
         }
-        return ret;
     }
 
     /**
      * Handle abort of a transaction in transaction recovery
      *
      * @param xaResource the resource that the transaction is associated with
-     * @param xid the xid of the transaction
+     * @param xid        the xid of the transaction
      * @return true if the abort is successful and the log can be forgotten, false otherwise
      */
     private boolean handleAbort(XAResource xaResource, Xid xid) {
-        boolean ret = false;
         try {
             xaResource.rollback(xid);
-            ret = true;
+            return true;
         } catch (XAException e) {
-            switch (e.errorCode){
+            switch (e.errorCode) {
                 // case: transaction already heuristically terminated by resource
-                case XAException.XA_HEURCOM,
-                        XAException.XA_HEURHAZ,
-                        XAException.XA_HEURMIX,
-                        XAException.XA_HEURRB:
-                    ret = handleHeuristicTermination(xid, xaResource, e, false);
-                    break;
+                case XAException.XA_HEURCOM:
+                case XAException.XA_HEURHAZ:
+                case XAException.XA_HEURMIX:
+                case XAException.XA_HEURRB:
+                    return handleHeuristicTermination(xid, xaResource, e, false);
                 // case : transaction terminated in resource by a concurrent rollback; xid no longer know by resource
-                case XAException.XAER_NOTA, XAException.XAER_INVAL:
-                    ret = true;
-                    break;
+                case XAException.XAER_NOTA:
+                case XAException.XAER_INVAL:
+                    return true;
                 default:
                     log.error("transient error while replaying abort for transaction: " + xid + " " + e.getMessage());
-
+                    return false;
             }
         }
-        return ret;
     }
-
 
     /**
      * Handle heuristic termination of a transaction.
      *
-     * @param xid the xid of the transaction
-     * @param xaResource the resource that the transaction is associated with
-     * @param e the XAException that was thrown
+     * @param xid            the xid of the transaction
+     * @param xaResource     the resource that the transaction is associated with
+     * @param e              the XAException that was thrown
      * @param decisionCommit the decision that was made for that specific transaction
      * @return true if the log can be forgotten, false otherwise
-     *
-     * "heuristic" itself means "by hand", and that is the way that these outcomes have to be handled.
-     *  Consider the following possible cases:
-     *      1. If the decision was to commit, the transaction is heuristically committed, the log can be forgotten.
-     *      2. If the decision was to rollback, the transaction is heuristically rolled back, the log can be forgotten.
-     *      3. If the decision was to commit, but the transaction is heuristically rolled back,
-*                   or vise versa, it needs to be handled manually.
-     *      4. If the decision was to commit/rollback, but the transaction is heuristically mixed,
-     *              or is in hazard state, it needs to be handled manually.
+     * <p>
+     * "heuristic" itself means "by hand", and that is the way that these outcomes have to be handled. Consider the
+     * following possible cases: 1. If the decision was to commit, the transaction is heuristically committed, the log
+     * can be forgotten. 2. If the decision was to rollback, the transaction is heuristically rolled back, the log can
+     * be forgotten. 3. If the decision was to commit, but the transaction is heuristically rolled back, or vise versa,
+     * it needs to be handled manually. 4. If the decision was to commit/rollback, but the transaction is heuristically
+     * mixed, or is in hazard state, it needs to be handled manually.
      */
     private boolean handleHeuristicTermination(Xid xid, XAResource xaResource, XAException e, boolean decisionCommit) {
-        boolean canForget = true;
         switch (e.errorCode) {
             case XAException.XA_HEURCOM:
-                if(!decisionCommit){
+                if (!decisionCommit) {
                     reportUserOfHueristics(e, xid, decisionCommit);
                 }
                 forgetXidInXaResource(xid, xaResource);
-                break;
+                return true;
             case XAException.XA_HEURRB:
-                if(decisionCommit) {
+                if (decisionCommit) {
                     reportUserOfHueristics(e, xid, decisionCommit);
                 }
                 forgetXidInXaResource(xid, xaResource);
-                break;
+                return true;
             case XAException.XA_HEURMIX:
                 reportUserOfHueristics(e, xid, decisionCommit);
                 forgetXidInXaResource(xid, xaResource);
-                break;
+                return true; // we report it to user, forget about the txn and move on (for now)
             case XAException.XA_HEURHAZ:
                 reportUserOfHueristics(e, xid, decisionCommit);
-                canForget = false;
-                break;
+                return false;
             default:
                 break;
         }
-        return canForget;
+        return true;
     }
 
     private void reportUserOfHueristics(XAException e, Xid xid, boolean decisionCommit) {
@@ -347,7 +336,7 @@ public class RecoveryManager {
         String transactionBlockId = new String(xid.getBranchQualifier());
         String combinedId = transactionID + ":" + transactionBlockId;
         String decision = decisionCommit ? "commit" : "rollback";
-        switch (e.errorCode){
+        switch (e.errorCode) {
             case XAException.XA_HEURCOM:
                 diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
                         combinedId, "heuristic commit", decision);
@@ -372,7 +361,7 @@ public class RecoveryManager {
     /**
      * Forgets a xid in a xa resource.
      *
-     * @param xid the xid to forget
+     * @param xid        the xid to forget
      * @param xaResource the resource to forget the xid in
      */
     private void forgetXidInXaResource(Xid xid, XAResource xaResource) {
