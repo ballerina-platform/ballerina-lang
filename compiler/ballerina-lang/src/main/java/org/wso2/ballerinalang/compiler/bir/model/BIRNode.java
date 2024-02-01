@@ -971,8 +971,7 @@ public abstract class BIRNode {
             if (this.getPackageID() == null) {
                 return true;
             }
-
-            return this.getPackageID() == analyzedPkgID;
+            return this.getPackageID().equals(analyzedPkgID);
         }
 
         public abstract PackageID getPackageID();
