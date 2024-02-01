@@ -50,12 +50,21 @@ public class AnnotateDiagnostics {
                 TextRange.from(start, end - start), true);
         NonTerminalNode statementNode = climbUpToStatementNode(diagnosticNode, startLine, endLine);
 
+        if (isMultiline) {
+            return new DiagnosticAnnotation(
+                    statementNode.toString(),
+                    diagnosticNode.textRange().startOffset() - statementNode.textRangeWithMinutiae().startOffset(),
+                    diagnosticNode.textRange().endOffset() - diagnosticNode.textRange().startOffset(),
+                    diagnosticNode.lineRange().endLine().offset(),
+                    startLine + 1);
+        }
+
         return new DiagnosticAnnotation(
                 statementNode.toString(),
 
                 diagnosticNode.textRange().startOffset() - statementNode.textRangeWithMinutiae().startOffset(),
                 diagnosticNode.textRange().endOffset() - diagnosticNode.textRange().startOffset(),
-                isMultiline, startLine + 1);
+                startLine + 1);
     }
 
     private static NonTerminalNode climbUpToStatementNode(NonTerminalNode node, int start, int end) {
