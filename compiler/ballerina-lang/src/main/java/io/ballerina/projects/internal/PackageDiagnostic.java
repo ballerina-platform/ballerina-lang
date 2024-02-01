@@ -28,6 +28,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.*;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnostic;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -97,6 +98,10 @@ public class PackageDiagnostic extends Diagnostic {
 
     public Path diagnosticFilePath() {
         return diagnosticFilePath;
+    }
+
+    public boolean isSemanticDiagnostic() {
+        return this.diagnostic instanceof BLangDiagnostic;
     }
 
     @Override
