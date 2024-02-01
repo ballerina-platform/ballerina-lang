@@ -115,12 +115,19 @@ public class WorkerFailTest {
         Assert.assertTrue(message.contains("undefined worker"), message);
     }
 
-    @Test(enabled = false) // TODO: enable
-    public void invalidSendWithReturnTest() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-return.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        String message = result.getDiagnostics()[0].message();
-        Assert.assertTrue(message.contains("can not be used after a non-error return"), message);
+    @Test
+    public void testSendReceiveFailureType() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/send-receive-failure-type.bal");
+        int index = 0;
+        validateError(result, index++, "incompatible types: expected 'int', " +
+                "found '(int|ballerina/lang.error:0.0.0:NoMessage)'", 50, 15);
+        validateError(result, index++, "incompatible types: expected 'int', " +
+                "found '(ErrorA|int|ballerina/lang.error:0.0.0:NoMessage)'", 51, 15);
+        validateError(result, index++, "incompatible types: expected 'int', " +
+                "found '(ErrorA|ErrorB|string|ballerina/lang.error:0.0.0:NoMessage)'", 52, 15);
+        validateError(result, index++, "incompatible types: expected '()', found 'ErrorA?'", 90, 14);
+        validateError(result, index++, "incompatible types: expected '()', found '(ErrorA|ErrorB)?'", 91, 14);
+        Assert.assertEquals(result.getErrorCount(), 5);
     }
 
     @Test
