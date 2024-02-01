@@ -323,15 +323,6 @@ public class InitMethodGen {
                 BIROperand varRef = new BIROperand(paramVar);
                 modExecFunc.localVars.add(paramVar);
                 functionArgs.add(varRef);
-
-                if (param.hasDefaultExpr) {
-                    BIRNode.BIRVariableDcl tempParamVar = new BIRNode.BIRVariableDcl(null, symbolTable.anyType,
-                            new Name("%tempVar" + param.jvmVarName), VarScope.FUNCTION, VarKind.TEMP, null);
-                    BIROperand tempVarRef = new BIROperand(tempParamVar);
-                    modExecFunc.localVars.add(tempParamVar);
-                    defaultableArgRefs.add(tempVarRef);
-                    defaultParamCount += 1;
-                }
             }
         }
 
