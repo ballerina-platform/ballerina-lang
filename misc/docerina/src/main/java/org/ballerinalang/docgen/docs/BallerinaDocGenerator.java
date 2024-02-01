@@ -195,6 +195,21 @@ public class BallerinaDocGenerator {
         moduleLib.modules = getDocsGenModel(moduleDocMap, project.currentPackage().packageOrg().toString(),
                 project.currentPackage().packageVersion().toString());
         writeAPIDocs(moduleLib, Path.of(output), false, excludeUI);
+        copyIcon(project, Path.of(output), moduleLib);
+    }
+
+    public static void copyIcon(Project project, Path output, ModuleLibrary moduleLib) {
+        String sourceLocation = project.currentPackage().manifest().icon();
+        if (!sourceLocation.isEmpty()) {
+            output = output.resolve(moduleLib.modules.get(0).orgName).resolve(moduleLib.modules.get(0).id)
+                    .resolve(moduleLib.modules.get(0).version).resolve("icon.png");
+            Path iconPath = Paths.get(sourceLocation);
+            try {
+                Files.copy(iconPath, output);
+            } catch (IOException e) {
+                log.error("Failed to copy icon.", e);
+            }
+        }
     }
 
     private static void writeAPIDocs(ModuleLibrary moduleLib, Path output, boolean isMerge, boolean excludeUI) {
