@@ -156,7 +156,6 @@ public class TransactionResourceManager {
 
     /**
      * This method sets values for atomikos transaction log path and name properties using the available configs.
-     *
      */
     private void setLogProperties() {
         final Path projectRoot = Paths.get(RuntimeUtils.USER_DIR);
@@ -545,7 +544,8 @@ public class TransactionResourceManager {
     public void cleanupTransactionContext() {
         Strand strand = Scheduler.getStrand();
         TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
-        writeToLog(transactionLocalContext.getGlobalTransactionId(), transactionLocalContext.getCurrentTransactionBlockId(), RecoveryState.TERMINATED);
+        writeToLog(transactionLocalContext.getGlobalTransactionId(),
+                transactionLocalContext.getCurrentTransactionBlockId(), RecoveryState.TERMINATED);
         transactionLocalContext.removeTransactionInfo();
         strand.removeCurrentTrxContext();
     }
@@ -607,6 +607,7 @@ public class TransactionResourceManager {
 
     /**
      * This method retrieves the list of commit handlers.
+     *
      * @return Array of commit handlers
      */
     public BArray getRegisteredCommitHandlerList() {
@@ -638,6 +639,7 @@ public class TransactionResourceManager {
 
     /**
      * This method set the given transaction context as the current transaction context in the stack.
+     *
      * @param trxCtx The input transaction context
      */
     public void setCurrentTransactionContext(TransactionLocalContext trxCtx) {
@@ -646,6 +648,7 @@ public class TransactionResourceManager {
 
     /**
      * This method returns the current transaction context.
+     *
      * @return The current Transaction Context
      */
     public TransactionLocalContext getCurrentTransactionContext() {
@@ -736,11 +739,11 @@ public class TransactionResourceManager {
     }
 
     /**
-     * Handles initial recovery after a crash.
-     * This method is called after all the resources are added and before a new transaction begins.
+     * Handles initial recovery after a crash. This method is called after all the resources are added and before a new
+     * transaction begins.
      */
     public synchronized void startupCrashRecovery() {
-        if (!startupRecoverySuccessful){
+        if (!startupRecoverySuccessful) {
             boolean allRecovered = recoveryManager.performRecoveryPass();
             if (allRecovered) {
                 startupRecoverySuccessful = true;
@@ -749,12 +752,11 @@ public class TransactionResourceManager {
     }
 
     /**
-     * This method writes a transaction log record to the recovery log file.
-     * Skips if the atomikos tm is used.
+     * This method writes a transaction log record to the recovery log file. Skips if the atomikos tm is used.
      *
-     * @param globalTransactionId      the global transaction id
+     * @param globalTransactionId       the global transaction id
      * @param currentTransactionBlockId the block id of the transaction
-     * @param recoveryState            the state of the transaction
+     * @param recoveryState             the state of the transaction
      */
     public void writeToLog(String globalTransactionId, String currentTransactionBlockId, RecoveryState recoveryState) {
         if (transactionManagerEnabled) {

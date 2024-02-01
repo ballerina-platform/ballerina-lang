@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class FileRecoveryLog implements RecoveryLog {
+
     private static final Logger log = LoggerFactory.getLogger(FileRecoveryLog.class);
     private String baseFileName;
     private Path recoveryLogDir;
@@ -50,10 +51,10 @@ public class FileRecoveryLog implements RecoveryLog {
     /**
      * Initializes a new FileRecoveryLog instance with the given base file name.
      *
-     * @param baseFileName  The base name for the recovery log files.
+     * @param baseFileName       The base name for the recovery log files.
      * @param checkpointInterval The interval at which to write checkpoints to the log file.
-     * @param recoveryLogDir The directory to store the recovery log files in.
-     * @param deleteOldLogs Whether to delete old log files when creating a new one.
+     * @param recoveryLogDir     The directory to store the recovery log files in.
+     * @param deleteOldLogs      Whether to delete old log files when creating a new one.
      */
     public FileRecoveryLog(String baseFileName, int checkpointInterval, Path recoveryLogDir, boolean deleteOldLogs) {
         this.baseFileName = baseFileName;
@@ -79,11 +80,11 @@ public class FileRecoveryLog implements RecoveryLog {
                 File[] files = recoveryLogDir.toFile().listFiles(
                         (dir, name) -> name.matches(baseFileName + "(\\d+)\\.log")
                 );
-                for (File file: files) {
-                        file.delete();
-                    }
+                for (File file : files) {
+                    file.delete();
                 }
             }
+        }
         File newFile = recoveryLogDir.resolve(baseFileName + (latestVersion + 1) + ".log").toFile();
         try {
             Files.createDirectories(recoveryLogDir); // create directory if not exists
@@ -151,7 +152,7 @@ public class FileRecoveryLog implements RecoveryLog {
 
     @Override
     public void put(TransactionLogRecord trxRecord) {
-        boolean force = !(trxRecord.getTransactionState().equals(RecoveryState.TERMINATED)); // lazy write for done record
+        boolean force = !(trxRecord.getTransactionState().equals(RecoveryState.TERMINATED)); // lazy write
         writeToFile(trxRecord.getTransactionLogRecord(), force);
         if (checkpointInterval != -1) {
             ifNeedWriteCheckpoint();
@@ -168,7 +169,6 @@ public class FileRecoveryLog implements RecoveryLog {
         for (Map.Entry<String, TransactionLogRecord> entry : transactionLogs.entrySet()) {
             String trxId = entry.getKey();
             TransactionLogRecord trxRecord = entry.getValue();
-
             if (!trxRecord.isCompleted()) {
                 pendingTransactions.put(trxId, trxRecord);
             }
@@ -194,7 +194,6 @@ public class FileRecoveryLog implements RecoveryLog {
         }
     }
 
-
     private Map<String, TransactionLogRecord> readLogsFromFile(File file) {
         Map<String, TransactionLogRecord> logMap = new HashMap<>();
         if (!file.exists() || file.length() == 0) {
@@ -218,7 +217,6 @@ public class FileRecoveryLog implements RecoveryLog {
         }
         return logMap;
     }
-
 
     private void cleanUpFinishedLogs() {
         if (existingLogs.isEmpty()) {

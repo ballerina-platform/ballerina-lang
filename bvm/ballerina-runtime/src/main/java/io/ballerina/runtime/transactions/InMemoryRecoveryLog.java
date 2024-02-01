@@ -29,7 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import static io.ballerina.runtime.transactions.TransactionConstants.IN_MEMORY_CHECKPOINT_INTERVAL;
 
 public class InMemoryRecoveryLog implements RecoveryLog {
-     private static final Logger log = LoggerFactory.getLogger(InMemoryRecoveryLog.class);
+
+    private static final Logger log = LoggerFactory.getLogger(InMemoryRecoveryLog.class);
     private Map<String, TransactionLogRecord> transactionLogs;
     private int numOfPutsSinceLastCheckpoint;
 
@@ -48,7 +49,7 @@ public class InMemoryRecoveryLog implements RecoveryLog {
      * Write a checkpoint to the in-memory log (not needed if you don't need checkpoints).
      */
     public void ifNeedWriteCheckpoint() {
-        if (numOfPutsSinceLastCheckpoint >= IN_MEMORY_CHECKPOINT_INTERVAL){
+        if (numOfPutsSinceLastCheckpoint >= IN_MEMORY_CHECKPOINT_INTERVAL) {
             Map<String, TransactionLogRecord> pendingTransactions = getFailedTransactions();
             transactionLogs.clear();
             transactionLogs.putAll(pendingTransactions);
@@ -90,6 +91,5 @@ public class InMemoryRecoveryLog implements RecoveryLog {
 
     @Override
     public void close() {
-
     }
 }

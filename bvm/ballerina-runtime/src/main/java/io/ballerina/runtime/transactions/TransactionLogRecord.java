@@ -19,6 +19,7 @@
 package io.ballerina.runtime.transactions;
 
 public class TransactionLogRecord {
+
     private final static String LINE_SEPARATOR = System.getProperty("line.separator");
     private final static String FIELD_SEPARATOR = "|";
     private final static String COMBINED_ID_SEPARATOR = ":";
@@ -43,7 +44,8 @@ public class TransactionLogRecord {
         this.logTime = System.currentTimeMillis();
     }
 
-    public TransactionLogRecord(String transactionId, String transactionBlockId, RecoveryState transactionStatus, long logTime) {
+    public TransactionLogRecord(String transactionId, String transactionBlockId, RecoveryState transactionStatus,
+                                long logTime) {
         this.transactionId = transactionId;
         this.transactionBlockId = transactionBlockId;
         this.transactionStatus = transactionStatus;
@@ -63,7 +65,7 @@ public class TransactionLogRecord {
     }
 
     // Need to move or change
-    public String getCombinedId(){
+    public String getCombinedId() {
         return transactionId + ":" + transactionBlockId;
     }
 
@@ -77,7 +79,6 @@ public class TransactionLogRecord {
      *
      * @param logLine the log as a string
      * @return the transaction log record
-     *
      */
     public static TransactionLogRecord parseTransactionLogRecord(String logLine) {
         String[] logBlocks = logLine.split("\\|");
@@ -102,5 +103,4 @@ public class TransactionLogRecord {
     public boolean isCompleted() {
         return transactionStatus.equals(RecoveryState.TERMINATED);
     }
-
 }
