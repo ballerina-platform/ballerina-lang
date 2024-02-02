@@ -107,6 +107,8 @@ public class ManifestBuilder {
     private static final String URL = "url";
     private static final String DEPENDENCY = "dependency";
     private static final String ID = "id";
+    private static final String TARGETMODULE = "targetModule";
+    private static final String OPTIONS = "options";
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
@@ -263,9 +265,9 @@ public class ManifestBuilder {
                 String filePath = getStringValueFromPreBuildToolNode(dependencyNode, "filePath",
                     toolCode);
                 String targetModule = getStringValueFromPreBuildToolNode(dependencyNode,
-                    "targetModule", toolCode);
-                Toml optionsToml = getToml(dependencyNode, "options");
-                TopLevelNode topLevelNode = dependencyNode.entries().get("options");
+                    TARGETMODULE, toolCode);
+                Toml optionsToml = getToml(dependencyNode, OPTIONS);
+                TopLevelNode topLevelNode = dependencyNode.entries().get(OPTIONS);
                 TomlTableNode optionsNode = null;
                 if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
                     optionsNode = (TomlTableNode) topLevelNode;
@@ -791,7 +793,7 @@ public class ManifestBuilder {
         TopLevelNode topLevelNode = toolNode.entries().get(key);
         String errorMessage = "missing key '[" + key + "]' in table '[tool." + toolCode + "]'.";
         if (topLevelNode == null) {
-            if (!key.equals("targetModule")) {
+            if (!key.equals(TARGETMODULE)) {
                 reportDiagnostic(toolNode, errorMessage,
                         ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML,
                         DiagnosticSeverity.ERROR);
@@ -802,7 +804,7 @@ public class ManifestBuilder {
         if (ToolNodeValueType.STRING.equals(toolNodeValueType)) {
             return getStringFromTomlTableNode(topLevelNode);
         } else if (ToolNodeValueType.EMPTY.equals(toolNodeValueType)) {
-            if (!key.equals("targetModule")) {
+            if (!key.equals(TARGETMODULE)) {
                 reportDiagnostic(toolNode, "empty string found for key '[" + key + "]' in table '[tool."
                                 + toolCode + "]'.",
                     ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY,

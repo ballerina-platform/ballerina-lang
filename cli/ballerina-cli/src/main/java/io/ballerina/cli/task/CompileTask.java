@@ -224,7 +224,6 @@ public class CompileTask implements Task {
                     diagnostics.addAll(tool.diagnostics());
                 }
             }
-
             boolean hasErrors = false;
             for (Diagnostic d : diagnostics) {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {

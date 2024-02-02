@@ -109,7 +109,13 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                     }
                     this.outStream.println(String.format("\t%s(%s)%n", tool.type(), tool.id()));
                     targetTool.execute(toolContext);
-                    toolContext.diagnostics().forEach(outStream::println);
+                    for (Diagnostic d : toolContext.diagnostics()) {
+                        if (d.toString().contains("(1:1,1:1)")) {
+                            outStream.println(new PackageDiagnostic(d.diagnosticInfo(), toolContext.toolId()));
+                        } else {
+                            outStream.println(new PackageDiagnostic(d.diagnosticInfo(), d.location()));
+                        }
+                    }
                     toolContextMap.put(tool.id(), toolContext);
                 } catch (Exception e) {
                     throw createLauncherException(e.getMessage());
