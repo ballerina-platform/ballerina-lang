@@ -269,11 +269,12 @@ class ModuleContext {
         } else if (this.project().kind() == ProjectKind.BUILD_PROJECT
                 && !this.project.buildOptions().enableCache()) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
-        }
-        else if (!this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/lang") && !this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/jballerina")) {
+        } else if (!this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/lang") &&
+                this.project().buildOptions().optimizeCodegen() &&
+                !this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/jballerina")
+        ) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
-        }
-        else {
+        } else {
             moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;
         }
         return moduleCompState;
@@ -454,7 +455,9 @@ class ModuleContext {
         }
 
         // Generate and write the thin JAR to the file system
-//        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
+        if (moduleContext.moduleId().moduleName().contains("observe") || !moduleContext.project.buildOptions().optimizeCodegen()) {
+            compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
+        }
 
         // Skip bir caching if jar generation is not successful
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
@@ -468,7 +471,10 @@ class ModuleContext {
         // Write the bir to the file system
         // This code will execute only if JAR caching is successful
         // TODO: check the filesystem cache and delete if the cache is incomplete (if BIR or JAR is missing)
-        moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+        if (moduleContext.moduleId().moduleName().contains("observe") ||
+                !moduleContext.project.buildOptions().optimizeCodegen()) {
+            moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+        }
     }
 
     private static boolean shouldGenerateBir(ModuleContext moduleContext, CompilerContext compilerContext) {
