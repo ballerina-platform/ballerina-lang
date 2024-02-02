@@ -30,7 +30,7 @@ public class BLangTestablePackage extends BLangPackage {
     //Map to maintain all the mock functions
     private Map<String, String> mockFunctionNamesMap = new HashMap<>();
 
-    private final Map<String, String> mockFunctionTypeMap = new HashMap<>();
+    private final Map<String, Boolean> isLegacyMockingMap = new HashMap<>();
     public Map<String, String> getMockFunctionNamesMap() {
         return mockFunctionNamesMap;
     }
@@ -49,11 +49,11 @@ public class BLangTestablePackage extends BLangPackage {
         return modifier.transform(this, props);
     }
 
-    public Map<String, String> getMockFunctionTypeMap() {
-        return mockFunctionTypeMap;
+    public Map<String, Boolean> getIsLegacyMockingMap() {
+        return isLegacyMockingMap;
     }
 
-    public void addMockFunctionType(String id, String type) {
-        this.mockFunctionTypeMap.put(id, type);
+    public void addIsLegacyMockingMap(String id, Boolean isLegacy) {
+        this.isLegacyMockingMap.put(id, isLegacy);
     }
 }
