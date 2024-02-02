@@ -44,9 +44,9 @@ import java.util.Properties;
 /**
  * Detect the unused BIRFunctions, BIRTypeDefs and BIRConstants
  */
-public class DeadBIRNodeAnalyzer extends BIRVisitor {
+public class BIRDeadNodeAnalyzer extends BIRVisitor {
 
-    private static final CompilerContext.Key<DeadBIRNodeAnalyzer> DEAD_BIR_NODE_ANALYZER_KEY =
+    private static final CompilerContext.Key<BIRDeadNodeAnalyzer> DEAD_BIR_NODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
     private static final HashSet<String> USED_FUNCTION_NAMES =
             new HashSet<>(Arrays.asList("main", ".<init>", ".<start>", ".<stop>"));
@@ -65,23 +65,23 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
     public static HashSet<BIRNode.BIRVariableDcl> localFpHolders = new HashSet<>();
     public final HashMap<PackageID, InvocationData> pkgWiseInvocationData = new HashMap<>();
 
-    private DeadBIRNodeAnalyzer(CompilerContext context) {
+    private BIRDeadNodeAnalyzer(CompilerContext context) {
         context.put(DEAD_BIR_NODE_ANALYZER_KEY, this);
         this.pkgCache = PackageCache.getInstance(context);
         this.typeDefAnalyzer = TypeDefAnalyzer.getInstance(context);
         initInteropDependencies();
     }
 
-    public static DeadBIRNodeAnalyzer getInstance(CompilerContext context) {
-        DeadBIRNodeAnalyzer deadBIRNodeAnalyzer = context.get(DEAD_BIR_NODE_ANALYZER_KEY);
-        if (deadBIRNodeAnalyzer == null) {
-            deadBIRNodeAnalyzer = new DeadBIRNodeAnalyzer(context);
+    public static BIRDeadNodeAnalyzer getInstance(CompilerContext context) {
+        BIRDeadNodeAnalyzer BIRDeadNodeAnalyzer = context.get(DEAD_BIR_NODE_ANALYZER_KEY);
+        if (BIRDeadNodeAnalyzer == null) {
+            BIRDeadNodeAnalyzer = new BIRDeadNodeAnalyzer(context);
         }
-        return deadBIRNodeAnalyzer;
+        return BIRDeadNodeAnalyzer;
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
-        currentInvocationData = pkgNode.symbol.invocationData;
+        currentInvocationData = pkgNode.symbol.invocationData_Deprecated;
         pkgWiseInvocationData.putIfAbsent(pkgNode.packageID, currentInvocationData);
         currentInvocationData.registerNodes(pkgNode.symbol.bir);
 
@@ -217,7 +217,7 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
     public void visit(BIRNonTerminator.FPLoad fpLoadInstruction) {
         LambdaPointerData fpData = new LambdaPointerData(fpLoadInstruction, currentInstructionArr);
 
-        pkgCache.getInvocationData(fpLoadInstruction.pkgId).fpDataPool.add(fpData);
+        pkgCache.getInvocationData_Deprecated(fpLoadInstruction.pkgId).fpDataPool.add(fpData);
     }
 
     @Override
@@ -246,7 +246,7 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
     }
 
     public BIRNode.BIRFunction lookupBirFunction(BIRTerminator.Call terminatorCall) {
-        InvocationData invocationData = pkgCache.getInvocationData(terminatorCall.calleePkg);
+        InvocationData invocationData = pkgCache.getInvocationData_Deprecated(terminatorCall.calleePkg);
         return invocationData.functionPool.get(terminatorCall.originalName.value);
     }
 

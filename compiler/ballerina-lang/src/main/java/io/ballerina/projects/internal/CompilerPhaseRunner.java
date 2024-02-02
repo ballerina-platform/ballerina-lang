@@ -17,15 +17,13 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.runtime.internal.CloneUtils;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer_ASM_Approach;
+import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
-import org.wso2.ballerinalang.compiler.bir.DeadBIRNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.diagnostic.CompilerBadSadDiagnostic;
@@ -73,7 +71,7 @@ public class CompilerPhaseRunner {
     private final IsolationAnalyzer isolationAnalyzer;
     private final DeadCodeAnalyzer deadCodeAnalyzer;
     private final BIRDeadNodeAnalyzer_ASM_Approach birDeadNodeAnalyzerASMApproach;
-    private final DeadBIRNodeAnalyzer deadBIRNodeAnalyzer;
+    private final BIRDeadNodeAnalyzer birDeadNodeAnalyzer;
     private final boolean isToolingCompilation;
 
     public static CompilerPhaseRunner getInstance(CompilerContext context) {
@@ -103,7 +101,7 @@ public class CompilerPhaseRunner {
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
         this.deadCodeAnalyzer = DeadCodeAnalyzer.getInstance(context);
         this.birDeadNodeAnalyzerASMApproach = BIRDeadNodeAnalyzer_ASM_Approach.getInstance(context);
-        this.deadBIRNodeAnalyzer = DeadBIRNodeAnalyzer.getInstance(context);
+        this.birDeadNodeAnalyzer = BIRDeadNodeAnalyzer.getInstance(context);
         this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
     }
@@ -245,7 +243,7 @@ public class CompilerPhaseRunner {
     }
 
     private BLangPackage deadBirNodeAnalyze(BLangPackage pkgNode) {
-        return this.deadBIRNodeAnalyzer.analyze(pkgNode);
+        return this.birDeadNodeAnalyzer.analyze(pkgNode);
     }
 
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {

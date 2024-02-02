@@ -248,7 +248,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     continue;
                 }
                 // Only analyzing used modules
-                if (moduleContext.bLangPackage().symbol.invocationData2.moduleIsUsed) {
+                if (moduleContext.bLangPackage().symbol.invocationData.moduleIsUsed) {
                     deadBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
                     updateNativeDependencyMap(moduleContext);
                 }
@@ -1100,14 +1100,14 @@ public class JBallerinaBackend extends CompilerBackend {
         return new HashSet<>(classWiseDeadFunctionMap);
     }
     public void emitCodeGenOptimizationReport() {
-        DeadBIRNodeAnalyzer deadBIRNodeAnalyzer = DeadBIRNodeAnalyzer.getInstance(compilerContext);
+        BIRDeadNodeAnalyzer birDeadNodeAnalyzer = BIRDeadNodeAnalyzer.getInstance(compilerContext);
 
         try {
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
                     "C:\\Users\\Thushara Piyasekara\\Documents\\ASM_Test\\untitled\\JAR_Cache\\httpService\\dotGraphOut.dot")));
             out.write("digraph {");
             out.newLine();
-            for (DeadBIRNodeAnalyzer.InvocationData invocationData : deadBIRNodeAnalyzer.pkgWiseInvocationData.values()) {
+            for (BIRDeadNodeAnalyzer.InvocationData invocationData : birDeadNodeAnalyzer.pkgWiseInvocationData.values()) {
                 emitModuleInvocationData(invocationData, out);
             }
             out.write("}");
@@ -1118,7 +1118,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     }
 
-    private static void emitModuleInvocationData(DeadBIRNodeAnalyzer.InvocationData invocationData, BufferedWriter out)
+    private static void emitModuleInvocationData(BIRDeadNodeAnalyzer.InvocationData invocationData, BufferedWriter out)
         throws IOException {
 
         for (BIRNode.BIRFunction birFunction : invocationData.usedFunctions) {
