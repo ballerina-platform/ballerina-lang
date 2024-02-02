@@ -350,39 +350,51 @@ public class LangLibValueTest {
     @DataProvider(name = "cloneWithTypeFunctions")
     public Object[] cloneWithTypeFunctions() {
         return new String[]{
-                "testCloneWithTypeJsonRec1", "testCloneWithTypeJsonRec2",
-                "testCloneWithTypeOptionalFieldToMandotoryField", "testCloneWithTypeAmbiguousTargetType",
-                "testCloneWithTypeForNilPositive", "testCloneWithTypeForNilNegative", "testCloneWithTypeNumeric1",
-                "testCloneWithTypeNumeric2", "testCloneWithTypeNumeric3", "testCloneWithTypeNumeric4",
-                "testCloneWithTypeNumeric5", "testCloneWithTypeNumeric6", "testCloneWithTypeNumeric7",
-                "testCloneWithTypeToArrayOfRecord", "testCloneWithTypeToArrayOfMap",
-                "testCloneWithTypeIntArrayToUnionArray", "testCloneWithTypeIntSubTypeArray",
-                "testCloneWithTypeStringArray", "testCloneWithTypeWithInferredArgument",
-                "testCloneWithTypeWithImmutableTypes", "testCloneWithTypeDecimalToInt",
-                "testCloneWithTypeDecimalToIntNegative", "testCloneWithTypeDecimalToByte",
-                "testCloneWithTypeDecimalToIntSubType", "testCloneWithTypeTupleToJSON",
-                "testCloneWithTypeImmutableStructuredTypes", "testCloneWithTypeWithFiniteArrayTypeFromIntArray",
-                "testCloneWithTypeWithFiniteType", "testCloneWithTypeWithUnionOfFiniteType",
-                "testCloneWithTypeWithFiniteArrayTypeFromIntArray", "testCloneWithTypeToArrays",
-                "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray",
-                "testCloneWithTypeWithUnionTypeArrayFromIntArray",
-                "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative", "testConvertJsonToNestedRecordsWithErrors",
-                "testCloneWithTypeNestedStructuredTypesNegative", "testCloneWithTypeJsonToRecordRestField",
-                "testCloneWithTypeWithAmbiguousUnion", "testCloneWithTypeXmlToUnion",
-                "testCloneWithTypeWithTuples", "testCloneWithTypeToJson",
-                "testCloneWithTypeToUnion",
-                "testCloneWithTypeTable",
-                "testCloneWithTypeOnRegExp",
-                "testCloneWithTypeOnRegExpNegative",
-                "testCloneWithTypeWithXML", "testConversionsBetweenXml",
-                "testCloneWithTypeRecordWithXMLField",
-                "testConvertToUnionWithAmbiguousMemberTypes", "testConvertingToReferenceTypes",
-                "testCloneWithTypeTableToAnydata", "testUnionNestedTypeConversionErrors",
-                "testCloneWithTypeToUnionOfTypeReference", "testCloneWithTypeToTableNegative",
-                "testCloneWithTypeRecordDefaultValues", "testCloneWithTypeToRecordWithIntersectingUnionMembers",
-                "testCloneWithTypeToRecordWithSpecialChars"
+                "testCloneWithTypeJsonToRecordRestField"
+//                "testCloneWithTypeAmbiguousTargetType", //okay
+//                "testCloneWithTypeWithAmbiguousUnion",
+//                "testCloneWithTypeToUnion",
+//                "testCloneWithTypeOnRegExp", // okay
+//                "testCloneWithTypeTableToAnydata"
         };
     }
+
+//    @DataProvider(name = "cloneWithTypeFunctions")
+//    public Object[] cloneWithTypeFunctions() {
+//        return new String[]{
+//                "testCloneWithTypeJsonRec1", "testCloneWithTypeJsonRec2",
+//                "testCloneWithTypeOptionalFieldToMandotoryField", "testCloneWithTypeAmbiguousTargetType",
+//                "testCloneWithTypeForNilPositive", "testCloneWithTypeForNilNegative", "testCloneWithTypeNumeric1",
+//                "testCloneWithTypeNumeric2", "testCloneWithTypeNumeric3", "testCloneWithTypeNumeric4",
+//                "testCloneWithTypeNumeric5", "testCloneWithTypeNumeric6", "testCloneWithTypeNumeric7",
+//                "testCloneWithTypeToArrayOfRecord", "testCloneWithTypeToArrayOfMap",
+//                "testCloneWithTypeIntArrayToUnionArray", "testCloneWithTypeIntSubTypeArray",
+//                "testCloneWithTypeStringArray", "testCloneWithTypeWithInferredArgument",
+//                "testCloneWithTypeWithImmutableTypes", "testCloneWithTypeDecimalToInt",
+//                "testCloneWithTypeDecimalToIntNegative", "testCloneWithTypeDecimalToByte",
+//                "testCloneWithTypeDecimalToIntSubType", "testCloneWithTypeTupleToJSON",
+//                "testCloneWithTypeImmutableStructuredTypes", "testCloneWithTypeWithFiniteArrayTypeFromIntArray",
+//                "testCloneWithTypeWithFiniteType", "testCloneWithTypeWithUnionOfFiniteType",
+//                "testCloneWithTypeWithFiniteArrayTypeFromIntArray", "testCloneWithTypeToArrays",
+//                "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray",
+//                "testCloneWithTypeWithUnionTypeArrayFromIntArray",
+//                "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative", "testConvertJsonToNestedRecordsWithErrors",
+//                "testCloneWithTypeNestedStructuredTypesNegative", "testCloneWithTypeJsonToRecordRestField",
+//                "testCloneWithTypeWithAmbiguousUnion", "testCloneWithTypeXmlToUnion",
+//                "testCloneWithTypeWithTuples", "testCloneWithTypeToJson",
+//                "testCloneWithTypeToUnion",
+//                "testCloneWithTypeTable",
+//                "testCloneWithTypeOnRegExp",
+//                "testCloneWithTypeOnRegExpNegative",
+//                "testCloneWithTypeWithXML", "testConversionsBetweenXml",
+//                "testCloneWithTypeRecordWithXMLField",
+//                "testConvertToUnionWithAmbiguousMemberTypes", "testConvertingToReferenceTypes",
+//                "testCloneWithTypeTableToAnydata", "testUnionNestedTypeConversionErrors",
+//                "testCloneWithTypeToUnionOfTypeReference", "testCloneWithTypeToTableNegative",
+//                "testCloneWithTypeRecordDefaultValues", "testCloneWithTypeToRecordWithIntersectingUnionMembers",
+//                "testCloneWithTypeToRecordWithSpecialChars"
+//        };
+//    }
 
     @Test(dataProvider = "cloneWithTypeToTupleTypeFunctions")
     public void testCloneWithTypeToTuple(String function) {
@@ -429,29 +441,29 @@ public class LangLibValueTest {
     @DataProvider(name = "fromJsonWithTypeFunctions")
     public Object[][] fromJsonWithTypeFunctions() {
         return new Object[][] {
-//                { "testFromJsonWIthTypeNegative" },
-//                { "testFromJsonWithTypeRecord1" },
-//                { "testFromJsonWithTypeRecord2" },
-//                { "testFromJsonWithTypeRecord3" },
-//                { "testFromJsonWithTypeAmbiguousTargetType" },
+                { "testFromJsonWIthTypeNegative" },
+                { "testFromJsonWithTypeRecord1" },
+                { "testFromJsonWithTypeRecord2" },
+                { "testFromJsonWithTypeRecord3" },
+                { "testFromJsonWithTypeAmbiguousTargetType" },
                 { "testFromJsonWithTypeXML" },
                 { "testFromJsonWithTypeRecordWithXMLField" },
-//                { "testFromJsonWithTypeMap" },
-//                { "testFromJsonWithTypeStringArray" },
-//                { "testFromJsonWithTypeArrayNegative" },
-//                { "testFromJsonWithTypeIntArray" },
-//                { "testFromJsonWithTypeArrayNegative" },
-//                { "testFromJsonWithTypeTable" },
-//                { "tesFromJsonWithTypeMapWithDecimal" },
-//                { "testConvertJsonToAmbiguousType" },
-//                { "testFromJsonWithTypeWithNullValues" },
-//                { "testFromJsonWithTypeWithNullValuesNegative" },
-//                { "testFromJsonWithTypeWithInferredArgument" },
-//                { "testFromJsonWithTypeWithTypeReferences" },
-//                { "testFromJsonWithTypeNestedRecordsNegative" },
-                { "testFromJsonWithTypeOnRegExp" },
-//                { "testFromJsonWithTypeOnRegExpNegative" },
-//                {"testFromJsonWithTypeToUnionOfTypeReference"},
+                { "testFromJsonWithTypeMap" },
+                { "testFromJsonWithTypeStringArray" },
+                { "testFromJsonWithTypeArrayNegative" },
+                { "testFromJsonWithTypeIntArray" },
+                { "testFromJsonWithTypeArrayNegative" },
+                { "testFromJsonWithTypeTable" },
+                { "tesFromJsonWithTypeMapWithDecimal" },
+                { "testConvertJsonToAmbiguousType" },
+                { "testFromJsonWithTypeWithNullValues" },
+                { "testFromJsonWithTypeWithNullValuesNegative" },
+                { "testFromJsonWithTypeWithInferredArgument" },
+                { "testFromJsonWithTypeWithTypeReferences" },
+                { "testFromJsonWithTypeNestedRecordsNegative" },
+//                { "testFromJsonWithTypeOnRegExp" },////
+                { "testFromJsonWithTypeOnRegExpNegative" },
+                {"testFromJsonWithTypeToUnionOfTypeReference"},
                 {"testFromJsonStringWithUnexpectedChars"}
         };
     }

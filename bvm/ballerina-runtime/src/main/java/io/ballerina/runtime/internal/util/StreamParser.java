@@ -390,6 +390,9 @@ public class StreamParser {
                     }
                     break;
                 case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG:
+                    if (this.nodesStackSizeWhenUnionStarts == this.nodesStack.size()) {
+                        this.targetTypes.remove(this.targetTypes.size() - 1);
+                    }
                     break;
                 case TypeTags.MAP_TAG:
                     this.targetTypes.remove(this.targetTypes.size() - 1);
