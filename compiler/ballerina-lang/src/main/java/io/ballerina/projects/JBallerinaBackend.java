@@ -206,6 +206,13 @@ public class JBallerinaBackend extends CompilerBackend {
                         new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
 
+            // Codegen happens later when --optimize flag is active. Therefore, we cannot clean the BlangPkgs until then.
+            if (!moduleContext.project().buildOptions().optimizeCodegen()) {
+                if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
+                    moduleContext.cleanBLangPackage();
+                }
+            }
+
             ModuleContext.shrinkDocuments(moduleContext);
         }
 
@@ -224,7 +231,8 @@ public class JBallerinaBackend extends CompilerBackend {
                 }
                 // Omitting the LangLibs and other modules that does not have BIRPkgNodes
                 // TODO find a way to get the BIRPkgNodes of langlibs as well
-                else if (moduleContext.currentCompilationState() != ModuleCompilationState.PLATFORM_LIBRARY_GENERATED) {
+                else if (moduleContext.currentCompilationState() != ModuleCompilationState.PLATFORM_LIBRARY_GENERATED ||
+                        moduleContext.moduleId().moduleName().contains("observe")) {
                     continue;
                 }
                 // Only analyzing used modules
