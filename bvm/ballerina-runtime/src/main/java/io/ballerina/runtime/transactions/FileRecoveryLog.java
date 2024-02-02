@@ -99,15 +99,11 @@ public class FileRecoveryLog implements RecoveryLog {
                 return newFile;
             }
             // write existing unfinished logs to the new file
-            if (!existingLogs.isEmpty()) {
-                cleanUpFinishedLogs();
-                if (!existingLogs.isEmpty()) {
-                    for (Map.Entry<String, TransactionLogRecord> entry : existingLogs.entrySet()) {
-                        put(entry.getValue());
-                    }
-                    existingLogs.clear();
-                }
+            cleanUpFinishedLogs();
+            for (Map.Entry<String, TransactionLogRecord> entry : existingLogs.entrySet()) {
+                put(entry.getValue());
             }
+            existingLogs.clear();
         } catch (IOException e) {
             stderr.println(ERROR_MESSAGE_PREFIX + " failed to create recovery log file in " + recoveryLogDir);
         }
