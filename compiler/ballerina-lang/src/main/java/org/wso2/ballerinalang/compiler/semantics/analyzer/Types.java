@@ -5619,7 +5619,7 @@ public class Types {
                                                    intersectionFieldType, newTypeSymbol, lhsRecordField.pos, SOURCE);
             }
 
-            newTypeFields.put(key, new BField(name, null, recordFieldSymbol));
+            newTypeFields.put(key, new BField(name, recordFieldSymbol.pos, recordFieldSymbol));
             newTypeSymbol.scope.define(name,  recordFieldSymbol);
         }
         return true;
