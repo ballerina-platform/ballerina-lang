@@ -64,9 +64,11 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUIL
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
+import static io.ballerina.runtime.transactions.TransactionConstants.ERROR_MESSAGE_PREFIX;
+import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_CHECKPOINT_INTERVAL;
+import static io.ballerina.runtime.transactions.TransactionConstants.NO_CHECKPOINT_INTERVAL;
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
-import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_CHECKPOINT_INTERVAL;
 
 /**
  * {@code TransactionResourceManager} registry for transaction contexts.
@@ -173,7 +175,7 @@ public class TransactionResourceManager {
                 try {
                     Files.createDirectory(transactionLogDirectory);
                 } catch (IOException e) {
-                    stderr.println("error: failed to create transaction log directory in " + logDir);
+                    stderr.println(ERROR_MESSAGE_PREFIX + " failed to create transaction log directory in " + logDir);
                 }
             }
             System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logDir);
@@ -267,7 +269,7 @@ public class TransactionResourceManager {
                 diagnosticLog.warn(ErrorCodes.TRANSACTION_INVALID_CHECKPOINT_VALUE, null, DEFAULT_CHECKPOINT_INTERVAL);
                 return DEFAULT_CHECKPOINT_INTERVAL;
             }
-            if (checkpointInterval < 0 && checkpointInterval != -1) {
+            if (checkpointInterval < 0 && checkpointInterval != NO_CHECKPOINT_INTERVAL) {
                 diagnosticLog.warn(ErrorCodes.TRANSACTION_INVALID_CHECKPOINT_VALUE, null, DEFAULT_CHECKPOINT_INTERVAL);
                 return DEFAULT_CHECKPOINT_INTERVAL;
             } else {

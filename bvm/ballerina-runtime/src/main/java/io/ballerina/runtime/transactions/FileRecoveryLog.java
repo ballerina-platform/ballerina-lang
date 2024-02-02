@@ -35,9 +35,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import static io.ballerina.runtime.transactions.TransactionConstants.ERROR_MESSAGE_PREFIX;
+import static io.ballerina.runtime.transactions.TransactionConstants.NO_CHECKPOINT_INTERVAL;
+
 public class FileRecoveryLog implements RecoveryLog {
 
     private static final Logger log = LoggerFactory.getLogger(FileRecoveryLog.class);
+    private static final String LOG_FILE_NUMBER = "(\\d+)";
+    private static final String LOG_FILE_EXTENSION = ".log";
     private String baseFileName;
     private Path recoveryLogDir;
     private int checkpointInterval;
@@ -73,19 +78,19 @@ public class FileRecoveryLog implements RecoveryLog {
      */
     private File createNextVersion() {
         int latestVersion = findLatestVersion();
-        File oldFile = recoveryLogDir.resolve(baseFileName + latestVersion + ".log").toFile();
+        File oldFile = recoveryLogDir.resolve(baseFileName + latestVersion + LOG_FILE_EXTENSION).toFile();
         if (oldFile.exists()) {
             existingLogs = readLogsFromFile(oldFile);
             if (deleteOldLogs) {
                 File[] files = recoveryLogDir.toFile().listFiles(
-                        (dir, name) -> name.matches(baseFileName + "(\\d+)\\.log")
+                        (dir, name) -> name.matches(baseFileName + LOG_FILE_NUMBER + LOG_FILE_EXTENSION)
                 );
                 for (File file : files) {
                     file.delete();
                 }
             }
         }
-        File newFile = recoveryLogDir.resolve(baseFileName + (latestVersion + 1) + ".log").toFile();
+        File newFile = recoveryLogDir.resolve(baseFileName + (latestVersion + 1) + LOG_FILE_EXTENSION).toFile();
         try {
             Files.createDirectories(recoveryLogDir); // create directory if not exists
             newFile.createNewFile();
@@ -104,7 +109,7 @@ public class FileRecoveryLog implements RecoveryLog {
                 }
             }
         } catch (IOException e) {
-            stderr.println("error: failed to create recovery log file in " + recoveryLogDir);
+            stderr.println(ERROR_MESSAGE_PREFIX + " failed to create recovery log file in " + recoveryLogDir);
         }
         return newFile;
     }
@@ -117,15 +122,15 @@ public class FileRecoveryLog implements RecoveryLog {
     private int findLatestVersion() {
         int latestVersion = 0;
         File directory = recoveryLogDir.toFile();
-        File[] files = directory.listFiles((dir, name) -> name.matches(baseFileName + "(\\d+)\\.log"));
+        File[] files = directory.listFiles((dir, name) ->
+                name.matches(baseFileName + LOG_FILE_NUMBER + LOG_FILE_EXTENSION));
         if (files == null) {
             return latestVersion;
         }
         for (File file : files) {
             String fileName = file.getName();
-            int version = Integer.parseInt(fileName.replaceAll(
-                    baseFileName, "").replaceAll(".log", "")
-            );
+            int version = Integer.parseInt(
+                    fileName.replaceAll(baseFileName, "").replaceAll(LOG_FILE_EXTENSION, ""));
             if (version > latestVersion) {
                 latestVersion = version;
             }
@@ -143,10 +148,10 @@ public class FileRecoveryLog implements RecoveryLog {
             appendChannel = FileChannel.open(file.toPath(), StandardOpenOption.APPEND);
             FileLock lock = appendChannel.tryLock();
             if (lock == null) {
-                stderr.println("error: failed to acquire lock on recovery log file " + file.toPath());
+                stderr.println(ERROR_MESSAGE_PREFIX + " failed to acquire lock on recovery log file " + file.toPath());
             }
         } catch (IOException e) {
-            stderr.println("error: failed to acquire lock on recovery log file " + file.toPath());
+            stderr.println(ERROR_MESSAGE_PREFIX + " failed to acquire lock on recovery log file " + file.toPath());
         }
     }
 
@@ -154,7 +159,7 @@ public class FileRecoveryLog implements RecoveryLog {
     public void put(TransactionLogRecord trxRecord) {
         boolean force = !(trxRecord.getTransactionState().equals(RecoveryState.TERMINATED)); // lazy write
         writeToFile(trxRecord.getTransactionLogRecord(), force);
-        if (checkpointInterval != -1) {
+        if (checkpointInterval != NO_CHECKPOINT_INTERVAL) {
             ifNeedWriteCheckpoint();
             numOfPutsSinceLastCheckpoint++;
         }
@@ -190,7 +195,7 @@ public class FileRecoveryLog implements RecoveryLog {
             appendChannel.write(java.nio.ByteBuffer.wrap(bytes));
             appendChannel.force(force);
         } catch (IOException e) {
-            stderr.println("error: failed to write to recovery log file " + file.toPath());
+            stderr.println(ERROR_MESSAGE_PREFIX + " failed to write to recovery log file " + logFile.toPath());
         }
     }
 
@@ -213,7 +218,7 @@ public class FileRecoveryLog implements RecoveryLog {
                 }
             }
         } catch (IOException e) {
-            stderr.println("error: failed to read the recovery log file " + file.toPath());
+            stderr.println(ERROR_MESSAGE_PREFIX + " failed to read the recovery log file " + file.toPath());
         }
         return logMap;
     }

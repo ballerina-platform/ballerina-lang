@@ -72,5 +72,7 @@ public class TransactionConstants {
     public static final String TIMESTAMP_OBJECT_VALUE_FIELD = "timeValue";
 
     public static final int DEFAULT_CHECKPOINT_INTERVAL = 10000;
+    public static final int NO_CHECKPOINT_INTERVAL = -1;
     public static final int IN_MEMORY_CHECKPOINT_INTERVAL = 25;
+    public static final String ERROR_MESSAGE_PREFIX = "error:";
 }
