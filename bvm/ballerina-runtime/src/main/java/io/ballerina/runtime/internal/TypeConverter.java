@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
@@ -1285,7 +1286,8 @@ public class TypeConverter {
         return switch (targetType.getTag()) {
             case TypeTags.XML_TAG, TypeTags.XML_PI_TAG, TypeTags.XML_COMMENT_TAG, TypeTags.XML_ELEMENT_TAG,
                     TypeTags.XML_TEXT_TAG -> {
-                xmlTargetTypes.add(targetType); yield xmlTargetTypes;
+                xmlTargetTypes.add(targetType);
+                yield xmlTargetTypes;
             }
             case TypeTags.TYPE_REFERENCED_TYPE_TAG -> {
                 xmlTargetTypes.addAll(getXmlTargetTypes(((ReferenceType) targetType).getReferredType()));
@@ -1298,6 +1300,15 @@ public class TypeConverter {
             case TypeTags.UNION_TAG -> {
                 for (Type memberType : ((UnionType) targetType).getMemberTypes()) {
                     xmlTargetTypes.addAll(getXmlTargetTypes(memberType));
+                }
+                yield xmlTargetTypes;
+            }
+            case TypeTags.FINITE_TYPE_TAG -> {
+                for (Object o : ((FiniteType) targetType).getValueSpace()) {
+                    if (TypeTags.isXMLTypeTag(TypeChecker.getType(o).getTag())) {
+                        xmlTargetTypes.add(targetType);
+                        yield xmlTargetTypes;
+                    }
                 }
                 yield xmlTargetTypes;
             }

@@ -382,8 +382,7 @@ public class StreamParser {
         private State finalizeObject() throws StreamParserException {
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
             switch (targetType.getTag()) {
-                case TypeTags.UNION_TAG, TypeTags.TABLE_TAG:
-                    // finite types cannot come inside the method, if they come it is an error, goes to the default case
+                case TypeTags.UNION_TAG, TypeTags.TABLE_TAG, TypeTags.FINITE_TYPE_TAG:
                     if (this.nodesStackSizeWhenUnionStarts == this.nodesStack.size()) {
                         this.targetTypes.remove(this.targetTypes.size() - 1);
                         this.currentJsonNode = convert(this.currentJsonNode, targetType);
@@ -408,11 +407,12 @@ public class StreamParser {
                         if (constructedMap.containsKey(bFieldName)) {
                             continue;
                         }
-                        if (SymbolFlags.isFlagOn(stringFieldEntry.getValue().getFlags(), SymbolFlags.REQUIRED)) {
+                        long fieldFlags = stringFieldEntry.getValue().getFlags();
+                        if (SymbolFlags.isFlagOn(fieldFlags, SymbolFlags.REQUIRED)) {
                             throw new StreamParserException("missing required field '" + fieldName + "' of type '" +
                                     stringFieldEntry.getValue().getFieldType().toString() + "' in record '"
                                     + targetType + "'");
-                        } else {
+                        } else if (!SymbolFlags.isFlagOn(fieldFlags, SymbolFlags.OPTIONAL)) {
                             notProvidedFields.add(fieldName);
                         }
                     }
@@ -448,9 +448,7 @@ public class StreamParser {
                     }
                     break;
                 default:
-                    // TODO: Handle table type
-                    // target types cannot be finite types if the execution calls this method
-                    throw new StreamParserException("unsupported type");
+                    throw new StreamParserException("unsupported type: '" + targetType + "'");
             }
 
             if (this.nodesStack.isEmpty()) {
@@ -478,8 +476,8 @@ public class StreamParser {
                     this.listIndices.set(this.listIndices.size() - 1, tupleListIndex + 1);
                     this.currentJsonNode = parentNode;
                     return ARRAY_ELEMENT_END_STATE;
-                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG:
-                    // finite types cannot come inside the method, if they come it is an error, goes to the default case
+                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
+                        TypeTags.FINITE_TYPE_TAG:
                     if (TypeUtils.getImpliedType(TypeChecker.getType(parentNode)).getTag() == TypeTags.MAP_TAG) {
                         ((MapValueImpl<BString, Object>) parentNode).putForcefully(
                                 StringUtils.fromString(fieldNames.pop()), currentJsonNode);
@@ -491,9 +489,7 @@ public class StreamParser {
                     this.currentJsonNode = parentNode;
                     return ARRAY_ELEMENT_END_STATE;
                 default:
-                    // TODO: handle table type
-                    // target types cannot be finite types if the execution calls this method
-                    throw new StreamParserException("unsupported type");
+                    throw new StreamParserException("unsupported type: '" + parentTargetType + "'");
             }
         }
 
@@ -547,11 +543,11 @@ public class StreamParser {
                             this.addTargetType(field.getFieldType());
                         }
                         break;
-                    case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG:
+                    case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
+                            TypeTags.FINITE_TYPE_TAG:
                         break;
                     default:
-                        // finite types cannot come inside the method, if they come it is an error
-                        throw new StreamParserException("unsupported type");
+                        throw new StreamParserException("unsupported type: " + lastTargetType + "'");
                 }
             }
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
@@ -561,7 +557,8 @@ public class StreamParser {
                 case TypeTags.RECORD_TYPE_TAG:
                     this.currentJsonNode = new MapValueImpl<>(targetType);
                     break;
-                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG:
+                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
+                        TypeTags.FINITE_TYPE_TAG:
                     if (targetType.isReadOnly()
                             && (targetTypeTag == TypeTags.JSON_TAG || targetTypeTag == TypeTags.ANYDATA_TAG)) {
                         this.currentJsonNode = new MapValueImpl<>(
@@ -574,8 +571,7 @@ public class StreamParser {
                     }
                     break;
                 default:
-                    // finite types cannot come inside the method, if they come it is an error
-                    throw new StreamParserException("unsupported type");
+                    throw new StreamParserException("unsupported type: " + targetType + "'");
 
             }
             return FIRST_FIELD_READY_STATE;
@@ -631,11 +627,11 @@ public class StreamParser {
                             this.addTargetType(field.getFieldType());
                         }
                         break;
-                    case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG:
+                    case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
+                            TypeTags.FINITE_TYPE_TAG:
                         break;
                     default:
-                        // finite types cannot come inside the method, if they come it is an error
-                        throw new StreamParserException("unsupported type");
+                        throw new StreamParserException("unsupported type: " + lastTargetType + "'");
                 }
             }
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
@@ -649,7 +645,8 @@ public class StreamParser {
                     this.currentJsonNode = new TupleValueImpl((TupleType) targetType);
                     this.listIndices.add(0);
                     break;
-                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG:
+                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
+                        TypeTags.FINITE_TYPE_TAG:
                     if (targetType.isReadOnly()
                             && (targetTypeTag == TypeTags.JSON_TAG || targetTypeTag == TypeTags.ANYDATA_TAG)) {
                         this.currentJsonNode = new ArrayValueImpl(
@@ -662,7 +659,6 @@ public class StreamParser {
                     }
                     break;
                 default:
-                    // finite types cannot come inside the method, if they come it is an error
                     throw new StreamParserException("target type is not array type");
 
             }
@@ -1051,10 +1047,11 @@ public class StreamParser {
                                     throw new StreamParserException(e.getMessage());
                                 }
                                 break;
-                            case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG, TypeTags.TABLE_TAG:
+                            case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG, TypeTags.TABLE_TAG,
+                                    TypeTags.FINITE_TYPE_TAG:
                                 break;
                             default:
-                                throw new StreamParserException("unsupported type");
+                                throw new StreamParserException("unsupported type: " + targetType + "'");
                         }
                         ((MapValueImpl<BString, Object>) sm.currentJsonNode).putForcefully(
                                 StringUtils.fromString(sm.fieldNames.pop()), bString);
@@ -1112,12 +1109,12 @@ public class StreamParser {
                                 }
                                 sm.listIndices.set(sm.listIndices.size() - 1, listIndex + 1);
                                 break;
-                            case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG:
+                            case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG, TypeTags.FINITE_TYPE_TAG:
                                 ArrayValueImpl arrayValue = (ArrayValueImpl) sm.currentJsonNode;
                                 arrayValue.addRefValueForcefully(arrayValue.size(), bString);
                                 break;
                             default:
-                                throw new StreamParserException("unsupported type");
+                                throw new StreamParserException("unsupported type: " + targetType + "'");
                         }
                         state = ARRAY_ELEMENT_END_STATE;
                     } else if (ch == REV_SOL) {
@@ -1307,20 +1304,19 @@ public class StreamParser {
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
             Type referredType = TypeUtils.getImpliedType(targetType);
             switch (referredType.getTag()) {
-                case TypeTags.UNION_TAG:
+                case TypeTags.UNION_TAG, TypeTags.FINITE_TYPE_TAG:
                     processNonStringValueAsJson(str, type);
                     if (this.nodesStackSizeWhenUnionStarts == -1) {
                         this.currentJsonNode = convert(this.currentJsonNode, targetType);
                     }
                     break;
-                case TypeTags.FINITE_TYPE_TAG:
-                    processNonStringValueAsJson(str, type);
-                    this.currentJsonNode = convert(this.currentJsonNode, targetType);
-                    break;
                 case TypeTags.ANYDATA_TAG, TypeTags.JSON_TAG, TypeTags.TABLE_TAG:
                     processNonStringValueAsJson(str, type);
                     break;
                 case TypeTags.ARRAY_TAG:
+                    if (this.currentJsonNode == null) {
+                        throw new StreamParserException("unrecognized token '" + str + "'");
+                    }
                     int listIndex = this.listIndices.get(this.listIndices.size() - 1);
                     ArrayType arrayType = (ArrayType) referredType;
                     Type elementType = TypeUtils.getImpliedType(arrayType.getElementType());
@@ -1328,6 +1324,9 @@ public class StreamParser {
                     this.listIndices.set(this.listIndices.size() - 1, listIndex + 1);
                     break;
                 case TypeTags.TUPLE_TAG:
+                    if (this.currentJsonNode == null) {
+                        throw new StreamParserException("unrecognized token '" + str + "'");
+                    }
                     int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
                     TupleType tupleType = (TupleType) referredType;
                     List<Type> tupleTypes = tupleType.getTupleTypes();
@@ -1338,7 +1337,7 @@ public class StreamParser {
                     if (targetTupleSize <= tupleListIndex) {
                         if (noRestType) {
                             throw new StreamParserException("'" + tupleType
-                                    + "' tuple size is not enough for the provided values"); // change error message
+                                    + "' tuple size is not enough for the provided values");
                         } else {
                             tupleElementType = TypeUtils.getImpliedType(tupleRestType);
                         }
@@ -1350,6 +1349,9 @@ public class StreamParser {
                     this.listIndices.set(this.listIndices.size() - 1, tupleListIndex + 1);
                     break;
                 case TypeTags.MAP_TAG:
+                    if (this.currentJsonNode == null) {
+                        throw new StreamParserException("unrecognized token '" + str + "'");
+                    }
                     MapType mapType = (MapType) referredType;
                     Type constrainedType = TypeUtils.getImpliedType(mapType.getConstrainedType());
                     ((MapValueImpl<BString, Object>) this.currentJsonNode).putForcefully(
@@ -1357,6 +1359,9 @@ public class StreamParser {
                                     str));
                     break;
                 case TypeTags.RECORD_TYPE_TAG:
+                    if (this.currentJsonNode == null) {
+                        throw new StreamParserException("unrecognized token '" + str + "'");
+                    }
                     BRecordType recordType = (BRecordType) referredType;
                     String fieldName = this.fieldNames.pop();
                     Map<String, Field> fields = recordType.getFields();

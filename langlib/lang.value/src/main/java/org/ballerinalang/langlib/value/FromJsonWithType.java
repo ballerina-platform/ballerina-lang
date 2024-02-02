@@ -19,19 +19,12 @@
 package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.utils.ValueUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.ValueConverter;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
@@ -46,21 +39,11 @@ public class FromJsonWithType {
     private FromJsonWithType() {}
 
     public static Object fromJsonWithType(Object value, BTypedesc t) {
-        Object answer = null;
         try {
-            answer = ValueConverter.convert(value, t);
+            return ValueConverter.convert(value, t);
         } catch (BError e) {
             return createError(VALUE_LANG_LIB_CONVERSION_ERROR, (BMap<BString, Object>) e.getDetails());
         }
-        String jsonStr = StringUtils.getJsonString(answer);
-        InputStream stream = new ByteArrayInputStream(jsonStr.getBytes(StandardCharsets.UTF_8));
-        Object result = ValueUtils.parse(stream, TypeUtils.getImpliedType(t.getDescribingType()));
-        if (TypeChecker.isEqual(answer, result)) {
-            System.out.println("--------------okay--------------");
-        } else {
-            System.out.println("--------------not okay--------------");
-        }
-        return answer;
     }
 
     // TODO: remove this after fixing standard libraries to use the runtime API
