@@ -9,7 +9,7 @@ DESCRIPTION
        Deprecate a package published in Ballerina central.
 
        If a specific version of a package is provided, that version will be deprecated.
-       Alternatively, if no version is specified, all versions of the package will be deprecated.
+       If no version is specified, all versions of the package will be deprecated.
 
        A deprecated package will not be used as a dependency of a package unless the deprecated package is already recorded in
        the `Dependencies.toml` and the `--sticky` option is used to build the package. Also, a deprecated package will be used as
@@ -24,7 +24,7 @@ OPTIONS
        --message=<msg>
            Use the given <msg> as the deprecation message
        --undo
-           Undo deprecation of package
+           Undo deprecation of a package
 
 EXAMPLES
 
