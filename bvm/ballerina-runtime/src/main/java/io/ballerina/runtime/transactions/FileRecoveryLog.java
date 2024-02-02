@@ -105,7 +105,8 @@ public class FileRecoveryLog implements RecoveryLog {
             }
             existingLogs.clear();
         } catch (IOException e) {
-            stderr.println(ERROR_MESSAGE_PREFIX + " failed to create recovery log file in " + recoveryLogDir);
+            stderr.println(ERROR_MESSAGE_PREFIX + " failed to create recovery log file in " + recoveryLogDir + ": "
+                    + e.getMessage());
         }
         return newFile;
     }
@@ -147,7 +148,8 @@ public class FileRecoveryLog implements RecoveryLog {
                 stderr.println(ERROR_MESSAGE_PREFIX + " failed to acquire lock on recovery log file " + file.toPath());
             }
         } catch (IOException e) {
-            stderr.println(ERROR_MESSAGE_PREFIX + " failed to acquire lock on recovery log file " + file.toPath());
+            stderr.println(ERROR_MESSAGE_PREFIX + " failed to acquire lock on recovery log file " + file.toPath() + ": "
+                    + e.getMessage());
         }
     }
 
@@ -191,7 +193,8 @@ public class FileRecoveryLog implements RecoveryLog {
             appendChannel.write(java.nio.ByteBuffer.wrap(bytes));
             appendChannel.force(force);
         } catch (IOException e) {
-            stderr.println(ERROR_MESSAGE_PREFIX + " failed to write to recovery log file " + logFile.toPath());
+            stderr.println(ERROR_MESSAGE_PREFIX + " failed to write to recovery log file " + logFile.toPath() + ": "
+                    + e.getMessage());
         }
     }
 
@@ -214,7 +217,8 @@ public class FileRecoveryLog implements RecoveryLog {
                 }
             }
         } catch (IOException e) {
-            stderr.println(ERROR_MESSAGE_PREFIX + " failed to read the recovery log file " + file.toPath());
+            stderr.println(ERROR_MESSAGE_PREFIX + " failed to read the recovery log file " + file.toPath() + ": "
+                    + e.getMessage());
         }
         return logMap;
     }
