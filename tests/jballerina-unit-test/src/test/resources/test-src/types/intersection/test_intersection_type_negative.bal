@@ -43,4 +43,3 @@ type Z record {
     X x;
     Y y;
 };
-
