@@ -65,7 +65,7 @@ public class BIRDeadNodeAnalyzer_ASM_Approach extends BIRVisitor {
 
     public BLangPackage analyze(BLangPackage pkgNode) {
         currentPkgId = pkgNode.packageID;
-        pkgWiseInvocationData.put(pkgNode.packageID, pkgNode.symbol.invocationData_OLD);
+        pkgWiseInvocationData.put(pkgNode.packageID, pkgNode.symbol.invocationData_Deprecated2);
         visit(pkgNode.symbol.bir);
         return pkgNode;
     }
@@ -226,7 +226,7 @@ public class BIRDeadNodeAnalyzer_ASM_Approach extends BIRVisitor {
     }
 
     private InvocationData getInvocationData(PackageID pkgId) {
-        return pkgCache.getSymbol(pkgId).invocationData_OLD;
+        return pkgCache.getSymbol(pkgId).invocationData_Deprecated2;
     }
 
     private String getFileName(BIRNode invocation) {
