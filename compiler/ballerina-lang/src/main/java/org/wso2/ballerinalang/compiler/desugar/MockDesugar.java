@@ -116,12 +116,12 @@ public class MockDesugar {
         Map<String, String> mockFunctionMap = pkgNode.getTestablePkg().getMockFunctionNamesMap();
 
         // Get the mock function type map from the pkgNode
-        Map<String, String> mockFunctionTypeMap = pkgNode.getTestablePkg().getMockFunctionTypeMap();
+        Map<String, Boolean> isLegacyMockingMap = pkgNode.getTestablePkg().getIsLegacyMockingMap();
 
         // Get the set of functions to generate
         Set<String> mockFunctionSet = mockFunctionMap.keySet();
         for (String function : mockFunctionSet) {
-            if ("LATEST".equals(mockFunctionTypeMap.get(function))) {
+            if (!isLegacyMockingMap.get(function)) {
                 pkgNode.getTestablePkg().functions.add(generateMockFunction(function));
             }
         }
