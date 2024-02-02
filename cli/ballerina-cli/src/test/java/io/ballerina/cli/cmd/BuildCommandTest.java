@@ -1204,7 +1204,6 @@ public class BuildCommandTest extends BaseCommandTest {
             Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput(outputFile));
             Assert.assertEquals(error, e.getDetailedMessages().get(0));
-
         }
     }
 
@@ -1233,7 +1232,6 @@ public class BuildCommandTest extends BaseCommandTest {
             Assert.assertEquals(buildLog.replaceAll("\r", ""),
                     getOutput("build-bal-project-with-build-tool-not-found.txt"));
             Assert.assertEquals("error: compilation contains errors", e.getDetailedMessages().get(0));
-
         }
     }
 

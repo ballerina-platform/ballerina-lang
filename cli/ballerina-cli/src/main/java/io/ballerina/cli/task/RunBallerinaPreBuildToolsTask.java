@@ -163,7 +163,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
             return true;
         }
         this.outStream.println(String.format("WARNING: Skipping validation of tool options for tool %s due to: " +
-                "No tool options found", toolName));
+                "No tool options found for", toolName));
         return false;
     }
 }
