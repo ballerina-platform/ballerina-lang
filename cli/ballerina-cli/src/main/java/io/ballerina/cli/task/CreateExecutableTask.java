@@ -139,10 +139,10 @@ public class CreateExecutableTask implements Task {
         if (project.buildOptions().optimizeCodegen()) {
             Path relativePathToExecutable = currentDir.relativize(executablePath);
             String relativePathToExecutableString =
-                    relativePathToExecutable.toString().replace(".jar", "_OPTIMIZE.jar");
+                    relativePathToExecutable.toString().replace(".jar", "_OPTIMIZED.jar");
 
             String executablePathString =
-                    executablePath.toString().replace(".jar", "_OPTIMIZE.jar");
+                    executablePath.toString().replace(".jar", "_OPTIMIZED.jar");
 
             if (project.buildOptions().getTargetPath() != null) {
                 this.out.println("\t" + relativePathToExecutableString);
