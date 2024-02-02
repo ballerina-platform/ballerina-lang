@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.HashSet;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
@@ -231,13 +232,17 @@ public class CompileTask implements Task {
             // Add tool resolution diagnostics to diagnostics
             diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
             boolean hasErrors = false;
+            // HashSet to keep track of the diagnostics to avoid duplicate diagnostics
+            HashSet<String> diagnosticSet = new HashSet<>();
             for (Diagnostic d : diagnostics) {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
                     hasErrors = true;
                 }
                 if (d.diagnosticInfo().code() == null || !d.diagnosticInfo().code().equals(
                         ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId())) {
-                    err.println(AnnotateDiagnostics.renderDiagnostic(d));
+                    if (diagnosticSet.add(d.toString())) {
+                        err.println(AnnotateDiagnostics.renderDiagnostic(d));
+                    }
                 }
             }
             if (hasErrors) {
