@@ -32,6 +32,42 @@ import io.ballerina.runtime.api.Module;
 public interface Type {
 
     /**
+     * Set the referred type for this type once it has been calculated. This must be called the first time this
+     * calculation is done in order for {@code Type#getReferredTypeCache()} to work properly. This is non-blocking and
+     * will become eventually consistent. Expect {@code TypeUtils#getReferredType(Type)} tobe referentially transparent.
+     *
+     * @param type Type referred by this type. For non-reference types, this is the same type.
+     */
+    void setReferredTypeCache(Type type);
+
+    /**
+     * Get the type referred by this type if it has been already calculated. If it has not been already calculated will
+     * return null. For non-reference types, this will return the same type. This is non-blocking and will become
+     * eventually consistent. Expect {@code TypeUtils#getReferredType(Type)} tobe referentially transparent.
+     *
+     * @return Referred type of the type
+     */
+    Type getReferredTypeCache();
+
+    /**
+     * Set the implied type for this type once it has been calculated. This must be called the first time this
+     * calculation is done in order for {@code Type#getImpliedTypeCache()} to work properly. This is non-blocking and
+     * will become eventually consistent. Expect {@code TypeUtils#getImpliedType(Type)} tobe referentially transparent.
+     *
+     * @param type Type implied by this type. For non-intersection types, this is the same type.
+     */
+    void setImpliedTypeCache(Type type);
+
+    /**
+     * Get the type implied by this type if it has been already calculated. If it has not been already calculated will
+     * return null. For non-intersection types, this will return the same type. This is non-blocking and will become
+     * eventually consistent. Expect {@code TypeUtils#getImpliedType(Type)} tobe referentially transparent.
+     *
+     * @return Implied type of the type
+     */
+    Type getImpliedTypeCache();
+
+    /**
      * Get the default value of the type. This is the value of an uninitialized variable of this type.
      * For value types, this is same as the value get from {@code BType#getInitValue()}.
      *
