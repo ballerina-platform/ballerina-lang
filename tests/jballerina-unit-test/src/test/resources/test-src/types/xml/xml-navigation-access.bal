@@ -170,6 +170,34 @@ function testXMLNavigationWithEscapeCharacter() {
     assert(x7, xml `<home-address>some address</home-address>`);
 }
 
+function testXMLNavigationWithUnionType() {
+    xml<'xml:Element>|xml<'xml:Comment> x1 = xml `<a><!-- comment--><b><c><e>foo</e></c></b><d><g>bar</g></d></a>`;
+    assert(x1/*, xml `<!-- comment--><b><c><e>foo</e></c></b><d><g>bar</g></d>`);
+    assert(x1/*.<b>, xml `<b><c><e>foo</e></c></b>`);
+    assert(x1/**/<c>, xml `<c><e>foo</e></c>`);
+    assert((x1/**/<c>)/*.<e>, xml `<e>foo</e>`);
+    assert(x1/<d>, xml `<d><g>bar</g></d>`);
+    assert((x1/<d>)/*.<g>, xml `<g>bar</g>`);
+
+    xml<'xml:Element>|xml<'xml:Comment> x2 = xml `<!-- comment node-->`;
+    assert(x2/*, xml ``);
+    assert(x2/*.<a>, xml ``);
+    assert(x2/**/<a>, xml ``);
+    assert(x2/<b>, xml ``);
+
+    xml<'xml:Element>|xml<'xml:ProcessingInstruction> x3 = xml `<?target data?>`;
+    assert(x3/*, xml ``);
+    assert(x3/*.<b>, xml ``);
+    assert(x3/**/<c>, xml ``);
+    assert(x3/<d>, xml ``);
+
+    xml<'xml:Text>|xml<'xml:ProcessingInstruction> x4 = xml `test xml text`;
+    assert(x4/*, xml ``);
+    assert(x4/*.<d>, xml ``);
+    assert(x4/**/<e>, xml ``);
+    assert(x4/<f>, xml ``);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         string reason = "expected `" + expected.toString() + "`, but found `" + actual.toString() + "`";

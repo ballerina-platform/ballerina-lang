@@ -280,6 +280,11 @@ public class XMLAccessTest {
     }
 
     @Test
+    public void testXMLNavigationWithUnionType() {
+        BRunUtil.invoke(navigation, "testXMLNavigationWithUnionType");
+    }
+
+    @Test
     public void testXMLNavExpressionNegative() {
         String methodInvocMessage = "method invocations are not yet supported within XML navigation expressions, " +
                 "use a grouping expression (parenthesis) " +
