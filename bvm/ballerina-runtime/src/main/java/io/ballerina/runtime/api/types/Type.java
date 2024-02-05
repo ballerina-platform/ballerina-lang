@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.Module;
  */
 public interface Type {
 
+    // TODO: remove default implementations when standard library types are updated
     /**
      * Set the referred type for this type once it has been calculated. This must be called the first time this
      * calculation is done in order for {@code Type#getReferredTypeCache()} to work properly. This is non-blocking and
@@ -38,8 +39,8 @@ public interface Type {
      *
      * @param type Type referred by this type. For non-reference types, this is the same type.
      */
-    void setReferredTypeCache(Type type);
-
+    default void setReferredTypeCache(Type type) {
+    }
     /**
      * Get the type referred by this type if it has been already calculated. If it has not been already calculated will
      * return null. For non-reference types, this will return the same type. This is non-blocking and will become
@@ -47,7 +48,9 @@ public interface Type {
      *
      * @return Referred type of the type
      */
-    Type getReferredTypeCache();
+    default Type getReferredTypeCache() {
+        return null;
+    }
 
     /**
      * Set the implied type for this type once it has been calculated. This must be called the first time this
@@ -56,7 +59,8 @@ public interface Type {
      *
      * @param type Type implied by this type. For non-intersection types, this is the same type.
      */
-    void setImpliedTypeCache(Type type);
+    default void setImpliedTypeCache(Type type) {
+    }
 
     /**
      * Get the type implied by this type if it has been already calculated. If it has not been already calculated will
@@ -65,7 +69,9 @@ public interface Type {
      *
      * @return Implied type of the type
      */
-    Type getImpliedTypeCache();
+    default Type getImpliedTypeCache() {
+        return null;
+    }
 
     /**
      * Get the default value of the type. This is the value of an uninitialized variable of this type.
