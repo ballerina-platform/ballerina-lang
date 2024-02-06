@@ -82,7 +82,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     }
 
     public void analyze(BLangPackage pkgNode) {
-        currentInvocationData = pkgNode.symbol.invocationData2;
+        currentInvocationData = pkgNode.symbol.invocationData;
         pkgWiseInvocationData.putIfAbsent(pkgNode.packageID, currentInvocationData);
         currentPkgID = pkgNode.packageID;
 
@@ -378,17 +378,19 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         public  PackageID pkgID;
         public boolean moduleIsUsed = false;
 
+        // Following Sets are used to whitelist the bal types called through ValueCreator in native dependencies
+        private static final HashSet<String> WHITELSITED_FILE_NAMES = new HashSet<>(Arrays.asList("types.bal", "error.bal", "stream_types.bal"));
+        private static final HashSet<String> PKGS_WITH_WHITELSITED_FILES = new HashSet<>(Arrays.asList("ballerinax/mysql:1.11.0", "ballerina/sql:1.11.1", "ballerinax/persist.sql:1.2.1"));
 
         // TODO Don't use the original name. Use name instead.
         // TODO Parent class of attached functions is the first argument of all attached function calls
         public void registerNodes(UsedTypeDefAnalyzer typeDefAnalyzer, BIRNode.BIRPackage birPackage) {
-            // TODO Remove this when we can get the BIRs of all modules
+            // TODO Remove this when we can get the BIRs of all modules. One day we can get the langlibs
             if (birPackage == null) {
                 return;
             }
 
             birPackage.functions.forEach(this::initializeFunction);
-            // TODO use only one typeDefPool ;)
             this.interopDependencies = INTEROP_DEPENDENCIES.get(birPackage.packageID.toString());
             typeDefAnalyzer.populateTypeDefPool(birPackage, interopDependencies);
             // TODO check why we omitted the FINITE typeDefs
@@ -397,12 +399,25 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                 typeDef.usedState = UsedState.UNUSED;
                 typeDefPool.putIfAbsent(typeDef.type, typeDef);
                 typeDef.attachedFuncs.forEach(birFunction -> initializeAttachedFunction(typeDef, birFunction));
+
+                // TODO use annotation for whitelisting instead
+                if (PKGS_WITH_WHITELSITED_FILES.contains(birPackage.packageID.toString())) {
+                    if (isInWhiteListedBalFile(typeDef)) {
+                        this.startPointNodes.add(typeDef);
+                    }
+                }
             });
             this.startPointNodes.addAll(birPackage.serviceDecls);
             this.pkgID = birPackage.packageID;
             this.moduleIsUsed = true;
         }
 
+        public boolean isInWhiteListedBalFile(BIRNode.BIRTypeDefinition typedef) {
+            if (typedef.pos != null && WHITELSITED_FILE_NAMES.contains(typedef.pos.lineRange().fileName())) {
+                return true;
+            }
+            return false;
+        }
 
         // TODO Merge initializeFunction and initializeAttachedFunction
         public void initializeFunction(BIRNode.BIRFunction birFunction) {
@@ -483,7 +498,11 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                 lambdaPointerVar.usedState = UsedState.UNUSED;
             }
             localFpHolders.add(lambdaPointerVar);
-            lambdaPointerVar.addChildNode(lambdaFunction);
+
+            lambdaPointerVar.childNodes.add(lambdaFunction);
+            if (lambdaFunction != null) {
+                lambdaFunction.parentNodes.add(lambdaPointerVar);
+            }
         }
 
         // functions with default parameters will desugar into a new lambda function that gets invoked through an FP_CALL inside the init function
