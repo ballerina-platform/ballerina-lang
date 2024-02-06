@@ -952,7 +952,11 @@ public abstract class BIRNode {
         public void markSelfAndChildrenAsUsed() {
             if (usedState != UsedState.USED) {
                 usedState = UsedState.USED;
-                this.childNodes.forEach(BIRDocumentableNode::markSelfAndChildrenAsUsed);
+                for (BIRDocumentableNode childNode : this.childNodes) {
+                    if (childNode != null) {
+                        childNode.markSelfAndChildrenAsUsed();
+                    }
+                }
             }
         }
 
