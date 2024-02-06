@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler;
 
 import io.ballerina.projects.UsedBIRNodeAnalyzer;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -133,14 +132,6 @@ public class PackageCache {
         } else {
             versionMap.put(Names.DEFAULT_VERSION.value, packageSymbol);
         }
-    }
-
-    public BIRDeadNodeAnalyzer.InvocationData getInvocationData_Deprecated(PackageID packageID) {
-        BPackageSymbol pkgSymbol = getSymbol(packageID);
-        if (pkgSymbol == null) {
-            return null;
-        }
-        return pkgSymbol.invocationData_Deprecated;
     }
 
     public UsedBIRNodeAnalyzer.InvocationData getInvocationData(PackageID packageID) {

@@ -23,15 +23,12 @@ import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -82,7 +79,6 @@ public class BIRBinaryWriter {
         writeAnnotations(birbuf, typeWriter, birPackage.annotations);
         // Write service declarations
         writeServiceDeclarations(birbuf, birPackage.serviceDecls);
-
         // Write the constant pool entries.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (DataOutputStream dataOut = new DataOutputStream(baos)) {
@@ -210,26 +206,6 @@ public class BIRBinaryWriter {
 
         // Function type as a CP Index
         BIRWriterUtils.writeType(cp, buf, birFunction.type);
-
-        BTypeSymbol birFuncTSymbol = birFunction.type.tsymbol;
-        // Children functions
-        if (birFuncTSymbol == null || birFuncTSymbol.owner == null) {
-            buf.writeInt(0); // no of children
-        } else if (birFuncTSymbol.owner.getKind().equals(SymbolKind.FUNCTION)) {
-            // Writing the children(Invocations inside the body)
-            BInvokableSymbol parentSymbol = (BInvokableSymbol) birFuncTSymbol.owner;
-            // Number of children
-            buf.writeInt(parentSymbol.childrenFunctions.size());
-            // name and pkgName of each child
-            for (BInvokableSymbol child : parentSymbol.childrenFunctions) {
-                String childPkgName = child.pkgID.getOrgName().value + "/" + child.pkgID.getName().value;
-                buf.writeInt(addStringCPEntry(childPkgName));
-                buf.writeInt(addStringCPEntry(child.name.value));
-            }
-        } else {
-            buf.writeInt(0);
-        }
-
         writePathParameters(buf, birFunction);
         
         // Store annotations here...

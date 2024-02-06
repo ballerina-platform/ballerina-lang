@@ -25,8 +25,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.repository.CompiledPackage;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer_ASM_Approach;
-import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -65,14 +63,11 @@ public class BPackageSymbol extends BTypeSymbol {
     public HashMap<BInvokableSymbol, HashSet<BInvokableSymbol>> invocationMap = new HashMap<>();     // Key = Start Function // Value = End Function
     public HashSet<BInvokableSymbol> usedFunctions = new HashSet<>();
     public HashSet<BInvokableSymbol> deadFunctions = new HashSet<>();
-    public BIRDeadNodeAnalyzer_ASM_Approach.InvocationData invocationData_Deprecated2;
-    public BIRDeadNodeAnalyzer.InvocationData invocationData_Deprecated = new BIRDeadNodeAnalyzer.InvocationData();
     public UsedBIRNodeAnalyzer.InvocationData invocationData = new UsedBIRNodeAnalyzer.InvocationData();
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner, Location pos, SymbolOrigin origin) {
         super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos, origin);
         this.type = new BPackageType(this);
-        this.invocationData_Deprecated2 = new BIRDeadNodeAnalyzer_ASM_Approach.InvocationData(pkgID);
     }
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner, long flags, Location pos, SymbolOrigin origin) {
