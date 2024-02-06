@@ -58,6 +58,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -377,7 +378,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             // First run configure initialization
             // TODO: (#28662) After configurables can be supported, change this to that file location
             invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
-                    new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
+                    new Class[]{String[].class, Path[].class, String.class, Map.class}, new Object[]{new String[]{},
                             new Path[]{}, null, new HashMap<>()});
             // Initialize the module
             invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
