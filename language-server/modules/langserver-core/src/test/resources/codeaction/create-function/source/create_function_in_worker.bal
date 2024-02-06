@@ -17,4 +17,10 @@ function createFunctionInWorker() {
     worker D returns module1:TestRecord2 {
         return foo();
     }
+
+    fork {
+        worker E returns int {
+            return foo();
+        }
+    }
 }

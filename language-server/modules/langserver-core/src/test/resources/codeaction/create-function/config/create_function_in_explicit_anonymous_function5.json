@@ -1,7 +1,7 @@
 {
   "position": {
-    "line": 17,
-    "character": 17
+    "line": 22,
+    "character": 22
   },
   "source": "create_function_in_explicit_anonymous_function.bal",
   "expected": [
@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction foo() returns module1:TestRecord2 {\n    return {};\n}"
+          "newText": "\n\nfunction foo() returns int {\n    return 0;\n}"
         }
       ],
       "resolvable": true,
@@ -30,24 +30,24 @@
         "fileUri": "create_function_in_explicit_anonymous_function.bal",
         "range": {
           "start": {
-            "line": 17,
-            "character": 15
+            "line": 22,
+            "character": 19
           },
           "end": {
-            "line": 17,
-            "character": 20
+            "line": 22,
+            "character": 24
           }
         },
         "actionData": {
           "key": "node.range",
           "value": {
             "start": {
-              "line": 17.0,
-              "character": 15.0
+              "line": 22.0,
+              "character": 19.0
             },
             "end": {
-              "line": 17.0,
-              "character": 20.0
+              "line": 22.0,
+              "character": 24.0
             }
           }
         }

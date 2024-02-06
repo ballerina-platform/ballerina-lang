@@ -407,8 +407,8 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
-        Optional<Symbol> symbol = semanticModel.symbol(namedWorkerDeclarationNode);
-        symbol.ifPresent(value -> checkAndSetTypeResult(((WorkerSymbol) value).returnType()));
+        semanticModel.symbol(namedWorkerDeclarationNode)
+                .ifPresent(value -> checkAndSetTypeResult(((WorkerSymbol) value).returnType()));
     }
 
     @Override
@@ -420,7 +420,12 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
         // Get function type symbol and get return type descriptor from it
         returnStatementNode.parent().accept(this);
-        if (resultFound && returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
+
+        if (!resultFound) {
+            resetResult();
+            return;
+        }
+        if (returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
             FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) returnTypeSymbol;
             functionTypeSymbol.returnTypeDescriptor().ifPresentOrElse(this::checkAndSetTypeResult, this::resetResult);
         }
@@ -521,8 +526,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
-        Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(explicitAnonymousFunctionExpressionNode);
-        typeSymbol.ifPresent(this::checkAndSetTypeResult);
+        semanticModel.typeOf(explicitAnonymousFunctionExpressionNode).ifPresent(this::checkAndSetTypeResult);
     }
 
     @Override

@@ -17,4 +17,10 @@ function createFunctionInWorker() {
     var fn4 = function() returns module1:TestRecord2 {
         return foo();
     };
+
+    var fn5 = function() returns function () returns int {
+        return function () returns int {
+            return foo();
+        };
+    };
 }
