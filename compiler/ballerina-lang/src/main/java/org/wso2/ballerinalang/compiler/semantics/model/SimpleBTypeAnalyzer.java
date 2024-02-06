@@ -100,6 +100,8 @@ public abstract class SimpleBTypeAnalyzer<T> extends BTypeAnalyzer<T>{
     @Override
     public void visit(BStreamType bStreamType, T data) {
         analyzeType(bStreamType, data);
+        visitType(bStreamType.constraint, data);
+        visitType(bStreamType.completionType, data);
     }
 
     @Override
