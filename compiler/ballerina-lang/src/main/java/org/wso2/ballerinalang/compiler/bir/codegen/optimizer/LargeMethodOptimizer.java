@@ -146,12 +146,6 @@ public class LargeMethodOptimizer {
         if (splitFurther) {
             periodicSplitFunction(birFunction, newlyAddingFunctions, fromAttachedFunction, splitTypeArray);
         }
-        // Persisting the used state of the original function
-        // TODO This wont be needed if we dont codegen 2 times with the same BIRPkg
-        newlyAddingFunctions.forEach(newFunc -> {
-            newFunc.usedState = birFunction.usedState;
-            birFunction.addChildNode(newFunc);
-        });
         return newlyAddingFunctions;
     }
 
