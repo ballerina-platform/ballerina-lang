@@ -1,0 +1,3 @@
+[submodule "tests/ballerina-spec-conformance-tests/src/test/resources/ballerina-spec-tests"]
+	path = tests/ballerina-spec-conformance-tests/src/test/resources/ballerina-spec-tests
+	url = https://github.com/ballerina-platform/ballerina-spec.git
