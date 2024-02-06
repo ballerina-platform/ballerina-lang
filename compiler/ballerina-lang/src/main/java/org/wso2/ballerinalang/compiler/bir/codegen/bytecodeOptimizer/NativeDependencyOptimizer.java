@@ -18,6 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeOptimizer;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -26,6 +28,8 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -44,6 +48,7 @@ public class NativeDependencyOptimizer {
     private final ZipArchiveOutputStream optimizedJarStream;
     private static final String CLASS = ".class";
     private static final String SERVICE_PROVIDER_DIRECTORY = "META-INF/services/";
+    private static final Gson gson = new Gson();
 
     /**
      * key = implementation class name
@@ -101,12 +106,12 @@ public class NativeDependencyOptimizer {
         }
     }
 
-    public void analyzeServiceProviders() throws IOException {
+    public void analyzeWhiteListedClasses() throws IOException {
         Enumeration<ZipArchiveEntry> jarEntries = originalJarFile.getEntries();
         while (jarEntries.hasMoreElements()) {
             ZipArchiveEntry currentEntry = jarEntries.nextElement();
-            if (isServiceProvider(currentEntry.getName())) {
 
+            if (isServiceProvider(currentEntry.getName())) {
                 String spInterfaceClassName = getServiceProviderClassName(currentEntry.getName());
                 for (String spImplementationClassName : getServiceProviderImplementations(originalJarFile,
                         currentEntry)) {
@@ -115,7 +120,36 @@ public class NativeDependencyOptimizer {
                     interfaceWiseAllServiceProviders.get(spInterfaceClassName).add(spImplementationClassName);
                 }
             }
+
+            if (isReflectionConfig(currentEntry.getName())) {
+                InputStreamReader reader = new InputStreamReader(originalJarFile.getInputStream(currentEntry));
+                whitelistReflectionClasses(reader);
+            }
         }
+    }
+
+    private boolean isReflectionConfig(String entryName) {
+        return (entryName.endsWith("reflect-config.json") || entryName.endsWith("jni-config.json")) && entryName.startsWith("META-INF/native-image/");
+    }
+
+    private void whitelistReflectionClasses(Reader reader) {
+        JsonElement jsonElement = gson.fromJson(reader, JsonElement.class);
+
+        jsonElement.getAsJsonArray()
+                .forEach(entry -> {
+                    String className = entry.getAsJsonObject().get("name").getAsString();
+                    if (className.contains("$")) {
+                        startPointClasses.add(className.replace(".", "/").split("\\$")[0]);
+                    }
+                    startPointClasses.add(className.replace(".", "/"));
+                });
+    }
+
+    private String getReflectionClassName(String reflectionEntry) {
+        if (reflectionEntry.contains("$")) {
+            return reflectionEntry.replace(".", "/").split("\\$")[0];
+        }
+        return reflectionEntry.replace(".", "/");
     }
 
     public void copyUsedEntries() throws IOException {
@@ -131,7 +165,7 @@ public class NativeDependencyOptimizer {
                 }
                 return true;
             }
-            return visitedClasses.contains(entryName) || entryName.equals("module-info.class");
+            return visitedClasses.contains(entryName) || entryName.equals("module-info.class") || entryName.startsWith("io/netty/util") || entryName.startsWith("com/mysql");
         };
 
         originalJarFile.copyRawEntries(optimizedJarStream, usedClassPredicate);
