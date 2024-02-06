@@ -51,7 +51,7 @@ type ErrorDetail1 record {
 
 type ErrorDetail2 record {|
     *ErrorDetail1;
-    boolean flag;
+    boolean|int flag;
 |};
 
 type SimpleError error<ErrorDetail1>;
