@@ -90,6 +90,6 @@ public interface Type {
     @Deprecated
     void setImmutableType(IntersectionType immutableType);
 
-    // TODO: Deprecate and remove this
+    // TODO: Deprecate and remove this. Issue: https://github.com/ballerina-platform/ballerina-lang/issues/42113
     Module getPkg();
 }

@@ -21,7 +21,6 @@ package io.ballerina.runtime.api.utils;
 import io.ballerina.runtime.api.types.AnydataType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.internal.JsonParser;
 import io.ballerina.runtime.internal.ValueConverter;
 import io.ballerina.runtime.internal.util.StreamParser;
 
@@ -62,9 +61,5 @@ public class ValueUtils {
      */
     public static Object parse(InputStream in, Type targetType) throws BError {
         return StreamParser.parse(in, targetType);
-    }
-
-    public static Object slowParse(InputStream in, Type targetType) throws BError {
-        return convert(JsonParser.parse(in), targetType);
     }
 }
