@@ -523,38 +523,8 @@ public class JBallerinaBackend extends CompilerBackend {
         }
     }
 
-    public void optimizeBirPackageOriginal(BPackageSymbol bPackageSymbol) {
-        DeadBIRNodeAnalyzer.InvocationData invocationData = bPackageSymbol.invocationData;
-        BIRNode.BIRPackage birPackage = bPackageSymbol.bir;
-        birPackage.functions.removeAll(invocationData.deadFunctions);
-        birPackage.typeDefs.removeAll(invocationData.deadTypeDefs);
-        optimizeImmutableTypeDefs(invocationData, bPackageSymbol);
-
-        HashSet<BIRNode.BIRGlobalVariableDcl> deadGlobalVars = new HashSet<>();
-        birPackage.globalVars.forEach(gVar-> {
-            if (gVar.usedState == UsedState.UNUSED) {
-                deadGlobalVars.add(gVar);
-            }
-        });
-        birPackage.globalVars.removeAll(deadGlobalVars);
-
-        birPackage.functions.forEach(birFunction -> {
-            HashSet<BIRNode.BIRVariableDcl> deadLocalVars = new HashSet<>();
-            birFunction.localVars.forEach(lVar -> {
-                if (lVar.usedState == UsedState.UNUSED) {
-                    deadLocalVars.add(lVar);
-                }
-            });
-            birFunction.localVars.removeAll(deadLocalVars);
-        });
-
-        optimizeAttachedFuncs(birPackage);
-
-        invocationData.fpDataPool.forEach(DeadBIRNodeAnalyzer.LambdaPointerData::deleteIfUnused);
-    }
-
     public void optimizeBirPackage(BPackageSymbol bPackageSymbol) {
-        UsedBIRNodeAnalyzer.InvocationData invocationData = bPackageSymbol.invocationData2;
+        UsedBIRNodeAnalyzer.InvocationData invocationData = bPackageSymbol.invocationData;
         BIRNode.BIRPackage birPackage = bPackageSymbol.bir;
 
         // If the module is completely unused it should not be packed to the fat JAR at all.
@@ -584,22 +554,6 @@ public class JBallerinaBackend extends CompilerBackend {
                 Map<SelectivelyImmutableReferenceType, BIntersectionType> immutableTypeMap =
                         symbolTable.immutableTypeMaps.get(getPackageIdString(deadTypeDef.type.tsymbol.pkgID));
                 if (immutableTypeMap != null) {
-                    deadTypeDef.referencedTypes.forEach(immutableTypeMap::remove);
-                }
-            }
-        });
-    }
-
-    // This is the original code
-    // Have to remove the immutableTypes from the SymbolTable because they are used in codeGen
-    private void optimizeImmutableTypeDefs(DeadBIRNodeAnalyzer.InvocationData invocationData,
-                                           BPackageSymbol bPackageSymbol) {
-        invocationData.deadTypeDefs.forEach(deadTypeDef -> {
-            if (Flags.unMask(deadTypeDef.type.flags).contains(Flag.READONLY)) {
-                Map<SelectivelyImmutableReferenceType, BIntersectionType> immutableTypeMap =
-                        symbolTable.immutableTypeMaps.get(getPackageIdString(deadTypeDef.type.tsymbol.pkgID));
-                if (immutableTypeMap != null) {
-//                    immutableTypeMap.values().remove(deadTypeDef.type);
                     deadTypeDef.referencedTypes.forEach(immutableTypeMap::remove);
                 }
             }
