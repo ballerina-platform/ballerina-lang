@@ -47,6 +47,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
@@ -54,13 +55,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.net.URL;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Main class to generate a ballerina documentation.
@@ -241,23 +242,33 @@ public class BallerinaDocGenerator {
     }
 
     private static void copyDocerinaUI(Path output) {
-        File source = Path.of(System.getProperty("ballerina.home"), "lib", "tools", "doc-ui").toFile();
-        File dest;
-        if (source.exists()) {
-            dest = output.toFile();
-            try {
-                FileUtils.copyDirectory(source, dest);
-            } catch (IOException e) {
-                log.error("Failed to copy the doc ui.", e);
+        String source =  "https://bal-doc-store.s3.ap-south-1.amazonaws.com/ballerina-bal-doc-UI.zip";
+        try {
+            URL url = new URL(source);
+            InputStream inputStream = url.openStream();
+            ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(inputStream));
+
+            ZipEntry entry;
+            while((entry = zipInputStream.getNextEntry()) != null) {
+                Path docUIFilePath = output.resolve(entry.getName());
+                if(entry.isDirectory()) {
+                    Files.createDirectories(docUIFilePath);
+                }else {
+                    try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(docUIFilePath.toFile()))) {
+                        byte[] buffer = new byte[1024];
+                        int length;
+
+                        while ((length = zipInputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+                    } catch (IOException e) {
+                        log.error("unable to write to the file", e );
+                    }
+                }
             }
-        } else {
-            dest = output.resolve("index.html").toFile();
-            try {
-                FileUtils.copyInputStreamToFile(BallerinaDocGenerator.class
-                        .getResourceAsStream("/doc-ui/index.html"), dest);
-            } catch (IOException e) {
-                log.error("Failed to copy the doc ui.", e);
-            }
+
+        } catch (IOException e) {
+            log.error("failed to copy ui from s3 bucket", e);
         }
     }
 
