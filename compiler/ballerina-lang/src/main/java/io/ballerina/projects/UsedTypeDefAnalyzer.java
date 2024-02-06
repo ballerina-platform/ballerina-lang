@@ -25,11 +25,11 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
     }
 
     public static UsedTypeDefAnalyzer getInstance(CompilerContext context) {
-        UsedTypeDefAnalyzer typeDefAnalyzer3 = context.get(BIR_TYPE_DEF_ANALYZER_KEY);
-        if (typeDefAnalyzer3 == null) {
-            typeDefAnalyzer3 = new UsedTypeDefAnalyzer(context);
+        UsedTypeDefAnalyzer usedTypeDefAnalyzer = context.get(BIR_TYPE_DEF_ANALYZER_KEY);
+        if (usedTypeDefAnalyzer == null) {
+            usedTypeDefAnalyzer = new UsedTypeDefAnalyzer(context);
         }
-        return typeDefAnalyzer3;
+        return usedTypeDefAnalyzer;
     }
 
     @Override
@@ -50,6 +50,8 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
         data.shouldAnalyzeChildren = prevShouldAnalyzeChildren;
     }
 
+
+    // Since bRecordTypes can have related anon functions for default values we have to mark them as used as well
     @Override
     public void analyzeType(BType bType, UsedTypeDefAnalyzer.AnalyzerData data) {
         HashSet<UsedBIRNodeAnalyzer.FunctionPointerData> fpDataSet = usedBIRNodeAnalyzer.currentInvocationData.getFpData(bType);
@@ -65,7 +67,7 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
         birPackage.typeDefs.forEach(typeDef -> {
             typeDefPool.putIfAbsent(typeDef.type, typeDef);
             if (interopDependencies != null && interopDependencies.contains(typeDef.internalName.toString())) {
-                pkgCache.getInvocationData2(typeDef.getPackageID()).startPointNodes.add(typeDef);
+                pkgCache.getInvocationData(typeDef.getPackageID()).startPointNodes.add(typeDef);
             }
         });
     }
@@ -89,7 +91,7 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
             return null;
         }
 
-        UsedBIRNodeAnalyzer.InvocationData invocationData = pkgCache.getInvocationData2(bType.tsymbol.pkgID);
+        UsedBIRNodeAnalyzer.InvocationData invocationData = pkgCache.getInvocationData(bType.tsymbol.pkgID);
         if (!invocationData.moduleIsUsed) {
             invocationData.registerNodes(this, pkgCache.getBirPkg(bType.tsymbol.pkgID));
         }
@@ -116,7 +118,7 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
         }
 
         if (!childNode.isInSamePkg(usedBIRNodeAnalyzer.currentPkgID)) {
-            pkgCache.getInvocationData2(childNode.getPackageID()).startPointNodes.add(childNode);
+            pkgCache.getInvocationData(childNode.getPackageID()).startPointNodes.add(childNode);
             visitedTypes.remove(bType);
             data.shouldAnalyzeChildren = false;
             return;
