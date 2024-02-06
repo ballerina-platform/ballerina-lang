@@ -520,7 +520,7 @@ public class AnnotationAttachmentNegativeTest {
         validateError(compileResult, index, "expression is not a constant expression", line + 7, 16);
     }
 
-    public void testInvalidAnnotationAttachmentOnField() {
+    public void testInvalidAnnotationAttachmentsOnMembersOfStructuredTypedBindingPatterns() {
         int index = 277;
         int line = 989;
         validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line, 2);

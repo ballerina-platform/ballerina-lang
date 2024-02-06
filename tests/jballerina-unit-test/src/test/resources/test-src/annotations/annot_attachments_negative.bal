@@ -996,7 +996,7 @@ error<map<[@UndefinedAnnotation int]>> error () = error("err");
 
 error<record {|@UndefinedAnnotation int x = 10;|}> error () = error("err");
 
-function testInvalidAnnotationAttachmentOnTypeBindingPatterns() {
+function testInvalidAnnotationAttachmentsOnMembersOfStructuredTypedBindingPatterns() {
     [@UndefinedAnnotation int, int] [first, second] = [1, 2];
     [@UndefinedAnnotation int, int, int] [a, b, c] = [1, 2, 3];
     [[@UndefinedAnnotation int, int], int] [[a1, b1], c1] = [[1, 2], 3];
