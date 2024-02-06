@@ -16,22 +16,25 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable.providers.toml;
+package io.ballerina.runtime.internal.configurable.providers;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * Represents information on Configurable TOML data.
  *
  * @since 2.0
  */
-public class TomlDetails {
+public class ConfigDetails {
 
     public final Path[] paths;
     public final String configContent;
+    public final Map<String, String> envVariables;
 
-    public TomlDetails(Path[] paths, String configContent) {
+    public ConfigDetails(Path[] paths, String configContent, Map<String, String> envVariables) {
         this.paths = paths;
         this.configContent = configContent;
+        this.envVariables = envVariables;
     }
 }

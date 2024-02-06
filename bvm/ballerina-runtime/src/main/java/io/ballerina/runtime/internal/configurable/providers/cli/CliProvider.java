@@ -58,7 +58,7 @@ import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_INVALID_BYT
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
 
 /**
- * This class implements @{@link ConfigProvider} tp provide values for configurable variables through cli args.
+ * This class implements @{@link ConfigProvider} to provide values for configurable variables through cli args.
  *
  * @since 2.0.0
  */

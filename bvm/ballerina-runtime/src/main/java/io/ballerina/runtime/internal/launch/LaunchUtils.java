@@ -24,9 +24,10 @@ import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
+import io.ballerina.runtime.internal.configurable.providers.env.EnvVarProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
-import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.troubleshoot.StrandDump;
@@ -40,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +105,8 @@ public class LaunchUtils {
     }
 
     public static void initConfigurableVariables(Module rootModule, Map<Module, VariableKey[]> configurationData,
-                                                 String[] args, Path[] configFilePaths, String configContent) {
+                                                 String[] args, Path[] configFilePaths, String configContent,
+                                                 Map<String, String> envVariables) {
 
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         CliProvider cliConfigProvider = new CliProvider(rootModule, args);
@@ -116,6 +119,10 @@ public class LaunchUtils {
             supportedConfigProviders.add(new TomlFileProvider(rootModule, configFilePaths[i], moduleSet));
         }
         supportedConfigProviders.add(cliConfigProvider);
+        if (!envVariables.isEmpty()) {
+            EnvVarProvider envVarProvider = new EnvVarProvider(rootModule, envVariables);
+            supportedConfigProviders.add(envVarProvider);
+        }
         ConfigResolver configResolver = new ConfigResolver(configurationData,
                                                            diagnosticLog, supportedConfigProviders);
         ConfigMap.setConfigurableMap(configResolver.resolveConfigs());
@@ -124,11 +131,11 @@ public class LaunchUtils {
         }
     }
 
-    public static TomlDetails getConfigurationDetails() {
+    public static ConfigDetails getConfigurationDetails() {
         List<Path> paths = new ArrayList<>();
         Map<String, String> envVars = System.getenv();
         String configContent = populateConfigDetails(paths, envVars);
-        return new TomlDetails(paths.toArray(new Path[0]), configContent);
+        return new ConfigDetails(paths.toArray(new Path[0]), configContent, filterConfigEnvVariables(envVars));
     }
 
     private static String populateConfigDetails(List<Path> paths, Map<String, String> envVars) {
@@ -147,7 +154,7 @@ public class LaunchUtils {
         return null;
     }
 
-    public static TomlDetails getTestConfigPaths(Module module, String pkgName, String sourceRoot) {
+    public static ConfigDetails getTestConfigPaths(Module module, String pkgName, String sourceRoot) {
         String moduleName = module.getName();
         Path testConfigPath = Paths.get(sourceRoot);
         if (!moduleName.equals(pkgName)) {
@@ -156,9 +163,20 @@ public class LaunchUtils {
         }
         testConfigPath = testConfigPath.resolve(TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);
         if (!Files.exists(testConfigPath)) {
-            return new TomlDetails(new Path[]{}, null);
+            return new ConfigDetails(new Path[]{}, null, new HashMap<>());
         } else {
-            return new TomlDetails(new Path[]{testConfigPath}, null);
+            return new ConfigDetails(new Path[]{testConfigPath}, null, new HashMap<>());
         }
+    }
+
+    private static Map<String, String> filterConfigEnvVariables(Map<String, String> originalMap) {
+        Map<String, String> filteredMap = new HashMap<>();
+
+        for (Map.Entry<String, String> entry : originalMap.entrySet()) {
+            if (entry.getKey().startsWith("BAL_CONFIG_")) {
+                filteredMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return filteredMap;
     }
 }

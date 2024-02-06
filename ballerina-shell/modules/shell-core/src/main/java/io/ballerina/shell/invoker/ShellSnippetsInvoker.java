@@ -56,6 +56,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -377,7 +378,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             // TODO: (#28662) After configurables can be supported, change this to that file location
             invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
                     new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
-                            new Path[]{}, null});
+                            new Path[]{}, null, new HashMap<>()});
             // Initialize the module
             invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
             // Start the module
