@@ -174,7 +174,10 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             if (!rhsVars.isEmpty() && instruction.kind != InstructionKind.RECORD_DEFAULT_FP_LOAD) {
                 rhsVars.forEach(var -> {
                     FunctionPointerData fpData = currentInvocationData.getFPData(var);
-                    visitNode(fpData.lambdaFunction);
+
+                    if (fpData != null && fpData.lambdaFunction != null) {
+                        visitNode(fpData.lambdaFunction);
+                    }
                     currentParentFunction.addChildNode(var);
                 });
             }
@@ -187,11 +190,15 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         if (birBasicBlock.terminator.getKind() == InstructionKind.FP_CALL) {
-            currentParentFunction.addChildNode(((BIRTerminator.FPCall) birBasicBlock.terminator).fp.variableDcl);
+            BIRNode.BIRVariableDcl fpPointer = ((BIRTerminator.FPCall) birBasicBlock.terminator).fp.variableDcl;
+
+            fpPointer.usedState = UsedState.USED;
+            currentParentFunction.childNodes.add(fpPointer);
+            fpPointer.parentNodes.add(currentParentFunction);
 
             FunctionPointerData fpData =
                     currentInvocationData.getFPData(((BIRTerminator.FPCall) birBasicBlock.terminator).fp.variableDcl);
-            if (fpData != null) {
+            if (fpData != null && fpData.lambdaFunction != null) {
                 visitNode(fpData.lambdaFunction);
             }
         }
@@ -205,9 +212,11 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         argVars.retainAll(localFpHolders);
         if (!argVars.isEmpty()) {
             argVars.forEach(var -> {
-                currentParentFunction.childNodes.add(var);
-                var.parentNodes.add(currentParentFunction);
-                var.childNodes.forEach(this::visitNode);    // Function pointed by the FP
+                FunctionPointerData fpData = currentInvocationData.getFPData(var);
+                if (fpData != null && fpData.lambdaFunction != null) {
+                    visitNode(fpData.lambdaFunction);
+                }
+                currentParentFunction.addChildNode(var);
             });
         }
 
@@ -221,27 +230,38 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     @Override
     public void visit(BIRNonTerminator.FPLoad fpLoadInstruction) {
-        FunctionPointerData fpData =
-                new FunctionPointerData(fpLoadInstruction, currentInstructionArr, currentInvocationData);
+        BIRNode.BIRFunction pointedFunction =
+                lookupBirFunction(fpLoadInstruction.pkgId, fpLoadInstruction.funcName.value);
 
-        pkgCache.getInvocationData2(fpLoadInstruction.pkgId).varDeclWiseFPDataPool.put(
+        FunctionPointerData fpData =
+                new FunctionPointerData(fpLoadInstruction, currentInstructionArr,
+                        pointedFunction);
+
+        if (fpData.lambdaPointerVar.usedState == UsedState.USED && pointedFunction != null) {
+            visitNode(pointedFunction);
+        }
+        pkgCache.getInvocationData(currentPkgID).varDeclWiseFPDataPool.put(
                 fpLoadInstruction.lhsOp.variableDcl, fpData);
 
     }
 
     /*
      recordDefaultFPLoad instructions can be "USED" without any reference to the "lhsOp".
-     Make sure to check weather the enclosed type is used before deleting the instructions.
+     Make sure to check weather the enclosed type is used before deleting the instruction.
      */
     @Override
     public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
-        currentInvocationData.getFPData(recordDefaultFPLoad.lhsOp.variableDcl).recordDefaultFPLoad =
-                recordDefaultFPLoad;
+        FunctionPointerData fpData = currentInvocationData.getFPData(recordDefaultFPLoad.lhsOp.variableDcl);
+
+        fpData.recordDefaultFPLoad = recordDefaultFPLoad;
+        if (fpData.recordDefaultFPLoad.enclosedType.isUsed) {
+            fpData.lambdaPointerVar.usedState = UsedState.USED;
+            visitNode(fpData.lambdaFunction);
+        }
 
         currentInvocationData.recordDefTypeWiseFPDataPool.putIfAbsent(recordDefaultFPLoad.enclosedType,
                 new HashSet<>());
-        currentInvocationData.recordDefTypeWiseFPDataPool.get(recordDefaultFPLoad.enclosedType)
-                .add(currentInvocationData.getFPData(recordDefaultFPLoad.lhsOp.variableDcl));
+        currentInvocationData.recordDefTypeWiseFPDataPool.get(recordDefaultFPLoad.enclosedType).add(fpData);
     }
 
     @Override
@@ -255,6 +275,9 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     @Override
     public void visit(BIRNonTerminator.NewInstance newInstance) {
         usedTypeDefAnalyzer.analyzeTypeDefWithinScope(newInstance.expectedType, currentParentFunction);
+        if (newInstance.def != null) {
+            visitNode(newInstance.def);
+        }
     }
 
     @Override
@@ -270,13 +293,23 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     }
 
     public BIRNode.BIRFunction lookupBirFunction(BIRTerminator.Call terminatorCall) {
-        UsedBIRNodeAnalyzer.InvocationData invocationData = pkgCache.getInvocationData2(terminatorCall.calleePkg);
+        UsedBIRNodeAnalyzer.InvocationData invocationData = pkgCache.getInvocationData(terminatorCall.calleePkg);
         if (!invocationData.moduleIsUsed) {
             //TODO find a better way to do this. It is ugly...
             invocationData.registerNodes(usedTypeDefAnalyzer, pkgCache.getBirPkg(terminatorCall.calleePkg));
         }
 
         return invocationData.functionPool.get(terminatorCall.originalName.value);
+    }
+
+    private BIRNode.BIRFunction lookupBirFunction(PackageID pkgId, String funcName) {
+        UsedBIRNodeAnalyzer.InvocationData invocationData = pkgCache.getInvocationData(pkgId);
+        if (!invocationData.moduleIsUsed) {
+            //TODO find a better way to do this. It is ugly...
+            invocationData.registerNodes(usedTypeDefAnalyzer, pkgCache.getBirPkg(pkgId));
+        }
+
+        return invocationData.functionPool.get(funcName);
     }
 
     private void initInteropDependencies() {
@@ -311,12 +344,12 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                                               PackageID childPkgId) {
         parentNode.childNodes.add(childFunction);
         childFunction.parentNodes.add(parentNode);
-        if (childPkgId == currentPkgID) {
+        if (childPkgId.equals(currentPkgID)) {
             visitNode(childFunction);
             return;
         }
 
-        UsedBIRNodeAnalyzer.InvocationData childInvocationData = pkgCache.getInvocationData2(childPkgId);
+        UsedBIRNodeAnalyzer.InvocationData childInvocationData = pkgCache.getInvocationData(childPkgId);
 
         // Handling langLibs for now
         if (childInvocationData == null) {
@@ -429,6 +462,18 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             this.instructionArray = instructionArray;
             this.lambdaPointerVar = fpLoadInstruction.lhsOp.variableDcl;
             this.lambdaFunction = invocationData.functionPool.get(fpLoadInstruction.funcName.toString());
+
+            initializeFpData();
+        }
+
+
+        public FunctionPointerData(BIRNonTerminator.FPLoad fpLoadInstruction,
+                                   List<BIRNonTerminator> instructionArray,
+                                   BIRNode.BIRFunction lambdaFunction) {
+            this.fpLoadInstruction = fpLoadInstruction;
+            this.instructionArray = instructionArray;
+            this.lambdaPointerVar = fpLoadInstruction.lhsOp.variableDcl;
+            this.lambdaFunction = lambdaFunction;
 
             initializeFpData();
         }
