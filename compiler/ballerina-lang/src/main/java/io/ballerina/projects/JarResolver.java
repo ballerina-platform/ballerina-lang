@@ -305,7 +305,7 @@ public class JarResolver {
         for (PlatformLibrary otherJarDependency : otherJarDependencies) {
             JarLibrary newEntry = (JarLibrary) otherJarDependency;
 
-            if (otherJarDependencies.size() < 3 && !isUsedDependency(newEntry, usedNativeClassPaths)) {
+            if (otherJarDependencies.size() < 2 && !isUsedDependency(newEntry, usedNativeClassPaths)) {
                 continue;
             }
 
@@ -344,7 +344,7 @@ public class JarResolver {
 
     private boolean isUsedDependency(JarLibrary otherJarDependency, HashSet<String> usedNativeClassPaths) {
         String pkgName = otherJarDependency.packageName().get();
-        if (pkgName.equals("ballerina/observe") || pkgName.equals("ballerinai/observe")) {
+        if (isWhiteListedPkg(pkgName)) {
             return true;
         }
 
@@ -361,10 +361,20 @@ public class JarResolver {
                     return true;
                 }
             }
+            jarFile.close();
             return false;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean isWhiteListedPkg(String pkgName) {
+        return pkgName.equals("ballerina/observe") || pkgName.equals("ballerinai/observe") || isDriverPkg(pkgName);
+    }
+
+    // Driver pkgs are pkgs such as "ballerinax/mysql.driver". These pkgs contain only native jars without any ballerina code
+    private boolean isDriverPkg(String pkgName) {
+        return pkgName.startsWith("ballerinax/") && pkgName.endsWith(".driver");
     }
 
     private void reportDiagnostic(JarLibrary existingEntry, JarLibrary newEntry) {
