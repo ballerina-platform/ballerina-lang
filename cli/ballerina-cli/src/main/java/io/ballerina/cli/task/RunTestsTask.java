@@ -72,8 +72,10 @@ import static io.ballerina.cli.utils.TestUtils.addOtherNeededArgs;
 import static io.ballerina.cli.utils.TestUtils.cleanTempCache;
 import static io.ballerina.cli.utils.TestUtils.clearFailedTestsJson;
 import static io.ballerina.cli.utils.TestUtils.getInitialCmdArgs;
+import static io.ballerina.cli.utils.TestUtils.getClassPath;
 import static io.ballerina.cli.utils.TestUtils.getJacocoAgentJarPath;
 import static io.ballerina.cli.utils.TestUtils.getResolvedModuleName;
+import static io.ballerina.cli.utils.TestUtils.getModuleJarPaths;
 import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
@@ -402,14 +404,10 @@ public class RunTestsTask implements Task {
 
         if (coverage) {
             if (!mockClassNames.isEmpty()) {
-                // If we have mock function we need to use jacoco offline instrumentation since jacoco doesn't
-                // support dynamic class file transformations while instrumenting.
-                List<URL> jarUrlList = getModuleJarUrlList(jBallerinaBackend, currentPackage);
-                Path instrumentDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
-                        .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR);
-                JacocoInstrumentUtils.instrumentOffline(jarUrlList, instrumentDir, mockClassNames);
+                jacocoOfflineInstrumentation(target, currentPackage, jBallerinaBackend, mockClassNames);
             }
-            String agentCommand = getAgentCommand(target, currentPackage, exclusionClassList, jacocoAgentJarPath, packageName, orgName);
+            String agentCommand = getAgentCommand(target, currentPackage, exclusionClassList,
+                    jacocoAgentJarPath, packageName, orgName);
 
             cmdArgs.add(agentCommand);
         }
@@ -430,6 +428,17 @@ public class RunTestsTask implements Task {
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
         return proc.waitFor();
+    }
+
+    public void jacocoOfflineInstrumentation(Target target, Package currentPackage,
+                                              JBallerinaBackend jBallerinaBackend, List<String> mockClassNames)
+            throws IOException, ClassNotFoundException {
+        // If we have mock function we need to use jacoco offline instrumentation since jacoco doesn't
+        // support dynamic class file transformations while instrumenting.
+        List<URL> jarUrlList = getModuleJarUrlList(jBallerinaBackend, currentPackage);
+        Path instrumentDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
+                .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR);
+        JacocoInstrumentUtils.instrumentOffline(jarUrlList, instrumentDir, mockClassNames);
     }
 
     private String getAgentCommand(Target target, Package currentPackage, Set<String> exclusionClassList, String jacocoAgentJarPath, String packageName, String orgName) throws IOException {
@@ -627,60 +636,6 @@ public class RunTestsTask implements Task {
         }
 
         return new ArrayList<>(validSourceFileSet);
-    }
-
-    private String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
-        List<Path> dependencies = new ArrayList<>();
-        JarResolver jarResolver = jBallerinaBackend.jarResolver();
-
-        for (ModuleId moduleId : currentPackage.moduleIds()) {
-            Module module = currentPackage.module(moduleId);
-
-            // Skip getting file paths for execution if module doesnt contain a testable jar
-            if (!module.testDocumentIds().isEmpty() || module.project().kind()
-                    .equals(ProjectKind.SINGLE_FILE_PROJECT)) {
-                for (JarLibrary jarLibs : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
-                    dependencies.add(jarLibs.path());
-                }
-            }
-        }
-        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
-
-        List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
-        dependencies.removeAll(jarList);
-
-        StringJoiner classPath = new StringJoiner(File.pathSeparator);
-        dependencies.stream().map(Path::toString).forEach(classPath::add);
-        return classPath.toString();
-    }
-
-    private List<Path> getModuleJarPaths(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
-        List<Path> moduleJarPaths = new ArrayList<>();
-
-        for (ModuleId moduleId : currentPackage.moduleIds()) {
-            Module module = currentPackage.module(moduleId);
-
-            PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(currentPackage.packageId(),
-                    module.moduleName());
-            moduleJarPaths.add(generatedJarLibrary.path());
-
-            if (!module.testDocumentIds().isEmpty()) {
-                PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
-                        currentPackage.packageId(), module.moduleName());
-                moduleJarPaths.add(codeGeneratedTestLibrary.path());
-            }
-        }
-
-        for (ResolvedPackageDependency resolvedPackageDependency : currentPackage.getResolution().allDependencies()) {
-            Package pkg = resolvedPackageDependency.packageInstance();
-            for (ModuleId moduleId : pkg.moduleIds()) {
-                Module module = pkg.module(moduleId);
-                moduleJarPaths.add(
-                        jBallerinaBackend.codeGeneratedLibrary(pkg.packageId(), module.moduleName()).path());
-            }
-        }
-
-        return moduleJarPaths.stream().distinct().collect(Collectors.toList());
     }
 
     private List<URL> getModuleJarUrlList(JBallerinaBackend jBallerinaBackend, Package currentPackage)
