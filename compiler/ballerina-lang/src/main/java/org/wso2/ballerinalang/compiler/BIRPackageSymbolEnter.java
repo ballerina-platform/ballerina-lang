@@ -152,6 +152,7 @@ public class BIRPackageSymbolEnter {
     private HashMap<String, HashMap<String, HashSet<BInvokableSymbol>>> unresolvedInvocations = new HashMap<>();
 
     private static final int SERVICE_TYPE_TAG = 54;
+    private static final String PKG_NAME_FIRST_PART = "ballerina";
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
