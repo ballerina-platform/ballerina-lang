@@ -673,8 +673,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                 data.potentiallyInvalidAssignmentInLoopsInfo);
 
         data.failureHandled = failureHandled;
-        if (whileNode.onFailClause == null && data.loopCount == 1 && !data.statementReturnsPanicsOrFails &&
-                data.booleanConstCondition == symTable.trueType && !data.breakStmtFound && !data.returnedWithinQuery) {
+        if (isUnreachableBlock(whileNode, data)) {
             data.infiniteLoop = true;
             data.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
             data.continueAsLastStatement = prevContinueAsLastStatement;
@@ -684,8 +683,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             data.continueAsLastStatement = prevContinueAsLastStatement;
             data.breakAsLastStatement = prevBreakAsLastStatement;
             data.infiniteLoop = previousInfiniteLoop;
-        }
-        else {
+        } else {
             data.statementReturnsPanicsOrFails = true;
         }
 
@@ -695,6 +693,11 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         analyzeOnFailClause(whileNode.onFailClause, data);
 
         data.loopAndDoClauseEnvs.pop();
+    }
+
+    public boolean isUnreachableBlock(BLangWhile whileNode, AnalyzerData data) {
+        return whileNode.onFailClause == null && data.loopCount == 1 && !data.statementReturnsPanicsOrFails &&
+                data.booleanConstCondition == symTable.trueType && !data.breakStmtFound && !data.returnedWithinQuery;
     }
 
     @Override
@@ -793,6 +796,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         if (data.statementReturnsPanicsOrFails || data.infiniteLoop) {
             dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
             resetStatementReturnsPanicsOrFails(data);
+            resetInfiniteLoop(data);
         } else if (data.errorThrown) {
             dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
             resetErrorThrown(data);
@@ -808,6 +812,9 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
     private void resetStatementReturnsPanicsOrFails(AnalyzerData data) {
         data.statementReturnsPanicsOrFails = false;
+    }
+
+    private void resetInfiniteLoop(AnalyzerData data) {
         data.infiniteLoop = false;
     }
 
