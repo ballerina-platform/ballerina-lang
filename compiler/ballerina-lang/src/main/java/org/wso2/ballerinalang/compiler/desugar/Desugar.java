@@ -5122,14 +5122,7 @@ public class Desugar extends BLangNodeVisitor {
     private boolean isSimplifiableLoop(BLangForeach loop) {
         BLangExpression collection = loop.collection;
         return switch (collection.getKind()) {
-            case BINARY_EXPR -> {
-                // FIXME: I think it is sufficient to check if this is a binary expression (there are no other valid binary expressions here)
-                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) collection;
-                yield (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE ||
-                        binaryExpr.opKind == OperatorKind.CLOSED_RANGE) &&
-                        binaryExpr.lhsExpr.getKind() == NodeKind.NUMERIC_LITERAL &&
-                        binaryExpr.rhsExpr.getKind() == NodeKind.NUMERIC_LITERAL;
-            }
+            case BINARY_EXPR -> true;
             case SIMPLE_VARIABLE_REF -> collection.expectedType.getKind() == TypeKind.ARRAY &&
                     ((BLangSimpleVarRef) collection).varSymbol != null; // FIXME: why?
             // TODO: can this be tuple var ref?
@@ -5216,7 +5209,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt scopeBlock = ASTBuilderUtil.createBlockStmt(foreach.pos, scopeStmts);
         rewrite(scopeBlock, this.env);
         result = scopeBlock;
-
     }
 
     BLangBlockStmt desugarForeachStmt(BVarSymbol collectionSymbol, BType collectionType, BLangForeach foreach,

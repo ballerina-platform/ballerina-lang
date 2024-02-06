@@ -60,6 +60,11 @@ public class ForeachDesugarTests {
         BRunUtil.invoke(result, "testIterOnArray");
     }
 
+    @Test
+    public void intLoop() {
+        BRunUtil.invoke(result, "intLoop");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

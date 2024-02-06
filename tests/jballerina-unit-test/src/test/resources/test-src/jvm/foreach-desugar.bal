@@ -40,16 +40,16 @@ function testWithControlFlow() {
     assertEquality(sum, 6);
 }
 
-function foo() {
-    int[] vals = [1, 2, 3];
-    int sum = 0;
-    int i = 0;
-    while i < vals.length() {
-        int val = vals[i];
-        sum += val;
-    }
-    assertEquality(sum, 6);
-}
+// function foo() {
+//     int[] vals = [1, 2, 3];
+//     int sum = 0;
+//     int i = 0;
+//     while i < vals.length() {
+//         int val = vals[i];
+//         sum += val;
+//     }
+//     assertEquality(sum, 6);
+// }
 
 function testIterOnArray() {
     int[] vals = [1, 2, 3];
@@ -60,6 +60,15 @@ function testIterOnArray() {
     assertEquality(sum, 6);
 }
 
+function intLoop() {
+    int sum = 0;
+    int[] values = [1, 2, 3];
+    int len = values.length();
+    foreach int i in  0..<len {
+        sum += values[i];
+    }
+    assertEquality(sum, 6);
+}
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
