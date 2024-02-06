@@ -266,8 +266,8 @@ public class FunctionsWithDefaultableArguments {
     }
 
     @Test
-    public void testParamAsDefaultForNextParameter() {
-        BRunUtil.invoke(result, "testParamAsDefaultForNextParameter");
+    public void testParamUseAsValueInAnonFuncWithDefaultForNextParam() {
+        BRunUtil.invoke(result, "testParamUseAsValueInAnonFuncWithDefaultForNextParam");
     }
 
     @AfterClass

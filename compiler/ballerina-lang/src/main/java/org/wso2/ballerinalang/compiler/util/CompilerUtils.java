@@ -73,7 +73,7 @@ public class CompilerUtils {
         return org + packageID.name + Names.VERSION_SEPARATOR.value + getMajorVersion(packageID.version.value);
     }
 
-    public static boolean isFunctionParameter(BSymbol symbol, List<BLangSimpleVariable> params) {
+    public static boolean isInParameterList(BSymbol symbol, List<BLangSimpleVariable> params) {
         for (BLangSimpleVariable param : params) {
             if (param.symbol == symbol) {
                 return true;

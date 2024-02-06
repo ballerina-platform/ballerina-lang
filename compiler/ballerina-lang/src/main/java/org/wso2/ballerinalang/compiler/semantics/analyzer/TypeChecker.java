@@ -210,7 +210,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_INSERTIONS;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_STRINGS;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isFunctionParameter;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isInParameterList;
 
 /**
  * @since 0.94
@@ -6672,7 +6672,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private boolean searchClosureVariableInExpressions(BSymbol symbol, Location pos, SymbolEnv env,
                                                        BLangInvokableNode encInvokable, BLangNode bLangNode) {
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
-                && !isFunctionParameter(symbol, encInvokable.requiredParams)) {
+                && !isInParameterList(symbol, encInvokable.requiredParams)) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
             BSymbol resolvedSymbol =
                     symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
@@ -6684,7 +6684,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (bLangNode.getKind() == NodeKind.ARROW_EXPR
-                && !isFunctionParameter(symbol, ((BLangArrowFunction) bLangNode).params)) {
+                && !isInParameterList(symbol, ((BLangArrowFunction) bLangNode).params)) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
             BSymbol resolvedSymbol =
                     symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);

@@ -308,12 +308,12 @@ function baz(int a, F1 b = function() returns int { return a + 1; }) returns int
     return a + b();
 }
 
-function baz1(int a, F2 b = function() returns function() returns int { return function () returns int {return a;}; }) returns int {
+function baz1(int a, F2 b = function() returns function() returns int { return function () returns int { return a; }; }) returns int {
     F1 f = b();
     return a + f();
 }
 
-function testParamAsDefaultForNextParameter() {
+function testParamUseAsValueInAnonFuncWithDefaultForNextParam() {
     assertEquality(baz(10), 21);
     assertEquality(baz1(100), 200);
 }

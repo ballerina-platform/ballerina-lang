@@ -208,7 +208,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.util.Constants.DOLLAR;
 import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNDERSCORE;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isFunctionParameter;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isInParameterList;
 
 /**
  * ClosureGenerator for creating closures for default values.
@@ -1243,7 +1243,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         Set<Flag> flagSet = encInvokable.flagSet;
         boolean isClosure = !flagSet.contains(Flag.QUERY_LAMBDA) && flagSet.contains(Flag.LAMBDA) &&
                             !flagSet.contains(Flag.ATTACHED) && varSymbol.owner.tag != SymTag.PACKAGE &&
-                            !isFunctionParameter(varSymbol, encInvokable.requiredParams);
+                            !isInParameterList(varSymbol, encInvokable.requiredParams);
         if (!varSymbol.closure && isClosure) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
             BSymbol resolvedSymbol =
