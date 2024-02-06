@@ -1498,6 +1498,7 @@ public class Types {
             case TypeTags.INVOKABLE:
             case TypeTags.TYPEDESC:
             case TypeTags.HANDLE:
+            case TypeTags.REGEXP:    
                 return true;
             case TypeTags.XML:
                 return getImpliedType(((BXMLType) type).constraint).tag == TypeTags.NEVER;
