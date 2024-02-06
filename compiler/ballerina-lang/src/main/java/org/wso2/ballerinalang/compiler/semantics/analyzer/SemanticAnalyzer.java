@@ -1535,6 +1535,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, currentEnv));
         }
 
+        analyzeNode(varNode.typeNode, data);
         long ownerSymTag = currentEnv.scope.owner.tag;
         // If this is a module record variable, checkTypeAndVarCountConsistency already done at symbolEnter.
         if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
@@ -1589,6 +1590,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, currentEnv));
         }
 
+        analyzeNode(varNode.typeNode, data);
         long ownerSymTag = currentEnv.scope.owner.tag;
         // If this is a module tuple variable, checkTypeAndVarCountConsistency already done at symbolEnter.
         if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
@@ -1738,6 +1740,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (varNode.getBType() == null) {
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, currentEnv));
         }
+        analyzeNode(varNode.typeNode, data);
 
         // match err1 { error(reason,....) => ... }
         // reason must be a const of subtype of string.
