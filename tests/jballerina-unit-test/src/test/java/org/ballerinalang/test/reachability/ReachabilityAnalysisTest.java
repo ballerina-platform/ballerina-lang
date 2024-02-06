@@ -441,6 +441,7 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1726, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1744, 13);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1754, 13);
+        validateError(result, i++, ERROR_MUST_RETURN_A_RESULT, 1779, 1);
         Assert.assertEquals(result.getErrorCount(), i - 46 - 19);
         Assert.assertEquals(result.getHintCount(), 46);
         Assert.assertEquals(result.getWarnCount(), 19);

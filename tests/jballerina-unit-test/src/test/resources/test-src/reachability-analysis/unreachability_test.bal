@@ -1770,3 +1770,10 @@ class IterableWithError {
         };
     }
 }
+
+function testUnreachableCodeWithWhile7() returns int {
+    int x = 0;
+    while true {
+        x+=1;
+    }
+}
