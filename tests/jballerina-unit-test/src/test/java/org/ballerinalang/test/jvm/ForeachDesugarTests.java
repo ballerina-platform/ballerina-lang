@@ -55,6 +55,11 @@ public class ForeachDesugarTests {
         BRunUtil.invoke(result, "testWithControlFlow");
     }
 
+    @Test
+    public void testIterOnArray() {
+        BRunUtil.invoke(result, "testIterOnArray");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

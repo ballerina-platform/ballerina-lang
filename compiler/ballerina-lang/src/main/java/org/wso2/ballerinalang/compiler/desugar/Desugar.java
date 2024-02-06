@@ -5120,13 +5120,21 @@ public class Desugar extends BLangNodeVisitor {
 
     // FIXME: this needs a better name
     private boolean isSimplifiableLoop(BLangForeach loop) {
-        if (loop.collection.getKind() != NodeKind.BINARY_EXPR) {
-            return false;
-        }
-        BLangBinaryExpr binaryExpr = (BLangBinaryExpr) loop.collection;
-        return (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE || binaryExpr.opKind == OperatorKind.CLOSED_RANGE) &&
-                binaryExpr.lhsExpr.getKind() == NodeKind.NUMERIC_LITERAL &&
-                binaryExpr.rhsExpr.getKind() == NodeKind.NUMERIC_LITERAL;
+        BLangExpression collection = loop.collection;
+        return switch (collection.getKind()) {
+            case BINARY_EXPR -> {
+                // FIXME: I think it is sufficient to check if this is a binary expression (there are no other valid binary expressions here)
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) collection;
+                yield (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE ||
+                        binaryExpr.opKind == OperatorKind.CLOSED_RANGE) &&
+                        binaryExpr.lhsExpr.getKind() == NodeKind.NUMERIC_LITERAL &&
+                        binaryExpr.rhsExpr.getKind() == NodeKind.NUMERIC_LITERAL;
+            }
+            case SIMPLE_VARIABLE_REF -> collection.expectedType.getKind() == TypeKind.ARRAY &&
+                    ((BLangSimpleVarRef) collection).varSymbol != null; // FIXME: why?
+            // TODO: can this be tuple var ref?
+            default -> false;
+        };
     }
 
     private void simplifyLoop(BLangForeach foreach) {
@@ -5139,22 +5147,38 @@ public class Desugar extends BLangNodeVisitor {
                 new BVarSymbol(0, names.fromString("$index$"), this.env.scope.owner.pkgID, symTable.intType,
                         this.env.scope.owner, pos, VIRTUAL));
         BSymbol indexSymbol = indexVariable.symbol;
-        // NOTE: we can directly assign only because we limit ourselves to numeric literals
-        BLangBinaryExpr foreachCondExpr = (BLangBinaryExpr) foreach.getCollection();
+        Function<ExpressionNode, BLangExpression> indexInitVal = (ExpressionNode collectionExpr) -> {
+            if (collectionExpr.getKind() == NodeKind.BINARY_EXPR) {
+                return ((BLangBinaryExpr) collectionExpr).lhsExpr;
+            }
+            return ASTBuilderUtil.createLiteral(pos, symTable.intType, 0L);
+        };
+
+        Function<ExpressionNode, BLangExpression> indexMaxVal = (ExpressionNode collectionExpr) -> {
+            if (collectionExpr.getKind() == NodeKind.BINARY_EXPR) {
+                return ((BLangBinaryExpr) collectionExpr).rhsExpr;
+            }
+            return createLangLibInvocationNode("length", (BLangExpression) collectionExpr, new ArrayList<>(),
+                    symTable.intType, pos);
+        };
         BLangSimpleVariableDef indexVarDef = ASTBuilderUtil.createVariableDef(pos, indexVariable);
         scopeStmts.add(indexVarDef);
 
         scopeStmts.add(ASTBuilderUtil.createAssignmentStmt(pos, ASTBuilderUtil.createVariableRef(pos, indexSymbol),
-                foreachCondExpr.lhsExpr));
+                indexInitVal.apply(foreach.getCollection())));
 
         Function<ExpressionNode, OperatorKind> comparisonOP = (ExpressionNode collectionExpr) -> {
-            BLangBinaryExpr binaryExpr =
-                    (BLangBinaryExpr) collectionExpr; // FIXME: currently this is valid since we only handle ranges
-            return binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE ? OperatorKind.LESS_THAN : OperatorKind.LESS_EQUAL;
+            if (collectionExpr.getKind() == NodeKind.BINARY_EXPR) {
+                return ((BLangBinaryExpr) collectionExpr).opKind == OperatorKind.HALF_OPEN_RANGE ?
+                        OperatorKind.LESS_THAN : OperatorKind.LESS_EQUAL;
+            }
+            return OperatorKind.LESS_THAN;
         };
+        // FIXME: condition must factored to a local variable to match current implementation
         BLangBinaryExpr condition =
                 ASTBuilderUtil.createBinaryExpr(pos, ASTBuilderUtil.createVariableRef(pos, indexSymbol),
-                        foreachCondExpr.rhsExpr, symTable.booleanType, comparisonOP.apply(foreach.getCollection()),
+                        indexMaxVal.apply(foreach.getCollection()), symTable.booleanType,
+                        comparisonOP.apply(foreach.getCollection()),
                         (BOperatorSymbol) symResolver
                                 .resolveBinaryOperator(OperatorKind.EQUAL, symTable.booleanType, symTable.booleanType));
 
@@ -5163,9 +5187,17 @@ public class Desugar extends BLangNodeVisitor {
         // Local (within while loop) variable that holds the current value of the index variable
         BLangSimpleVariableDef iterValDef = (BLangSimpleVariableDef) foreach.variableDefinitionNode;
         whileBodyStmts.add(iterValDef);
-        whileBodyStmts.add(
-                ASTBuilderUtil.createAssignmentStmt(pos, ASTBuilderUtil.createVariableRef(pos, iterValDef.var.symbol),
-                        ASTBuilderUtil.createVariableRef(pos, indexSymbol)));
+        Function<ExpressionNode, BLangExpression> iterValNextValue = (ExpressionNode collectionExpr) -> {
+            if (collectionExpr.getKind() == NodeKind.BINARY_EXPR) {
+                return ASTBuilderUtil.createVariableRef(pos, indexSymbol);
+            }
+            return ASTBuilderUtil.createIndexBasesAccessExpr(pos, iterValDef.var.getBType(),
+                    (BVarSymbol) ((BLangSimpleVarRef) collectionExpr).varSymbol,
+                    ASTBuilderUtil.createVariableRef(pos, indexSymbol));
+        };
+        whileBodyStmts.add(ASTBuilderUtil.createAssignmentStmt(pos,
+                ASTBuilderUtil.createVariableRef(pos, iterValDef.var.symbol),
+                iterValNextValue.apply(foreach.collection)));
 
         // increment index (NOTE: we must do this before the body of foreach since it may have control flow)
         whileBodyStmts.add(ASTBuilderUtil.createAssignmentStmt(pos, ASTBuilderUtil.createVariableRef(pos, indexSymbol),
