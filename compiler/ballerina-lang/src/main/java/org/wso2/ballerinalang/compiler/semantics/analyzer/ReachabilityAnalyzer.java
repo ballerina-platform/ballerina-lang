@@ -652,6 +652,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         boolean prevContinueAsLastStatement = data.continueAsLastStatement;
         boolean prevBreakStmtFound = data.breakStmtFound;
         boolean failureHandled = data.failureHandled;
+        boolean previousInfiniteLoop  = data.infiniteLoop;
 
         checkStatementExecutionValidity(whileNode, data);
 
@@ -671,15 +672,24 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                 data.breakAsLastStatement || data.statementReturnsPanicsOrFails, true,
                 data.potentiallyInvalidAssignmentInLoopsInfo);
 
-        decrementLoopCount(data);
         data.failureHandled = failureHandled;
-        if (data.booleanConstCondition != symTable.trueType || data.breakStmtFound) {
+        if (whileNode.onFailClause == null && data.loopCount == 1 && !data.statementReturnsPanicsOrFails &&
+                data.booleanConstCondition == symTable.trueType && !data.breakStmtFound && !data.returnedWithinQuery) {
+            data.infiniteLoop = true;
             data.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
             data.continueAsLastStatement = prevContinueAsLastStatement;
             data.breakAsLastStatement = prevBreakAsLastStatement;
-        } else {
+        } else if (data.booleanConstCondition != symTable.trueType || data.breakStmtFound) {
+            data.statementReturnsPanicsOrFails = prevStatementReturnsPanicsOrFails;
+            data.continueAsLastStatement = prevContinueAsLastStatement;
+            data.breakAsLastStatement = prevBreakAsLastStatement;
+            data.infiniteLoop = previousInfiniteLoop;
+        }
+        else {
             data.statementReturnsPanicsOrFails = true;
         }
+
+        decrementLoopCount(data);
         data.breakStmtFound = prevBreakStmtFound;
 
         analyzeOnFailClause(whileNode.onFailClause, data);
@@ -780,7 +790,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     private void checkUnreachableCode(Location pos, AnalyzerData data) {
-        if (data.statementReturnsPanicsOrFails) {
+        if (data.statementReturnsPanicsOrFails || data.infiniteLoop) {
             dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
             resetStatementReturnsPanicsOrFails(data);
         } else if (data.errorThrown) {
@@ -798,6 +808,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
     private void resetStatementReturnsPanicsOrFails(AnalyzerData data) {
         data.statementReturnsPanicsOrFails = false;
+        data.infiniteLoop = false;
     }
 
     private void resetLastStatement(AnalyzerData data) {
@@ -1009,6 +1020,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         boolean hasLastPatternInStatement;
         boolean failureHandled;
         boolean returnedWithinQuery;
+        boolean infiniteLoop;
         boolean skipFurtherAnalysisInUnreachableBlock;
         int loopCount;
         int loopAndDoClauseCount;
