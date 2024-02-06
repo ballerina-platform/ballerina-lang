@@ -43,7 +43,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.bytecodeOptimizer.NativeDependencyOptimizer;
@@ -1075,14 +1074,14 @@ public class JBallerinaBackend extends CompilerBackend {
         return new HashSet<>(classWiseDeadFunctionMap);
     }
     public void emitCodeGenOptimizationReport() {
-        BIRDeadNodeAnalyzer birDeadNodeAnalyzer = BIRDeadNodeAnalyzer.getInstance(compilerContext);
+        UsedBIRNodeAnalyzer usedBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
 
         try {
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
                     "C:\\Users\\Thushara Piyasekara\\Documents\\ASM_Test\\untitled\\JAR_Cache\\httpService\\dotGraphOut.dot")));
             out.write("digraph {");
             out.newLine();
-            for (BIRDeadNodeAnalyzer.InvocationData invocationData : birDeadNodeAnalyzer.pkgWiseInvocationData.values()) {
+            for (UsedBIRNodeAnalyzer.InvocationData invocationData : usedBIRNodeAnalyzer.pkgWiseInvocationData.values()) {
                 emitModuleInvocationData(invocationData, out);
             }
             out.write("}");
@@ -1093,7 +1092,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     }
 
-    private static void emitModuleInvocationData(BIRDeadNodeAnalyzer.InvocationData invocationData, BufferedWriter out)
+    private static void emitModuleInvocationData(UsedBIRNodeAnalyzer.InvocationData invocationData, BufferedWriter out)
         throws IOException {
 
         for (BIRNode.BIRFunction birFunction : invocationData.usedFunctions) {
