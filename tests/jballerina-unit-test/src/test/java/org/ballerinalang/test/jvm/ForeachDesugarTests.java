@@ -70,6 +70,11 @@ public class ForeachDesugarTests {
         BRunUtil.invoke(result, "testIterOnMutableArr");
     }
 
+    @Test
+    public void testtupeIter() {
+        BRunUtil.invoke(result, "testtupeIter");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

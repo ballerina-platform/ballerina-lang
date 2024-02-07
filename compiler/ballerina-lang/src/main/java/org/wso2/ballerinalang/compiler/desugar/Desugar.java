@@ -5122,7 +5122,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression collection = loop.collection;
         return switch (collection.getKind()) {
             case BINARY_EXPR -> true;
-            case SIMPLE_VARIABLE_REF -> collection.expectedType.getKind() == TypeKind.ARRAY;
+            case SIMPLE_VARIABLE_REF -> collection.expectedType.getKind() == TypeKind.ARRAY &&
+                    loop.variableDefinitionNode instanceof BLangSimpleVariableDef; // pr: can we handle destructuring somehow?
             default -> false;
         };
     }
@@ -5168,6 +5169,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // pr: can be cetain this is always valid
         BLangSimpleVariableDef loopValDef = (BLangSimpleVariableDef) foreach.variableDefinitionNode;
+        // FIXME: we ned to get the var type and symbol
         whileBodyStmts.add(loopValDef);
 
         BLangExpression nexLoopVal = rangeExpr != null ? ASTBuilderUtil.createVariableRef(pos, indexSymbol) :
