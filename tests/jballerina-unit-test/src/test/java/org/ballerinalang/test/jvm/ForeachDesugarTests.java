@@ -65,6 +65,11 @@ public class ForeachDesugarTests {
         BRunUtil.invoke(result, "intLoop");
     }
 
+    @Test
+    public void testIterOnMutableArr() {
+        BRunUtil.invoke(result, "testIterOnMutableArr");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
