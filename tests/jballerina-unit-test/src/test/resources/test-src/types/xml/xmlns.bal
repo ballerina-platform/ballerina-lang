@@ -55,7 +55,7 @@ function testXMLNSDeclStmtUsingConstant() {
 }
 
 function assert(anydata actual, anydata expected) {
-    if (expected != actual) {
+    if expected != actual {
         panic error("expected `" + expected.toString() + "`, but found `" + actual.toString() + "`");
     }
 }

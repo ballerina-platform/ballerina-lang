@@ -24,6 +24,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -40,23 +41,22 @@ public class XMLNSTest {
         result = BCompileUtil.compile("test-src/types/xml/xmlns.bal");
     }
 
-    @Test
-    public void testXMLNSDeclUsingConstant() {
-        BRunUtil.invoke(result, "testXMLNSDeclUsingConstant");
+    @Test (dataProvider = "xmlnsDeclFunctions")
+    public void testXMLNSDeclaration(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider(name = "xmlnsDeclFunctions")
+    private Object[] xmlnsDeclFunctions() {
+        return new String[]{
+                "testXMLNSDeclUsingConstant",
+                "testXMLNSDeclStmtUsingConstant",
+                "testXMLNSUsageInModuleVar"
+        };
     }
 
     @Test
-    public void testXMLNSDeclStmtUsingConstant() {
-        BRunUtil.invoke(result, "testXMLNSDeclStmtUsingConstant");
-    }
-
-    @Test
-    public void testXMLNSUsageInModuleVar() {
-        BRunUtil.invoke(result, "testXMLNSUsageInModuleVar");
-    }
-
-    @Test
-    public void testXMLNSNegativeDefinition() {
+    public void testXMLNSDefinitionNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/types/xml/xmlns_negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 22, 7);

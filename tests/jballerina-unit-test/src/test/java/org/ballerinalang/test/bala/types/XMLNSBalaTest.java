@@ -24,6 +24,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -43,18 +44,21 @@ public class XMLNSBalaTest {
         result = BCompileUtil.compile("test-src/bala/test_bala/types/xmlns_bala_test.bal");
     }
 
-    @Test
-    public void testXMLNSDeclUsingModuleConstant() {
-        BRunUtil.invoke(result, "testXMLNSDeclUsingModuleConstant");
+    @Test (dataProvider = "balaXMLNSDeclFunctions")
+    public void testBalaXMLNSDeclaration(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider(name = "balaXMLNSDeclFunctions")
+    private Object[] balaXMLNSDeclFunctions() {
+        return new String[]{
+                "testXMLNSDeclUsingModuleConstant",
+                "testXMLNSDeclStmtUsingModuleConstant"
+        };
     }
 
     @Test
-    public void testXMLNSDeclStmtUsingModuleConstant() {
-        BRunUtil.invoke(result, "testXMLNSDeclStmtUsingModuleConstant");
-    }
-
-    @Test
-    public void testXMLNSNegativeDefinition() {
+    public void testXMLNSDefinitionNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/bala/test_bala/types/xmlns_bala_test_negative.bal");
         int i = 0;
