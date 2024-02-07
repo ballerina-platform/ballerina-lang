@@ -36,12 +36,14 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FailStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
@@ -57,6 +59,7 @@ import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
@@ -403,6 +406,12 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     }
 
     @Override
+    public void visit(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+        semanticModel.symbol(namedWorkerDeclarationNode)
+                .ifPresent(value -> checkAndSetTypeResult(((WorkerSymbol) value).returnType()));
+    }
+
+    @Override
     public void visit(ReturnStatementNode returnStatementNode) {
         this.semanticModel.typeOf(returnStatementNode).ifPresent(this::checkAndSetTypeResult);
         if (resultFound) {
@@ -411,11 +420,14 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
         // Get function type symbol and get return type descriptor from it
         returnStatementNode.parent().accept(this);
-        if (resultFound && returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
+
+        if (!resultFound) {
+            resetResult();
+            return;
+        }
+        if (returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
             FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) returnTypeSymbol;
             functionTypeSymbol.returnTypeDescriptor().ifPresentOrElse(this::checkAndSetTypeResult, this::resetResult);
-        } else {
-            resetResult();
         }
     }
 
@@ -510,6 +522,11 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
                 ((FunctionTypeSymbol) ts).returnTypeDescriptor().ifPresent(this::checkAndSetTypeResult);
             }
         }
+    }
+
+    @Override
+    public void visit(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        semanticModel.typeOf(explicitAnonymousFunctionExpressionNode).ifPresent(this::checkAndSetTypeResult);
     }
 
     @Override
