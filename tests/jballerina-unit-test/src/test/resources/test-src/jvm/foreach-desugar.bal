@@ -69,6 +69,18 @@ function intLoop() {
     assertEquality(sum, 6);
 }
 
+type Pair [int, int];
+
+function testtupeIter() {
+    Pair[] pArray = [[1, 2], [3, 4]];
+    int sum = 0;
+    foreach Pair [a, b] in pArray {
+        sum += a*b;
+    }
+    assertEquality(sum, 14);
+}
+
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
