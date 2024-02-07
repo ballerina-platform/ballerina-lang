@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Path;
@@ -43,12 +44,12 @@ public class FileRecoveryLog implements RecoveryLog {
     private static final Logger log = LoggerFactory.getLogger(FileRecoveryLog.class);
     private static final String LOG_FILE_NUMBER = "(\\d+)";
     private static final String LOG_FILE_EXTENSION = ".log";
-    private String baseFileName;
-    private Path recoveryLogDir;
-    private int checkpointInterval;
+    private final String baseFileName;
+    private final Path recoveryLogDir;
+    private final int checkpointInterval;
     private final boolean deleteOldLogs;
     private int numOfPutsSinceLastCheckpoint;
-    private File file;
+    private File logFile;
     private FileChannel appendChannel = null;
     private Map<String, TransactionLogRecord> existingLogs;
     private static final PrintStream stderr = System.err;
@@ -67,7 +68,7 @@ public class FileRecoveryLog implements RecoveryLog {
         this.deleteOldLogs = deleteOldLogs;
         this.checkpointInterval = checkpointInterval;
         this.existingLogs = new HashMap<>();
-        this.file = createNextVersion();
+        this.logFile = createNextVersion();
         this.numOfPutsSinceLastCheckpoint = 0;
     }
 
@@ -82,9 +83,7 @@ public class FileRecoveryLog implements RecoveryLog {
         if (oldFile.exists()) {
             existingLogs = readLogsFromFile(oldFile);
             if (deleteOldLogs) {
-                File[] files = recoveryLogDir.toFile().listFiles(
-                        (dir, name) -> name.matches(baseFileName + LOG_FILE_NUMBER + LOG_FILE_EXTENSION)
-                );
+                File[] files = getLogFilesInDirectory();
                 for (File file : files) {
                     file.delete();
                 }
@@ -119,8 +118,7 @@ public class FileRecoveryLog implements RecoveryLog {
     private int findLatestVersion() {
         int latestVersion = 0;
         File directory = recoveryLogDir.toFile();
-        File[] files = directory.listFiles((dir, name) ->
-                name.matches(baseFileName + LOG_FILE_NUMBER + LOG_FILE_EXTENSION));
+        File[] files = getLogFilesInDirectory();
         if (files == null) {
             return latestVersion;
         }
@@ -135,12 +133,18 @@ public class FileRecoveryLog implements RecoveryLog {
         return latestVersion;
     }
 
+    private File[] getLogFilesInDirectory(){
+        return recoveryLogDir.toFile().listFiles(
+                (dir, name) -> name.matches(baseFileName + LOG_FILE_NUMBER + LOG_FILE_EXTENSION)
+        );
+    }
+
     /**
      * Initializes the append channel for the given file.
      *
      * @param file The file to initialize the append channel for.
      */
-    private void initAppendChannel(File file) {
+    private synchronized void initAppendChannel(File file) {
         try {
             appendChannel = FileChannel.open(file.toPath(), StandardOpenOption.APPEND);
             FileLock lock = appendChannel.tryLock();
@@ -158,14 +162,14 @@ public class FileRecoveryLog implements RecoveryLog {
         boolean force = !(trxRecord.getTransactionState().equals(RecoveryState.TERMINATED)); // lazy write
         writeToFile(trxRecord.getTransactionLogRecord(), force);
         if (checkpointInterval != NO_CHECKPOINT_INTERVAL) {
-            ifNeedWriteCheckpoint();
+            writeCheckpointIfNeeded();
             numOfPutsSinceLastCheckpoint++;
         }
     }
 
     public Map<String, TransactionLogRecord> getPendingLogs() {
         Map<String, TransactionLogRecord> pendingTransactions = new HashMap<>();
-        Map<String, TransactionLogRecord> transactionLogs = readLogsFromFile(file);
+        Map<String, TransactionLogRecord> transactionLogs = readLogsFromFile(logFile);
         if (transactionLogs == null) {
             return null;
         }
@@ -186,11 +190,11 @@ public class FileRecoveryLog implements RecoveryLog {
      */
     private void writeToFile(String str, boolean force) {
         if (appendChannel == null || !appendChannel.isOpen()) {
-            initAppendChannel(file);
+            initAppendChannel(logFile);
         }
         byte[] bytes = str.getBytes();
         try {
-            appendChannel.write(java.nio.ByteBuffer.wrap(bytes));
+            appendChannel.write(ByteBuffer.wrap(bytes));
             appendChannel.force(force);
         } catch (IOException e) {
             stderr.println(ERROR_MESSAGE_PREFIX + " failed to write to recovery log file " + logFile.toPath() + ": "
@@ -198,14 +202,20 @@ public class FileRecoveryLog implements RecoveryLog {
         }
     }
 
+    /**
+     * Reads the transaction logs from the log file.
+     *
+     * @param file The file to read the transaction logs from.
+     * @return The transaction logs read from the file.
+     */
     private Map<String, TransactionLogRecord> readLogsFromFile(File file) {
-        Map<String, TransactionLogRecord> logMap = new HashMap<>();
         if (!file.exists() || file.length() == 0) {
             return null;
         }
         if (appendChannel != null) {
             closeEverything();
         }
+        Map<String, TransactionLogRecord> logMap = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -236,11 +246,11 @@ public class FileRecoveryLog implements RecoveryLog {
         }
     }
 
-    public void ifNeedWriteCheckpoint() {
+    public void writeCheckpointIfNeeded() {
         if (numOfPutsSinceLastCheckpoint >= checkpointInterval) {
             numOfPutsSinceLastCheckpoint = 0; // need to set here otherwise it will just keep creating new files
             File newFile = createNextVersion();
-            file = newFile;
+            logFile = newFile;
         }
     }
 

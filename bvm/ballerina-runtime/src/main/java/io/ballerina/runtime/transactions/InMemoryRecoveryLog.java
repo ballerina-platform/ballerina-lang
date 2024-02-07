@@ -31,7 +31,7 @@ import static io.ballerina.runtime.transactions.TransactionConstants.IN_MEMORY_C
 public class InMemoryRecoveryLog implements RecoveryLog {
 
     private static final Logger log = LoggerFactory.getLogger(InMemoryRecoveryLog.class);
-    private Map<String, TransactionLogRecord> transactionLogs;
+    private final Map<String, TransactionLogRecord> transactionLogs;
     private int numOfPutsSinceLastCheckpoint;
 
     public InMemoryRecoveryLog() {
@@ -42,13 +42,13 @@ public class InMemoryRecoveryLog implements RecoveryLog {
     @Override
     public void put(TransactionLogRecord trxRecord) {
         transactionLogs.put(trxRecord.getCombinedId(), trxRecord);
-        ifNeedWriteCheckpoint();
+        writeCheckpointIfNeeded();
     }
 
     /**
      * Write a checkpoint to the in-memory log (not needed if you don't need checkpoints).
      */
-    public void ifNeedWriteCheckpoint() {
+    public void writeCheckpointIfNeeded() {
         if (numOfPutsSinceLastCheckpoint >= IN_MEMORY_CHECKPOINT_INTERVAL) {
             Map<String, TransactionLogRecord> pendingTransactions = getFailedTransactions();
             transactionLogs.clear();
@@ -63,13 +63,11 @@ public class InMemoryRecoveryLog implements RecoveryLog {
      */
     public Map<String, TransactionLogRecord> getFailedTransactions() {
         Map<String, TransactionLogRecord> failedTransactions = new HashMap<>();
-
         Iterator<Map.Entry<String, TransactionLogRecord>> iterator = transactionLogs.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, TransactionLogRecord> entry = iterator.next();
             String trxId = entry.getKey();
             TransactionLogRecord trxRecord = entry.getValue();
-
             if (trxRecord.isCompleted()) {
                 iterator.remove();
                 continue;
@@ -77,7 +75,6 @@ public class InMemoryRecoveryLog implements RecoveryLog {
             failedTransactions.put(trxId, trxRecord);
             iterator.remove();
         }
-
         return failedTransactions;
     }
 

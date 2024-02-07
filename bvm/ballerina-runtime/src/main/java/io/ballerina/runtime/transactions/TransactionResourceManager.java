@@ -61,12 +61,12 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_CHECKPOINT_INTERVAL;
+import static io.ballerina.runtime.transactions.TransactionConstants.ERROR_MESSAGE_PREFIX;
+import static io.ballerina.runtime.transactions.TransactionConstants.NO_CHECKPOINT_INTERVAL;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
-import static io.ballerina.runtime.transactions.TransactionConstants.ERROR_MESSAGE_PREFIX;
-import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_CHECKPOINT_INTERVAL;
-import static io.ballerina.runtime.transactions.TransactionConstants.NO_CHECKPOINT_INTERVAL;
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
 

@@ -27,7 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 1.0
  */
 public class XIDGenerator {
-    private static final int DEFAULT_FORMAT = ('B' << 24) + ('A' << 16) + ('L' << 8); // unique but same for each transaction
+    // DEFAULT_FORMAT will be unique for ballerina but same for each transaction
+    private static final int DEFAULT_FORMAT = ('B' << 24) + ('A' << 16) + ('L' << 8);
 
     static XATransactionID createXID(String combinedId) {
         String trxId = combinedId.split("_")[0];

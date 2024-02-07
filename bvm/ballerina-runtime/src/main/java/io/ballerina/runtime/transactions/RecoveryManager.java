@@ -24,15 +24,15 @@ import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 public class RecoveryManager {
 
@@ -89,7 +89,7 @@ public class RecoveryManager {
     }
 
     public boolean performRecoveryPass() {
-        boolean allOk = true;
+        boolean recoverSuccess = true;
 
         // Get all the transaction records without terminated logs;
         putFailedTransactionRecords(
@@ -128,11 +128,11 @@ public class RecoveryManager {
 
             // Check if all the prepared xids are in the pending logs and recover them
             for (Map.Entry<XAResource, Map<String, Xid>> entry : preparedXids.entrySet()) {
-                allOk = allOk && recoverXAResource(entry.getKey(), entry.getValue());
+                recoverSuccess = recoverSuccess && recoverXAResource(entry.getKey(), entry.getValue());
             }
         }
 
-        if (!allOk) {
+        if (!recoverSuccess) {
             diagnosticLog.error(ErrorCodes.TRANSACTION_STARTUP_RECOVERY_FAILED, null);
         }
 
@@ -140,7 +140,7 @@ public class RecoveryManager {
         if (!diagnosticLog.getDiagnosticList().isEmpty()) {
             RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
         }
-        return allOk;
+        return recoverSuccess;
     }
 
     /**
@@ -197,8 +197,7 @@ public class RecoveryManager {
         Map<String, Xid> retrievedXids = new HashMap<>();
         ArrayList<Xid> recoverdXidsFromScan = new ArrayList<>();
 
-        Xid[] xidsFromScan = null;
-        xidsFromScan = xaResource.recover(XAResource.TMSTARTRSCAN);
+        Xid[] xidsFromScan = xaResource.recover(XAResource.TMSTARTRSCAN);
         while (xidsFromScan != null && xidsFromScan.length > 0) {
             recoverdXidsFromScan.addAll(List.of(xidsFromScan));
             xidsFromScan = (xaResource.recover(XAResource.TMNOFLAGS));
@@ -208,22 +207,20 @@ public class RecoveryManager {
             recoverdXidsFromScan.addAll(List.of(xidsFromScan));
         }
 
-        if (!recoverdXidsFromScan.isEmpty()) {
-            for (Xid xid : recoverdXidsFromScan) {
-                if (xid == null) {
-                    continue;
-                }
-                if (xid.getFormatId() != (XIDGenerator.getDefaultFormat())) {
-                    continue;
-                }
-                String globalTransactionIdStr = new String(xid.getGlobalTransactionId());
-                String branchQualifierStr = new String(xid.getBranchQualifier());
-                String combinedIdStr = globalTransactionIdStr + ":" + branchQualifierStr;
-                if (retrievedXids.containsKey(combinedIdStr)) {
-                    continue;
-                }
-                retrievedXids.put(combinedIdStr, xid);
+        if (recoverdXidsFromScan.isEmpty()) {
+            return retrievedXids;
+        }
+        for (Xid xid : recoverdXidsFromScan) {
+            if (xid == null || xid.getFormatId() != (XIDGenerator.getDefaultFormat())) {
+                continue;
             }
+            String globalTransactionIdStr = new String(xid.getGlobalTransactionId());
+            String branchQualifierStr = new String(xid.getBranchQualifier());
+            String combinedIdStr = globalTransactionIdStr + ":" + branchQualifierStr;
+            if (retrievedXids.containsKey(combinedIdStr)) {
+                continue;
+            }
+            retrievedXids.put(combinedIdStr, xid);
         }
         return retrievedXids;
     }
@@ -368,7 +365,7 @@ public class RecoveryManager {
         try {
             xaResource.forget(xid);
         } catch (XAException e) {
-            // ignore.. worst case, heuristic xid is presented again on next recovery scan
+            // ignore. worst case, heuristic xid is present again on next recovery scan
         }
     }
 }
