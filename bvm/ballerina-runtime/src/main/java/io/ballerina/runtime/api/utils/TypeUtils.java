@@ -152,7 +152,7 @@ public class TypeUtils {
      * @return the referred type if provided with a type reference type, else returns the original type
      */
     public static Type getReferredType(Type type) {
-        Type referredType = type.getReferredTypeCache();
+        Type referredType = type.getCachedReferredType();
         if (referredType != null) {
             return referredType;
         }
@@ -161,7 +161,7 @@ public class TypeUtils {
         } else {
             referredType = type;
         }
-        type.setReferredTypeCache(referredType);
+        type.setCachedReferredType(referredType);
         return referredType;
     }
 
@@ -174,7 +174,7 @@ public class TypeUtils {
      * else returns the original type
      */
     public static Type getImpliedType(Type type) {
-        Type impliedType = type.getImpliedTypeCache();
+        Type impliedType = type.getCachedImpliedType();
         if (impliedType != null) {
             return impliedType;
         }
@@ -185,7 +185,7 @@ public class TypeUtils {
         } else {
             impliedType = type;
         }
-        type.setImpliedTypeCache(impliedType);
+        type.setCachedImpliedType(impliedType);
         return impliedType;
     }
 }

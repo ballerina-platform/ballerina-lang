@@ -39,7 +39,7 @@ public interface Type {
      *
      * @param type Type referred by this type. For non-reference types, this is the same type.
      */
-    default void setReferredTypeCache(Type type) {
+    default void setCachedReferredType(Type type) {
     }
     /**
      * Get the type referred by this type if it has been already calculated. If it has not been already calculated will
@@ -48,7 +48,7 @@ public interface Type {
      *
      * @return Referred type of the type
      */
-    default Type getReferredTypeCache() {
+    default Type getCachedReferredType() {
         return null;
     }
 
@@ -59,7 +59,7 @@ public interface Type {
      *
      * @param type Type implied by this type. For non-intersection types, this is the same type.
      */
-    default void setImpliedTypeCache(Type type) {
+    default void setCachedImpliedType(Type type) {
     }
 
     /**
@@ -69,7 +69,7 @@ public interface Type {
      *
      * @return Implied type of the type
      */
-    default Type getImpliedTypeCache() {
+    default Type getCachedImpliedType() {
         return null;
     }
 
