@@ -2373,14 +2373,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
 
             if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
-                BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
-                int noOfSpreadMembers = switch (spreadOpExpr.getBType().tag) {
+                BType spreadOpType = ((BLangListConstructorSpreadOpExpr) expr).expr.getBType();
+                int noOfSpreadMembers = switch (spreadOpType.tag) {
                     case TypeTags.ARRAY -> {
-                        BArrayType spreadArrayType = (BArrayType) spreadOpExpr.getBType();
+                        BArrayType spreadArrayType = (BArrayType) spreadOpType;
                         yield spreadArrayType.size;
                     }
                     case TypeTags.TUPLE -> {
-                        BTupleType spreadTupleType = (BTupleType) spreadOpExpr.getBType();
+                        BTupleType spreadTupleType = (BTupleType) spreadOpType;
                         yield spreadTupleType.getTupleTypes().size();
                     }
                     default -> 0;
@@ -2390,7 +2390,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     return;
                 }
 
-                nonRestTupleVarIndex = nonRestTupleVarIndex + noOfSpreadMembers;
+                nonRestTupleVarIndex += noOfSpreadMembers;
                 continue;
             }
 
