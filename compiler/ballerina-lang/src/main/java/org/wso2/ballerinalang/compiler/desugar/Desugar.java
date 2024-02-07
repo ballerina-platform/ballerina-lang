@@ -5096,8 +5096,8 @@ public class Desugar extends BLangNodeVisitor {
             foreach.body.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
             BLangDo doStmt = wrapStatementWithinDo(foreach.pos, foreach, onFailClause);
             result = rewrite(doStmt, env);
-        } else if (isSimplifiableLoop(foreach)) {
-            simplifyLoop(foreach);
+        } else if (reducibleToWhile(foreach)) {
+            reduceToWhile(foreach);
         } else {
             // We need to create a new variable for the expression as well. This is needed because integer ranges can be
             // added as the expression so we cannot get the symbol in such cases.
@@ -5118,81 +5118,66 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    // FIXME: this needs a better name
-    private boolean isSimplifiableLoop(BLangForeach loop) {
+    private boolean reducibleToWhile(BLangForeach loop) {
         BLangExpression collection = loop.collection;
         return switch (collection.getKind()) {
             case BINARY_EXPR -> true;
-            case SIMPLE_VARIABLE_REF -> collection.expectedType.getKind() == TypeKind.ARRAY &&
-                    ((BLangSimpleVarRef) collection).varSymbol != null; // FIXME: why?
-            // TODO: can this be tuple var ref?
+            case SIMPLE_VARIABLE_REF -> collection.expectedType.getKind() == TypeKind.ARRAY;
             default -> false;
         };
     }
 
-    private void simplifyLoop(BLangForeach foreach) {
-        // We need to create a new variable for the expression as well. This is needed because integer ranges can be
-        // added as the expression so we cannot get the symbol in such cases.
-        List<BLangStatement> scopeStmts = new ArrayList<>();
-        // create index variable
+    private void reduceToWhile(BLangForeach foreach) {
         Location pos = foreach.pos;
+        // pr: do we inline these?
+        List<BLangStatement> scopeStmts = new ArrayList<>();
         BLangSimpleVariable indexVariable = ASTBuilderUtil.createVariable(pos, "$index$", symTable.intType, null,
-                new BVarSymbol(0, names.fromString("$index$"), this.env.scope.owner.pkgID, symTable.intType,
+                new BVarSymbol(0, Names.fromString("$index$"), this.env.scope.owner.pkgID, symTable.intType,
                         this.env.scope.owner, pos, VIRTUAL));
         BSymbol indexSymbol = indexVariable.symbol;
-        Function<ExpressionNode, BLangExpression> indexInitVal = (ExpressionNode collectionExpr) -> {
-            if (collectionExpr.getKind() == NodeKind.BINARY_EXPR) {
-                return ((BLangBinaryExpr) collectionExpr).lhsExpr;
-            }
-            return ASTBuilderUtil.createLiteral(pos, symTable.intType, 0L);
-        };
+        BLangBinaryExpr rangeExpr;
+        if (foreach.collection.getKind() == NodeKind.BINARY_EXPR) {
+            rangeExpr = (BLangBinaryExpr) foreach.collection;
+        } else {
+            rangeExpr = null;
+        }
+        BLangExpression indexInitVal = rangeExpr != null ? rangeExpr.lhsExpr :
+                ASTBuilderUtil.createLiteral(pos, symTable.intType, 0L);
+        BLangExpression indexMaxVal = rangeExpr != null ? rangeExpr.rhsExpr :
+                createLangLibInvocationNode("length", foreach.collection, new ArrayList<>(),
+                        symTable.intType, pos);
 
-        Function<ExpressionNode, BLangExpression> indexMaxVal = (ExpressionNode collectionExpr) -> {
-            if (collectionExpr.getKind() == NodeKind.BINARY_EXPR) {
-                return ((BLangBinaryExpr) collectionExpr).rhsExpr;
-            }
-            return createLangLibInvocationNode("length", (BLangExpression) collectionExpr, new ArrayList<>(),
-                    symTable.intType, pos);
-        };
-        BLangSimpleVariableDef indexVarDef = ASTBuilderUtil.createVariableDef(pos, indexVariable);
-        scopeStmts.add(indexVarDef);
-
+        scopeStmts.add(ASTBuilderUtil.createVariableDef(pos, indexVariable));
         scopeStmts.add(ASTBuilderUtil.createAssignmentStmt(pos, ASTBuilderUtil.createVariableRef(pos, indexSymbol),
-                indexInitVal.apply(foreach.getCollection())));
+                indexInitVal));
 
-        Function<ExpressionNode, OperatorKind> comparisonOP = (ExpressionNode collectionExpr) -> {
-            if (collectionExpr.getKind() == NodeKind.BINARY_EXPR) {
-                return ((BLangBinaryExpr) collectionExpr).opKind == OperatorKind.HALF_OPEN_RANGE ?
-                        OperatorKind.LESS_THAN : OperatorKind.LESS_EQUAL;
-            }
-            return OperatorKind.LESS_THAN;
-        };
-        // FIXME: condition must factored to a local variable to match current implementation
+        OperatorKind comparisonOp;
+        if (rangeExpr != null) {
+            comparisonOp =
+                    rangeExpr.opKind == OperatorKind.HALF_OPEN_RANGE ? OperatorKind.LESS_THAN : OperatorKind.LESS_EQUAL;
+        } else {
+            comparisonOp = OperatorKind.LESS_THAN;
+        }
         BLangBinaryExpr condition =
                 ASTBuilderUtil.createBinaryExpr(pos, ASTBuilderUtil.createVariableRef(pos, indexSymbol),
-                        indexMaxVal.apply(foreach.getCollection()), symTable.booleanType,
-                        comparisonOP.apply(foreach.getCollection()),
+                        indexMaxVal, symTable.booleanType, comparisonOp,
                         (BOperatorSymbol) symResolver
                                 .resolveBinaryOperator(OperatorKind.EQUAL, symTable.booleanType, symTable.booleanType));
 
         List<BLangStatement> whileBodyStmts = new ArrayList<>();
 
-        // Local (within while loop) variable that holds the current value of the index variable
-        BLangSimpleVariableDef iterValDef = (BLangSimpleVariableDef) foreach.variableDefinitionNode;
-        whileBodyStmts.add(iterValDef);
-        Function<ExpressionNode, BLangExpression> iterValNextValue = (ExpressionNode collectionExpr) -> {
-            if (collectionExpr.getKind() == NodeKind.BINARY_EXPR) {
-                return ASTBuilderUtil.createVariableRef(pos, indexSymbol);
-            }
-            return ASTBuilderUtil.createIndexBasesAccessExpr(pos, iterValDef.var.getBType(),
-                    (BVarSymbol) ((BLangSimpleVarRef) collectionExpr).varSymbol,
-                    ASTBuilderUtil.createVariableRef(pos, indexSymbol));
-        };
-        whileBodyStmts.add(ASTBuilderUtil.createAssignmentStmt(pos,
-                ASTBuilderUtil.createVariableRef(pos, iterValDef.var.symbol),
-                iterValNextValue.apply(foreach.collection)));
+        // pr: can be cetain this is always valid
+        BLangSimpleVariableDef loopValDef = (BLangSimpleVariableDef) foreach.variableDefinitionNode;
+        whileBodyStmts.add(loopValDef);
 
-        // increment index (NOTE: we must do this before the body of foreach since it may have control flow)
+        BLangExpression nexLoopVal = rangeExpr != null ? ASTBuilderUtil.createVariableRef(pos, indexSymbol) :
+                ASTBuilderUtil.createIndexBasesAccessExpr(pos, loopValDef.var.getBType(),
+                        (BVarSymbol) ((BLangVariableReference) foreach.collection).symbol,
+                    ASTBuilderUtil.createVariableRef(pos, indexSymbol));
+        whileBodyStmts.add(ASTBuilderUtil.createAssignmentStmt(pos,
+                ASTBuilderUtil.createVariableRef(pos, loopValDef.var.symbol), nexLoopVal));
+
+        // Increment the index
         whileBodyStmts.add(ASTBuilderUtil.createAssignmentStmt(pos, ASTBuilderUtil.createVariableRef(pos, indexSymbol),
                 ASTBuilderUtil.createBinaryExpr(pos, ASTBuilderUtil.createVariableRef(pos, indexSymbol),
                         ASTBuilderUtil.createLiteral(pos, symTable.intType, 1L), symTable.intType, OperatorKind.ADD,
