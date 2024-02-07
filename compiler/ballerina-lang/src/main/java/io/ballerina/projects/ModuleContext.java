@@ -317,6 +317,14 @@ class ModuleContext {
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
     }
 
+    /**
+     *
+     * Returns true if at least one method or type def is connected to one of the root methods of the root pkg.
+     */
+    public boolean isUsed() {
+        return this.bLangPackage().symbol.invocationData.moduleIsUsed;
+    }
+
     private void addModuleDependency(PackageOrg org,
                                      String moduleName,
                                      PackageDependencyScope scope,
@@ -455,7 +463,7 @@ class ModuleContext {
         }
 
         // Generate and write the thin JAR to the file system
-        if (moduleContext.moduleId().moduleName().contains("observe") || !moduleContext.project.buildOptions().optimizeCodegen()) {
+        if (moduleContext.isWhiteListedModule() || !moduleContext.project.buildOptions().optimizeCodegen()) {
             compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
         }
 
@@ -471,10 +479,17 @@ class ModuleContext {
         // Write the bir to the file system
         // This code will execute only if JAR caching is successful
         // TODO: check the filesystem cache and delete if the cache is incomplete (if BIR or JAR is missing)
-        if (moduleContext.moduleId().moduleName().contains("observe") ||
-                !moduleContext.project.buildOptions().optimizeCodegen()) {
+        if (moduleContext.isWhiteListedModule() || !moduleContext.project.buildOptions().optimizeCodegen()) {
             moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
         }
+    }
+
+    public boolean isWhiteListedModule() {
+        return this.moduleId.moduleName().contains("observe") || isDriverModule();
+    }
+
+    private boolean isDriverModule() {
+        return this.moduleId.moduleName().contains(".driver");
     }
 
     private static boolean shouldGenerateBir(ModuleContext moduleContext, CompilerContext compilerContext) {
