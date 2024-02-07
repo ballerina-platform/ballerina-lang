@@ -49,7 +49,12 @@ public class NativeDependencyOptimizer {
     private static final String CLASS = ".class";
     private static final String SERVICE_PROVIDER_DIRECTORY = "META-INF/services/";
     private static final Gson gson = new Gson();
-
+    /**
+     * These classes are used by GraalVM when building the native-image. Since they are not connected to the root class,
+     * they will be removed by the NativeDependencyOptimizer if they are not whitelisted.
+     */
+    private static final HashSet<String> GRAALVM_FEATURE_CLASSES =
+            new HashSet<>(Arrays.asList("io/ballerina/stdlib/crypto/svm/BouncyCastleFeature"));
     /**
      * key = implementation class name
      * value = interface class name
@@ -126,6 +131,8 @@ public class NativeDependencyOptimizer {
                 whitelistReflectionClasses(reader);
             }
         }
+
+        startPointClasses.addAll(GRAALVM_FEATURE_CLASSES);
     }
 
     private boolean isReflectionConfig(String entryName) {
