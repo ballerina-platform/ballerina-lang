@@ -263,21 +263,21 @@ function workerMultipleReceiveWithConditionalSend1() {
         }
     }
 
-    worker w2 returns map<int|errorLib:NoMessageError> {
-        map<int|errorLib:NoMessageError> m = <- {w1, w3};
+    worker w2 returns map<int|errorLib:NoMessage> {
+        map<int|errorLib:NoMessage> m = <- {w1, w3};
         return m;
     }
 
     worker w3 {
-        int|errorLib:NoMessageError a = <- w1;
+        int|errorLib:NoMessage a = <- w1;
         test:assertTrue(a is error, "Invalid result");
         error e = <error> a;
-        test:assertEquals(e.message(), "NoMessageError", "Invalid error message");
+        test:assertEquals(e.message(), "NoMessage", "Invalid error message");
         test:assertEquals(e.detail().toString(), "{\"message\":\"no message received from worker 'w1' to worker 'w3'\"}", "Invalid error detail");
         3 -> w2;
     }
 
-    map<int|errorLib:NoMessageError> mapResult = wait w2;
+    map<int|errorLib:NoMessage> mapResult = wait w2;
     test:assertEquals(mapResult["w1"], 1, "Invalid map result");
     test:assertEquals(mapResult["w3"], 3, "Invalid map result");
 }
@@ -293,22 +293,22 @@ function workerMultipleReceiveWithConditionalSend2() {
         }
     }
 
-    worker w2 returns map<int|errorLib:NoMessageError> {
-        map<int|errorLib:NoMessageError> m = <- {w1, w3};
+    worker w2 returns map<int|errorLib:NoMessage> {
+        map<int|errorLib:NoMessage> m = <- {w1, w3};
         return m;
     }
 
     worker w3 {
-        int|errorLib:NoMessageError a = <- w1;
+        int|errorLib:NoMessage a = <- w1;
         test:assertTrue(a is int, "Invalid result");
         test:assertEquals(a, 1, "Invalid int result");
         3 -> w2;
     }
 
-    map<int|errorLib:NoMessageError> mapResult = wait w2;
-    test:assertTrue(mapResult["w1"] is errorLib:NoMessageError, "Invalid map result");
-    errorLib:NoMessageError e = <errorLib:NoMessageError> mapResult["w1"];
-    test:assertEquals(e.message(), "NoMessageError", "Invalid error message");
+    map<int|errorLib:NoMessage> mapResult = wait w2;
+    test:assertTrue(mapResult["w1"] is errorLib:NoMessage, "Invalid map result");
+    errorLib:NoMessage e = <errorLib:NoMessage> mapResult["w1"];
+    test:assertEquals(e.message(), "NoMessage", "Invalid error message");
     test:assertEquals(e.detail().toString(), "{\"message\":\"no message received from worker 'w1' to worker 'w2'\"}", "Invalid error detail");
     test:assertEquals(mapResult["w3"], 3, "Invalid map result");
 }

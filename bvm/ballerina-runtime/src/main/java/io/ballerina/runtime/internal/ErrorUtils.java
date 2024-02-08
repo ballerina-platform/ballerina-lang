@@ -191,7 +191,7 @@ public class ErrorUtils {
 
     public static BError createNoMessageError(String chnlName) {
         String[] splitWorkers = chnlName.split(":")[0].split("->");
-        return createError(BALLERINA_LANG_ERROR_PKG_ID, "NoMessageError", ErrorReasons.NO_MESSAGE_ERROR,
+        return createError(BALLERINA_LANG_ERROR_PKG_ID, "NoMessage", ErrorReasons.NO_MESSAGE_ERROR,
                 null, ErrorHelper.getErrorDetails(ErrorCodes.NO_MESSAGE_ERROR,
                         StringUtils.fromString(splitWorkers[0]), StringUtils.fromString(splitWorkers[1])));
     }
