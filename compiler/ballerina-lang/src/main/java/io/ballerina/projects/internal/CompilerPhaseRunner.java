@@ -141,21 +141,11 @@ public class CompilerPhaseRunner {
         }
 
         desugar(pkgNode);
-//        if (this.stopCompilation(pkgNode, CompilerPhase.DEAD_CODE_ANALYZE)) {
-//            return;
-//        }
-//
-//        deadCodeAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.BIR_GEN)) {
             return;
         }
 
         birGen(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.DEAD_BIR_NODE_ANALYZE)) {
-            return;
-        }
-
-//        deadBirNodeAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.BIR_EMIT)) {
             return;
         }

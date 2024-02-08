@@ -46,7 +46,6 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -334,10 +333,6 @@ public class PackageResolution {
             }
         }
 
-//        if (compilationOptions.optimizeCodegen()) {
-//            loadLangLibModuleRequests(allModuleLoadRequests);
-//        }
-
         // TODO Can we make this a builtin compiler plugin
         if ("k8s".equals(compilationOptions.getCloud()) || "docker".equals(compilationOptions.getCloud()) ||
                 "choreo".equals(compilationOptions.getCloud())) {
@@ -348,21 +343,6 @@ public class PackageResolution {
             allModuleLoadRequests.add(c2cModuleLoadReq);
         }
         return allModuleLoadRequests;
-    }
-
-    private void loadLangLibModuleRequests(LinkedHashSet<ModuleLoadRequest> moduleLoadRequests) {
-        Name[] langLibNames =
-                {Names.ANNOTATIONS, Names.REGEXP, Names.INTERNAL, Names.VALUE, Names.ARRAY, Names.DECIMAL, Names.ERROR,
-                        Names.FLOAT, Names.FUNCTION, Names.FUTURE, Names.MAP, Names.INT, Names.OBJECT, Names.STREAM,
-                        Names.TABLE, Names.STRING, Names.TYPEDESC, Names.XML, Names.BOOLEAN, Names.QUERY,
-                        Names.TRANSACTION, Names.RUNTIME};
-
-        for (Name langlibName : langLibNames) {
-            ModuleLoadRequest langLibModuleLoadReq = new ModuleLoadRequest(
-                    PackageOrg.from(Names.BALLERINA_ORG.value), "lang." + langlibName.getValue(),
-                    PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE);
-            moduleLoadRequests.add(langLibModuleLoadReq);
-        }
     }
 
     private DependencyGraph<ResolvedPackageDependency> resolveBALADependencies() {

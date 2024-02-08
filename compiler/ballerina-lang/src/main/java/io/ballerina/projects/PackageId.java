@@ -67,8 +67,4 @@ public final class PackageId {
     public int hashCode() {
         return Objects.hash(id);
     }
-
-    public String getPackageName() {
-        return packageName;
-    }
 }
