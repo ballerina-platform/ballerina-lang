@@ -15,9 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.test.worker;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -36,7 +36,7 @@ public class WorkerAlternateReceiveTest {
 
     @BeforeClass
     public void setup() {
-        this.result = BCompileUtil.compile("test-src/workers/workers_alt_receive.bal");
+        result = BCompileUtil.compile("test-src/workers/workers_alt_receive.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 
@@ -64,6 +64,27 @@ public class WorkerAlternateReceiveTest {
                 "multilpleAlternateReceive1",
                 "multilpleAlternateReceive2"
         };
+    }
+
+    @Test(description = "Test alternate receive type checking")
+    public void testAltWorkerReceiveTypeChecking() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/workers/alternate_receive_type_checking.bal");
+        int index = 0;
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'", 69,
+                20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found '" +
+                "(int|ballerina/lang.error:0.0.0:NoMessage)'", 70, 20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'", 71,
+                20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'", 72,
+                20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'", 73,
+                20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found '" +
+                "(decimal|string|int|boolean)'", 74, 20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found '" +
+                "(decimal|string|int|boolean|ballerina/lang.error:0.0.0:NoMessage)'", 75, 20);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
     @AfterClass

@@ -17,6 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+
 /**
  * Represents commons in worker async-send, sync-send and single-receive.
  *
@@ -24,6 +29,10 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
  */
 public abstract class BLangWorkerSendReceiveExpr extends BLangExpression {
 
+    public SymbolEnv env;
+    public BSymbol workerSymbol;
+    public BType workerType;
+    public BLangIdentifier workerIdentifier;
     private Channel channel;
 
     public Channel getChannel() {
@@ -34,16 +43,7 @@ public abstract class BLangWorkerSendReceiveExpr extends BLangExpression {
         this.channel = channel;
     }
 
-    public static final class Channel {
-        public final String sender;
-        public final String receiver;
-        public final int eventIndex;
-
-        public Channel(String sender, String receiver, int eventIndex) {
-            this.sender = sender;
-            this.receiver = receiver;
-            this.eventIndex = eventIndex;
-        }
+    public record Channel(String sender, String receiver, int eventIndex) {
 
         public String workerPairId() {
             return workerPairId(sender, receiver);
