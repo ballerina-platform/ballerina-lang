@@ -15,8 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects;
+package io.ballerina.projects.buildtools;
 
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 

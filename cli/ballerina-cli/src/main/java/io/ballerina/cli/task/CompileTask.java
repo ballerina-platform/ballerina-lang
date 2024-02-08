@@ -29,7 +29,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.SemanticVersion;
-import io.ballerina.projects.ToolContext;
+import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.PackageDiagnostic;

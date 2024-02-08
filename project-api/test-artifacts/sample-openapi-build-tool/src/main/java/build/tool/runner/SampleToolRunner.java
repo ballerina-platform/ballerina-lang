@@ -18,8 +18,8 @@
 
 package build.tool.runner;
 
-import io.ballerina.cli.tool.CodeGeneratorTool;
-import io.ballerina.projects.ToolContext;
+import io.ballerina.projects.buildtools.CodeGeneratorTool;
+import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;

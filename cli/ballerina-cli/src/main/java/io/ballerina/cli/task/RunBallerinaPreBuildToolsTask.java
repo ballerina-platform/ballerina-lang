@@ -18,11 +18,11 @@
 
 package io.ballerina.cli.task;
 
-import io.ballerina.cli.tool.CodeGeneratorTool;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Diagnostics;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ToolContext;
+import io.ballerina.projects.buildtools.CodeGeneratorTool;
+import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.toml.api.Toml;
