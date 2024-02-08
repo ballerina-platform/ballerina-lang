@@ -80,6 +80,7 @@ public class BIRBinaryWriter {
         writeAnnotations(birbuf, typeWriter, birPackage.annotations);
         // Write service declarations
         writeServiceDeclarations(birbuf, birPackage.serviceDecls);
+
         // Write the constant pool entries.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (DataOutputStream dataOut = new DataOutputStream(baos)) {
@@ -207,6 +208,7 @@ public class BIRBinaryWriter {
 
         // Function type as a CP Index
         BIRWriterUtils.writeType(cp, buf, birFunction.type);
+
         writePathParameters(buf, birFunction);
         
         // Store annotations here...

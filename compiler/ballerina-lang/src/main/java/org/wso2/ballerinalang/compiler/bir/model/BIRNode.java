@@ -85,22 +85,6 @@ public abstract class BIRNode {
             this.serviceDecls = new ArrayList<>();
         }
 
-        public BIRPackage(Location pos, PackageID packageID, String sourceRoot, boolean skipTest, boolean isTestPkg) {
-            super(pos);
-            this.packageID = packageID;
-            this.packageID.sourceRoot = sourceRoot;
-            this.packageID.skipTests = skipTest;
-            this.packageID.isTestPkg = isTestPkg;
-            this.importModules = new ArrayList<>();
-            this.typeDefs = new ArrayList<>();
-            this.globalVars = new ArrayList<>();
-            this.importedGlobalVarsDummyVarDcls = new HashSet<>();
-            this.functions = new ArrayList<>();
-            this.annotations = new ArrayList<>();
-            this.constants = new ArrayList<>();
-            this.serviceDecls = new ArrayList<>();
-        }
-
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
@@ -206,11 +190,6 @@ public abstract class BIRNode {
                 return null;
             }
             return this.type.tsymbol.pkgID;
-        }
-
-        @Override
-        public String getNodeDetails() {
-            return null;
         }
     }
 
@@ -491,13 +470,6 @@ public abstract class BIRNode {
             }
             return this.type.tsymbol.pkgID;
         }
-
-        @Override
-        public String getNodeDetails() {
-            // TODO Expand this elvis
-            return name.toString() + "____" + (type != null ? (type.tsymbol != null? type.tsymbol.pkgID.toString() : "") : "");
-        }
-
     }
 
     /**
@@ -630,12 +602,6 @@ public abstract class BIRNode {
             }
             return this.type.tsymbol.pkgID;
         }
-
-        @Override
-        public String getNodeDetails() {
-            // TODO remove nested elvis
-            return name.toString() + "____" + (type != null ? (type.tsymbol != null? type.tsymbol.pkgID.toString() : "") : "");
-        }
     }
 
     /**
@@ -757,11 +723,6 @@ public abstract class BIRNode {
         public PackageID getPackageID() {
             return this.packageID;
         }
-
-        @Override
-        public String getNodeDetails() {
-            return null;
-        }
     }
 
     /**
@@ -828,11 +789,6 @@ public abstract class BIRNode {
                 return null;
             }
             return this.type.tsymbol.pkgID;
-        }
-
-        @Override
-        public String getNodeDetails() {
-            return null;
         }
     }
 
@@ -962,8 +918,6 @@ public abstract class BIRNode {
         }
 
         public abstract PackageID getPackageID();
-
-        public abstract String getNodeDetails();
     }
 
     /**
@@ -1119,11 +1073,6 @@ public abstract class BIRNode {
                 return null;
             }
             return this.type.tsymbol.pkgID;
-        }
-
-        @Override
-        public String getNodeDetails() {
-            return null;
         }
     }
 }

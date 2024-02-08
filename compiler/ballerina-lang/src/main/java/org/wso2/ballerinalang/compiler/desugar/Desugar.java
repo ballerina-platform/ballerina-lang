@@ -7910,9 +7910,6 @@ public class Desugar extends BLangNodeVisitor {
         // At this phase lambda function is semantically correct. Therefore simply env can be assigned.
         lambdaFunction.capturedClosureEnv = env;
         env.enclPkg.addFunction(lambdaFunction.function);
-//
-//        lambdaFunction.function.symbol.owner = ((BLangSimpleVariable) lambdaFunction.parent).symbol.owner;
-//        lambdaFunction.function.parent = lambdaFunction;
         result = rewriteExpr(lambdaFunction);
     }
 
