@@ -2351,14 +2351,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
                                         tupleDeStmt.expr.getBType(), tupleDeStmt.expr.pos, data);
             if (tupleDeStmt.expr.getKind() == LIST_CONSTRUCTOR_EXPR) {
-                analyzeListConstrExprInTupleDestructure(tupleDeStmt.varRef,
+                analyzeDestructuringWithListBindingPattern(tupleDeStmt.varRef,
                         (BLangListConstructorExpr) tupleDeStmt.expr);
             }
         }
     }
 
-    private void analyzeListConstrExprInTupleDestructure(BLangTupleVarRef tupleVarRef,
-                                                         BLangListConstructorExpr listExpr) {
+    private void analyzeDestructuringWithListBindingPattern(BLangTupleVarRef tupleVarRef,
+                                                            BLangListConstructorExpr listExpr) {
         List<BLangExpression> exprs = listExpr.exprs;
         List<BLangExpression> tupleVars = tupleVarRef.expressions;
 
@@ -2396,7 +2396,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
             BLangExpression tupleMemberVar = tupleVars.get(nonRestTupleVarIndex++);
             if (expr.getKind() == LIST_CONSTRUCTOR_EXPR && tupleMemberVar.getKind() == TUPLE_VARIABLE_REF) {
-                analyzeListConstrExprInTupleDestructure(
+                analyzeDestructuringWithListBindingPattern(
                         (BLangTupleVarRef) tupleMemberVar, (BLangListConstructorExpr) expr);
                 continue;
             }
