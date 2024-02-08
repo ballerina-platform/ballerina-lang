@@ -3696,7 +3696,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             symResolver.loadRawTemplateType();
             symResolver.bootstrapIterableType();
             symResolver.bootstrapIntRangeType();
-
             symTable.langRegexpModuleSymbol = packageSymbol;
             symTable.updateRegExpTypeOwners();
             return;
@@ -3716,8 +3715,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (langLib.equals(TRANSACTION_INTERNAL)) {
             symTable.internalTransactionModuleSymbol = packageSymbol;
         }
-
-
     }
 
     public boolean isValidAnnotationType(BType type) {
