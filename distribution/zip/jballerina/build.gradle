@@ -21,6 +21,7 @@ plugins {
 
 apply from: "$rootDir/gradle/repositories.gradle"
 apply from: "$rootDir/gradle/javaLibsProject.gradle"
+apply from: "$rootDir/go.gradle"
 
 configurations {
     dist {
@@ -116,6 +117,7 @@ CopySpec copyBinSpec = copySpec {
 CopySpec copyStaticSpec = copySpec {
     from configurations.staticArtifacts.files
     into(basePath + '/')
+
 }
 
 CopySpec copyResourceSpec = copySpec {
@@ -123,19 +125,26 @@ CopySpec copyResourceSpec = copySpec {
     into(basePath + '/bre')
 }
 
-//CopySpec copySrcBalaSpec = copySpec {
-//    from configurations.balSource.files
-//    into("$basePath/src")
-//}
+
+tasks.register('setBallerinaVersion', Exec) {
+    doFirst {
+        // Set BALLERINA_VERSION environment variable
+        environment 'BALLERINA_VERSION', project.version
+    }
+    commandLine 'echo', "Ballerina Version: ${project.version}"
+}
+tasks.named('go_build').configure {
+    dependsOn setBallerinaVersion
+}
 
 
 task createZip(type: Zip) {
+    //dependsOn go_build
     with copyJarSpec
     with copyBalaSpec
     with copyBinSpec
     with copyStaticSpec
     with copyResourceSpec
-//    with copySrcBalaSpec
     with copyBalxSpec
 }
 
@@ -151,7 +160,11 @@ artifacts {
     zip file: file("$buildDir/distributions/${basePath}.zip"), builtBy: createZip
 }
 
+
+
+
 build {
+    dependsOn go_build
     dependsOn createZip
 }
 
