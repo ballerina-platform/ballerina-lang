@@ -41,7 +41,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
