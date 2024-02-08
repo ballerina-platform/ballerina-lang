@@ -26,11 +26,13 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.IOUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,33 +42,45 @@ import java.util.Stack;
 
 public class NativeDependencyOptimizer {
 
-    private final Set<String> startPointClasses;
-    private final Stack<String> usedClassesStack;
-    private final Set<String> externalClasses = new HashSet<>();
-    private final Set<String> visitedClasses = new HashSet<>();
-    private final ZipFile originalJarFile;
-    private final ZipArchiveOutputStream optimizedJarStream;
     private static final String CLASS = ".class";
     private static final String SERVICE_PROVIDER_DIRECTORY = "META-INF/services/";
-    private static final Gson gson = new Gson();
+    private static final String NATIVE_IMAGE_DIRECTORY = "META-INF/native-image";
+    private static final String REFLECT_CONFIG_JSON = "reflect-config.json";
+    private static final String JNI_CONFIG_JSON = "jni-config.json";
+    private static final String MODULE_INFO = "module-info";
+
+    // These directories are whitelisted due to usages of "sun.misc.Unsafe" class
+    // TODO Find a way to whitelist only the necessary class files
+    // TODO Check whether we need "com/mysql" for sure
+    private static final HashSet<String> WHITELISTED_DIRECTORIES = new HashSet<>(Arrays.asList("io/netty/util"));
+
     /**
      * These classes are used by GraalVM when building the native-image. Since they are not connected to the root class,
      * they will be removed by the NativeDependencyOptimizer if they are not whitelisted.
      */
     private static final HashSet<String> GRAALVM_FEATURE_CLASSES =
             new HashSet<>(Arrays.asList("io/ballerina/stdlib/crypto/svm/BouncyCastleFeature"));
+
     /**
-     * key = implementation class name
-     * value = interface class name
-     * Since one interface can be implemented by more than one child class, it is possible to have duplicate values
+     * key = implementation class name value = interface class name Since one interface can be implemented by more than
+     * one child class, it is possible to have duplicate values
+     * <p>
+     * TODO find a way to modify the service provider files and delete the lines containing the UNUSED implementations of interfaces
      */
     private static final Map<String, String> implementationWiseAllServiceProviders = new HashMap<>();
+
     /**
-     * key = used interface
-     * value = used implementation
+     * key = used interface value = used implementation
      */
     private static final Map<String, HashSet<String>> interfaceWiseAllServiceProviders = new HashMap<>();
     private static final Set<String> usedSpInterfaces = new HashSet<>();
+    private static final Gson gson = new Gson();
+    private final Set<String> startPointClasses;
+    private final Stack<String> usedClassesStack;
+    private final Set<String> externalClasses = new HashSet<>();  // TODO use this when modularizing the NativeDependencyOptimizer
+    private final Set<String> visitedClasses = new HashSet<>();
+    private final ZipFile originalJarFile;
+    private final ZipArchiveOutputStream optimizedJarStream;
 
     public NativeDependencyOptimizer(HashSet<String> startPointClasses, ZipFile originalJarFile,
                                      ZipArchiveOutputStream optimizedJarStream) {
@@ -75,6 +89,45 @@ public class NativeDependencyOptimizer {
         this.originalJarFile = originalJarFile;
         this.optimizedJarStream = optimizedJarStream;
         this.usedClassesStack = new Stack<>();
+    }
+
+    private static boolean isWhiteListedEntryName(String entryName) {
+        if (entryName.equals(MODULE_INFO + CLASS)) {
+            return true;
+        }
+
+        for (String whiteListedDirectory : WHITELISTED_DIRECTORIES) {
+            if (entryName.startsWith(whiteListedDirectory)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static HashSet<String> getServiceProviderImplementations(ZipFile originalJarFile, ZipArchiveEntry entry)
+            throws IOException {
+        String allImplString = IOUtils.toString(originalJarFile.getInputStream(entry), StandardCharsets.UTF_8);
+        String[] serviceImplClassesArr = allImplString.split("\n");
+        HashSet<String> serviceProviderDependencies = new HashSet<>();
+
+        for (String serviceClass : serviceImplClassesArr) {
+            // Skipping the licencing comments
+            if (serviceClass.startsWith("#") || serviceClass.isBlank()) {
+                continue;
+            }
+            serviceProviderDependencies.add(getServiceProviderClassName(serviceClass));
+        }
+
+        return serviceProviderDependencies;
+    }
+
+    private static boolean isServiceProvider(String entryName) {
+        return entryName.startsWith(SERVICE_PROVIDER_DIRECTORY);
+    }
+
+    private static String getServiceProviderClassName(String providerFileName) {
+        int i = providerFileName.lastIndexOf('/');
+        return providerFileName.substring(i + 1).replace(".", "/");
     }
 
     public void analyzeUsedClasses() throws IOException {
@@ -127,7 +180,8 @@ public class NativeDependencyOptimizer {
             }
 
             if (isReflectionConfig(currentEntry.getName())) {
-                InputStreamReader reader = new InputStreamReader(originalJarFile.getInputStream(currentEntry));
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(originalJarFile.getInputStream(currentEntry)));
                 whitelistReflectionClasses(reader);
             }
         }
@@ -136,27 +190,20 @@ public class NativeDependencyOptimizer {
     }
 
     private boolean isReflectionConfig(String entryName) {
-        return (entryName.endsWith("reflect-config.json") || entryName.endsWith("jni-config.json")) && entryName.startsWith("META-INF/native-image/");
+        return (entryName.endsWith(REFLECT_CONFIG_JSON) || entryName.endsWith(JNI_CONFIG_JSON)) &&
+                entryName.startsWith(NATIVE_IMAGE_DIRECTORY);
     }
 
     private void whitelistReflectionClasses(Reader reader) {
         JsonElement jsonElement = gson.fromJson(reader, JsonElement.class);
 
-        jsonElement.getAsJsonArray()
-                .forEach(entry -> {
-                    String className = entry.getAsJsonObject().get("name").getAsString();
-                    if (className.contains("$")) {
-                        startPointClasses.add(className.replace(".", "/").split("\\$")[0]);
-                    }
-                    startPointClasses.add(className.replace(".", "/"));
-                });
-    }
-
-    private String getReflectionClassName(String reflectionEntry) {
-        if (reflectionEntry.contains("$")) {
-            return reflectionEntry.replace(".", "/").split("\\$")[0];
-        }
-        return reflectionEntry.replace(".", "/");
+        jsonElement.getAsJsonArray().forEach(entry -> {
+            String className = entry.getAsJsonObject().get("name").getAsString();
+            if (className.contains("$")) {
+                startPointClasses.add(className.replace(".", "/").split("\\$")[0]);
+            }
+            startPointClasses.add(className.replace(".", "/"));
+        });
     }
 
     public void copyUsedEntries() throws IOException {
@@ -172,39 +219,10 @@ public class NativeDependencyOptimizer {
                 }
                 return true;
             }
-            return visitedClasses.contains(entryName) || entryName.equals("module-info.class") || entryName.startsWith("io/netty/util") || entryName.startsWith("com/mysql");
+            return visitedClasses.contains(entryName) || isWhiteListedEntryName(entryName);
         };
 
         originalJarFile.copyRawEntries(optimizedJarStream, usedClassPredicate);
-    }
-
-    private static HashSet<String> getServiceProviderImplementations(ZipFile originalJarFile, ZipArchiveEntry entry) throws IOException {
-        String allImplString = IOUtils.toString(originalJarFile.getInputStream(entry), StandardCharsets.UTF_8);
-        String[] serviceImplClassesArr = allImplString.split("\n");
-        HashSet<String> serviceProviderDependencies = new HashSet<>();
-
-        for (String serviceClass : serviceImplClassesArr) {
-            // Skipping the licencing comments
-            if (serviceClass.startsWith("#") || serviceClass.isBlank()) {
-                continue;
-            }
-            serviceProviderDependencies.add(getServiceProviderClassName(serviceClass));
-        }
-
-        return serviceProviderDependencies;
-    }
-
-    private static boolean isServiceProvider(String entryName) {
-        return entryName.startsWith(SERVICE_PROVIDER_DIRECTORY);
-    }
-
-    private static String getServiceProviderClassName(String providerFileName) {
-        int i = providerFileName.lastIndexOf('/');
-        return providerFileName.substring(i + 1).replace(".", "/");
-    }
-
-    private static String getServiceProviderFileName(String implementationClassName) {
-        return implementationClassName.replace("/", ".");
     }
 
     public boolean jarContainsStartPoints() {
@@ -215,9 +233,5 @@ public class NativeDependencyOptimizer {
             }
         }
         return false;
-    }
-
-    public Set<String> getExternalClasses() {
-        return externalClasses;
     }
 }
