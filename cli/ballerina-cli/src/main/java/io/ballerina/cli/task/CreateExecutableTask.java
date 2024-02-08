@@ -127,16 +127,9 @@ public class CreateExecutableTask implements Task {
                 }
             }
 
-            List<Diagnostic> diagnostics = new ArrayList<>(emitResult.diagnostics().diagnostics());
-            if (!diagnostics.isEmpty()) {
-                //  TODO: When deprecating the lifecycle compiler plugin, we can remove this check for duplicates
-                //   in JBallerinaBackend diagnostics and the diagnostics added to EmitResult.
-                diagnostics = diagnostics.stream()
-                        .filter(diagnostic -> !jBallerinaBackend.diagnosticResult().diagnostics().contains(diagnostic))
-                        .collect(Collectors.toList());
-                if (!diagnostics.isEmpty()) {
-                    diagnostics.forEach(d -> out.println("\n" + d.toString()));
-                }
+            List<Diagnostic> emitDiagnostics = new ArrayList<>(emitResult.diagnostics().diagnostics());
+            if (!emitDiagnostics.isEmpty()) {
+                emitDiagnostics.forEach(d -> out.println("\n" + d.toString()));
             }
 
         } catch (ProjectException e) {
