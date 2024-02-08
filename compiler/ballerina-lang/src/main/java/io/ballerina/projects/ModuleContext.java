@@ -302,10 +302,7 @@ class ModuleContext {
         } else if (this.project().kind() == ProjectKind.BUILD_PROJECT
                 && !this.project.buildOptions().enableCache()) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
-        } else if (!this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/lang") &&
-                this.project().buildOptions().optimizeCodegen() &&
-                !this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/jballerina")
-        ) {
+        } else if (this.shouldOptimizeCodegen()) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
         } else {
             moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;
@@ -517,6 +514,18 @@ class ModuleContext {
 
     private boolean isDriverModule() {
         return this.moduleId.moduleName().contains(".driver");
+    }
+
+    private boolean isLangLibModule() {
+        return this.moduleDescriptor.moduleCompilationId().toString().startsWith("ballerina/lang");
+    }
+
+    private boolean isJBallerinaModule() {
+        return this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/jballerina");
+    }
+
+    private boolean shouldOptimizeCodegen() {
+        return this.project().buildOptions().optimizeCodegen() && !this.isLangLibModule() && !isJBallerinaModule();
     }
 
     private static boolean shouldGenerateBir(ModuleContext moduleContext, CompilerContext compilerContext) {

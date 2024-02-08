@@ -40,21 +40,17 @@ public enum CompilerPhase {
 
     CONSTANT_PROPAGATION("constantPropagation"),
 
-    DEAD_CODE_ANALYZE("deadCodeAnalyze"),
     COMPILER_PLUGIN("compilerPlugin"),
 
     DESUGAR("desugar"),
 
     BIR_GEN("birGen"),
-    BIR_DEAD_NODE_ANALYZE_ASM_APPROACH("birDeadNodeAnalyze"),
-    DEAD_BIR_NODE_ANALYZE("deadBirNodeAnalyze"),
 
     BIR_EMIT("birEmit"),
 
     CODE_GEN("codeGen");
 
-
-    private final String value;
+    private String value;
 
     CompilerPhase(String value) {
         this.value = value;
@@ -72,8 +68,6 @@ public enum CompilerPhase {
                 return DOCUMENTATION_ANALYZE;
             case "constantPropagation":
                 return CONSTANT_PROPAGATION;
-            case "deadCodeAnalyze":
-                return DEAD_CODE_ANALYZE;
             case "compilerPlugin":
                 return COMPILER_PLUGIN;
             case "desugar":
@@ -82,8 +76,6 @@ public enum CompilerPhase {
                 return CODE_GEN;
             case "birGen":
                 return BIR_GEN;
-            case "birDeadNodeAnalyze":
-                return BIR_DEAD_NODE_ANALYZE_ASM_APPROACH;
             case "birEmit":
                 return BIR_EMIT;
             default:
