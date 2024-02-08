@@ -14,7 +14,7 @@ function testInvalidUpdates() {
     b.push("l7");
 }
 
-function testInvalidAccess() {
+function testUndefinedMemberAccess() {
     float[] _ = foo:l10;
     string[] _ = foo:l11;
 }
