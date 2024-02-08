@@ -240,14 +240,6 @@ public class JBallerinaBackend extends CompilerBackend {
                         updateUnusedPkgMaps(moduleContext);
                     }
                 }
-
-//                if (platformLibraryGenerated(moduleContext)) {
-//                    if (!moduleContext.isUsed()) {
-//                        updateUnusedPkgMaps(moduleContext);
-//                    }
-//                    performOptimizedCodeGen(moduleContext);
-//                }
-
                 if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
                     moduleContext.cleanBLangPackage();
                 }
@@ -269,14 +261,6 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private boolean shouldOptimize(ModuleContext moduleContext) {
         return platformLibraryGenerated(moduleContext) && !moduleContext.isWhiteListedModule();
-    }
-
-    private boolean isWhiteListedModule(ModuleContext moduleContext) {
-        return moduleContext.moduleId().moduleName().contains("observe") || isDriverModule(moduleContext);
-    }
-
-    private boolean isDriverModule(ModuleContext moduleContext) {
-        return moduleContext.moduleId().moduleName().contains(".driver");
     }
 
     /**
