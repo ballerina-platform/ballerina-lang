@@ -138,9 +138,7 @@ public class BuildOptions {
         return toBooleanDefaultIfNull(this.showDependencyDiagnostics);
     }
     public boolean optimizeCodegen() {
-//        return toBooleanDefaultIfNull(this.compilationOptions.optimizeCodegen);
         return this.compilationOptions.optimizeCodegen();
-//        return true;
     }
 
     /**
@@ -287,7 +285,6 @@ public class BuildOptions {
         private Boolean nativeImage;
         private Boolean exportComponentModel;
         private String graalVMBuildOptions;
-        private Boolean showDependencyDiagnostics;
 
 
         private BuildOptionsBuilder() {
