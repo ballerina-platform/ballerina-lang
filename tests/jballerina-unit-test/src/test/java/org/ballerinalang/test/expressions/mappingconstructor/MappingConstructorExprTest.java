@@ -178,26 +178,31 @@ public class MappingConstructorExprTest {
                 "invalid usage of spread field with open record of type 'record {| int i; anydata...; |}', that may " +
                         "have rest fields, to construct a closed record", 102, 26);
         validateError(result, i++,
-                "invalid usage of spread field with open record of type 'Foz', that may have rest fields of type " +
-                        "'string', to construct a record that allows only 'anydata' rest fields", 108, 36);
+                "invalid usage of spread field with open record of type 'record {| int j; anydata...; |}', that may " +
+                        "have rest fields of type 'anydata', to construct a record that allows only 'string' rest " +
+                        "fields", 108, 36);
         validateError(result, i++,
-                "invalid usage of spread field with open record of type 'Foz', that may have rest fields of type " +
-                        "'string', to construct a record that allows only 'anydata' rest fields", 108, 45);
+                "invalid usage of spread field with open record of type 'record {| boolean b; anydata...; |}', that " +
+                        "may have rest fields of type 'anydata', to construct a record that allows only 'string' rest" +
+                        " fields", 108, 45);
         validateError(result, i++,
                 "incompatible types: expected 'string' for field 'population', found 'int'", 119, 21);
         validateError(result, i++,
-                "invalid usage of spread field with open record of type 'Country', that may have rest fields of type " +
-                        "'string', to construct a record that allows only 'anydata' rest fields", 119, 21);
-        validateError(result, i++,
-                "invalid usage of spread field with open record of type 'Country', that may have rest fields of type " +
-                        "'string', to construct a record that allows only 'anydata' rest fields", 122, 21);
-        validateError(result, i++,
-                "invalid usage of spread field with open record of type 'Country', that may have rest fields of type " +
-                        "'string', to construct a record that allows only 'anydata' rest fields", 125, 40);
-        validateError(result, i++,
                 "invalid usage of spread field with open record of type 'record {| string name; string continent; int" +
-                        "...; |}', that may have rest fields of type 'int', to construct a record that allows only " +
-                        "'string' rest fields", 128, 64);
+                        " population; anydata...; |}', that may have rest fields of type 'anydata', to construct a " +
+                        "record that allows only 'string' rest fields", 119, 21);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; string continent; " +
+                        "anydata...; |}', that may have rest fields of type 'anydata', to construct a record that " +
+                        "allows only 'string' rest fields", 122, 21);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; anydata...; |}', that" +
+                        " may have rest fields of type 'anydata', to construct a record that allows only 'string' " +
+                        "rest fields", 125, 40);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; string continent; " +
+                        "string...; |}', that may have rest fields of type 'string', to construct a record that " +
+                        "allows only 'int' rest fields", 128, 64);
         validateError(result, i++,
                 "invalid usage of spread field with open record of type 'record {| string name; string continent; " +
                         "error...; |}', that may have rest fields, to construct a closed record", 131, 56);
