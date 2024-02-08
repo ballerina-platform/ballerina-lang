@@ -285,7 +285,6 @@ public class BIRGen extends BLangNodeVisitor {
                 astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName,
                 sourceRoot, skipTest);
 
-//        BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID, sourceRoot, skipTest, false);
         astPkg.symbol.bir = birPkg; //TODO try to remove this
 
         this.env = new BIRGenEnv(birPkg);
@@ -297,8 +296,6 @@ public class BIRGen extends BLangNodeVisitor {
                 BIRPackage testBirPkg = new BIRPackage(testPkg.pos, testPkg.packageID.orgName,
                         testPkg.packageID.pkgName, testPkg.packageID.name, testPkg.packageID.version,
                         testPkg.packageID.sourceFileName, sourceRoot, skipTest, true);
-
-//                BIRPackage testBirPkg = new BIRPackage(testPkg.pos, testPkg.packageID, sourceRoot, skipTest, true);
                 this.env = new BIRGenEnv(testBirPkg);
                 testPkg.accept(this);
                 this.birOptimizer.optimizePackage(testBirPkg);
@@ -903,10 +900,6 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private Name getFuncOriginalName(BInvokableSymbol symbol) {
-//        if (symbol.originalName.value == null) {
-//            return getFuncName(symbol);
-//        }
-//        return names.fromString(symbol.originalName.value);\
         return symbol.name;
     }
 
@@ -1442,7 +1435,8 @@ public class BIRGen extends BLangNodeVisitor {
             List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.getAnnotations());
 
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
-                    invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), getFuncOriginalName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
+                    invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
+                    getFuncOriginalName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
                     thenBB, calleeAnnots, bInvokableSymbol.getFlags(), this.currentScope);
         }
         this.env.enclBB = thenBB;
