@@ -128,9 +128,7 @@ public class BuildOptions {
     }
 
     public boolean optimizeCodegen() {
-//        return toBooleanDefaultIfNull(this.compilationOptions.optimizeCodegen);
         return this.compilationOptions.optimizeCodegen();
-//        return true;
     }
 
     /**
@@ -270,7 +268,6 @@ public class BuildOptions {
         private Boolean nativeImage;
         private Boolean exportComponentModel;
         private String graalVMBuildOptions;
-//        private Boolean optimizeCodegen;
 
 
         private BuildOptionsBuilder() {

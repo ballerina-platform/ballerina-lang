@@ -128,7 +128,7 @@ public class CompilationOptions {
     }
 
     public boolean optimizeCodegen() {
-        return toBooleanDefaultIfNull(this.optimizeCodegen);
+        return toBooleanDefaultIfNull(optimizeCodegen);
     }
 
     /**

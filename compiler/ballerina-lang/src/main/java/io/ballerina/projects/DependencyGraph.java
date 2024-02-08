@@ -17,9 +17,6 @@
  */
 package io.ballerina.projects;
 
-import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -171,39 +168,6 @@ public class DependencyGraph<T> {
         topologicallySortedNodes = Collections.unmodifiableList(sorted);
         cyclicDependencies.forEach(cycle -> cycle.add(cycle.get(0)));
         return topologicallySortedNodes;
-    }
-
-    private List<T> getCorrectlySortedLanglibs(List<T> originalSorted) {
-        Name[] sortedLangLibNames =
-                {Names.ANNOTATIONS, Names.JAVA, Names.INTERNAL, Names.VALUE, Names.ARRAY, Names.DECIMAL,
-                        Names.ERROR, Names.FLOAT, Names.FUNCTION, Names.FUTURE, Names.MAP, Names.INT, Names.OBJECT,
-                        Names.STREAM, Names.TABLE, Names.REGEXP, Names.STRING, Names.TYPEDESC, Names.XML, Names.BOOLEAN,
-                        Names.QUERY, Names.TRANSACTION, Names.RUNTIME};
-
-        if (originalSorted.get(0) instanceof ModuleDescriptor) {
-            return originalSorted;
-        }
-
-        HashMap<String, ResolvedPackageDependency> originalSortedHashMap = new HashMap<>();
-        originalSorted.forEach(
-                pkg -> originalSortedHashMap.put(((ResolvedPackageDependency) pkg).packageId().getPackageName(),
-                        (ResolvedPackageDependency) pkg));
-
-
-        ArrayList<T> correctlySorted = new ArrayList<>();
-
-        for (int i = 0; i < sortedLangLibNames.length; i++) {
-            ResolvedPackageDependency langLib = originalSortedHashMap.get("lang." + sortedLangLibNames[i]);
-            if (sortedLangLibNames[i] == Names.JAVA) {
-                langLib = originalSortedHashMap.get(sortedLangLibNames[i].toString());
-            }
-
-            originalSorted.remove(langLib);
-            correctlySorted.add((T) langLib);
-        }
-        // adding the remaining
-        correctlySorted.addAll(originalSorted);
-        return correctlySorted;
     }
 
     public boolean isEmpty() {
