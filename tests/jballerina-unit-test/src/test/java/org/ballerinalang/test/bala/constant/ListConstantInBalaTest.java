@@ -20,7 +20,6 @@ package org.ballerinalang.test.bala.constant;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -43,11 +42,7 @@ public class ListConstantInBalaTest {
 
     @Test(dataProvider = "listAccessTestDataProvider")
     public void testConstantListAccess(String testCase) {
-        try {
-            BRunUtil.invoke(compileResult, testCase);
-        } catch (Exception e) {
-            Assert.fail(testCase + " test case failed.");
-        }
+        BRunUtil.invoke(compileResult, testCase);
     }
 
     @DataProvider(name = "listAccessTestDataProvider")
