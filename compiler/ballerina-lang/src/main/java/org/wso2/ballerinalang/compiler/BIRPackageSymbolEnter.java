@@ -142,13 +142,8 @@ public class BIRPackageSymbolEnter {
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
     private BStructureTypeSymbol currentStructure = null;
     private LinkedList<Object> compositeStack = new LinkedList<>();
-    // Following HashMap is used for debugging purposes
-    // It can be used to analyze which child symbols were failed to be resolved
-    private HashMap<BInvokableSymbol, HashSet<String>> failedSymbolsMap = new HashMap<>();
-    private HashMap<String, HashMap<String, HashSet<BInvokableSymbol>>> unresolvedInvocations = new HashMap<>();
 
     private static final int SERVICE_TYPE_TAG = 54;
-    private static final String PKG_NAME_FIRST_PART = "ballerina";
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
@@ -265,28 +260,8 @@ public class BIRPackageSymbolEnter {
 
         populateReferencedFunctions();
 
-        resolveRemainingChildSymbols(this.env.pkgSymbol);
         this.typeReader = null;
         return this.env.pkgSymbol;
-    }
-
-    private void resolveRemainingChildSymbols(BPackageSymbol latestPkgSymbol) {
-        String latestPkgName = String.format("%s/%s", PKG_NAME_FIRST_PART, latestPkgSymbol.getName());
-        if (!unresolvedInvocations.containsKey(latestPkgName)) {
-            return;
-        }
-
-        unresolvedInvocations.get(latestPkgName).forEach((childSymName, parentSymbols) -> {
-            BInvokableSymbol childSymbol = getInvokableSymbol(latestPkgSymbol, childSymName);
-            parentSymbols.forEach(parentSymbol -> {
-                if (childSymbol != null) {
-                    addInvocation(parentSymbol, childSymbol);
-                } else {
-                    failedSymbolsMap.putIfAbsent(parentSymbol, new HashSet<>());
-                    failedSymbolsMap.get(parentSymbol).add(childSymName);
-                }
-            });
-        });
     }
 
     private void populateReferencedFunctions() {
@@ -431,42 +406,6 @@ public class BIRPackageSymbolEnter {
         invokableSymbol.source = pos.lineRange().fileName();
         invokableSymbol.retType = funcType.retType;
 
-        if (!invokableSymbol.origin.equals(SymbolOrigin.VIRTUAL)) {
-            // Only toplevel symbols are defined as "UNUSED"
-            // Others(arrow and Desugar generated functions) will be UNEXPLORED by default
-            invokableSymbol.usedState = UsedState.UNUSED;
-            this.env.pkgSymbol.deadFunctions.add(invokableSymbol);
-        } else {
-            // pre declare as used because these invocations are UNEXPLORED
-            this.env.pkgSymbol.usedFunctions.add(invokableSymbol);
-        }
-        this.env.pkgSymbol.invocationMap.putIfAbsent(invokableSymbol, new HashSet<>());
-
-        // Reading the children(Invocations inside the parent's body)
-        int numOfChildren = dataInStream.readInt();
-        for (int i = 0; i < numOfChildren; i++) {
-            String childPkgName = getStringCPEntryValue(dataInStream);
-            String childName = getStringCPEntryValue(dataInStream);
-
-            if (pkgIsDefined(childPkgName)) {
-                BPackageSymbol childPkgSymbol = getPkgSymbol(childPkgName);
-                BInvokableSymbol childSymbol = getInvokableSymbol(childPkgSymbol, childName);
-                if (childSymbol != null) {
-                    addInvocation(invokableSymbol, childSymbol);
-                } else {
-                    // Child symbols that does not exist in the pkgCache are disregarded
-                    // Adding them to map for debugging purposes
-                    failedSymbolsMap.putIfAbsent(invokableSymbol, new HashSet<>());
-                    failedSymbolsMap.get(invokableSymbol).add(childName);
-                }
-            } else {
-                // Undefined child symbols will be resolved later
-                unresolvedInvocations.putIfAbsent(childPkgName, new HashMap<>());
-                unresolvedInvocations.get(childPkgName).putIfAbsent(childName, new HashSet<>());
-                unresolvedInvocations.get(childPkgName).get(childName).add(invokableSymbol);
-            }
-        }
-
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         boolean isResourceFunction = dataInStream.readBoolean();
@@ -575,38 +514,6 @@ public class BIRPackageSymbolEnter {
         dataInStream.skip(dataInStream.readLong()); // read and skip method body
 
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);
-    }
-
-    private boolean pkgIsDefined(String pkgName) {
-        return this.packageCache.packageSymbolMap.containsKey(pkgName);
-    }
-
-    private boolean isClassFunction(String functionName) {
-        return functionName.contains(".");
-    }
-
-    private void addInvocation(BInvokableSymbol parentSymbol, BInvokableSymbol childSymbol) {
-        parentSymbol.childrenFunctions.add(childSymbol);     // TODO Merge this and next line
-        this.env.pkgSymbol.invocationMap.putIfAbsent(parentSymbol, new HashSet<>());
-        this.env.pkgSymbol.invocationMap.get(parentSymbol).add(childSymbol);
-    }
-
-    private BPackageSymbol getPkgSymbol(String pkgName) {
-        return this.packageCache.getSymbol(pkgName);
-    }
-
-    private BInvokableSymbol getInvokableSymbol(BPackageSymbol pkgSymbol, String functionName) {
-        if (!isClassFunction(functionName)) {
-            return (BInvokableSymbol) pkgSymbol.scope.lookup(new Name(functionName)).symbol;
-        } else {
-            String[] classAndChild = functionName.split("\\.");
-            BSymbol bSymbol = pkgSymbol.scope.lookup(new Name(classAndChild[0])).symbol;
-            if (bSymbol.getKind() == SymbolKind.TYPE_DEF) {
-                return null;
-            }
-            BClassSymbol classSymbol = (BClassSymbol) bSymbol;
-            return (BInvokableSymbol) classSymbol.scope.lookup(new Name(functionName)).symbol;
-        }
     }
 
     private void defineGlobalVarDependencies(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)
