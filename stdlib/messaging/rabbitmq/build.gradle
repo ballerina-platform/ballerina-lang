@@ -42,7 +42,7 @@ dependencies {
 
     interopImports project(':ballerina-time')
 
-    implementation 'com.rabbitmq:amqp-client:5.7.3'
+    implementation 'com.rabbitmq:amqp-client:5.20.0'
 
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
@@ -56,7 +56,7 @@ dependencies {
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
 
     interopImports project(':ballerina-crypto')
-    interopImports 'com.rabbitmq:amqp-client:5.7.3'
+    interopImports 'com.rabbitmq:amqp-client:5.20.0'
 }
 
 configurations {
