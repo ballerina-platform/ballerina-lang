@@ -916,22 +916,24 @@ public abstract class BIRNode {
             }
         }
 
-        public boolean isInSamePkg(BIRDocumentableNode otherNode) {
-            PackageID otherNodePkgId = otherNode.getPackageID();
-
-            // PkgID is null only for desugared constructs. And desugared constructs cannot be called from another pkg
-            if (this.getPackageID() == null || otherNodePkgId == null) {
-                return true;
-            }
-
-            return this.getPackageID() == otherNodePkgId;
-        }
-
         public boolean isInSamePkg(PackageID analyzedPkgID) {
+            // PackageID is null for desugared constructs. And desugared constructs cannot be called from another pkg
             if (this.getPackageID() == null) {
                 return true;
             }
             return this.getPackageID().equals(analyzedPkgID);
+        }
+
+        public void markSelfAsUnused() {
+            this.usedState = UsedState.UNUSED;
+        }
+
+        public void markAsUsed() {
+            this.usedState = UsedState.USED;
+        }
+
+        public UsedState getUsedState() {
+            return this.usedState;
         }
 
         public abstract PackageID getPackageID();

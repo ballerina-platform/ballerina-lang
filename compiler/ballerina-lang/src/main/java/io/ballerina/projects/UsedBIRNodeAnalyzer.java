@@ -31,8 +31,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,37 +48,38 @@ import java.util.Properties;
 
 public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
-    private static final CompilerContext.Key<UsedBIRNodeAnalyzer> DEAD_BIR_NODE_ANALYZER_2_KEY =
+    private static final CompilerContext.Key<UsedBIRNodeAnalyzer> USED_BIR_NODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
     private static final HashSet<String> USED_FUNCTION_NAMES =
             new HashSet<>(Arrays.asList("main", ".<init>", ".<start>", ".<stop>"));
     private static final HashMap<String, HashSet<String>> INTEROP_DEPENDENCIES = new HashMap<>();
-    private static final HashSet<InstructionKind> ANALYZED_INSTRUCTION_KINDS =
-            new HashSet<>(Arrays.asList(InstructionKind.NEW_TYPEDESC, InstructionKind.NEW_INSTANCE,
-                    InstructionKind.TYPE_CAST, InstructionKind.FP_LOAD, InstructionKind.TYPE_TEST,
-                    InstructionKind.RECORD_DEFAULT_FP_LOAD));
+    private static final HashSet<InstructionKind> ANALYZED_INSTRUCTION_KINDS = new HashSet<>(
+            Arrays.asList(InstructionKind.NEW_TYPEDESC, InstructionKind.NEW_INSTANCE, InstructionKind.TYPE_CAST,
+                    InstructionKind.FP_LOAD, InstructionKind.TYPE_TEST, InstructionKind.RECORD_DEFAULT_FP_LOAD));
+    private static final HashSet<InstructionKind> ANALYZED_TERMINATOR_KINDS =
+            new HashSet<>(Arrays.asList(InstructionKind.CALL, InstructionKind.FP_CALL));
     private static final String EXTERNAL_METHOD_ANNOTATION_TAG = "Method";
-    public PackageCache pkgCache;
-    public UsedTypeDefAnalyzer usedTypeDefAnalyzer;
-    public List<BIRNonTerminator> currentInstructionArr;
-    private BIRNode.BIRFunction currentParentFunction;
-    public UsedBIRNodeAnalyzer.InvocationData currentInvocationData;
-    // We need to track whether function pointers are assigned to some other var after init
-    // TODO Implement an instruction and var chain to track the fp assignments
-    // If the FP is not invoked we can delete the path
-    public static HashSet<BIRNode.BIRVariableDcl> localFpHolders = new HashSet<>();
+    // To check whether a given FP is "USED" or not, we have to keep track of the existing FPs of a given scope.
+    // Variable Declarations holding an FPs are needed to be tracked to achieve that.
+    private static HashSet<BIRNode.BIRVariableDcl> localFpHolders = new HashSet<>();
+    // pkgWiseInvocationData is used for debugging purposes
     public final HashMap<PackageID, UsedBIRNodeAnalyzer.InvocationData> pkgWiseInvocationData = new HashMap<>();
-    public PackageID currentPkgID;
+    protected UsedBIRNodeAnalyzer.InvocationData currentInvocationData;
+    protected PackageID currentPkgID;
+    private final PackageCache pkgCache;
+    private final UsedTypeDefAnalyzer usedTypeDefAnalyzer;
+    private List<BIRNonTerminator> currentInstructionArr;
+    private BIRNode.BIRFunction currentParentFunction;
 
     private UsedBIRNodeAnalyzer(CompilerContext context) {
-        context.put(DEAD_BIR_NODE_ANALYZER_2_KEY, this);
+        context.put(USED_BIR_NODE_ANALYZER_KEY, this);
         this.pkgCache = PackageCache.getInstance(context);
         this.usedTypeDefAnalyzer = UsedTypeDefAnalyzer.getInstance(context);
         initInteropDependencies();
     }
 
     public static UsedBIRNodeAnalyzer getInstance(CompilerContext context) {
-        UsedBIRNodeAnalyzer deadBIRNodeAnalyzer = context.get(DEAD_BIR_NODE_ANALYZER_2_KEY);
+        UsedBIRNodeAnalyzer deadBIRNodeAnalyzer = context.get(USED_BIR_NODE_ANALYZER_KEY);
         if (deadBIRNodeAnalyzer == null) {
             deadBIRNodeAnalyzer = new UsedBIRNodeAnalyzer(context);
         }
@@ -107,14 +112,13 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     @Override
     public void visit(BIRNode.BIRFunction birFunction) {
-        if (birFunction.usedState == UsedState.USED) {
+        if (birFunction.getUsedState() == UsedState.USED) {
             return;
-        } else {
-            birFunction.usedState = UsedState.USED;
         }
 
-        currentParentFunction = birFunction;
+        birFunction.markAsUsed();
         currentInvocationData.addToUsedPool(birFunction);
+        currentParentFunction = birFunction;
 
         if ((birFunction.flags & Flags.NATIVE) == Flags.NATIVE) {
             registerUsedNativeClassPaths(birFunction);
@@ -125,8 +129,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
         birFunction.basicBlocks.forEach(this::visitNode);
 
-        // TODO Check whether we need to analyze parameters. It might not be needed because they are used for invoking anyways
-        // Function parameters and return types are required for the function to run
         birFunction.parameters.forEach(param -> usedTypeDefAnalyzer.analyzeTypeDefWithinScope(param.type, birFunction));
         usedTypeDefAnalyzer.analyzeTypeDefWithinScope(birFunction.returnVariable.type, birFunction);
         localFpHolders = prevLocalFpHolders;
@@ -140,16 +142,15 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     @Override
     public void visit(BIRNode.BIRTypeDefinition typeDef) {
-        if (typeDef.usedState != UsedState.USED) {
-            typeDef.usedState = UsedState.USED;
-        } else {
+        if (typeDef.getUsedState() == UsedState.USED) {
             return;
         }
-        currentInvocationData.addToUsedPool(typeDef);   // TODO Check whether we need this
+
+        typeDef.markAsUsed();
+        currentInvocationData.addToUsedPool(typeDef);
         usedTypeDefAnalyzer.analyzeTypeDef(typeDef);
 
         typeDef.attachedFuncs.forEach(attachedFunc -> {
-            // TODO This is done because of the risk of methods being overridden. Change it one day hopefully.
             addDependentFunctionAndVisit(typeDef, attachedFunc, typeDef.type.tsymbol.pkgID);
         });
     }
@@ -163,9 +164,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                 visitNode(instruction);
             }
 
-            // The current algorithm does not track all FP assignments. It binds all the FP to their parent function,
-            // if the FP is assigned to another Variable.
-            // TODO change this logic to use Operands instead of VariableDeclarations
+            // The current algorithm does not track all FP assignments.
+            // If the FP is assigned inside the parent scope, the FP will have the same UsedState as the parent
             HashSet<BIROperand> rhsOperands = new HashSet<>(Arrays.asList(instruction.getRhsOperands()));
             HashSet<BIRNode.BIRVariableDcl> rhsVars = new HashSet<>();
             rhsOperands.forEach(birOperand -> rhsVars.add(birOperand.variableDcl));
@@ -174,7 +174,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             if (!rhsVars.isEmpty() && instruction.kind != InstructionKind.RECORD_DEFAULT_FP_LOAD) {
                 rhsVars.forEach(var -> {
                     FunctionPointerData fpData = currentInvocationData.getFPData(var);
-
                     if (fpData != null && fpData.lambdaFunction != null) {
                         visitNode(fpData.lambdaFunction);
                     }
@@ -183,24 +182,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             }
         });
 
-        // TODO Merge the following two iterations if possible
-        // TODO Use terminator.accept(this) instead for following code
-        if (birBasicBlock.terminator.getKind() == InstructionKind.CALL) {
+        if (ANALYZED_TERMINATOR_KINDS.contains(birBasicBlock.terminator.getKind())) {
             visitNode(birBasicBlock.terminator);
-        }
-
-        if (birBasicBlock.terminator.getKind() == InstructionKind.FP_CALL) {
-            BIRNode.BIRVariableDcl fpPointer = ((BIRTerminator.FPCall) birBasicBlock.terminator).fp.variableDcl;
-
-            fpPointer.usedState = UsedState.USED;
-            currentParentFunction.childNodes.add(fpPointer);
-            fpPointer.parentNodes.add(currentParentFunction);
-
-            FunctionPointerData fpData =
-                    currentInvocationData.getFPData(((BIRTerminator.FPCall) birBasicBlock.terminator).fp.variableDcl);
-            if (fpData != null && fpData.lambdaFunction != null) {
-                visitNode(fpData.lambdaFunction);
-            }
         }
     }
 
@@ -220,7 +203,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             });
         }
 
-        BIRNode.BIRDocumentableNode childNode = lookupBirFunction(call);
+        BIRNode.BIRDocumentableNode childNode = lookupBirFunction(call.calleePkg, call.originalName.value);
         if (childNode == null) {
             return;
         }
@@ -229,19 +212,30 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     }
 
     @Override
+    public void visit(BIRTerminator.FPCall fpCall) {
+        BIRNode.BIRVariableDcl fpPointer = fpCall.fp.variableDcl;
+
+        fpPointer.markAsUsed();
+        currentParentFunction.childNodes.add(fpPointer);
+        fpPointer.parentNodes.add(currentParentFunction);
+
+        FunctionPointerData fpData = currentInvocationData.getFPData(fpCall.fp.variableDcl);
+        if (fpData != null && fpData.lambdaFunction != null) {
+            visitNode(fpData.lambdaFunction);
+        }
+    }
+
+    @Override
     public void visit(BIRNonTerminator.FPLoad fpLoadInstruction) {
         BIRNode.BIRFunction pointedFunction =
                 lookupBirFunction(fpLoadInstruction.pkgId, fpLoadInstruction.funcName.value);
 
-        FunctionPointerData fpData =
-                new FunctionPointerData(fpLoadInstruction, currentInstructionArr,
-                        pointedFunction);
+        FunctionPointerData fpData = new FunctionPointerData(fpLoadInstruction, currentInstructionArr, pointedFunction);
 
-        if (fpData.lambdaPointerVar.usedState == UsedState.USED && pointedFunction != null) {
+        if (fpData.lambdaPointerVar.getUsedState() == UsedState.USED && pointedFunction != null) {
             visitNode(pointedFunction);
         }
-        pkgCache.getInvocationData(currentPkgID).varDeclWiseFPDataPool.put(
-                fpLoadInstruction.lhsOp.variableDcl, fpData);
+        pkgCache.getInvocationData(currentPkgID).varDeclWiseFPDataPool.put(fpLoadInstruction.lhsOp.variableDcl, fpData);
 
     }
 
@@ -255,7 +249,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
         fpData.recordDefaultFPLoad = recordDefaultFPLoad;
         if (fpData.recordDefaultFPLoad.enclosedType.isUsed) {
-            fpData.lambdaPointerVar.usedState = UsedState.USED;
+            fpData.lambdaPointerVar.markAsUsed();
             visitNode(fpData.lambdaFunction);
         }
 
@@ -292,20 +286,9 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         usedTypeDefAnalyzer.analyzeTypeDefWithinScope(typeTest.type, currentParentFunction);
     }
 
-    public BIRNode.BIRFunction lookupBirFunction(BIRTerminator.Call terminatorCall) {
-        UsedBIRNodeAnalyzer.InvocationData invocationData = pkgCache.getInvocationData(terminatorCall.calleePkg);
-        if (!invocationData.moduleIsUsed) {
-            //TODO find a better way to do this. It is ugly...
-            invocationData.registerNodes(usedTypeDefAnalyzer, pkgCache.getBirPkg(terminatorCall.calleePkg));
-        }
-
-        return invocationData.functionPool.get(terminatorCall.originalName.value);
-    }
-
     private BIRNode.BIRFunction lookupBirFunction(PackageID pkgId, String funcName) {
         UsedBIRNodeAnalyzer.InvocationData invocationData = pkgCache.getInvocationData(pkgId);
         if (!invocationData.moduleIsUsed) {
-            //TODO find a better way to do this. It is ugly...
             invocationData.registerNodes(usedTypeDefAnalyzer, pkgCache.getBirPkg(pkgId));
         }
 
@@ -319,8 +302,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             InputStream stream = getClass().getClassLoader().getResourceAsStream("interop-dependencies.properties");
             prop.load(stream);
             for (Map.Entry<Object, Object> entry : prop.entrySet()) {
-                HashSet<String> usedRecordNames =
-                        new HashSet<>(Arrays.asList(entry.getValue().toString().split(",")));
+                HashSet<String> usedRecordNames = new HashSet<>(Arrays.asList(entry.getValue().toString().split(",")));
                 INTEROP_DEPENDENCIES.putIfAbsent(entry.getKey().toString(), usedRecordNames);
             }
 
@@ -335,13 +317,13 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                 BIRNode.ConstValue constValue = ((BIRNode.BIRConstAnnotationAttachment) annot).annotValue;
                 String filePath =
                         ((HashMap<String, BIRNode.ConstValue>) constValue.value).get("class").value.toString();
-                currentInvocationData.usedNativeClassPaths.add(filePath.replace(".","/")+ ".class");
+                currentInvocationData.usedNativeClassPaths.add(filePath.replace(".", "/") + ".class");
             }
         });
     }
 
-    private void addDependentFunctionAndVisit(BIRNode.BIRDocumentableNode parentNode, BIRNode.BIRDocumentableNode childFunction,
-                                              PackageID childPkgId) {
+    private void addDependentFunctionAndVisit(BIRNode.BIRDocumentableNode parentNode,
+                                              BIRNode.BIRDocumentableNode childFunction, PackageID childPkgId) {
         parentNode.childNodes.add(childFunction);
         childFunction.parentNodes.add(parentNode);
         if (childPkgId.equals(currentPkgID)) {
@@ -364,28 +346,30 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     public static class InvocationData {
 
-        // TODO Change the nodePool structure to HashMap<BType, BIRNode>
-        public final HashMap<String, BIRNode.BIRFunction> functionPool = new HashMap<>();
-        public final HashSet<BIRNode.BIRFunction> usedFunctions = new HashSet<>();
-        public final HashMap<BType, BIRNode.BIRTypeDefinition> typeDefPool = new HashMap<>();
-        public final HashSet<BIRNode.BIRTypeDefinition> usedTypeDefs = new HashSet<>();
+        // Following Sets are used to whitelist the bal types called through ValueCreator in native dependencies
+        private static final HashSet<String> WHITELSITED_FILE_NAMES =
+                new HashSet<>(Arrays.asList("types.bal", "error.bal", "stream_types.bal"));
+        private static final HashSet<String> PKGS_WITH_WHITELSITED_FILES = new HashSet<>(
+                Arrays.asList("ballerinax/mysql:1.11.0", "ballerina/sql:1.11.1", "ballerinax/persist.sql:1.2.1"));
+        protected final HashSet<BIRNode.BIRFunction> usedFunctions = new HashSet<>();
+        protected final HashSet<BIRNode.BIRFunction> unusedFunctions = new HashSet<>();
+        protected final HashSet<BIRNode.BIRTypeDefinition> usedTypeDefs = new HashSet<>();
+        protected final HashSet<BIRNode.BIRTypeDefinition> unusedTypeDefs = new HashSet<>();
+        protected final ArrayList<BIRNode.BIRDocumentableNode> startPointNodes = new ArrayList<>();
+        private final HashMap<String, BIRNode.BIRFunction> functionPool = new HashMap<>();
         private final HashMap<BIRNode.BIRVariableDcl, FunctionPointerData> varDeclWiseFPDataPool = new HashMap<>();
         private final HashMap<BType, HashSet<FunctionPointerData>> recordDefTypeWiseFPDataPool = new HashMap<>();
-        public final ArrayList<BIRNode.BIRDocumentableNode> startPointNodes = new ArrayList<>();
-        public final HashSet<PackageID> childPackages = new HashSet<>();
-        public HashSet<String> interopDependencies = new HashSet<>();
-        public HashSet<String> usedNativeClassPaths = new HashSet<>();
-        public  PackageID pkgID;
-        public boolean moduleIsUsed = false;
+        private final HashSet<PackageID> childPackages = new HashSet<>();
+        protected HashSet<String> usedNativeClassPaths = new HashSet<>();
+        protected boolean moduleIsUsed = false;
+        private HashSet<String> interopDependencies = new HashSet<>();
 
-        // Following Sets are used to whitelist the bal types called through ValueCreator in native dependencies
-        private static final HashSet<String> WHITELSITED_FILE_NAMES = new HashSet<>(Arrays.asList("types.bal", "error.bal", "stream_types.bal"));
-        private static final HashSet<String> PKGS_WITH_WHITELSITED_FILES = new HashSet<>(Arrays.asList("ballerinax/mysql:1.11.0", "ballerina/sql:1.11.1", "ballerinax/persist.sql:1.2.1"));
+        private static boolean isResourceFunction(BIRNode.BIRFunction birFunction) {
+            return (birFunction.flags & Flags.RESOURCE) == Flags.RESOURCE;
+        }
 
-        // TODO Don't use the original name. Use name instead.
-        // TODO Parent class of attached functions is the first argument of all attached function calls
-        public void registerNodes(UsedTypeDefAnalyzer typeDefAnalyzer, BIRNode.BIRPackage birPackage) {
-            // TODO Remove this when we can get the BIRs of all modules. One day we can get the langlibs
+        protected void registerNodes(UsedTypeDefAnalyzer typeDefAnalyzer, BIRNode.BIRPackage birPackage) {
+            // If the birPackage is from a langlib it will be null.
             if (birPackage == null) {
                 return;
             }
@@ -393,14 +377,11 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             birPackage.functions.forEach(this::initializeFunction);
             this.interopDependencies = INTEROP_DEPENDENCIES.get(birPackage.packageID.toString());
             typeDefAnalyzer.populateTypeDefPool(birPackage, interopDependencies);
-            // TODO check why we omitted the FINITE typeDefs
-            // TODO migrating the typeDef UsedState initialization to TypeDefAnalyzer. Clean up here if its permanent
             birPackage.typeDefs.forEach(typeDef -> {
-                typeDef.usedState = UsedState.UNUSED;
-                typeDefPool.putIfAbsent(typeDef.type, typeDef);
+                unusedTypeDefs.add(typeDef);
+                typeDef.markSelfAsUnused();
                 typeDef.attachedFuncs.forEach(birFunction -> initializeAttachedFunction(typeDef, birFunction));
 
-                // TODO use annotation for whitelisting instead
                 if (PKGS_WITH_WHITELSITED_FILES.contains(birPackage.packageID.toString())) {
                     if (isInWhiteListedBalFile(typeDef)) {
                         this.startPointNodes.add(typeDef);
@@ -408,83 +389,66 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                 }
             });
             this.startPointNodes.addAll(birPackage.serviceDecls);
-            this.pkgID = birPackage.packageID;
             this.moduleIsUsed = true;
         }
 
-        public boolean isInWhiteListedBalFile(BIRNode.BIRTypeDefinition typedef) {
-            if (typedef.pos != null && WHITELSITED_FILE_NAMES.contains(typedef.pos.lineRange().fileName())) {
-                return true;
-            }
-            return false;
+        private boolean isInWhiteListedBalFile(BIRNode.BIRTypeDefinition typedef) {
+            return typedef.pos != null && WHITELSITED_FILE_NAMES.contains(typedef.pos.lineRange().fileName());
         }
 
-        // TODO Merge initializeFunction and initializeAttachedFunction
-        public void initializeFunction(BIRNode.BIRFunction birFunction) {
-            birFunction.usedState = UsedState.UNUSED;
+        private void initializeFunction(BIRNode.BIRFunction birFunction) {
+            birFunction.markSelfAsUnused();
+            this.unusedFunctions.add(birFunction);
             functionPool.putIfAbsent(birFunction.originalName.value, birFunction);
 
-            if (USED_FUNCTION_NAMES.contains(birFunction.name.value) ||
-                    (birFunction.flags & Flags.RESOURCE) == Flags.RESOURCE) {
+            if (USED_FUNCTION_NAMES.contains(birFunction.name.value) || isResourceFunction(birFunction)) {
                 this.startPointNodes.add(birFunction);
             }
         }
 
-        public void initializeAttachedFunction(BIRNode.BIRTypeDefinition parentTypeDef,
-                                               BIRNode.BIRFunction attachedFunc) {
-            attachedFunc.usedState = UsedState.UNUSED;
+        private void initializeAttachedFunction(BIRNode.BIRTypeDefinition parentTypeDef,
+                                                BIRNode.BIRFunction attachedFunc) {
+            attachedFunc.markSelfAsUnused();
             functionPool.putIfAbsent(parentTypeDef.internalName.value + "." + attachedFunc.name.value, attachedFunc);
         }
 
-        public void addToUsedPool(BIRNode.BIRDocumentableNode node) {
-            if (node instanceof BIRNode.BIRFunction) {
-                this.usedFunctions.add((BIRNode.BIRFunction) node);
-            }
-            else if (node instanceof BIRNode.BIRTypeDefinition) {
-                this.usedTypeDefs.add((BIRNode.BIRTypeDefinition) node);
-            }
+        protected void addToUsedPool(BIRNode.BIRFunction birFunction) {
+            this.unusedFunctions.remove(birFunction);
+            this.usedFunctions.add(birFunction);
         }
 
-        public FunctionPointerData getFPData(BIRNode.BIRVariableDcl variableDcl) {
+        protected void addToUsedPool(BIRNode.BIRTypeDefinition birTypeDef) {
+            this.unusedTypeDefs.remove(birTypeDef);
+            this.usedTypeDefs.add(birTypeDef);
+        }
+
+        private FunctionPointerData getFPData(BIRNode.BIRVariableDcl variableDcl) {
             return this.varDeclWiseFPDataPool.get(variableDcl);
         }
 
-        public HashSet<FunctionPointerData> getFpData(BType bType) {
+        protected HashSet<FunctionPointerData> getFpData(BType bType) {
             return this.recordDefTypeWiseFPDataPool.get(bType);
         }
 
-        public Collection<FunctionPointerData> getFpDataPool() {
+        protected Collection<FunctionPointerData> getFpDataPool() {
             return this.varDeclWiseFPDataPool.values();
         }
     }
 
-    public static class FunctionPointerData {
+    protected static class FunctionPointerData {
 
         // Can be deleted from the BirFunctions of the enclosing module
-        public BIRNode.BIRFunction lambdaFunction;
+        protected BIRNode.BIRFunction lambdaFunction;
         // Can be deleted from the localVar or global var list
-        public BIRNode.BIRVariableDcl lambdaPointerVar;
+        protected BIRNode.BIRVariableDcl lambdaPointerVar;
         // Can be deleted from the instruction array of either the parent function or init<> function
-        public BIRNonTerminator.FPLoad fpLoadInstruction;
-        public List<BIRNonTerminator> instructionArray;
+        private BIRNonTerminator.FPLoad fpLoadInstruction;
+        private List<BIRNonTerminator> instructionArray;
         // Holds a recordDefaultFPLoad instruction if the respective fpLoadInstruction has one
-        public BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad;
+        private BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad;
 
-        public FunctionPointerData(BIRNonTerminator.FPLoad fpLoadInstruction,
-                                   List<BIRNonTerminator> instructionArray,
-                                   UsedBIRNodeAnalyzer.InvocationData invocationData) {
-            this.fpLoadInstruction = fpLoadInstruction;
-            this.instructionArray = instructionArray;
-            this.lambdaPointerVar = fpLoadInstruction.lhsOp.variableDcl;
-            this.lambdaFunction = invocationData.functionPool.get(fpLoadInstruction.funcName.toString());
-
-            initializeFpData();
-        }
-
-
-        public FunctionPointerData(BIRNonTerminator.FPLoad fpLoadInstruction,
-                                   List<BIRNonTerminator> instructionArray,
-                                   BIRNode.BIRFunction lambdaFunction) {
+        protected FunctionPointerData(BIRNonTerminator.FPLoad fpLoadInstruction,
+                                      List<BIRNonTerminator> instructionArray, BIRNode.BIRFunction lambdaFunction) {
             this.fpLoadInstruction = fpLoadInstruction;
             this.instructionArray = instructionArray;
             this.lambdaPointerVar = fpLoadInstruction.lhsOp.variableDcl;
@@ -494,8 +458,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         private void initializeFpData() {
-            if (lambdaPointerVar.usedState == UsedState.UNEXPOLORED) {
-                lambdaPointerVar.usedState = UsedState.UNUSED;
+            if (lambdaPointerVar.getUsedState() == UsedState.UNEXPOLORED) {
+                lambdaPointerVar.markSelfAsUnused();
             }
             localFpHolders.add(lambdaPointerVar);
 
@@ -509,12 +473,12 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         // We need to delete those if the lambda function is not used
         // If the FP_LOAD instruction is not removed its references will be used for CodeGen.
         // We need to prevent this from happening to fully clean the UNUSED functions.
-        public void deleteIfUnused() {
+        protected void deleteIfUnused() {
             // if the parent record is used, instructions should not be deleted
             if (recordDefaultFPLoad != null && recordDefaultFPLoad.enclosedType.isUsed) {
                 return;
             }
-            if (lambdaPointerVar.usedState == UsedState.UNUSED) {
+            if (lambdaPointerVar.getUsedState() == UsedState.UNUSED) {
                 instructionArray.remove(fpLoadInstruction);
                 instructionArray.remove(recordDefaultFPLoad);
             }
