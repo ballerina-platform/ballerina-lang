@@ -131,12 +131,15 @@ public class BTestMain {
             Runtime.getRuntime().exit(exitStatus);
         }
         else if (args.length >= 4) { //running using the suite json
-            Path targetPath = Paths.get(args[0]);
+            Path testSuiteJsonPath = Paths.get(args[0]);
+
+
+            Path targetPath = Paths.get(args[1]);
             Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
-                    .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
-            String jacocoAgentJarPath = args[1];
-            boolean report = Boolean.parseBoolean(args[2]);
-            boolean coverage = Boolean.parseBoolean(args[3]);
+                            .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
+            String jacocoAgentJarPath = args[2];
+            boolean report = Boolean.parseBoolean(args[3]);
+            boolean coverage = Boolean.parseBoolean(args[4]);
 
             if (report || coverage) {
                 testReport = new TestReport();
@@ -149,9 +152,18 @@ public class BTestMain {
             }
             out.println();
 
-            Path testSuiteCachePath = testCache.resolve(TesterinaConstants.TESTERINA_TEST_SUITE);
+            BufferedReader br;
+            if (Files.notExists(testSuiteJsonPath)) {
+                InputStream is = BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR
+                        + testSuiteJsonPath);
+                assert is != null;
+                br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            }
+            else {
+                br = Files.newBufferedReader(testSuiteJsonPath, StandardCharsets.UTF_8);
+            }
 
-            try (BufferedReader br = Files.newBufferedReader(testSuiteCachePath, StandardCharsets.UTF_8)) {
+            try (br) {
                 Gson gson = new Gson();
                 Map<String, TestSuite> testSuiteMap = gson.fromJson(br,
                         new TypeToken<Map<String, TestSuite>>() { }.getType());
@@ -178,8 +190,8 @@ public class BTestMain {
                             replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir, coverage);
                         }
 
-                        String[] testArgs = new String[]{args[0], packageName, moduleName};
-                        for (int i = 2; i < args.length; i++) {
+                        String[] testArgs = new String[]{targetPath.toString(), packageName, moduleName};
+                        for (int i = 3; i < args.length; i++) {
                             testArgs = Arrays.copyOf(testArgs, testArgs.length + 1);
                             testArgs[testArgs.length - 1] = args[i];
                         }
