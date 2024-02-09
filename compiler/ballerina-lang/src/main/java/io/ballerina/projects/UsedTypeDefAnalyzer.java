@@ -3,7 +3,6 @@ package io.ballerina.projects;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SimpleBTypeAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -13,10 +12,10 @@ import java.util.HashSet;
 public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer.AnalyzerData> {
 
     private static final CompilerContext.Key<UsedTypeDefAnalyzer> BIR_TYPE_DEF_ANALYZER_KEY = new CompilerContext.Key<>();
-    private final HashMap<BType, BIRNode.BIRTypeDefinition> typeDefPool = new HashMap<>();
-    public final HashSet<BType> visitedTypes = new HashSet<>();
-    public PackageCache pkgCache;
-    public UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
+    private final HashMap<BType, BIRNode.BIRTypeDefinition> globalTypeDefPool = new HashMap<>();
+    private final HashSet<BType> visitedTypes = new HashSet<>();
+    private PackageCache pkgCache;
+    private UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
 
     private UsedTypeDefAnalyzer(CompilerContext context) {
         context.put(BIR_TYPE_DEF_ANALYZER_KEY, this);
@@ -57,36 +56,35 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
         HashSet<UsedBIRNodeAnalyzer.FunctionPointerData> fpDataSet = usedBIRNodeAnalyzer.currentInvocationData.getFpData(bType);
         if (fpDataSet != null) {
             fpDataSet.forEach(fpData -> {
-                fpData.lambdaPointerVar.usedState = UsedState.USED;
+                fpData.lambdaPointerVar.markAsUsed();
                 fpData.lambdaFunction.accept(usedBIRNodeAnalyzer);
             });
         }
     }
 
-    public void populateTypeDefPool(BIRNode.BIRPackage birPackage, HashSet<String> interopDependencies) {
+    protected void populateTypeDefPool(BIRNode.BIRPackage birPackage, HashSet<String> interopDependencies) {
         birPackage.typeDefs.forEach(typeDef -> {
-            typeDefPool.putIfAbsent(typeDef.type, typeDef);
+            globalTypeDefPool.putIfAbsent(typeDef.type, typeDef);
             if (interopDependencies != null && interopDependencies.contains(typeDef.internalName.toString())) {
                 pkgCache.getInvocationData(typeDef.getPackageID()).startPointNodes.add(typeDef);
             }
         });
     }
 
-    public void analyzeTypeDef(BIRNode.BIRTypeDefinition typeDef) {
+    protected void analyzeTypeDef(BIRNode.BIRTypeDefinition typeDef) {
         final UsedTypeDefAnalyzer.AnalyzerData data = new UsedTypeDefAnalyzer.AnalyzerData();
         data.currentParentNode = typeDef;
         typeDef.referencedTypes.forEach(refType -> visitType(refType, data));
         visitType(typeDef.type, data);
     }
 
-    public void analyzeTypeDefWithinScope(BType bType, BIRNode.BIRDocumentableNode parentNode) {
+    protected void analyzeTypeDefWithinScope(BType bType, BIRNode.BIRDocumentableNode parentNode) {
         final UsedTypeDefAnalyzer.AnalyzerData data = new UsedTypeDefAnalyzer.AnalyzerData();
         data.currentParentNode = parentNode;
         visitType(bType, data);
     }
 
     private BIRNode.BIRTypeDefinition getBIRTypeDef(BType bType) {
-        // TODO find a more reliable way to do this
         if (bType.tsymbol == null) {
             return null;
         }
@@ -96,9 +94,8 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
             invocationData.registerNodes(this, pkgCache.getBirPkg(bType.tsymbol.pkgID));
         }
 
-        // TODO check whether we need the null check
-        if (typeDefPool.containsKey(bType)) {
-            return typeDefPool.get(bType);
+        if (globalTypeDefPool.containsKey(bType)) {
+            return globalTypeDefPool.get(bType);
         }
         return null;
     }
@@ -107,31 +104,31 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
     private void addDependency(BType bType, UsedTypeDefAnalyzer.AnalyzerData data) {
         data.shouldAnalyzeChildren = visitedTypes.add(bType);
         bType.isUsed = true;
-        BIRNode.BIRTypeDefinition childNode = getBIRTypeDef(bType);
-        if (childNode == null) {
+        BIRNode.BIRTypeDefinition childTypeDefNode = getBIRTypeDef(bType);
+        if (childTypeDefNode == null) {
             return;
         }
 
-        if (data.currentParentNode != childNode) {
-            data.currentParentNode.childNodes.add(childNode);
-            childNode.parentNodes.add(data.currentParentNode);
+        if (data.currentParentNode != childTypeDefNode) {
+            data.currentParentNode.childNodes.add(childTypeDefNode);
+            childTypeDefNode.parentNodes.add(data.currentParentNode);
         }
 
-        if (!childNode.isInSamePkg(usedBIRNodeAnalyzer.currentPkgID)) {
-            pkgCache.getInvocationData(childNode.getPackageID()).startPointNodes.add(childNode);
+        if (!childTypeDefNode.isInSamePkg(usedBIRNodeAnalyzer.currentPkgID)) {
+            pkgCache.getInvocationData(childTypeDefNode.getPackageID()).startPointNodes.add(childTypeDefNode);
             visitedTypes.remove(bType);
             data.shouldAnalyzeChildren = false;
             return;
         }
 
-        usedBIRNodeAnalyzer.currentInvocationData.addToUsedPool(childNode);
-        data.currentParentNode = childNode;
-        childNode.usedState = UsedState.USED;   // TODO Remove this and find a better way
+        usedBIRNodeAnalyzer.currentInvocationData.addToUsedPool(childTypeDefNode);
+        data.currentParentNode = childTypeDefNode;
+        childTypeDefNode.markAsUsed();
 
-        // Handling method overriding instances TODO Find a way to handle polymorphism
-        childNode.attachedFuncs.forEach(attachedFunc -> {
-            childNode.childNodes.add(attachedFunc);
-            attachedFunc.parentNodes.add(childNode);
+        // Handling method overriding instances
+        childTypeDefNode.attachedFuncs.forEach(attachedFunc -> {
+            childTypeDefNode.childNodes.add(attachedFunc);
+            attachedFunc.parentNodes.add(childTypeDefNode);
             attachedFunc.accept(usedBIRNodeAnalyzer);
         });
     }
