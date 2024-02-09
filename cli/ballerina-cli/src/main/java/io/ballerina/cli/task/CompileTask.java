@@ -18,7 +18,10 @@
 
 package io.ballerina.cli.task;
 
-import io.ballerina.cli.tool.AnnotateDiagnostics;
+//import io.ballerina.cli.tool.AnnotateDiagnostics2;
+
+
+import io.ballerina.shell.cli.AnnotateDiagnostics;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.CodeModifierResult;
