@@ -5,6 +5,7 @@ import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.testerina.core.TestProcessor;
@@ -51,69 +52,60 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
             }
 
             HashSet<JarLibrary> testExecDependencies = new HashSet<>();
+            Map<String, TestSuite> testSuiteMap = new HashMap<>();
 
+            //write the test suite json that is used to execute the tests
+            boolean status = createTestSuiteForCloudArtifacts(project, jBallerinaBackend, target, testSuiteMap);
+
+            //get all the dependencies required for test execution for each module
             for (ModuleDescriptor moduleDescriptor :
                     project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
 
                 Module module = project.currentPackage().module(moduleDescriptor.name());
-                Path testExecutablePath = getTestExecutablePath(target, module);
-
                 testExecDependencies.addAll(jarResolver
                         .getJarFilePathsRequiredForTestExecution(module.moduleName())
                 );
+            }
 
-                List<String> allArgs = this.runTestsTask.getAllTestArgs(target,
-                        project.currentPackage().packageName().toString(),
-                        module.moduleName().toString(),
-                        project,
-                        moduleDescriptor
-                );
+            //add the jacoco agent jar to the test exec dependencies so that it will be included in the fat jar
+            String jacocoAgentJar = TestUtils.getJacocoAgentJarPath();
+            JarLibrary jacocoAgent = jarResolver.createJacocoAgentJarLibrary(jacocoAgentJar);
+            testExecDependencies.add(jacocoAgent);
 
-                //create the fat jar for the test module
-                Path generatedTestArtifact = jBallerinaBackend.generateTestArtifact(
-                        JBallerinaBackend.OutputType.TEST,
-                        testExecutablePath,
-                        module.moduleName(),
-                        allArgs
-                );
 
-                if (generatedTestArtifact != null) {
-                    diagnostics.addAll(jBallerinaBackend.getEmitResult(
-                            testExecutablePath,
-                            generatedTestArtifact,
-                            false, ArtifactType.TEST).diagnostics().diagnostics()
+            if (status) {
+                //create the single fat jar for all the test modules that includes the test suite json
+                try {
+                    EmitResult result = jBallerinaBackend.emit(
+                            JBallerinaBackend.OutputType.TEST,
+                            getTestExecutableBasePath(target).resolve(
+                                    project.currentPackage().packageName().toString() +
+                                            ProjectConstants.TEST_UBER_JAR_SUFFIX +
+                                            ProjectConstants.BLANG_COMPILED_JAR_EXT),
+                            testExecDependencies,
+                            TestUtils.getJsonFilePath(target.getTestsCachePath()),
+                            TestUtils.getJsonFilePathInFatJar("/")
                     );
-                }
-                else {
-                    diagnostics.addAll(jBallerinaBackend.getFailedEmitResult(
-                            null)
-                            .diagnostics().diagnostics()
-                    );
+                    diagnostics.addAll(result.diagnostics().diagnostics());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
 
-            //create the single fat jar for all the test modules
-            EmitResult result = jBallerinaBackend.emit(
-                    JBallerinaBackend.OutputType.TEST,
-                    getTestExecutableBasePath(target),
-                    testExecDependencies
-            );
-
-
-            if(project.buildOptions().cloud() != null) {
-                //if cloud is enabled, we need to create the docker artifacts
-                //create the test suite suitable for docker
-                Path basePath = getTestExecutableBasePath(target);
-                boolean status = createTestSuiteForCloudArtifacts(project, jBallerinaBackend, target);
-
-                if (status) {
-                    //now notify the compilation completion
-                    List<Diagnostic> pluginDiagnostics = jBallerinaBackend.
-                            notifyCompilationCompletion(basePath, ArtifactType.TEST);
-                    diagnostics.addAll(pluginDiagnostics);
-                }
-
-            }
+//            if(project.buildOptions().cloud() != null) {
+//                //if cloud is enabled, we need to create the docker artifacts
+//                //create the test suite suitable for docker
+//                Path basePath = getTestExecutableBasePath(target);
+//                boolean status1 = createTestSuiteForCloudArtifacts(project, jBallerinaBackend, target);
+//
+//                if (status1) {
+//                    //now notify the compilation completion
+//                    List<Diagnostic> pluginDiagnostics = jBallerinaBackend.
+//                            notifyCompilationCompletion(basePath, ArtifactType.TEST);
+//                    diagnostics.addAll(pluginDiagnostics);
+//                }
+//
+//            }
 
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
@@ -146,18 +138,22 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         notifyPlugins(project, target);
     }
 
-    private boolean createTestSuiteForCloudArtifacts(Project project, JBallerinaBackend jBallerinaBackend, Target target) {
+    private boolean createTestSuiteForCloudArtifacts(Project project, JBallerinaBackend jBallerinaBackend,
+                                                     Target target, Map<String, TestSuite> testSuiteMap) {
         boolean report = project.buildOptions().testReport();
         boolean coverage = project.buildOptions().codeCoverage();
 
         TestProcessor testProcessor = new TestProcessor(jBallerinaBackend.jarResolver());
         List<String> moduleNamesList = new ArrayList<>();
-        Map<String, TestSuite> testSuiteMap = new HashMap<>();
         List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
 
         boolean status = RunTestsTask.createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap,
                 moduleNamesList, mockClassNames, runTestsTask.isRerunTestExecution(), report, coverage);
+
+        //set the module names list and the mock classes to the run tests task
+        this.runTestsTask.setModuleNamesList(moduleNamesList);
+        this.runTestsTask.setMockClasses(mockClassNames);
 
         if (status) {
             //now write the map to a json file
