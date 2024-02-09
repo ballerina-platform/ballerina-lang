@@ -239,7 +239,7 @@ public class TestUtils {
             }
         }
 
-        Path jsonFilePath = Paths.get(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
+        Path jsonFilePath = getJsonFilePath(testsCachePath);
         File jsonFile = new File(jsonFilePath.toString());
         try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
             try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
@@ -252,6 +252,16 @@ public class TestUtils {
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e);
         }
+    }
+
+    public static Path getJsonFilePath(Path testsCachePath) {
+        return Paths.get(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
+    }
+
+    public static String getJsonFilePathInFatJar(String separator) {
+        return ProjectConstants.CACHES_DIR_NAME
+                + separator + ProjectConstants.TESTS_CACHE_DIR_NAME
+                + separator + ProjectConstants.TEST_SUITE_JSON;
     }
 
     public static void clearFailedTestsJson(Path targetPath) {
@@ -298,9 +308,14 @@ public class TestUtils {
         return cmdArgs;
     }
 
-    public static void addOtherNeededArgs(List<String> cmdArgs, boolean report, boolean coverage, String groupList,
-                                          String disableGroupList, String singleExecTests, boolean isRerunTestExecution,
+    public static void addOtherNeededArgs(List<String> cmdArgs, String target, String jacocoAgentJarPath,
+                                          String testSuiteJsonPath, boolean report,
+                                          boolean coverage, String groupList, String disableGroupList,
+                                          String singleExecTests, boolean isRerunTestExecution,
                                           boolean listGroups, List<String> cliArgs) {
+        cmdArgs.add(testSuiteJsonPath);
+        cmdArgs.add(target);
+        cmdArgs.add(jacocoAgentJarPath);
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
         cmdArgs.add(groupList != null ? groupList : "");
@@ -324,19 +339,25 @@ public class TestUtils {
             String functionToMockClassName;
             // Find the first delimiter and compare the indexes
             // The first index should always be a delimiter. Which ever one that is denotes the mocking type
-            if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
-                functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-            } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
-                functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
-            } else {
-                if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
-                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-                } else {
-                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
-                }
-            }
+            functionToMockClassName = getFunctionToMockClassName(key);
             mockClassNames.add(functionToMockClassName);
         }
+    }
+
+    private static String getFunctionToMockClassName(String id) {
+        String functionToMockClassName;
+        if (id.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
+            functionToMockClassName = id.substring(0, id.indexOf(MOCK_FN_DELIMITER));
+        } else if (id.indexOf(MOCK_FN_DELIMITER) == -1) {
+            functionToMockClassName = id.substring(0, id.indexOf(MOCK_LEGACY_DELIMITER));
+        } else {
+            if (id.indexOf(MOCK_FN_DELIMITER) < id.indexOf(MOCK_LEGACY_DELIMITER)) {
+                functionToMockClassName = id.substring(0, id.indexOf(MOCK_FN_DELIMITER));
+            } else {
+                functionToMockClassName = id.substring(0, id.indexOf(MOCK_LEGACY_DELIMITER));
+            }
+        }
+        return functionToMockClassName;
     }
 
     public static String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
