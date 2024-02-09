@@ -55,12 +55,15 @@ public class DiagnosticAnnotation {
         String padding = " ".repeat(n_digits_end + 1);
         String paddingWithColon = " :" + " ".repeat(n_digits_end - 1);
 
+        int tabsInLastLine = countTabChars(lines[lines.length - 1], this.endOffset);
+        lines[lines.length - 1] = replaceTabs(lines[lines.length - 1], this.endOffset);
+
         if (lines.length == 2) {
             return padding + "| " + "\n"
                     + String.format("%" + n_digits_end + "d ", startLineNumber) + "| " + lines[0] + "\n"
                     + padding + "| " + getCaretLine(start, lines[0].length() - start) + "\n"
                     + String.format("%" + n_digits_end + "d ", startLineNumber + 1) + "| " + lines[1] + "\n"
-                    + padding + "| " + getCaretLine(0, endOffset) + "\n"
+                    + padding + "| " + getCaretLine(0, endOffset + 3 * tabsInLastLine) + "\n"
                     + padding + "| " + "\n";
         }
         return padding + "| " + "\n"
@@ -70,7 +73,7 @@ public class DiagnosticAnnotation {
                 + paddingWithColon + "| " + " ".repeat(max_length_line / 2) + "." + "\n"
                 + String.format("%" + n_digits_end + "d ", startLineNumber + lines.length - 1) + "| "
                 + lines[lines.length - 1] + "\n"
-                + padding + "| " + getCaretLine(0, endOffset) + "\n"
+                + padding + "| " + getCaretLine(0, endOffset + 3 * tabsInLastLine) + "\n"
                 + padding + "| " + "\n";
 
     }
