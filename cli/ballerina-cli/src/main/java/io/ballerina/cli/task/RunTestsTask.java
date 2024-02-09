@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
@@ -117,6 +118,24 @@ public class RunTestsTask implements Task {
     private boolean listGroups;
     private final List<String> cliArgs;
     private boolean emitTestExecutable;
+    private List<String> mockClasses;
+    private List<String> moduleNamesList;
+
+    public void setMockClasses(List<String> mockClasses) {
+        this.mockClasses = mockClasses;
+    }
+
+    public List<String> getMockClasses() {
+        return mockClasses;
+    }
+
+    public void setModuleNamesList(List<String> moduleNamesList) {
+        this.moduleNamesList = moduleNamesList;
+    }
+
+    public List<String> getModuleNamesList() {
+        return moduleNamesList;
+    }
 
     private final boolean isParallelExecution;
 
@@ -156,6 +175,7 @@ public class RunTestsTask implements Task {
         this.coverageModules = modules;
         this.listGroups = listGroups;
         this.excludesInCoverage = excludes;
+        this.mockClasses = null;
     }
 
     @Override
@@ -310,34 +330,31 @@ public class RunTestsTask implements Task {
         return hasTests;
     }
 
-    private void runTestsUsingEmits(Project project, List<ModuleName> moduleNamesList, Target target, HashSet<String> exclusionClassList, Path testsCachePath, JBallerinaBackend jBallerinaBackend) {
-        for (ModuleDescriptor moduleDescriptor :
-                project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
-            int testResult = 0;
-            Module module = project.currentPackage().module(moduleDescriptor.name());
-            ModuleName moduleName = module.moduleName();
-            moduleNamesList.add(moduleName);
-            //get the created uber jar files for each module in CreateTestExecutableTask
-            Path testExecutablePath = target.path().resolve("bin").resolve("tests")
-                    .resolve(moduleName.toString() +
-                            ProjectConstants.TEST_UBER_JAR_SUFFIX +
-                            ProjectConstants.BLANG_COMPILED_JAR_EXT);
+    private void runTestsUsingEmits(Project project, List<ModuleName> moduleNamesList,
+                                    Target target, HashSet<String> exclusionClassList,
+                                    Path testsCachePath, JBallerinaBackend jBallerinaBackend) {
 
-            if (!Files.exists(testExecutablePath)) {
-                out.println("\t" + moduleName + ": no tests found");
-            } else {
-                try {
-                    testResult = runTestModule(testExecutablePath, target, project.currentPackage(),
-                            exclusionClassList, getJacocoAgentJarPath(), project.currentPackage().packageName().toString(),
-                            project.currentPackage().packageOrg().toString());
-                } catch (IOException | InterruptedException | ClassNotFoundException  e) {
-                    throw createLauncherException("error occurred while running tests", e);
-                }
+        Path testExecutablePath = target.path().resolve(ProjectConstants.BIN_DIR_NAME)
+                .resolve(ProjectConstants.TEST_DIR_NAME)
+                .resolve(project.currentPackage().packageName().toString() +
+                        ProjectConstants.TEST_UBER_JAR_SUFFIX + ProjectConstants.BLANG_COMPILED_JAR_EXT);
 
-                if (testResult != 0) {
-                    throw createLauncherException("there are test failures");
-                }
-            }
+        if (!Files.exists(testExecutablePath)) {
+            out.println("\tNo tests found");
+            return;
+        }
+
+        int testResult;
+
+        try {
+            testResult = runTestModule(testExecutablePath, target, project.currentPackage(),
+                    exclusionClassList, getJacocoAgentJarPath(), jBallerinaBackend);
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+            throw createLauncherException("error occurred while running tests", e);
+        }
+
+        if (testResult != 0) {
+            throw createLauncherException("there are test failures");
         }
 
         if (report || coverage) {
@@ -350,7 +367,9 @@ public class RunTestsTask implements Task {
                     }
 
                     if (!moduleName.toString().equals(project.currentPackage().packageName().toString())) {
-                        moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName.moduleNamePart());
+                        moduleName = ModuleName.from(
+                                project.currentPackage().packageName(), moduleName.moduleNamePart()
+                        );
                     }
                     testReport.addModuleStatus(moduleName.toString(), moduleStatus);
                 } catch (IOException e) {
@@ -370,14 +389,18 @@ public class RunTestsTask implements Task {
 
     private int runTestModule(Path testExecutablePath, Target target, Package currentPackage,
                               Set<String> exclusionClassList, String jacocoAgentJarPath,
-                              String packageName, String orgName)
+                              JBallerinaBackend jBallerinaBackend)
             throws IOException, InterruptedException, ClassNotFoundException {
 
         List<String> cmdArgs = getInitialCmdArgs(null, null);
 
         if (coverage) {
+            if (this.mockClasses != null) {
+                jacocoOfflineInstrumentation(target, currentPackage, jBallerinaBackend, this.mockClasses);
+            }
             String agentCommand = getAgentCommand(target, currentPackage, exclusionClassList,
-                    jacocoAgentJarPath, packageName, orgName);
+                    jacocoAgentJarPath, currentPackage.packageName().toString(),
+                    currentPackage.packageOrg().toString());
 
             cmdArgs.add(agentCommand);
         }
@@ -389,6 +412,11 @@ public class RunTestsTask implements Task {
         cmdArgs.add("-jar");
         cmdArgs.add(testExecutablePath.toString());
         //this will start the jar file which has the BTestMain as the initial main class in the manifest
+        String testSuiteJsonPath = TestUtils.getJsonFilePathInFatJar("/");
+
+        addOtherNeededArgs(cmdArgs, target.path().toString(), jacocoAgentJarPath, testSuiteJsonPath,
+                this.report, this.coverage, this.groupList, this.disableGroupList,
+                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
@@ -424,11 +452,14 @@ public class RunTestsTask implements Task {
         cmdArgs.add(mainClassName);
 
         // Adds arguments to be read at the Test Runner
-        cmdArgs.add(target.path().toString());
-        cmdArgs.add(jacocoAgentJarPath);
 
-        addOtherNeededArgs(cmdArgs, this.report, this.coverage, this.groupList, this.disableGroupList,
-                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs);
+        Path testSuiteJsonPath = target.path().resolve(ProjectConstants.CACHES_DIR_NAME)
+                .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME).resolve(TESTERINA_TEST_SUITE);
+
+        addOtherNeededArgs(cmdArgs, target.path().toString(), jacocoAgentJarPath,
+                testSuiteJsonPath.toString(), this.report, this.coverage,
+                this.groupList, this.disableGroupList, this.singleExecTests, this.isRerunTestExecution,
+                this.listGroups, this.cliArgs);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
@@ -446,7 +477,8 @@ public class RunTestsTask implements Task {
         JacocoInstrumentUtils.instrumentOffline(jarUrlList, instrumentDir, mockClassNames);
     }
 
-    private String getAgentCommand(Target target, Package currentPackage, Set<String> exclusionClassList, String jacocoAgentJarPath, String packageName, String orgName) throws IOException {
+    public String getAgentCommand(Target target, Package currentPackage, Set<String> exclusionClassList,
+                                   String jacocoAgentJarPath, String packageName, String orgName) throws IOException {
         String agentCommand = "-javaagent:"
                 + jacocoAgentJarPath
                 + "=destfile="
@@ -477,8 +509,8 @@ public class RunTestsTask implements Task {
         cmdArgs.add(target.path().toString());
         cmdArgs.add(packageName);
         cmdArgs.add(moduleName);
-        addOtherNeededArgs(cmdArgs, this.report, this.coverage, this.groupList, this.disableGroupList,
-                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs);
+//        addOtherNeededArgs(cmdArgs, this.report, this.coverage, this.groupList, this.disableGroupList,
+//                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs);
         return cmdArgs;
     }
 
