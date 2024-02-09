@@ -55,13 +55,19 @@ import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.jar.Attributes;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 
 /**
  * Responsible of processing Testerina annotations.
@@ -74,7 +80,7 @@ public class TestProcessor {
     private static final String BEFORE_EACH_ANNOTATION_NAME = "BeforeEach";
     private static final String AFTER_EACH_ANNOTATION_NAME = "AfterEach";
     private static final String TEST_EXECUTE_FILE_PREFIX = "test_execute-generated_";
-    private static final String MOCK_ANNOTATION_NAME = "Mock";
+            private static final String MOCK_ANNOTATION_NAME = "Mock";
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
@@ -156,6 +162,24 @@ public class TestProcessor {
                 module.project().buildOptions().cloud().isEmpty()) {
             addTestExecutionDependencies(module, jarResolver, testSuite);
         }
+//        else {
+//            if (jarResolver != null) {
+//                Collection<JarLibrary> testExecDependencies = jarResolver.getJarFilePathsRequiredForTestExecution(
+//                        module.moduleName());
+//
+//                for (JarLibrary jarLibrary : testExecDependencies) {
+//                    try (JarInputStream jarStream = new JarInputStream(Files.newInputStream(jarLibrary.path()))) {
+//                        Manifest manifest = jarStream.getManifest();
+//                        manifest.getAttributes(Attributes.Name.MAIN_CLASS.toString());
+//                    }
+//                    catch (IOException e) {
+//
+//
+//                        throw new RuntimeException("Error occurred while reading the jar file: " + jarLibrary.path());
+//                    }
+//                }
+//            }
+//        }
 
         // TODO: Remove redundancy in addUtilityFunctions
         addUtilityFunctions(module, testSuite);
@@ -178,7 +202,14 @@ public class TestProcessor {
         TesterinaRegistry.getInstance().getTestSuites().put(
                 module.descriptor().name().toString(), testSuite);
         testSuite.setPackageName(module.descriptor().packageName().toString());
-        testSuite.setSourceRootPath(module.project().sourceRoot().toString());
+
+        if (!module.project().buildOptions().emitTestExecutable() &&
+                module.project().buildOptions().cloud().isEmpty()) {
+            testSuite.setSourceRootPath(module.project().sourceRoot().toString());
+        }
+        else {
+            testSuite.setSourceRootPath("./");
+        }
         return testSuite;
     }
 
