@@ -112,7 +112,7 @@ func main() {
 		}
 	}
 	os.Setenv("BALLERINA_CLI_WIDTH", ballerinaCLIWidth)
-	fmt.Println(ballerinaCLIWidth)
+
 	//Setting Ballerina debug port
 	balJavaDebug := os.Getenv("BAL_JAVA_DEBUG")
 	javaOpts := ""

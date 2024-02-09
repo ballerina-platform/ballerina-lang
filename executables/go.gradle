@@ -1,0 +1,67 @@
+def osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH)
+def osArch = System.getProperty("os.arch").toLowerCase(Locale.ENGLISH)
+tasks.register('go_clean', Exec) {
+    group 'go'
+    description 'Removes object files from package source directories.'
+    commandLine 'go', 'clean'
+}
+
+tasks.register('go_revive_run', Exec) {
+    group 'go'
+    description 'Running revive.'
+    commandLine 'revive', '-config', 'revive.toml', '-set_exit_status', './...'
+}
+
+tasks.register('go_vet', Exec) {
+    group 'go'
+    description 'Running go vet.'
+    commandLine 'go', 'vet', '-c=5', './...'
+}
+
+tasks.register('go_tidy', Exec) {
+    group 'go'
+    description 'Running go mod tidy.'
+    commandLine 'go', 'mod', 'tidy'
+}
+
+tasks.register('go_build') {
+    group 'go'
+    description 'Compiles the packages named by the import paths, along with their dependencies. AMD64 and ARM64 Archtecture'
+    dependsOn go_darwin_amd64_build
+    dependsOn go_linux_amd64_build
+    dependsOn go_darwin_arm64_build
+    dependsOn go_windows_build_arm64
+}
+tasks.register('go_darwin_amd64_build', Exec) {
+    group 'go'
+    description 'Compiles the packages named by the import paths, along with their dependencies. AMD64 Archtecture'
+
+    commandLine 'env', 'GOOS=darwin', 'GOARCH=amd64','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_darwin_amd64", "$rootDir/executables/bal.go"
+}
+tasks.register('go_linux_amd64_build', Exec) {
+    group 'go'
+    description 'Compiles the packages named by the import paths, along with their dependencies. AMD64 Architecture'
+    
+    // Provide the path to the main Go file directly in the commandLine configuration
+    commandLine 'env', 'GOOS=linux', 'GOARCH=amd64','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_linux_amd64", "$rootDir/executables/bal.go"
+}
+tasks.register('go_darwin_arm64_build', Exec) {
+    group 'go'
+    description 'Compiles the packages named by the import paths, along with their dependencies. ARM64 Architecture'
+    
+    // Provide the path to the main Go file directly in the commandLine configuration
+    commandLine 'env', 'GOOS=darwin', 'GOARCH=arm64','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_darwin_arm64", "$rootDir/executables/bal.go"
+}
+tasks.register('go_windows_build_arm64', Exec) {
+    group 'go'
+    description 'Compiles the packages named by the import paths, along with their dependencies. ARM64 Architecture'
+    
+    // Provide the path to the main Go file directly in the commandLine configuration
+    commandLine 'env', 'GOOS=windows', 'GOARCH=arm64','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_windows_arm64", "$rootDir/executables/bal.go"
+}
+
+/*windows/amd64
+linux/amd64
+darwin/amd64
+darwin/arm64*/
+

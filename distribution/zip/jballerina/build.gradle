@@ -21,7 +21,8 @@ plugins {
 
 apply from: "$rootDir/gradle/repositories.gradle"
 apply from: "$rootDir/gradle/javaLibsProject.gradle"
-apply from: "$rootDir/go.gradle"
+apply from: "$rootDir/executables/go.gradle"
+
 
 configurations {
     dist {
