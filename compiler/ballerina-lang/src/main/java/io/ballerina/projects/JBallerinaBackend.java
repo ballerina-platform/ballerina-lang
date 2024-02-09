@@ -221,10 +221,11 @@ public class JBallerinaBackend extends CompilerBackend {
             default -> throw new RuntimeException("Unexpected output type: " + outputType);
         };
 
-        return getEmitResult(filePath, generatedArtifact, true, ArtifactType.BUILD);
+        return getEmitResult(filePath, generatedArtifact, ArtifactType.BUILD);
     }
 
-    public EmitResult emit(OutputType outputType, Path filePath, HashSet<JarLibrary> jarDependencies) {
+    public EmitResult emit(OutputType outputType, Path filePath,
+                           HashSet<JarLibrary> jarDependencies, Path testSuiteJsonPath, String jsonCopyPath) {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
@@ -232,19 +233,19 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         if (outputType == OutputType.TEST) {
-            generatedArtifact = emitTest(filePath, jarDependencies, null);
+            generatedArtifact = emitTest(filePath, jarDependencies, testSuiteJsonPath, jsonCopyPath);
         }
         else {
             throw new RuntimeException("Unexpected output type: " + outputType);
         }
 
-        return getEmitResult(filePath, generatedArtifact, true, ArtifactType.BUILD);
+        return getEmitResult(filePath, generatedArtifact, ArtifactType.TEST);
     }
 
-    public EmitResult getEmitResult(Path filePath, Path generatedArtifact, boolean shouldNotifyCompilation, ArtifactType artifactType) {
+    public EmitResult getEmitResult(Path filePath, Path generatedArtifact, ArtifactType artifactType) {
         ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
 
-        if (shouldNotifyCompilation && filePath != null) {
+        if (filePath != null) {
             List<Diagnostic> pluginDiagnostics = notifyCompilationCompletion(filePath, artifactType);
             if (!pluginDiagnostics.isEmpty()) {
                 diagnostics.addAll(pluginDiagnostics);
@@ -267,22 +268,6 @@ public class JBallerinaBackend extends CompilerBackend {
 
     public EmitResult getFailedEmitResult(Path generatedArtifact) {
         return new EmitResult(false, diagnosticResult, generatedArtifact);
-    }
-
-    public Path generateTestArtifact(OutputType outputType, Path filePath, ModuleName moduleName, List<String> cmdArgs) {
-        Path generatedArtifact = null;
-
-        if (diagnosticResult.hasErrors()) {
-            return null;
-        }
-
-        if (outputType == OutputType.TEST) {
-            generatedArtifact = emitTest(filePath, moduleName, cmdArgs);
-        } else {
-            throw new RuntimeException("Unexpected output type: " + outputType);
-        }
-
-        return generatedArtifact;
     }
 
     private Path emitBala(Path filePath) {
@@ -442,8 +427,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private void assembleExecutableJar(Path executableFilePath,
                                        Manifest manifest,
-                                       Collection<JarLibrary> jarLibraries,
-                                       List<String> cmdArgs) throws IOException {
+                                       Collection<JarLibrary> jarLibraries) throws IOException {
         // Used to prevent adding duplicated entries during the final jar creation.
         HashMap<String, JarLibrary> copiedEntries = new HashMap<>();
 
@@ -456,37 +440,65 @@ public class JBallerinaBackend extends CompilerBackend {
             writeManifest(manifest, outStream);
 
             // Sort jar libraries list to avoid inconsistent jar reporting
-            List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
-                    .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName())).toList();
-
-            // Copy all the jars
-            for (JarLibrary library : sortedJarLibraries) {
-                copyJar(outStream, library, copiedEntries, serviceEntries);
-            }
+            sortAndCopyJars(jarLibraries, outStream, copiedEntries, serviceEntries);
 
             // Copy merged spi services.
-            for (Map.Entry<String, StringBuilder> entry : serviceEntries.entrySet()) {
-                String s = entry.getKey();
-                StringBuilder service = entry.getValue();
-                JarArchiveEntry e = new JarArchiveEntry(s);
-                outStream.putArchiveEntry(e);
-                outStream.write(service.toString().getBytes(StandardCharsets.UTF_8));
-                outStream.closeArchiveEntry();
-            }
+            copyMergedSpiServices(serviceEntries, outStream);
+        }
+    }
 
-            //create a txt file within the jar to store the main arguments if it is a test jar
-            if (cmdArgs != null) {
-                JarArchiveEntry e = new JarArchiveEntry(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
-                outStream.putArchiveEntry(e);
+    private void assembleTestExecutableJar(Path executableFilePath,
+                                           Manifest manifest,
+                                           Collection<JarLibrary> jarLibraries,
+                                           Path testSuiteJsonPath, String jsonCopyPath) throws IOException {
+        // Used to prevent adding duplicated entries during the final jar creation.
+        HashMap<String, JarLibrary> copiedEntries = new HashMap<>();
 
-                //write the arguments to the file
-                for (String arg : cmdArgs) {
-                    outStream.write(arg.getBytes(StandardCharsets.UTF_8));
-                    outStream.write("\n".getBytes(StandardCharsets.UTF_8));
-                }
+        // Used to process SPI related metadata entries separately. The reason is unlike the other entry types,
+        // service loader related information should be merged together in the final executable jar creation.
+        HashMap<String, StringBuilder> serviceEntries = new HashMap<>();
 
-                outStream.closeArchiveEntry();
-            }
+        try (ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(
+                new BufferedOutputStream(new FileOutputStream(executableFilePath.toString())))) {
+            writeManifest(manifest, outStream);
+
+            // Sort jar libraries list to avoid inconsistent jar reporting
+            sortAndCopyJars(jarLibraries, outStream, copiedEntries, serviceEntries);
+
+            // Copy merged spi services.
+            copyMergedSpiServices(serviceEntries, outStream);
+
+            //write the test suite json file
+            JarArchiveEntry testSuiteJsonEntry = new JarArchiveEntry(jsonCopyPath);
+            outStream.putArchiveEntry(testSuiteJsonEntry);
+            outStream.write(Files.readAllBytes(testSuiteJsonPath));
+            outStream.closeArchiveEntry();
+        }
+    }
+
+    private static void copyMergedSpiServices(HashMap<String, StringBuilder> serviceEntries,
+                                              ZipArchiveOutputStream outStream) throws IOException {
+        for (Map.Entry<String, StringBuilder> entry : serviceEntries.entrySet()) {
+            String s = entry.getKey();
+            StringBuilder service = entry.getValue();
+            JarArchiveEntry e = new JarArchiveEntry(s);
+            outStream.putArchiveEntry(e);
+            outStream.write(service.toString().getBytes(StandardCharsets.UTF_8));
+            outStream.closeArchiveEntry();
+        }
+    }
+
+    private void sortAndCopyJars(Collection<JarLibrary> jarLibraries, ZipArchiveOutputStream outStream,
+                                 HashMap<String, JarLibrary> copiedEntries,
+                                 HashMap<String, StringBuilder> serviceEntries) throws IOException {
+
+        List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
+                .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName()))
+                .collect(Collectors.toList());
+
+        // Copy all the jars
+        for (JarLibrary library : sortedJarLibraries) {
+            copyJar(outStream, library, copiedEntries, serviceEntries);
         }
     }
 
@@ -630,7 +642,7 @@ public class JBallerinaBackend extends CompilerBackend {
         // Add warning when provided platform dependencies are found
         addProvidedDependencyWarning(emitResultDiagnostics);
         try {
-            assembleExecutableJar(executableFilePath, manifest, jarLibraries, null);
+            assembleExecutableJar(executableFilePath, manifest, jarLibraries);
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package '" +
                     this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
@@ -638,10 +650,11 @@ public class JBallerinaBackend extends CompilerBackend {
         return executableFilePath;
     }
 
-    private Path emitTest(Path executableFilePath, HashSet<JarLibrary> jarDependencies, List<String> cmdArgs) {
+    private Path emitTest(Path executableFilePath, HashSet<JarLibrary> jarDependencies,
+                          Path testSuiteJsonPath, String jsonCopyPath) {
         Manifest manifest = createTestManifest();
         try {
-            assembleExecutableJar(executableFilePath, manifest, jarDependencies, cmdArgs);
+            assembleTestExecutableJar(executableFilePath, manifest, jarDependencies, testSuiteJsonPath, jsonCopyPath);
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package '" +
                     this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
