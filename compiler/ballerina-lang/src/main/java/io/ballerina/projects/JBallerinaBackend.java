@@ -538,20 +538,19 @@ public class JBallerinaBackend extends CompilerBackend {
 
         bPackageSymbol.imports.removeIf(pkgSymbol -> pkgSymbol != null && unusedPackageIDs.contains(pkgSymbol.pkgID));
         birPackage.importModules.removeIf(module -> unusedPackageIDs.contains(module.packageID));
-        birPackage.functions.removeIf(currentFunc -> currentFunc.usedState == UsedState.UNUSED);
-        birPackage.typeDefs.removeIf(typeDef -> typeDef.usedState == UsedState.UNUSED);
+        birPackage.functions.removeIf(currentFunc -> currentFunc.getUsedState() == UsedState.UNUSED);
+        birPackage.typeDefs.removeIf(typeDef -> typeDef.getUsedState() == UsedState.UNUSED);
         optimizeImmutableTypeDefs(invocationData);
 
         // FP optimization for functions with default params
-        birPackage.globalVars.removeIf(gVar -> gVar.usedState == UsedState.UNUSED);
+        birPackage.globalVars.removeIf(gVar -> gVar.getUsedState() == UsedState.UNUSED);
         invocationData.getFpDataPool().forEach(UsedBIRNodeAnalyzer.FunctionPointerData::deleteIfUnused);
 
         // TODO Attached function optimization with polymorphism handling
     }
 
     private void optimizeImmutableTypeDefs(UsedBIRNodeAnalyzer.InvocationData invocationData) {
-        HashSet<BIRNode.BIRTypeDefinition> deadTypeDefs = new HashSet<>(invocationData.typeDefPool.values());
-        deadTypeDefs.removeAll(invocationData.usedTypeDefs);
+        HashSet<BIRNode.BIRTypeDefinition> deadTypeDefs = new HashSet<>(invocationData.unusedTypeDefs);
 
         deadTypeDefs.forEach(deadTypeDef -> {
             if (Flags.unMask(deadTypeDef.type.flags).contains(Flag.READONLY)) {
