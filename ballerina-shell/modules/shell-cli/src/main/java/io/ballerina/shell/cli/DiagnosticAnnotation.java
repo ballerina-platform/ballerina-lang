@@ -1,4 +1,4 @@
-package io.ballerina.cli.tool;
+package io.ballerina.shell.cli;
 
 public class DiagnosticAnnotation {
 
