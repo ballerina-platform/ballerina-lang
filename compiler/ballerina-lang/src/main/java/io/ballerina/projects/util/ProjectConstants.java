@@ -16,8 +16,6 @@
  *  under the License.
  */
 package io.ballerina.projects.util;
-
-
 /**
  * Defines constants related to the project directory.
  *
@@ -117,6 +115,7 @@ public class ProjectConstants {
     public static final String TEST_RUNTIME_MAIN_ARGS_FILE = "mainArgs.txt";
 
     public static final String TEST_SUITE = "test_suite";
+    public static final String TEST_SUITE_JSON = "test_suite.json";
 
     public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.10.jar";
     public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.10.jar";
