@@ -239,6 +239,23 @@ function testArrayWithNullElements() returns string {
     return output;
 }
 
+function testMutatingArray() {
+    int[] vals = [1, 2, 3];
+    int sum = 0;
+    foreach int val in vals {
+        vals = [1, ...vals];
+        sum += vals[0];
+    }
+    assertEquality(3, sum);
+    int[] prefixVals = [1, 2, 3];
+    sum = 0;
+    foreach int val in prefixVals {
+        vals.push(10);
+        sum += val;
+    }
+    assertEquality(6, sum);
+}
+
 function testEmptyArray() {
     output = "hello";
     foreach var item in [] {
