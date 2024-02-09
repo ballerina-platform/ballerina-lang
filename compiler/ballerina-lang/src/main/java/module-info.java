@@ -76,7 +76,7 @@ module io.ballerina.lang {
     exports io.ballerina.projects.plugins.codeaction;
     exports io.ballerina.projects.internal.model; // TODO Remove this exports
     exports io.ballerina.projects.internal.environment; // TODO Remove these exports
-    exports io.ballerina.projects.internal to io.ballerina.cli;
+    exports io.ballerina.projects.internal to io.ballerina.cli, io.ballerina.shell.cli;
     exports io.ballerina.projects.internal.bala;
     exports io.ballerina.projects.internal.configschema to org.ballerinalang.config.schema.generator,
             io.ballerina.language.server.core;
