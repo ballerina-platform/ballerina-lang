@@ -5141,7 +5141,7 @@ public class Desugar extends BLangNodeVisitor {
                         symTable.intType, pos);
 
         BSymbol indexSymbol = addTemporaryVariableToScope(pos, "$index$", indexInitVal, symTable.intType, scopeBlock);
-        // This is needs to be a separate local value in order to give the same observable behavior in case
+        // This needs to be a variable defined outside the loop in order to give the same observable behavior in case
         // of adding elements to array. May need to change when ballerina-spec/899 is resolved.
         BSymbol indexMaxSymbol =
                 addTemporaryVariableToScope(pos, "$indexMax$", indexMaxVal, symTable.intType, scopeBlock);
@@ -6636,7 +6636,6 @@ public class Desugar extends BLangNodeVisitor {
                                         createStmtExpr((BLangInvocation) ((BLangTypeConversionExpr) invocation).expr);
             result = invocation;
         } else {
-            // FIXME:
             result = createStmtExpr((BLangInvocation) invocation);
         }
     }

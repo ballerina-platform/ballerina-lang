@@ -219,6 +219,11 @@ public class ForeachArrayTests {
     }
 
     @Test
+    public void testMutatingArray() {
+        BRunUtil.invoke(program, "testMutatingArray");
+    }
+
+    @Test
     public void testEmptyArray() {
         BRunUtil.invoke(program, "testEmptyArray");
     }
