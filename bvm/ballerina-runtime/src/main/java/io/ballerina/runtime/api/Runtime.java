@@ -49,6 +49,12 @@ public abstract class Runtime {
         return new BalRuntime(strand.scheduler);
     }
 
+    public static Runtime start(String orgName, String moduleName, String version) {
+        Scheduler scheduler = new Scheduler(false);
+        BalRuntime balRuntime = new BalRuntime(scheduler);
+        return balRuntime.balStart(scheduler, orgName, moduleName, version);
+    }
+
     /**
      * Invoke Object method asynchronously and sequentially. This method will ensure that the object methods are
      * invoked in the same thread where other object methods are executed. So, the methods will be executed
@@ -152,4 +158,6 @@ public abstract class Runtime {
     public abstract void deregisterListener(BObject listener);
 
     public abstract void registerStopHandler(BFunctionPointer<?, ?> stopHandler);
+
+    public abstract void invokeMethodAsync(String functionName, Object[] args, Callback callback);
 }
