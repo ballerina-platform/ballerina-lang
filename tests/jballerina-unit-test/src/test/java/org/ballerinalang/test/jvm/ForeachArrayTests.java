@@ -224,6 +224,10 @@ public class ForeachArrayTests {
     }
 
     @Test
+    public void testQueryInsideLoop() {
+        BRunUtil.invoke(program, "testQueryInsideLoop");
+    }
+    @Test
     public void testEmptyArray() {
         BRunUtil.invoke(program, "testEmptyArray");
     }

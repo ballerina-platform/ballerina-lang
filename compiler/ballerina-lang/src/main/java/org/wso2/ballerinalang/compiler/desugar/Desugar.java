@@ -5094,8 +5094,8 @@ public class Desugar extends BLangNodeVisitor {
             foreach.body.failureBreakMode = BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
             BLangDo doStmt = wrapStatementWithinDo(foreach.pos, foreach, onFailClause);
             result = rewrite(doStmt, env);
-        } else if (convertibleToWhile(foreach)) {
-            convertToWhile(foreach);
+        } else if (canEliminateIterator(foreach)) {
+            desugarForeachToWhileWithoutIterator(foreach);
         } else {
             // We need to create a new variable for the expression as well. This is needed because integer ranges can be
             // added as the expression so we cannot get the symbol in such cases.
@@ -5116,7 +5116,7 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private boolean convertibleToWhile(BLangForeach loop) {
+    private boolean canEliminateIterator(BLangForeach loop) {
         BLangExpression collection = loop.collection;
         return switch (collection.getKind()) {
             case BINARY_EXPR -> true;
@@ -5125,15 +5125,12 @@ public class Desugar extends BLangNodeVisitor {
         };
     }
 
-    private void convertToWhile(BLangForeach foreach) {
+    private void desugarForeachToWhileWithoutIterator(BLangForeach foreach) {
         Location pos = foreach.pos;
         BLangBlockStmt scopeBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangBinaryExpr rangeExpr;
-        if (foreach.collection.getKind() == NodeKind.BINARY_EXPR) {
-            rangeExpr = (BLangBinaryExpr) foreach.collection;
-        } else {
-            rangeExpr = null;
-        }
+        BLangBinaryExpr rangeExpr =
+                foreach.collection.getKind() == NodeKind.BINARY_EXPR ? (BLangBinaryExpr) foreach.collection : null;
+
         BLangExpression indexInitVal = rangeExpr != null ? rangeExpr.lhsExpr :
                 ASTBuilderUtil.createLiteral(pos, symTable.intType, 0L);
         BLangExpression indexMaxVal = rangeExpr != null ? rangeExpr.rhsExpr :
@@ -5160,16 +5157,18 @@ public class Desugar extends BLangNodeVisitor {
                                 .resolveBinaryOperator(OperatorKind.EQUAL, symTable.booleanType, symTable.booleanType));
 
         BLangBlockStmt whileBody = ASTBuilderUtil.createBlockStmt(foreach.pos);
+        whileBody.scope = foreach.body.scope;
 
         VariableDefinitionNode loopValDef = foreach.variableDefinitionNode;
         Location loopValPos = loopValDef.getPosition();
         BLangVariable loopVal = (BLangVariable) loopValDef.getVariable();
-        final BLangSimpleVarRef indexRef = ASTBuilderUtil.createVariableRef(loopValPos, indexSymbol);
-        // We are mutating the loopVal instead of using a separate assignment statement due destructuring
-        loopVal.expr = rangeExpr != null ? indexRef :
+        BLangSimpleVarRef indexRef = ASTBuilderUtil.createVariableRef(loopValPos, indexSymbol);
+        loopVal.setInitialExpression(rangeExpr != null ? indexRef :
                 ASTBuilderUtil.createIndexBasesAccessExpr(pos, loopVal.getBType(),
-                        (BVarSymbol) ((BLangVariableReference) foreach.collection).symbol,
-                        ASTBuilderUtil.createVariableRef(loopValPos, indexSymbol));
+                        (BVarSymbol) addTemporaryVariableToScope(pos, "$data$", foreach.collection,
+                                foreach.collection.getBType(),
+                                scopeBlock),
+                        ASTBuilderUtil.createVariableRef(loopValPos, indexSymbol)));
         whileBody.addStatement(loopValDef);
 
         // Increment the index
@@ -5191,7 +5190,7 @@ public class Desugar extends BLangNodeVisitor {
     private BSymbol addTemporaryVariableToScope(Location pos, String name, BLangExpression initValue, BType type,
                                                 BLangBlockStmt scopeBlock) {
         BLangSimpleVariable var = ASTBuilderUtil.createVariable(pos, name, type, initValue,
-                new BVarSymbol(0, Names.fromString(name), this.env.scope.owner.pkgID, symTable.intType,
+                new BVarSymbol(0, Names.fromString(name), this.env.scope.owner.pkgID, type,
                         this.env.scope.owner, pos, VIRTUAL));
         scopeBlock.addStatement(ASTBuilderUtil.createVariableDef(pos, var));
         return var.symbol;
@@ -5369,7 +5368,7 @@ public class Desugar extends BLangNodeVisitor {
                                                          boolean isIteratorFuncFromLangLib) {
         BLangSimpleVariableDef iteratorVarDef = getIteratorVariableDefinition(foreach.pos, collectionSymbol,
                 iteratorInvokableSymbol, isIteratorFuncFromLangLib);
-        BLangBlockStmt blockNode = desugarForeachToWhile(foreach, iteratorVarDef);
+        BLangBlockStmt blockNode = desugarForeachToWhileWithIterator(foreach, iteratorVarDef);
         blockNode.stmts.add(0, dataVariableDefinition);
         return blockNode;
     }
@@ -5393,7 +5392,7 @@ public class Desugar extends BLangNodeVisitor {
                 names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
     }
 
-    private BLangBlockStmt desugarForeachToWhile(BLangForeach foreach, BLangSimpleVariableDef varDef) {
+    private BLangBlockStmt desugarForeachToWhileWithIterator(BLangForeach foreach, BLangSimpleVariableDef varDef) {
 
         // We desugar the foreach statement to a while loop here.
         //

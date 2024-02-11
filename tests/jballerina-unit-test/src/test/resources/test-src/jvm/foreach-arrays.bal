@@ -239,6 +239,18 @@ function testArrayWithNullElements() returns string {
     return output;
 }
 
+function testQueryInsideLoop() {
+    string[] values = ["a", "b", "c"];
+    int sum = 0;
+    foreach string entity in values {
+        string[] relationFields = from string each in values
+            where entity + each != "foo"
+            select each;
+        sum += relationFields.length();
+    }
+    assertEquality(sum, 9);
+}
+
 function testMutatingArray() {
     int[] vals = [1, 2, 3];
     int sum = 0;
