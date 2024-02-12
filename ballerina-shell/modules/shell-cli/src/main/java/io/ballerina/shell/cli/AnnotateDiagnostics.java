@@ -47,24 +47,25 @@ public class AnnotateDiagnostics {
         int end = location.textRange().endOffset();
         int startLine = location.lineRange().startLine().line();
         int endLine = location.lineRange().endLine().line();
-        NonTerminalNode diagnosticNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(
-                TextRange.from(start, end - start), true);
-        NonTerminalNode statementNode = climbUpToStatementNode(diagnosticNode, startLine, endLine);
-        ArrayList<Node> siblings = getSiblingsOnSameRange(statementNode, startLine, endLine);
+//        NonTerminalNode diagnosticNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(
+//                TextRange.from(start, end - start), true);
+//        NonTerminalNode statementNode = climbUpToStatementNode(diagnosticNode, startLine, endLine);
+//        ArrayList<Node> siblings = getSiblingsOnSameRange(statementNode, startLine, endLine);
+
         if (isMultiline) {
             return new DiagnosticAnnotation(
-                    nodeListToString(siblings),
-                    diagnosticNode.textRange().startOffset() - statementNode.textRangeWithMinutiae().startOffset(),
-                    diagnosticNode.textRange().endOffset() - diagnosticNode.textRange().startOffset(),
-                    diagnosticNode.lineRange().endLine().offset(),
+                    getLines(textDocument, startLine, endLine),
+                    location.lineRange().startLine().offset(),
+                    textDocument.line(startLine).length() - location.lineRange().startLine().offset(),
+                    location.lineRange().endLine().offset(),
                     startLine + 1,
                     terminalWidth);
         }
 
         return new DiagnosticAnnotation(
-                nodeListToString(siblings),
-                diagnosticNode.textRange().startOffset() - siblings.get(0).textRangeWithMinutiae().startOffset(),
-                diagnosticNode.textRange().endOffset() - diagnosticNode.textRange().startOffset(),
+                getLines(textDocument, startLine, endLine),
+                location.lineRange().startLine().offset(),
+                location.lineRange().endLine().offset() - location.lineRange().startLine().offset(),
                 startLine + 1,
                 terminalWidth);
     }
@@ -110,12 +111,12 @@ public class AnnotateDiagnostics {
         return siblings;
     }
 
-    private static String nodeListToString(ArrayList<Node> nodeList) {
-        StringBuilder sb = new StringBuilder();
-        for (Node node : nodeList) {
-            sb.append(node.toString());
+    private static ArrayList<String> getLines(TextDocument textDocument, int start, int end) {
+        ArrayList<String> lines = new ArrayList<>();
+        for (int i = start; i <= end; i++) {
+            lines.add(textDocument.line(i).text());
         }
-        return sb.toString();
+        return lines;
     }
 
     private static String getSourceText(Path sourceFilePath) {
