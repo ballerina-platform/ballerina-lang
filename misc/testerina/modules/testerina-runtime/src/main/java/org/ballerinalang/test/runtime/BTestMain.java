@@ -45,9 +45,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -81,56 +79,56 @@ public class BTestMain {
         if(args.length == 0) { //running using the uber jar
             List<String> mainArgs = new ArrayList<>();
 
-            try (InputStream in = BTestMain.class.getResourceAsStream(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE_DIR + ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
-                 //make sure that the path start with a leading slash (/)
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-                // Use resource
+                try (InputStream in = BTestMain.class.getResourceAsStream(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE_DIR + ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
+                     //make sure that the path start with a leading slash (/)
+                     BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                    // Use resource
 
-                //read first 3 lines to get the packageID, orgName and version
-                String packageID = reader.readLine();
-                String org = reader.readLine();
-                String version = reader.readLine();
+                    //read first 3 lines to get the packageID, orgName and version
+                    String packageID = reader.readLine();
+                    String org = reader.readLine();
+                    String version = reader.readLine();
 
-                //read just one line to get the jacoco agent jar path
-                String jacocoAgentJarPath = reader.readLine();
+                    //read just one line to get the jacoco agent jar path
+                    String jacocoAgentJarPath = reader.readLine();
 
-                //read the rest of the lines to get the args
-                String line;
-                while((line = reader.readLine()) != null){
-                    mainArgs.add(line);
+                    //read the rest of the lines to get the args
+                    String line;
+                    while((line = reader.readLine()) != null){
+                        mainArgs.add(line);
+                    }
+
+                    //classLoader = createURLClassLoader(new ArrayList<String>());
+
+                    String[] argsArr = mainArgs.toArray(new String[0]);
+                    boolean report = Boolean.parseBoolean(argsArr[3]);
+                    boolean coverage = Boolean.parseBoolean(argsArr[4]);
+
+                    out.println();
+                    out.print("Running Tests");
+                    if (coverage) {
+                        out.print(" with Coverage");
+                    }
+                    out.println();
+
+                    String packageName = argsArr[1];
+                    String moduleName = argsArr[2];
+
+                    out.println("\n\t" + (moduleName.equals(packageName) ?
+                            (moduleName.equals(TesterinaConstants.DOT) ? packageName : moduleName)
+                            : packageName + TesterinaConstants.DOT + moduleName));
+
+                    result = startTestExecution(classLoader, argsArr, packageID, org, version);
+
+                    exitStatus = (result == 1) ? result : exitStatus;
                 }
-
-                classLoader = createURLClassLoader(new ArrayList<String>());
-
-                String[] argsArr = mainArgs.toArray(new String[0]);
-                boolean report = Boolean.parseBoolean(argsArr[3]);
-                boolean coverage = Boolean.parseBoolean(argsArr[4]);
-
-                out.println();
-                out.print("Running Tests");
-                if (coverage) {
-                    out.print(" with Coverage");
+                catch(NullPointerException e){
+                    System.out.println("no file found");
+                    exitStatus = 1;
                 }
-                out.println();
-
-                String packageName = argsArr[1];
-                String moduleName = argsArr[2];
-
-                out.println("\n\t" + (moduleName.equals(packageName) ?
-                        (moduleName.equals(TesterinaConstants.DOT) ? packageName : moduleName)
-                        : packageName + TesterinaConstants.DOT + moduleName));
-
-                result = startTestExecution(classLoader, argsArr, packageID, org, version);
-
-                exitStatus = (result == 1) ? result : exitStatus;
+                Runtime.getRuntime().exit(exitStatus);
             }
-            catch(NullPointerException e){
-                System.out.println("no file found");
-                exitStatus = 1;
-            }
-            Runtime.getRuntime().exit(exitStatus);
-        }
-        else if (args.length >= 4) { //running using the suite json
+            else if (args.length >= 4) { //running using the suite json
             Path testSuiteJsonPath = Paths.get(args[0]);
 
 
@@ -179,7 +177,13 @@ public class BTestMain {
 
                         testSuite.setModuleName(moduleName);
                         List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
-                        classLoader = createURLClassLoader(testExecutionDependencies);
+
+                        if (testExecutionDependencies.isEmpty()) {
+                            classLoader = createInitialCustomClassLoader();
+                        }
+                        else {
+                            classLoader = createURLClassLoader(getURLList(testExecutionDependencies));
+                        }
 
                         if (!testSuite.getMockFunctionNamesMap().isEmpty()) {
                             if (coverage) {
@@ -244,7 +248,6 @@ public class BTestMain {
 
     public static List<URL> getURLList(List<String> jarFilePaths) {
         List<URL> urlList = new ArrayList<>();
-
         for (String jarFilePath : jarFilePaths) {
             try {
                 urlList.add(Paths.get(jarFilePath).toUri().toURL());
@@ -256,10 +259,22 @@ public class BTestMain {
         return urlList;
     }
 
-    public static URLClassLoader createURLClassLoader(List<String> jarFilePaths) {
+    public static URLClassLoader createURLClassLoader(List<URL> jarFileUrls) {
         return AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(getURLList(jarFilePaths).toArray(
+                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(jarFileUrls.toArray(
                         new URL[0]), ClassLoader.getSystemClassLoader()));
+    }
+
+    public static CustomSystemClassLoader createInitialCustomClassLoader() {
+        return AccessController.doPrivileged(
+                (PrivilegedAction<CustomSystemClassLoader>) CustomSystemClassLoader::new
+        );
+    }
+
+    public static CustomSystemClassLoader createModifiedCustomClassLoader(Map<String, byte[]> modifiedClassDefs) {
+        return AccessController.doPrivileged(
+                (PrivilegedAction<CustomSystemClassLoader>) () -> new CustomSystemClassLoader(modifiedClassDefs)
+        );
     }
 
     public static void replaceMockedFunctions(TestSuite suite, List<String> jarFilePaths, String instrumentDir,
@@ -272,7 +287,14 @@ public class BTestMain {
             byte[] classFile = getModifiedClassBytes(className, functionNamesList, suite, instrumentDir, coverage);
             modifiedClassDef.put(className, classFile);
         }
-        classLoader = createClassLoader(jarFilePaths, modifiedClassDef);
+
+        if (jarFilePaths.isEmpty()) {
+            classLoader = createModifiedCustomClassLoader(modifiedClassDef);
+        }
+        else {
+            classLoader = createClassLoader(jarFilePaths, modifiedClassDef);
+        }
+
         clearMockFunctionMapBeforeNextModule();
     }
 
