@@ -349,7 +349,6 @@ service class ServiceClass {
         increment: 1112
     }
     remote function serviceRemoteFn1() {
-
     }
 }
 
@@ -365,6 +364,5 @@ service /ser2 on new Listener() {
         increment: 1114
     }
     remote function serviceRemoteFn3() {
-
     }
 }

@@ -400,10 +400,7 @@ public class AnnotationAttachmentSymbolsTest {
         List<? extends AnnotationAttachmentSymbol> attachments = function.symbol.getAnnotations();
         Assert.assertEquals(attachments.size(), 2);
 
-        AnnotationAttachmentSymbol v31 = attachments.get(0);
-        Assert.assertFalse(v31.isConstAnnotation());
-        assertAttachmentSymbol(v31, "v31");
-
+        assertAttachmentSymbol(attachments.get(0), "v31");
         assertAttachmentSymbol(attachments.get(1), "v32", true, "increment", 1112L);
     }
 
