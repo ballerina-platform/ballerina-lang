@@ -5095,7 +5095,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangDo doStmt = wrapStatementWithinDo(foreach.pos, foreach, onFailClause);
             result = rewrite(doStmt, env);
         } else if (canEliminateIterator(foreach)) {
-            desugarForeachToWhileWithoutIterator(foreach);
+            result = rewrite(desugarForeachToWhileWithoutIterator(foreach), env);
         } else {
             // We need to create a new variable for the expression as well. This is needed because integer ranges can be
             // added as the expression so we cannot get the symbol in such cases.
@@ -5119,21 +5119,24 @@ public class Desugar extends BLangNodeVisitor {
     private boolean canEliminateIterator(BLangForeach loop) {
         BLangExpression collection = loop.collection;
         return switch (collection.getKind()) {
-            case BINARY_EXPR -> true;
-            case SIMPLE_VARIABLE_REF -> collection.expectedType.getKind() == TypeKind.ARRAY;
+            case BINARY_EXPR, LIST_CONSTRUCTOR_EXPR -> true;
+            case SIMPLE_VARIABLE_REF -> {
+                TypeKind kind = collection.expectedType.getKind();
+                yield kind == TypeKind.ARRAY || kind == TypeKind.TUPLE;
+            }
             default -> false;
         };
     }
 
-    private void desugarForeachToWhileWithoutIterator(BLangForeach foreach) {
+    private BLangBlockStmt desugarForeachToWhileWithoutIterator(BLangForeach foreach) {
         Location pos = foreach.pos;
         BLangBlockStmt scopeBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangBinaryExpr rangeExpr =
-                foreach.collection.getKind() == NodeKind.BINARY_EXPR ? (BLangBinaryExpr) foreach.collection : null;
+        boolean isRangeExpr = foreach.collection.getKind() == NodeKind.BINARY_EXPR;
+        BLangBinaryExpr rangeExpr = isRangeExpr ? (BLangBinaryExpr) foreach.collection : null;
 
-        BLangExpression indexInitVal = rangeExpr != null ? rangeExpr.lhsExpr :
+        BLangExpression indexInitVal = isRangeExpr ? rangeExpr.lhsExpr :
                 ASTBuilderUtil.createLiteral(pos, symTable.intType, 0L);
-        BLangExpression indexMaxVal = rangeExpr != null ? rangeExpr.rhsExpr :
+        BLangExpression indexMaxVal = isRangeExpr ? rangeExpr.rhsExpr :
                 createLangLibInvocationNode("length", foreach.collection, new ArrayList<>(),
                         symTable.intType, pos);
 
@@ -5144,7 +5147,7 @@ public class Desugar extends BLangNodeVisitor {
                 addTemporaryVariableToScope(pos, "$indexMax$", indexMaxVal, symTable.intType, scopeBlock);
 
         OperatorKind comparisonOp;
-        if (rangeExpr != null) {
+        if (isRangeExpr) {
             comparisonOp =
                     rangeExpr.opKind == OperatorKind.HALF_OPEN_RANGE ? OperatorKind.LESS_THAN : OperatorKind.LESS_EQUAL;
         } else {
@@ -5159,11 +5162,12 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt whileBody = ASTBuilderUtil.createBlockStmt(foreach.pos);
         whileBody.scope = foreach.body.scope;
 
+        // Initialize loop variable
         VariableDefinitionNode loopValDef = foreach.variableDefinitionNode;
         Location loopValPos = loopValDef.getPosition();
         BLangVariable loopVal = (BLangVariable) loopValDef.getVariable();
         BLangSimpleVarRef indexRef = ASTBuilderUtil.createVariableRef(loopValPos, indexSymbol);
-        loopVal.setInitialExpression(rangeExpr != null ? indexRef :
+        loopVal.setInitialExpression(isRangeExpr ? indexRef :
                 ASTBuilderUtil.createIndexBasesAccessExpr(pos, loopVal.getBType(),
                         (BVarSymbol) addTemporaryVariableToScope(pos, "$data$", foreach.collection,
                                 foreach.collection.getBType(),
@@ -5182,9 +5186,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangWhile whileLoop = ASTBuilderUtil.createWhile(pos, condition, whileBody);
         scopeBlock.addStatement(whileLoop);
-
-        rewrite(scopeBlock, this.env);
-        result = scopeBlock;
+        return scopeBlock;
     }
 
     private BSymbol addTemporaryVariableToScope(Location pos, String name, BLangExpression initValue, BType type,
