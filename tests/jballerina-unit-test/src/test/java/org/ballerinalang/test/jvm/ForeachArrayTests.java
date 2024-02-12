@@ -227,6 +227,17 @@ public class ForeachArrayTests {
     public void testQueryInsideLoop() {
         BRunUtil.invoke(program, "testQueryInsideLoop");
     }
+
+    @Test
+    public void testListConstructor() {
+        BRunUtil.invoke(program, "testListConstructor");
+    }
+
+    @Test
+    public void testTuple() {
+        BRunUtil.invoke(program, "testTuple");
+    }
+
     @Test
     public void testEmptyArray() {
         BRunUtil.invoke(program, "testEmptyArray");

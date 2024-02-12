@@ -268,6 +268,29 @@ function testMutatingArray() {
     assertEquality(6, sum);
 }
 
+function testListConstructor() {
+    int sum = 0;
+    foreach int val in [1, 2, 3] {
+        sum += val;
+    }
+    assertEquality(6, sum);
+}
+
+function testTuple() {
+    int sum = 0;
+    [int, int, int] vals = [1, 2, 3];
+    foreach int val in vals {
+        sum += val;
+    }
+    assertEquality(6, sum);
+    sum = 0;
+    [int, int, int...] moreVals = [1, 2, 3, 4, 5];
+    foreach int val in moreVals {
+        sum += val;
+    }
+    assertEquality(15, sum);
+}
+
 function testEmptyArray() {
     output = "hello";
     foreach var item in [] {
