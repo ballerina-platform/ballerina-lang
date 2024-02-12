@@ -1,8 +1,10 @@
 package io.ballerina.shell.cli;
 
+import java.util.ArrayList;
+
 public class DiagnosticAnnotation {
 
-    private final String line;
+    private final ArrayList<String> lines;
     private final int start;
     private final int length;
     private final boolean isMultiline;
@@ -14,9 +16,10 @@ public class DiagnosticAnnotation {
     public static final String RESET = "\033[0m";
     public static final String RED = "\033[0;31m";
 
-    public DiagnosticAnnotation(String line, int start, int length, int startLineNumber, int terminalWidth) {
-        this.start = start + 3 * countTabChars(line, start);
-        this.line = replaceTabs(line, start);
+    public DiagnosticAnnotation(ArrayList<String> lines, int start, int length, int startLineNumber, int terminalWidth) {
+        this.start = start + 3 * countTabChars(lines.get(0), start);
+        lines.set(0, replaceTabs(lines.get(0), start));
+        this.lines = lines;
         this.length = length;
         this.endOffset = 0;
         this.isMultiline = false;
@@ -24,9 +27,10 @@ public class DiagnosticAnnotation {
         this.terminalWidth = terminalWidth;
     }
 
-    public DiagnosticAnnotation(String line, int start, int length, int endOffset, int startLineNumber, int terminalWidth) {
-        this.start = start + 3 * countTabChars(line, start);
-        this.line = replaceTabs(line, start);
+    public DiagnosticAnnotation(ArrayList<String> lines, int start, int length, int endOffset, int startLineNumber, int terminalWidth) {
+        this.start = start + 3 * countTabChars(lines.get(0), start);
+        lines.set(0, replaceTabs(lines.get(0), start));
+        this.lines = lines;
         this.length = length;
         this.endOffset = endOffset;
         this.isMultiline = true;
@@ -35,50 +39,48 @@ public class DiagnosticAnnotation {
     }
 
     public String toString() {
-        String line_ = line;
-//            replace leading and trailing newlines
-        if (line_.startsWith("\n")) {
-            line_ = " " + line_.substring(1);
-        }
-        if (line_.endsWith("\n")) {
-            line_ = line_.substring(0, line_.length() - 1);
-        }
         if (!isMultiline) {
             int n_digits = (int) Math.log10(startLineNumber) + 1;
             String padding = " ".repeat(n_digits + 1);
             int maxLength = terminalWidth - n_digits - 3;
-            TruncateResult result = truncate(line_, maxLength, start, length);
+            TruncateResult result = truncate(lines.get(0), maxLength, start, length);
             return padding + "| " + "\n"
                     + String.format("%" + n_digits + "d ", startLineNumber) + "| " + result.line + "\n"
                     + padding + "| " + getCaretLine(result.diagnosticStart, length) + "\n";
 
         }
 
-        // Multiline case
-        String[] lines = line_.split("\n");
-        int max_length_line = Math.max(lines[0].length(), lines[lines.length - 1].length());
-        int n_digits_end = (int) Math.log10(startLineNumber + lines.length - 1) + 1;
+
+        int max_length_line = Math.max(lines.get(0).length(), lines.get(lines.size() - 1).length());
+        int n_digits_end = (int) Math.log10(startLineNumber + lines.size() - 1) + 1;
         String padding = " ".repeat(n_digits_end + 1);
         String paddingWithColon = " :" + " ".repeat(n_digits_end - 1);
 
-        int tabsInLastLine = countTabChars(lines[lines.length - 1], this.endOffset);
-        lines[lines.length - 1] = replaceTabs(lines[lines.length - 1], this.endOffset);
+        int tabsInLastLine = countTabChars(lines.get(lines.size() - 1), this.endOffset);
+        lines.set(lines.size() - 1, replaceTabs(lines.get(lines.size() - 1), this.endOffset));
+        int maxLength = terminalWidth - n_digits_end - 3;
+        TruncateResult result1 = truncate(lines.get(0), maxLength, start, length);
+        int res1DiagnosticLen = result1.line().length() - result1.diagnosticStart;
+        TruncateResult result2 = truncate(lines.get(lines.size() - 1), maxLength, 0,
+                endOffset + 3 * tabsInLastLine);
+        int res2DiagnosticLen = result2.line().length() - result2.diagnosticStart;
 
-        if (lines.length == 2) {
+        if (lines.size() == 2) {
             return padding + "| " + "\n"
-                    + String.format("%" + n_digits_end + "d ", startLineNumber) + "| " + lines[0] + "\n"
-                    + padding + "| " + getCaretLine(start, lines[0].length() - start) + "\n"
-                    + String.format("%" + n_digits_end + "d ", startLineNumber + 1) + "| " + lines[1] + "\n"
+                    + String.format("%" + n_digits_end + "d ", startLineNumber) + "| " + result1.line + "\n"
+                    + padding + "| " + getCaretLine(result1.diagnosticStart, res1DiagnosticLen) + "\n"
+                    + String.format("%" + n_digits_end + "d ", startLineNumber + 1) + "| " + result2.line + "\n"
                     + padding + "| " + getCaretLine(0, endOffset + 3 * tabsInLastLine) + "\n"
                     + padding + "| " + "\n";
         }
+        String padding2 = " ".repeat(Math.min(terminalWidth, max_length_line) / 2);
         return padding + "| " + "\n"
-                + String.format("%" + n_digits_end + "d ", startLineNumber) + "| " + lines[0] + "\n"
-                + paddingWithColon + "| " + getCaretLine(start, lines[0].length() - start) + "\n"
-                + paddingWithColon + "| " + " ".repeat(max_length_line / 2) + "." + "\n"
-                + paddingWithColon + "| " + " ".repeat(max_length_line / 2) + "." + "\n"
-                + String.format("%" + n_digits_end + "d ", startLineNumber + lines.length - 1) + "| "
-                + lines[lines.length - 1] + "\n"
+                + String.format("%" + n_digits_end + "d ", startLineNumber) + "| " + result1.line + "\n"
+                + paddingWithColon + "| " + getCaretLine(result1.diagnosticStart, res1DiagnosticLen) + "\n"
+                + paddingWithColon + "| " + padding2 + ":" + "\n"
+                + paddingWithColon + "| " + padding2 + ":" + "\n"
+                + String.format("%" + n_digits_end + "d ", startLineNumber + lines.size() - 1) + "| "
+                + result2.line + "\n"
                 + padding + "| " + getCaretLine(0, endOffset + 3 * tabsInLastLine) + "\n"
                 + padding + "| " + "\n";
 
@@ -107,7 +109,7 @@ public class DiagnosticAnnotation {
         }
         int diagnosticMid = diagnosticStart + diagnosticLength / 2;
         int stepsToMoveWindow = diagnosticMid - maxLength / 2;
-        return new TruncateResult("..." + line.substring(stepsToMoveWindow, stepsToMoveWindow + maxLength - 6)
+        return new TruncateResult("..." + line.substring(stepsToMoveWindow, maxLength - 6)
                 + "...", diagnosticStart - stepsToMoveWindow + 3);
 
     }
