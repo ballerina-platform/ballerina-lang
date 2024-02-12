@@ -20,6 +20,7 @@ package org.ballerinalang.test.jvm;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -219,11 +220,6 @@ public class ForeachArrayTests {
     }
 
     @Test
-    public void testMutatingArray() {
-        BRunUtil.invoke(program, "testMutatingArray");
-    }
-
-    @Test
     public void testQueryInsideLoop() {
         BRunUtil.invoke(program, "testQueryInsideLoop");
     }
@@ -241,6 +237,21 @@ public class ForeachArrayTests {
     @Test
     public void testEmptyArray() {
         BRunUtil.invoke(program, "testEmptyArray");
+    }
+
+    // These ensure observable behaviour of foreach statements are the same even when we optimize away the iterator
+    @Test
+    public void testMutatingArray() {
+        BRunUtil.invoke(program, "testMutatingArray");
+    }
+
+    @Test
+    public void testRemoveElementsWhileIterating() {
+        try {
+            BRunUtil.invoke(program, "testRemoveElementsWhileIterating");
+        } catch (BLangTestException ex) {
+            Assert.assertTrue(ex.getMessage().contains("array index out of range: index: 2, size: 1"));
+        }
     }
 
     @AfterClass
