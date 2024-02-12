@@ -8,27 +8,30 @@ public class DiagnosticAnnotation {
     private final boolean isMultiline;
     private final int endOffset;
     private final int startLineNumber;
+    private final int terminalWidth;
 
 
     public static final String RESET = "\033[0m";
     public static final String RED = "\033[0;31m";
 
-    public DiagnosticAnnotation(String line, int start, int length, int startLineNumber) {
+    public DiagnosticAnnotation(String line, int start, int length, int startLineNumber, int terminalWidth) {
         this.start = start + 3 * countTabChars(line, start);
         this.line = replaceTabs(line, start);
         this.length = length;
         this.endOffset = 0;
         this.isMultiline = false;
         this.startLineNumber = startLineNumber;
+        this.terminalWidth = terminalWidth;
     }
 
-    public DiagnosticAnnotation(String line, int start, int length, int endOffset, int startLineNumber) {
+    public DiagnosticAnnotation(String line, int start, int length, int endOffset, int startLineNumber, int terminalWidth) {
         this.start = start + 3 * countTabChars(line, start);
         this.line = replaceTabs(line, start);
         this.length = length;
         this.endOffset = endOffset;
         this.isMultiline = true;
         this.startLineNumber = startLineNumber;
+        this.terminalWidth = terminalWidth;
     }
 
     public String toString() {
@@ -43,9 +46,12 @@ public class DiagnosticAnnotation {
         if (!isMultiline) {
             int n_digits = (int) Math.log10(startLineNumber) + 1;
             String padding = " ".repeat(n_digits + 1);
+            int maxLength = terminalWidth - n_digits - 3;
+            TruncateResult result = truncate(line_, maxLength, start, length);
             return padding + "| " + "\n"
-                    + String.format("%" + n_digits + "d ", startLineNumber) + "| " + line_ + "\n"
-                    + padding + "| " + getCaretLine(start, length) + "\n";
+                    + String.format("%" + n_digits + "d ", startLineNumber) + "| " + result.line + "\n"
+                    + padding + "| " + getCaretLine(result.diagnosticStart, length) + "\n";
+
         }
 
         // Multiline case
@@ -92,6 +98,19 @@ public class DiagnosticAnnotation {
         return count;
     }
 
+    private static TruncateResult truncate(String line, int maxLength, int diagnosticStart, int diagnosticLength) {
+        if (line.length() < maxLength) {
+            return new TruncateResult(line, diagnosticStart);
+        }
+        if (diagnosticStart + diagnosticLength < maxLength) {
+            return new TruncateResult(line.substring(0, maxLength - 3) + "...", diagnosticStart);
+        }
+        int diagnosticMid = diagnosticStart + diagnosticLength / 2;
+        int stepsToMoveWindow = diagnosticMid - maxLength / 2;
+        return new TruncateResult("..." + line.substring(stepsToMoveWindow, stepsToMoveWindow + maxLength - 6)
+                + "...", diagnosticStart - stepsToMoveWindow + 3);
+
+    }
 
     private static String replaceTabs(String line, int end) {
         StringBuilder sb = new StringBuilder();
@@ -103,5 +122,8 @@ public class DiagnosticAnnotation {
             }
         }
         return sb + line.substring(end);
+    }
+
+    private record TruncateResult(String line, int diagnosticStart) {
     }
 }
