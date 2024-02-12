@@ -8,6 +8,8 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextRange;
 import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,18 +26,19 @@ public class AnnotateDiagnostics {
             SyntaxKind.LOCAL_VAR_DECL,
             SyntaxKind.RETURN_STATEMENT);
 
-    public static String renderDiagnostic(Diagnostic diagnostic) {
+    public static String renderDiagnostic(Diagnostic diagnostic, int terminalWidth) {
 
         if (diagnostic instanceof PackageDiagnostic packageDiagnostic) {
             DiagnosticAnnotation diagnosticAnnotation = getDiagnosticLineFromSyntaxAPI(
-                    packageDiagnostic.diagnosticFilePath(), packageDiagnostic.location());
+                    packageDiagnostic.diagnosticFilePath(), packageDiagnostic.location(), terminalWidth);
             return diagnostic + "\n" + diagnosticAnnotation;
         }
 
         return diagnostic.toString();
     }
 
-    private static DiagnosticAnnotation getDiagnosticLineFromSyntaxAPI(Path diagnosticFilePath, Location location) {
+    private static DiagnosticAnnotation getDiagnosticLineFromSyntaxAPI(Path diagnosticFilePath, Location location,
+                                                                       int terminalWidth) {
         String text = getSourceText(diagnosticFilePath);
         TextDocument textDocument = TextDocuments.from(text);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument, diagnosticFilePath.toString());
@@ -48,26 +51,30 @@ public class AnnotateDiagnostics {
                 TextRange.from(start, end - start), true);
         NonTerminalNode statementNode = climbUpToStatementNode(diagnosticNode, startLine, endLine);
         ArrayList<Node> siblings = getSiblingsOnSameRange(statementNode, startLine, endLine);
-        try (var terminal = TerminalBuilder.terminal()) {
-            System.out.println(terminal.getWidth());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         if (isMultiline) {
             return new DiagnosticAnnotation(
                     nodeListToString(siblings),
                     diagnosticNode.textRange().startOffset() - statementNode.textRangeWithMinutiae().startOffset(),
                     diagnosticNode.textRange().endOffset() - diagnosticNode.textRange().startOffset(),
                     diagnosticNode.lineRange().endLine().offset(),
-                    startLine + 1);
+                    startLine + 1,
+                    terminalWidth);
         }
 
         return new DiagnosticAnnotation(
                 nodeListToString(siblings),
                 diagnosticNode.textRange().startOffset() - siblings.get(0).textRangeWithMinutiae().startOffset(),
                 diagnosticNode.textRange().endOffset() - diagnosticNode.textRange().startOffset(),
-                startLine + 1);
+                startLine + 1,
+                terminalWidth);
+    }
+
+    public static int getTerminalWidth() {
+        try (var terminal = TerminalBuilder.terminal()) {
+            return terminal.getWidth();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static NonTerminalNode climbUpToStatementNode(NonTerminalNode node, int start, int end) {

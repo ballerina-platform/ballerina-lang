@@ -237,6 +237,7 @@ public class CompileTask implements Task {
             boolean hasErrors = false;
             // HashSet to keep track of the diagnostics to avoid duplicate diagnostics
             HashSet<String> diagnosticSet = new HashSet<>();
+            int terminalWidth = AnnotateDiagnostics.getTerminalWidth();
             for (Diagnostic d : diagnostics) {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
                     hasErrors = true;
@@ -244,7 +245,7 @@ public class CompileTask implements Task {
                 if (d.diagnosticInfo().code() == null || !d.diagnosticInfo().code().equals(
                         ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId())) {
                     if (diagnosticSet.add(d.toString())) {
-                        err.println(AnnotateDiagnostics.renderDiagnostic(d));
+                        err.println(AnnotateDiagnostics.renderDiagnostic(d, terminalWidth));
                     }
                 }
             }
