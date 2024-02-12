@@ -291,6 +291,13 @@ function testTuple() {
     assertEquality(15, sum);
 }
 
+function testRemoveElementsWhileIterating() {
+    int[] vals = [1, 2, 3];
+    foreach int val in vals {
+        var _ = vals.pop();
+    }
+}
+
 function testEmptyArray() {
     output = "hello";
     foreach var item in [] {
