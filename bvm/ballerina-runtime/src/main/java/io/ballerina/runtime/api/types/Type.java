@@ -34,17 +34,18 @@ public interface Type {
     // TODO: remove default implementations when standard library types are updated
     /**
      * Set the referred type for this type once it has been calculated. This must be called the first time this
-     * calculation is done in order for {@code Type#getReferredTypeCache()} to work properly. This is non-blocking and
-     * will become eventually consistent. Expect {@code TypeUtils#getReferredType(Type)} tobe referentially transparent.
+     * calculation is done for {@code Type#getReferredTypeCache()} to work properly. This is non-blocking and
+     * will eventually become consistent. Expect {@code TypeUtils#getReferredType(Type)} to be referentially
+     * transparent.
      *
      * @param type Type referred by this type. For non-reference types, this is the same type.
      */
     default void setCachedReferredType(Type type) {
     }
     /**
-     * Get the type referred by this type if it has been already calculated. If it has not been already calculated will
-     * return null. For non-reference types, this will return the same type. This is non-blocking and will become
-     * eventually consistent. Expect {@code TypeUtils#getReferredType(Type)} tobe referentially transparent.
+     * Get the type referred by this type if it has been already calculated. If it has not been already calculated, it
+     * will return null. For non-reference types, this will return the same type. This is non-blocking and will
+     * eventually become consistent. Expect {@code TypeUtils#getReferredType(Type)} to be referentially transparent.
      *
      * @return Referred type of the type
      */
@@ -54,8 +55,8 @@ public interface Type {
 
     /**
      * Set the implied type for this type once it has been calculated. This must be called the first time this
-     * calculation is done in order for {@code Type#getImpliedTypeCache()} to work properly. This is non-blocking and
-     * will become eventually consistent. Expect {@code TypeUtils#getImpliedType(Type)} tobe referentially transparent.
+     * calculation is done for {@code Type#getImpliedTypeCache()} to work properly. This is non-blocking and
+     * will eventually become consistent. Expect {@code TypeUtils#getImpliedType(Type)} to be referentially transparent.
      *
      * @param type Type implied by this type. For non-intersection types, this is the same type.
      */
@@ -63,9 +64,9 @@ public interface Type {
     }
 
     /**
-     * Get the type implied by this type if it has been already calculated. If it has not been already calculated will
-     * return null. For non-intersection types, this will return the same type. This is non-blocking and will become
-     * eventually consistent. Expect {@code TypeUtils#getImpliedType(Type)} tobe referentially transparent.
+     * Get the type implied by this type if it has been already calculated. If it has not been already calculated, it
+     * will return null. For non-intersection types, this will return the same type. This is non-blocking and will
+     * eventually become consistent. Expect {@code TypeUtils#getImpliedType(Type)} to be referentially transparent.
      *
      * @return Implied type of the type
      */
