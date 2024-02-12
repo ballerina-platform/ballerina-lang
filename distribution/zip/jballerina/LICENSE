@@ -74,7 +74,7 @@ future-1.1.0.jar                                                                
 netty-buffer-4.1.39.Final.jar                                                                       bundle         apache2
 lang.map.jar                                                                                        jar            apache2
 ballerina-xmlutils-1.1.0.jar                                                                        jar            apache2
-amqp-client-5.7.3.jar                                                                               bundle         apache2 + mpl11
+amqp-client-5.20.0.jar                                                                              bundle         apache2 + mpl11
 ballerina-client-generator-1.1.0.jar                                                                jar            apache2
 jnats-2.6.0.jar                                                                                     bundle         apache2
 jackson-core-2.15.2.jar                                                                              bundle         apache2

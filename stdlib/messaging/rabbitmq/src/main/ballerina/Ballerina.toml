@@ -14,7 +14,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "amqp-client"
-    version = "5.7.3"
-    path = "./lib/amqp-client-5.7.3.jar"
+    version = "5.20.0"
+    path = "./lib/amqp-client-5.20.0.jar"
     groupId = "com.rabbitmq"
     modules = ["rabbitmq"]
