@@ -444,6 +444,94 @@ function testXmlAccessWithLargerIndex() {
     assert(xmlValue, xml ``);
 }
 
+type XmlType1 xml:Text|xml:Comment;
+
+type XmlType2 xml<xml:Element|xml:ProcessingInstruction>;
+
+type XmlType3 XmlType1|XmlType2;
+
+function testXmlIndexedAccessWithUnionType() {
+    xml:Element|xml:Comment x1 = xml `<a>abc</a>`;
+    assert(x1[0], xml `<a>abc</a>`);
+    assert(x1[1], xml ``);
+    xml:Element|xml:Text x2 = xml `Hello World`;
+    assert(x2[0], xml `Hello World`);
+    assert(x2[0][1], xml ``);
+    xml:Element|xml:ProcessingInstruction x3 = xml `<?target data?>`;
+    assert(x3[0], xml `<?target data?>`);
+    assert(x3[1][100], xml ``);
+    xml:Element|xml:Comment x4 = xml `<!-- comment node-->`;
+    assert(x4[0], xml `<!-- comment node-->`);
+    assert(x4[50], xml ``);
+    xml:Text|xml:Comment x5 = xml `<!-- comment node 2 -->`;
+    assert(x5[0], xml `<!-- comment node 2 -->`);
+    xml:ProcessingInstruction|xml:Comment x6 = xml `<?target test?>`;
+    assert(x6[0], xml `<?target test?>`);
+    xml:ProcessingInstruction|xml:Text x7 = xml `Test Text`;
+    assert(x7[0], xml `Test Text`);
+    xml|xml:Comment x8 = xml `<a>abc</a><b>def</b>`;
+    assert(x8[0], xml `<a>abc</a>`);
+    xml|xml x9 = xml `<c>ghi</c><d>jkl</d>`;
+    assert(x9[0], xml `<c>ghi</c>`);
+    xml<xml:Text|xml:Comment>|xml<xml:ProcessingInstruction|xml:Element> x10 = xml `<name>Dan Brown</name>`;
+    assert(x10[0], xml `<name>Dan Brown</name>`);
+    assert(x10[50], xml ``);
+    XmlType1 x11 = xml `Hello!`;
+    assert(x11[0], xml `Hello!`);
+    XmlType3 x12 = xml `<name>Sherlock Holmes</name>`;
+    assert(x12[0], xml `<name>Sherlock Holmes</name>`);
+    assert(x12[50][1], xml ``);
+}
+
+function testInvalidXMLUnionAccessWithNegativeIndex() {
+    int a = -1;
+    xml:Element|xml:Comment x1 = xml `<a>abc</a>`;
+    string errorMessage = "xml sequence index out of range. Length: '1' requested: '-1'";
+
+    xml|error e = trap x1[-1];
+    assertTrue(e is error);
+    assert((<error> e).message(), errorMessage);
+    e = trap x1[a];
+    assertTrue(e is error);
+    assert((<error> e).message(), errorMessage);
+    e = trap x1[i];
+    assertTrue(e is error);
+    assert((<error> e).message(), errorMessage);
+
+    xml<xml:Text|xml:Comment>|xml<xml:ProcessingInstruction|xml:Element> x2 = xml `<name>Dan Brown</name>`;
+    e = trap x2[-1];
+    assertTrue(e is error);
+    assert((<error> e).message(), errorMessage);
+    e = trap x2[a];
+    assertTrue(e is error);
+    assert((<error> e).message(), errorMessage);
+    e = trap x2[i];
+    assertTrue(e is error);
+    assert((<error> e).message(), errorMessage);
+
+    XmlType1 x3 = xml `Hello!`;
+    e = trap x3[-1];
+    assertTrue(e is error);
+    assert((<error> e).message(), errorMessage);
+    e = trap x3[a];
+    assertTrue(e is error);
+    assert((<error> e).message(), errorMessage);
+    e = trap x3[i];
+    assertTrue(e is error);
+    assert((<error> e).message(), errorMessage);
+
+    XmlType3 x4 = xml `<name>Sherlock Holmes</name>`;
+    e = trap x4[-1];
+    assertTrue(e is error);
+    assert((<error> e).message(), errorMessage);
+    e = trap x4[a];
+    assertTrue(e is error);
+    assert((<error> e).message(), errorMessage);
+    e = trap x4[i];
+    assertTrue(e is error);
+    assert((<error> e).message(), errorMessage);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

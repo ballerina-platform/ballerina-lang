@@ -2818,7 +2818,7 @@ public class BIRGen extends BLangNodeVisitor {
             if (astIndexBasedAccessExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
                 insKind = InstructionKind.XML_ATTRIBUTE_LOAD;
                 keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
-            } else if (TypeTags.isXMLTypeTag(astAccessExprExprType.tag)) {
+            } else if (types.isAssignable(astAccessExprExprType, symTable.xmlType)) {
                 generateXMLAccess((BLangXMLAccessExpr) astIndexBasedAccessExpr, tempVarRef, varRefRegIndex,
                         keyRegIndex);
                 this.varAssignment = variableStore;

@@ -8639,7 +8639,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             indexBasedAccessExpr.originalType = symTable.charStringType;
             actualType = symTable.charStringType;
-        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
+        } else if (types.isAssignable(varRefType, symTable.xmlType)) {
             if (indexBasedAccessExpr.isLValue) {
                 indexExpr.setBType(symTable.semanticError);
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_XML_SEQUENCE);
