@@ -324,7 +324,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
@@ -5119,57 +5119,51 @@ public class Desugar extends BLangNodeVisitor {
 
     private boolean canEliminateIterator(BLangForeach loop) {
         BLangExpression collection = loop.collection;
-        return switch (collection.getKind()) {
-            case BINARY_EXPR, LIST_CONSTRUCTOR_EXPR -> true;
-            case SIMPLE_VARIABLE_REF -> {
-                TypeKind kind = collection.expectedType.getKind();
-                yield kind == TypeKind.ARRAY || kind == TypeKind.TUPLE;
-            }
-            default -> false;
-        };
-    }
-
-    private interface LoopValueSupplier extends BiFunction<BLangVariableReference, BLangBlockStmt, BLangExpression> {
-
+        if (collection.getKind() == NodeKind.BINARY_EXPR) {
+            // range expression
+            return true;
+        }
+        TypeKind kind = collection.getBType().getKind();
+        return kind == TypeKind.ARRAY || kind == TypeKind.TUPLE;
     }
 
     private BLangBlockStmt desugarForeachToWhileWithoutIterator(BLangForeach foreach) {
         Location pos = foreach.pos;
+        BLangBlockStmt scopeBlock = ASTBuilderUtil.createBlockStmt(pos);
         if (foreach.collection.getKind() == NodeKind.BINARY_EXPR) {
             BLangBinaryExpr rangeExpr = (BLangBinaryExpr) foreach.collection;
             OperatorKind comparisonOp =
                     rangeExpr.opKind == OperatorKind.HALF_OPEN_RANGE ? OperatorKind.LESS_THAN : OperatorKind.LESS_EQUAL;
-            LoopValueSupplier loopValueSupplier =
-                    (BLangVariableReference indexVarRef, BLangBlockStmt scope) -> indexVarRef;
-            return desugarForeachToWhileWithoutIteratorInner(foreach, rangeExpr.lhsExpr, rangeExpr.rhsExpr,
-                    comparisonOp,
-                    loopValueSupplier);
+            Function<BLangVariableReference, BLangExpression> loopValueGenerator =
+                    (BLangVariableReference indexVarRef) -> indexVarRef;
+            finishDesugarForeachToWhile(foreach, rangeExpr.lhsExpr, rangeExpr.rhsExpr, comparisonOp, loopValueGenerator,
+                    scopeBlock);
+            return scopeBlock;
         }
-        // We have an array
+        BSymbol listSymbol =
+                addTemporaryVariableToScope(pos, "$data$", foreach.collection, foreach.collection.expectedType,
+                        scopeBlock);
+        BLangExpression listRef = ASTBuilderUtil.createVariableRef(pos, listSymbol);
         BLangExpression indexInitVal = ASTBuilderUtil.createLiteral(pos, symTable.intType, 0L);
-        BLangExpression indexMaxVal = createLangLibInvocationNode("length", foreach.collection, new ArrayList<>(),
-                symTable.intType, pos);
+        BLangExpression indexMaxVal =
+                createLangLibInvocationNode("length", listRef, new ArrayList<>(), symTable.intType, pos);
         OperatorKind comparisonOp = OperatorKind.LESS_THAN;
 
-        LoopValueSupplier loopValueSupplier =
-                (BLangVariableReference indexVarRef, BLangBlockStmt scope) -> {
+        Function<BLangVariableReference, BLangExpression> loopValueGenerator =
+                (BLangVariableReference indexVarRef) -> {
                     BLangVariable loopVal = (BLangVariable) foreach.variableDefinitionNode.getVariable();
-                    BVarSymbol arraySymbol = (BVarSymbol) addTemporaryVariableToScope(pos, "$data$", foreach.collection,
-                            foreach.collection.getBType(), scope);
-                    return ASTBuilderUtil.createIndexBasesAccessExpr(pos, loopVal.getBType(), arraySymbol, indexVarRef);
+                    return ASTBuilderUtil.createIndexBasesAccessExpr(pos, loopVal.getBType(), (BVarSymbol) listSymbol,
+                            indexVarRef);
                 };
-
-        return desugarForeachToWhileWithoutIteratorInner(foreach, indexInitVal, indexMaxVal, comparisonOp,
-                loopValueSupplier);
+        finishDesugarForeachToWhile(foreach, indexInitVal, indexMaxVal, comparisonOp, loopValueGenerator, scopeBlock);
+        return scopeBlock;
     }
 
-    private BLangBlockStmt desugarForeachToWhileWithoutIteratorInner(BLangForeach foreach, BLangExpression indexInitVal,
-                                                                     BLangExpression indexMaxVal,
-                                                                     OperatorKind comparisonOp,
-                                                                     LoopValueSupplier loopValueSupplier) {
+    private void finishDesugarForeachToWhile(BLangForeach foreach, BLangExpression indexInitVal,
+                                             BLangExpression indexMaxVal, OperatorKind comparisonOp,
+                                             Function<BLangVariableReference, BLangExpression> loopValueGenerator,
+                                             BLangBlockStmt scopeBlock) {
         Location pos = foreach.pos;
-        BLangBlockStmt scopeBlock = ASTBuilderUtil.createBlockStmt(pos);
-
         BSymbol indexSymbol = addTemporaryVariableToScope(pos, "$index$", indexInitVal, symTable.intType, scopeBlock);
         // This needs to be a variable defined outside the loop in order to give the same observable behavior in case
         // of adding elements to array. May need to change when ballerina-spec/899 is resolved.
@@ -5182,14 +5176,14 @@ public class Desugar extends BLangNodeVisitor {
                         (BOperatorSymbol) symResolver
                                 .resolveBinaryOperator(OperatorKind.EQUAL, symTable.booleanType, symTable.booleanType));
 
-        BLangBlockStmt whileBody = ASTBuilderUtil.createBlockStmt(foreach.pos);
+        BLangBlockStmt whileBody = ASTBuilderUtil.createBlockStmt(pos);
         whileBody.scope = foreach.body.scope;
 
         VariableDefinitionNode loopValDef = foreach.variableDefinitionNode;
         Location loopValPos = loopValDef.getPosition();
         BLangSimpleVarRef indexRef = ASTBuilderUtil.createVariableRef(loopValPos, indexSymbol);
 
-        loopValDef.getVariable().setInitialExpression(loopValueSupplier.apply(indexRef, scopeBlock));
+        loopValDef.getVariable().setInitialExpression(loopValueGenerator.apply(indexRef));
         whileBody.addStatement(loopValDef);
 
         // Increment the index
@@ -5203,7 +5197,6 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangWhile whileLoop = ASTBuilderUtil.createWhile(pos, condition, whileBody);
         scopeBlock.addStatement(whileLoop);
-        return scopeBlock;
     }
 
     private BSymbol addTemporaryVariableToScope(Location pos, String name, BLangExpression initValue, BType type,
