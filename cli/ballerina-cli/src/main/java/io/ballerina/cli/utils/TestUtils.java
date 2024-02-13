@@ -401,15 +401,7 @@ public class TestUtils {
         for (ModuleId moduleId : currentPackage.moduleIds()) {
             Module module = currentPackage.module(moduleId);
 
-            PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(currentPackage.packageId(),
-                    module.moduleName());
-            moduleJarPaths.add(generatedJarLibrary.path());
-
-            if (!module.testDocumentIds().isEmpty()) {
-                PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
-                        currentPackage.packageId(), module.moduleName());
-                moduleJarPaths.add(codeGeneratedTestLibrary.path());
-            }
+            moduleJarPaths.addAll(getModuleJarPathsForModule(currentPackage, jBallerinaBackend, module));
         }
 
         for (ResolvedPackageDependency resolvedPackageDependency : currentPackage.getResolution().allDependencies()) {
@@ -422,5 +414,26 @@ public class TestUtils {
         }
 
         return moduleJarPaths.stream().distinct().collect(Collectors.toList());
+    }
+
+    private static PlatformLibrary getCodeGeneratedTestLibrary(JBallerinaBackend jBallerinaBackend, Package currentPackage, Module module) {
+        return jBallerinaBackend.codeGeneratedTestLibrary(
+                currentPackage.packageId(), module.moduleName());
+    }
+
+    private static PlatformLibrary getPlatformLibrary(JBallerinaBackend jBallerinaBackend, Package currentPackage, Module module) {
+        return jBallerinaBackend.codeGeneratedLibrary(currentPackage.packageId(),
+                module.moduleName());
+    }
+
+    public static List<Path> getModuleJarPathsForModule(Package currentPackage, JBallerinaBackend jBallerinaBackend, Module module) {
+        List<Path> moduleJarPaths = new ArrayList<>();
+        PlatformLibrary generatedJarLibrary = getPlatformLibrary(jBallerinaBackend, currentPackage, module);
+        moduleJarPaths.add(generatedJarLibrary.path());
+        if (!module.testDocumentIds().isEmpty()) {
+            PlatformLibrary codeGeneratedTestLibrary = getCodeGeneratedTestLibrary(jBallerinaBackend, currentPackage, module);
+            moduleJarPaths.add(codeGeneratedTestLibrary.path());
+        }
+        return moduleJarPaths;
     }
 }

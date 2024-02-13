@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.zip.ZipFile;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
@@ -76,6 +77,21 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
             if (status) {
                 //create the single fat jar for all the test modules that includes the test suite json
                 try {
+                    List<Path> moduleJarPaths = TestUtils.getModuleJarPaths(jBallerinaBackend, project.currentPackage());
+
+                    List<String> excludingClassPaths = new ArrayList<>();
+
+                    for (Path moduleJarPath : moduleJarPaths) {
+                        ZipFile zipFile = new ZipFile(moduleJarPath.toFile());
+
+                        zipFile.stream().forEach(entry -> {
+                            if (entry.getName().endsWith(".class")) {
+                                excludingClassPaths.add(entry.getName().replace("/", ".")
+                                        .replace(".class", ""));
+                            }
+                        });
+                    }
+
                     EmitResult result = jBallerinaBackend.emit(
                             JBallerinaBackend.OutputType.TEST,
                             getTestExecutableBasePath(target).resolve(
@@ -84,7 +100,9 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                                             ProjectConstants.BLANG_COMPILED_JAR_EXT),
                             testExecDependencies,
                             TestUtils.getJsonFilePath(target.getTestsCachePath()),
-                            TestUtils.getJsonFilePathInFatJar("/")
+                            TestUtils.getJsonFilePathInFatJar("/"),
+                            excludingClassPaths,
+                            ProjectConstants.EXCLUDING_CLASSES_FILE
                     );
                     diagnostics.addAll(result.diagnostics().diagnostics());
                 } catch (IOException e) {
