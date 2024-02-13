@@ -266,6 +266,13 @@ function testMutatingArray() {
         sum += val;
     }
     assertEquality(6, sum);
+    sum = 0;
+    vals = [1, 2, 3];
+    foreach int val in vals {
+        sum += val;
+        vals = [4, 5, 6];
+    }
+    assertEquality(6, sum);
 }
 
 function testListConstructor() {
@@ -304,6 +311,26 @@ function testEmptyArray() {
         output += "hello";
     }
     assertEquality(output, "hello");
+}
+
+function testFunctionCall() {
+    int sum = 0;
+    foreach int val in foo() {
+        sum += val;
+    }
+    assertEquality(6, sum);
+}
+
+function foo() returns int[] {
+    return [1, 2, 3];
+}
+
+function testQueryExpressions() {
+    int sum = 0;
+    foreach int val in from int i in [1, 2, 3] select i {
+        sum += val;
+    }
+    assertEquality(6, sum);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -231,7 +231,9 @@ public class ForeachArrayTests {
                 {"testQueryInsideLoop"},
                 {"testListConstructor"},
                 {"testTuple"},
-                {"testEmptyArray"}
+                {"testEmptyArray"},
+                {"testFunctionCall"},
+                {"testQueryExpressions"}
         };
     }
 
