@@ -248,7 +248,7 @@ function testQueryInsideLoop() {
             select each;
         sum += relationFields.length();
     }
-    assertEquality(sum, 9);
+    assertEquality(9, sum);
 }
 
 function testMutatingArray() {
