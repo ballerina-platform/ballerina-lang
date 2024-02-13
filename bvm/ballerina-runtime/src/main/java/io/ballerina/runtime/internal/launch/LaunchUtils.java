@@ -135,7 +135,7 @@ public class LaunchUtils {
         List<Path> paths = new ArrayList<>();
         Map<String, String> envVars = System.getenv();
         String configContent = populateConfigDetails(paths, envVars);
-        return new ConfigDetails(paths.toArray(new Path[0]), configContent, filterConfigEnvVariables(envVars));
+        return new ConfigDetails(paths.toArray(new Path[0]), configContent, envVars);
     }
 
     private static String populateConfigDetails(List<Path> paths, Map<String, String> envVars) {
@@ -169,14 +169,4 @@ public class LaunchUtils {
         }
     }
 
-    private static Map<String, String> filterConfigEnvVariables(Map<String, String> originalMap) {
-        Map<String, String> filteredMap = new HashMap<>();
-
-        for (Map.Entry<String, String> entry : originalMap.entrySet()) {
-            if (entry.getKey().startsWith("BAL_CONFIG_")) {
-                filteredMap.put(entry.getKey(), entry.getValue());
-            }
-        }
-        return filteredMap;
-    }
 }
