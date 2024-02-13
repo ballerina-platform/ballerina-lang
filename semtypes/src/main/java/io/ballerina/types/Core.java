@@ -23,12 +23,14 @@ import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.BooleanSubtype;
+import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.typeops.SubtypePair;
 import io.ballerina.types.typeops.SubtypePairs;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -365,6 +367,15 @@ public class Core {
         return (bits & ~t2.bitset) == 0;
     }
 
+    public static UniformTypeBitSet widenToBasicTypes(SemType t) {
+        if (t instanceof UniformTypeBitSet uniformTypeBitSet) {
+            return uniformTypeBitSet;
+        } else {
+            ComplexSemType complexSemType = (ComplexSemType) t;
+            return UniformTypeBitSet.from(complexSemType.all.bitset | complexSemType.some.bitset);
+        }
+    }
+
     // If t is a non-empty subtype of a built-in unsigned int subtype (Unsigned8/16/32),
     // then return the smallest such subtype. Otherwise, return t.
     public static SemType wideUnsigned(SemType t) {
@@ -608,7 +619,7 @@ public class Core {
         } else if (isSubtypeSimple(t, PredefinedType.INT)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_INT);
             Optional<Long> value = IntSubtype.intSubtypeSingleValue(sd);
-            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
+            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get()));
         } else if (isSubtypeSimple(t, PredefinedType.FLOAT)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_FLOAT);
             Optional<Double> value = FloatSubtype.floatSubtypeSingleValue(sd);
@@ -616,11 +627,15 @@ public class Core {
         } else if (isSubtypeSimple(t, PredefinedType.STRING)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_STRING);
             Optional<String> value = StringSubtype.stringSubtypeSingleValue(sd);
-            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
+            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get()));
         } else if (isSubtypeSimple(t, PredefinedType.BOOLEAN)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_BOOLEAN);
             Optional<Boolean> value = BooleanSubtype.booleanSubtypeSingleValue(sd);
-            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
+            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get()));
+        } else if (isSubtypeSimple(t, PredefinedType.DECIMAL)) {
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_DECIMAL);
+            Optional<BigDecimal> value = DecimalSubtype.decimalSubtypeSingleValue(sd);
+            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get().toString()));
         }
         return Optional.empty();
     }
@@ -662,8 +677,10 @@ public class Core {
             return containsConstFloat(t, (Double) v);
         } else if (v instanceof String) {
             return containsConstString(t, (String) v);
-        } else {
+        } else if (v instanceof Boolean) {
             return containsConstBoolean(t, (Boolean) v);
+        } else {
+            return containsConstDecimal(t, (BigDecimal) v);
         }
     }
 
@@ -703,6 +720,15 @@ public class Core {
         } else {
             return FloatSubtype.floatSubtypeContains(
                     getComplexSubtypeData((ComplexSemType) t, UT_FLOAT), EnumerableFloat.from(n));
+        }
+    }
+
+    public static boolean containsConstDecimal(SemType t, BigDecimal n) {
+        if (t instanceof UniformTypeBitSet) {
+            return (((UniformTypeBitSet) t).bitset & (1 << UT_DECIMAL.code)) != 0;
+        } else {
+            return DecimalSubtype.decimalSubtypeContains(
+                    getComplexSubtypeData((ComplexSemType) t, UT_DECIMAL), EnumerableDecimal.from(n));
         }
     }
 

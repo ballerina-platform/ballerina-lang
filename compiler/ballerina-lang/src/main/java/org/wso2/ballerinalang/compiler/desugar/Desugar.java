@@ -5189,7 +5189,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(fail.pos, symTable.nilType, Names.NIL_VALUE);
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(fail.pos, symTable.nilType, Names.NIL_VALUE.value);
         BLangStatementExpression statementExpression =
                 createStatementExpression(onFailBody, nilLiteral);
         statementExpression.setBType(symTable.nilType);
@@ -5429,7 +5429,7 @@ public class Desugar extends BLangNodeVisitor {
 
         enclLocks.push(lockStmt);
 
-        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(lockNode.pos, symTable.nilType, Names.NIL_VALUE);
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(lockNode.pos, symTable.nilType, Names.NIL_VALUE.value);
         BType nillableError = BUnionType.create(null, symTable.errorType, symTable.nilType);
         BLangStatementExpression statementExpression = createStatementExpression(lockNode.body, nilLiteral);
         statementExpression.setBType(symTable.nilType);
@@ -7406,7 +7406,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         if (TypeTags.isXMLTypeTag(lhsExprTypeTag) && !TypeTags.isXMLTypeTag(rhsExprTypeTag)) {
-            if (types.checkTypeContainString(binaryExpr.rhsExpr.getBType())) {
+            if (types.isStringSubType(binaryExpr.rhsExpr.getBType())) {
                 binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
                         binaryExpr.rhsExpr.pos, symTable.xmlType);
                 return;
@@ -7415,7 +7415,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         if (TypeTags.isXMLTypeTag(rhsExprTypeTag) && !TypeTags.isXMLTypeTag(lhsExprTypeTag)) {
-            if (types.checkTypeContainString(binaryExpr.lhsExpr.getBType())) {
+            if (types.isStringSubType(binaryExpr.lhsExpr.getBType())) {
                 binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
                         binaryExpr.rhsExpr.pos, symTable.xmlType);
                 return;
@@ -10035,7 +10035,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangVariableReference tempResultVarRef = ASTBuilderUtil.createVariableRef(pos, tempResultVar.symbol);
         BLangAssignment assignmentStmt =
                 ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef, createLiteral(pos, symTable.nilType,
-                        Names.NIL_VALUE));
+                        Names.NIL_VALUE.value));
         BLangBlockStmt clauseBody = ASTBuilderUtil.createBlockStmt(pos, this.env.scope, Lists.of(assignmentStmt));
 
         BLangWildCardMatchPattern wildCardMatchPattern = ASTBuilderUtil.createWildCardMatchPattern(matchExpr);

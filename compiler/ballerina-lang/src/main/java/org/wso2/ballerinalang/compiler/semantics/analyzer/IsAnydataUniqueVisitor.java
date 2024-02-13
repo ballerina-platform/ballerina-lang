@@ -17,7 +17,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -33,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashSet;
@@ -44,7 +42,7 @@ import java.util.HashSet;
  * This is introduced to handle cyclic unions.
  * @since slp4
  */
-public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
+public class IsAnydataUniqueVisitor extends UniqueTypeVisitor<Boolean> {
 
     private HashSet<BType> visited;
     private boolean isAnydata;
@@ -174,7 +172,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     }
 
     @Override
-    public Boolean visit(BNilType type) {
+    public Boolean visitNilType(BType type) {
         return isAnydata(type);
     }
 
@@ -208,7 +206,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             }
         }
         type.isAnyData = (type.restType == null) || visit(type.restType);
-        return isAnydata;
+        return type.isAnyData;
     }
 
     @Override
@@ -233,17 +231,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BFiniteType type) {
-        if (type.isAnyData != null) {
-            return type.isAnyData;
-        }
-        for (BLangExpression value : type.getValueSpace()) {
-            if (!visit(value.getBType())) {
-                type.isAnyData = false;
-                return false;
-            }
-        }
-        type.isAnyData = true;
-        return isAnydata;
+        return true;
     }
 
     @Override
@@ -295,8 +283,10 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     }
 
     @Override
-    public Boolean visit(BType type) {
+    public Boolean visit(BType type) { // TODO: can move to the abstract class?
         switch (type.tag) {
+            case TypeTags.NIL:
+                return visitNilType(type);
             case TypeTags.TABLE:
                 return visit((BTableType) type);
             case TypeTags.ANYDATA:

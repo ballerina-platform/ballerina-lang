@@ -315,7 +315,7 @@ public class ASTBuilderUtil {
     public static BLangReturn createNilReturnStmt(Location pos, BType nilType) {
         final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = pos;
-        returnStmt.expr = createLiteral(pos, nilType, Names.NIL_VALUE);
+        returnStmt.expr = createLiteral(pos, nilType, Names.NIL_VALUE.value);
         return returnStmt;
     }
 

@@ -201,7 +201,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BType transactionReturnType = symTable.errorOrNilType;
 
         // wraps content within transaction body inside a statement expression
-        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE.value);
         BLangStatementExpression statementExpression =
                 createStatementExpression(transactionNode.transactionBody, nilLiteral);
         statementExpression.setBType(symTable.nilType);
@@ -369,7 +369,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     BLangSimpleVariableDef createPrevAttemptInfoVarDef(SymbolEnv env, Location pos) {
-        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE.value);
         BLangSimpleVariable prevAttemptVariable = createPrevAttemptVariable(env, pos);
         prevAttemptVariable.expr = nilLiteral;
         return ASTBuilderUtil.createVariableDef(pos, prevAttemptVariable);
@@ -510,7 +510,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangExpressionStmt cleanUpTrx = ASTBuilderUtil.createExpressionStmt(pos, rollbackBlockStmt);
         cleanUpTrx.expr = createCleanupTrxStmt(pos, trxBlockId);
         BLangStatementExpression rollbackStmtExpr = createStatementExpression(rollbackBlockStmt,
-                ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
+                ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE.value));
         rollbackStmtExpr.setBType(symTable.nilType);
 
         //at this point,
@@ -635,7 +635,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     private BLangSimpleVariableDef createCommitResultVarDef(SymbolEnv env, Location pos) {
-        BLangExpression nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
+        BLangExpression nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE.value);
         BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$outputVar$"),
                 env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner, pos, VIRTUAL);
         BLangSimpleVariable outputVariable =

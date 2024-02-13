@@ -33,4 +33,20 @@ public class EnumerableCharString implements EnumerableType {
     public static EnumerableCharString from(String v) {
         return new EnumerableCharString(v);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EnumerableCharString e)) {
+            return false;
+        }
+        return (e.value.equals(this.value));
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
 }

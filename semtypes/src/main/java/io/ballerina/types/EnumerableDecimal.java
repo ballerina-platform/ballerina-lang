@@ -34,4 +34,20 @@ public class EnumerableDecimal implements EnumerableType {
     public static EnumerableDecimal from(BigDecimal d) {
         return new EnumerableDecimal(d);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EnumerableDecimal e)) {
+            return false;
+        }
+        return (e.value.compareTo(this.value) == 0);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
 }

@@ -296,7 +296,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             resultType = streamRef.getBType();
         } else if (queryExpr.isTable) {
             onConflictExpr = (onConflictExpr == null)
-                    ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
+                    ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE.value)
                     : onConflictExpr;
             BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
             result = getStreamFunctionVariableRef(queryBlock,
@@ -305,7 +305,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = null;
         } else if (queryExpr.isMap) {
             onConflictExpr = (onConflictExpr == null)
-                    ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
+                    ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE.value)
                     : onConflictExpr;
             BMapType mapType = getMapType(queryExpr.getBType());
             BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
@@ -1408,7 +1408,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private void addNilValueToFrame(BLangSimpleVarRef frameToAddValueTo, String key,
                                     BLangBlockStmt blockStmt, Location pos) {
         BLangStatement addToFrameStmt = getAddToFrameStmt(pos, frameToAddValueTo, key,
-                ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
+                ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE.value));
         blockStmt.addStatement(addToFrameStmt);
     }
 

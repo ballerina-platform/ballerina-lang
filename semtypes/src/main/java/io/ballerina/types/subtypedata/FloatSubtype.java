@@ -58,7 +58,7 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
         }
 
         FloatSubtype f = (FloatSubtype) d;
-        if (f.allowed) {
+        if (!f.allowed) {
             return Optional.empty();
         }
 
@@ -76,7 +76,7 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
 
         FloatSubtype v = (FloatSubtype) d;
         for (EnumerableType val : v.values) {
-            if (val == f) {
+            if (val.equals(f)) {
                 return v.allowed;
             }
         }

@@ -50,8 +50,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
@@ -78,7 +76,6 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -116,8 +113,8 @@ public class SymbolTable {
     public final Scope rootScope;
 
     public final BType noType = new BNoType(TypeTags.NONE);
-    public final BType nilType = new BNilType();
-    public final BType neverType = new BNeverType();
+    public final BType nilType = BType.createNilType();
+    public final BType neverType = BType.createNeverType();
     public final BType intType = new BType(TypeTags.INT, null, Flags.READONLY, PredefinedType.INT);
     public final BType byteType = new BType(TypeTags.BYTE, null, Flags.READONLY, PredefinedType.BYTE);
     public final BType floatType = new BType(TypeTags.FLOAT, null, Flags.READONLY, PredefinedType.FLOAT);
@@ -125,7 +122,7 @@ public class SymbolTable {
     public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY, PredefinedType.STRING);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY, PredefinedType.BOOLEAN);
 
-    public final BType anyType = new BAnyType(TypeTags.ANY, null);
+    public final BType anyType = new BAnyType(null);
     public final BMapType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BMapType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
 
@@ -140,7 +137,7 @@ public class SymbolTable {
     public final BType stringArrayType = new BArrayType(stringType);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
-    public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
+    public final BType readonlyType = new BReadonlyType(null);
     public final BType pathParamAllowedType = BUnionType.create(null,
             intType, stringType, floatType, booleanType, decimalType);
     public final BIntersectionType anyAndReadonly;
@@ -157,8 +154,8 @@ public class SymbolTable {
     public BUnionType anyOrErrorType;
     public BUnionType pureType;
     public BUnionType errorOrNilType;
-    public BFiniteType trueType;
-    public BFiniteType falseType;
+    public BType trueType;
+    public BType falseType;
     public BObjectType intRangeType;
     public BMapType mapAllType;
     public BArrayType arrayAllType;
@@ -303,20 +300,15 @@ public class SymbolTable {
 
         defineCyclicUnionBasedInternalTypes();
 
-        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
-                                                                names.fromString("$anonType$TRUE"),
-                                                                rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
-                                                                this.builtinPos, VIRTUAL);
-        this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<>() {{
-            add(trueLiteral);
-        }}, SemTypes.booleanConst(true));
+        BTypeSymbol trueFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
+                Names.fromString("$anonType$TRUE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
+                this.builtinPos, VIRTUAL);
+        this.trueType = new BFiniteType(trueFiniteTypeSymbol, SemTypes.booleanConst(true));
 
         BTypeSymbol falseFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
-                names.fromString("$anonType$FALSE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
+                Names.fromString("$anonType$FALSE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
                 this.builtinPos, VIRTUAL);
-        this.falseType = new BFiniteType(falseFiniteTypeSymbol, new HashSet<>() {{
-            add(falseLiteral);
-        }}, SemTypes.booleanConst(false));
+        this.falseType = new BFiniteType(falseFiniteTypeSymbol, SemTypes.booleanConst(false));
 
         this.anyAndReadonly =
                 ImmutableTypeCloner.getImmutableIntersectionType(this.anyType, this, names, this.types,
@@ -683,9 +675,7 @@ public class SymbolTable {
     }
 
     private BUnionType getNilableBType(BType type) {
-        BUnionType nilableType = BUnionType.create(null, type, nilType);
-        nilableType.setNullable(true);
-        return nilableType;
+        return BUnionType.create(null, type, nilType);
     }
 
     private void defineNilableIntegerUnaryOperations() {

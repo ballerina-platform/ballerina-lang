@@ -18,6 +18,9 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -123,11 +126,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Stack;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.semTypeSupported;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.singleShapeBroadType;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
 
@@ -568,7 +574,7 @@ public class TypeResolver {
                 ((BUnionType) type).isCyclic = true;
                 break;
             case INTERSECTION:
-                updateIsCyclicFlag(((BIntersectionType) type).getEffectiveType());
+                updateIsCyclicFlag(((BIntersectionType) type).effectiveType);
                 break;
         }
     }
@@ -1325,9 +1331,6 @@ public class TypeResolver {
                 continue;
             }
 
-            if (resolvedType.isNullable()) {
-                unionType.setNullable(true);
-            }
             memberTypes.add(resolvedType);
         }
 
@@ -1377,14 +1380,10 @@ public class TypeResolver {
             flattenMemberTypes = bTypes;
         }
 
-        for (BType memberType : flattenMemberTypes) {
-            if (memberType.isNullable()) {
-                type.setNullable(true);
-            }
-        }
         type.setOriginalMemberTypes(memberTypes);
         memberTypes.clear();
         memberTypes.addAll(flattenMemberTypes);
+        SemTypeResolver.resolveBUnionSemTypeComponent(type);
     }
 
     private BType resolveTypeDesc(BLangIntersectionTypeNode td, ResolverData data, boolean anonymous) {
@@ -1648,48 +1647,51 @@ public class TypeResolver {
         return visitBuiltInTypeNode(td, data, td.typeKind);
     }
 
-    private BType resolveSingletonType(BLangFiniteTypeNode td, SymbolEnv symEnv) {
+    protected BType resolveSingletonType(BLangFiniteTypeNode td, SymbolEnv symEnv) {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
                 (Flags.asMask(EnumSet.of(Flag.PUBLIC))), Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
 
-        // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals.
-         replaceUnaryExprWithNumericLiteral(td);
-
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        for (BLangExpression literal : td.valueSpace) {
-            BType type = blangTypeUpdate(literal);
+        SemType semType = PredefinedType.NEVER;
+        StringJoiner stringJoiner = new StringJoiner("|");
+        List<BLangExpression> valueSpace = td.valueSpace;
+        for (int i = 0; i < valueSpace.size(); i++) {
+            BLangExpression exprOrLiteral = valueSpace.get(i);
+            BType type = blangTypeUpdate(exprOrLiteral);
             if (type != null && type.tag == TypeTags.SEMANTIC_ERROR) {
                 return type;
             }
             if (type != null) {
-                literal.setBType(symTable.getTypeFromTag(type.tag));
+                exprOrLiteral.setBType(symTable.getTypeFromTag(type.tag));
             }
-            finiteType.addValue(literal);
+
+            if (semTypeSupported(exprOrLiteral.getBType().getKind())) {
+                if (exprOrLiteral.getKind() == NodeKind.UNARY_EXPR) {
+                    exprOrLiteral = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) exprOrLiteral);
+                    // Replacing here as Semantic Analyzer BLangFiniteTypeNode visit may not invoke for all finite nodes
+                    td.valueSpace.set(i, exprOrLiteral);
+                }
+
+                stringJoiner.add(getToString(exprOrLiteral));
+                semType = SemTypes.union(semType, SemTypeResolver.resolveSingletonType((BLangLiteral) exprOrLiteral));
+            } else {
+                throw new IllegalStateException("non-sem value found!");
+            }
         }
+
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, semType, stringJoiner.toString());
         finiteTypeSymbol.type = finiteType;
         td.setBType(finiteType);
         return finiteType;
     }
 
-    private void replaceUnaryExprWithNumericLiteral(BLangFiniteTypeNode finiteTypeNode) {
-        List<BLangExpression> valueSpace = finiteTypeNode.valueSpace;
-        for (int i = 0; i < valueSpace.size(); i++) {
-            BLangExpression value;
-            NodeKind valueKind;
-            value = valueSpace.get(i);
-            valueKind = value.getKind();
-
-            if (valueKind == NodeKind.UNARY_EXPR) {
-                BLangUnaryExpr unaryExpr = (BLangUnaryExpr) value;
-                if (unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
-                    // Replacing unary expression with numeric literal type for + and - numeric values.
-                    BLangNumericLiteral newNumericLiteral =
-                            Types.constructNumericLiteralFromUnaryExpr(unaryExpr);
-                    valueSpace.set(i, newNumericLiteral);
-                }
-            }
-        }
+    String getToString(BLangExpression value) {
+        return switch (value.getBType().tag) {
+            case TypeTags.FLOAT -> value + "f";
+            case TypeTags.DECIMAL -> value + "d";
+            case TypeTags.STRING, TypeTags.CHAR_STRING -> "\"" + value + "\"";
+            default -> value.toString();
+        };
     }
 
     private BType blangTypeUpdate(BLangExpression expression) {
@@ -1704,7 +1706,7 @@ public class TypeResolver {
                 expression.setBType(type);
                 return type;
             case LITERAL:
-                return ((BLangLiteral) expression).getBType();
+                return expression.getBType();
             case BINARY_EXPR:
                 type = blangTypeUpdate(((BLangBinaryExpr) expression).lhsExpr);
                 expression.setBType(type);
@@ -2008,12 +2010,6 @@ public class TypeResolver {
         BConstantSymbol constantSymbol = symEnter.getConstantSymbol(constant);
         constant.symbol = constantSymbol;
         BLangTypeDefinition typeDef = constant.associatedTypeDefinition;
-        NodeKind nodeKind = constant.expr.getKind();
-        boolean isLiteral = nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL
-                || nodeKind == NodeKind.UNARY_EXPR;
-        if (typeDef != null && isLiteral) {
-            resolveTypeDefinition(symEnv, modTable, typeDef, 0);
-        }
         if (constant.typeNode != null) {
             // Type node is available.
             ResolverData data = new ResolverData();
@@ -2032,6 +2028,17 @@ public class TypeResolver {
         // Type check and resolve the constant expression.
         BType resolvedType = constantTypeChecker.checkConstExpr(constant.expr, staticType, data);
         data.anonTypeNameSuffixes.pop();
+
+        NodeKind nodeKind = constant.expr.getKind();
+        boolean isLiteral = nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL
+                || nodeKind == NodeKind.UNARY_EXPR;
+        if (typeDef != null && isLiteral) {
+            typeDef.typeNode.setBType(resolvedType);
+            // Define the typeDefinition. Add symbol, flags etc.
+            resolvedType = defineTypeDefinition(typeDef, resolvedType, symEnv);
+            typeDef.setBType(resolvedType);
+            typeDef.cycleDepth = -1;
+        }
 
         if (resolvedType == symTable.semanticError) {
             // Constant expression contains errors.
@@ -2056,7 +2063,7 @@ public class TypeResolver {
         // Update the final type in necessary fields.
         constantSymbol.type = intersectionType;
         if (intersectionType.tag == TypeTags.FINITE) {
-            constantSymbol.literalType = ((BFiniteType) intersectionType).getValueSpace().iterator().next().getBType();
+            constantSymbol.literalType = singleShapeBroadType(intersectionType.getSemType(), symTable).get();
         } else {
             constantSymbol.literalType = intersectionType;
         }

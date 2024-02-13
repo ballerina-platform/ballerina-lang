@@ -34,14 +34,13 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.lang.reflect.Constructor;
@@ -50,7 +49,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -554,10 +552,8 @@ class JMethodResolver {
                         return true;
                     }
 
-                    Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
-                    for (Iterator<BLangExpression> iterator = valueSpace.iterator(); iterator.hasNext(); ) {
-                        BLangExpression value = iterator.next();
-                        if (!isValidParamBType(jType, value.getBType(), isLastParam, restParamExist)) {
+                    for (BType t : SemTypeResolver.singletonBroadTypes(bType.getSemType(), symbolTable)) {
+                        if (!isValidParamBType(jType, t, isLastParam, restParamExist)) {
                             return false;
                         }
                     }
@@ -711,9 +707,8 @@ class JMethodResolver {
                         return true;
                     }
 
-                    Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
-                    for (BLangExpression value : valueSpace) {
-                        if (isValidReturnBType(jType, value.getBType(), jMethodRequest, visitedSet)) {
+                    for (BType t : SemTypeResolver.singletonBroadTypes(bType.getSemType(), symbolTable)) {
+                        if (isValidReturnBType(jType, t, jMethodRequest, visitedSet)) {
                             return true;
                         }
                     }

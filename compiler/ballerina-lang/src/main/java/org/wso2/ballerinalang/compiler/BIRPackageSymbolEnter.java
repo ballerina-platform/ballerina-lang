@@ -48,7 +48,6 @@ import io.ballerina.types.subtypedata.RwTableSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.XmlSubtype;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
@@ -56,7 +55,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.Annotatable;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
@@ -115,11 +113,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
@@ -1251,20 +1247,31 @@ public class BIRPackageSymbolEnter {
 
         public BType readType(int cpI) throws IOException {
             SemType semType = readSemType();
+            String userStrRep = readUserStrRep();
             BType bType = readTypeInternal(cpI);
             if (bType != null) {
-                bType.setSemtype(semType);
+                bType.setSemType(semType);
+                bType.userStrRep = userStrRep;
             }
             return bType;
         }
 
+        private String readUserStrRep() throws IOException {
+            boolean hasUserStrRep = inputStream.readBoolean();
+            String userStrRep;
+            if (hasUserStrRep) {
+                userStrRep = getStringCPEntryValue(inputStream);
+            } else {
+                userStrRep = null;
+            }
+            return userStrRep;
+        }
+
         private BType readTypeInternal(int cpI) throws IOException {
             byte tag = inputStream.readByte();
-            Name name = names.fromString(getStringCPEntryValue(inputStream));
+            Name name = Names.fromString(getStringCPEntryValue(inputStream));
             var flags = inputStream.readLong();
 
-            // Read the type flags to identify if type reference types are nullable.
-            int typeFlags = inputStream.readInt();
             switch (tag) {
                 case TypeTags.INT:
                     return typeParamAnalyzer.getNominalType(symTable.intType, name, flags);
@@ -1395,9 +1402,7 @@ public class BIRPackageSymbolEnter {
                             names.fromString(typeDefName), pkg, null, pkgSymbol,
                             symTable.builtinPos, COMPILED_SOURCE);
 
-                    boolean nullable = (typeFlags & TypeFlags.NILABLE) == TypeFlags.NILABLE;
-
-                    BTypeReferenceType typeReferenceType = new BTypeReferenceType(null, typeSymbol, flags, nullable);
+                    BTypeReferenceType typeReferenceType = new BTypeReferenceType(null, typeSymbol, flags);
                     addShapeCP(typeReferenceType, cpI);
                     compositeStack.push(typeReferenceType);
                     typeReferenceType.referredType = readTypeFromCp();
@@ -1658,17 +1663,13 @@ public class BIRPackageSymbolEnter {
                     String finiteTypeName = getStringCPEntryValue(inputStream);
                     var finiteTypeFlags = inputStream.readLong();
                     BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteTypeFlags,
-                                                                  names.fromString(finiteTypeName), env.pkgSymbol.pkgID,
+                                                                  Names.fromString(finiteTypeName), env.pkgSymbol.pkgID,
                                                                   null, env.pkgSymbol, symTable.builtinPos,
                                                                   COMPILED_SOURCE);
                     symbol.scope = new Scope(symbol);
-                    BFiniteType finiteType = new BFiniteType(symbol);
+                    BFiniteType finiteType = new BFiniteType(symbol, null);
                     finiteType.flags = flags;
                     symbol.type = finiteType;
-                    int valueSpaceSize = inputStream.readInt();
-                    for (int i = 0; i < valueSpaceSize; i++) {
-                        defineValueSpace(inputStream, finiteType, this);
-                    }
                     return finiteType;
                 case TypeTags.OBJECT:
                     pkgCpIndex = inputStream.readInt();
@@ -2146,54 +2147,6 @@ public class BIRPackageSymbolEnter {
         String version = ((StringCPEntry) env.constantPool[pkgCpEntry.versionCPIndex]).value;
         return new PackageID(names.fromString(orgName), names.fromString(pkgName),
                 names.fromString(moduleName), names.fromString(version), null);
-    }
-
-    private void defineValueSpace(DataInputStream dataInStream, BFiniteType finiteType, BIRTypeReader typeReader)
-            throws IOException {
-        BType valueType = typeReader.readTypeFromCp();
-
-        dataInStream.readInt(); // read and ignore value length
-
-        BLangLiteral litExpr = createLiteralBasedOnType(valueType);
-        switch (valueType.tag) {
-            case TypeTags.INT:
-                int integerCpIndex = dataInStream.readInt();
-                IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[integerCpIndex];
-                litExpr.value = integerCPEntry.value;
-                break;
-            case TypeTags.BYTE:
-                int byteCpIndex = dataInStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[byteCpIndex];
-                litExpr.value = byteCPEntry.value;
-                break;
-            case TypeTags.FLOAT:
-                int floatCpIndex = dataInStream.readInt();
-                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[floatCpIndex];
-                litExpr.value = Double.toString(floatCPEntry.value);
-                break;
-            case TypeTags.STRING:
-            case TypeTags.DECIMAL:
-                litExpr.value = getStringCPEntryValue(dataInStream);
-                break;
-            case TypeTags.BOOLEAN:
-                litExpr.value = dataInStream.readBoolean();
-                break;
-            case TypeTags.NIL:
-                litExpr.originalValue = "null";
-                break;
-            default:
-                throw new UnsupportedOperationException("finite type value is not supported for type: " + valueType);
-        }
-
-        litExpr.setBType(valueType);
-
-        finiteType.addValue(litExpr);
-    }
-
-    private BLangLiteral createLiteralBasedOnType(BType valueType) {
-        NodeKind nodeKind = valueType.tag <= TypeTags.DECIMAL ? NodeKind.NUMERIC_LITERAL : NodeKind.LITERAL;
-        return nodeKind == NodeKind.LITERAL ? (BLangLiteral) TreeBuilder.createLiteralExpression() :
-                (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
     }
 
     private boolean isImmutable(long flags) {

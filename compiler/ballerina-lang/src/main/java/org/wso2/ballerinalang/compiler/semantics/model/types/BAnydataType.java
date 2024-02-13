@@ -33,18 +33,8 @@ import java.util.LinkedHashSet;
  * @since 0.985.0
  */
 public class BAnydataType extends BUnionType {
-
+    private boolean nullable;
     private static final int INITIAL_CAPACITY = 10;
-
-    public BAnydataType(BTypeSymbol tsymbol, Name name, long flags) {
-        this(tsymbol, name, flags, true);
-    }
-
-    public BAnydataType(BTypeSymbol tsymbol, boolean nullable) {
-        super(tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
-        this.tag = TypeTags.ANYDATA;
-        this.isCyclic = true;
-    }
 
     public BAnydataType(BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
         super(tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
@@ -52,6 +42,7 @@ public class BAnydataType extends BUnionType {
         this.flags = flags;
         this.name = name;
         this.isCyclic = true;
+        this.nullable = nullable;
     }
 
     public BAnydataType(BUnionType type) {
@@ -61,6 +52,7 @@ public class BAnydataType extends BUnionType {
         this.isCyclic = true;
         this.name = type.name;
         this.flags = type.flags;
+        this.nullable = type.isNullable();
         mergeUnionType(type);
     }
 
@@ -70,6 +62,7 @@ public class BAnydataType extends BUnionType {
         this.flags = type.flags;
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
+        this.nullable = nullable;
         mergeUnionType(type);
     }
 
@@ -77,6 +70,11 @@ public class BAnydataType extends BUnionType {
     public String toString() {
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
+    }
+
+    @Override
+    public boolean isNullable() {
+        return nullable;
     }
 
     @Override

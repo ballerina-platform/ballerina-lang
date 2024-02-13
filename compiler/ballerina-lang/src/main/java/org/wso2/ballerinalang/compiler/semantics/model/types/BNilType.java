@@ -32,13 +32,8 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BNilType extends BType implements NullType {
 
-    public BNilType() {
+    protected BNilType() {
         super(TypeTags.NIL, null, Flags.READONLY, PredefinedType.NIL);
-    }
-
-    @Override
-    public boolean isNullable() {
-        return true;
     }
 
     @Override

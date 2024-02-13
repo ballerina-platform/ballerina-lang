@@ -17,9 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
@@ -30,21 +33,22 @@ import org.wso2.ballerinalang.util.Flags;
 public class BReadonlyType extends BBuiltInRefType {
 
     private boolean nullable = true;
+    private SemType semTypeComponent = SemTypeResolver.READONLY_SEM_COMPONENT;
 
-    public BReadonlyType(int tag, BTypeSymbol tsymbol) {
-        super(tag, tsymbol);
+    public BReadonlyType(BTypeSymbol tsymbol) {
+        super(TypeTags.READONLY, tsymbol);
         this.flags |= Flags.READONLY;
     }
 
-    public BReadonlyType(int tag, BTypeSymbol tsymbol, Name name, long flag) {
-        super(tag, tsymbol);
+    public BReadonlyType(BTypeSymbol tsymbol, Name name, long flag) {
+        super(TypeTags.READONLY, tsymbol);
         this.name = name;
         this.flags = flag;
         this.flags |= Flags.READONLY;
     }
 
-    public BReadonlyType(int tag, BTypeSymbol tsymbol, boolean nullable) {
-        super(tag, tsymbol);
+    public BReadonlyType(BTypeSymbol tsymbol, boolean nullable) {
+        super(TypeTags.READONLY, tsymbol);
         this.nullable = nullable;
         this.flags |= Flags.READONLY;
     }
@@ -54,6 +58,7 @@ public class BReadonlyType extends BBuiltInRefType {
         return visitor.visit(this, t);
     }
 
+    @Override
     public boolean isNullable() {
         return nullable;
     }
@@ -61,5 +66,13 @@ public class BReadonlyType extends BBuiltInRefType {
     @Override
     public TypeKind getKind() {
         return TypeKind.READONLY;
+    }
+
+    public SemType getSemTypeComponent() {
+        return semTypeComponent;
+    }
+
+    public void setSemTypeComponent(SemType semTypeComponent) {
+        this.semTypeComponent = semTypeComponent;
     }
 }

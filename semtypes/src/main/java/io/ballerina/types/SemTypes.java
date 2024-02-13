@@ -69,7 +69,7 @@ public class SemTypes {
     }
 
     public static SemType decimalConst(String value) {
-        if (value.contains("d")) {
+        if (value.contains("d") || value.contains("D")) {
             value = value.substring(0, value.length() - 1);
         }
         BigDecimal d = new BigDecimal(value);
@@ -86,6 +86,10 @@ public class SemTypes {
 
     public static boolean isSubtype(Context context, SemType t1, SemType t2) {
         return Core.isSubtype(context, t1, t2);
+    }
+
+    public static boolean isSameType(Context context, SemType t1, SemType t2) {
+        return isSubtype(context, t1, t2) && isSubtype(context, t2, t1);
     }
 
     public static SemType errorDetail(SemType detail) {

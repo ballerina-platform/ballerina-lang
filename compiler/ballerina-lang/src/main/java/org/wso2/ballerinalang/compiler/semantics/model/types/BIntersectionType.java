@@ -17,8 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.types.IntersectionType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -40,12 +42,12 @@ public class BIntersectionType extends BType implements IntersectionType {
     public BType effectiveType;
 
     private LinkedHashSet<BType> constituentTypes;
+    private SemType semTypeComponent;
 
     public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types,
                              BType effectiveType) {
         super(TypeTags.INTERSECTION, tsymbol);
         this.constituentTypes = toFlatTypeSet(types);
-        this.effectiveType = effectiveType;
 
         for (BType constituentType : this.constituentTypes) {
             if (constituentType.tag == TypeTags.READONLY) {
@@ -53,6 +55,8 @@ public class BIntersectionType extends BType implements IntersectionType {
                 break;
             }
         }
+        SemTypeResolver.resolveBIntersectionSemTypeComponent(this);
+        this.effectiveType = (BType) effectiveType;
     }
 
     public BIntersectionType(BTypeSymbol tsymbol) {
@@ -63,6 +67,7 @@ public class BIntersectionType extends BType implements IntersectionType {
                              long flags) {
         super(TypeTags.INTERSECTION, tsymbol, flags);
         this.constituentTypes = toFlatTypeSet(types);
+        SemTypeResolver.resolveBIntersectionSemTypeComponent(this);
         this.effectiveType = effectiveType;
     }
 
@@ -82,17 +87,13 @@ public class BIntersectionType extends BType implements IntersectionType {
     }
 
     @Override
-    public boolean isNullable() {
-        return this.effectiveType.isNullable();
-    }
-
-    @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
     }
 
     public void setConstituentTypes(LinkedHashSet<BType> constituentTypes) {
         this.constituentTypes =  toFlatTypeSet(constituentTypes);
+        SemTypeResolver.resolveBIntersectionSemTypeComponent(this);
     }
 
     @Override
@@ -133,5 +134,13 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     public BType getEffectiveType() {
         return this.effectiveType;
+    }
+
+    public SemType getSemTypeComponent() {
+        return semTypeComponent;
+    }
+
+    public void setSemTypeComponent(SemType semTypeComponent) {
+        this.semTypeComponent = semTypeComponent;
     }
 }

@@ -20,10 +20,14 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Context;
+import io.ballerina.types.Core;
 import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
+import io.ballerina.types.UniformTypeBitSet;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -139,6 +143,8 @@ import java.util.stream.Collectors;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.bitCount;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.singletonBroadTypes;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED16_MAX_VALUE;
@@ -169,18 +175,15 @@ public class Types {
             new CompilerContext.Key<>();
     private final Unifier unifier;
     private SymbolTable symTable;
-    private SymbolEnter symbolEnter;
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
     private Names names;
     private int finiteTypeCount = 0;
     private BUnionType expandedXMLBuiltinSubtypes;
     private final BLangAnonymousModelHelper anonymousModelHelper;
-    private int recordCount = 0;
     private SymbolEnv env;
     private boolean ignoreObjectTypeIds = false;
-    private final SemTypeResolver semTypeResolver;
-    private final Context semTypeCtx;
+    protected final Context semTypeCtx;
 
     private static final String BASE_16 = "base16";
 
@@ -206,7 +209,6 @@ public class Types {
         context.put(TYPES_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
-        this.symbolEnter = SymbolEnter.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
@@ -215,7 +217,6 @@ public class Types {
                                                             symTable.xmlPIType, symTable.xmlTextType);
         this.unifier = new Unifier();
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-        this.semTypeResolver = SemTypeResolver.getInstance(context);
         this.semTypeCtx = Context.from(new Env());
     }
 
@@ -412,7 +413,7 @@ public class Types {
         return false;
     }
 
-    public boolean isValueType(BType type) {
+    public boolean isValueType(BType type) { // TODO: remove
         switch (getImpliedType(type).tag) {
             case TypeTags.BOOLEAN:
             case TypeTags.BYTE:
@@ -439,7 +440,7 @@ public class Types {
     }
 
     boolean finiteTypeContainsNumericTypeValues(BFiniteType finiteType) {
-        return finiteType.getValueSpace().stream().anyMatch(valueExpr -> isBasicNumericType(valueExpr.getBType()));
+        return !Core.isEmpty(semTypeCtx, Core.intersect(finiteType.getSemType(), PredefinedType.NUMBER));
     }
 
     public boolean containsErrorType(BType bType) {
@@ -825,11 +826,27 @@ public class Types {
         this.ignoreObjectTypeIds = false;
         return result;
     }
-
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        if (source.tag == TypeTags.PARAMETERIZED_TYPE) {
+            return isParameterizedTypeAssignable(source, target, unresolvedTypes);
+        }
+
+        if (source.isBTypeComponent || target.isBTypeComponent) {
+            return isAssignableInternal(SemTypeResolver.getBTypeComponent(source),
+                    SemTypeResolver.getBTypeComponent(target), unresolvedTypes);
+        }
+
+        SemType semSource = SemTypeResolver.getSemTypeComponent(source);
+        SemType semTarget = SemTypeResolver.getSemTypeComponent(target);
+        return SemTypes.isSubtype(semTypeCtx, semSource, semTarget) &&
+                isAssignableInternal(SemTypeResolver.getBTypeComponent(source),
+                        SemTypeResolver.getBTypeComponent(target), unresolvedTypes);
+    }
+
+    private boolean isAssignableInternal(BType source, BType target, Set<TypePair> unresolvedTypes) {
         if (SemTypeResolver.SEMTYPE_ENABLED) {
-            SemType sourceSemType = source.getSemtype();
-            SemType targetSemType = target.getSemtype();
+            SemType sourceSemType = source.getSemType();
+            SemType targetSemType = target.getSemType();
 
             if (SemTypeResolver.isSemTypeEnabled(source, target)) {
                 assert sourceSemType != null && targetSemType != null : "SemTypes cannot be null";
@@ -843,11 +860,6 @@ public class Types {
 
         int sourceTag = source.tag;
         int targetTag = target.tag;
-
-        if (sourceTag == TypeTags.TYPEREFDESC || targetTag == TypeTags.TYPEREFDESC) {
-            return isAssignable(getImpliedType(source), getImpliedType(target),
-                    unresolvedTypes);
-        }
 
         if (isNeverTypeOrStructureTypeWithARequiredNeverMember(source)) {
             return true;
@@ -876,20 +888,8 @@ public class Types {
             return isAssignable(source, ((BIntersectionType) target).effectiveType, unresolvedTypes);
         }
 
-        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
-            return isParameterizedTypeAssignable(source, target, unresolvedTypes);
-        }
-
-        if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
-            return true;
-        }
-
         if (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) {
             return isXMLTypeAssignable(source, target, unresolvedTypes);
-        }
-
-        if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING) {
-            return true;
         }
 
         if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ERROR) {
@@ -898,12 +898,14 @@ public class Types {
             return false;
         }
 
-        if (sourceTag == TypeTags.NIL && (isNullable(target) || targetTag == TypeTags.JSON)) {
-            return true;
+        if (sourceTag == TypeTags.NIL && (isNullable(target) || targetTag == TypeTags.JSON) ||
+                sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING ||
+                sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT ||
+                sourceTag == TypeTags.TYPEREFDESC || targetTag == TypeTags.TYPEREFDESC) {
+            throw new IllegalStateException(); // TODO: remove
         }
 
-        // TODO: Remove the isValueType() check
-        if (targetTag == TypeTags.ANY && !containsErrorType(source) && !isValueType(source)) {
+        if (targetTag == TypeTags.ANY && !containsErrorType(source)) {
             return true;
         }
 
@@ -946,12 +948,8 @@ public class Types {
             return isAssignableStreamType((BStreamType) source, (BStreamType) target, unresolvedTypes);
         }
 
-        if (isBuiltInTypeWidenPossible(source, target) == TypeTestResult.TRUE) {
-            return true;
-        }
-
         if (sourceTag == TypeTags.FINITE) {
-            return isFiniteTypeAssignable((BFiniteType) source, target, unresolvedTypes);
+            throw new IllegalStateException("finite type reached!");
         }
 
         if ((targetTag == TypeTags.UNION || sourceTag == TypeTags.UNION) &&
@@ -2289,7 +2287,7 @@ public class Types {
         FALSE
     }
 
-    TypeTestResult isBuiltInTypeWidenPossible(BType actualType, BType targetType) {
+    TypeTestResult isBuiltInTypeWidenPossible(BType actualType, BType targetType) { // TODO: can we remove?
         int targetTag = getImpliedType(targetType).tag;
         int actualTag = getImpliedType(actualType).tag;
 
@@ -2499,18 +2497,12 @@ public class Types {
             }
         }
 
-        if (sourceType.tag == TypeTags.FINITE) {
-            if (getTypeForFiniteTypeValuesAssignableToType((BFiniteType) sourceType, targetType)
-                    != symTable.semanticError) {
-                validTypeCast = true;
-            }
+        if (sourceType.tag == TypeTags.FINITE && getFiniteTypeForAssignableValues(sourceType, targetType).isPresent()) {
+            validTypeCast = true;
         }
 
-        if (targetType.tag == TypeTags.FINITE) {
-            if (getTypeForFiniteTypeValuesAssignableToType((BFiniteType) targetType, sourceType)
-                    != symTable.semanticError) {
-                validTypeCast = true;
-            }
+        if (targetType.tag == TypeTags.FINITE && getFiniteTypeForAssignableValues(targetType, sourceType).isPresent()) {
+            validTypeCast = true;
         }
 
         if (validTypeCast) {
@@ -3033,14 +3025,9 @@ public class Types {
                 return false;
             }
 
-            Set<BLangExpression> sourceValueSpace = ((BFiniteType) s).getValueSpace();
-            Set<BLangExpression> targetValueSpace = t.getValueSpace();
-
-            if (sourceValueSpace.size() != targetValueSpace.size()) {
-                return false;
-            }
-
-            return hasSameMembers(sourceValueSpace, targetValueSpace);
+            SemType semSource = s.getSemType();
+            SemType semTarget = t.getSemType();
+            return SemTypes.isSameType(semTypeCtx, semSource, semTarget);
         }
 
         public Boolean visit(BTypeReferenceType t, BType s) {
@@ -3057,39 +3044,6 @@ public class Types {
             String targetPkgId = CompilerUtils.getPackageIDStringWithMajorVersion(targetTSymbol.pkgID);
             return sourcePkgId.equals(targetPkgId) && sourceTSymbol.name.equals(targetTSymbol.name);
         }
-    }
-
-    private boolean hasSameMembers(Set<BLangExpression> sourceValueSpace, Set<BLangExpression> targetValueSpace) {
-        Set<BLangExpression> setOne = new HashSet<>(sourceValueSpace);
-        Set<BLangExpression> setTwo = new HashSet<>(targetValueSpace);
-
-        Iterator<BLangExpression> setOneIterator = setOne.iterator();
-        Iterator<BLangExpression> setTwoIterator = setTwo.iterator();
-
-        while (setOneIterator.hasNext()) {
-            BLangLiteral setOneMem = (BLangLiteral) setOneIterator.next();
-
-            if (!setTwoIterator.hasNext()) {
-                return false;
-            }
-
-            boolean hasEqualValue = false;
-            while (setTwoIterator.hasNext()) {
-                BLangLiteral setTwoMem = (BLangLiteral) setTwoIterator.next();
-                if (setOneMem.value.equals(setTwoMem.value) && setOneMem.getBType() == setTwoMem.getBType()) {
-                    hasEqualValue = true;
-                    setOneIterator.remove();
-                    setTwoIterator.remove();
-                    break;
-                }
-            }
-
-            if (!hasEqualValue) {
-                return false;
-            }
-        }
-
-        return !setTwoIterator.hasNext();
     }
 
     private class BOrderedTypeVisitor implements BTypeVisitor<BType, Boolean> {
@@ -3112,7 +3066,7 @@ public class Types {
                         isIntOrStringType(sourceTag, targetTag);
             }
             if (sourceTag == TypeTags.FINITE) {
-                return checkValueSpaceHasSameType(((BFiniteType) source), target);
+                return checkValueSpaceHasSameOrderedType(((BFiniteType) source), target);
             }
             return isSameOrderedType(target, source, this.unresolvedTypes);
         }
@@ -3247,7 +3201,7 @@ public class Types {
             if (checkUnionHasAllFiniteOrNilMembers(sourceTypes) &&
                     checkUnionHasAllFiniteOrNilMembers(targetTypes)) {
                 BType type = target.getMemberTypes().iterator().next();
-                return checkValueSpaceHasSameType(((BFiniteType) getImpliedType(type)),
+                return checkValueSpaceHasSameOrderedType(((BFiniteType) getImpliedType(type)),
                         sUnionType.getMemberTypes().iterator().next());
             }
 
@@ -3282,7 +3236,7 @@ public class Types {
 
         @Override
         public Boolean visit(BFiniteType t, BType s) {
-            return checkValueSpaceHasSameType(t, s);
+            return checkValueSpaceHasSameOrderedType(t, s);
         }
 
         private boolean hasSameReadonlyFlag(BType source, BType target) {
@@ -3383,8 +3337,7 @@ public class Types {
         if (referredTypeKind == TypeKind.NIL) {
             return true;
         } else if (referredTypeKind == TypeKind.FINITE) {
-            Set<BLangExpression> valueSpace = ((BFiniteType) referredType).getValueSpace();
-            return valueSpace.size() == 1 && valueSpace.iterator().next().getBType().getKind() == TypeKind.NIL;
+            return Core.isSubtype(semTypeCtx, referredType.getSemType(), PredefinedType.NIL);
         }
         return false;
     }
@@ -3394,8 +3347,9 @@ public class Types {
         for (BType type : memberTypes) {
             type = getImpliedType(type);
             if (type.tag == TypeTags.FINITE) {
-                for (BLangExpression expr : ((BFiniteType) type).getValueSpace()) {
-                    if (!isSameOrderedType(expr.getBType(), baseType)) {
+                Set<BType> broadTypes = singletonBroadTypes(type.getSemType(), symTable);
+                for (BType broadType : broadTypes) {
+                    if (!isSameOrderedType(broadType, baseType)) {
                         return false;
                     }
                 }
@@ -3416,20 +3370,28 @@ public class Types {
         return true;
     }
 
-    private boolean checkValueSpaceHasSameType(BFiniteType finiteType, BType type) {
+    /**
+     * Checks whether all values belong to the same ordered type.
+     *
+     * @param finiteType BFiniteType to be checked
+     * @param type       BType to be checked
+     * @return true if all values of two types belong to the same ordered type, false otherwise
+     */
+    private boolean checkValueSpaceHasSameOrderedType(BFiniteType finiteType, BType type) {
         BType baseType = getImpliedType(type);
+        Set<BType> broadTypes = singletonBroadTypes(finiteType.getSemType(), symTable);
         if (baseType.tag == TypeTags.FINITE) {
-            BType baseExprType = finiteType.getValueSpace().iterator().next().getBType();
-            return checkValueSpaceHasSameType(((BFiniteType) baseType), baseExprType);
+            BType baseExprType = broadTypes.iterator().next();
+            return checkValueSpaceHasSameOrderedType(((BFiniteType) baseType), baseExprType);
         }
-        boolean isValueSpaceSameType = false;
-        for (BLangExpression expr : finiteType.getValueSpace()) {
-            isValueSpaceSameType = isSameOrderedType(expr.getBType(), baseType);
-            if (!isValueSpaceSameType) {
-                break;
+
+        for (BType broadType : broadTypes) {
+            if (!isSameOrderedType(broadType, baseType)) {
+                return false;
             }
         }
-        return isValueSpaceSameType;
+
+        return true;
     }
 
     private boolean checkUnionHasAllFiniteOrNilMembers(LinkedHashSet<BType> memberTypes) {
@@ -3574,6 +3536,14 @@ public class Types {
         return !Symbols.isPrivate(rhsSym) && !Symbols.isPublic(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID);
     }
 
+    private void updateSet(Set<BType> set, BType ...types) {
+        for (BType type : types) {
+            if (!SemTypeResolver.semTypeSupported(type.tag)) {
+                set.add(type);
+            }
+        }
+    }
+
     private boolean isAssignableToUnionType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         TypePair pair = new TypePair(source, target);
         if (unresolvedTypes.contains(pair)) {
@@ -3591,17 +3561,17 @@ public class Types {
         Set<BType> targetTypes = new LinkedHashSet<>();
 
         if (isJsonAnydataOrUserDefinedUnion(source)) {
-            sourceTypes.addAll(getEffectiveMemberTypes((BUnionType) source));
+            updateSet(sourceTypes, getEffectiveMemberTypes((BUnionType) source).toArray(new BType[0]));
         } else {
-            sourceTypes.add(source);
+            updateSet(sourceTypes, source);
         }
 
         boolean targetIsAUnion = false;
         if (target.tag == TypeTags.UNION) {
             targetIsAUnion = true;
-            targetTypes.addAll(getEffectiveMemberTypes((BUnionType) target));
+            updateSet(targetTypes, getEffectiveMemberTypes((BUnionType) target).toArray(new BType[0]));
         } else {
-            targetTypes.add(target);
+            updateSet(targetTypes, target);
         }
 
         // check if all the value types are assignable between two unions
@@ -3835,44 +3805,6 @@ public class Types {
         return memTypes;
     }
 
-    private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {
-        BType expType = getImpliedType(targetType);
-        if (expType.tag == TypeTags.FINITE) {
-            for (BLangExpression expression : finiteType.getValueSpace()) {
-                ((BLangLiteral) expression).isFiniteContext = true;
-                if (!isAssignableToFiniteType(expType, (BLangLiteral) expression)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        if (expType.tag == TypeTags.UNION) {
-            List<BType> unionMemberTypes = getAllTypes(targetType, true);
-            for (BLangExpression valueExpr : finiteType.getValueSpace()) {
-                ((BLangLiteral) valueExpr).isFiniteContext = true;
-                if (unionMemberTypes.stream()
-                        .noneMatch(targetMemType ->
-                                getImpliedType(targetMemType).tag == TypeTags.FINITE ?
-                                        isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
-                                        isAssignable(valueExpr.getBType(), targetMemType, unresolvedTypes) ||
-                                                isLiteralCompatibleWithBuiltinTypeWithSubTypes(
-                                                        (BLangLiteral) valueExpr, targetMemType))) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        for (BLangExpression expression : finiteType.getValueSpace()) {
-            if (!isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) expression, targetType) &&
-                    !isAssignable(expression.getBType(), expType, unresolvedTypes)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     boolean isAssignableToFiniteType(BType type, BLangLiteral literalExpr) {
         type = getImpliedType(type);
         if (type.tag != TypeTags.FINITE) {
@@ -3880,20 +3812,7 @@ public class Types {
         }
 
         BFiniteType expType = (BFiniteType) type;
-        return expType.getValueSpace().stream().anyMatch(memberLiteral -> {
-            if (((BLangLiteral) memberLiteral).value == null) {
-                return literalExpr.value == null;
-            }
-
-            // If the literal which needs to be tested is from finite type and the type of the any member literal
-            // is not the same type, the literal cannot be assignable to finite type.
-            if (literalExpr.isFiniteContext && memberLiteral.getBType().tag != literalExpr.getBType().tag) {
-                return false;
-            }
-            // Check whether the literal that needs to be tested is assignable to any of the member literal in the
-            // value space.
-            return checkLiteralAssignabilityBasedOnType((BLangLiteral) memberLiteral, literalExpr);
-        });
+        return checkLiteralAssignabilityBasedOnType(literalExpr, expType, literalExpr.getBType().tag);
     }
 
     /**
@@ -3902,18 +3821,14 @@ public class Types {
      * literal or a constant. In case of a constant, it is assignable to the base literal if and only if both
      * literals have same type and equivalent values.
      *
-     * @param baseLiteral      Literal based on which we check the assignability.
-     * @param candidateLiteral Literal to be tested whether it is assignable to the base literal or not.
+     * @param literal Literal to be tested whether it is assignable to the base literal or not.
+     * @param finiteType
+     * @param targetTypeTag
      * @return true if assignable; false otherwise.
      */
-    boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
-        // Different literal kinds.
-        if (baseLiteral.getKind() != candidateLiteral.getKind()) {
-            return false;
-        }
-        Object baseValue = baseLiteral.value;
-        Object candidateValue = candidateLiteral.value;
-        int candidateTypeTag = candidateLiteral.getBType().tag;
+    boolean checkLiteralAssignabilityBasedOnType(BLangLiteral literal, BFiniteType finiteType, int targetTypeTag) {
+        Object value = literal.value;
+        int literalTypeTag = literal.getBType().tag;
 
         // Numeric literal assignability is based on assignable type and numeric equivalency of values.
         // If the base numeric literal is,
@@ -3922,104 +3837,64 @@ public class Types {
         // (3) float: we can assign int simple literal(Not an int constant) or a float literal/constant with same value.
         // (4) decimal: we can assign int simple literal or float simple literal (Not int/float constants) or decimal
         // with the same value.
-        switch (baseLiteral.getBType().tag) {
-            case TypeTags.BYTE:
-                if (candidateTypeTag == TypeTags.BYTE || (candidateTypeTag == TypeTags.INT &&
-                        !candidateLiteral.isConstant && isByteLiteralValue((Long) candidateValue))) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
+        SemType t = finiteType.getSemType();
+        switch (targetTypeTag) {
             case TypeTags.INT:
-                if (candidateTypeTag == TypeTags.INT) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
-            case TypeTags.SIGNED32_INT:
-                if (candidateTypeTag == TypeTags.INT && isSigned32LiteralValue((Long) candidateValue)) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
-            case TypeTags.SIGNED16_INT:
-                if (candidateTypeTag == TypeTags.INT && isSigned16LiteralValue((Long) candidateValue)) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
-            case TypeTags.SIGNED8_INT:
-                if (candidateTypeTag == TypeTags.INT && isSigned8LiteralValue((Long) candidateValue)) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
-            case TypeTags.UNSIGNED32_INT:
-                if (candidateTypeTag == TypeTags.INT && isUnsigned32LiteralValue((Long) candidateValue)) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
-            case TypeTags.UNSIGNED16_INT:
-                if (candidateTypeTag == TypeTags.INT && isUnsigned16LiteralValue((Long) candidateValue)) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
-            case TypeTags.UNSIGNED8_INT:
-                if (candidateTypeTag == TypeTags.INT && isUnsigned8LiteralValue((Long) candidateValue)) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
+                if (literalTypeTag == TypeTags.INT) {
+                    if (value instanceof String) {
+                        return false;
+                    }
+                    return Core.containsConstInt(t, ((Number) value).longValue());
                 }
                 break;
             case TypeTags.FLOAT:
-                String baseValueStr = String.valueOf(baseValue);
-                String originalValue = baseLiteral.originalValue != null ? baseLiteral.originalValue : baseValueStr;
-                if (NumericLiteralSupport.isDecimalDiscriminated(originalValue)) {
-                    return false;
-                }
-                double baseDoubleVal;
-                try {
-                    baseDoubleVal = Double.parseDouble(baseValueStr);
-                } catch (NumberFormatException e) {
-                    // We reach here if a floating point literal has syntax diagnostics.
-                    return false;
-                }
-                double candidateDoubleVal;
-                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
-                    if (candidateLiteral.value instanceof Double) {
+                double doubleValue;
+                if (literalTypeTag == TypeTags.INT && !literal.isConstant) {
+                    if (literal.value instanceof Double) {
                         // Out of range value for int but in range for float
-                        candidateDoubleVal = Double.parseDouble(String.valueOf(candidateValue));
-                        return baseDoubleVal == candidateDoubleVal;
+                        doubleValue = Double.parseDouble(String.valueOf(value));
                     } else {
-                        candidateDoubleVal = ((Long) candidateValue).doubleValue();
-                        return baseDoubleVal == candidateDoubleVal;
+                        doubleValue = ((Long) value).doubleValue();
                     }
-                } else if (candidateTypeTag == TypeTags.FLOAT) {
-                    candidateDoubleVal = Double.parseDouble(String.valueOf(candidateValue));
-                    return baseDoubleVal == candidateDoubleVal;
+                    return Core.containsConstFloat(t, doubleValue);
+                } else if (literalTypeTag == TypeTags.FLOAT) {
+                    try {
+                        doubleValue = Double.parseDouble(String.valueOf(value));
+                        return Core.containsConstFloat(t, doubleValue);
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
                 }
                 break;
             case TypeTags.DECIMAL:
-                BigDecimal baseDecimalVal = NumericLiteralSupport.parseBigDecimal(baseValue);
-                BigDecimal candidateDecimalVal;
-                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
-                    if (candidateLiteral.value instanceof String) {
+                BigDecimal decimalValue;
+                if (literalTypeTag == TypeTags.INT && !literal.isConstant) {
+                    if (literal.value instanceof String) {
                         // out of range value for float but in range for decimal
-                        candidateDecimalVal = NumericLiteralSupport.parseBigDecimal(candidateValue);
-                        return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
-                    } else if (candidateLiteral.value instanceof Double) {
+                        decimalValue = NumericLiteralSupport.parseBigDecimal(value);
+                    } else if (literal.value instanceof Double) {
                         // out of range value for int in range for decimal and float
-                        candidateDecimalVal = new BigDecimal((Double) candidateValue, MathContext.DECIMAL128);
-                        return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                        decimalValue = new BigDecimal((Double) value, MathContext.DECIMAL128);
                     } else {
-                        candidateDecimalVal = new BigDecimal((long) candidateValue, MathContext.DECIMAL128);
-                        return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                        decimalValue = new BigDecimal((long) value, MathContext.DECIMAL128);
                     }
-                } else if (candidateTypeTag == TypeTags.FLOAT && !candidateLiteral.isConstant ||
-                        candidateTypeTag == TypeTags.DECIMAL) {
-                    if (NumericLiteralSupport.isFloatDiscriminated(String.valueOf(candidateValue))) {
+                    return Core.containsConstDecimal(t, decimalValue);
+                } else if (literalTypeTag == TypeTags.FLOAT && !literal.isConstant ||
+                        literalTypeTag == TypeTags.DECIMAL) {
+                    if (NumericLiteralSupport.isFloatDiscriminated(String.valueOf(value))) {
                         return false;
                     }
-                    candidateDecimalVal = NumericLiteralSupport.parseBigDecimal(candidateValue);
-                    return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                    try {
+                        decimalValue = NumericLiteralSupport.parseBigDecimal(value);
+                        return Core.containsConstDecimal(t, decimalValue);
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
                 }
                 break;
             default:
                 // Non-numeric literal kind.
-                return baseValue.equals(candidateValue);
+                return Core.containsConst(t, value);
         }
         return false;
     }
@@ -4129,106 +4004,29 @@ public class Types {
      * Method to retrieve a type representing all the values in the value space of a finite type that are assignable to
      * the target type.
      *
-     * @param finiteType the finite type
-     * @param targetType the target type
+     * @param finiteType finite type
+     * @param targetType target type
      * @return a new finite type if at least one value in the value space of the specified finiteType is
      * assignable to targetType (the same if all are assignable), else semanticError
      */
-    BType getTypeForFiniteTypeValuesAssignableToType(BFiniteType finiteType, BType targetType) {
-        // finiteType - type Foo "foo";
-        // targetType - type FooBar "foo"|"bar";
-        if (isAssignable(finiteType, targetType)) {
-            return finiteType;
-        }
+    Optional<BType> getFiniteTypeForAssignableValues(BType finiteType, BType targetType) {
+        assert finiteType.tag == TypeTags.FINITE;
+        SemType intersectingSemType = Core.intersect(finiteType.getSemType(),
+                SemTypeResolver.getSemTypeComponent(targetType));
 
-        // Identify all the values from the value space of the finite type that are assignable to the target type.
-        // e.g., finiteType - type Foo "foo"|1 ;
-        Set<BLangExpression> matchingValues = new HashSet<>();
-        for (BLangExpression expr : finiteType.getValueSpace()) {
-            // case I: targetType - string ("foo" is assignable to string)
-            BLangLiteral literal = (BLangLiteral) expr;
-            if (isAssignable(expr.getBType(), targetType) ||
-                    // case II: targetType - type Bar "foo"|"baz" ; ("foo" is assignable to Bar)
-                    isAssignableToFiniteType(targetType, literal) ||
-                    // type FooVal "foo";
-                    // case III:  targetType - boolean|FooVal ("foo" is assignable to FooVal)
-                    isAssignableToFiniteTypeMemberInUnion(literal, targetType) ||
-                    // case IV:  targetType - int:Signed16 (1 is assignable to int:Signed16)
-                    isAssignableToBuiltinSubtypeInTargetType(literal, targetType)) {
-                matchingValues.add(expr);
-            }
-        }
-
-        if (matchingValues.isEmpty()) {
-            return symTable.semanticError;
+        if (PredefinedType.NEVER.equals(intersectingSemType)) {
+            return Optional.empty();
         }
 
         // Create a new finite type representing the assignable values.
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
-                names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
+                Names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
                 finiteType.tsymbol.pkgID, null,
                 finiteType.tsymbol.owner, finiteType.tsymbol.pos,
                 VIRTUAL);
-        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
-        semTypeResolver.setSemTypeIfEnabled(intersectingFiniteType);
+        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, intersectingSemType);
         finiteTypeSymbol.type = intersectingFiniteType;
-        return intersectingFiniteType;
-    }
-
-    private boolean isAssignableToFiniteTypeMemberInUnion(BLangLiteral expr, BType targetType) {
-        targetType = getImpliedType(targetType);
-        if (targetType.tag != TypeTags.UNION) {
-            return false;
-        }
-
-        for (BType memType : ((BUnionType) targetType).getMemberTypes()) {
-            if (isAssignableToFiniteType(memType, expr)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isAssignableToBuiltinSubtypeInTargetType(BLangLiteral literal, BType targetType) {
-        targetType = getImpliedType(targetType);
-        if (targetType.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
-                if (isLiteralCompatibleWithBuiltinTypeWithSubTypes(literal, memberType)) {
-                    return true;
-                }
-            }
-        }
-
-        return isLiteralCompatibleWithBuiltinTypeWithSubTypes(literal, targetType);
-    }
-
-    public boolean isLiteralCompatibleWithBuiltinTypeWithSubTypes(BLangLiteral literal, BType targetType) {
-        BType literalType = literal.getBType();
-        targetType = getImpliedType(targetType);
-        if (literalType.tag == targetType.tag) {
-            return true;
-        }
-
-        switch (targetType.tag) {
-            case TypeTags.BYTE:
-                return literalType.tag == TypeTags.INT && isByteLiteralValue((Long) literal.value);
-            case TypeTags.SIGNED32_INT:
-                return literalType.tag == TypeTags.INT && isSigned32LiteralValue((Long) literal.value);
-            case TypeTags.SIGNED16_INT:
-                return literalType.tag == TypeTags.INT && isSigned16LiteralValue((Long) literal.value);
-            case TypeTags.SIGNED8_INT:
-                return literalType.tag == TypeTags.INT && isSigned8LiteralValue((Long) literal.value);
-            case TypeTags.UNSIGNED32_INT:
-                return literalType.tag == TypeTags.INT && isUnsigned32LiteralValue((Long) literal.value);
-            case TypeTags.UNSIGNED16_INT:
-                return literalType.tag == TypeTags.INT && isUnsigned16LiteralValue((Long) literal.value);
-            case TypeTags.UNSIGNED8_INT:
-                return literalType.tag == TypeTags.INT && isUnsigned8LiteralValue((Long) literal.value);
-            case TypeTags.CHAR_STRING:
-                return literalType.tag == TypeTags.STRING && isCharLiteralValue((String) literal.value);
-            default:
-                return false;
-        }
+        return Optional.of(intersectingFiniteType);
     }
 
     /**
@@ -4311,83 +4109,86 @@ public class Types {
         return matchFound;
     }
 
-    boolean validNumericStringOrXmlTypeExists(BType type, TypeExistenceValidationFunction validationFunction) {
+    /**
+     * Checks where a type is subtype of either string or xml.
+     *
+     * @param type type to be checked
+     * @return a boolean
+     */
+    boolean validStringOrXmlTypeExists(BType type) {
+        return isStringSubtype(type) || isXmlSubType(type);
+    }
+
+    /**
+     * Checks whether a type is a subtype of xml.
+     *
+     * @param type type to be checked
+     * @return a boolean
+     */
+    boolean isXmlSubType(BType type) {
+        if (TypeTags.isXMLTypeTag(type.tag)) {
+            return true;
+        }
+
         switch (type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
-                Set<BType> memberTypes = unionType.getMemberTypes();
-                BType firstTypeInUnion = getBasicTypeOfBuiltinSubtype(getImpliedType(memberTypes.iterator().next()));
-                if (!validationFunction.validate(firstTypeInUnion)) {
+                if (!Core.isSubtypeSimple(unionType.getSemTypeComponent(), PredefinedType.NEVER)) {
                     return false;
                 }
-                if (firstTypeInUnion.tag == TypeTags.FINITE) {
-                    Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
-                    BType baseExprType = valSpace.iterator().next().getBType();
-                    for (BType memType : memberTypes) {
-                        memType = getImpliedType(memType);
-                        if (memType.tag == TypeTags.FINITE) {
-                            if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
-                                return false;
-                            }
-                            continue;
-                        }
 
-                        if (!isSubTypeOfBaseType(memType, baseExprType.tag)) {
-                            return false;
-                        }
-                    }
-                } else {
-                    for (BType memType : memberTypes) {
-                        memType = getImpliedType(memType);
-                        if (memType.tag == TypeTags.FINITE) {
-                            if (!checkValueSpaceHasSameType((BFiniteType) memType, firstTypeInUnion)) {
-                                return false;
-                            }
-                            continue;
-                        }
-                        if (!isSubTypeOfBaseType(memType, firstTypeInUnion.tag)) {
-                            return false;
-                        }
-                    }
+                LinkedHashSet<BType> nonSemMemberTypes = unionType.nonSemMemberTypes;
+                if (nonSemMemberTypes.isEmpty()) {
+                    return false;
                 }
-                return true;
-            case TypeTags.FINITE:
-                Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
-                BType baseExprType = valSpace.iterator().next().getBType();
-                for (BLangExpression expr : valSpace) {
-                    if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
-                        return false;
-                    }
-                    if (!validationFunction.validate(expr.getBType())) {
+
+                for (BType nonSemMember : nonSemMemberTypes) {
+                    if (!isXmlSubType(nonSemMember)) {
                         return false;
                     }
                 }
                 return true;
             case TypeTags.TYPEREFDESC:
-                return validationFunction.validate(getImpliedType(type));
+                return isXmlSubType(getImpliedType(type));
             case TypeTags.INTERSECTION:
-                return validationFunction.validate(((BIntersectionType) type).effectiveType);
+                return isXmlSubType(((BIntersectionType) type).effectiveType);
             default:
                 return false;
         }
     }
 
-    boolean validNumericTypeExists(BType type) {
-        if (type.isNullable() && getImpliedType(type).tag != TypeTags.NIL) {
-            type = getSafeType(type, true, false);
+    /**
+     * Checks whether a type is a subtype of string.
+     *
+     * @param type type to be checked
+     * @return a boolean
+     */
+    boolean isStringSubtype(BType type) {
+        if (SemTypeResolver.includesNonSemTypes(type)) {
+            return false;
         }
-        if (isBasicNumericType(type)) {
-            return true;
-        }
-        return validNumericStringOrXmlTypeExists(type, this::validNumericTypeExists);
+
+        SemType t = SemTypeResolver.getSemTypeComponent(type);
+        return Core.isSubtypeSimple(t, PredefinedType.STRING);
     }
 
-    boolean validStringOrXmlTypeExists(BType type) {
-        BType refType = getImpliedType(type);
-        if (TypeTags.isStringTypeTag(refType.tag) || TypeTags.isXMLTypeTag(refType.tag)) {
-            return true;
+    /**
+     * Checks whether a type is a subtype of one of int?, float? or decimal?.
+     *
+     * @param type type to be checked
+     * @return a boolean
+     */
+    boolean validNumericTypeExists(BType type) {
+        if (SemTypeResolver.includesNonSemTypes(type)) {
+            return false;
         }
-        return validNumericStringOrXmlTypeExists(type, this::validStringOrXmlTypeExists);
+
+        SemType t = SemTypeResolver.getSemTypeComponent(type);
+        SemType tButNil = Core.diff(t, PredefinedType.NIL); // nil lift
+        UniformTypeBitSet uniformTypeBitSet = Core.widenToBasicTypes(tButNil);
+        return uniformTypeBitSet.equals(PredefinedType.INT) ||
+                uniformTypeBitSet.equals(PredefinedType.FLOAT) ||
+                uniformTypeBitSet.equals(PredefinedType.DECIMAL);
     }
 
     boolean validIntegerTypeExists(BType bType) {
@@ -4411,32 +4212,13 @@ public class Types {
                 }
                 return true;
             case TypeTags.FINITE:
-                Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
-                for (BLangExpression expr : valueSpace) {
-                    if (!validIntegerTypeExists(expr.getBType())) {
-                        return false;
-                    }
-                }
-                return true;
+                return !Core.isEmpty(semTypeCtx, Core.intersect(type.getSemType(), PredefinedType.INT));
             default:
                 return false;
         }
     }
 
-    public BType getBasicTypeOfBuiltinSubtype(BType type) {
-        if (TypeTags.isIntegerTypeTag(type.tag) || type.tag == TypeTags.BYTE) {
-            return symTable.intType;
-        }
-        if (TypeTags.isStringTypeTag(type.tag)) {
-            return symTable.stringType;
-        }
-        if (TypeTags.isXMLTypeTag(type.tag)) {
-            return symTable.xmlType;
-        }
-        return type;
-    }
-
-    public boolean checkTypeContainString(BType type) {
+    public boolean isStringSubType(BType type) {
         type = getImpliedType(type);
         if (TypeTags.isStringTypeTag(type.tag)) {
             return true;
@@ -4444,19 +4226,14 @@ public class Types {
         switch (type.tag) {
             case TypeTags.UNION:
                 for (BType memType : ((BUnionType) type).getMemberTypes()) {
-                    if (!checkTypeContainString(memType)) {
+                    if (!isStringSubType(memType)) {
                         return false;
                     }
                 }
                 return true;
             case TypeTags.FINITE:
-                Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
-                for (BLangExpression expr : valSpace) {
-                    if (!checkTypeContainString(expr.getBType())) {
-                        return false;
-                    }
-                }
-                return true;
+                SemType semType = type.getSemType();
+                return SemTypes.isSubtype(semTypeCtx, semType, PredefinedType.STRING);
             default:
                 return false;
         }
@@ -4487,10 +4264,8 @@ public class Types {
                 memberTypes.add(symTable.byteType);
                 break;
             case TypeTags.FINITE:
-                BFiniteType expType = (BFiniteType) referredType;
-                expType.getValueSpace().forEach(value -> {
-                    memberTypes.add(value.getBType());
-                });
+                Set<BType> broadTypes = singletonBroadTypes(referredType.getSemType(), symTable);
+                memberTypes.addAll(broadTypes);
                 break;
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) referredType;
@@ -5167,14 +4942,14 @@ public class Types {
                 isAssignable(referredLhsType, referredType)) {
             return lhsType;
         } else if (referredLhsType.tag == TypeTags.FINITE) {
-            BType intersectionType = getTypeForFiniteTypeValuesAssignableToType((BFiniteType) referredLhsType, type);
-            if (intersectionType != symTable.semanticError) {
-                return intersectionType;
+            Optional<BType> intersectionType = getFiniteTypeForAssignableValues(referredLhsType, type);
+            if (intersectionType.isPresent()) {
+                return intersectionType.get();
             }
         } else if (referredType.tag == TypeTags.FINITE) {
-            BType intersectionType = getTypeForFiniteTypeValuesAssignableToType((BFiniteType) referredType, lhsType);
-            if (intersectionType != symTable.semanticError) {
-                return intersectionType;
+            Optional<BType> intersectionType = getFiniteTypeForAssignableValues(referredType, lhsType);
+            if (intersectionType.isPresent()) {
+                return intersectionType.get();
             }
         } else if (referredLhsType.tag == TypeTags.UNION) {
             BType intersectionType = getTypeForUnionTypeMembersAssignableToType((BUnionType) referredLhsType, type, env,
@@ -5811,34 +5586,24 @@ public class Types {
     }
 
     private BType getRemainingType(BFiniteType originalType, List<BType> removeTypes) {
-        Set<BLangExpression> remainingValueSpace = new LinkedHashSet<>();
-
-        for (BLangExpression valueExpr : originalType.getValueSpace()) {
-            boolean matchExists = false;
-            for (BType remType : removeTypes) {
-                if (isAssignable(valueExpr.getBType(), remType) ||
-                        isAssignableToFiniteType(remType, (BLangLiteral) valueExpr)) {
-                    matchExists = true;
-                    break;
-                }
-            }
-
-            if (!matchExists) {
-                remainingValueSpace.add(valueExpr);
-            }
+        SemType originalSemType = originalType.getSemType();
+        SemType removeSemType = PredefinedType.NEVER;
+        for (BType removeType : removeTypes) {
+            SemType semTypeToRemove = SemTypeResolver.getSemTypeComponent(removeType);
+            removeSemType = Core.union(removeSemType, semTypeToRemove);
         }
 
-        if (remainingValueSpace.isEmpty()) {
+        SemType diffSemType = Core.diff(originalSemType, removeSemType);
+        if (Core.isEmpty(semTypeCtx, diffSemType)) {
             return symTable.semanticError;
         }
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, originalType.tsymbol.flags,
-                names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
+                Names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
                 originalType.tsymbol.pkgID, null,
                 originalType.tsymbol.owner, originalType.tsymbol.pos,
                 VIRTUAL);
-        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, remainingValueSpace);
-        semTypeResolver.setSemTypeIfEnabled(intersectingFiniteType);
+        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, diffSemType);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
     }
@@ -5852,14 +5617,14 @@ public class Types {
                 case TypeTags.JSON:
                     return new BJSONType((BJSONType) type, false);
                 case TypeTags.ANY:
-                    return new BAnyType(type.tag, type.tsymbol, false);
+                    return new BAnyType(type.tsymbol, false);
                 case TypeTags.ANYDATA:
                     return new BAnydataType((BAnydataType) type, false);
                 case TypeTags.READONLY:
                     if (liftError) {
                         return symTable.anyAndReadonly;
                     }
-                    return new BReadonlyType(type.tag, type.tsymbol, false);
+                    return new BReadonlyType(type.tsymbol, false);
             }
         }
 
@@ -5955,8 +5720,7 @@ public class Types {
                 }
                 return true;
             case TypeTags.FINITE:
-                BLangExpression finiteValue = ((BFiniteType) type).getValueSpace().toArray(new BLangExpression[0])[0];
-                return isAllowedConstantType(finiteValue.getBType());
+                return isAllowedConstantType(singletonBroadTypes(type.getSemType(), symTable).iterator().next());
             default:
                 return false;
         }
@@ -6066,15 +5830,6 @@ public class Types {
         boolean test(BType source, BType target, Set<TypePair> unresolvedTypes);
     }
 
-    /**
-     * A functional interface to validate numeric, string or xml type existence.
-     *
-     * @since 2201.1.0
-     */
-    private interface TypeExistenceValidationFunction {
-        boolean validate(BType type);
-    }
-
     public boolean hasFillerValue(BType type) {
         type = getImpliedType(type);
         switch (type.tag) {
@@ -6096,7 +5851,7 @@ public class Types {
             case TypeTags.ARRAY:
                 return checkFillerValue((BArrayType) type);
             case TypeTags.FINITE:
-                return checkFillerValue((BFiniteType) type);
+                return hasFiller(type.getSemType());
             case TypeTags.UNION:
                 return checkFillerValue((BUnionType) type);
             case TypeTags.OBJECT:
@@ -6137,45 +5892,42 @@ public class Types {
     }
 
     /**
-     * This will handle two types. Singleton : As singleton can have one value that value should it self be a valid fill
-     * value Union : 1. if nil is a member it is the fill values 2. else all the values should belong to same type and
-     * the default value for that type should be a member of the union precondition : value space should have at least
-     * one element
+     * Checks whether a SemType has a filler value.
+     * <p>
+     * <i>Note: this is similar to <code>computeFiller()</code> in nBallerina</i>
+     * </p><p>
+     * 1. if type contains nil, nil is the filler value.<br/>
+     * 2. if all values belong to a single basic type B, and the filler value for B also included in the values.<br/>
+     * 3. if type is a singleton, it is the filler value.
+     * </p>
      *
-     * @param type BFiniteType union or finite
-     * @return boolean whether type has a valid filler value or not
+     * @param t SemType to be checked
+     * @return whether there is a filler value
      */
-    private boolean checkFillerValue(BFiniteType type) {
-        if (type.isNullable()) {
+    private boolean hasFiller(SemType t) {
+        if (Core.containsNil(t)) {
             return true;
         }
-        if (type.getValueSpace().size() == 1) { // For singleton types, that value is the implicit initial value
-            return true;
-        }
-        Iterator iterator = type.getValueSpace().iterator();
-        BLangExpression firstElement = (BLangExpression) iterator.next();
-        boolean defaultFillValuePresent = isImplicitDefaultValue(firstElement);
 
-        while (iterator.hasNext()) {
-            BLangExpression value = (BLangExpression) iterator.next();
-            if (!isSameBasicType(value.getBType(), firstElement.getBType())) {
-                return false;
-            }
-            if (!defaultFillValuePresent && isImplicitDefaultValue(value)) {
-                defaultFillValuePresent = true;
-            }
-        }
-
-        return defaultFillValuePresent;
+        return hasImplicitDefaultValue(t) || Core.singleShape(t).isPresent();
     }
 
-    private boolean hasImplicitDefaultValue(Set<BLangExpression> valueSpace) {
-        for (BLangExpression expression : valueSpace) {
-            if (isImplicitDefaultValue(expression)) {
-                return true;
-            }
+    private boolean hasImplicitDefaultValue(SemType t) {
+        UniformTypeBitSet bitSet = Core.widenToBasicTypes(t);
+        Object value = null;
+        if (bitSet.equals(PredefinedType.BOOLEAN)) {
+            value = false;
+        } else if (bitSet.equals(PredefinedType.INT)) {
+            value = (long) 0;
+        } else if (bitSet.equals(PredefinedType.DECIMAL)) {
+            value = BigDecimal.valueOf(0);
+        } else if (bitSet.equals(PredefinedType.FLOAT)) {
+            value = (double) 0;
+        } else if (bitSet.equals(PredefinedType.STRING)) {
+            value = "";
         }
-        return false;
+
+        return value != null && (t instanceof UniformTypeBitSet || Core.containsConst(t, value));
     }
 
     private boolean checkFillerValue(BUnionType type) {
@@ -6192,9 +5944,9 @@ public class Types {
 
         for (BType member : getAllTypes(type, true)) {
             if (member.tag == TypeTags.FINITE) {
-                Set<BType> uniqueValues = getValueTypes(((BFiniteType) member).getValueSpace());
-                memberTypes.addAll(uniqueValues);
-                if (!hasFillerValue && hasImplicitDefaultValue(((BFiniteType) member).getValueSpace())) {
+                Set<BType> broadTypes = singletonBroadTypes(member.getSemType(), symTable);
+                memberTypes.addAll(broadTypes);
+                if (!hasFillerValue && hasImplicitDefaultValue(member.getSemType())) {
                     hasFillerValue = true;
                 }
             } else {
@@ -6235,40 +5987,6 @@ public class Types {
 
     private boolean isIntegerSubTypeTag(int typeTag) {
         return TypeTags.isIntegerTypeTag(typeTag) || typeTag == TypeTags.BYTE;
-    }
-
-    private Set<BType> getValueTypes(Set<BLangExpression> valueSpace) {
-        Set<BType> uniqueType = new HashSet<>();
-        for (BLangExpression expression : valueSpace) {
-            uniqueType.add(expression.getBType());
-        }
-        return uniqueType;
-    }
-
-    private boolean isImplicitDefaultValue(BLangExpression expression) {
-        if ((expression.getKind() == NodeKind.LITERAL) || (expression.getKind() == NodeKind.NUMERIC_LITERAL)) {
-            BLangLiteral literalExpression = (BLangLiteral) expression;
-            BType literalExprType = literalExpression.getBType();
-            Object value = literalExpression.getValue();
-            switch (literalExprType.getKind()) {
-                case INT:
-                case BYTE:
-                    return value.equals(0L);
-                case STRING:
-                    return value == null || value.equals("");
-                case DECIMAL:
-                    return value.equals(String.valueOf(0)) || value.equals(0L);
-                case FLOAT:
-                    return value.equals(String.valueOf(0.0));
-                case BOOLEAN:
-                    return value.equals(Boolean.FALSE);
-                case NIL:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-        return false;
     }
 
     private boolean checkFillerValue(BRecordType type) {
@@ -6327,9 +6045,9 @@ public class Types {
     /**
      * Check whether a type is an ordered type.
      *
-     * @param type type.
-     * @param hasCycle whether there is a cycle.
-     * @return boolean whether the type is an ordered type or not.
+     * @param type     type to be checked
+     * @param hasCycle whether there is a cycle
+     * @return boolean whether the type is an ordered type or not
      */
     public boolean isOrderedType(BType type, boolean hasCycle) {
         type = getImpliedType(type);
@@ -6354,9 +6072,7 @@ public class Types {
                 for (BType memType : memberTypes) {
                     memType = getImpliedType(memType);
                     if (isFirstTypeInUnionFinite && memType.tag == TypeTags.FINITE && !isNil(memType)) {
-                        Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
-                        BType baseExprType = valSpace.iterator().next().getBType();
-                        if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
+                        if (!checkValueSpaceHasSameOrderedType((BFiniteType) memType, firstTypeInUnion)) {
                             return false;
                         }
                     } else if (memType.tag == TypeTags.UNION || memType.tag == TypeTags.ARRAY ||
@@ -6389,27 +6105,38 @@ public class Types {
                 BType restType = ((BTupleType) type).restType;
                 return restType == null || isOrderedType(restType, hasCycle);
             case TypeTags.FINITE:
-                boolean isValueSpaceOrdered = false;
-                Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
-                BType baseExprType = valSpace.iterator().next().getBType();
-                for (BLangExpression expr : valSpace) {
-                    if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
-                        return false;
-                    }
-                    isValueSpaceOrdered = isOrderedType(expr.getBType(), hasCycle);
-                    if (!isValueSpaceOrdered) {
-                        break;
-                    }
-                }
-                return isValueSpaceOrdered;
+                return isOrderedType(type.getSemType());
             default:
                 return isSimpleBasicType(type.tag);
         }
     }
 
+    /**
+     * Checks whether a SemType is an ordered type.
+     * <br/>
+     * A type is an ordered type if all values belong to one of (), int?, boolean?, decimal?, float?, string? types.
+     * <p>
+     * <i>Note: this is kind of similar to <code>comparable()</code> in nBallerina</i>
+     * </p>
+     *
+     * @param t SemType to be checked
+     * @return boolean
+     */
+    public boolean isOrderedType(SemType t) {
+        assert !PredefinedType.NEVER.equals(t);
+        SemType tButNil = Core.diff(t, PredefinedType.NIL);
+        UniformTypeBitSet uniformTypeBitSet = Core.widenToBasicTypes(tButNil);
+        if (Core.isSubtypeSimple(uniformTypeBitSet, PredefinedType.SIMPLE_OR_STRING)) {
+            int bitCount = bitCount(uniformTypeBitSet.bitset);
+            return bitCount <= 1;
+        }
+
+        return false;
+    }
+
     private boolean isIntOrStringType(int firstTypeTag, int secondTypeTag) {
-        return ((TypeTags.isIntegerTypeTag(firstTypeTag) || firstTypeTag == TypeTags.BYTE) &&
-                (TypeTags.isIntegerTypeTag(secondTypeTag) || secondTypeTag == TypeTags.BYTE)) ||
+        return ((TypeTags.isIntegerTypeTag(firstTypeTag) || (firstTypeTag == TypeTags.BYTE)) &&
+                (TypeTags.isIntegerTypeTag(secondTypeTag) || (secondTypeTag == TypeTags.BYTE))) ||
                 ((TypeTags.isStringTypeTag(firstTypeTag)) && (TypeTags.isStringTypeTag(secondTypeTag)));
     }
 
@@ -6446,8 +6173,9 @@ public class Types {
                 LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
                 return findCompatibleType(memberTypes.iterator().next());
             default:
-                Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
-                return findCompatibleType(valueSpace.iterator().next().getBType());
+                Set<BType> broadTypes = singletonBroadTypes(type.getSemType(), symTable);
+                assert broadTypes.size() == 1; // all values should belong to a single basic type
+                return broadTypes.iterator().next();
         }
     }
 
@@ -6467,13 +6195,7 @@ public class Types {
             }
             return true;
         } else if (type.tag == TypeTags.FINITE) {
-            for (BLangExpression expression: ((BFiniteType) type).getValueSpace()) {
-                BType exprType = getImpliedType(expression.getBType());
-                if (exprType.tag == TypeTags.NIL || !isSimpleBasicType(exprType.tag)) {
-                    return false;
-                }
-            }
-            return true;
+            return !type.isNullable();
         }
         return type.tag != TypeTags.NIL && isSimpleBasicType(type.tag);
     }
@@ -6613,13 +6335,13 @@ public class Types {
 
     boolean isSingletonType(BType bType) {
         BType type = getImpliedType(bType);
-        return type.tag == TypeTags.FINITE && ((BFiniteType) type).getValueSpace().size() == 1;
+        return type.tag == TypeTags.FINITE && Core.singleShape(type.getSemType()).isPresent();
     }
 
     boolean isSameSingletonType(BFiniteType type1, BFiniteType type2) {
-        BLangLiteral expr1 = (BLangLiteral) type1.getValueSpace().iterator().next();
-        BLangLiteral expr2 = (BLangLiteral) type2.getValueSpace().iterator().next();
-        return expr1.value.equals(expr2.value);
+        SemType t1 = type1.getSemType();
+        SemType t2 = type2.getSemType();
+        return SemTypes.isSameType(semTypeCtx, t1, t2);
     }
 
     public static void addImmutableType(SymbolTable symTable, PackageID packageId,
@@ -7058,9 +6780,8 @@ public class Types {
                 basicTypes.add(BasicTypes.OBJECT);
                 return;
             case TypeTags.FINITE:
-                for (BLangExpression expression : ((BFiniteType) type).getValueSpace()) {
-                    populateBasicTypes(expression.getBType(), basicTypes);
-                }
+                SemType semType = type.getSemType();
+                populateBasicTypes(semType, basicTypes);
                 return;
             case TypeTags.HANDLE:
                 basicTypes.add(BasicTypes.HANDLE);
@@ -7070,6 +6791,35 @@ public class Types {
                 return;
             case TypeTags.NEVER:
                 basicTypes.add(BasicTypes.NEVER);
+        }
+    }
+
+    private void populateBasicTypes(SemType t, Set<BasicTypes> basicTypes) {
+        int bitset;
+        if (t instanceof UniformTypeBitSet utb) {
+            bitset = utb.bitset;
+        } else {
+            ComplexSemType cst = (ComplexSemType) t;
+            bitset = cst.all.bitset | cst.some.bitset;
+        }
+
+        if ((bitset & PredefinedType.NIL.bitset) != 0) {
+            basicTypes.add(BasicTypes.NIL);
+        }
+        if ((bitset & PredefinedType.BOOLEAN.bitset) != 0) {
+            basicTypes.add(BasicTypes.BOOLEAN);
+        }
+        if ((bitset & PredefinedType.INT.bitset) != 0) {
+            basicTypes.add(BasicTypes.INT);
+        }
+        if ((bitset & PredefinedType.FLOAT.bitset) != 0) {
+            basicTypes.add(BasicTypes.FLOAT);
+        }
+        if ((bitset & PredefinedType.DECIMAL.bitset) != 0) {
+            basicTypes.add(BasicTypes.DECIMAL);
+        }
+        if ((bitset & PredefinedType.STRING.bitset) != 0) {
+            basicTypes.add(BasicTypes.STRING);
         }
     }
 

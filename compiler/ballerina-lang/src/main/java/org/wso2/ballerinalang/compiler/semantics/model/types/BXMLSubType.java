@@ -39,11 +39,6 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
         super(tag, null, name, flags);
     }
 
-    public boolean isNullable() {
-
-        return false;
-    }
-
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
 
         return visitor.visit(this, t);

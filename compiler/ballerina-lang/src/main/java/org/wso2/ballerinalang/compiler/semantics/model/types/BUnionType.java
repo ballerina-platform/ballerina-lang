@@ -17,8 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -44,10 +46,11 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
  */
 public class BUnionType extends BType implements UnionType {
     public boolean resolvingToString = false;
-    private boolean nullable;
     private String cachedToString;
+    private SemType semTypeComponent;
 
     protected LinkedHashSet<BType> memberTypes;
+    public LinkedHashSet<BType> nonSemMemberTypes;
     public Boolean isAnyData = null;
     public Boolean isPureType = null;
     public boolean isCyclic = false;
@@ -61,11 +64,21 @@ public class BUnionType extends BType implements UnionType {
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
 
     public BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
-        this(tsymbol, memberTypes, memberTypes, nullable, readonly);
+        this(tsymbol, memberTypes, memberTypes, nullable, readonly, false);
     }
 
     private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> originalMemberTypes, LinkedHashSet<BType> memberTypes,
                        boolean nullable, boolean readonly) {
+        this(tsymbol, originalMemberTypes, memberTypes, nullable, readonly, false);
+    }
+
+    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly,
+                       boolean isCyclic) {
+        this(tsymbol, null, memberTypes, nullable, readonly, isCyclic);
+    }
+
+    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> originalMemberTypes, LinkedHashSet<BType> memberTypes,
+                       boolean nullable, boolean readonly, boolean isCyclic) {
         super(TypeTags.UNION, tsymbol);
 
         if (readonly) {
@@ -78,25 +91,8 @@ public class BUnionType extends BType implements UnionType {
 
         this.originalMemberTypes = originalMemberTypes;
         this.memberTypes = memberTypes;
-        this.nullable = nullable;
-    }
-
-    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly,
-                       boolean isCyclic) {
-        super(TypeTags.UNION, tsymbol);
-
-        if (readonly) {
-            this.flags |= Flags.READONLY;
-
-            if (tsymbol != null) {
-                this.tsymbol.flags |= Flags.READONLY;
-            }
-        }
-
-        this.originalMemberTypes = memberTypes;
-        this.memberTypes = memberTypes;
-        this.nullable = nullable;
         this.isCyclic = isCyclic;
+        SemTypeResolver.resolveBUnionSemTypeComponent(this);
     }
 
     @Override
@@ -113,6 +109,7 @@ public class BUnionType extends BType implements UnionType {
         assert memberTypes.size() == 0;
         this.memberTypes = memberTypes;
         this.originalMemberTypes = new LinkedHashSet<>(memberTypes);
+        SemTypeResolver.resolveBUnionSemTypeComponent(this);
     }
 
     public void setOriginalMemberTypes(LinkedHashSet<BType> memberTypes) {
@@ -130,11 +127,6 @@ public class BUnionType extends BType implements UnionType {
     }
 
     @Override
-    public boolean isNullable() {
-        return nullable;
-    }
-
-    @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
     }
@@ -148,10 +140,6 @@ public class BUnionType extends BType implements UnionType {
         computeStringRepresentation();
         resolvingToString = false;
         return cachedToString;
-    }
-
-    public void setNullable(boolean nullable) {
-        this.nullable = nullable;
     }
 
     /**
@@ -195,7 +183,7 @@ public class BUnionType extends BType implements UnionType {
             }
         }
         if (memberTypes.isEmpty()) {
-            memberTypes.add(new BNeverType());
+            memberTypes.add(BType.createNeverType());
             return new BUnionType(tsymbol, memberTypes, false, isImmutable);
         }
 
@@ -267,8 +255,7 @@ public class BUnionType extends BType implements UnionType {
         }
 
         setCyclicFlag(type);
-
-        this.nullable = this.nullable || type.isNullable();
+        SemTypeResolver.resolveBUnionSemTypeComponent(this); // TODO: Optimize
     }
 
     private void setCyclicFlag(BType type) {
@@ -323,10 +310,6 @@ public class BUnionType extends BType implements UnionType {
         }
         this.originalMemberTypes.remove(type);
 
-        if (type.isNullable()) {
-            this.nullable = false;
-        }
-
         if (Symbols.isFlagOn(this.flags, Flags.READONLY)) {
             return;
         }
@@ -342,6 +325,7 @@ public class BUnionType extends BType implements UnionType {
         if (isImmutable) {
             this.flags |= Flags.READONLY;
         }
+        SemTypeResolver.resolveBUnionSemTypeComponent(this); // TODO: Optimize
     }
 
     public void mergeUnionType(BUnionType unionType) {
@@ -504,8 +488,8 @@ public class BUnionType extends BType implements UnionType {
 
         String typeStr = numberOfNotNilTypes > 1 ? "(" + joiner + ")" : joiner.toString();
         boolean hasNilType = uniqueTypes.size() > numberOfNotNilTypes;
-        cachedToString = (nullable && hasNilType && !hasNilableMember) ? (typeStr + Names.QUESTION_MARK.value) :
-                typeStr;
+        cachedToString = (this.isNullable() && hasNilType && !hasNilableMember) ? (typeStr + Names.QUESTION_MARK.value)
+                : typeStr;
     }
 
     private static boolean isNeverType(BType type) {
@@ -522,5 +506,13 @@ public class BUnionType extends BType implements UnionType {
             return true;
         }
         return false;
+    }
+
+    public SemType getSemTypeComponent() {
+        return semTypeComponent;
+    }
+
+    public void setSemTypeComponent(SemType semTypeComponent) {
+        this.semTypeComponent = semTypeComponent;
     }
 }

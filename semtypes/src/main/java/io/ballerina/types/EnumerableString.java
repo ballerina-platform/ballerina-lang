@@ -32,4 +32,20 @@ public class EnumerableString implements EnumerableType {
     public static EnumerableString from(String v) {
         return new EnumerableString(v);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EnumerableString e)) {
+            return false;
+        }
+        return (e.value.equals(this.value));
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
 }

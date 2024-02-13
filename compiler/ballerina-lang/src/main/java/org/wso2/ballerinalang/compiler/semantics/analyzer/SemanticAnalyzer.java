@@ -789,8 +789,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode, AnalyzerData data) {
-        boolean foundUnaryExpr = false;
-        boolean isErroredExprInFiniteType = false;
         NodeKind valueKind;
         BLangExpression value;
 
@@ -799,11 +797,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             valueKind = value.getKind();
 
             if (valueKind == NodeKind.UNARY_EXPR) {
-                foundUnaryExpr = true;
-                BType resultType = typeChecker.checkExpr(value, data.env, symTable.noType, data.prevEnvs);
-                if (resultType == symTable.semanticError) {
-                    isErroredExprInFiniteType = true;
-                }
                 // Replacing unary expression with numeric literal type for + and - numeric values
                 BLangNumericLiteral newNumericLiteral =
                         Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
@@ -815,10 +808,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             } else {
                 analyzeNode(value, data);
             }
-        }
-
-        if (foundUnaryExpr && isErroredExprInFiniteType) {
-            finiteTypeNode.setBType(symTable.semanticError);
         }
     }
 

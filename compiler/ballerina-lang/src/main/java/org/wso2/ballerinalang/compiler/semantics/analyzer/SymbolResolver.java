@@ -56,7 +56,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -1409,23 +1408,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     @Override
     public BType transform(BLangFiniteTypeNode finiteTypeNode, AnalyzerData data) {
-        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
-                Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY,
-                data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
-                finiteTypeNode.pos, SOURCE);
-
-        // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals
-        // Note: calling semanticAnalyzer form symbolResolver is a temporary fix.
-        semanticAnalyzer.analyzeNode(finiteTypeNode, data.env);
-
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        for (BLangExpression expressionOrLiteral : finiteTypeNode.valueSpace) {
-            finiteType.addValue(expressionOrLiteral);
-        }
-        semTypeResolver.setSemTypeIfEnabled(finiteType);
-        finiteTypeSymbol.type = finiteType;
-
-        return finiteType;
+        return typeResolver.resolveSingletonType(finiteTypeNode, data.env);
     }
 
     @Override
@@ -2050,7 +2033,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                         case TypeTags.UNSIGNED32_INT:
                             return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
                     }
-                    
+
                     switch (referredRhsType.tag) {
                         case TypeTags.UNSIGNED8_INT:
                         case TypeTags.BYTE:
@@ -2058,7 +2041,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                         case TypeTags.UNSIGNED32_INT:
                             return createBinaryOperator(opKind, lhsType, rhsType, rhsType);
                     }
-                    
+
                     if (referredLhsType.isNullable() || referredRhsType.isNullable()) {
                         BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
                         return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
@@ -2374,7 +2357,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                         // For objects, a new type has to be created.
                         !types.isSubTypeOfBaseType(potentialIntersectionType, TypeTags.OBJECT))) {
             BTypeSymbol effectiveTypeTSymbol = potentialIntersectionType.tsymbol;
-            return createIntersectionType(potentialIntersectionType, constituentBTypes, effectiveTypeTSymbol.pkgID, 
+            return createIntersectionType(potentialIntersectionType, constituentBTypes, effectiveTypeTSymbol.pkgID,
                     effectiveTypeTSymbol.owner, intersectionTypeNode.pos);
         }
 

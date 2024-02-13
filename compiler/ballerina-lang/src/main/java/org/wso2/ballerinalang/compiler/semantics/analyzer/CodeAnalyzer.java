@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Core;
+import io.ballerina.types.Value;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -257,6 +259,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -1082,16 +1085,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private Object getConstValueFromFiniteType(BFiniteType type) {
-        if (type.getValueSpace().size() == 1) {
-            BLangExpression expr = type.getValueSpace().iterator().next();
-            switch (expr.getKind()) {
-                case NUMERIC_LITERAL:
-                    return ((BLangNumericLiteral) expr).value;
-                case LITERAL:
-                    return ((BLangLiteral) expr).value;
-            }
-        }
-        return null;
+        Optional<Value> value = Core.singleShape(type.getSemType());
+        return value.map(v -> v.value).orElse(null);
     }
 
     private boolean checkSimilarListMatchPattern(BLangListMatchPattern firstListMatchPattern,

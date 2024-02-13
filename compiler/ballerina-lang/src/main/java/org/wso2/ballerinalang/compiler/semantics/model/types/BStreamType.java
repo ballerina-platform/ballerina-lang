@@ -37,7 +37,7 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
     public BStreamType(int tag, BType constraint, BType completionType, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
-        this.completionType = completionType != null ? completionType : new BNilType();
+        this.completionType = completionType != null ? completionType : BType.createNilType();
     }
 
     @Override

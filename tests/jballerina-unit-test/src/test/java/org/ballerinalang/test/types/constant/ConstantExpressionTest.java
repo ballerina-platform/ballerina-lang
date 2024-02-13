@@ -58,7 +58,6 @@ public class ConstantExpressionTest {
         BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'false'", 37, 22);
         BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[A, B, C]'", 39, 1);
         BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[E, F]'", 44, 1);
-        BAssertUtil.validateError(compileResult1, i++, "'-9.223372036854776E18' is out of range for 'int'", 47, 20);
         BAssertUtil.validateError(compileResult1, i++, "'9223372036854775808' is out of range for 'int'", 47, 21);
         BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[CONST5]'", 49, 1);
         BAssertUtil.validateError(compileResult1, i++, "cannot declare a constant with type 'T', " +

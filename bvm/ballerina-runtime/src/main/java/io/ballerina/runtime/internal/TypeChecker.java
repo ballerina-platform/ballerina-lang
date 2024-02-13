@@ -2203,7 +2203,7 @@ public class TypeChecker {
                 return true;
             case TypeTags.BYTE_TAG:
                 if (TypeTags.isIntegerTypeTag(sourceTypeTag)) {
-                    return isByteLiteral((Long) sourceValue);
+                    return isByteLiteral(((Number) sourceValue).longValue());
                 }
                 return allowNumericConversion && TypeConverter.isConvertibleToByte(sourceValue);
             case TypeTags.INT_TAG:
@@ -3510,7 +3510,7 @@ public class TypeChecker {
     }
 
     private static boolean isIntegerSubTypeTag(int typeTag) {
-        return TypeTags.isIntegerTypeTag(typeTag) || typeTag == TypeTags.BYTE_TAG;
+        return TypeTags.isIntegerTypeTag(typeTag);
     }
 
     private static boolean isFillerValueOfFiniteTypeBasicType(Object value) {

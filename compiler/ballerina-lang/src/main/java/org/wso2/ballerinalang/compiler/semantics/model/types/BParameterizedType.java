@@ -46,11 +46,6 @@ public class BParameterizedType extends BType {
     }
 
     @Override
-    public boolean isNullable() {
-        return false;
-    }
-
-    @Override
     public String toString() {
         return this.paramSymbol.name.toString();
     }

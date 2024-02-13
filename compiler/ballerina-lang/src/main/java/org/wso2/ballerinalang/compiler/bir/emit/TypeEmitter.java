@@ -407,21 +407,7 @@ class TypeEmitter {
     }
 
     private static String emitBFiniteType(BFiniteType bType, int tabs) {
-
-        StringBuilder str = new StringBuilder();
-        str.append("[");
-        int i = 0;
-        int length = bType.getValueSpace().size();
-        for (Object v : bType.getValueSpace()) {
-            str.append(v.toString());
-            i += 1;
-            if (i < length) {
-                str.append(",");
-                str.append(emitSpaces(1));
-            }
-        }
-        str.append("]");
-        return str.toString();
+        return "[" + bType.toString() + "]";
     }
 
     private static String emitBTypeHandle(BHandleType bType, int tabs) {

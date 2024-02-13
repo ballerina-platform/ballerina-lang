@@ -95,8 +95,8 @@ public class ImmutableTypeCloner {
                                                   SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
                                                   Names names) {
         return getImmutableIntersectionType(pos, types, type, env, env.enclPkg.packageID, env.scope.owner,
-                                            symTable, anonymousModelHelper, names, new HashSet<>(),
-                                            new HashSet<>()).effectiveType;
+                symTable, anonymousModelHelper, names, new HashSet<>(),
+                new HashSet<>()).effectiveType;
     }
 
     public static BType getEffectiveImmutableType(Location pos, Types types,
@@ -104,8 +104,8 @@ public class ImmutableTypeCloner {
                                                   BSymbol owner, SymbolTable symTable,
                                                   BLangAnonymousModelHelper anonymousModelHelper, Names names) {
         return getImmutableIntersectionType(pos, types, type, null, pkgId, owner,
-                                            symTable, anonymousModelHelper, names, new HashSet<>(),
-                                            new HashSet<>()).effectiveType;
+                symTable, anonymousModelHelper, names, new HashSet<>(),
+                new HashSet<>()).effectiveType;
     }
 
     public static BIntersectionType getImmutableIntersectionType(Location pos, Types types,
@@ -258,11 +258,11 @@ public class ImmutableTypeCloner {
 
                 BAnyType immutableAnyType;
                 if (immutableAnyTSymbol != null) {
-                    immutableAnyType = new BAnyType(origAnyType.tag, immutableAnyTSymbol, immutableAnyTSymbol.name,
+                    immutableAnyType = new BAnyType(immutableAnyTSymbol, immutableAnyTSymbol.name,
                                                     origAnyType.flags | Flags.READONLY, origAnyType.isNullable());
                     immutableAnyTSymbol.type = immutableAnyType;
                 } else {
-                    immutableAnyType = new BAnyType(origAnyType.tag, immutableAnyTSymbol,
+                    immutableAnyType = new BAnyType(immutableAnyTSymbol,
                                                     getImmutableTypeName(names, TypeKind.ANY.typeName()),
                                                     origAnyType.flags | Flags.READONLY, origAnyType.isNullable());
                 }

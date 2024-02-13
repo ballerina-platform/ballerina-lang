@@ -32,13 +32,8 @@ import org.wso2.ballerinalang.util.Flags;
 
 public class BNeverType extends BType {
 
-    public BNeverType() {
+    protected BNeverType() {
         super(TypeTags.NEVER, null, Flags.READONLY, PredefinedType.NEVER);
-    }
-
-    @Override
-    public boolean isNullable() {
-        return false;
     }
 
     @Override

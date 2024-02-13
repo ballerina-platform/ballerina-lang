@@ -63,7 +63,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -528,7 +527,7 @@ public class JvmPackageGen {
     }
 
     private void linkModuleFunction(PackageID packageID, String initClass, String funcName) {
-        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, new BNilType(), null);
+        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, BType.createNilType(), null);
         BIRFunction moduleStopFunction = new BIRFunction(null, new Name(funcName), 0, funcType, new Name(""), 0,
                                                         VIRTUAL);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(packageID) + funcName,
