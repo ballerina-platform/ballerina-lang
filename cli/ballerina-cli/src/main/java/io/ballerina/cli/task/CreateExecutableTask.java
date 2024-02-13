@@ -126,9 +126,9 @@ public class CreateExecutableTask implements Task {
                 }
             }
 
-            List<Diagnostic> emitDiagnostics = new ArrayList<>(emitResult.diagnostics().diagnostics());
-            if (!emitDiagnostics.isEmpty()) {
-                emitDiagnostics.forEach(d -> out.println("\n" + d.toString()));
+            // Print diagnostics found during emit executable
+            if (!emitResult.diagnostics().diagnostics().isEmpty()) {
+                emitResult.diagnostics().diagnostics().forEach(d -> out.println("\n" + d.toString()));
             }
 
         } catch (ProjectException e) {
