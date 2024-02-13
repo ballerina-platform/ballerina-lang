@@ -46,7 +46,7 @@ public class DiagnosticAnnotation {
             TruncateResult result = truncate(lines.get(0), maxLength, start, length);
             return padding + "| " + "\n"
                     + String.format("%" + n_digits + "d ", startLineNumber) + "| " + result.line + "\n"
-                    + padding + "| " + getCaretLine(result.diagnosticStart, length) + "\n";
+                    + padding + "| " + getCaretLine(result.diagnosticStart, result.diagnosticLength) + "\n";
 
         }
 
@@ -60,28 +60,26 @@ public class DiagnosticAnnotation {
         lines.set(lines.size() - 1, replaceTabs(lines.get(lines.size() - 1), this.endOffset));
         int maxLength = terminalWidth - n_digits_end - 3;
         TruncateResult result1 = truncate(lines.get(0), maxLength, start, length);
-        int res1DiagnosticLen = result1.line().length() - result1.diagnosticStart;
         TruncateResult result2 = truncate(lines.get(lines.size() - 1), maxLength, 0,
                 endOffset + 3 * tabsInLastLine);
-        int res2DiagnosticLen = result2.line().length() - result2.diagnosticStart;
 
         if (lines.size() == 2) {
             return padding + "| " + "\n"
                     + String.format("%" + n_digits_end + "d ", startLineNumber) + "| " + result1.line + "\n"
-                    + padding + "| " + getCaretLine(result1.diagnosticStart, res1DiagnosticLen) + "\n"
+                    + padding + "| " + getCaretLine(result1.diagnosticStart, result1.diagnosticLength) + "\n"
                     + String.format("%" + n_digits_end + "d ", startLineNumber + 1) + "| " + result2.line + "\n"
-                    + padding + "| " + getCaretLine(0, endOffset + 3 * tabsInLastLine) + "\n"
+                    + padding + "| " + getCaretLine(0, result2.diagnosticLength) + "\n"
                     + padding + "| " + "\n";
         }
         String padding2 = " ".repeat(Math.min(terminalWidth, max_length_line) / 2);
         return padding + "| " + "\n"
                 + String.format("%" + n_digits_end + "d ", startLineNumber) + "| " + result1.line + "\n"
-                + paddingWithColon + "| " + getCaretLine(result1.diagnosticStart, res1DiagnosticLen) + "\n"
+                + paddingWithColon + "| " + getCaretLine(result1.diagnosticStart, result1.diagnosticLength) + "\n"
                 + paddingWithColon + "| " + padding2 + ":" + "\n"
                 + paddingWithColon + "| " + padding2 + ":" + "\n"
                 + String.format("%" + n_digits_end + "d ", startLineNumber + lines.size() - 1) + "| "
                 + result2.line + "\n"
-                + padding + "| " + getCaretLine(0, endOffset + 3 * tabsInLastLine) + "\n"
+                + padding + "| " + getCaretLine(0, result2.diagnosticLength) + "\n"
                 + padding + "| " + "\n";
 
     }
@@ -101,16 +99,19 @@ public class DiagnosticAnnotation {
     }
 
     private static TruncateResult truncate(String line, int maxLength, int diagnosticStart, int diagnosticLength) {
-        if (line.length() < maxLength) {
-            return new TruncateResult(line, diagnosticStart);
+        if (line.length() < maxLength - 3) {
+            return new TruncateResult(line, diagnosticStart, diagnosticLength);
         }
-        if (diagnosticStart + diagnosticLength < maxLength) {
-            return new TruncateResult(line.substring(0, maxLength - 3) + "...", diagnosticStart);
+        if (diagnosticStart + diagnosticLength < maxLength - 3) {
+            return new TruncateResult(line.substring(0, maxLength - 3) + "...", diagnosticStart, diagnosticLength);
         }
         int diagnosticMid = diagnosticStart + diagnosticLength / 2;
-        int stepsToMoveWindow = diagnosticMid - maxLength / 2;
-        return new TruncateResult("..." + line.substring(stepsToMoveWindow, maxLength - 6)
-                + "...", diagnosticStart - stepsToMoveWindow + 3);
+        int stepsToMoveWindow = Math.max(0, diagnosticMid - maxLength / 2);
+        int border = Math.min(line.length() - 1, stepsToMoveWindow + maxLength - 6);
+        int newDiagnosticStart = Math.max(0, diagnosticStart - stepsToMoveWindow + 3);
+        int newDiagnosticLength = Math.min(diagnosticLength, maxLength - newDiagnosticStart - 3);
+        return new TruncateResult("..." + line.substring(stepsToMoveWindow, Math.max(stepsToMoveWindow, border))
+                + "...", newDiagnosticStart, Math.max(0, newDiagnosticLength));
 
     }
 
@@ -126,6 +127,6 @@ public class DiagnosticAnnotation {
         return sb + line.substring(end);
     }
 
-    private record TruncateResult(String line, int diagnosticStart) {
+    private record TruncateResult(String line, int diagnosticStart, int diagnosticLength) {
     }
 }
