@@ -99,14 +99,10 @@ public class RecoveryManager {
         for (TransactionLogRecord logRecord : failedTransactions.values()) {
             String combinedId = logRecord.getCombinedId();
             switch (logRecord.getTransactionState()) {
-                case MIXED:
-                    diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_MIXED_STATE, null, combinedId);
-                    break;
-                case HAZARD:
-                    diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HAZARD_STATE, null, combinedId);
-                    break;
-                default:
-                    break;
+                case MIXED -> diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_MIXED_STATE, null, combinedId);
+                case HAZARD -> diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HAZARD_STATE, null, combinedId);
+                default -> {
+                }
             }
         }
 
@@ -171,19 +167,15 @@ public class RecoveryManager {
     }
 
     private boolean recoverFailedTrxInXAResource(XAResource xaResource, Xid xid, RecoveryState state) {
-        switch (state) {
-            case PREPARING: // failed during prepare, no decision record found
-            case ABORTING:
-                return handleAbort(xaResource, xid);
-            case COMMITTING:
-                return replayCommit(xaResource, xid);
-            case COMMITTED:
-            case ABORTED:
+        return switch (state) { // failed during prepare, no decision record found
+            case PREPARING, ABORTING -> handleAbort(xaResource, xid);
+            case COMMITTING -> replayCommit(xaResource, xid);
+            case COMMITTED, ABORTED -> {
                 forgetXidInXaResource(xid, xaResource);
-                return true;
-            default:
-                return false;
-        }
+                yield true;
+            }
+            default -> false;
+        };
     }
 
     /**
@@ -237,21 +229,17 @@ public class RecoveryManager {
             xaResource.commit(xid, false);
             return true;
         } catch (XAException e) {
-            switch (e.errorCode) {
+            return switch (e.errorCode) {
                 // case: transaction already heuristically terminated by resource
-                case XAException.XA_HEURCOM:
-                case XAException.XA_HEURHAZ:
-                case XAException.XA_HEURMIX:
-                case XAException.XA_HEURRB:
-                    return handleHeuristicTermination(xid, xaResource, e, true);
+                case XAException.XA_HEURCOM, XAException.XA_HEURHAZ, XAException.XA_HEURMIX, XAException.XA_HEURRB ->
+                        handleHeuristicTermination(xid, xaResource, e, true);
                 // case : transaction terminated in resource by a concurrent commit; xid no longer know by resource
-                case XAException.XAER_NOTA:
-                case XAException.XAER_INVAL:
-                    return true;
-                default:
+                case XAException.XAER_NOTA, XAException.XAER_INVAL -> true;
+                default -> {
                     log.error("transient error while replaying commit for transaction: " + xid + " " + e.getMessage());
-                    return false;
-            }
+                    yield false;
+                }
+            };
         }
     }
 
@@ -267,21 +255,17 @@ public class RecoveryManager {
             xaResource.rollback(xid);
             return true;
         } catch (XAException e) {
-            switch (e.errorCode) {
+            return switch (e.errorCode) {
                 // case: transaction already heuristically terminated by resource
-                case XAException.XA_HEURCOM:
-                case XAException.XA_HEURHAZ:
-                case XAException.XA_HEURMIX:
-                case XAException.XA_HEURRB:
-                    return handleHeuristicTermination(xid, xaResource, e, false);
+                case XAException.XA_HEURCOM, XAException.XA_HEURHAZ, XAException.XA_HEURMIX, XAException.XA_HEURRB ->
+                        handleHeuristicTermination(xid, xaResource, e, false);
                 // case : transaction terminated in resource by a concurrent rollback; xid no longer know by resource
-                case XAException.XAER_NOTA:
-                case XAException.XAER_INVAL:
-                    return true;
-                default:
+                case XAException.XAER_NOTA, XAException.XAER_INVAL -> true;
+                default -> {
                     log.error("transient error while replaying abort for transaction: " + xid + " " + e.getMessage());
-                    return false;
-            }
+                    yield false;
+                }
+            };
         }
     }
 
@@ -303,27 +287,31 @@ public class RecoveryManager {
      */
     private boolean handleHeuristicTermination(Xid xid, XAResource xaResource, XAException e, boolean decisionCommit) {
         switch (e.errorCode) {
-            case XAException.XA_HEURCOM:
+            case XAException.XA_HEURCOM -> {
                 if (!decisionCommit) {
                     reportUserOfHueristics(e, xid, decisionCommit);
                 }
                 forgetXidInXaResource(xid, xaResource);
                 return true;
-            case XAException.XA_HEURRB:
+            }
+            case XAException.XA_HEURRB -> {
                 if (decisionCommit) {
                     reportUserOfHueristics(e, xid, decisionCommit);
                 }
                 forgetXidInXaResource(xid, xaResource);
                 return true;
-            case XAException.XA_HEURMIX:
+            }
+            case XAException.XA_HEURMIX -> {
                 reportUserOfHueristics(e, xid, decisionCommit);
                 forgetXidInXaResource(xid, xaResource);
                 return true; // we report it to user, forget about the txn and move on (for now)
-            case XAException.XA_HEURHAZ:
+            }
+            case XAException.XA_HEURHAZ -> {
                 reportUserOfHueristics(e, xid, decisionCommit);
                 return false;
-            default:
-                break;
+            }
+            default -> {
+            }
         }
         return true;
     }
@@ -334,24 +322,16 @@ public class RecoveryManager {
         String combinedId = transactionID + ":" + transactionBlockId;
         String decision = decisionCommit ? "commit" : "rollback";
         switch (e.errorCode) {
-            case XAException.XA_HEURCOM:
-                diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
-                        combinedId, "heuristic commit", decision);
-                break;
-            case XAException.XA_HEURRB:
-                diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
-                        combinedId, "heuristic rollback", decision);
-                break;
-            case XAException.XA_HEURMIX:
-                diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
-                        combinedId, "heuristic mixed", decision);
-                break;
-            case XAException.XA_HEURHAZ:
-                diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
-                        combinedId, "heuristic hazard", decision);
-                break;
-            default:
-                break;
+            case XAException.XA_HEURCOM -> diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
+                    combinedId, "heuristic commit", decision);
+            case XAException.XA_HEURRB -> diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
+                    combinedId, "heuristic rollback", decision);
+            case XAException.XA_HEURMIX -> diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
+                    combinedId, "heuristic mixed", decision);
+            case XAException.XA_HEURHAZ -> diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
+                    combinedId, "heuristic hazard", decision);
+            default -> {
+            }
         }
     }
 
