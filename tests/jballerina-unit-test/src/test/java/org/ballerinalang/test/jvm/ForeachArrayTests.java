@@ -24,6 +24,7 @@ import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -219,24 +220,19 @@ public class ForeachArrayTests {
         Assert.assertEquals(returns.toString(), "0:d0 1: 2:d2 3: ");
     }
 
-    @Test
-    public void testQueryInsideLoop() {
-        BRunUtil.invoke(program, "testQueryInsideLoop");
+    @Test(dataProvider = "listIterationTestFunctions")
+    public void testListIteration(String functionName) {
+        BRunUtil.invoke(program, functionName);
     }
 
-    @Test
-    public void testListConstructor() {
-        BRunUtil.invoke(program, "testListConstructor");
-    }
-
-    @Test
-    public void testTuple() {
-        BRunUtil.invoke(program, "testTuple");
-    }
-
-    @Test
-    public void testEmptyArray() {
-        BRunUtil.invoke(program, "testEmptyArray");
+    @DataProvider(name = "listIterationTestFunctions")
+    public Object[][] listIterationTestFunctions() {
+        return new Object[][]{
+                {"testQueryInsideLoop"},
+                {"testListConstructor"},
+                {"testTuple"},
+                {"testEmptyArray"}
+        };
     }
 
     // These ensure observable behaviour of foreach statements are the same even when we optimize away the iterator
