@@ -1146,7 +1146,6 @@ public function testXmlSequenceLHSEquals() {
     test:assertTrue(x1 == x2 && !(x1 != x2));
 }
 
-
 function testXmlStringNegative() {
     anydata x1 = xml `<book>The Lost World</book>`;
     anydata x2 = "<book>The Lost World</book>";
