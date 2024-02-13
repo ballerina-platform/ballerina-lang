@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.bala.types;
+package org.ballerinalang.test.bala.declarations;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -41,7 +41,7 @@ public class XMLNSBalaTest {
     @BeforeClass
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
-        result = BCompileUtil.compile("test-src/bala/test_bala/types/xmlns_bala_test.bal");
+        result = BCompileUtil.compile("test-src/bala/test_bala/declarations/xmlns_bala_test.bal");
     }
 
     @Test (dataProvider = "balaXMLNSDeclFunctions")
@@ -60,7 +60,7 @@ public class XMLNSBalaTest {
     @Test
     public void testXMLNSDefinitionNegative() {
         CompileResult negativeResult =
-                BCompileUtil.compile("test-src/bala/test_bala/types/xmlns_bala_test_negative.bal");
+                BCompileUtil.compile("test-src/bala/test_bala/declarations/xmlns_bala_test_negative.bal");
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 19, 7);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 23, 11);
