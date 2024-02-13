@@ -159,7 +159,8 @@ public class EnvProviderTest {
                 {"stringSingleton", getIntersectionType(ROOT_MODULE, stringFinite), strVal,
                         "BAL_CONFIG_STRINGSINGLETON", "test"},
                 {"intSingleton", getIntersectionType(ROOT_MODULE, intFinite), 2L, "BAL_CONFIG_INTSINGLETON", "2"},
-                {"floatSingleton", getIntersectionType(ROOT_MODULE, floatFinite), 2.2d, "BAL_CONFIG_FLOATSINGLETON", "2.2"},
+                {"floatSingleton", getIntersectionType(ROOT_MODULE, floatFinite), 2.2d, "BAL_CONFIG_FLOATSINGLETON",
+                        "2.2"},
                 {"decimalSingleton", getIntersectionType(ROOT_MODULE, decimalFinite), decimalVal,
                         "BAL_CONFIG_DECIMALSINGLETON", "3.23"},
                 {"booleanSingleton", getIntersectionType(ROOT_MODULE, booleanFinite), true,
@@ -178,7 +179,7 @@ public class EnvProviderTest {
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver =
                 new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{finiteVar})), diagnosticLog
-                        , List.of(new EnvVarProvider(ROOT_MODULE,Map.of("BAL_CONFIG_UNIONVAR", "1.34"))));
+                        , List.of(new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_UNIONVAR", "1.34"))));
         Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
         Assert.assertFalse(configValueMap.containsKey(finiteVar));
     }

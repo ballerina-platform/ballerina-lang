@@ -230,8 +230,8 @@ public class EnvProviderNegativeTest {
         return new Object[][]{
                 {Set.of(strVal1, 3.23d, decimalVal), "error: [BAL_CONFIG_FINITEVAR=3.23] ambiguous target types " +
                         "found for configurable variable 'finiteVar' with type 'Finite'"},
-                {Set.of(strVal1, 1.34d, 1L), "error: [BAL_CONFIG_FINITEVAR=3.23] configurable variable 'finiteVar' is " +
-                        "expected to be of type 'Finite', but found '3.23'"},
+                {Set.of(strVal1, 1.34d, 1L), "error: [BAL_CONFIG_FINITEVAR=3.23] configurable variable 'finiteVar'" +
+                                             " is expected to be of type 'Finite', but found '3.23'"},
                 {Set.of(strVal2, 3.23d, 1.34d), "error: [BAL_CONFIG_FINITEVAR=3.23] ambiguous target types " +
                         "found for configurable variable 'finiteVar' with type 'Finite'"},
         };
@@ -264,10 +264,10 @@ public class EnvProviderNegativeTest {
                 {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT), "BAL_CONFIG_UNIONVAR", "test",
                         "[BAL_CONFIG_UNIONVAR=test] configurable variable 'unionVar' is expected to be of type " +
                         "'(int|float)', but found 'test'"},
-                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT),"BAL_CONFIG_UNIONVAR", "3",
+                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT), "BAL_CONFIG_UNIONVAR", "3",
                         "[BAL_CONFIG_UNIONVAR=3] ambiguous target types found for configurable variable 'unionVar' " +
                         "with type '(int|float)'"},
-                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_BYTE), "BAL_CONFIG_UNIONVAR","22",
+                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_BYTE), "BAL_CONFIG_UNIONVAR", "22",
                         "[BAL_CONFIG_UNIONVAR=22] ambiguous target types found for configurable variable 'unionVar' " +
                         "with type '(int|byte)'"},
                 {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_BOOLEAN), "BAL_CONFIG_UNIONVAR", "1",

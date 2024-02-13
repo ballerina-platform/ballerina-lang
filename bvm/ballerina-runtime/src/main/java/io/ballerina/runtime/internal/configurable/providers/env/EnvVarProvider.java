@@ -152,7 +152,8 @@ public class EnvVarProvider implements ConfigProvider {
             return getEnvConfigValue(TypeConverter.stringToDecimal(envVar.value));
         } catch (NumberFormatException | BError e) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, envVar, key.variable, key.type, envVar.value);
-        }    }
+        }
+    }
 
     @Override
     public Optional<ConfigValue> getAsStringAndMark(Module module, VariableKey key) {
