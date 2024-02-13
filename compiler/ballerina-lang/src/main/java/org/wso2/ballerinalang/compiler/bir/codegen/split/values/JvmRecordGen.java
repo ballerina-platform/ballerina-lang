@@ -91,7 +91,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_VALUES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_VALUES_WITH_COLLECTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_BOOLEAN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_BSTRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_B_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_DOUBLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_LONG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_BOOLEAN;
@@ -935,7 +935,7 @@ public class JvmRecordGen {
     void createStringGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                JvmCastGen jvmCastGen) {
         createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.STRING, "getStringValue",
-                PASS_B_STRING_RETURN_BSTRING, true, B_STRING_VALUE);
+                PASS_B_STRING_RETURN_B_STRING, true, B_STRING_VALUE);
     }
 
     private void createBasicTypeGetMethod(ClassWriter cw, Map<String, BField> fields, String className,

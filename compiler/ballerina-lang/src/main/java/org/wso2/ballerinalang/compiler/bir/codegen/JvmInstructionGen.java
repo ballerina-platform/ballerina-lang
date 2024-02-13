@@ -242,7 +242,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LONG_STR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_DUPLICATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_IMPL_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_BOOLEAN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_BSTRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_B_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_DOUBLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_LONG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
@@ -1518,7 +1518,7 @@ public class JvmInstructionGen {
                 yield false;
             }
             case STRING -> {
-                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "getStringValue", PASS_B_STRING_RETURN_BSTRING,
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "getStringValue", PASS_B_STRING_RETURN_B_STRING,
                         false);
                 yield true;
             }
