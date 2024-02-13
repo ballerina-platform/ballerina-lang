@@ -100,10 +100,6 @@ public class PackageDiagnostic extends Diagnostic {
         return diagnosticFilePath;
     }
 
-    public boolean isSemanticDiagnostic() {
-        return this.diagnostic instanceof BLangDiagnostic;
-    }
-
     @Override
     public Location location() {
         return this.location;
