@@ -63,7 +63,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned16;
@@ -527,7 +526,7 @@ public class TypeConverter {
             return "()";
         }
         String sourceValueName = sourceValue.toString();
-        if (TypeChecker.getType(sourceValue) == TYPE_STRING) {
+        if (TypeChecker.getType(sourceValue).getTag() == TypeTags.STRING_TAG) {
             sourceValueName = "\"" + sourceValueName + "\"";
         }
         if (sourceValueName.length() > MAX_DISPLAYED_SOURCE_VALUE_LENGTH) {

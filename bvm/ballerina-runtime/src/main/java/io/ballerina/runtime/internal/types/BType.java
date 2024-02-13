@@ -195,4 +195,8 @@ public abstract class BType implements Type {
         return 0;
     }
 
+    @Override
+    public BType getBTypeComponent() {
+        return this;
+    }
 }

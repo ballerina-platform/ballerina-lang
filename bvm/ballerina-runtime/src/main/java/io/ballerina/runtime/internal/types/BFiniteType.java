@@ -21,11 +21,17 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -187,5 +193,34 @@ public class BFiniteType extends BType implements FiniteType {
         }
         BFiniteType that = (BFiniteType) o;
         return this.valueSpace.size() == that.valueSpace.size() && this.valueSpace.containsAll(that.valueSpace);
+    }
+
+    @Override
+    public Optional<SemType> getSemTypeComponent() {
+        SemType semType = valueSpace.stream().map(val -> getType(val).getSemTypeComponent().get())
+                .reduce(PredefinedType.NEVER, SemTypes::union);
+//        SemType semType = PredefinedType.NEVER;
+//        for (Object value : valueSpace) {
+//            Optional<SemType> valTy = getType(value).getSemTypeComponent();
+//            // FIXME: remove this
+//            if (valTy.isEmpty()) {
+//                return Optional.empty();
+//            }
+//            semType = SemTypes.union(semType, valTy.get());
+//        }
+        return Optional.of(semType);
+    }
+
+    @Override
+    public BType getBTypeComponent() {
+        // TODO: this is not super efficient.
+//        if (getSemTypeComponent().isPresent()) {
+//            return (BType) PredefinedTypes.TYPE_NEVER;
+//        }
+
+        List<Type> memberTypes = this.valueSpace.stream().map((value) -> (Type) getType(value).getBTypeComponent())
+                .toList();
+        return new BUnionType(typeName, this.pkg, memberTypes, true);
+//        return this;
     }
 }

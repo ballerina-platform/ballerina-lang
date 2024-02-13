@@ -18,8 +18,13 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.NullType;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+
+import java.util.Optional;
 
 /**
  * {@code BNullType} represents the type of a {@code NullLiteral}.
@@ -59,5 +64,15 @@ public class BNullType extends BType implements NullType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    public Optional<SemType> getSemTypeComponent() {
+        return Optional.of(PredefinedType.NIL);
+    }
+
+    @Override
+    public BType getBTypeComponent() {
+        return (BType) PredefinedTypes.TYPE_NEVER;
     }
 }

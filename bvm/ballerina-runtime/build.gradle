@@ -35,6 +35,7 @@ dependencies {
     implementation project(':toml-parser')
     implementation project(':ballerina-tools-api')
     implementation project(':identifier-util')
+    implementation project(':semtypes')
 
     testImplementation 'org.testng:testng'
 }

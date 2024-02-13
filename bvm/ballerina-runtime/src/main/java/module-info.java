@@ -11,6 +11,7 @@ module io.ballerina.runtime {
     requires axiom.impl;
     requires io.ballerina.toml;
     requires io.ballerina.tools.api;
+    requires io.ballerina.semtype;
 
     requires transactions.jta;
     requires java.transaction;

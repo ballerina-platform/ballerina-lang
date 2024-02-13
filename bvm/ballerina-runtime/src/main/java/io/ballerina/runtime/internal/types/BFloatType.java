@@ -18,8 +18,14 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.FloatType;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the
@@ -35,8 +41,15 @@ public class BFloatType extends BType implements FloatType {
      *
      * @param typeName string name of the type
      */
+    private final SemType semType;
     public BFloatType(String typeName, Module pkg) {
         super(typeName, pkg, Double.class);
+        semType = null;
+    }
+
+    public BFloatType(String typeName, Module pkg, SemType semType) {
+        super(typeName, pkg, Double.class);
+        this.semType = semType;
     }
 
     @Override
@@ -57,5 +70,15 @@ public class BFloatType extends BType implements FloatType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    public Optional<SemType> getSemTypeComponent() {
+        return Optional.of(Objects.requireNonNullElse(this.semType, PredefinedType.FLOAT));
+    }
+
+    @Override
+    public BType getBTypeComponent() {
+        return (BType) PredefinedTypes.TYPE_NEVER;
     }
 }

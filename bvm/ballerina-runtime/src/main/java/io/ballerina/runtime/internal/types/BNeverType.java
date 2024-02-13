@@ -18,9 +18,14 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.NeverType;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+
+import java.util.Optional;
 
 /**
  * {@code BNeverType} represents the type of a {@code Never}.
@@ -45,5 +50,15 @@ public class BNeverType extends BNullType implements NeverType {
     @Override
     public int getTag() {
         return TypeTags.NEVER_TAG;
+    }
+
+    @Override
+    public Optional<SemType> getSemTypeComponent() {
+        return Optional.of(PredefinedType.NEVER);
+    }
+
+    @Override
+    public BType getBTypeComponent() {
+        return (BType) PredefinedTypes.TYPE_NEVER;
     }
 }

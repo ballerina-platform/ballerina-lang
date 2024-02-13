@@ -18,6 +18,11 @@
 package io.ballerina.runtime.api.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.internal.types.BType;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+
+import java.util.Optional;
 
 /**
  * {@code Type} represents a type in Ballerina.
@@ -30,6 +35,15 @@ import io.ballerina.runtime.api.Module;
  * @since 2.0.0
  */
 public interface Type {
+
+    // TODO: make this not optional when we have implemented for all types
+    // Types for which there is no semtype implementation will return empty
+    default Optional<SemType> getSemTypeComponent() {
+        return Optional.of(PredefinedType.NEVER);
+    }
+
+    // If {@code getSemTypeComponent} is not empty, this will return the BType component of type else return itself
+    BType getBTypeComponent();
 
     /**
      * Get the default value of the type. This is the value of an uninitialized variable of this type.

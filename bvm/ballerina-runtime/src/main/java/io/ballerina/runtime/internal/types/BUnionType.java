@@ -28,6 +28,9 @@ import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -542,5 +545,30 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    @Override
+    public Optional<SemType> getSemTypeComponent() {
+        // TODO: cache this calculation -> problem is each element in the list and change
+        // TODO: simplify
+        SemType semtype = PredefinedType.NEVER;
+        for (Type type : this.memberTypes) {
+            Optional<SemType> semTypeComponent = type.getSemTypeComponent();
+            if (semTypeComponent.isEmpty()) {
+                continue;
+            }
+            semtype = SemTypes.union(semtype, semTypeComponent.get());
+        }
+        if (semtype == PredefinedType.NEVER) {
+            return Optional.empty();
+        }
+        return Optional.of(semtype);
+    }
+
+    @Override
+    public BType getBTypeComponent() {
+        List<Type> memberTypes = this.memberTypes.stream().map((each) -> (Type) each.getBTypeComponent())
+                .toList();
+        return new BUnionType(typeName, this.pkg, memberTypes, this.readonly);
     }
 }

@@ -19,11 +19,16 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.DecimalType;
 import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
 
 import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * {@code BDecimalType} represents decimal type in Ballerina.
@@ -38,8 +43,15 @@ public class BDecimalType extends BType implements DecimalType {
      *
      * @param typeName string name of the type
      */
+    private final SemType semType;
     public BDecimalType(String typeName, Module pkg) {
         super(typeName, pkg, DecimalValue.class);
+        this.semType = null;
+    }
+
+    public BDecimalType(String typeName, Module pkg, SemType semType) {
+        super(typeName, pkg, DecimalValue.class);
+        this.semType = semType;
     }
 
     @Override
@@ -62,5 +74,15 @@ public class BDecimalType extends BType implements DecimalType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    public Optional<SemType> getSemTypeComponent() {
+        return Optional.of(Objects.requireNonNullElse(this.semType, PredefinedType.DECIMAL));
+    }
+
+    @Override
+    public BType getBTypeComponent() {
+        return (BType) PredefinedTypes.TYPE_NEVER;
     }
 }

@@ -19,8 +19,14 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ByteType;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * {@code BByteType} represents byte type in Ballerina.
@@ -34,9 +40,17 @@ public class BByteType extends BType implements ByteType {
      *
      * @param typeName string name of the type
      */
+    private final SemType semType;
     public BByteType(String typeName, Module pkg) {
         super(typeName, pkg, Integer.class);
+        this.semType = null;
     }
+
+    public BByteType(String typeName, Module pkg, SemType semtype) {
+        super(typeName, pkg, Integer.class);
+        this.semType = semtype;
+    }
+
 
     @Override
     @SuppressWarnings("unchecked")
@@ -58,5 +72,15 @@ public class BByteType extends BType implements ByteType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    public Optional<SemType> getSemTypeComponent() {
+        return Optional.of(Objects.requireNonNullElse(this.semType, PredefinedType.BYTE));
+    }
+
+    @Override
+    public BType getBTypeComponent() {
+        return (BType) PredefinedTypes.TYPE_NEVER;
     }
 }

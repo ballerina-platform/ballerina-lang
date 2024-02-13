@@ -44,6 +44,7 @@ import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlAttributesType;
 import io.ballerina.runtime.api.types.XmlType;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.types.BAnyType;
 import io.ballerina.runtime.internal.types.BAnydataType;
@@ -71,7 +72,14 @@ import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlAttributesType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
+import io.ballerina.types.SemType;
+import io.ballerina.types.subtypedata.BooleanSubtype;
+import io.ballerina.types.subtypedata.DecimalSubtype;
+import io.ballerina.types.subtypedata.FloatSubtype;
+import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.StringSubtype;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -284,5 +292,33 @@ public class PredefinedTypes {
         ArrayType internalJsonFloatArray = new BArrayType(jsonFloat);
         jsonFloat.addMembers(internalJsonFloatArray, internalJsonFloatMap);
         TYPE_JSON_FLOAT = jsonFloat;
+    }
+
+    public static Type singletonType(Number value) {
+        if (value instanceof Double) {
+            SemType semType = FloatSubtype.floatConst((Double) value);
+            return new BFloatType(TypeConstants.FLOAT_TNAME, EMPTY_MODULE, semType);
+        }
+        SemType semType = IntSubtype.intConst(value.longValue());
+        // BTypeHack: This is a hack to make BType work
+        if (value instanceof Long) {
+            return new BIntegerType(TypeConstants.INT_TNAME, EMPTY_MODULE, semType);
+        }
+        return new BByteType(TypeConstants.BYTE_TNAME, EMPTY_MODULE, semType);
+    }
+
+    public static Type singletonType(Boolean value) {
+        SemType semType = BooleanSubtype.booleanConst(value);
+        return new BBooleanType(TypeConstants.BOOLEAN_TNAME, EMPTY_MODULE, semType);
+    }
+
+    public static Type singletonType(BString value) {
+        SemType semType = StringSubtype.stringConst(value.getValue());
+        return new BStringType(TypeConstants.STRING_TNAME, EMPTY_MODULE, semType);
+    }
+
+    public static Type singletonType(BigDecimal value) {
+        SemType semType = DecimalSubtype.decimalConst(value);
+        return new BDecimalType(TypeConstants.DECIMAL_TNAME, EMPTY_MODULE, semType);
     }
 }

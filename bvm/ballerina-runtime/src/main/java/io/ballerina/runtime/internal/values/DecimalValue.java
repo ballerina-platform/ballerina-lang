@@ -61,12 +61,14 @@ public class DecimalValue implements SimpleValue, BDecimal {
     public DecimalValueKind valueKind = DecimalValueKind.OTHER;
 
     private final BigDecimal value;
+    private final Type type;
 
     public DecimalValue(BigDecimal value) {
         this.value = getValidDecimalValue(value);
         if (!this.booleanValue()) {
             this.valueKind = DecimalValueKind.ZERO;
         }
+        this.type = PredefinedTypes.singletonType(value);
     }
 
     public DecimalValue(String value) {
@@ -88,6 +90,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
         if (!this.booleanValue()) {
             this.valueKind = DecimalValueKind.ZERO;
         }
+        this.type = PredefinedTypes.singletonType(this.value);
     }
 
     public DecimalValue(String value, DecimalValueKind valueKind) {
@@ -221,7 +224,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return the type
      */
     public Type getType() {
-        return PredefinedTypes.TYPE_DECIMAL;
+        return this.type;
     }
 
     //========================= Mathematical operations supported ===============================

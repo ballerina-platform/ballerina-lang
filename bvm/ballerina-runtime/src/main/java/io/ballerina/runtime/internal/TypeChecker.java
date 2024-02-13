@@ -81,6 +81,10 @@ import io.ballerina.runtime.internal.values.XmlPi;
 import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
+import io.ballerina.types.Context;
+import io.ballerina.types.Env;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,7 +115,6 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_8;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_JSON;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALUE;
@@ -142,6 +145,8 @@ public class TypeChecker {
 
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
     private static final String REG_EXP_TYPENAME = "RegExp";
+    // FIXME: do we need a type context to runtime type checks?
+    private static final Context context = Context.from(new Env());
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
@@ -292,7 +297,24 @@ public class TypeChecker {
      * @param targetType type to be test against
      * @return true if the value belongs to the given type, false otherwise
      */
+
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
+        Optional<SemType> sourceSemType = sourceType.getSemTypeComponent();
+        Optional<SemType> targetSemType = targetType.getSemTypeComponent();
+        if (sourceSemType.isPresent() && targetSemType.isPresent()) {
+            return SemTypes.isSubtype(context, sourceSemType.get(), targetSemType.get()) &&
+                    checkIsTypeInner(errors, sourceVal, sourceType.getBTypeComponent(), targetType.getBTypeComponent());
+//            return t1;
+//            boolean t2 = checkIsTypeInner(errors, sourceVal, sourceType, targetType);
+//            if (t1 != t2) {
+//                throw new IllegalStateException("Type check mismatch");
+//            }
+        }
+        return checkIsTypeInner(errors, sourceVal, sourceType, targetType);
+    }
+
+    // TODO: may be factor this to a BType module?
+    public static boolean checkIsTypeInner(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
         if (checkIsType(sourceVal, sourceType, targetType, null)) {
             return true;
         }
@@ -349,18 +371,13 @@ public class TypeChecker {
     public static Type getType(Object value) {
         if (value == null) {
             return TYPE_NULL;
-        } else if (value instanceof Number) {
-            if (value instanceof Long) {
-                return TYPE_INT;
-            } else if (value instanceof Double) {
-                return TYPE_FLOAT;
-            } else if (value instanceof Integer || value instanceof Byte) {
-                return TYPE_BYTE;
-            }
         } else if (value instanceof BString) {
-            return TYPE_STRING;
+            return PredefinedTypes.singletonType((BString) value);
+//            return TYPE_STRING;
+        } else if (value instanceof Number) {
+            return PredefinedTypes.singletonType((Number) value);
         } else if (value instanceof Boolean) {
-            return TYPE_BOOLEAN;
+            return PredefinedTypes.singletonType((Boolean) value);
         } else if (value instanceof BObject) {
             return ((BObject) value).getOriginalType();
         }

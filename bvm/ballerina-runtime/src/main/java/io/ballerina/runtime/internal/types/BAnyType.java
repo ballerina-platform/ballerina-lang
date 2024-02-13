@@ -26,8 +26,13 @@ import io.ballerina.runtime.api.types.AnyType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.values.RefValue;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
+import io.ballerina.types.UniformTypeBitSet;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * {@code BAnyType} represents any type in Ballerina. It is the root of the Ballerina type system.
@@ -39,6 +44,7 @@ public class BAnyType extends BType implements AnyType {
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
+    private static final SemType semType = createSemType();
 
     /**
      * Create a {@code BAnyType} which represents the any type.
@@ -54,6 +60,18 @@ public class BAnyType extends BType implements AnyType {
             this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},
                                                        immutableAnyType, TypeFlags.asMask(TypeFlags.NILABLE), true);
         }
+    }
+
+    private static SemType createSemType() {
+        // BTypeHack: we have only implemented semtype for these components of any type
+        return Stream.of(PredefinedType.INT,
+                        PredefinedType.FLOAT,
+                        PredefinedType.DECIMAL,
+                        PredefinedType.STRING,
+                        PredefinedType.BOOLEAN,
+                        PredefinedType.NIL)
+                .reduce(PredefinedType.NEVER,
+                        (semType, predefinedType) -> (UniformTypeBitSet) SemTypes.union(semType, predefinedType));
     }
 
     @Override
@@ -98,5 +116,20 @@ public class BAnyType extends BType implements AnyType {
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    @Override
+    public Optional<SemType> getSemTypeComponent() {
+        return Optional.of(semType);
+    }
+
+    @Override
+    public BType getBTypeComponent() {
+        // TODO: cache this as well (when we have fixed this)
+        // NOTE: this is wrong but it is working since for types that we have implemented
+        // we return NEVER as the bTypeComponent which is a subtype of every type.
+        // Correct solution is to return the only the unimplemented parts (similar to how we
+        // return the implemented parts in semtype)
+        return this;
     }
 }

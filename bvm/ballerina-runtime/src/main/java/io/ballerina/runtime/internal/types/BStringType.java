@@ -18,9 +18,15 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.StringType;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * {@code BStringType} represents a String type in ballerina.
@@ -31,6 +37,7 @@ import io.ballerina.runtime.api.types.StringType;
 public class BStringType extends BType implements StringType {
 
     private final int tag;
+    private final SemType semType;
 
     /**
      * Create a {@code BStringType} which represents the boolean type.
@@ -40,11 +47,19 @@ public class BStringType extends BType implements StringType {
     public BStringType(String typeName, Module pkg) {
         super(typeName, pkg, String.class);
         tag = TypeTags.STRING_TAG;
+        semType = null;
+    }
+
+    public BStringType(String typeName, Module pkg, SemType semType) {
+        super(typeName, pkg, String.class);
+        tag = TypeTags.STRING_TAG;
+        this.semType = semType;
     }
 
     public BStringType(String typeName, Module pkg, int tag) {
         super(typeName, pkg, String.class);
         this.tag = tag;
+        semType = null;
     }
 
     public <V extends Object> V getZeroValue() {
@@ -64,5 +79,15 @@ public class BStringType extends BType implements StringType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    public Optional<SemType> getSemTypeComponent() {
+        return Optional.of(Objects.requireNonNullElse(this.semType, PredefinedType.STRING));
+    }
+
+    @Override
+    public BType getBTypeComponent() {
+        return (BType) PredefinedTypes.TYPE_NEVER;
     }
 }

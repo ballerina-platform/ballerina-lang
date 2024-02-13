@@ -18,8 +18,14 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.BooleanType;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * {@code BBooleanType} represents boolean type in Ballerina.
@@ -33,8 +39,17 @@ public class BBooleanType extends BType implements BooleanType {
      *
      * @param typeName string name of the type
      */
+
+    private final SemType semType;
+
+    public BBooleanType(String typeName, Module pkg, SemType semType) {
+        super(typeName, pkg, Boolean.class);
+        this.semType = semType;
+    }
+
     public BBooleanType(String typeName, Module pkg) {
         super(typeName, pkg, Boolean.class);
+        this.semType = null;
     }
 
     @SuppressWarnings("unchecked")
@@ -56,5 +71,15 @@ public class BBooleanType extends BType implements BooleanType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    public Optional<SemType> getSemTypeComponent() {
+        return Optional.of(Objects.requireNonNullElse(semType, PredefinedType.BOOLEAN));
+    }
+
+    @Override
+    public BType getBTypeComponent() {
+        return (BType) PredefinedTypes.TYPE_NEVER;
     }
 }
