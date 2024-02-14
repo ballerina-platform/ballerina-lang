@@ -88,6 +88,8 @@ public class ManifestBuilder {
 
     private static final String PACKAGE = "package";
     private static final String VERSION = "version";
+    public static final String ORG = "org";
+    public static final String NAME = "name";
     private static final String LICENSE = "license";
     private static final String AUTHORS = "authors";
     private static final String REPOSITORY = "repository";
@@ -331,24 +333,24 @@ public class ManifestBuilder {
 
         TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
 
-        org = getStringValueFromTomlTableNode(pkgNode, "org");
-        if (org == null) {
+        org = getStringValueFromTomlTableNode(pkgNode, ORG, "");
+        if (pkgNode.entries().get(ORG) == null) {
             org = defaultOrg().value();
             reportDiagnostic(pkgNode, "missing key 'org' in table '[package]' in 'Ballerina.toml'. " +
                             "Defaulting to 'org = \"" + org + "\"'",
                     ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
                     DiagnosticSeverity.WARNING);
         }
-        name = getStringValueFromTomlTableNode(pkgNode, "name");
-        if (name == null) {
+        name = getStringValueFromTomlTableNode(pkgNode, NAME, "");
+        if (pkgNode.entries().get(NAME) == null) {
             name = defaultName(this.projectPath).value();
             reportDiagnostic(pkgNode, "missing key 'name' in table '[package]' in 'Ballerina.toml'. " +
                             "Defaulting to 'name = \"" + name + "\"'",
                     ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
                     DiagnosticSeverity.WARNING);
         }
-        version = getStringValueFromTomlTableNode(pkgNode, VERSION);
-        if (version == null) {
+        version = getStringValueFromTomlTableNode(pkgNode, VERSION, "");
+        if (pkgNode.entries().get(VERSION) == null) {
             version = defaultVersion().value().toString();
             reportDiagnostic(pkgNode, "missing key 'version' in table '[package]' in 'Ballerina.toml'. " +
                             "Defaulting to 'version = \"" + version + "\"'",
@@ -570,8 +572,8 @@ public class ManifestBuilder {
             TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
 
             for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
-                String name = getStringValueFromDependencyNode(dependencyNode, "name");
-                String org = getStringValueFromDependencyNode(dependencyNode, "org");
+                String name = getStringValueFromDependencyNode(dependencyNode, NAME);
+                String org = getStringValueFromDependencyNode(dependencyNode, ORG);
                 String version = getStringValueFromDependencyNode(dependencyNode, VERSION);
                 String repository = getStringValueFromDependencyNode(dependencyNode, REPOSITORY);
 
