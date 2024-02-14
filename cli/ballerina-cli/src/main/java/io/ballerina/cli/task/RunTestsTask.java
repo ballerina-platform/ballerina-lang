@@ -222,7 +222,6 @@ public class RunTestsTask implements Task {
 
         if (emitTestExecutable) {
             HashSet<String> exclusionClassList = new HashSet<>();
-            List<ModuleName> moduleNamesList = new ArrayList<>();
             runTestsUsingEmits(project, moduleNamesList, target, exclusionClassList, testsCachePath, jBallerinaBackend);
         }
         else {
@@ -330,7 +329,7 @@ public class RunTestsTask implements Task {
         return hasTests;
     }
 
-    private void runTestsUsingEmits(Project project, List<ModuleName> moduleNamesList,
+    private void runTestsUsingEmits(Project project, List<String> moduleNamesList,
                                     Target target, HashSet<String> exclusionClassList,
                                     Path testsCachePath, JBallerinaBackend jBallerinaBackend) {
 
@@ -358,20 +357,18 @@ public class RunTestsTask implements Task {
         }
 
         if (report || coverage) {
-            for(ModuleName moduleName : moduleNamesList) {
+            for(String moduleName : moduleNamesList) {
                 try {
                     ModuleStatus moduleStatus = loadModuleStatusFromFile(
-                            testsCachePath.resolve(moduleName.toString()).resolve(TesterinaConstants.STATUS_FILE));
+                            testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
                     if (moduleStatus == null) {
                         continue;
                     }
 
-                    if (!moduleName.toString().equals(project.currentPackage().packageName().toString())) {
-                        moduleName = ModuleName.from(
-                                project.currentPackage().packageName(), moduleName.moduleNamePart()
-                        );
+                    if (!moduleName.equals(project.currentPackage().packageName().toString())) {
+                        moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
                     }
-                    testReport.addModuleStatus(moduleName.toString(), moduleStatus);
+                    testReport.addModuleStatus(moduleName, moduleStatus);
                 } catch (IOException e) {
                     throw createLauncherException("error occurred while generating test report :", e);
                 }
@@ -395,7 +392,7 @@ public class RunTestsTask implements Task {
         List<String> cmdArgs = getInitialCmdArgs(null, null);
 
         if (coverage) {
-            if (this.mockClasses != null) {
+            if (!this.mockClasses.isEmpty()) {
                 jacocoOfflineInstrumentation(target, currentPackage, jBallerinaBackend, this.mockClasses);
             }
             String agentCommand = getAgentCommand(target, currentPackage, exclusionClassList,
@@ -416,7 +413,7 @@ public class RunTestsTask implements Task {
 
         addOtherNeededArgs(cmdArgs, target.path().toString(), jacocoAgentJarPath, testSuiteJsonPath,
                 this.report, this.coverage, this.groupList, this.disableGroupList,
-                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs);
+                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs, true);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
@@ -459,7 +456,7 @@ public class RunTestsTask implements Task {
         addOtherNeededArgs(cmdArgs, target.path().toString(), jacocoAgentJarPath,
                 testSuiteJsonPath.toString(), this.report, this.coverage,
                 this.groupList, this.disableGroupList, this.singleExecTests, this.isRerunTestExecution,
-                this.listGroups, this.cliArgs);
+                this.listGroups, this.cliArgs, false);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();

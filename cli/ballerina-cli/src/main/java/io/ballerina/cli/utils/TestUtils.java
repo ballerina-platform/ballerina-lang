@@ -312,7 +312,9 @@ public class TestUtils {
                                           String testSuiteJsonPath, boolean report,
                                           boolean coverage, String groupList, String disableGroupList,
                                           String singleExecTests, boolean isRerunTestExecution,
-                                          boolean listGroups, List<String> cliArgs) {
+                                          boolean listGroups, List<String> cliArgs, boolean isFatJarExecution) {
+
+        cmdArgs.add(Boolean.toString(isFatJarExecution));
         cmdArgs.add(testSuiteJsonPath);
         cmdArgs.add(target);
         cmdArgs.add(jacocoAgentJarPath);
