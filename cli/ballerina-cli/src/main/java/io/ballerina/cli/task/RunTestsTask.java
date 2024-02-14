@@ -19,22 +19,17 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
-import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleDescriptor;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
@@ -45,7 +40,6 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.testerina.core.TestProcessor;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
@@ -61,7 +55,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -84,13 +77,13 @@ import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.*;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.FULLY_QULAIFIED_MODULENAME_SEPRATOR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.IGNORE_PATTERN;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.STANDALONE_SRC_PACKAGENAME;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTERINA_TEST_SUITE;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.WILDCARD;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
  * Task for executing tests.
@@ -117,9 +110,36 @@ public class RunTestsTask implements Task {
     private Map<String, Module> coverageModules;
     private boolean listGroups;
     private final List<String> cliArgs;
-    private boolean emitTestExecutable;
     private List<String> mockClasses;
     private List<String> moduleNamesList;
+
+    public String getGroupList() {
+        return groupList;
+    }
+
+    public String getDisableGroupList() {
+        return disableGroupList;
+    }
+
+    public boolean isReport() {
+        return report;
+    }
+
+    public boolean isCoverage() {
+        return coverage;
+    }
+
+    public String getSingleExecTests() {
+        return singleExecTests;
+    }
+
+    public boolean isListGroups() {
+        return listGroups;
+    }
+
+    public List<String> getCliArgs() {
+        return cliArgs;
+    }
 
     public void setMockClasses(List<String> mockClasses) {
         this.mockClasses = mockClasses;
@@ -181,13 +201,18 @@ public class RunTestsTask implements Task {
     @Override
     public void execute(Project project) {
         long start = 0;
+
+        //do not execute if cloud option is given, we only use the object to use the properties and methods in it
+        if (!project.buildOptions().cloud().isEmpty()) {
+            return;
+        }
+
         if (project.buildOptions().dumpBuildTime()) {
             start = System.currentTimeMillis();
         }
 
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
-        emitTestExecutable = project.buildOptions().emitTestExecutable();
 
         if (report || coverage) {
             testReport = new TestReport();
@@ -219,15 +244,7 @@ public class RunTestsTask implements Task {
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
-
-        if (emitTestExecutable) {
-            HashSet<String> exclusionClassList = new HashSet<>();
-            runTestsUsingEmits(project, moduleNamesList, target, exclusionClassList, testsCachePath, jBallerinaBackend);
-        }
-        else {
-            runTestsUsingSuiteJSON(project, jarResolver, hasTests, target, testsCachePath, jBallerinaBackend, cachesRoot);
-        }
-
+        runTestsUsingSuiteJSON(project, jarResolver, hasTests, target, testsCachePath, jBallerinaBackend, cachesRoot);
 
         // Cleanup temp cache for SingleFileProject
         cleanTempCache(project, cachesRoot);
@@ -257,28 +274,8 @@ public class RunTestsTask implements Task {
                 testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames,
                         exclusionClassList);
 
-                if (report || coverage) {
-                    for (String moduleName : moduleNamesList) {
-                        ModuleStatus moduleStatus = loadModuleStatusFromFile(
-                                testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
-                        if (moduleStatus == null) {
-                            continue;
-                        }
-
-                        if (!moduleName.equals(project.currentPackage().packageName().toString())) {
-                            moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
-                        }
-                        testReport.addModuleStatus(moduleName, moduleStatus);
-                    }
-                    try {
-                        generateCoverage(project, testReport, jBallerinaBackend, this.includesInCoverage,
-                                this.coverageReportFormat, this.coverageModules, exclusionClassList);
-                        generateTesterinaReports(project, testReport, this.out, target);
-                    } catch (IOException e) {
-                        cleanTempCache(project, cachesRoot);
-                        throw createLauncherException("error occurred while generating test report :", e);
-                    }
-                }
+                performTasksAfterTestCompletion(project, target, testsCachePath, jBallerinaBackend,
+                        cachesRoot, moduleNamesList, exclusionClassList);
             } catch (IOException | InterruptedException | ClassNotFoundException e) {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("error occurred while running tests", e);
@@ -290,6 +287,34 @@ public class RunTestsTask implements Task {
             }
         } else {
             out.println("\tNo tests found");
+        }
+    }
+
+    private void performTasksAfterTestCompletion(Project project, Target target, Path testsCachePath,
+                                                 JBallerinaBackend jBallerinaBackend, Path cachesRoot,
+                                                 List<String> moduleNamesList, Set<String> exclusionClassList)
+            throws IOException {
+        if (report || coverage) {
+            for (String moduleName : moduleNamesList) {
+                ModuleStatus moduleStatus = loadModuleStatusFromFile(
+                        testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+                if (moduleStatus == null) {
+                    continue;
+                }
+
+                if (!moduleName.equals(project.currentPackage().packageName().toString())) {
+                    moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
+                }
+                testReport.addModuleStatus(moduleName, moduleStatus);
+            }
+            try {
+                generateCoverage(project, testReport, jBallerinaBackend, this.includesInCoverage,
+                        this.coverageReportFormat, this.coverageModules, exclusionClassList);
+                generateTesterinaReports(project, testReport, this.out, target);
+            } catch (IOException e) {
+                cleanTempCache(project, cachesRoot);
+                throw createLauncherException("error occurred while generating test report :", e);
+            }
         }
     }
 
@@ -308,7 +333,7 @@ public class RunTestsTask implements Task {
                 continue;
             }
 
-            if(!hasTests) {
+            if (!hasTests) {
                 hasTests = true;
             }
 
@@ -327,98 +352,6 @@ public class RunTestsTask implements Task {
             addMockClasses(suite, mockClassNames);
         }
         return hasTests;
-    }
-
-    private void runTestsUsingEmits(Project project, List<String> moduleNamesList,
-                                    Target target, HashSet<String> exclusionClassList,
-                                    Path testsCachePath, JBallerinaBackend jBallerinaBackend) {
-
-        Path testExecutablePath = target.path().resolve(ProjectConstants.BIN_DIR_NAME)
-                .resolve(ProjectConstants.TEST_DIR_NAME)
-                .resolve(project.currentPackage().packageName().toString() +
-                        ProjectConstants.TEST_UBER_JAR_SUFFIX + ProjectConstants.BLANG_COMPILED_JAR_EXT);
-
-        if (!Files.exists(testExecutablePath)) {
-            out.println("\tNo tests found");
-            return;
-        }
-
-        int testResult;
-
-        try {
-            testResult = runTestModule(testExecutablePath, target, project.currentPackage(),
-                    exclusionClassList, getJacocoAgentJarPath(), jBallerinaBackend);
-        } catch (IOException | InterruptedException | ClassNotFoundException e) {
-            throw createLauncherException("error occurred while running tests", e);
-        }
-
-        if (testResult != 0) {
-            throw createLauncherException("there are test failures");
-        }
-
-        if (report || coverage) {
-            for(String moduleName : moduleNamesList) {
-                try {
-                    ModuleStatus moduleStatus = loadModuleStatusFromFile(
-                            testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
-                    if (moduleStatus == null) {
-                        continue;
-                    }
-
-                    if (!moduleName.equals(project.currentPackage().packageName().toString())) {
-                        moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
-                    }
-                    testReport.addModuleStatus(moduleName, moduleStatus);
-                } catch (IOException e) {
-                    throw createLauncherException("error occurred while generating test report :", e);
-                }
-            }
-
-            try {
-                generateCoverage(project, testReport, jBallerinaBackend, this.includesInCoverage,
-                        this.coverageReportFormat, this.coverageModules, exclusionClassList);
-                generateTesterinaReports(project, testReport, this.out, target);
-            } catch (IOException e) {
-                throw createLauncherException("error occurred while generating test report :", e);
-            }
-        }
-    }
-
-    private int runTestModule(Path testExecutablePath, Target target, Package currentPackage,
-                              Set<String> exclusionClassList, String jacocoAgentJarPath,
-                              JBallerinaBackend jBallerinaBackend)
-            throws IOException, InterruptedException, ClassNotFoundException {
-
-        List<String> cmdArgs = getInitialCmdArgs(null, null);
-
-        if (coverage) {
-            if (!this.mockClasses.isEmpty()) {
-                jacocoOfflineInstrumentation(target, currentPackage, jBallerinaBackend, this.mockClasses);
-            }
-            String agentCommand = getAgentCommand(target, currentPackage, exclusionClassList,
-                    jacocoAgentJarPath, currentPackage.packageName().toString(),
-                    currentPackage.packageOrg().toString());
-
-            cmdArgs.add(agentCommand);
-        }
-
-        if (isInDebugMode()) {
-            cmdArgs.add(getDebugArgs(this.err));
-        }
-
-        cmdArgs.add("-jar");
-        cmdArgs.add(testExecutablePath.toString());
-        //this will start the jar file which has the BTestMain as the initial main class in the manifest
-        String testSuiteJsonPath = TestUtils.getJsonFilePathInFatJar("/");
-
-        addOtherNeededArgs(cmdArgs, target.path().toString(), jacocoAgentJarPath, testSuiteJsonPath,
-                this.report, this.coverage, this.groupList, this.disableGroupList,
-                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs, true);
-
-        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
-        Process proc = processBuilder.start();
-
-        return proc.waitFor();
     }
 
     private int runTestSuite(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
@@ -499,50 +432,6 @@ public class RunTestsTask implements Task {
         return agentCommand;
     }
 
-    private List<String> getTestRunnerCmdArgs(Target target, String packageName, String moduleName) {
-        List<String> cmdArgs = new ArrayList<>();
-        cmdArgs.add(getJacocoAgentJarPath());
-
-        cmdArgs.add(target.path().toString());
-        cmdArgs.add(packageName);
-        cmdArgs.add(moduleName);
-//        addOtherNeededArgs(cmdArgs, this.report, this.coverage, this.groupList, this.disableGroupList,
-//                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs);
-        return cmdArgs;
-    }
-
-    //to load the correct class file for the test module
-    //1st arg is the test package ID
-    //2nd arg is the org name
-    //3rd arg is the version
-    private List<String> getArgsRequiredForLoadingTestClass(Project project, ModuleDescriptor moduleDescriptor) {
-        String testPackageID = TestProcessor.getTestModuleName(
-                project.currentPackage().module(moduleDescriptor.name())
-        );
-        String org = moduleDescriptor.org().toString();
-        String version = moduleDescriptor.version().toString();
-
-        List<String> args = new ArrayList<>();
-        args.add(testPackageID);
-        args.add(org);
-        args.add(version);
-
-        return args;
-    }
-
-    //first 3 args are required for loading the test class
-    public List<String> getAllTestArgs(Target target, String packageName, String moduleName, Project project, ModuleDescriptor moduleDescriptor) {
-        //set test report and coverage report from the project
-        report = project.buildOptions().testReport();
-        coverage = project.buildOptions().codeCoverage();
-
-        List<String> allArgs = getArgsRequiredForLoadingTestClass(project, moduleDescriptor);
-
-        allArgs.addAll(getTestRunnerCmdArgs(target, packageName, moduleName));
-
-        return allArgs;
-    }
-
     private List<Path> getAllSourceFilePaths(String projectRootString) throws IOException {
         List<Path> sourceFilePaths = new ArrayList<>();
         List<Path> paths = Files.walk(Paths.get(projectRootString), 3).toList();
@@ -593,12 +482,14 @@ public class RunTestsTask implements Task {
 
                 if (sourceFile.split(Pattern.quote(PATH_SEPARATOR)).length == 2) {
                     String moduleName = sourceFile.split(Pattern.quote(PATH_SEPARATOR))[0];
-                    String balFile = sourceFile.split(Pattern.quote(PATH_SEPARATOR))[1].replace(BLANG_SOURCE_EXT, "");
+                    String balFile = sourceFile.split(Pattern.quote(PATH_SEPARATOR))[1]
+                            .replace(BLANG_SOURCE_EXT, "");
                     String className = getQualifiedClassName(org, packageName +
                                     FULLY_QULAIFIED_MODULENAME_SEPRATOR + moduleName, version, balFile);
                     classFileList.add(className);
                 } else if (sourceFile.split(Pattern.quote(PATH_SEPARATOR)).length == 1) {
-                    String balFile = sourceFile.split(Pattern.quote(PATH_SEPARATOR))[0].replace(BLANG_SOURCE_EXT, "");
+                    String balFile = sourceFile.split(Pattern.quote(PATH_SEPARATOR))[0]
+                            .replace(BLANG_SOURCE_EXT, "");
                     String className = getQualifiedClassName(org, packageName, version, balFile);
                     classFileList.add(className);
                 }

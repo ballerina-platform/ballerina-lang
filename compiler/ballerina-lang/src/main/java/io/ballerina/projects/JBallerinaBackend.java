@@ -240,8 +240,7 @@ public class JBallerinaBackend extends CompilerBackend {
         if (outputType == OutputType.TEST) {
             generatedArtifact = emitTest(filePath, jarDependencies, testSuiteJsonPath, jsonCopyPath,
                     excludingClassPaths, classPathTextCopyPath);
-        }
-        else {
+        } else {
             throw new RuntimeException("Unexpected output type: " + outputType);
         }
 
@@ -459,7 +458,8 @@ public class JBallerinaBackend extends CompilerBackend {
                                            Manifest manifest,
                                            Collection<JarLibrary> jarLibraries,
                                            Path testSuiteJsonPath, String jsonCopyPath,
-                                           List<String> excludingClassPaths, String classPathTextCopyPath) throws IOException {
+                                           List<String> excludingClassPaths, String classPathTextCopyPath)
+            throws IOException {
         // Used to prevent adding duplicated entries during the final jar creation.
         HashMap<String, JarLibrary> copiedEntries = new HashMap<>();
 

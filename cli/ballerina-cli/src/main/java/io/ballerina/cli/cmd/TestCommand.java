@@ -211,9 +211,6 @@ public class TestCommand implements BLauncherCmd {
             "'.jar' extension.")
     private String output;
 
-    @CommandLine.Option(names = "--emit", description =  "Emit the test executable fat jars")
-    private Boolean emitTestExecutable;
-
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
 
@@ -350,6 +347,11 @@ public class TestCommand implements BLauncherCmd {
                     "flag is not set");
         }
 
+        if (!project.buildOptions().cloud().isEmpty() && project.buildOptions().codeCoverage()) {
+            this.outStream.println("WARNING: Code coverage generation is not supported with Ballerina cloud test");
+        }
+
+
         // Run pre-build tasks to have the project reloaded.
         // In code coverage generation, the module map is duplicated.
         // Therefore, the project needs to be reloaded beforehand to provide the latest project instance
@@ -377,7 +379,12 @@ public class TestCommand implements BLauncherCmd {
                 buildOptions.enableCache());
         RunTestsTask runTestsTask = new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                 testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs, isParallelExecution);
-        CreateTestExecutableTask createTestExecutableTask = new CreateTestExecutableTask(outStream, this.output, runTestsTask);
+        CreateTestExecutableTask createTestExecutableTask = null;
+
+        if (!project.buildOptions().cloud().isEmpty()) {
+            //if cloud flag is set, create the test executable
+            createTestExecutableTask = new CreateTestExecutableTask(outStream, this.output, runTestsTask);
+        }
 
         RunNativeImageTestTask runNativeImageTestTask = new RunNativeImageTestTask(outStream, rerunTests, groupList,
                 disableGroupList, testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution);
@@ -390,7 +397,8 @@ public class TestCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(compileTask);
 
-        if (emitTestExecutable != null && createTestExecutableTask != null) {
+        if (!project.buildOptions().cloud().isEmpty()
+                && createTestExecutableTask != null) {
             taskBuilder.addTask(createTestExecutableTask);
         }
         //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
@@ -422,8 +430,7 @@ public class TestCommand implements BLauncherCmd {
                 .setNativeImage(nativeImage)
                 .setEnableCache(enableCache)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
-                .setGraalVMBuildOptions(graalVMBuildOptions)
-                .setEmitTestExecutable(emitTestExecutable)
+                .setGraalVMBuildOptions(graalVMBuildOptions);
                 .setShowDependencyDiagnostics(showDependencyDiagnostics);
 
         if (targetDir != null) {

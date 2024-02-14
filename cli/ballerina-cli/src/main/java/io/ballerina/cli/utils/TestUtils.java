@@ -20,9 +20,17 @@ package io.ballerina.cli.utils;
 
 import com.google.gson.Gson;
 import io.ballerina.cli.launcher.LauncherUtils;
-import io.ballerina.projects.*;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
+import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PlatformLibrary;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -55,12 +63,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.*;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.*;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_JSON_FILE;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.TOOLS_DIR_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
  * Utility functions and classes for Run Test Task.
@@ -289,10 +309,9 @@ public class TestUtils {
     public static List<String> getInitialCmdArgs(String javaCommand, String userDir) {
         List<String> cmdArgs = new ArrayList<>();
 
-        if(javaCommand == null) {
+        if (javaCommand == null) {
             cmdArgs.add(System.getProperty("java.command"));
-        }
-        else{
+        } else {
             cmdArgs.add(javaCommand);
         }
 
@@ -300,8 +319,7 @@ public class TestUtils {
 
         if (userDir == null) {
             cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
-        }
-        else {
+        } else {
             cmdArgs.add("-XX:HeapDumpPath=" + userDir);
         }
 
@@ -418,22 +436,27 @@ public class TestUtils {
         return moduleJarPaths.stream().distinct().collect(Collectors.toList());
     }
 
-    private static PlatformLibrary getCodeGeneratedTestLibrary(JBallerinaBackend jBallerinaBackend, Package currentPackage, Module module) {
+    private static PlatformLibrary getCodeGeneratedTestLibrary(JBallerinaBackend jBallerinaBackend,
+                                                               Package currentPackage, Module module) {
         return jBallerinaBackend.codeGeneratedTestLibrary(
                 currentPackage.packageId(), module.moduleName());
     }
 
-    private static PlatformLibrary getPlatformLibrary(JBallerinaBackend jBallerinaBackend, Package currentPackage, Module module) {
+    private static PlatformLibrary getPlatformLibrary(JBallerinaBackend jBallerinaBackend,
+                                                      Package currentPackage, Module module) {
         return jBallerinaBackend.codeGeneratedLibrary(currentPackage.packageId(),
                 module.moduleName());
     }
 
-    public static List<Path> getModuleJarPathsForModule(Package currentPackage, JBallerinaBackend jBallerinaBackend, Module module) {
+    public static List<Path> getModuleJarPathsForModule(Package currentPackage,
+                                                        JBallerinaBackend jBallerinaBackend, Module module) {
         List<Path> moduleJarPaths = new ArrayList<>();
         PlatformLibrary generatedJarLibrary = getPlatformLibrary(jBallerinaBackend, currentPackage, module);
         moduleJarPaths.add(generatedJarLibrary.path());
+
         if (!module.testDocumentIds().isEmpty()) {
-            PlatformLibrary codeGeneratedTestLibrary = getCodeGeneratedTestLibrary(jBallerinaBackend, currentPackage, module);
+            PlatformLibrary codeGeneratedTestLibrary = getCodeGeneratedTestLibrary(jBallerinaBackend,
+                    currentPackage, module);
             moduleJarPaths.add(codeGeneratedTestLibrary.path());
         }
         return moduleJarPaths;
