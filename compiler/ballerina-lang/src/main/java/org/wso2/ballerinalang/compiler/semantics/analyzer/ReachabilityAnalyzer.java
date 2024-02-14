@@ -195,13 +195,11 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     public void visit(BLangBlockStmt blockNode, AnalyzerData data) {
         final SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, data.env);
         BType prevBoolConst = data.booleanConstCondition;
-        boolean hasBlockTerminated = false;
+        data.isBlockUnreachable = false;
         for (BLangStatement stmt : blockNode.stmts) {
             data.env = blockEnv;
             analyzeReachability(stmt, data);
-            hasBlockTerminated |= data.statementReturnsPanicsOrFails;
         }
-        data.hasBlockTerminated = hasBlockTerminated;
         data.booleanConstCondition = prevBoolConst;
         resetUnreachableBlock(data);
         resetSkipFurtherAnalysisInUnreachableBlock(data);
@@ -698,7 +696,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             data.env = blockEnv;
             analyzeReachability(stmt, data);
             hasFunctionTerminated |=
-                    data.statementReturnsPanicsOrFails || (data.hasBlockTerminated && stmt.getKind() == NodeKind.BLOCK);
+                    data.statementReturnsPanicsOrFails || (data.isBlockUnreachable && stmt.getKind() == NodeKind.BLOCK);
         }
         data.hasFunctionTerminated = hasFunctionTerminated;
     }
@@ -789,19 +787,24 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
     private void checkUnreachableCode(Location pos, AnalyzerData data) {
         if (data.statementReturnsPanicsOrFails) {
-            dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
+            logUnreachableError(pos, data);
             resetStatementReturnsPanicsOrFails(data);
         } else if (data.errorThrown) {
-            dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
+            logUnreachableError(pos, data);
             resetErrorThrown(data);
         } else if (data.breakAsLastStatement || data.continueAsLastStatement) {
-            dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
+            logUnreachableError(pos, data);
             resetLastStatement(data);
         } else if (data.unreachableBlock) {
             data.skipFurtherAnalysisInUnreachableBlock = true;
-            dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
+            logUnreachableError(pos, data);
             resetUnreachableBlock(data);
         }
+    }
+
+    private void logUnreachableError(Location pos, AnalyzerData data) {
+        dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
+        data.isBlockUnreachable = true;
     }
 
     private void resetStatementReturnsPanicsOrFails(AnalyzerData data) {
@@ -1019,7 +1022,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         boolean returnedWithinQuery;
         boolean skipFurtherAnalysisInUnreachableBlock;
         boolean hasFunctionTerminated;
-        boolean hasBlockTerminated;
+        boolean isBlockUnreachable;
         int loopCount;
         int loopAndDoClauseCount;
         BType booleanConstCondition;
