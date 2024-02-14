@@ -68,12 +68,6 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                 );
             }
 
-            //add the jacoco agent jar to the test exec dependencies so that it will be included in the fat jar
-            String jacocoAgentJar = TestUtils.getJacocoAgentJarPath();
-            JarLibrary jacocoAgent = jarResolver.createJacocoAgentJarLibrary(jacocoAgentJar);
-            testExecDependencies.add(jacocoAgent);
-
-
             if (status) {
                 //create the single fat jar for all the test modules that includes the test suite json
                 try {
@@ -177,21 +171,10 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
             //now write the map to a json file
             try{
                 TestUtils.writeToTestSuiteJson(testSuiteMap, target.getTestsCachePath());
-
-                //check mock classes and create the jacoco instrumentation files
-                if (coverage) {
-                    if (!mockClassNames.isEmpty()) {
-                        runTestsTask.jacocoOfflineInstrumentation(target, project.currentPackage(),
-                                jBallerinaBackend, mockClassNames);
-                    }
-                }
-
                 return true;
             }
             catch(IOException e) {
                 throw createLauncherException("error while writing to test suite json file: " + e.getMessage());
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
             }
         }
         else{

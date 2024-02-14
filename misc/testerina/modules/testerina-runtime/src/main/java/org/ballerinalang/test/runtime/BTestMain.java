@@ -127,17 +127,18 @@ public class BTestMain {
                     exitStatus = 1;
                 }
                 Runtime.getRuntime().exit(exitStatus);
-            }
-            else if (args.length >= 4) { //running using the suite json
-            Path testSuiteJsonPath = Paths.get(args[0]);
+        }
+        else if (args.length >= 4) { //running using the suite json
+            boolean isFatJarExecution = Boolean.parseBoolean(args[0]);
+            Path testSuiteJsonPath = Paths.get(args[1]);
 
 
-            Path targetPath = Paths.get(args[1]);
+            Path targetPath = Paths.get(args[2]);
             Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
                             .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
-            String jacocoAgentJarPath = args[2];
-            boolean report = Boolean.parseBoolean(args[3]);
-            boolean coverage = Boolean.parseBoolean(args[4]);
+            String jacocoAgentJarPath = args[3];
+            boolean report = Boolean.parseBoolean(args[4]);
+            boolean coverage = Boolean.parseBoolean(args[5]);
 
             if (report || coverage) {
                 testReport = new TestReport();
@@ -178,10 +179,12 @@ public class BTestMain {
                         testSuite.setModuleName(moduleName);
                         List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
 
-                        if (testExecutionDependencies.isEmpty()) {
+                        if (isFatJarExecution && !testSuite.getMockFunctionNamesMap().isEmpty()) {
                             classLoader = createInitialCustomClassLoader();
                         }
                         else {
+                            //even if it is fat jar execution but there are no mock functions,
+                            //we can use the URLClassLoader
                             classLoader = createURLClassLoader(getURLList(testExecutionDependencies));
                         }
 
@@ -191,11 +194,12 @@ public class BTestMain {
                             }
                             String instrumentDir = testCache.resolve(TesterinaConstants.COVERAGE_DIR)
                                     .resolve(TesterinaConstants.JACOCO_INSTRUMENTED_DIR).toString();
-                            replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir, coverage);
+                            replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir,
+                                    coverage, isFatJarExecution);
                         }
 
                         String[] testArgs = new String[]{targetPath.toString(), packageName, moduleName};
-                        for (int i = 3; i < args.length; i++) {
+                        for (int i = 4; i < args.length; i++) {
                             testArgs = Arrays.copyOf(testArgs, testArgs.length + 1);
                             testArgs[testArgs.length - 1] = args[i];
                         }
@@ -278,7 +282,7 @@ public class BTestMain {
     }
 
     public static void replaceMockedFunctions(TestSuite suite, List<String> jarFilePaths, String instrumentDir,
-                                              boolean coverage) {
+                                              boolean coverage, boolean isFatJarExecution) {
         populateClassNameVsFunctionToMockMap(suite);
         Map<String, byte[]> modifiedClassDef = new HashMap<>();
         for (Map.Entry<String, List<String>> entry : classVsMockFunctionsMap.entrySet()) {
@@ -288,7 +292,7 @@ public class BTestMain {
             modifiedClassDef.put(className, classFile);
         }
 
-        if (jarFilePaths.isEmpty()) {
+        if (isFatJarExecution) {
             classLoader = createModifiedCustomClassLoader(modifiedClassDef);
         }
         else {
