@@ -103,20 +103,6 @@ public class TesterinaUtils {
         }
     }
 
-    public static int executeTests(String testPackageID, String orgName, String version, ClassLoader classLoader,
-                                   String[] args, PrintStream out) throws RuntimeException {
-        try {
-            return execute(testPackageID, orgName, version, classLoader, args, out);
-        } catch (BallerinaTestException e) {
-            if (e.getMessage() != null) {
-                errStream.println("error: " + e.getMessage());
-            }
-            throw e;
-        } catch (Throwable e) {
-            throw new RuntimeException("test execution failed due to runtime exception");
-        }
-    }
-
     private static int execute(TestSuite suite, ClassLoader classLoader, String[] args, PrintStream out) {
         String initClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                 suite.getTestPackageID(),
@@ -132,23 +118,6 @@ public class TesterinaUtils {
         if (suiteExecuteFilePath.equals("")) {
             out.println("\tNo tests found");
             return 0;
-        }
-
-        // This will run the main method of the test module.
-        startSuite(initClazz, args);
-        return getTestExecutionState(initClazz);
-    }
-
-    private static int execute(String testPackageID, String orgName, String version, ClassLoader classLoader,
-                               String[] args, PrintStream out) {
-        String initClassName = TesterinaUtils.getQualifiedClassName(orgName, testPackageID, version,
-                MODULE_INIT_CLASS_NAME);
-        Class<?> initClazz;
-
-        try {
-            initClazz = classLoader.loadClass(initClassName);
-        } catch (Throwable e) {
-            throw new BallerinaTestException("failed to load init class :" + initClassName);
         }
 
         // This will run the main method of the test module.

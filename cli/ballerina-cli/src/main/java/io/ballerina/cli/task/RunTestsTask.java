@@ -252,28 +252,8 @@ public class RunTestsTask implements Task {
                 testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames,
                         exclusionClassList);
 
-                if (report || coverage) {
-                    for (String moduleName : moduleNamesList) {
-                        ModuleStatus moduleStatus = loadModuleStatusFromFile(
-                                testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
-                        if (moduleStatus == null) {
-                            continue;
-                        }
-
-                        if (!moduleName.equals(project.currentPackage().packageName().toString())) {
-                            moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
-                        }
-                        testReport.addModuleStatus(moduleName, moduleStatus);
-                    }
-                    try {
-                        generateCoverage(project, testReport, jBallerinaBackend, this.includesInCoverage,
-                                this.coverageReportFormat, this.coverageModules, exclusionClassList);
-                        generateTesterinaReports(project, testReport, this.out, target);
-                    } catch (IOException e) {
-                        cleanTempCache(project, cachesRoot);
-                        throw createLauncherException("error occurred while generating test report :", e);
-                    }
-                }
+                performTasksAfterTestCompletion(project, target, testsCachePath, jBallerinaBackend,
+                        cachesRoot, moduleNamesList, exclusionClassList);
             } catch (IOException | InterruptedException | ClassNotFoundException e) {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("error occurred while running tests", e);
@@ -285,6 +265,34 @@ public class RunTestsTask implements Task {
             }
         } else {
             out.println("\tNo tests found");
+        }
+    }
+
+    private void performTasksAfterTestCompletion(Project project, Target target, Path testsCachePath,
+                                                 JBallerinaBackend jBallerinaBackend, Path cachesRoot,
+                                                 List<String> moduleNamesList, Set<String> exclusionClassList)
+            throws IOException {
+        if (report || coverage) {
+            for (String moduleName : moduleNamesList) {
+                ModuleStatus moduleStatus = loadModuleStatusFromFile(
+                        testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+                if (moduleStatus == null) {
+                    continue;
+                }
+
+                if (!moduleName.equals(project.currentPackage().packageName().toString())) {
+                    moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
+                }
+                testReport.addModuleStatus(moduleName, moduleStatus);
+            }
+            try {
+                generateCoverage(project, testReport, jBallerinaBackend, this.includesInCoverage,
+                        this.coverageReportFormat, this.coverageModules, exclusionClassList);
+                generateTesterinaReports(project, testReport, this.out, target);
+            } catch (IOException e) {
+                cleanTempCache(project, cachesRoot);
+                throw createLauncherException("error occurred while generating test report :", e);
+            }
         }
     }
 
@@ -343,39 +351,16 @@ public class RunTestsTask implements Task {
         try {
             testResult = runTestModule(testExecutablePath, target, project.currentPackage(),
                     exclusionClassList, getJacocoAgentJarPath(), jBallerinaBackend);
+
+            performTasksAfterTestCompletion(project, target, testsCachePath, jBallerinaBackend,
+                    testExecutablePath, moduleNamesList, exclusionClassList);
+
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw createLauncherException("error occurred while running tests", e);
         }
 
         if (testResult != 0) {
             throw createLauncherException("there are test failures");
-        }
-
-        if (report || coverage) {
-            for(String moduleName : moduleNamesList) {
-                try {
-                    ModuleStatus moduleStatus = loadModuleStatusFromFile(
-                            testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
-                    if (moduleStatus == null) {
-                        continue;
-                    }
-
-                    if (!moduleName.equals(project.currentPackage().packageName().toString())) {
-                        moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
-                    }
-                    testReport.addModuleStatus(moduleName, moduleStatus);
-                } catch (IOException e) {
-                    throw createLauncherException("error occurred while generating test report :", e);
-                }
-            }
-
-            try {
-                generateCoverage(project, testReport, jBallerinaBackend, this.includesInCoverage,
-                        this.coverageReportFormat, this.coverageModules, exclusionClassList);
-                generateTesterinaReports(project, testReport, this.out, target);
-            } catch (IOException e) {
-                throw createLauncherException("error occurred while generating test report :", e);
-            }
         }
     }
 
