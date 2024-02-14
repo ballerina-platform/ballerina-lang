@@ -143,7 +143,8 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                 for (Range range : intSubtype.ranges) {
                     for (long i = range.min; i <= range.max; i++) {
                         BFiniteType ft = new BFiniteType(null, IntSubtype.intConst(i));
-                        members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.intType, Long.toString(i), ft));
+                        members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.intType, Long.toString(i),
+                                ft));
                         if (i == Long.MAX_VALUE) {
                             // To avoid overflow
                             break;
@@ -166,7 +167,8 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                 for (EnumerableType enumerableFloat : floatSubtype.values()) {
                     double i = ((EnumerableFloat) enumerableFloat).value;
                     BFiniteType ft = new BFiniteType(null, FloatSubtype.floatConst(i));
-                    members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.floatType, Double.toString(i), ft));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.floatType, Double.toString(i),
+                            ft));
                 }
             }
 
