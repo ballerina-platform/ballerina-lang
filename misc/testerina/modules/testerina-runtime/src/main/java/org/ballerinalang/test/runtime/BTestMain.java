@@ -176,14 +176,6 @@ public class BTestMain {
         }
     }
 
-    private static  int startTestExecution(ClassLoader classLoader, String[] args,String packageID, String org, String version) {
-        try{
-            return TesterinaUtils.executeTests(packageID, org, version, classLoader, args, out);
-        } catch (RuntimeException e) {
-            return 1;
-        }
-    }
-
     private static void writeStatusToJsonFile(ModuleStatus moduleStatus, Path tmpJsonPath) throws IOException {
         File jsonFile = new File(tmpJsonPath.toString());
         if (!Files.exists(tmpJsonPath.getParent())) {
