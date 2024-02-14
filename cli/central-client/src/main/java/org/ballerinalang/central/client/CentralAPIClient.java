@@ -828,7 +828,7 @@ public class CentralAPIClient {
 
                     // Unauthorized access token
                     if (packageResolutionResponse.code() == HTTP_UNAUTHORIZED) {
-                        handleUnauthorizedResponse(body);
+                        handleUnauthorizedResponse(contentType.get(), resolvePackageNamesBody);
                     }
 
                     // If search request was sent wrongly
@@ -905,7 +905,7 @@ public class CentralAPIClient {
 
                     // Unauthorized access token
                     if (packageResolutionResponse.code() == HTTP_UNAUTHORIZED) {
-                        handleUnauthorizedResponse(body);
+                        handleUnauthorizedResponse(contentType.get(), packageResolutionResponseBody);
                     }
 
                     // If search request was sent wrongly
@@ -973,7 +973,7 @@ public class CentralAPIClient {
 
                     // Unauthorized access token
                     if (searchResponse.code() == HTTP_UNAUTHORIZED) {
-                        handleUnauthorizedResponse(body);
+                        handleUnauthorizedResponse(contentType.get(), searchResponseBody);
                     }
 
                     // If search request was sent wrongly
@@ -1043,7 +1043,7 @@ public class CentralAPIClient {
 
                     // Unauthorized access token
                     if (searchResponse.code() == HTTP_UNAUTHORIZED) {
-                        handleUnauthorizedResponse(body);
+                        handleUnauthorizedResponse(contentType.get(), searchResponseBody);
                     }
 
                     // If search request was sent wrongly
@@ -1152,7 +1152,7 @@ public class CentralAPIClient {
 
                     // Unauthorized access token
                     if (deprecationResponse.code() == HTTP_UNAUTHORIZED) {
-                        handleUnauthorizedResponse(body);
+                        handleUnauthorizedResponse(contentType.get(), deprecationResponseBody);
                     }
 
                     // If deprecation request was sent wrongly
@@ -1474,8 +1474,10 @@ public class CentralAPIClient {
         Optional<ResponseBody> body = Optional.ofNullable(response.body());
         if (body.isPresent()) {
             // If search request was sent wrongly
+            String responseBody = body.get().string();
+            MediaType contentType = body.get().contentType();
             if (response.code() == HTTP_BAD_REQUEST || response.code() == HTTP_NOT_FOUND) {
-                Error error = new Gson().fromJson(body.get().string(), Error.class);
+                Error error = new Gson().fromJson(responseBody, Error.class);
                 if (error.getMessage() != null && !"".equals(error.getMessage())) {
                     throw new CentralClientException(error.getMessage());
                 }
@@ -1483,14 +1485,14 @@ public class CentralAPIClient {
 
             // Unauthorized access token
             if (response.code() == HTTP_UNAUTHORIZED) {
-                handleUnauthorizedResponse(body);
+                handleUnauthorizedResponse(contentType, responseBody);
             }
 
             // If error occurred at remote repository or invalid/no response received at the
             // gateway server
             if (response.code() == HTTP_INTERNAL_ERROR || response.code() == HTTP_UNAVAILABLE ||
                     response.code() == HTTP_BAD_GATEWAY || response.code() == HTTP_GATEWAY_TIMEOUT) {
-                Error error = new Gson().fromJson(body.get().string(), Error.class);
+                Error error = new Gson().fromJson(responseBody, Error.class);
                 if (error.getMessage() != null && !"".equals(error.getMessage())) {
                     throw new CentralClientException(msg + " reason:" + error.getMessage());
                 }
@@ -1711,23 +1713,21 @@ public class CentralAPIClient {
     /**
      * Handle unauthorized response.
      *
-     * @param body response body
+     * @param mediaType mediaType
+     * @param responseBody response body
      * @throws IOException            when accessing response body
      * @throws CentralClientException with unauthorized error message
      */
-    private void handleUnauthorizedResponse(Optional<ResponseBody> body)
+    private void handleUnauthorizedResponse(MediaType mediaType, String responseBody)
             throws IOException, CentralClientException {
-        if (body.isPresent()) {
-            Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-            if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
-                Error error = new Gson().fromJson(body.get().string(), Error.class);
-                throw new CentralClientException("unauthorized access token. " +
-                        "check access token set in 'Settings.toml' file. reason: " + error.getMessage());
-            } else {
-                throw new CentralClientException("unauthorized access token. " +
-                        "check access token set in 'Settings.toml' file.");
-            }
+        Optional<MediaType> contentType = Optional.ofNullable(mediaType);
+        StringBuilder message = new StringBuilder("unauthorized access token. " +
+                    "check access token set in 'Settings.toml' file.");
+        if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
+            Error error = new Gson().fromJson(responseBody, Error.class);
+            message.append("reason: ").append(error.getMessage());
         }
+        throw new CentralClientException(message.toString());
     }
 
     private void logResponseVerbose(Response response, String bodyContent) {
