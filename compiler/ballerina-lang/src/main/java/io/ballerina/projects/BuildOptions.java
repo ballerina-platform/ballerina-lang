@@ -127,6 +127,10 @@ public class BuildOptions {
         return Objects.requireNonNullElse(this.graalVMBuildOptions, "");
     }
 
+    public boolean optimizeCodegen() {
+        return this.compilationOptions.optimizeCodegen();
+    }
+
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
      *
@@ -195,6 +199,7 @@ public class BuildOptions {
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
+        buildOptionsBuilder.setOptimizeCodegen(compilationOptions.optimizeCodegen);
 
         return buildOptionsBuilder.build();
     }
@@ -384,6 +389,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setNativeImage(Boolean value) {
             nativeImage = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setOptimizeCodegen(Boolean value) {
+            compilationOptionsBuilder.setOptimizeCodegen(value);
             return this;
         }
 

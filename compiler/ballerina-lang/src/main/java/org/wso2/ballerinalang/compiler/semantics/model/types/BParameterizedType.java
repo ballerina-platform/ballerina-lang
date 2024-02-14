@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.wso2.ballerinalang.compiler.semantics.model.BTypeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -58,6 +59,11 @@ public class BParameterizedType extends BType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BTypeAnalyzer<T> analyzer, T data) {
+        analyzer.visit(this, data);
     }
 
     @Override

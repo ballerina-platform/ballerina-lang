@@ -4,6 +4,7 @@ module io.ballerina.lang {
     requires com.google.gson;
     requires java.xml;
     requires org.objectweb.asm;
+    requires org.objectweb.asm.tree;
     requires io.ballerina.runtime;
     requires io.netty.buffer;
     requires io.ballerina.parser;
@@ -82,4 +83,5 @@ module io.ballerina.lang {
     exports io.ballerina.projects.internal.configschema to org.ballerinalang.config.schema.generator,
             io.ballerina.language.server.core;
     exports io.ballerina.projects.plugins.completion;
+    exports org.wso2.ballerinalang.compiler.bir.codegen.bytecodeOptimizer;
 }

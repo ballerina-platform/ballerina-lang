@@ -302,6 +302,8 @@ class ModuleContext {
         } else if (this.project().kind() == ProjectKind.BUILD_PROJECT
                 && !this.project.buildOptions().enableCache()) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
+        } else if (this.shouldOptimizeCodegen()) {
+            moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
         } else {
             moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;
         }
@@ -343,6 +345,14 @@ class ModuleContext {
         }
 
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
+    }
+
+    /**
+     *
+     * Returns true if at least one method or type def is connected to one of the root methods of the root pkg.
+     */
+    public boolean isUsed() {
+        return this.bLangPackage().symbol.invocationData.moduleIsUsed;
     }
 
     private void addModuleDependency(PackageOrg org,
@@ -477,7 +487,9 @@ class ModuleContext {
         }
 
         // Generate and write the thin JAR to the file system
-        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
+        if (moduleContext.isWhiteListedModule() || !moduleContext.project.buildOptions().optimizeCodegen()) {
+            compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
+        }
 
         // Skip bir caching if jar generation is not successful
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
@@ -491,7 +503,29 @@ class ModuleContext {
         // Write the bir to the file system
         // This code will execute only if JAR caching is successful
         // TODO: check the filesystem cache and delete if the cache is incomplete (if BIR or JAR is missing)
-        moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+        if (moduleContext.isWhiteListedModule() || !moduleContext.project.buildOptions().optimizeCodegen()) {
+            moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+        }
+    }
+
+    public boolean isWhiteListedModule() {
+        return this.moduleId.moduleName().contains("observe") || isDriverModule();
+    }
+
+    private boolean isDriverModule() {
+        return this.moduleId.moduleName().contains(".driver");
+    }
+
+    private boolean isLangLibModule() {
+        return this.moduleDescriptor.moduleCompilationId().toString().startsWith("ballerina/lang");
+    }
+
+    private boolean isJBallerinaModule() {
+        return this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/jballerina");
+    }
+
+    private boolean shouldOptimizeCodegen() {
+        return this.project().buildOptions().optimizeCodegen() && !this.isLangLibModule() && !isJBallerinaModule();
     }
 
     private static boolean shouldGenerateBir(ModuleContext moduleContext, CompilerContext compilerContext) {

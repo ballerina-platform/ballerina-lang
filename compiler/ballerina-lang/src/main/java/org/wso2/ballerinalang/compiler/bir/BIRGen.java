@@ -896,6 +896,10 @@ public class BIRGen extends BLangNodeVisitor {
         return names.fromString(attachedFuncName.substring(offset));
     }
 
+    private Name getFuncOriginalName(BInvokableSymbol symbol) {
+        return symbol.name;
+    }
+
     private void addParam(BIRFunction birFunc, BLangVariable functionParam) {
         addParam(birFunc, functionParam.symbol, functionParam.expr, functionParam.pos,
                  functionParam.symbol.getAnnotations());
@@ -1380,7 +1384,8 @@ public class BIRGen extends BLangNodeVisitor {
             List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.getAnnotations());
 
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
-                    invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
+                    invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
+                    getFuncOriginalName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
                     thenBB, calleeAnnots, bInvokableSymbol.getFlags(), this.currentScope);
         }
         this.env.enclBB = thenBB;

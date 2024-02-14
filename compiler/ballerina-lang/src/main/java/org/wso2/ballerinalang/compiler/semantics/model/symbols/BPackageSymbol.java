@@ -17,18 +17,21 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.projects.UsedBIRNodeAnalyzer;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.repository.CompiledPackage;
+import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -55,8 +58,12 @@ public class BPackageSymbol extends BTypeSymbol {
     public BIRNode.BIRPackage bir;   // TODO try to remove this
     public BIRPackageFile birPackageFile;
 
+    // kep code generated jar binary content in memory
+    public CompiledJarFile compiledJarFile;
+
     // TODO Refactor following two flags
     public boolean entryPointExists = false;
+    public UsedBIRNodeAnalyzer.InvocationData invocationData = new UsedBIRNodeAnalyzer.InvocationData();
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner, Location pos, SymbolOrigin origin) {
         super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos, origin);

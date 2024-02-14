@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
@@ -181,6 +182,14 @@ public abstract class BIRNode {
         @Override
         public String toString() {
             return name.toString();
+        }
+
+        @Override
+        public PackageID getPackageID() {
+            if (this.type == null || this.type.tsymbol == null) {
+                return null;
+            }
+            return this.type.tsymbol.pkgID;
         }
     }
 
@@ -380,7 +389,7 @@ public abstract class BIRNode {
                            ChannelDetails[] workerChannels,
                            List<BIRAnnotationAttachment> annotAttachments,
                            List<BIRAnnotationAttachment> returnTypeAnnots,
-                           Set<BIRGlobalVariableDcl> dependentGlobalVars) {
+                           Set<BIRGlobalVariableDcl> dependentGlobalVars, UsedState usedState, HashSet<BIRDocumentableNode> childNodes ) {
             super(pos);
             this.name = name;
             this.originalName = originalName;
@@ -401,6 +410,8 @@ public abstract class BIRNode {
             this.annotAttachments = annotAttachments;
             this.returnTypeAnnots = returnTypeAnnots;
             this.dependentGlobalVars = dependentGlobalVars;
+            this.usedState = usedState;
+            this.childNodes = childNodes;
         }
 
         public BIRFunction(Location pos, Name name, Name originalName, long flags, BInvokableType type, Name workerName,
@@ -450,6 +461,15 @@ public abstract class BIRNode {
         public Name getName() {
             return name;
         }
+
+        @Override
+        public PackageID getPackageID() {
+            // TODO use Optional to handle null instances
+            if (this.type.tsymbol == null) {
+                return null;
+            }
+            return this.type.tsymbol.pkgID;
+        }
     }
 
     /**
@@ -476,6 +496,15 @@ public abstract class BIRNode {
             super(null);
             this.number = number;
             this.id = new Name(idPrefix + number);
+            this.instructions = new ArrayList<>();
+            this.terminator = null;
+        }
+
+        public BIRBasicBlock(String id) {
+            super(null);
+            // Splitting and reading the number part
+            this.number = Integer.parseInt(id.split("(?<=\\D)(?=\\d)")[1]);
+            this.id = new Name(id);
             this.instructions = new ArrayList<>();
             this.terminator = null;
         }
@@ -564,6 +593,14 @@ public abstract class BIRNode {
         @Override
         public Name getName() {
             return name;
+        }
+
+        @Override
+        public PackageID getPackageID() {
+            if (this.type == null || this.type.tsymbol == null) {
+                return null;
+            }
+            return this.type.tsymbol.pkgID;
         }
     }
 
@@ -682,6 +719,10 @@ public abstract class BIRNode {
             visitor.visit(this);
         }
 
+        @Override
+        public PackageID getPackageID() {
+            return this.packageID;
+        }
     }
 
     /**
@@ -742,6 +783,13 @@ public abstract class BIRNode {
             visitor.visit(this);
         }
 
+        @Override
+        public PackageID getPackageID() {
+            if (this.type == null || this.type.tsymbol == null) {
+                return null;
+            }
+            return this.type.tsymbol.pkgID;
+        }
     }
 
     /**
@@ -809,6 +857,10 @@ public abstract class BIRNode {
      */
     public abstract static class BIRDocumentableNode extends BIRNode {
         public MarkdownDocAttachment markdownDocAttachment;
+        public HashSet<BIRDocumentableNode> childNodes = new HashSet<>();
+        // Used for debugging purposes
+        public HashSet<BIRDocumentableNode> parentNodes = new HashSet<>();
+        public UsedState usedState = UsedState.UNEXPOLORED;
 
         protected BIRDocumentableNode(Location pos) {
             super(pos);
@@ -817,6 +869,55 @@ public abstract class BIRNode {
         public void setMarkdownDocAttachment(MarkdownDocAttachment markdownDocAttachment) {
             this.markdownDocAttachment = markdownDocAttachment;
         }
+
+        public void addChildNode(BIRDocumentableNode childNode) {
+            if (childNode == null) {
+                return;
+            }
+            childNodes.add(childNode);
+
+            addParent(childNode, this);
+
+            if (this.usedState == UsedState.USED) {
+                // It is possible to omit unused modules from codegen if they are identified in the analyzer phase
+                childNode.markSelfAndChildrenAsUsed();
+            }
+        }
+
+        private void addParent(BIRDocumentableNode childNode, BIRDocumentableNode parentNode) {
+            childNode.parentNodes.add(parentNode);
+        }
+
+        public void markSelfAndChildrenAsUsed() {
+            if (usedState != UsedState.USED) {
+                usedState = UsedState.USED;
+                for (BIRDocumentableNode childNode : this.childNodes) {
+                    if (childNode != null) {
+                        childNode.markSelfAndChildrenAsUsed();
+                    }
+                }
+            }
+        }
+
+        public boolean isInSamePkg(BIRDocumentableNode otherNode) {
+            PackageID otherNodePkgId = otherNode.getPackageID();
+
+            // PkgID is null only for desugared constructs. And desugared constructs cannot be called from another pkg
+            if (this.getPackageID() == null || otherNodePkgId == null) {
+                return true;
+            }
+
+            return this.getPackageID() == otherNodePkgId;
+        }
+
+        public boolean isInSamePkg(PackageID analyzedPkgID) {
+            if (this.getPackageID() == null) {
+                return true;
+            }
+            return this.getPackageID().equals(analyzedPkgID);
+        }
+
+        public abstract PackageID getPackageID();
     }
 
     /**
@@ -958,11 +1059,20 @@ public abstract class BIRNode {
             this.type = type;
             this.origin = origin;
             this.flags = flags;
+            this.usedState = UsedState.USED;
         }
 
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public PackageID getPackageID() {
+            if (this.type == null || this.type.tsymbol == null) {
+                return null;
+            }
+            return this.type.tsymbol.pkgID;
         }
     }
 }

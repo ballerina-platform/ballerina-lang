@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.BTypeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -41,4 +42,10 @@ public class BPackageType extends BType {
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public <T> void accept(BTypeAnalyzer<T> analyzer, T data) {
+        analyzer.visit(this, data);
+    }
+
 }
