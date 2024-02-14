@@ -59,6 +59,8 @@ public class EnvVarProvider implements ConfigProvider {
     private final Map<String, String> envVariables;
     private final Map<String, VariableKey> visitedEnvVariableMap = new HashMap<>();
     private static final String ENV_VAR_PREFIX = "BAL_CONFIG_";
+    private static final String CONFIG_FILES_ENV_VAR = ENV_VAR_PREFIX + "FILES";
+    private static final String CONFIG_DATA_ENV_VAR = ENV_VAR_PREFIX + "DATA";
 
     public EnvVarProvider(Module rootModule, Map<String, String> envVariables) {
         this.rootModule = rootModule;
@@ -67,7 +69,8 @@ public class EnvVarProvider implements ConfigProvider {
 
     @Override
     public void initialize() {
-
+        this.envVariables.remove(CONFIG_FILES_ENV_VAR);
+        this.envVariables.remove(CONFIG_DATA_ENV_VAR);
     }
 
     @Override
@@ -347,7 +350,7 @@ public class EnvVarProvider implements ConfigProvider {
         Map<String, String> filteredMap = new HashMap<>();
 
         for (Map.Entry<String, String> entry : originalMap.entrySet()) {
-            if (entry.getKey().startsWith("BAL_CONFIG_")) {
+            if (entry.getKey().startsWith(ENV_VAR_PREFIX)) {
                 filteredMap.put(entry.getKey(), entry.getValue());
             }
         }

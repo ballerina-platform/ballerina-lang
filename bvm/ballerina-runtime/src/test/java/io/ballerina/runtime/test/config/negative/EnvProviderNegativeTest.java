@@ -53,7 +53,7 @@ public class EnvProviderNegativeTest {
     private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1");
 
     @Test(dataProvider = "different-env-vars-data-provider")
-    public void testCLIArgErrors(Map<String, String> envVars, String orgName, String moduleName, String variableName,
+    public void testEnvVarErrors(Map<String, String> envVars, String orgName, String moduleName, String variableName,
                                  Type type, String[] expectedErrorMessages) {
         Module module = new Module(orgName, moduleName, "1");
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
@@ -72,7 +72,7 @@ public class EnvProviderNegativeTest {
     }
 
     @DataProvider(name = "different-env-vars-data-provider")
-    public Object[][] cliArgsDataProvider() {
+    public Object[][] envVarDataProvider() {
         return new Object[][]{
                 // Config value with invalid type value
                 {Map.of("BAL_CONFIG_MYORG_MOD_X", " hello  "), "myorg", "mod", "x", PredefinedTypes.TYPE_INT,
@@ -102,25 +102,25 @@ public class EnvProviderNegativeTest {
                 {Map.of("BAL_CONFIG_MYORG_MOD_X", "345"), "myorg", "mod", "x", PredefinedTypes.TYPE_BYTE,
                         "error: [BAL_CONFIG_MYORG_MOD_X=345] value provided for byte variable 'x' is out of range." +
                         " Expected range is (0-255), found '345'"},
-                // Config array value which is not supported as cli arg
+                // Config array value which is not supported as env var
                 {Map.of("BAL_CONFIG_MYORG_MOD_X", "345"), "myorg", "mod", "x",
                         new BIntersectionType(ROOT_MODULE, new Type[]{},
                                 TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 0, true),
                         "error: value for configurable variable 'x' with type 'int[]' is not supported as an " +
                         "environment variable"},
-                // Config tuple value which is not supported as cli arg
+                // Config tuple value which is not supported as env var
                 {Map.of("BAL_CONFIG_MYORG_MOD_X", "345"), "myorg", "mod", "x", new BIntersectionType(ROOT_MODULE,
                         new Type[]{}, TypeCreator.createTupleType(List.of(PredefinedTypes.TYPE_INT,
                         PredefinedTypes.TYPE_STRING)), 0, true), "error: value for configurable " +
                         "variable 'x' with type '[int,string]' is not supported as an environment variable"},
-                // Config record value which is not supported as cli arg
+                // Config record value which is not supported as env var
                 {Map.of("BAL_CONFIG_MYORG_MOD_X", "345"), "myorg", "mod", "x",
                         new BIntersectionType(ROOT_MODULE, new Type[]{},
                         TypeCreator.createRecordType("customType", ROOT_MODULE, 0, false, 0), 0,
                         true),
                         "error: value for configurable variable 'x' with type 'rootMod:customType' is not supported " +
                                 "as an environment variable"},
-                // Config table value which is not supported as cli arg
+                // Config table value which is not supported as env var
                 {Map.of("BAL_CONFIG_MYORG_MOD_X", "345"), "myorg", "mod", "x",
                         new BIntersectionType(ROOT_MODULE, new Type[]{},
                                 TypeCreator.createTableType(PredefinedTypes.TYPE_STRING, false), 0, true),
@@ -139,7 +139,7 @@ public class EnvProviderNegativeTest {
     }
 
     @Test ()
-    public void testUnusedCliArgs() {
+    public void testUnusedEnvVars() {
         Module module = new Module("myorg", "mod", "1");
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
@@ -185,7 +185,7 @@ public class EnvProviderNegativeTest {
     }
 
     @Test
-    public void testAmbiguityWithRootModuleCliArgs() {
+    public void testAmbiguityWithRootModuleEnvVars() {
 
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
