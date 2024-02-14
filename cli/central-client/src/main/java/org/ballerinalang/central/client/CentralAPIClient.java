@@ -1705,14 +1705,13 @@ public class CentralAPIClient {
     private void handleUnauthorizedResponse(MediaType mediaType, String responseBody)
             throws IOException, CentralClientException {
         Optional<MediaType> contentType = Optional.ofNullable(mediaType);
+        StringBuilder message = new StringBuilder("unauthorized access token. " +
+                    "check access token set in 'Settings.toml' file.");
         if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
             Error error = new Gson().fromJson(responseBody, Error.class);
-            throw new CentralClientException("unauthorized access token. " +
-                    "check access token set in 'Settings.toml' file. reason: " + error.getMessage());
-        } else {
-            throw new CentralClientException("unauthorized access token. " +
-                    "check access token set in 'Settings.toml' file.");
+            message.append("reason: ").append(error.getMessage());
         }
+        throw new CentralClientException(message.toString());
     }
 
     private void logResponseVerbose(Response response, String bodyContent) {
