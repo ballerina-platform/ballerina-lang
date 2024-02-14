@@ -42,6 +42,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Call;
+import okhttp3.ResponseBody;
+import okhttp3.MediaType;
+import okhttp3.Headers;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -55,14 +62,23 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
-import java.net.URL;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.Optional;
 
+import javax.net.ssl.HttpsURLConnection;
+
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.net.HttpURLConnection.HTTP_OK;
 /**
  * Main class to generate a ballerina documentation.
  */
@@ -78,7 +94,10 @@ public class BallerinaDocGenerator {
     private static final String BUILTIN_TYPES_DESCRIPTION_DIR = "builtin-types-descriptions";
     private static final String BUILTIN_KEYWORDS_DESCRIPTION_DIR = "keywords-descriptions";
     private static final String RELEASE_DESCRIPTION_MD = "/release-description.md";
+    public static final String SOURCE =  "http://localhost:9090/doc-ui-zip";
     public static final String PROPERTIES_FILE = "/META-INF/properties";
+    static final String ACCEPT = "Accept";
+    static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
 
     private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
             .excludeFieldsWithoutExposeAnnotation().create();
@@ -242,33 +261,52 @@ public class BallerinaDocGenerator {
     }
 
     private static void copyDocerinaUI(Path output) {
-        String source =  "https://bal-doc-store.s3.ap-south-1.amazonaws.com/ballerina-bal-doc-UI.zip";
+        OkHttpClient client = new OkHttpClient();
         try {
-            URL url = new URL(source);
-            InputStream inputStream = url.openStream();
-            ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(inputStream));
+            Request zipFilePullReq = new Request.Builder()
+                    .get()
+                    .url(SOURCE)
+                    .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                    .build();
+            Call zipFilePullReqCall = client.newCall(zipFilePullReq);
 
-            ZipEntry entry;
-            while((entry = zipInputStream.getNextEntry()) != null) {
-                Path docUIFilePath = output.resolve(entry.getName());
-                if(entry.isDirectory()) {
-                    Files.createDirectories(docUIFilePath);
-                }else {
-                    try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(docUIFilePath.toFile()))) {
-                        byte[] buffer = new byte[1024];
-                        int length;
+            try (Response zipFilePullResponse = zipFilePullReqCall.execute()) {
+                if (zipFilePullResponse.code() == HTTP_OK) {
+                    ResponseBody responseBody = zipFilePullResponse.body();
+                    if (responseBody != null) {
+                        try (InputStream inputStream = responseBody.byteStream()) {
+                            ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(inputStream));
+                            ZipEntry entry;
+                            while ((entry = zipInputStream.getNextEntry()) != null) {
+                                Path docUIFilePath = output.resolve(entry.getName());
+                                if (entry.isDirectory()) {
+                                    Files.createDirectories(docUIFilePath);
+                                } else {
+                                    try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(docUIFilePath.toFile()))) {
+                                        byte[] buffer = new byte[1024];
+                                        int length;
 
-                        while ((length = zipInputStream.read(buffer)) > 0) {
-                            outputStream.write(buffer, 0, length);
+                                        while ((length = zipInputStream.read(buffer)) > 0) {
+                                            outputStream.write(buffer, 0, length);
+                                        }
+                                    } catch (IOException e) {
+                                        log.error("unable to write to the file", e);
+                                    }
+                                }
+                            }
                         }
-                    } catch (IOException e) {
-                        log.error("unable to write to the file", e );
+                    } else {
+                        log.error("response body is null.");
                     }
+                }else{
+                    log.error("failed to get the zip file.");
                 }
             }
-
         } catch (IOException e) {
             log.error("failed to copy ui from s3 bucket", e);
+        }finally {
+            client.dispatcher().executorService().shutdown();
+            client.connectionPool().evictAll();
         }
     }
 
