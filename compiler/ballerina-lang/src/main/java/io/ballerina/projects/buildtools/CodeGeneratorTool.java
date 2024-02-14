@@ -1,6 +1,4 @@
-package io.ballerina.cli.tool;
-
-import io.ballerina.projects.ToolContext;
+package io.ballerina.projects.buildtools;
 
 /**
  * {@code CodeGeneratorTool} represents a Ballerina build tool.

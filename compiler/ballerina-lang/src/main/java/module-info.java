@@ -82,4 +82,5 @@ module io.ballerina.lang {
     exports io.ballerina.projects.internal.configschema to org.ballerinalang.config.schema.generator,
             io.ballerina.language.server.core;
     exports io.ballerina.projects.plugins.completion;
+    exports io.ballerina.projects.buildtools;
 }
