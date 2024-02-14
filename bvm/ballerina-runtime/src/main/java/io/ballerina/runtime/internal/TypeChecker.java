@@ -3598,7 +3598,8 @@ public class TypeChecker {
 
         if (firstElement instanceof BString) {
             return containsElement(finiteTypeValueSpace, "");
-        } else if ((firstElement instanceof Long) || (firstElement instanceof BDecimal)) {
+        } else if ((firstElement instanceof Integer) || (firstElement instanceof Long) ||
+                (firstElement instanceof BDecimal)) {
             return containsElement(finiteTypeValueSpace, "0");
         } else if (firstElement instanceof Double) {
             return containsElement(finiteTypeValueSpace, "0.0");

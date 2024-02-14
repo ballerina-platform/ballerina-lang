@@ -1655,6 +1655,7 @@ public class TypeResolver {
         SemType semType = PredefinedType.NEVER;
         StringJoiner stringJoiner = new StringJoiner("|");
         List<BLangExpression> valueSpace = td.valueSpace;
+        SemType[] vs = new SemType[valueSpace.size()];
         for (int i = 0; i < valueSpace.size(); i++) {
             BLangExpression exprOrLiteral = valueSpace.get(i);
             BType type = blangTypeUpdate(exprOrLiteral);
@@ -1673,13 +1674,15 @@ public class TypeResolver {
                 }
 
                 stringJoiner.add(getToString(exprOrLiteral));
-                semType = SemTypes.union(semType, SemTypeResolver.resolveSingletonType((BLangLiteral) exprOrLiteral));
+                SemType s = SemTypeResolver.resolveSingletonType((BLangLiteral) exprOrLiteral);
+                vs[i] = s;
+                semType = SemTypes.union(semType, s);
             } else {
                 throw new IllegalStateException("non-sem value found!");
             }
         }
 
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, semType, stringJoiner.toString());
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, semType, stringJoiner.toString(), vs);
         finiteTypeSymbol.type = finiteType;
         td.setBType(finiteType);
         return finiteType;

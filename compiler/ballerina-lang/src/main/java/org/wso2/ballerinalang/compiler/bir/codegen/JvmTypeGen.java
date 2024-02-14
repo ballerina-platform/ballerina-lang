@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -497,7 +498,7 @@ public class JvmTypeGen {
                     }
                     return;
                 case TypeTags.FINITE:
-                    loadFiniteType(mv, bType);
+                    loadFiniteType(mv, (BFiniteType) bType);
                     return;
                 case TypeTags.FUTURE:
                     loadFutureType(mv, (BFutureType) bType);
@@ -1116,7 +1117,7 @@ public class JvmTypeGen {
         }
     }
 
-    private void loadFiniteType(MethodVisitor mv, BType finiteType) {
+    private void loadFiniteType(MethodVisitor mv, BFiniteType finiteType) {
 
         mv.visitTypeInsn(NEW, FINITE_TYPE_IMPL);
         mv.visitInsn(DUP);
@@ -1131,63 +1132,64 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
 
-        SemType semType = finiteType.getSemType();
-        if (Core.containsNil(semType)) {
-            loadNilValue(mv);
-        }
-
-        SubtypeData subtypeData = Core.booleanSubtype(semType);
-        if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
-            if (allOrNothing.isAllSubtype()) {
-                loadBooleanValue(mv, true);
-                loadBooleanValue(mv, false);
+        for (SemType semType : finiteType.valueSpace) {
+            if (Core.containsNil(semType)) {
+                loadNilValue(mv);
             }
-        } else {
-            BooleanSubtype booleanSubtype = (BooleanSubtype) subtypeData;
-            loadBooleanValue(mv, booleanSubtype.value);
-        }
 
-        subtypeData = Core.intSubtype(semType);
-        if (subtypeData instanceof IntSubtype intSubtype) {
-            for (Range range : intSubtype.ranges) {
-                for (long i = range.min; i <= range.max; i++) {
-                    if (0 <= i && i <= 255) {
-                        loadByteValue(mv, (int) i);
-                    } else {
-                        loadIntValue(mv, i);
-                    }
-                    if (i == Long.MAX_VALUE) {
-                        // To avoid overflow
-                        break;
+            SubtypeData subtypeData = Core.booleanSubtype(semType);
+            if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
+                if (allOrNothing.isAllSubtype()) {
+                    loadBooleanValue(mv, true);
+                    loadBooleanValue(mv, false);
+                }
+            } else {
+                BooleanSubtype booleanSubtype = (BooleanSubtype) subtypeData;
+                loadBooleanValue(mv, booleanSubtype.value);
+            }
+
+            subtypeData = Core.intSubtype(semType);
+            if (subtypeData instanceof IntSubtype intSubtype) {
+                for (Range range : intSubtype.ranges) {
+                    for (long i = range.min; i <= range.max; i++) {
+                        if (0 <= i && i <= 255) {
+                            loadByteValue(mv, (int) i);
+                        } else {
+                            loadIntValue(mv, i);
+                        }
+                        if (i == Long.MAX_VALUE) {
+                            // To avoid overflow
+                            break;
+                        }
                     }
                 }
             }
-        }
 
-        subtypeData = Core.floatSubtype(semType);
-        if (subtypeData instanceof FloatSubtype floatSubtype) {
-            for (EnumerableType enumerableFloat : floatSubtype.values()) {
-                loadFloatValue(mv, (EnumerableFloat) enumerableFloat);
-            }
-        }
-
-        subtypeData = Core.decimalSubtype(semType);
-        if (subtypeData instanceof DecimalSubtype decimalSubtype) {
-            for (EnumerableType enumerableDecimal : decimalSubtype.values()) {
-                loadDecimalValue(mv, (EnumerableDecimal) enumerableDecimal);
-            }
-        }
-
-        subtypeData = Core.stringSubtype(semType);
-        if (subtypeData instanceof StringSubtype stringSubtype) {
-            CharStringSubtype charStringSubtype = stringSubtype.getChar();
-            for (EnumerableType enumerableType : charStringSubtype.values()) {
-                loadStringValue(mv, enumerableType);
+            subtypeData = Core.floatSubtype(semType);
+            if (subtypeData instanceof FloatSubtype floatSubtype) {
+                for (EnumerableType enumerableFloat : floatSubtype.values()) {
+                    loadFloatValue(mv, (EnumerableFloat) enumerableFloat);
+                }
             }
 
-            NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
-            for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
-                loadStringValue(mv, enumerableType);
+            subtypeData = Core.decimalSubtype(semType);
+            if (subtypeData instanceof DecimalSubtype decimalSubtype) {
+                for (EnumerableType enumerableDecimal : decimalSubtype.values()) {
+                    loadDecimalValue(mv, (EnumerableDecimal) enumerableDecimal);
+                }
+            }
+
+            subtypeData = Core.stringSubtype(semType);
+            if (subtypeData instanceof StringSubtype stringSubtype) {
+                CharStringSubtype charStringSubtype = stringSubtype.getChar();
+                for (EnumerableType enumerableType : charStringSubtype.values()) {
+                    loadStringValue(mv, enumerableType);
+                }
+
+                NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
+                for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
+                    loadStringValue(mv, enumerableType);
+                }
             }
         }
 

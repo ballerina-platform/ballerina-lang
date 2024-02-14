@@ -273,52 +273,53 @@ public class TypeConverter {
      * @param finiteType BFiniteType to retrieve enum values from
      */
     private static void getEnumArray(JsonArray enumArray, BFiniteType finiteType) {
-        SemType t = finiteType.getSemType();
-        if (Core.containsNil(t)) {
-            enumArray.add("()");
-        }
-
-        SubtypeData subtypeData = Core.booleanSubtype(t);
-        if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
-            if (allOrNothing.isAllSubtype()) {
-                enumArray.add("true");
-                enumArray.add("false");
+        for (SemType t : finiteType.valueSpace) {
+            if (Core.containsNil(t)) {
+                enumArray.add("()");
             }
-        } else {
-            BooleanSubtype booleanSubtype = (BooleanSubtype) subtypeData;
-            enumArray.add(booleanSubtype.value ? "true" : "false");
-        }
 
-        subtypeData = Core.intSubtype(t);
-        if (subtypeData instanceof IntSubtype intSubtype) {
-            for (Range range : intSubtype.ranges) {
-                for (long i = range.min; i <= range.max; i++) {
-                    enumArray.add(i);
-                    if (i == Long.MAX_VALUE) {
-                        // To avoid overflow
-                        break;
+            SubtypeData subtypeData = Core.booleanSubtype(t);
+            if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
+                if (allOrNothing.isAllSubtype()) {
+                    enumArray.add("true");
+                    enumArray.add("false");
+                }
+            } else {
+                BooleanSubtype booleanSubtype = (BooleanSubtype) subtypeData;
+                enumArray.add(booleanSubtype.value ? "true" : "false");
+            }
+
+            subtypeData = Core.intSubtype(t);
+            if (subtypeData instanceof IntSubtype intSubtype) {
+                for (Range range : intSubtype.ranges) {
+                    for (long i = range.min; i <= range.max; i++) {
+                        enumArray.add(i);
+                        if (i == Long.MAX_VALUE) {
+                            // To avoid overflow
+                            break;
+                        }
                     }
                 }
             }
-        }
 
-        subtypeData = Core.floatSubtype(t);
-        if (subtypeData instanceof FloatSubtype floatSubtype) {
-            for (EnumerableType enumerableFloat : floatSubtype.values()) {
-                enumArray.add(((EnumerableFloat) enumerableFloat).value);
-            }
-        }
-
-        subtypeData = Core.stringSubtype(t);
-        if (subtypeData instanceof StringSubtype stringSubtype) {
-            CharStringSubtype charStringSubtype = stringSubtype.getChar();
-            for (EnumerableType enumerableType : charStringSubtype.values()) {
-                enumArray.add(((EnumerableCharString) enumerableType).value);
+            subtypeData = Core.floatSubtype(t);
+            if (subtypeData instanceof FloatSubtype floatSubtype) {
+                for (EnumerableType enumerableFloat : floatSubtype.values()) {
+                    enumArray.add(((EnumerableFloat) enumerableFloat).value);
+                }
             }
 
-            NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
-            for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
-                enumArray.add(((EnumerableString) enumerableType).value);
+            subtypeData = Core.stringSubtype(t);
+            if (subtypeData instanceof StringSubtype stringSubtype) {
+                CharStringSubtype charStringSubtype = stringSubtype.getChar();
+                for (EnumerableType enumerableType : charStringSubtype.values()) {
+                    enumArray.add(((EnumerableCharString) enumerableType).value);
+                }
+
+                NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
+                for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
+                    enumArray.add(((EnumerableString) enumerableType).value);
+                }
             }
         }
     }

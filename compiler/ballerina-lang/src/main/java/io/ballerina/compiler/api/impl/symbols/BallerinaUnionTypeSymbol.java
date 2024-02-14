@@ -113,77 +113,78 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
 
     private void updateMembersForBFiniteType(List<TypeSymbol> members, BType bFiniteType) {
         assert bFiniteType.tag == TypeTags.FINITE;
-        SemType semType = bFiniteType.getSemType();
-        if (Core.containsNil(semType)) {
-            BFiniteType ft = new BFiniteType(null, PredefinedType.NIL);
-            members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.nilType, "()", ft));
-        }
-
-        SubtypeData booleanSubTypeData = Core.booleanSubtype(semType);
-        if (booleanSubTypeData instanceof AllOrNothingSubtype allOrNothingSubtype) {
-            if (allOrNothingSubtype.isAllSubtype()) {
-                members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.booleanType, "true",
-                        symTable.trueType));
-                members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.booleanType, "false",
-                        symTable.falseType));
+        for (SemType semType : ((BFiniteType) bFiniteType).valueSpace) {
+            if (Core.containsNil(semType)) {
+                BFiniteType ft = new BFiniteType(null, PredefinedType.NIL);
+                members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.nilType, "()", ft));
             }
-        } else {
-            BooleanSubtype booleanSubtype = (BooleanSubtype) booleanSubTypeData;
-            if (booleanSubtype.value) {
-                members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.booleanType, "true",
-                        symTable.trueType));
+
+            SubtypeData booleanSubTypeData = Core.booleanSubtype(semType);
+            if (booleanSubTypeData instanceof AllOrNothingSubtype allOrNothingSubtype) {
+                if (allOrNothingSubtype.isAllSubtype()) {
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.booleanType, "true",
+                            symTable.trueType));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.booleanType, "false",
+                            symTable.falseType));
+                }
             } else {
-                members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.booleanType, "false",
-                        symTable.falseType));
+                BooleanSubtype booleanSubtype = (BooleanSubtype) booleanSubTypeData;
+                if (booleanSubtype.value) {
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.booleanType, "true",
+                            symTable.trueType));
+                } else {
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.booleanType, "false",
+                            symTable.falseType));
+                }
             }
-        }
 
-        SubtypeData intSubTypeData = Core.intSubtype(semType);
-        if (intSubTypeData instanceof IntSubtype intSubtype) {
-            for (Range range : intSubtype.ranges) {
-                for (long i = range.min; i <= range.max; i++) {
-                    BFiniteType ft = new BFiniteType(null, IntSubtype.intConst(i));
-                    members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.intType, Long.toString(i), ft));
-                    if (i == Long.MAX_VALUE) {
-                        // To avoid overflow
-                        break;
+            SubtypeData intSubTypeData = Core.intSubtype(semType);
+            if (intSubTypeData instanceof IntSubtype intSubtype) {
+                for (Range range : intSubtype.ranges) {
+                    for (long i = range.min; i <= range.max; i++) {
+                        BFiniteType ft = new BFiniteType(null, IntSubtype.intConst(i));
+                        members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.intType, Long.toString(i), ft));
+                        if (i == Long.MAX_VALUE) {
+                            // To avoid overflow
+                            break;
+                        }
                     }
                 }
             }
-        }
 
-        SubtypeData decimalSubTypeData = Core.decimalSubtype(semType);
-        if (decimalSubTypeData instanceof DecimalSubtype decimalSubtype) {
-            for (EnumerableType enumerableDecimal : decimalSubtype.values()) {
-                BigDecimal i = ((EnumerableDecimal) enumerableDecimal).value;
-                BFiniteType ft = new BFiniteType(null, DecimalSubtype.decimalConst(i));
-                members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.decimalType, i.toString(), ft));
-            }
-        }
-
-        SubtypeData floatSubTypeData = Core.floatSubtype(semType);
-        if (floatSubTypeData instanceof FloatSubtype floatSubtype) {
-            for (EnumerableType enumerableFloat : floatSubtype.values()) {
-                double i = ((EnumerableFloat) enumerableFloat).value;
-                BFiniteType ft = new BFiniteType(null, FloatSubtype.floatConst(i));
-                members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.floatType, Double.toString(i), ft));
-            }
-        }
-
-        SubtypeData stringSubTypeData = Core.stringSubtype(semType);
-        if (stringSubTypeData instanceof StringSubtype stringSubtype) {
-            CharStringSubtype charStringSubtype = stringSubtype.getChar();
-            for (EnumerableType enumerableType : charStringSubtype.values()) {
-                String i = ((EnumerableCharString) enumerableType).value;
-                BFiniteType ft = new BFiniteType(null, StringSubtype.stringConst(i));
-                members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.stringType, i, ft));
+            SubtypeData decimalSubTypeData = Core.decimalSubtype(semType);
+            if (decimalSubTypeData instanceof DecimalSubtype decimalSubtype) {
+                for (EnumerableType enumerableDecimal : decimalSubtype.values()) {
+                    BigDecimal i = ((EnumerableDecimal) enumerableDecimal).value;
+                    BFiniteType ft = new BFiniteType(null, DecimalSubtype.decimalConst(i));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.decimalType, i.toString(), ft));
+                }
             }
 
-            NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
-            for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
-                String i = ((EnumerableString) enumerableType).value;
-                BFiniteType ft = new BFiniteType(null, StringSubtype.stringConst(i));
-                members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.stringType, i, ft));
+            SubtypeData floatSubTypeData = Core.floatSubtype(semType);
+            if (floatSubTypeData instanceof FloatSubtype floatSubtype) {
+                for (EnumerableType enumerableFloat : floatSubtype.values()) {
+                    double i = ((EnumerableFloat) enumerableFloat).value;
+                    BFiniteType ft = new BFiniteType(null, FloatSubtype.floatConst(i));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.floatType, Double.toString(i), ft));
+                }
+            }
+
+            SubtypeData stringSubTypeData = Core.stringSubtype(semType);
+            if (stringSubTypeData instanceof StringSubtype stringSubtype) {
+                CharStringSubtype charStringSubtype = stringSubtype.getChar();
+                for (EnumerableType enumerableType : charStringSubtype.values()) {
+                    String i = ((EnumerableCharString) enumerableType).value;
+                    BFiniteType ft = new BFiniteType(null, StringSubtype.stringConst(i));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.stringType, i, ft));
+                }
+
+                NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
+                for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
+                    String i = ((EnumerableString) enumerableType).value;
+                    BFiniteType ft = new BFiniteType(null, StringSubtype.stringConst(i));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, symTable.stringType, i, ft));
+                }
             }
         }
     }

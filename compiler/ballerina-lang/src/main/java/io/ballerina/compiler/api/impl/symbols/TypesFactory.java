@@ -240,7 +240,7 @@ public class TypesFactory {
                 BFiniteType finiteType = (BFiniteType) bType;
                 Optional<Value> value = Core.singleShape(finiteType.getSemType());
                 if (value.isPresent()) {
-                    BType broadType = SemTypeResolver.singletonBroadTypes(finiteType.getSemType(), symTable).iterator()
+                    BType broadType = SemTypeResolver.singletonBroadTypes(finiteType, symTable).iterator()
                             .next();
                     String valueString = Objects.toString(value.get().value, "()");
                     return new BallerinaSingletonTypeSymbol(this.context, broadType, valueString, bType);

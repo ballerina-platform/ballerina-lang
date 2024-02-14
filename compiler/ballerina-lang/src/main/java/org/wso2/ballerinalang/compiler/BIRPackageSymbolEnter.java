@@ -1667,7 +1667,12 @@ public class BIRPackageSymbolEnter {
                                                                   null, env.pkgSymbol, symTable.builtinPos,
                                                                   COMPILED_SOURCE);
                     symbol.scope = new Scope(symbol);
-                    BFiniteType finiteType = new BFiniteType(symbol, null);
+                    int valueSpaceLength = inputStream.readInt();
+                    SemType[] vs = new SemType[valueSpaceLength];
+                    for (int i = 0; i < valueSpaceLength; i++) {
+                        vs[i] = readSemType();
+                    }
+                    BFiniteType finiteType = new BFiniteType(symbol, null, null, vs);
                     finiteType.flags = flags;
                     symbol.type = finiteType;
                     return finiteType;

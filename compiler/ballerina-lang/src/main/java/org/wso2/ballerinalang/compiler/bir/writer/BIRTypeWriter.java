@@ -197,6 +197,10 @@ public class BIRTypeWriter extends TypeVisitor {
         BTypeSymbol tsymbol = bFiniteType.tsymbol;
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeLong(tsymbol.flags);
+        buff.writeInt(bFiniteType.valueSpace.length);
+        for (SemType s:bFiniteType.valueSpace) {
+            writeSemType(s);
+        }
     }
 
     @Override

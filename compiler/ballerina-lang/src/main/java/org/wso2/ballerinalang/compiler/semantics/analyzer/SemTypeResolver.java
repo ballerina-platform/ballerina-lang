@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -989,6 +990,37 @@ public class SemTypeResolver {
             types.add(symTable.stringType);
         }
 
+        return types;
+    }
+
+    public static Set<BType> singletonBroadTypes(BFiniteType finiteType, SymbolTable symTable) {
+        Set<BType> types = new LinkedHashSet<>(7);
+        for (SemType t: finiteType.valueSpace) {
+            UniformTypeBitSet uniformTypeBitSet = widenToBasicTypes(t);
+            if ((uniformTypeBitSet.bitset & PredefinedType.NIL.bitset) != 0) {
+                types.add(symTable.nilType);
+            }
+
+            if ((uniformTypeBitSet.bitset & PredefinedType.BOOLEAN.bitset) != 0) {
+                types.add(symTable.booleanType);
+            }
+
+            if ((uniformTypeBitSet.bitset & PredefinedType.INT.bitset) != 0) {
+                types.add(symTable.intType);
+            }
+
+            if ((uniformTypeBitSet.bitset & PredefinedType.FLOAT.bitset) != 0) {
+                types.add(symTable.floatType);
+            }
+
+            if ((uniformTypeBitSet.bitset & PredefinedType.DECIMAL.bitset) != 0) {
+                types.add(symTable.decimalType);
+            }
+
+            if ((uniformTypeBitSet.bitset & PredefinedType.STRING.bitset) != 0) {
+                types.add(symTable.stringType);
+            }
+        }
         return types;
     }
 

@@ -3347,7 +3347,7 @@ public class Types {
         for (BType type : memberTypes) {
             type = getImpliedType(type);
             if (type.tag == TypeTags.FINITE) {
-                Set<BType> broadTypes = singletonBroadTypes(type.getSemType(), symTable);
+                Set<BType> broadTypes = singletonBroadTypes((BFiniteType) type, symTable);
                 for (BType broadType : broadTypes) {
                     if (!isSameOrderedType(broadType, baseType)) {
                         return false;
@@ -3379,7 +3379,7 @@ public class Types {
      */
     private boolean checkValueSpaceHasSameOrderedType(BFiniteType finiteType, BType type) {
         BType baseType = getImpliedType(type);
-        Set<BType> broadTypes = singletonBroadTypes(finiteType.getSemType(), symTable);
+        Set<BType> broadTypes = singletonBroadTypes(finiteType, symTable);
         if (baseType.tag == TypeTags.FINITE) {
             BType baseExprType = broadTypes.iterator().next();
             return checkValueSpaceHasSameOrderedType(((BFiniteType) baseType), baseExprType);
@@ -4264,7 +4264,7 @@ public class Types {
                 memberTypes.add(symTable.byteType);
                 break;
             case TypeTags.FINITE:
-                Set<BType> broadTypes = singletonBroadTypes(referredType.getSemType(), symTable);
+                Set<BType> broadTypes = singletonBroadTypes((BFiniteType) referredType, symTable);
                 memberTypes.addAll(broadTypes);
                 break;
             case TypeTags.UNION:
@@ -5944,7 +5944,7 @@ public class Types {
 
         for (BType member : getAllTypes(type, true)) {
             if (member.tag == TypeTags.FINITE) {
-                Set<BType> broadTypes = singletonBroadTypes(member.getSemType(), symTable);
+                Set<BType> broadTypes = singletonBroadTypes((BFiniteType) member, symTable);
                 memberTypes.addAll(broadTypes);
                 if (!hasFillerValue && hasImplicitDefaultValue(member.getSemType())) {
                     hasFillerValue = true;

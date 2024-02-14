@@ -1798,8 +1798,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 literalExpr.value = String.valueOf(literalValue);
                 return symTable.decimalType;
             case TypeTags.FINITE:
-                SemType semType = expectedType.getSemType();
-                Set<BType> broadTypes = SemTypeResolver.singletonBroadTypes(semType, symTable);
+                Set<BType> broadTypes = SemTypeResolver.singletonBroadTypes((BFiniteType) expectedType, symTable);
                 if (broadTypes.size() == 1) {
                     return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, broadTypes.iterator().next());
                 }
