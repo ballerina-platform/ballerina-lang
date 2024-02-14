@@ -223,42 +223,8 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         if (this.packageContext.project().buildOptions().optimizeCodegen()) {
-            long startTime = System.currentTimeMillis();
-            UsedBIRNodeAnalyzer usedBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
-
-            // Reversed the for loop because used BIRNode analysis should start from the root module.
-            // Root module is usually found last in the topologicallySortedModuleList.
-            for (int i = pkgResolution.topologicallySortedModuleList().size() - 1; i >= 0; i--) {
-                ModuleContext moduleContext = pkgResolution.topologicallySortedModuleList().get(i);
-
-                // Default module is analyzed first to find its immediate dependencies.
-                // Its immediate dependent modules are marked as "used" and they are optimized after that.
-                // This process happens till all "used" modules are exhausted.
-                if (shouldOptimize(moduleContext) && (isRootModule(moduleContext) || moduleContext.isUsed())) {
-                    usedBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
-                    updateNativeDependencyMap(moduleContext);
-                }
-            }
-
-            long endTime = System.currentTimeMillis();
-            System.out.println("Duration for unused BIR node analysis : " + (endTime - startTime) + "ms");
-
-            // Generate optimized thin JAR byte streams.
-            // Codegen cannot be done in the inverted order of the topologicallySortedModuleList.
-            // Therefore, we had to move it into another for loop.
-            for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
-                if (shouldOptimize(moduleContext)) {
-                    if (moduleContext.isUsed()) {
-                        performOptimizedCodeGen(moduleContext);
-                    } else {
-                        updateUnusedPkgMaps(moduleContext);
-                    }
-                }
-                if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
-                    moduleContext.cleanBLangPackage();
-                }
-            }
-            System.out.println("Duration for unused BIR node deletion : " + (birOptimizeDeletionTimeTotal) + "ms");
+            registerUnusedBIRNodes();
+            optimizeUnusedBIRPackages();
         }
         // add compilation diagnostics
         diagnostics.addAll(moduleDiagnostics);
@@ -269,6 +235,47 @@ public class JBallerinaBackend extends CompilerBackend {
 
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
+    }
+
+    private void registerUnusedBIRNodes() {
+        long startTime = System.currentTimeMillis();
+        UsedBIRNodeAnalyzer usedBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
+
+        // Reversed the for loop because used BIRNode analysis should start from the root module.
+        // Root module is usually found last in the topologicallySortedModuleList.
+        for (int i = pkgResolution.topologicallySortedModuleList().size() - 1; i >= 0; i--) {
+            ModuleContext moduleContext = pkgResolution.topologicallySortedModuleList().get(i);
+
+            // Default module is analyzed first to find its immediate dependencies.
+            // Its immediate dependent modules are marked as "used" and they are optimized after that.
+            // This process happens till all "used" modules are exhausted.
+            if (shouldOptimize(moduleContext) && (isRootModule(moduleContext) || moduleContext.isUsed())) {
+                usedBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
+                updateNativeDependencyMap(moduleContext);
+            }
+        }
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("Duration for unused BIR node analysis : " + (endTime - startTime) + "ms");
+    }
+
+    private void optimizeUnusedBIRPackages() {
+        // Codegen cannot be done in the inverted order of the topologicallySortedModuleList.
+        // Therefore, we had to move it into another for loop.
+        for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
+            if (shouldOptimize(moduleContext)) {
+                if (moduleContext.isUsed()) {
+                    // Generate optimized thin JAR byte streams.
+                    performOptimizedCodeGen(moduleContext);
+                } else {
+                    updateUnusedPkgMaps(moduleContext);
+                }
+            }
+            if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
+                moduleContext.cleanBLangPackage();
+            }
+        }
+        System.out.println("Duration for unused BIR node deletion : " + (birOptimizeDeletionTimeTotal) + "ms");
     }
 
     private boolean isRootModule(ModuleContext moduleContext) {
@@ -531,9 +538,12 @@ public class JBallerinaBackend extends CompilerBackend {
         UsedBIRNodeAnalyzer.InvocationData invocationData = bPackageSymbol.invocationData;
         BIRNode.BIRPackage birPackage = bPackageSymbol.bir;
 
-        // If the module is completely unused it should not be packed to the fat JAR at all.
         if (!invocationData.moduleIsUsed) {
-            return;
+            // This error is thrown if the compiler tries to pack an UNUSED thin JAR to the final executable with --optimize flag
+            throw new IllegalStateException(
+                    String.format(
+                            "BIR Package %s should not be packed to final executable because it is not used!",
+                            bPackageSymbol.getName()));
         }
 
         bPackageSymbol.imports.removeIf(pkgSymbol -> pkgSymbol != null && unusedPackageIDs.contains(pkgSymbol.pkgID));
