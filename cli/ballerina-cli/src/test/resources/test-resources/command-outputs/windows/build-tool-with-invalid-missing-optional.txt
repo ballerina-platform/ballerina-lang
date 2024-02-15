@@ -1,0 +1,11 @@
+
+Executing Build Tools
+ERROR [Ballerina.toml:(10:1,10:20)] missing required field 'mode'
+ERROR [Ballerina.toml:(10:17,10:20)] incompatible type for key 'limit': expected 'INTEGER', found 'STRING'
+WARNING: Skipping execution of build tool openapi(generate-delivery-client) as Ballerina.toml contains errors
+
+ERROR [openapi] missing required optional field 'mode'
+WARNING: Skipping execution of build tool openapi(generate-delivery-client-1) as Ballerina.toml contains errors
+
+Compiling source
+	foo/winery:0.1.0

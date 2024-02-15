@@ -29,6 +29,18 @@
       "properties": {
         "accesstoken": {
           "type": "string"
+        },
+        "connectTimeout": {
+          "type": "integer"
+        },
+        "readTimeout": {
+          "type": "integer"
+        },
+        "writeTimeout": {
+          "type": "integer"
+        },
+        "callTimeout": {
+          "type": "integer"
         }
       }
     },

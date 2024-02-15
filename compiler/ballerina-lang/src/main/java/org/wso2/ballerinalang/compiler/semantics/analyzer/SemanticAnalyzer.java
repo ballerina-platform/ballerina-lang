@@ -498,6 +498,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         //set function param flag to final
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
+        BVarSymbol restParamSym = funcNode.symbol.restParam;
+        if (restParamSym != null) {
+            restParamSym.flags |= Flags.FUNCTION_FINAL;
+        }
+
         if (!funcNode.flagSet.contains(Flag.WORKER)) {
             // annotation validation for workers is done for the invocation.
             funcNode.annAttachments.forEach(annotationAttachment -> {
@@ -1145,9 +1150,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         BType lhsType = varNode.symbol.type;
         varNode.setBType(lhsType);
-
         // Configurable variable type must be a subtype of anydata.
-        if (configurable && varNode.typeNode != null) {
+        if (configurable && varNode.typeNode != null && lhsType.tag != TypeTags.SEMANTIC_ERROR) {
             if (!types.isAssignable(lhsType, symTable.anydataType)) {
                 dlog.error(varNode.typeNode.pos,
                         DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA);
@@ -1520,6 +1524,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, currentEnv));
         }
 
+        analyzeNode(varNode.typeNode, data);
         long ownerSymTag = currentEnv.scope.owner.tag;
         // If this is a module record variable, checkTypeAndVarCountConsistency already done at symbolEnter.
         if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
@@ -1574,6 +1579,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, currentEnv));
         }
 
+        analyzeNode(varNode.typeNode, data);
         long ownerSymTag = currentEnv.scope.owner.tag;
         // If this is a module tuple variable, checkTypeAndVarCountConsistency already done at symbolEnter.
         if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
@@ -1723,6 +1729,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (varNode.getBType() == null) {
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, currentEnv));
         }
+        analyzeNode(varNode.typeNode, data);
 
         // match err1 { error(reason,....) => ... }
         // reason must be a const of subtype of string.
@@ -2091,12 +2098,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
+                errorVariable.setBType(rhsType);
                 if (TypeTags.ERROR != referredRhsType.tag) {
-                    dlog.error(variable.pos, DiagnosticErrorCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR, rhsType);
+                    if (referredRhsType != symTable.semanticError) {
+                        dlog.error(variable.pos, DiagnosticErrorCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR, rhsType);
+                    }
                     recursivelyDefineVariables(errorVariable, blockEnv);
                     return;
                 }
-                errorVariable.setBType(rhsType);
                 this.symbolEnter.validateErrorVariable(errorVariable, blockEnv);
                 recursivelySetFinalFlag(errorVariable);
                 break;
@@ -2857,6 +2866,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (matchClauses.size() == 0) {
             return;
         }
+        boolean onFailExists = matchStatement.onFailClause != null;
+        if (onFailExists) {
+            data.commonAnalyzerData.errorTypes.push(new LinkedHashSet<>());
+        }
         analyzeNode(matchClauses.get(0), data);
 
         SymbolEnv matchClauseEnv = data.env;
@@ -2869,7 +2882,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             analyzeNode(currentMatchClause, data);
         }
 
-        if (matchStatement.onFailClause != null) {
+        if (onFailExists) {
             this.analyzeNode(matchStatement.onFailClause, data);
         }
     }
@@ -3053,8 +3066,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
             BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(matchPatternRecType,
                     currentEnv.enclPkg.packageID, symTable, mappingMatchPattern.pos);
-            recordTypeNode.initFunction =
-                    TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, currentEnv, names, symTable);
             TypeDefBuilderHelper.createTypeDefinitionForTSymbol(matchPatternRecType, matchPattenRecordSym,
                     recordTypeNode, currentEnv);
         }
@@ -3591,8 +3602,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
             BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(matchPatternRecType,
                     currentEnv.enclPkg.packageID, symTable, restBindingPattern.pos);
-            recordTypeNode.initFunction =
-                    TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, currentEnv, names, symTable);
             TypeDefBuilderHelper.createTypeDefinitionForTSymbol(matchPatternRecType, matchPattenRecordSym,
                     recordTypeNode, currentEnv);
         }
@@ -3826,13 +3835,16 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         handleForeachDefinitionVariables(foreach.variableDefinitionNode, foreach.varType, foreach.isDeclaredWithVar,
                 false, blockEnv);
         boolean prevBreakFound = data.breakFound;
+        boolean onFailExists = foreach.onFailClause != null;
+        if (onFailExists) {
+            data.commonAnalyzerData.errorTypes.push(new LinkedHashSet<>());
+        }
+
         // Analyze foreach node's statements.
         data.env = blockEnv;
         analyzeStmt(foreach.body, data);
 
-        if (foreach.onFailClause != null) {
-            this.analyzeNode(foreach.onFailClause, data);
-        }
+        analyzeOnFailClause(onFailExists, foreach.body, foreach.onFailClause, data);
         data.notCompletedNormally = false;
         data.breakFound = prevBreakFound;
     }
@@ -3842,18 +3854,65 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Create a new block environment for the on-fail node.
         SymbolEnv onFailEnv = SymbolEnv.createBlockEnv(onFailClause.body, data.env);
         VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
+        Stack<LinkedHashSet<BType>> onFailErrTypes = data.commonAnalyzerData.errorTypes;
+
         if (onFailVarDefNode != null) {
+            BLangVariable variableNode = (BLangVariable) onFailVarDefNode.getVariable();
+            NodeKind kind = variableNode.getKind();
+            if (kind != NodeKind.VARIABLE && kind != NodeKind.ERROR_VARIABLE) {
+                dlog.error(variableNode.pos, DiagnosticErrorCode.INVALID_BINDING_PATTERN_IN_ON_FAIL);
+            }
+
+            BType failErrorType;
+            LinkedHashSet<BType> currentOnFailErrTypes = onFailErrTypes.peek();
+            if (currentOnFailErrTypes.size() == 1) {
+                failErrorType = currentOnFailErrTypes.iterator().next();
+            } else if (currentOnFailErrTypes.size() > 1) {
+                failErrorType = BUnionType.create(null, currentOnFailErrTypes);
+            } else {
+                failErrorType = symTable.neverType;
+            }
+
             // Check on-fail node's variables and set types.
-            handleForeachDefinitionVariables(onFailVarDefNode, symTable.errorType,
-                    onFailClause.isDeclaredWithVar, true, onFailEnv);
+            handleForeachDefinitionVariables(onFailVarDefNode, failErrorType, onFailClause.isDeclaredWithVar, true,
+                                             onFailEnv);
             BLangVariable onFailVarNode = (BLangVariable) onFailVarDefNode.getVariable();
-            if (!types.isAssignable(onFailVarNode.getBType(), symTable.errorType)) {
+
+            BType onFailVarNodeBType = onFailVarNode.getBType();
+            if (onFailVarNodeBType != null &&
+                    onFailVarNodeBType != symTable.semanticError &&
+                    !types.isAssignable(onFailVarNodeBType, symTable.errorType)) {
                 dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR,
-                        onFailVarNode.getBType());
+                           onFailVarNodeBType);
+            }
+
+            if (kind == NodeKind.ERROR_VARIABLE) {
+                BLangErrorVariable errorVar = (BLangErrorVariable) variableNode;
+                errorVar.symbol = symbolEnter.defineVarSymbol(errorVar.pos, errorVar.flagSet, errorVar.getBType(),
+                                                              Names.fromString(anonModelHelper.getNextErrorVarKey(
+                                                                      onFailEnv.enclPkg.packageID)),
+                                                              onFailEnv, true);
             }
         }
+
+        onFailErrTypes.pop();
         data.env = onFailEnv;
         analyzeStmt(onFailClause.body, data);
+    }
+
+    private void analyzeOnFailClause(boolean onFailExists, BLangBlockStmt blockStmt, BLangOnFailClause onFailClause,
+                                     AnalyzerData data) {
+        if (!onFailExists) {
+            return;
+        }
+
+        blockStmt.failureBreakMode = getPossibleBreakMode(!data.commonAnalyzerData.errorTypes.peek().isEmpty());
+        this.analyzeNode(onFailClause, data);
+    }
+
+    private BLangBlockStmt.FailureBreakMode getPossibleBreakMode(boolean possibleFailurePresent) {
+        return possibleFailurePresent ? BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK
+                : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
     }
 
     @Override
@@ -3876,8 +3935,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         data.typeChecker.checkExpr(whileNode.expr, currentEnv, symTable.booleanType, data.prevEnvs,
                 data.commonAnalyzerData);
 
-        if (whileNode.onFailClause != null) {
-            this.analyzeNode(whileNode.onFailClause, data);
+        boolean onFailExists = whileNode.onFailClause != null;
+        if (onFailExists) {
+            data.commonAnalyzerData.errorTypes.push(new LinkedHashSet<>());
         }
 
         BType actualType = whileNode.expr.getBType();
@@ -3893,15 +3953,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) == symTable.trueType
                         && !data.breakFound;
         data.breakFound = prevBreakFound;
+        analyzeOnFailClause(onFailExists, whileNode.body, whileNode.onFailClause, data);
     }
 
     @Override
     public void visit(BLangDo doNode, AnalyzerData data) {
         data.env = SymbolEnv.createTypeNarrowedEnv(doNode, data.env);
-        if (doNode.onFailClause != null) {
-            this.analyzeNode(doNode.onFailClause, data);
+        boolean onFailExists = doNode.onFailClause != null;
+        if (onFailExists) {
+            data.commonAnalyzerData.errorTypes.push(new LinkedHashSet<>());
         }
         analyzeStmt(doNode.body, data);
+        analyzeOnFailClause(onFailExists, doNode.body, doNode.onFailClause, data);
     }
 
     @Override
@@ -3909,8 +3972,16 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BLangExpression errorExpression = failNode.expr;
         BType errorExpressionType = typeChecker.checkExpr(errorExpression, data.env, data.prevEnvs,
                 data.commonAnalyzerData);
-
-        if (errorExpressionType == symTable.semanticError ||
+        if (!data.commonAnalyzerData.errorTypes.empty()) {
+            BType failExprType = failNode.expr.getBType();
+            if (failExprType != symTable.semanticError) {
+                BType errorTypes = types.getErrorTypes(failExprType);
+                if (errorTypes != symTable.semanticError) {
+                    data.commonAnalyzerData.errorTypes.peek().add(errorTypes);
+                }
+            }
+        }
+        if (errorExpressionType != symTable.semanticError &&
                 !types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
             dlog.error(errorExpression.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, errorExpressionType);
         }
@@ -3920,10 +3991,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangLock lockNode, AnalyzerData data) {
         data.env = SymbolEnv.createLockEnv(lockNode, data.env);
-        analyzeStmt(lockNode.body, data);
-        if (lockNode.onFailClause != null) {
-            this.analyzeNode(lockNode.onFailClause, data);
+        boolean onFailExists = lockNode.onFailClause != null;
+        if (onFailExists) {
+            data.commonAnalyzerData.errorTypes.push(new LinkedHashSet<>());
         }
+        analyzeStmt(lockNode.body, data);
+        analyzeOnFailClause(onFailExists, lockNode.body, lockNode.onFailClause, data);
     }
 
     @Override
@@ -4129,11 +4202,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangTransaction transactionNode, AnalyzerData data) {
         data.env = SymbolEnv.createTransactionEnv(transactionNode, data.env);
-
-        if (transactionNode.onFailClause != null) {
-            this.analyzeNode(transactionNode.onFailClause, data);
+        boolean onFailExists = transactionNode.onFailClause != null;
+        if (onFailExists) {
+            data.commonAnalyzerData.errorTypes.push(new LinkedHashSet<>());
         }
         analyzeStmt(transactionNode.transactionBody, data);
+        analyzeOnFailClause(onFailExists, transactionNode.transactionBody, transactionNode.onFailClause, data);
     }
 
     @Override
@@ -4160,11 +4234,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             retryNode.retrySpec.accept(this, data);
         }
         data.env = SymbolEnv.createRetryEnv(retryNode, data.env);
-        analyzeStmt(retryNode.retryBody, data);
-
-        if (retryNode.onFailClause != null) {
-            this.analyzeNode(retryNode.onFailClause, data);
+        boolean onFailExists = retryNode.onFailClause != null;
+        if (onFailExists) {
+            data.commonAnalyzerData.errorTypes.push(new LinkedHashSet<>());
         }
+        analyzeStmt(retryNode.retryBody, data);
+        analyzeOnFailClause(onFailExists, retryNode.retryBody, retryNode.onFailClause, data);
     }
 
     @Override
@@ -4372,23 +4447,25 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private void handleForeachDefinitionVariables(VariableDefinitionNode variableDefinitionNode, BType varType,
-                                                  boolean isDeclaredWithVar, boolean isOnFailDef, SymbolEnv blockEnv) {
+                                                  boolean isDeclaredWithVar, boolean onFail, SymbolEnv blockEnv) {
         BLangVariable variableNode = (BLangVariable) variableDefinitionNode.getVariable();
         // Check whether the foreach node's variables are declared with var.
         if (isDeclaredWithVar) {
+            if (onFail && varType == symTable.neverType) {
+                varType = symTable.errorType;
+            }
+
             // If the foreach node's variables are declared with var, type is `varType`.
             handleDeclaredVarInForeach(variableNode, varType, blockEnv);
             return;
         }
         // If the type node is available, we get the type from it.
         BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
-        if (isOnFailDef) {
-            BType sourceType = varType;
-            varType = typeNodeType;
-            typeNodeType = sourceType;
-        }
-        // Then we need to check whether the RHS type is assignable to LHS type.
+        // Checking whether the RHS type is assignable to LHS type.
         if (types.isAssignable(varType, typeNodeType)) {
+            if (onFail && varType == symTable.neverType) {
+                varType = typeNodeType;
+            }
             // If assignable, we set types to the variables.
             handleDeclaredVarInForeach(variableNode, varType, blockEnv);
             return;
@@ -4592,7 +4669,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         if (annAttachmentNode.expr != null) {
             this.typeChecker.checkExpr(annAttachmentNode.expr, data.env,
-                    referredAnnotType.tag == 
+                    referredAnnotType.tag ==
                             TypeTags.ARRAY ? ((BArrayType) referredAnnotType).eType : annotType, data.prevEnvs,
                     data.commonAnalyzerData);
 

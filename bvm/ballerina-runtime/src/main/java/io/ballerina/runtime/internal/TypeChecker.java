@@ -1953,6 +1953,7 @@ public class TypeChecker {
             case TypeTags.TYPEDESC_TAG:
             case TypeTags.FUNCTION_POINTER_TAG:
             case TypeTags.HANDLE_TAG:
+            case TypeTags.REG_EXP_TYPE_TAG:    
                 return true;
             case TypeTags.XML_TAG:
                 return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;

@@ -62,6 +62,30 @@ public class ManifestUtils {
         return null;
     }
 
+    enum ToolNodeValueType {
+        STRING,
+        NON_STRING,
+        EMPTY,
+        INVALID
+    }
+
+    public static ToolNodeValueType getBuildToolTomlValueType(TopLevelNode topLevelNode) {
+        if (topLevelNode.kind() != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.STRING) {
+                TomlStringValueNode stringValueNode = (TomlStringValueNode) value;
+                if (stringValueNode.getValue().equals("")) {
+                    return ToolNodeValueType.EMPTY;
+                }
+               return ToolNodeValueType.STRING;
+            } else {
+                return ToolNodeValueType.NON_STRING;
+            }
+        }
+        return ToolNodeValueType.INVALID;
+    }
+
     static boolean getBooleanFromTomlTableNode(TopLevelNode topLevelNode) {
         if (topLevelNode.kind() != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
             TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;

@@ -11949,10 +11949,11 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        if (peek().kind == SyntaxKind.DO_KEYWORD && (!isNestedQueryExpr() || selectClause == null)) {
+        if (peek().kind == SyntaxKind.DO_KEYWORD && 
+                (!isNestedQueryExpr() || (selectClause == null && collectClause == null))) {
             STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
             STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
-            return parseQueryAction(queryConstructType, queryPipeline, selectClause);
+            return parseQueryAction(queryConstructType, queryPipeline, selectClause, collectClause);
         }
 
         if (selectClause == null && collectClause == null) {
@@ -13553,7 +13554,8 @@ public class BallerinaParser extends AbstractParser {
      * @param selectClause       Select clause if any This is only for validation.
      * @return Query action node
      */
-    private STNode parseQueryAction(STNode queryConstructType, STNode queryPipeline, STNode selectClause) {
+    private STNode parseQueryAction(STNode queryConstructType, STNode queryPipeline, STNode selectClause,
+                                    STNode collectClause) {
         if (queryConstructType != null) {
             queryPipeline = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(queryPipeline, queryConstructType,
                     DiagnosticErrorCode.ERROR_QUERY_CONSTRUCT_TYPE_IN_QUERY_ACTION);
@@ -13561,6 +13563,10 @@ public class BallerinaParser extends AbstractParser {
         if (selectClause != null) {
             queryPipeline = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(queryPipeline, selectClause,
                     DiagnosticErrorCode.ERROR_SELECT_CLAUSE_IN_QUERY_ACTION);
+        }
+        if (collectClause != null) {
+            queryPipeline = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(queryPipeline, collectClause,
+                    DiagnosticErrorCode.ERROR_COLLECT_CLAUSE_IN_QUERY_ACTION);
         }
 
         startContext(ParserRuleContext.DO_CLAUSE);
@@ -14096,18 +14102,41 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.ON_FAIL_CLAUSE);
         STNode onKeyword = parseOnKeyword();
         STNode failKeyword = parseFailKeyword();
-        STToken token = peek();
-        STNode typeDescriptor = STNodeFactory.createEmptyNode();
-        STNode identifier = STNodeFactory.createEmptyNode();
-        if (token.kind != SyntaxKind.OPEN_BRACE_TOKEN) {
-            typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true, false,
-                    TypePrecedence.DEFAULT);
-            identifier = parseIdentifier(ParserRuleContext.VARIABLE_NAME);
-        }
+        STNode typedBindingPattern = parseOnfailOptionalBP();
         STNode blockStatement = parseBlockNode();
         endContext();
-        return STNodeFactory.createOnFailClauseNode(onKeyword, failKeyword, typeDescriptor, identifier,
+        return STNodeFactory.createOnFailClauseNode(onKeyword, failKeyword, typedBindingPattern,
                 blockStatement);
+    }
+
+    private STNode parseOnfailOptionalBP() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+            return STAbstractNodeFactory.createEmptyNode();
+        } else if (isTypeStartingToken(nextToken.kind)) {
+            return parseTypedBindingPattern();
+        } else {
+            recover(nextToken, ParserRuleContext.ON_FAIL_OPTIONAL_BINDING_PATTERN);
+            return parseOnfailOptionalBP();
+        }
+    }
+
+    /**
+     * Parse typed binding pattern.
+     * <p>
+     * <code>
+     * typed-binding-pattern := inferable-type-descriptor binding-pattern
+     * <br/>
+     * inferable-type-descriptor := type-descriptor | var
+     * </code>
+     *
+     * @return Typed binding pattern node
+     */
+    private STNode parseTypedBindingPattern() {
+        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
+                true, false, TypePrecedence.DEFAULT);
+        STNode bindingPattern = parseBindingPattern();
+        return STNodeFactory.createTypedBindingPatternNode(typeDescriptor, bindingPattern);
     }
 
     /**

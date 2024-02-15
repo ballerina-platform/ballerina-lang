@@ -18,33 +18,48 @@
 
 package io.ballerina.runtime.profiler.codegen;
 
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.profiler.runtime.Data;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AdviceAdapter;
 
+import static io.ballerina.runtime.profiler.util.Constants.DATA_CLASS;
 import static io.ballerina.runtime.profiler.util.Constants.GET_INSTANCE_DESCRIPTOR;
 import static io.ballerina.runtime.profiler.util.Constants.PROFILE_ANALYZER;
-import static io.ballerina.runtime.profiler.util.Constants.STRAND_CLASS;
+import static io.ballerina.runtime.profiler.util.Constants.START_PROFILE_DESCRIPTOR;
+import static io.ballerina.runtime.profiler.util.Constants.STOP_PROFILE_DESCRIPTOR;
 
 /**
  * This class is used as the advice adapter for the Ballerina profiler.
- * This class only manages the functions that contain the strand parameter.
+ * This will wrap the ballerina methods with
+ * {@link io.ballerina.runtime.profiler.runtime.ProfileAnalyzer#start(Strand, String, String)} and
+ * {@link io.ballerina.runtime.profiler.runtime.ProfileAnalyzer#stop(Strand, Data)} methods.
  *
  * @since 2201.8.0
  */
 public class StrandCheckAdapter extends AdviceAdapter {
 
+    private final String className;
+    private final String methodName;
+    private final Type dataType;
     Label tryStart = new Label();
     int load;
+    int stackKeyIndex;
 
-    public StrandCheckAdapter(int access, MethodVisitor mv, String methodName, String description, int load) {
+    public StrandCheckAdapter(String className, int access, MethodVisitor mv, String methodName,
+                              String description, int load) {
         super(Opcodes.ASM9, mv, access, methodName, description);
+        this.className = className;
+        this.methodName = methodName;
         if (load == 0) {
             this.load = 1;
         } else {
             this.load = 0;
         }
+        this.dataType = Type.getObjectType(DATA_CLASS);
     }
 
     // It adds a label to the try block of the wrapped method.
@@ -57,10 +72,13 @@ public class StrandCheckAdapter extends AdviceAdapter {
     // It retrieves the profiler instance, gets the strand id and starts the profiling.
     @Override
     protected void onMethodEnter() {
+        this.stackKeyIndex = this.newLocal(dataType);
         mv.visitMethodInsn(INVOKESTATIC, PROFILE_ANALYZER, "getInstance", GET_INSTANCE_DESCRIPTOR, false);
         mv.visitVarInsn(ALOAD, load);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "getId", "()I", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILE_ANALYZER, "start", "(I)V", false);
+        mv.visitLdcInsn(className);
+        mv.visitLdcInsn(methodName);
+        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILE_ANALYZER, "start", START_PROFILE_DESCRIPTOR, false);
+        mv.visitVarInsn(ASTORE, this.stackKeyIndex);
     }
 
     // If the exit is not due to an exception, it calls the onFinally method.
@@ -88,12 +106,7 @@ public class StrandCheckAdapter extends AdviceAdapter {
     private void onFinally() {
         mv.visitMethodInsn(INVOKESTATIC, PROFILE_ANALYZER, "getInstance", GET_INSTANCE_DESCRIPTOR, false);
         mv.visitVarInsn(ALOAD, load);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS,
-                "getState", "()Lio/ballerina/runtime/internal/scheduling/State;", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "io/ballerina/runtime/internal/scheduling/State",
-                "toString", "()Ljava/lang/String;", false);
-        mv.visitVarInsn(ALOAD, load);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "getId", "()I", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILE_ANALYZER, "stop", "(Ljava/lang/String;I)V", false);
+        mv.visitVarInsn(ALOAD, this.stackKeyIndex);
+        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILE_ANALYZER, "stop", STOP_PROFILE_DESCRIPTOR, false);
     }
 }

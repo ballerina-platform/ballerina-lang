@@ -42,6 +42,7 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPEREF_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPEREF_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE_REF_TYPE_IMPL;
@@ -151,7 +152,7 @@ public class JvmRefTypeConstantsGen {
         genMethodReturn(mv);
         visitRefTypePopulateInitMethod();
         cw.visitEnd();
-        jarEntries.put(typeRefVarConstantsClass + ".class", cw.toByteArray());
+        jarEntries.put(typeRefVarConstantsClass + CLASS_FILE_SUFFIX, cw.toByteArray());
     }
 
     public String getRefTypeConstantsClass() {

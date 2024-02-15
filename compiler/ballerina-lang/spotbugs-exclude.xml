@@ -213,6 +213,10 @@
         <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer"/>
     </Match>
     <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIRRecordValueOptimizer"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
+    </Match>
+    <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.writer.ConstantPool"/>
         <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
     </Match>
@@ -444,6 +448,11 @@
     <Match>
         <Class name="io.ballerina.projects.internal.ManifestUtils" />
         <Method name="getStringFromTomlTableNode"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.ManifestUtils" />
+        <Method name="getBuildToolTomlValueType"/>
         <Bug pattern="BC_UNCONFIRMED_CAST" />
     </Match>
     <Match>

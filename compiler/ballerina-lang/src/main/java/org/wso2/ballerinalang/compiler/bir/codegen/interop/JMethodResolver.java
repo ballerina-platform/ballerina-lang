@@ -52,7 +52,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -82,8 +81,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.J_VOI
  */
 class JMethodResolver {
 
-    private ClassLoader classLoader;
-    private SymbolTable symbolTable;
+    private final ClassLoader classLoader;
+    private final SymbolTable symbolTable;
     private final BType[] definedReadOnlyMemberTypes;
 
     JMethodResolver(ClassLoader classLoader, SymbolTable symbolTable) {
@@ -194,13 +193,15 @@ class JMethodResolver {
             return false;
         }
         Class<?>[] paramTypes = jMethod.getParamTypes();
-        if (count == reducedParamCount && isParamAssignableToBArray(paramTypes[0])) {
+        if (count == reducedParamCount && paramTypes.length > 0 && isParamAssignableToBArray(paramTypes[0])) {
             return true;
-        } else if ((count == (reducedParamCount + 1)) && isParamAssignableToBArray(paramTypes[1])) {
+        } else if ((count == (reducedParamCount + 1)) && paramTypes.length > 1 &&
+                isParamAssignableToBArray(paramTypes[1])) {
             // This is for object interop functions when self is passed as a parameter
             jMethod.setReceiverType(jMethodRequest.receiverType);
             return jMethodRequest.receiverType != null;
-        } else if ((count == (reducedParamCount + 2)) && isParamAssignableToBArray(paramTypes[2])) {
+        } else if ((count == (reducedParamCount + 2)) && paramTypes.length > 2 &&
+                isParamAssignableToBArray(paramTypes[2])) {
             // This is for object interop functions when both BalEnv and self is passed as parameters.
             if (jMethodRequest.receiverType != null) {
                 jMethod.setReceiverType(jMethodRequest.receiverType);
@@ -223,24 +224,10 @@ class JMethodResolver {
         if (jMethods.size() == 1 && noConstraints) {
             return jMethods.get(0);
         } else if (noConstraints) {
-            Optional<JMethod> covariantRetTypeMethod = findCovariantReturnTypeMethod(jMethods);
-            if (covariantRetTypeMethod.isPresent()) {
-                return covariantRetTypeMethod.get();
+            if (areAllMethodsOverridden(jMethods, jMethodRequest.declaringClass)) {
+                return jMethods.get(0);
             }
-
-            int paramCount = jMethods.get(0).getParamTypes().length;
-            if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
-                throw new JInteropException(OVERLOADED_METHODS,
-                        "Overloaded constructors with '" + paramCount + "' parameter(s) in class '" +
-                                jMethodRequest.declaringClass + "', please specify class names for each parameter " +
-                                "in 'paramTypes' field in the annotation");
-            } else {
-                throw new JInteropException(OVERLOADED_METHODS,
-                        "Overloaded methods '" + jMethodRequest.methodName + "' with '" + paramCount +
-                                "' parameter(s) in class '" + jMethodRequest.declaringClass +
-                                "', please specify class names for each parameter " +
-                                "with 'paramTypes' field in the annotation");
-            }
+            throwOverloadedMethodError(jMethodRequest, jMethods.get(0).getParamTypes().length);
         }
 
         JMethod jMethod = resolveExactMethod(jMethodRequest.declaringClass, jMethodRequest.methodName,
@@ -251,28 +238,51 @@ class JMethodResolver {
         return jMethod;
     }
 
-    private Optional<JMethod> findCovariantReturnTypeMethod(List<JMethod> jMethods) {
+    private boolean areAllMethodsOverridden(List<JMethod> jMethods, Class<?> clazz) {
+        if (jMethods.get(0).getKind() == JMethodKind.CONSTRUCTOR) {
+            return false;
+        }
         for (int i = 0; i < jMethods.size(); i++) {
+            Method method1 = (Method) jMethods.get(i).getMethod();
             for (int k = i + 1; k < jMethods.size(); k++) {
-                JMethod ithMethod = jMethods.get(i);
-                JMethod kthMethod = jMethods.get(k);
-
-                if (ithMethod.getReturnType().isAssignableFrom(kthMethod.getReturnType()) ||
-                        kthMethod.getReturnType().isAssignableFrom(ithMethod.getReturnType())) {
-                    if (ithMethod.getParamTypes().length != kthMethod.getParamTypes().length) {
-                        // This occurs when there are static methods and instance methods and the static method
-                        // has one more parameter than the instance method. Also this occurs when an interop
-                        // method in an object maps to instance methods of which one accepting self and another
-                        // that doesn't.
-                        throw new JInteropException(
-                                OVERLOADED_METHODS, "Overloaded methods cannot be differentiated. Please specify the " +
-                                "parameterTypes for each parameter in 'paramTypes' field in the annotation");
-                    }
-                    return Optional.of(ithMethod);
+                Method method2 = (Method) jMethods.get(k).getMethod();
+                if (!isOverridden(method1, method2, clazz)) {
+                    return false;
                 }
             }
         }
-        return Optional.empty();
+        return true;
+    }
+
+    private boolean isOverridden(Method method1, Method method2, Class<?> clazz) {
+        if (method1.getParameterCount() != method2.getParameterCount()) {
+            // This occurs when there are static methods and instance methods, and the static method has one more
+            // parameter than the instance method. Additionally, this occurs when an interop method in an object
+            // maps to instance methods, one accepting `self` and another that doesn't.
+            throw new JInteropException(OVERLOADED_METHODS, "Overloaded methods cannot be differentiated. " +
+                    "Please specify the parameter types for each parameter in 'paramTypes' field in the annotation");
+        }
+        // Returns false if return types are not covariant
+        Method currentMethod;
+        Method otherMethod;
+        if (method2.getReturnType().isAssignableFrom(method1.getReturnType())) {
+            currentMethod = method1;
+            otherMethod = method2;
+        } else if (method1.getReturnType().isAssignableFrom(method2.getReturnType())) {
+            currentMethod = method2;
+            otherMethod = method1;
+        } else {
+            return false;
+        }
+
+        try {
+            Method superMethod = clazz.getSuperclass()
+                    .getDeclaredMethod(currentMethod.getName(), currentMethod.getParameterTypes());
+            return Arrays.equals(superMethod.getParameterTypes(), otherMethod.getParameterTypes()) &&
+                    superMethod.getReturnType().equals(otherMethod.getReturnType());
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
     }
 
     private void validateMethodSignature(JMethodRequest jMethodRequest, JMethod jMethod) {
@@ -316,8 +326,7 @@ class JMethodResolver {
                             "': expected '" + expectedRetTypeName + "', found '" + returnType + "'");
         } else if (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue) {
             String errorMsgPart;
-            if (returnType instanceof BUnionType) {
-                BUnionType bUnionReturnType = (BUnionType) returnType;
+            if (returnType instanceof BUnionType bUnionReturnType) {
                 BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
                 errorMsgPart = "expected '" + modifiedRetType + "', found '" + returnType + "'";
             } else {
@@ -334,8 +343,7 @@ class JMethodResolver {
         if (retType.tag == TypeTags.NIL || (retType instanceof BTypeReferenceType &&
                 ((BTypeReferenceType) retType).referredType.tag == TypeTags.ERROR)) {
             return "error";
-        } else if (retType instanceof BUnionType) {
-            BUnionType bUnionReturnType = (BUnionType) retType;
+        } else if (retType instanceof BUnionType bUnionReturnType) {
             BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
             return modifiedRetType + "|error";
         } else {
@@ -519,6 +527,7 @@ class JMethodResolver {
                 case TypeTags.RECORD:
                     return this.classLoader.loadClass(BMap.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.JSON:
+                case TypeTags.READONLY:
                     return jTypeName.equals(J_OBJECT_TNAME);
                 case TypeTags.OBJECT:
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
@@ -546,8 +555,6 @@ class JMethodResolver {
                         }
                     }
                     return true;
-                case TypeTags.READONLY:
-                    return jTypeName.equals(J_OBJECT_TNAME);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -666,11 +673,7 @@ class JMethodResolver {
                         return true;
                     }
 
-                    if (isValidReturnBType(jType, symbolTable.jsonType, jMethodRequest, visitedSet)) {
-                        return true;
-                    }
-
-                    return false;
+                    return isValidReturnBType(jType, symbolTable.jsonType, jMethodRequest, visitedSet);
                 case TypeTags.OBJECT:
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.ERROR:
@@ -1002,5 +1005,17 @@ class JMethodResolver {
         throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                 "Parameter count does not match with Java method '" + jMethodRequest.methodName +
                         "' found in class '" + jMethodRequest.declaringClass.getName() + "'");
+    }
+
+    private void throwOverloadedMethodError(JMethodRequest jMethodRequest, int paramCount) throws JInteropException {
+        if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
+            throw new JInteropException(OVERLOADED_METHODS, "Overloaded constructors with '" + paramCount +
+                    "' parameter(s) in class '" + jMethodRequest.declaringClass.getName() +
+                    "', please specify the parameter types for each parameter in 'paramTypes' field in the annotation");
+        } else {
+            throw new JInteropException(OVERLOADED_METHODS, "Overloaded methods '" + jMethodRequest.methodName +
+                    "' with '" + paramCount + "' parameter(s) in class '" + jMethodRequest.declaringClass.getName() +
+                    "', please specify the parameter types for each parameter in 'paramTypes' field in the annotation");
+        }
     }
 }
