@@ -90,7 +90,8 @@ public class BalRuntime extends Runtime {
         try {
             configClazz = Class.forName(configClassName);
         } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" + configClassName));
+            throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" +
+                    configClassName));
         }
         TomlDetails configDetails = LaunchUtils.getConfigurationDetails();
         Object response = directInvoke(configClazz,
@@ -109,7 +110,8 @@ public class BalRuntime extends Runtime {
     }
 
     public void invokeMethodAsync(String functionName, Object[] args, Callback callback) {
-        invokeMethodAsync(functionName, args, callback, Scheduler.getDaemonStrand(), PredefinedTypes.TYPE_ANY, "strand-" + functionName);
+        invokeMethodAsync(functionName, args, callback, Scheduler.getDaemonStrand(), PredefinedTypes.TYPE_ANY,
+                "strand-" + functionName);
     }
 
     private void invokeMethodAsync(String functionName, Object[] args, Callback callback, Strand parent,
