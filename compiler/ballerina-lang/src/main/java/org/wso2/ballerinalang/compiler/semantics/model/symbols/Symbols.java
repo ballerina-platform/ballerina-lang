@@ -218,8 +218,8 @@ public class Symbols {
                                                  PackageID pkgID,
                                                  BSymbol owner,
                                                  Location pos,
-                                                 SymbolOrigin origin) {
-        return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos, origin);
+                                                 SymbolOrigin origin, Name compUnit) {
+        return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos, origin, compUnit);
     }
     
     public static BResourcePathSegmentSymbol createResourcePathSegmentSymbol(Name name,

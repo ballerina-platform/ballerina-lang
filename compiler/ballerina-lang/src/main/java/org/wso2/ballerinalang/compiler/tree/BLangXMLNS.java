@@ -32,7 +32,8 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
     // BLangNodes
     public BLangExpression namespaceURI;
     public BLangIdentifier prefix;
-
+    public BLangIdentifier compUnit;
+    
     // Semantic Data
     public BSymbol symbol;
 

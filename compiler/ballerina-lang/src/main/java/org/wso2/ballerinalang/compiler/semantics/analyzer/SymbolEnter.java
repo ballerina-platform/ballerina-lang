@@ -1192,7 +1192,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         Location nsSymbolPos = prefix.value.isEmpty() ? xmlnsNode.pos : xmlnsNode.prefix.pos;
         BXMLNSSymbol xmlnsSymbol =
                 Symbols.createXMLNSSymbol(prefix, nsURI, symEnv.enclPkg.symbol.pkgID, symEnv.scope.owner,
-                        nsSymbolPos, getOrigin(prefix));
+                        nsSymbolPos, getOrigin(prefix), names.fromIdNode(xmlnsNode.compUnit));
         xmlnsNode.symbol = xmlnsSymbol;
 
         // First check for package-imports with the same alias.
