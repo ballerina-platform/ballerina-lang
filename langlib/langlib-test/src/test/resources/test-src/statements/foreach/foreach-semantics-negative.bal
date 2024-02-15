@@ -346,3 +346,31 @@ function testInvalidTupleVarRefWithMismatchingTypesInForeach() {
     foreach var [[c1, c2, ...c3], c4] in c {
     }
 }
+
+type SampleErrorData record {|
+    int code;
+    string reason;
+|};
+
+type SampleError error<SampleErrorData>;
+
+type SampleComplexErrorData record {|
+    int code;
+    int[2] pos;
+    record {string moreInfo;} infoDetails;
+|};
+
+type SampleComplexError error<SampleComplexErrorData>;
+
+function testOnFailWithMultipleErrors() {
+    boolean isPositiveState = false;
+    int[] nestedData = [1];
+
+    foreach var i in nestedData {
+        if isPositiveState {
+            fail error SampleComplexError("Transaction Failure", code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+        }
+        fail error SampleError("Transaction Failure", code = 50, reason = "deadlock condition");
+    } on fail var error(msg) {
+    }
+}

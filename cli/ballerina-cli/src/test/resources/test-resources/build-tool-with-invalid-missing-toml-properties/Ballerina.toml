@@ -1,0 +1,14 @@
+[package]
+org = "foo"
+name = "winery"
+version = "0.1.0"
+
+[[tool.openapi]]
+id = "generate-delivery-client"
+filePath = ""
+targetModule = "delivery"
+options.mode = "client"
+
+[[tool.openapi]]
+id = "generate-client"
+options.mode = "client"

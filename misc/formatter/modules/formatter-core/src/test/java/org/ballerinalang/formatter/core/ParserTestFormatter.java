@@ -89,11 +89,6 @@ public class ParserTestFormatter extends FormatterTest {
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
                 "service_decl_source_20.bal",
 
-                // The following tests are disabled due to tokens merging together after formatting. issue #35240
-                "query_expr_source_121.bal", "query_expr_source_123.bal", "query_expr_source_124.bal",
-                "query_expr_source_126.bal", "match_stmt_source_21.bal",
-                "func_params_source_27.bal",
-
                 "separated_node_list_import_decl.bal", "node_location_test_03.bal",
 
                 // parser tests with syntax errors that cannot be handled by the formatter
@@ -191,7 +186,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "regexp_constructor_source_52.bal", "regexp_constructor_source_53.bal", "completion_source_07.bal",
                 "query_expr_source_101.bal", "query_expr_source_105.bal", "query_expr_source_94.bal",
                 "query_expr_source_116.bal", "query_expr_source_117.bal", "query_expr_source_118.bal",
-                "query_expr_source_119.bal", "query_expr_source_103.bal", "query_expr_source_115.bal"
+                "query_expr_source_119.bal", "query_expr_source_103.bal", "query_expr_source_115.bal",
+                "transaction_stmt_source_09.bal"
         );
     }
 

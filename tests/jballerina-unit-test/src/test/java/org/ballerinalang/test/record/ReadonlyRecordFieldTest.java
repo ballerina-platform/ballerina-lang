@@ -123,6 +123,8 @@ public class ReadonlyRecordFieldTest {
         validateError(result, index++, "incompatible types: expected 'readonly', found 'R2'", 302, 18);
         validateError(result, index++, "incompatible types: expected 'readonly'," +
                 " found 'record {| int x; never y?; anydata...; |}'", 308, 18);
+        validateError(result, index++, "missing non-defaultable required record field 'x'", 323, 25);
+        validateError(result, index++, "missing non-defaultable required record field 'y'", 324, 25);
         assertEquals(result.getErrorCount(), index);
     }
 }

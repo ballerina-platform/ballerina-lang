@@ -15,8 +15,11 @@
  */
 package org.ballerinalang.langserver.stdlib;
 
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
@@ -40,6 +43,10 @@ public class ClientAction {
 
     public static Object delete(BTypedesc targetType) {
         return new Object();
+    }
+
+    public static BStream responses(BTypedesc targetType) {
+        return ValueCreator.createStreamValue(TypeCreator.createStreamType(targetType.getDescribingType()));
     }
 
     public static Object postResource(BArray path, Object message, Object headers,

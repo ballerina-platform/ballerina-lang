@@ -115,19 +115,13 @@ public class MockDesugar {
         // Get the Mock Function map from the pkgNode
         Map<String, String> mockFunctionMap = pkgNode.getTestablePkg().getMockFunctionNamesMap();
 
+        // Get the mock function type map from the pkgNode
+        Map<String, Boolean> isLegacyMockingMap = pkgNode.getTestablePkg().getIsLegacyMockingMap();
+
         // Get the set of functions to generate
         Set<String> mockFunctionSet = mockFunctionMap.keySet();
-        ArrayList<String> importsList = new ArrayList<>();
-        for (BLangImportPackage importPkg : pkgNode.getTestablePkg().getImports()) {
-            if (!importPkg.symbol.toString().contains(testPackageSymbol)) {
-                importsList.add(importPkg.symbol.toString());
-            }
-        }
-
         for (String function : mockFunctionSet) {
-            if (function.contains(pkgNode.packageID.toString()) ? !function.split(pkgNode.packageID.toString())[1].
-                    startsWith(MOCK_LEGACY_DELIMITER) :
-                    !startsWithMockLegacyDelimiterForImportedMockFunctions(function, importsList)) {
+            if (!isLegacyMockingMap.get(function)) {
                 pkgNode.getTestablePkg().functions.add(generateMockFunction(function));
             }
         }

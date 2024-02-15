@@ -75,8 +75,10 @@ public class RemotePackageRepository implements PackageRepository {
                 environment, cacheDirectory, ballerinaShortVersion);
         Proxy proxy = initializeProxy(settings.getProxy());
         CentralAPIClient client = new CentralAPIClient(repoUrl, proxy, settings.getProxy().username(),
-                settings.getProxy().password(), getAccessTokenOfCLI(settings));
-
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout());
         return new RemotePackageRepository(fileSystemRepository, client);
     }
 

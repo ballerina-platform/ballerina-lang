@@ -891,6 +891,56 @@ function testLocalObjectConstructorWithValidAccessInInitMethodAfterInitializatio
     };
 }
 
+isolated class TestIsolatedObjectWithSelfAccessInAnonFunctions {
+    private int[][] arr = [];
+
+    function init(int[] node) {
+        function _ = function () {
+            lock {
+                self.arr.push(node.clone());
+            }
+        };
+    }
+
+    function f1(int[] node) {
+        function _ = function () returns int[] {
+            lock {
+                return self.arr[0].cloneReadOnly();
+            }
+        };
+    }
+
+    function f2(int[] node) {
+        lock {
+            function _ = function () {
+                object {} _ = isolated object {
+                    private int[][] innerArr = [];
+
+                    function innerF(int[] innerNode) {
+                        function _ = function () {
+                            lock {
+                                self.innerArr.push(innerNode.clone());
+                            }
+                        };
+                    }
+                };
+            };
+        }
+    }
+
+    function f3() {
+        object{} _ = object {
+            private int[][] arr2 = [];
+
+            function fn() {
+                function _ = function (int[] node) {
+                    self.arr2.push(node); // OK because `self` is of the non-isolated object
+                };
+            }
+        };
+    }
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

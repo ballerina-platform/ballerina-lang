@@ -85,6 +85,15 @@ public class Scheduler {
     private Semaphore mainBlockSem;
     private final RuntimeRegistry runtimeRegistry;
     private AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
+    private static Strand daemonStrand = null;
+
+    public static void setDaemonStrand(Strand strand) {
+        daemonStrand = strand;
+    }
+
+    public static Strand getDaemonStrand() {
+        return daemonStrand;
+    }
 
     public Scheduler(boolean immortal) {
         this(getPoolSize(), immortal);
@@ -130,6 +139,11 @@ public class Scheduler {
     public FutureValue scheduleFunction(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
                                         String strandName, StrandMetadata metadata) {
         return schedule(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
+    }
+
+    public FutureValue scheduleFunction(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
+                                        String strandName, StrandMetadata metadata , Callback callback) {
+        return schedule(params, fp.getFunction(), parent, callback, null, returnType, strandName, metadata);
     }
 
     /**
@@ -441,7 +455,6 @@ public class Scheduler {
     }
 
     private void cleanUp(Strand justCompleted) {
-        justCompleted.scheduler = null;
         justCompleted.frames = null;
         justCompleted.waitingContexts = null;
 

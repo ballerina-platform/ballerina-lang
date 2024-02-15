@@ -1,0 +1,292 @@
+<!--
+ Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+
+ WSO2 LLC. licenses this file to you under the Apache License,
+ Version 2.0 (the "License"); you may not use this file except
+ in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied. See the License for the
+ specific language governing permissions and limitations
+ under the License.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/maxcdn_bootstrap_min.css">
+    <link rel="stylesheet" type="text/css"
+          href="css/flamegraph.css">
+
+    <style>
+        #profilerLogo{
+                 color: #20b6b0;
+                 margin-top: -33px;
+                 margin-left: 190px;
+                 position: absolute;
+                 font-size: 32px;
+                 font-weight: bold;
+              }      body {
+                 background-color: #fefefe;
+              }
+
+              .container {
+                 width: 100%
+              }
+              .btn {
+                 box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+                 border-radius: 10px;
+                 border: 1px solid #20b6b0;
+                 background-color: #20b6b0;
+                 color: #1B2024;
+                 font-weight: bold;
+                 font-family: pragmatica, sans-serif;
+                 margin-right: 10px;
+              }
+
+              .btn:hover {
+                 background-color: black;
+                 color: #fff;
+              }
+
+              .btn:focus {
+                 border-radius: 10px;
+                 border: 1px solid #20b6b0;
+                 background-color: #20b6b0;
+                 color: #fff;
+              }
+
+              .btn:active {
+                 color: #fff;
+                 background-color: #494949;
+              }
+
+              .header {
+                 width: auto;
+                 background-color: #fbfbfd;
+                 padding-bottom: 25px;
+              }
+        .d3-flame-graph rect {
+                 outline: none;
+                 stroke: #f0efef;
+                 fill-opacity: .8;
+              }
+              .header h3 {
+                 margin-left: 40px;
+                 margin-top: 0px;
+                 margin-bottom: 0;
+                 line-height: 40px;
+              }
+
+              .text-muted {
+                 padding-top: 20px;
+              }
+
+              .pull-right {
+                 margin-top: 20px;
+              }
+
+              .chart {
+                 margin-left: 50px;
+              }
+
+              .highlight {
+                 fill: greenyellow !important;
+              }
+
+        .d3-flame-graph-tip {
+                 visibility: hidden !important;
+              }.balLogo {
+                 padding-left: 50px !important;
+                 padding-top: 25px !important;
+                 object-fit: contain; !important;
+                 width: 500px !important;
+                 height: auto !important;
+              }
+
+        #chart {
+                 box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+                 margin-top: 40px;
+                 margin-bottom: 40px;
+                 max-height: 780px;
+                 width: auto;
+                 border-radius: 20px;
+                 overflow-y: auto;
+                 overflow-x: auto;
+                 background-color: #fbfbfd;
+              }#details{
+                 color: black;
+                 position: absolute;
+                 left: 50%;
+                 font-weight: bold;
+                 transform: translate(-50%, -50%);
+              }.form-control {
+                 border: solid 3px #fff;
+                 box-sizing: border-box;
+                 font-size: 17px;
+                 height: 2em;
+                 padding: .5em;
+                 transition: all 2s ease-in;
+                 width: 300px;
+                 z-index: 1;
+              }
+
+    </style>
+    <title>Ballerina Flame Graph</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+
+<body>
+<div class="container">
+    <div class="header clearfix">
+        <nav>
+            <div class="pull-right">
+                <form class="form-inline" id="form">
+                    <div class="form-group">
+                        <input placeholder="Search..." id="searchBox" type="text" class="form-control" id="term">
+                    </div>
+                    <a class="btn btn-primary" href="javascript: search();">Search</a>
+                    <a class="btn" href="javascript: clearSearch();">Clear</a>
+                    <a class="btn" href="javascript: resetZoom();">Reset zoom</a>
+                </form>
+            </div>
+        </nav>
+        <img class="balLogo" src="ballerina-profiler-report-logo.svg" alt="B7A"/>
+        <div id="profilerLogo"></div>
+    </div>
+    <div id="chart"></div>
+    <div id="details"></div>
+</div>
+<script type="text/javascript" src="js/d3js_v7.js"></script>
+<script type="text/javascript"
+        src="js/cdn_flamegraph_min.js"></script>
+<script type="text/javascript">
+
+
+    ${profile_data}
+    var flameGraph = d3.flamegraph()
+        .width(window.innerWidth - 40)
+        .cellHeight(18)
+        .transitionDuration(750)
+        .minFrameSize(5)
+        .transitionEase(d3.easeCubic)
+        .sort(true)
+        .title("")
+        .onClick(onClick)
+        .differential(false)
+        .selfValue(false);
+
+          var details = document.getElementById("details");
+          flameGraph.setDetailsElement(details);
+
+          var start = data;
+          // Render the flame graph
+          d3.select("#chart")
+             .datum(start)
+             .call(flameGraph);
+
+    function search() {
+             var term = document.getElementById("searchBox").value.toLowerCase();
+             if (term) {
+                var cells = d3.selectAll("rect");
+                cells.classed("highlight", false);
+                cells.each(function (d) {
+                   if (d.data.name.toLowerCase().indexOf(term) >= 0) {
+                      d3.select(this).classed("highlight", true);
+                   }
+                });
+             }
+
+             document.getElementById("searchBox").addEventListener("input", function () {
+                if (this.value == "") {
+                   d3.selectAll("rect").classed("highlight", false);
+                }
+             });
+          }
+
+          function clearSearch() {
+             document.getElementById("searchBox").value = "";
+             d3.selectAll("rect").classed("highlight", false);
+          }      // Define a clear function to clear the search bar and reset the flame graph
+          function stop() {
+    const answer = window.confirm("Leaving this page will end the profiling process");
+
+      // return the user's answer
+      if (answer) {
+             window.location.href = "http://localhost:2324/terminate";           window.close();  } }
+
+    function saveAsHtml() {
+      // Send an AJAX request to retrieve the current HTML content
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", window.location.href, true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          // Get the response text (the HTML code)
+          var htmlContent = xhr.responseText;
+
+          // Remove the button from the HTML content
+          var parser = new DOMParser();
+          var doc = parser.parseFromString(htmlContent, "text/html");
+          var buttonToRemove = doc.getElementById("remove-me");
+          if (buttonToRemove) {
+            buttonToRemove.parentNode.removeChild(buttonToRemove);
+          }
+          var buttonToRemove1 = doc.getElementById("remove-me1");
+          if (buttonToRemove1) {
+            buttonToRemove1.parentNode.removeChild(buttonToRemove1);
+          }
+          htmlContent = doc.documentElement.outerHTML;
+
+          // Create a new Blob object with the modified HTML content
+          var blob = new Blob([htmlContent], {type: "text/html;charset=utf-8"});
+
+          // Create a new anchor element to download the file
+          var anchor = document.createElement("a");
+
+          // Set the download attribute to the file name
+          const currentTime = new Date().toLocaleString();
+          const fileName = `Profiler_Result_${currentTime}.html`;      anchor.setAttribute("download", fileName);
+
+          // Set the href attribute to the URL of the Blob object
+          anchor.setAttribute("href", URL.createObjectURL(blob));
+
+          // Click the anchor element to download the file
+          anchor.click();
+        }
+      };
+      xhr.send();
+    }
+          // Define a function to reset the zoom on the flame graph
+          function resetZoom() {
+             flameGraph.resetZoom();
+          }
+
+          // Define a function to logs a message to the console
+          function onClick(d) {
+             console.info("Clicked on " + d.data.name);
+          }
+
+</script>
+<script>
+    const myDiv = document.getElementById('details');
+
+    new MutationObserver(() => {
+       const currentText = myDiv.textContent;
+       if (currentText.includes('samples')) {
+          const newText = currentText.replace('samples', 'ms');
+          myDiv.textContent = newText;
+       }
+    }).observe(myDiv, { childList: true });
+</script>
+</body>
+
+</html>

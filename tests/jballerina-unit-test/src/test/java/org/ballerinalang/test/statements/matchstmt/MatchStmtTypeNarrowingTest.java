@@ -67,6 +67,11 @@ public class MatchStmtTypeNarrowingTest {
         BRunUtil.invoke(result, "testNarrowTypeInListBindingPattern3");
     }
 
+    @Test
+    public void testMatchClauseWithQuery() {
+        BRunUtil.invoke(result, "testMatchClauseWithQuery");
+    }
+
     @Test(dataProvider = "dataToTestMatchClauseWithTypeGuard", description = "Test match clause with type guard")
     public void testMatchClauseWithTypeGuard(String functionName) {
         BRunUtil.invoke(result, functionName);

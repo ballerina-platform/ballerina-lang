@@ -975,3 +975,33 @@ type F4 record {|
 type F5 record {|
     int x;
 |};
+
+type Person record {|
+    string fname;
+    string lname;
+|};
+
+function getPerson() returns Person {
+    Person person = {fname: "Anne", lname: "Frank"};
+    return person;
+}
+
+[@UndefinedAnnotation int, int] [f1, s2] = [1, 2];
+
+record {|@UndefinedAnnotation string fname; string lname;|} {fname, lname} = getPerson();
+
+error<record {|@UndefinedAnnotation int i;|}> err = error("err", i = 33);
+
+error<map<[@UndefinedAnnotation int]>> error () = error("err");
+
+error<record {|@UndefinedAnnotation int x = 10;|}> error () = error("err");
+
+function testInvalidAnnotationAttachmentsOnMembersOfStructuredTypedBindingPatterns() {
+    [@UndefinedAnnotation int, int] [first, second] = [1, 2];
+    [@UndefinedAnnotation int, int, int] [a, b, c] = [1, 2, 3];
+    [[@UndefinedAnnotation int, int], int] [[a1, b1], c1] = [[1, 2], 3];
+    record {|@UndefinedAnnotation string fname; string lname;|} {fname, lname} = getPerson();
+    error<record {|@UndefinedAnnotation int i;|}> err = error("err", i = 33);
+    error<map<[@UndefinedAnnotation int]>> error () = error("err");
+    error<record {|@UndefinedAnnotation int x = 10;|}> error () = error("err");
+}

@@ -1,0 +1,88 @@
+{
+  "packages": [
+    {
+      "org": "gayaldassanayake",
+      "name": "tool_gayal",
+      "version": "1.3.0",
+      "transitive": false,
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "name": "io",
+          "version": "1.6.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        }
+      ],
+      "modules": []
+    },
+    {
+      "org": "ballerina",
+      "name": "jballerina.java",
+      "version": "0.0.0",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
+    },
+    {
+      "org": "ballerina",
+      "name": "io",
+      "version": "1.6.0",
+      "transitive": false,
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "name": "jballerina.java",
+          "version": "0.0.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        },
+        {
+          "org": "ballerina",
+          "name": "lang.value",
+          "version": "0.0.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        }
+      ],
+      "modules": []
+    },
+    {
+      "org": "ballerina",
+      "name": "lang.value",
+      "version": "0.0.0",
+      "transitive": false,
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "name": "jballerina.java",
+          "version": "0.0.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        }
+      ],
+      "modules": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "gayaldassanayake",
+      "package_name": "tool_gayal",
+      "version": "1.3.0",
+      "module_name": "tool_gayal",
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "package_name": "io",
+          "version": "1.6.0",
+          "module_name": "io",
+          "dependencies": []
+        }
+      ]
+    }
+  ]
+}

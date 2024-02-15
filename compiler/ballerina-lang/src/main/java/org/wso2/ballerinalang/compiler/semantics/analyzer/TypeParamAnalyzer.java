@@ -967,7 +967,6 @@ public class TypeParamAnalyzer {
         recordSymbol.isTypeParamResolved = true;
         recordSymbol.typeParamTSymbol = expTSymbol;
         recordSymbol.scope = new Scope(recordSymbol);
-        recordSymbol.initializerFunc = expTSymbol.initializerFunc;
 
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BField expField : expType.fields.values()) {
