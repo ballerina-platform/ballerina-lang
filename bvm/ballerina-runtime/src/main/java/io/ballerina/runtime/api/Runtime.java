@@ -46,11 +46,11 @@ public abstract class Runtime {
     @Deprecated(forRemoval = true)
     public static Runtime getCurrentRuntime() {
         Strand strand = Scheduler.getStrand();
-        return new BalRuntime(strand.scheduler);
+        return new BalRuntime(strand.scheduler, null);
     }
 
-    public static Runtime from(String orgName, String moduleName, String version) {
-        return new BalRuntime(orgName, moduleName, version);
+    public static Runtime from(Module module) {
+        return new BalRuntime(module);
     }
 
     public abstract void init();

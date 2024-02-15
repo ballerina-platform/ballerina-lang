@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.identifier.Utils;
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
@@ -37,7 +38,6 @@ import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.ValueCreator;
@@ -64,28 +64,21 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CL
 public class BalRuntime extends Runtime {
 
     private final Scheduler scheduler;
-    private String lookupKey;
-    private final String orgName;
-    private final String moduleName;
-    private final String version;
+    private final Module module;
 
-    public BalRuntime(Scheduler scheduler) {
+    public BalRuntime(Scheduler scheduler, Module module) {
         this.scheduler = scheduler;
-        this.orgName = null;
-        this.moduleName = null;
-        this.version = null;
+        this.module = module;
     }
 
-    public BalRuntime(String orgName, String moduleName, String version) {
+    public BalRuntime(Module module) {
         this.scheduler = new Scheduler(false);
-        this.orgName = orgName;
-        this.moduleName = moduleName;
-        this.version = version;
+        this.module = module;
     }
 
     public void init() {
         // Invoke Config init
-        String configClassName = getConfigClassName(orgName, moduleName, version);
+        String configClassName = getConfigClassName(module.getOrg(), module.getName(), module.getMajorVersion());
         Class<?> configClazz;
         try {
             configClazz = Class.forName(configClassName);
@@ -116,12 +109,14 @@ public class BalRuntime extends Runtime {
 
     private void invokeMethodAsync(String functionName, Object[] args, Callback callback, Strand parent,
                                    Type returnType, String strandName) {
-        assert version != null;
-        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(orgName, moduleName,
-                RuntimeUtils.getMajorVersion(version), false));
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                module.getName(), module.getMajorVersion(), module.isTestPkg()));
         Function<?, ?> func = o -> valueCreator.call((Strand) (((Object[]) o)[0]), functionName, args);
         FutureValue future = scheduler.createFuture(parent, callback, null, returnType, strandName, null);
-        scheduler.schedule(args, func, future);
+        Object[] argsWithStrand = new Object[args.length + 1];
+        argsWithStrand[0] = future.strand;
+        System.arraycopy(args, 0, argsWithStrand, 1, args.length);
+        scheduler.schedule(argsWithStrand, func, future);
         scheduler.start();
     }
 
@@ -349,8 +344,7 @@ public class BalRuntime extends Runtime {
     private static String getConfigClassName(String orgName, String packageName, String version) {
         String configClassName = CONFIGURATION_CLASS_NAME;
         if (!DOT.equals(packageName)) {
-            configClassName = encodeNonFunctionIdentifier(packageName) + "." +
-                    RuntimeUtils.getMajorVersion(version) + "." + configClassName;
+            configClassName = encodeNonFunctionIdentifier(packageName) + "." + version + "." + configClassName;
         }
         if (!ANON_ORG.equals(orgName)) {
             configClassName = encodeNonFunctionIdentifier(orgName) + "." +  configClassName;
