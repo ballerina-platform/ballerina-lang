@@ -225,6 +225,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return true;
         }
 
+        if (symbol.tag == SymTag.XMLNS &&
+                !(((BXMLNSSymbol) foundSym).compUnit.value.equals(((BXMLNSSymbol) symbol).compUnit.value))) {
+            return true;
+        }
+
         // if a symbol is found, then check whether it is unique
         if (!isDistinctSymbol(pos, symbol, foundSym)) {
             return false;
@@ -471,11 +476,12 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             BSymbol symbol = entry.symbol;
             long tag = symbol.tag;
 
-            if ((tag & SymTag.XMLNS) == SymTag.XMLNS) {
+            if ((tag & SymTag.XMLNS) == SymTag.XMLNS &&
+                    ((BXMLNSSymbol) symbol).compUnit.equals(compUnit)) {
                 return symbol;
             }
 
-            if ((tag & SymTag.IMPORT) == SymTag.IMPORT &&
+            if (!((tag & SymTag.XMLNS) == SymTag.XMLNS) && (tag & SymTag.IMPORT) == SymTag.IMPORT &&
                     ((BPackageSymbol) symbol).compUnit.equals(compUnit)) {
                 ((BPackageSymbol) symbol).isUsed = true;
                 return symbol;

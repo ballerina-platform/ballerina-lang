@@ -3687,6 +3687,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
+        xmlns.compUnit = this.createIdentifier(xmlns.pos, currentCompUnitName);
 
         BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
         xmlnsStmt.xmlnsDecl = xmlns;
@@ -3702,6 +3703,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
+        xmlns.compUnit = this.createIdentifier(xmlns.pos, currentCompUnitName);
+
         return xmlns;
     }
 

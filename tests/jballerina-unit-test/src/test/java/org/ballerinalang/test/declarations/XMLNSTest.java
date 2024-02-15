@@ -27,6 +27,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
+
 /**
  * Test class for XMLNS Definitions.
  *
@@ -66,6 +68,19 @@ public class XMLNSTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 28, 11);
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'F'", 29, 11);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
+    public void testXMLNSPrefixUsage() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/declarations/xmlnsPrefixProject");
+        BRunUtil.invoke(compileResult, "testXMLNSUsage");
+        BRunUtil.invoke(compileResult, "testXMLNSUsageInAnotherFile");
+    }
+
+    @Test
+    public void testXMLNSPrefixUsageNegative() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/declarations/xmlnsPrefixNegativeProject");
+        validateError(compileResult, 0, "undefined module 'ns'", 18, 16);
     }
 
     @AfterClass
