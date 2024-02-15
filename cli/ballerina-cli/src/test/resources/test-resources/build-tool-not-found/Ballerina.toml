@@ -1,0 +1,9 @@
+[package]
+org = "foo"
+name = "winery"
+version = "0.1.0"
+
+[[tool.grpc]]
+id = "generate-grpc-client"
+filePath = "delivery_grpc.json"
+targetModule = "delivery"

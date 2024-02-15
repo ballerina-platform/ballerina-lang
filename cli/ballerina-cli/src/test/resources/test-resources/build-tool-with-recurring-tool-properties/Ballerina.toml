@@ -6,15 +6,12 @@ version = "0.1.0"
 [[tool.openapi]]
 id = "generate-delivery-client"
 filePath = "delivery.json"
-targetModule = "delivery"
+targetModule = ""
 options.mode = "client"
 
 [[tool.openapi]]
 id = "generate-delivery-client"
-filePath = "delivery1.json"
+filePath = "delivery.yml"
 options.mode = "client"
 
-[[tool.grpc]]
-id = "generate-grpc-client"
-filePath = "delivery2.json"
-targetModule = "delivery"
+
