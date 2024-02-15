@@ -27,8 +27,9 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.*;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnostic;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -50,7 +51,6 @@ public class PackageDiagnostic extends Diagnostic {
     protected Location location;
     protected Project project;
     protected ModuleDescriptor moduleDescriptor;
-    protected Path diagnosticFilePath;
 
     public PackageDiagnostic(DiagnosticInfo diagnosticInfo, Location location) {
         this.diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
@@ -93,11 +93,6 @@ public class PackageDiagnostic extends Diagnostic {
         this.project = project;
         this.moduleDescriptor = moduleDescriptor;
         this.location = new DiagnosticLocation(filePath, this.diagnostic.location());
-        this.diagnosticFilePath = Paths.get(filePath);
-    }
-
-    public Path diagnosticFilePath() {
-        return diagnosticFilePath;
     }
 
     @Override
