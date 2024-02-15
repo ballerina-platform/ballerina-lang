@@ -1,0 +1,2 @@
+ballerina: provided target path '%TARGET_LOCATION%' is not a directory.
+Existing generated directory was not found

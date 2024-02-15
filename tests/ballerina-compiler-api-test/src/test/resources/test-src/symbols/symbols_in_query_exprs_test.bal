@@ -89,3 +89,55 @@ function getPeople() returns Person[] {
     Person p2 = {id: 2, name: "Jane Doe"};
     return [p1, p2];
 }
+
+
+
+Student[] moduleStudents = getStudents();
+Person[] modulePeople = getPeople();
+
+// basic/minimal
+() v11 = from var st in moduleStudents
+    select {id: st.id, name: st.fname, age: st.age};
+() v12 = from var st in moduleStudents
+    select <Person>{id: st.id, name: st.fname, age: st.age};
+
+// where clause
+Student v13 = from var st in moduleStudents
+    where st.fname == "Jon"
+    select {name: st.fname};
+
+// let clause
+Person v14 = from var st in moduleStudents
+    let string name = st.fname + " " + st.lname
+    select {id: st.id, name: name};
+
+// join clause
+Person v15 = from var st in moduleStudents
+    join var {id, name} in modulePeople on st.id equals id
+    select {name: name, gpa: st.gpa};
+
+// order by clause
+Person v16 = from var st in moduleStudents
+    order by st.id
+    select st;
+
+// limit clause
+() v17 = from var st in moduleStudents
+    limit LIMIT
+    select st;
+
+// on conflict clause
+() v18 = table key(id) from var st in moduleStudents.toStream()
+    select <Person>{id: st.id, name: st.fname, age: st.age}
+    on conflict error("Conflicted Key", cKey = st.id);
+
+// group by clause
+Student v19 = from var {name, age} in modulePeople
+    group by age
+    select age;
+
+function testQueryExprWithCollect() {
+    return from var {age, gpa} in getStudents()
+        let var ageScore = (50 - age) * gpa
+        collect sum(ageScore);
+}

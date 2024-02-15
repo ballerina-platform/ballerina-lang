@@ -1,0 +1,10 @@
+ERROR [Ballerina.toml:(12:1,15:24)] recurring target module found in Ballerina.toml. Target module must be unique for each tool
+ERROR [Ballerina.toml:(12:1,15:24)] recurring tool id 'generate-delivery-client' found in Ballerina.toml. Tool id must be unique for each tool
+
+Executing Build Tools
+	openapi(generate-delivery-client)
+
+WARNING: Skipping execution of build tool openapi(generate-delivery-client) as Ballerina.toml contains errors
+
+Compiling source
+	foo/winery:0.1.0

@@ -29,6 +29,37 @@ public type EmailError SendError|ReadClientInitError|ReadError;
 # Represents the operation canceled(typically by the caller) error.
 public type CancelledError distinct error;
 
+# Represents an description record for an intersection error type.
+type ErrorDetails record {
+    string fileName;
+};
+
+# Represents an intersection of two errors.
+public type IntersectionError CancelledError & error<ErrorDetails>;
+
 function test() {
     SendError err;
+    EmailError unionErr;
+    CancelledError distinctErr;
+    IntersectionError intersectionErr;
+}
+
+type ErrorDetail1 record {
+    string msg;
+    int value?;
+};
+
+type ErrorDetail2 record {|
+    *ErrorDetail1;
+    boolean|int flag;
+|};
+
+type SimpleError error<ErrorDetail1>;
+type InclusionError error<ErrorDetail2>;
+
+type SimpleIntersectionError distinct error & error<ErrorDetail1> & error<ErrorDetail1>;
+type MultipleIntersectionError InclusionError & error<ErrorDetail1> & SimpleError & error<ErrorDetail2>;
+function testMultipleIntersectionError() {
+    SimpleIntersectionError simpleErr;
+    MultipleIntersectionError multipleErr;
 }

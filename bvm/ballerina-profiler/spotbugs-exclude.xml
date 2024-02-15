@@ -20,4 +20,8 @@
         <Class name="io.ballerina.runtime.profiler.Profiler"/>
         <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.runtime.profiler.ui.JsonParser$Data"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
 </FindBugsFilter>

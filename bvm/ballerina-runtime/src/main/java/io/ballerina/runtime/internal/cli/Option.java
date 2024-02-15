@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.cli;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -46,7 +47,7 @@ public class Option {
     private static final String NAMED_ARG_DELIMITER = "=";
 
     private final RecordType recordType;
-    private final BMap<BString, Object> recordVal;
+    private BMap<BString, Object> recordVal;
     private final List<String> operandArgs;
     private final Set<BString> recordKeysFound;
     private final int location;
@@ -55,23 +56,23 @@ public class Option {
     private static final Pattern HEX_LITERAL = Pattern.compile("[-+]?0[xX][\\dA-Fa-f.pP\\-+]+");
 
     public Option(Type recordType, int location) {
-        this((RecordType) getImpliedType(recordType),
-                ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName()), location);
+        this((RecordType) getImpliedType(recordType), location);
     }
 
-    public Option(RecordType recordType, BMap<BString, Object> recordVal) {
-        this(recordType, recordVal, 0);
-    }
-
-    public Option(RecordType recordType, BMap<BString, Object> recordVal, int location) {
+    public Option(RecordType recordType, int location) {
         this.recordType = recordType;
-        this.recordVal = recordVal;
         operandArgs = new ArrayList<>();
         recordKeysFound = new HashSet<>();
         this.location = location;
     }
 
     public BMap<BString, Object> parseRecord(String[] args) {
+        Module packageId = recordType.getPackage();
+        if (packageId == null) {
+            this.recordVal = ValueCreator.createRecordValue(recordType);
+        } else {
+            this.recordVal = ValueCreator.createRecordValue(packageId, recordType.getName());
+        }
         int index = 0;
         while (index < args.length) {
             String arg = args[index++];

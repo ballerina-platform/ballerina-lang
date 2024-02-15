@@ -78,6 +78,7 @@ import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 
 /**
  * This class represents the Ballerina compiler backend that produces executables that runs on the JVM.
@@ -177,8 +178,10 @@ public class JBallerinaBackend extends CompilerBackend {
                         new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
 
-            //TODO: remove this once ballerina-lang#41407 is fixed
             ModuleContext.shrinkDocuments(moduleContext);
+            if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
+                moduleContext.cleanBLangPackage();
+            }
         }
         // add compilation diagnostics
         diagnostics.addAll(moduleDiagnostics);
@@ -202,12 +205,11 @@ public class JBallerinaBackend extends CompilerBackend {
         return diagnosticResult;
     }
 
-    // TODO EmitResult should not contain compilation diagnostics.
     public EmitResult emit(OutputType outputType, Path filePath) {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
-            return new EmitResult(false, diagnosticResult, generatedArtifact);
+            return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), generatedArtifact);
         }
 
         switch (outputType) {
@@ -224,19 +226,23 @@ public class JBallerinaBackend extends CompilerBackend {
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
 
-        ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
+        ArrayList<Diagnostic> allDiagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
+        List<Diagnostic> emitResultDiagnostics = new ArrayList<>();
+        // Add lifecycle plugin diagnostics.
         List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion(filePath);
         if (!pluginDiagnostics.isEmpty()) {
-            diagnostics.addAll(pluginDiagnostics);
+            emitResultDiagnostics.addAll(pluginDiagnostics);
         }
-        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
-
-        List<Diagnostic> allDiagnostics = new ArrayList<>(diagnostics);
+        // Add jar resolver diagnostics.
         jarResolver().diagnosticResult().diagnostics().stream().forEach(
-                diagnostic -> allDiagnostics.add(diagnostic));
+                diagnostic -> emitResultDiagnostics.add(diagnostic));
+        allDiagnostics.addAll(emitResultDiagnostics);
+        // JBallerinaBackend diagnostics contains all diagnostics.
+        // EmitResult will only contain diagnostics related to emitting the executable.
+        diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
 
         // TODO handle the EmitResult properly
-        return new EmitResult(true, new DefaultDiagnosticResult(allDiagnostics), generatedArtifact);
+        return new EmitResult(true, new DefaultDiagnosticResult(emitResultDiagnostics), generatedArtifact);
     }
 
     private Path emitBala(Path filePath) {
@@ -756,7 +762,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void addConflictedJars(JarLibrary jarLibrary, HashMap<String, JarLibrary> copiedEntries, String entryName) {
-        if (entryName.endsWith(".class") && !entryName.endsWith("module-info.class")) {
+        if (entryName.endsWith(CLASS_FILE_SUFFIX) && !entryName.endsWith("module-info.class")) {
             JarLibrary conflictingJar = copiedEntries.get(entryName);
 
             // Ignore if conflicting jars has same name

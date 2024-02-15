@@ -69,6 +69,20 @@ function testUnionRuntimeToString() {
                  <string> checkpanic err.detail()["message"]);
 }
 
+function testTernaryWithQueryForModuleImportedVariable() {
+    int|int[] thenResult = foo:IntOrNull is int ?
+        from var _ in [1, 2]
+        where foo:IntOrNull + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = foo:IntOrNull is () ? 2 :
+        from var _ in [1, 2]
+        where foo:IntOrNull + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
+}
+
 function assertTrue(anydata actual) {
     return assertEquals(true, actual);
 }

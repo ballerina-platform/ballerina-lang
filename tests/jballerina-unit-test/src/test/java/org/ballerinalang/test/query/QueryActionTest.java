@@ -174,6 +174,16 @@ public class QueryActionTest {
     public void testReturnStmtWithinQueryAction() {
         BRunUtil.invoke(result, "testReturnStmtWithinQueryAction");
     }
+    
+    @Test
+    public void testQueryActionWithCollectClauseInsideLeClause() {
+        BRunUtil.invoke(result, "testQueryActionWithCollectClauseInsideLeClause1");
+    }
+
+    @Test
+    public void testQueryActionWithCollectClauseInsideLeClauseWithEmptyDoBody() {
+        BRunUtil.invoke(result, "testQueryActionWithCollectClauseInsideLeClause2");
+    }
 
     @Test
     public void testQueryActionWithDoClauseContainsCheck() {

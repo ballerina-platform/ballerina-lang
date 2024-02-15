@@ -3,7 +3,7 @@ codecov:
   max_report_age: off
 
 fixes:
-  - "ballerina/lang$0046*/*/::langlib/lang.*/src/main/ballerina/"
+  - "ballerina/lang&0046*/*/::langlib/lang.*/src/main/ballerina/"
 
 ignore:
   - "**/tests"

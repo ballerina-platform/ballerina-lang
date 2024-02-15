@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIConstructorCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCLICall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTerminator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
@@ -58,6 +59,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -364,7 +366,7 @@ public class JvmTerminatorGen {
                 this.genBranchTerm((BIRTerminator.Branch) terminator, funcName);
                 return;
             case RETURN:
-                this.genReturnTerm(returnVarRefIndex, func, invocationVarIndex);
+                this.genReturnTerm(returnVarRefIndex, func, invocationVarIndex, localVarOffset);
                 return;
             case PANIC:
                 this.errorGen.genPanic((BIRTerminator.Panic) terminator);
@@ -448,9 +450,9 @@ public class JvmTerminatorGen {
     }
 
     private void handleErrorRetInUnion(int returnVarRefIndex, List<BIRNode.ChannelDetails> channels, BUnionType bType,
-                                       int invocationVarIndex) {
+                                       int invocationVarIndex, int localVarOffset) {
 
-        if (channels.size() == 0) {
+        if (channels.isEmpty()) {
             return;
         }
 
@@ -465,7 +467,7 @@ public class JvmTerminatorGen {
 
         if (errorIncluded) {
             this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-            this.mv.visitVarInsn(ALOAD, 0);
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
             JvmCodeGenUtil.loadChannelDetails(this.mv, channels, invocationVarIndex);
             this.mv.visitMethodInsn(INVOKESTATIC, WORKER_UTILS, "handleWorkerError",
                                     HANDLE_WORKER_ERROR, false);
@@ -474,7 +476,7 @@ public class JvmTerminatorGen {
 
     private void notifyChannels(List<BIRNode.ChannelDetails> channels, int retIndex, int invocationVarIndex) {
 
-        if (channels.size() == 0) {
+        if (channels.isEmpty()) {
             return;
         }
 
@@ -512,10 +514,39 @@ public class JvmTerminatorGen {
             case JI_CONSTRUCTOR_CALL:
                 this.genJIConstructorTerm((JIConstructorCall) terminator, localVarOffset);
                 return;
+            case JI_METHOD_CLI_CALL:
+                this.genJICLICallTerm((JIMethodCLICall) terminator, localVarOffset, func);
+                return;
             default:
                 throw new BLangCompilerException("JVM generation is not supported for terminator instruction " +
                         terminator);
         }
+    }
+
+    private void genJICLICallTerm(JIMethodCLICall terminator, int localVarOffset, BIRNode.BIRFunction func) {
+        Label blockedOnExternLabel = new Label();
+        Label notBlockedOnExternLabel = new Label();
+        genHandlingBlockedOnExternal(localVarOffset, blockedOnExternLabel);
+        this.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
+
+        this.mv.visitLabel(blockedOnExternLabel);
+        this.mv.visitVarInsn(ALOAD, localVarOffset + 1);
+        this.mv.visitTypeInsn(CHECKCAST, terminator.jClassName);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, terminator.jClassName, terminator.name, terminator.jMethodVMSig, false);
+        BIRNode.BIRVariableDcl tempVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("%arrayResult"),
+                VarScope.FUNCTION, VarKind.TEMP);
+        int resultIndex = this.getJVMIndexOfVarRef(tempVar);
+        this.mv.visitVarInsn(ASTORE, resultIndex);
+        int paramIndex = 1;
+        for (BIROperand localVar : terminator.lhsArgs) {
+            mv.visitVarInsn(ALOAD, resultIndex);
+            mv.visitIntInsn(BIPUSH, paramIndex);
+            mv.visitInsn(AALOAD);
+            jvmCastGen.addUnboxInsn(mv, localVar.variableDcl.type);
+            paramIndex += 1;
+            this.storeToVar(localVar.variableDcl);
+        }
+        this.mv.visitLabel(notBlockedOnExternLabel);
     }
 
     private void genJCallTerm(JavaMethodCall callIns, BType attachedType, int localVarOffset) {
@@ -1274,7 +1305,6 @@ public class JvmTerminatorGen {
     }
 
     private void loadFpReturnType(BIROperand lhsOp) {
-
         BType futureType = JvmCodeGenUtil.getImpliedType(lhsOp.variableDcl.type);
         BType returnType = symbolTable.anyType;
         if (futureType.tag == TypeTags.FUTURE) {
@@ -1289,12 +1319,10 @@ public class JvmTerminatorGen {
     }
 
     private void loadVar(BIRNode.BIRVariableDcl varDcl) {
-
         jvmInstructionGen.generateVarLoad(this.mv, varDcl, this.getJVMIndexOfVarRef(varDcl));
     }
 
     private void storeToVar(BIRNode.BIRVariableDcl varDcl) {
-
         jvmInstructionGen.generateVarStore(this.mv, varDcl, this.getJVMIndexOfVarRef(varDcl));
     }
 
@@ -1327,13 +1355,14 @@ public class JvmTerminatorGen {
         mv.visitVarInsn(ALOAD, bundledArrayIndex);
     }
 
-    public void genReturnTerm(int returnVarRefIndex, BIRNode.BIRFunction func, int invocationVarIndex) {
+    public void genReturnTerm(int returnVarRefIndex, BIRNode.BIRFunction func, int invocationVarIndex,
+                              int localVarOffset) {
         BType bType = unifier.build(func.type.retType);
-        generateReturnTermFromType(returnVarRefIndex, bType, func, invocationVarIndex);
+        generateReturnTermFromType(returnVarRefIndex, bType, func, invocationVarIndex, localVarOffset);
     }
 
     private void generateReturnTermFromType(int returnVarRefIndex, BType bType, BIRNode.BIRFunction func,
-                                            int invocationVarIndex) {
+                                            int invocationVarIndex, int localVarOffset) {
         bType = JvmCodeGenUtil.getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitVarInsn(LLOAD, returnVarRefIndex);
@@ -1380,7 +1409,7 @@ public class JvmTerminatorGen {
                 break;
             case TypeTags.UNION:
                 this.handleErrorRetInUnion(returnVarRefIndex, Arrays.asList(func.workerChannels),
-                        (BUnionType) bType, invocationVarIndex);
+                        (BUnionType) bType, invocationVarIndex, localVarOffset);
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
                 break;
