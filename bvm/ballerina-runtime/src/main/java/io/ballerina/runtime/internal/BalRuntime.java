@@ -49,8 +49,12 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.*;
-import static io.ballerina.runtime.internal.values.ValueCreator.getLookupKey;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.CONFIGURATION_CLASS_NAME;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+
 
 /**
  * Internal implementation of the API used by the interop users to control Ballerina runtime behavior.
@@ -60,10 +64,63 @@ import static io.ballerina.runtime.internal.values.ValueCreator.getLookupKey;
 public class BalRuntime extends Runtime {
 
     private final Scheduler scheduler;
-    private static ValueCreator valueCreator = null;
+    private String lookupKey;
+    private final String orgName;
+    private final String moduleName;
+    private final String version;
 
     public BalRuntime(Scheduler scheduler) {
         this.scheduler = scheduler;
+        this.orgName = null;
+        this.moduleName = null;
+        this.version = null;
+    }
+
+    public BalRuntime(String orgName, String moduleName, String version) {
+        this.scheduler = new Scheduler(false);
+        this.orgName = orgName;
+        this.moduleName = moduleName;
+        this.version = version;
+    }
+
+    public void init() {
+        // Invoke Config init
+        String configClassName = getConfigClassName(orgName, moduleName, version);
+        Class<?> configClazz;
+        try {
+            configClazz = Class.forName(configClassName);
+        } catch (Throwable e) {
+            throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" + configClassName));
+        }
+        TomlDetails configDetails = LaunchUtils.getConfigurationDetails();
+        Object response = directInvoke(configClazz,
+                new Class[]{String[].class, Path[].class, String.class},
+                new Object[]{new String[]{}, configDetails.paths, configDetails.configContent});
+        if (response instanceof Throwable) {
+            throw ErrorCreator.createError(StringUtils.fromString("configurable initialization failed due to " +
+                    formatErrorMessage((Throwable) response)), (Throwable) response);
+        }
+        // Invoke module init
+        invokeMethodAsync("$moduleInit", new Object[1], null, null, PredefinedTypes.TYPE_NULL, "init");
+    }
+
+    public void start() {
+        invokeMethodAsync("$moduleStart", new Object[1], null, null, PredefinedTypes.TYPE_NULL, "start");
+    }
+
+    public void invokeMethodAsync(String functionName, Object[] args, Callback callback) {
+        invokeMethodAsync(functionName, args, callback, Scheduler.getDaemonStrand(), PredefinedTypes.TYPE_ANY, "strand-" + functionName);
+    }
+
+    private void invokeMethodAsync(String functionName, Object[] args, Callback callback, Strand parent,
+                                   Type returnType, String strandName) {
+        assert version != null;
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(orgName, moduleName,
+                RuntimeUtils.getMajorVersion(version), false));
+        Function<?, ?> func = o -> valueCreator.call((Strand) (((Object[]) o)[0]), functionName, args);
+        FutureValue future = scheduler.createFuture(parent, callback, null, returnType, strandName, null);
+        scheduler.schedule(args, func, future);
+        scheduler.start();
     }
 
     /**
@@ -275,53 +332,8 @@ public class BalRuntime extends Runtime {
         return func;
     }
 
-    public void invokeMethodAsync(String functionName, Object[] args, Callback callback) {
-        Function<?, ?> func = o -> valueCreator.call((Strand) (((Object[]) o)[0]), functionName, args);
-        FutureValue future = scheduler.createFuture(null, callback, null, PredefinedTypes.TYPE_NULL, null, null);
-        scheduler.schedule(new Object[1], func, future);
-    }
-
-    public Runtime balStart(Scheduler startScheduler, String orgName, String moduleName, String version) {
-        String initClassName = getQualifiedClassName(orgName, moduleName, version, MODULE_INIT_CLASS_NAME);
-        Class<?> initClazz;
-        try {
-            initClazz = Class.forName(initClassName);
-        } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString("failed to load init class :" + initClassName));
-        }
-        Class<?> configClazz;
-        String configClassName = getQualifiedClassName(orgName, moduleName, version, CONFIGURATION_CLASS_NAME);
-        try {
-            configClazz = Class.forName(configClassName);
-        } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" + configClassName));
-        }
-
-        TomlDetails configDetails = LaunchUtils.getConfigurationDetails();
-        Object response = directInvoke(configClazz,
-                new Class[]{String[].class, Path[].class, String.class},
-                new Object[]{new String[]{}, configDetails.paths, configDetails.configContent});
-        if (response instanceof Throwable) {
-            throw ErrorCreator.createError(StringUtils.fromString("configurable initialization failed due to " +
-                    formatErrorMessage((Throwable) response)), (Throwable) response);
-        }
-
-        response = invoke(initClazz, "$moduleInit", startScheduler, new Class[]{Strand.class}, new Object[1]);
-        if (response instanceof Throwable) {
-            throw ErrorCreator.createError(StringUtils.fromString("module initialization failed due to " +
-                    formatErrorMessage((Throwable) response)), (Throwable) response);
-        }
-        response = invoke(initClazz, "$moduleStart", startScheduler, new Class[]{Strand.class}, new Object[1]);
-        if (response instanceof Throwable) {
-            throw ErrorCreator.createError(StringUtils.fromString("module start failed due to " +
-                    formatErrorMessage((Throwable) response)), (Throwable) response);
-        }
-        valueCreator = ValueCreator.getValueCreator(getLookupKey(orgName, moduleName, version, false));
-        return new BalRuntime(startScheduler);
-    }
-
     private static Object directInvoke(Class<?> clazz, Class<?>[] paramTypes, Object[] args) {
-        String funcName = cleanupFunctionName("$configureInit");
+        String funcName = Utils.encodeFunctionIdentifier("$configureInit");;
         try {
             final Method method = clazz.getDeclaredMethod(funcName, paramTypes);
             return method.invoke(null, args);
@@ -332,49 +344,16 @@ public class BalRuntime extends Runtime {
         }
     }
 
-    private static Object invoke(Class<?> clazz, String name, Scheduler scheduler, Class<?>[] paramTypes,
-                                 Object[] params) {
-        String funcName = cleanupFunctionName(name);
-        try {
-            final Method method = clazz.getDeclaredMethod(funcName, paramTypes);
-            Function<Object[], Object> func = objects -> {
-                try {
-                    return method.invoke(null, objects);
-                } catch (InvocationTargetException e) {
-                    Throwable targetException = e.getTargetException();
-                    if (targetException instanceof BError) {
-                        return (BError) targetException;
-                    }
-                    return targetException;
-                } catch (IllegalAccessException e) {
-                    return ErrorCreator.createError(StringUtils.fromString("Error while invoking function '" +
-                            funcName + "'"), e);
-                }
-            };
-            final BFuture out = scheduler.schedule(params, func, null, null, null, PredefinedTypes.TYPE_ANY,
-                    null, null);
-            scheduler.start();
-            final Throwable t = out.getPanic();
-            if (t != null) {
-                return ErrorCreator.createError(StringUtils.fromString("Error while invoking function '" +
-                        funcName + "'"), StringUtils.fromString(t.getMessage()));
-            }
-            return out.getResult();
-        } catch (NoSuchMethodException e) {
-            return ErrorCreator.createError(StringUtils.fromString("Error while invoking function '" + funcName + "'"), e);
-        }
-    }
-
-    private static String getQualifiedClassName(String orgName, String packageName,
-                                               String version, String className) {
+    private static String getConfigClassName(String orgName, String packageName, String version) {
+        String configClassName = CONFIGURATION_CLASS_NAME;
         if (!DOT.equals(packageName)) {
-            className = encodeNonFunctionIdentifier(packageName) + "." +
-                    RuntimeUtils.getMajorVersion(version) + "." + className;
+            configClassName = encodeNonFunctionIdentifier(packageName) + "." +
+                    RuntimeUtils.getMajorVersion(version) + "." + configClassName;
         }
         if (!ANON_ORG.equals(orgName)) {
-            className = encodeNonFunctionIdentifier(orgName) + "." +  className;
+            configClassName = encodeNonFunctionIdentifier(orgName) + "." +  configClassName;
         }
-        return className;
+        return configClassName;
     }
 
     private static String formatErrorMessage(Throwable e) {
@@ -438,9 +417,5 @@ public class BalRuntime extends Runtime {
         sb.append("(").append(fileName);
         // Append the line number
         sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
-    }
-
-    private static String cleanupFunctionName(String name) {
-        return Utils.encodeFunctionIdentifier(name);
     }
 }

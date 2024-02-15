@@ -49,11 +49,13 @@ public abstract class Runtime {
         return new BalRuntime(strand.scheduler);
     }
 
-    public static Runtime start(String orgName, String moduleName, String version) {
-        Scheduler scheduler = new Scheduler(false);
-        BalRuntime balRuntime = new BalRuntime(scheduler);
-        return balRuntime.balStart(scheduler, orgName, moduleName, version);
+    public static Runtime from(String orgName, String moduleName, String version) {
+        return new BalRuntime(orgName, moduleName, version);
     }
+
+    public abstract void init();
+
+    public abstract void start();
 
     /**
      * Invoke Object method asynchronously and sequentially. This method will ensure that the object methods are
