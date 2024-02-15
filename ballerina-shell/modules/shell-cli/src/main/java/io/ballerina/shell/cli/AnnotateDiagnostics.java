@@ -1,6 +1,7 @@
 package io.ballerina.shell.cli;
 
 import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
@@ -16,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 public class AnnotateDiagnostics {
@@ -26,22 +28,26 @@ public class AnnotateDiagnostics {
             SyntaxKind.LOCAL_VAR_DECL,
             SyntaxKind.RETURN_STATEMENT);
 
-    public static String renderDiagnostic(Diagnostic diagnostic, int terminalWidth) {
+    public static String renderDiagnostic(Diagnostic diagnostic, Document document, int terminalWidth) {
 
-        if (diagnostic instanceof PackageDiagnostic packageDiagnostic) {
-            DiagnosticAnnotation diagnosticAnnotation = getDiagnosticLineFromSyntaxAPI(
-                    packageDiagnostic.diagnosticFilePath(), packageDiagnostic.location(), terminalWidth);
-            return diagnostic + "\n" + diagnosticAnnotation;
+        String diagnosticCode = diagnostic.diagnosticInfo().code();
+        if (diagnosticCode.startsWith("BCE")) {
+            int diagnosticCodeNumber = Integer.parseInt(diagnosticCode.substring(3));
+            if (diagnosticCodeNumber < 1000) {
+                return diagnostic + getSyntaxDiagnosticAnnotation(
+                        document, diagnostic.location(), terminalWidth);
+            }
         }
+        DiagnosticAnnotation diagnosticAnnotation = getDiagnosticLineFromSyntaxAPI(
+                document, diagnostic.location(), terminalWidth);
+        return diagnostic + "\n" + diagnosticAnnotation;
 
-        return diagnostic.toString();
+//        return diagnostic.toString();
     }
 
-    private static DiagnosticAnnotation getDiagnosticLineFromSyntaxAPI(Path diagnosticFilePath, Location location,
+    private static DiagnosticAnnotation getDiagnosticLineFromSyntaxAPI(Document document, Location location,
                                                                        int terminalWidth) {
-        String text = getSourceText(diagnosticFilePath);
-        TextDocument textDocument = TextDocuments.from(text);
-        SyntaxTree syntaxTree = SyntaxTree.from(textDocument, diagnosticFilePath.toString());
+        TextDocument textDocument = document.textDocument();
         boolean isMultiline = location.lineRange().startLine().line() != location.lineRange().endLine().line();
         int start = location.textRange().startOffset();
         int end = location.textRange().endOffset();
@@ -70,12 +76,74 @@ public class AnnotateDiagnostics {
                 terminalWidth);
     }
 
+    private static String getSyntaxDiagnosticAnnotation(Document document, Location location, int terminalWidth) {
+        SyntaxTree syntaxTree = document.syntaxTree();
+        if (location.textRange().startOffset() == location.textRange().endOffset()) {
+            Token searchStartToken =
+                    ((ModulePartNode) syntaxTree.rootNode()).findToken(location.textRange().startOffset());
+            if (isSyntaxErrorToken(searchStartToken, location.textRange().startOffset())) {
+                return searchStartToken.toString();
+            }
+            HashSet<Integer> visited = new HashSet<>();
+            return findSyntaxDiagnosticToken(searchStartToken.parent(),
+                    location.textRange().startOffset(), visited).node().toString();
+        }
+        return "";
+    }
+
     public static int getTerminalWidth() {
         try (var terminal = TerminalBuilder.terminal()) {
             return terminal.getWidth();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static SyntaxErrorSearchResult findSyntaxDiagnosticToken(Node curr, int position,
+                                                                     HashSet<Integer> visited) {
+        if (curr instanceof Token token && isSyntaxErrorToken(curr, position)) {
+            return new SyntaxErrorSearchResult(token, true);
+        }
+
+        if (curr instanceof NonTerminalNode nonTerminalNode) {
+            if (isNotWithinRange(nonTerminalNode.textRange(), position)) {
+                return findSyntaxDiagnosticToken(curr.parent(), position, visited);
+            }
+
+            for (Node child : nonTerminalNode.children()) {
+                if (visited.contains(child.hashCode())) {
+                    continue;
+                }
+                if (child instanceof NonTerminalNode && isNotWithinRange(child.textRange(), position)) {
+                    visited.add(child.hashCode());
+                    continue;
+                }
+                SyntaxErrorSearchResult result = findSyntaxDiagnosticToken(child, position, visited);
+                if (result.found()) {
+                    return result;
+                }
+            }
+
+            visited.add(nonTerminalNode.hashCode());
+
+            return findSyntaxDiagnosticToken(curr.parent(), position, visited);
+
+        }
+
+        return new SyntaxErrorSearchResult(curr, false);
+
+    }
+
+    private static boolean isNotWithinRange(TextRange textRange, int position) {
+        return textRange.startOffset() > position || textRange.endOffset() < position;
+    }
+
+    private static boolean isSyntaxErrorToken(Node node, int position) {
+        if (node instanceof Token token) {
+            return token.textRange().startOffset() == position && token.textRange().endOffset() == position;
+        }
+
+        return false;
     }
 
     private static NonTerminalNode climbUpToStatementNode(NonTerminalNode node, int start, int end) {
@@ -127,5 +195,8 @@ public class AnnotateDiagnostics {
         }
     }
 
+    private record SyntaxErrorSearchResult(Node node, boolean found) {
+
+    }
 }
 
