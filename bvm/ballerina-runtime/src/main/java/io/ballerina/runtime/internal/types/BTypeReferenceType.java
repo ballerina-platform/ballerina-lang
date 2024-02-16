@@ -129,7 +129,7 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     }
 
     @Override
-    public Optional<SemType> getSemTypeComponent() {
+    public SemType getSemTypeComponent() {
         return referredType.getSemTypeComponent();
     }
 

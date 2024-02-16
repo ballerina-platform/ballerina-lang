@@ -26,7 +26,6 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * {@code BByteType} represents byte type in Ballerina.
@@ -75,8 +74,8 @@ public class BByteType extends BType implements ByteType {
     }
 
     @Override
-    public Optional<SemType> getSemTypeComponent() {
-        return Optional.of(Objects.requireNonNullElse(this.semType, PredefinedType.BYTE));
+    public SemType getSemTypeComponent() {
+        return Objects.requireNonNullElse(this.semType, PredefinedType.BYTE);
     }
 
     @Override

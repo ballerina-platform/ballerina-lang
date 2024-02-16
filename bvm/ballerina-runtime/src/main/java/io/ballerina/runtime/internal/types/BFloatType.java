@@ -25,7 +25,6 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the
@@ -73,8 +72,8 @@ public class BFloatType extends BType implements FloatType {
     }
 
     @Override
-    public Optional<SemType> getSemTypeComponent() {
-        return Optional.of(Objects.requireNonNullElse(this.semType, PredefinedType.FLOAT));
+    public SemType getSemTypeComponent() {
+        return Objects.requireNonNullElse(this.semType, PredefinedType.FLOAT);
     }
 
     @Override

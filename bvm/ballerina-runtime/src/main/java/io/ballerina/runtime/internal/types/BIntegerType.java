@@ -24,8 +24,6 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.subtypedata.IntSubtype;
 
-import java.util.Optional;
-
 import static io.ballerina.runtime.api.TypeTags.INT_TAG;
 import static io.ballerina.runtime.api.TypeTags.SIGNED16_INT_TAG;
 import static io.ballerina.runtime.api.TypeTags.SIGNED32_INT_TAG;
@@ -89,11 +87,11 @@ public class BIntegerType extends BType implements IntegerType {
     }
 
     @Override
-    public Optional<SemType> getSemTypeComponent() {
+    public SemType getSemTypeComponent() {
         if (semType != null) {
-            return Optional.of(semType);
+            return semType;
         }
-        SemType ty = switch (tag) {
+        return switch (tag) {
             case INT_TAG -> PredefinedType.INT;
             case SIGNED8_INT_TAG -> IntSubtype.intWidthSigned(8);
             case SIGNED16_INT_TAG -> IntSubtype.intWidthSigned(16);
@@ -103,7 +101,6 @@ public class BIntegerType extends BType implements IntegerType {
             case UNSIGNED32_INT_TAG -> IntSubtype.intWidthUnsigned(32);
             default -> throw new IllegalStateException("Unexpected tag value: " + tag);
         };
-        return Optional.of(ty);
     }
 
     @Override

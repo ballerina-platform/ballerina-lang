@@ -25,8 +25,6 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 
-import java.util.Optional;
-
 /**
  * {@code BReadonlyType} represents the shapes that have their read-only bit on.
  *
@@ -63,13 +61,13 @@ public class BReadonlyType extends BType implements ReadonlyType {
     }
 
     @Override
-    public Optional<SemType> getSemTypeComponent() {
+    public SemType getSemTypeComponent() {
         // TODO: common code with SemType resolver
-        return Optional.of(SemTypes.union(PredefinedType.NIL,
+        return SemTypes.union(PredefinedType.NIL,
                 SemTypes.union(PredefinedType.BOOLEAN,
                         SemTypes.union(PredefinedType.INT,
                                 SemTypes.union(PredefinedType.FLOAT,
-                                        SemTypes.union(PredefinedType.DECIMAL, PredefinedType.STRING))))));
+                                        SemTypes.union(PredefinedType.DECIMAL, PredefinedType.STRING)))));
     }
 
     // BTypeHack: we need to have readonly component for BType as well?

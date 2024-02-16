@@ -299,18 +299,8 @@ public class TypeChecker {
      */
 
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
-        Optional<SemType> sourceSemType = sourceType.getSemTypeComponent();
-        Optional<SemType> targetSemType = targetType.getSemTypeComponent();
-        if (sourceSemType.isPresent() && targetSemType.isPresent()) {
-            return SemTypes.isSubtype(context, sourceSemType.get(), targetSemType.get()) &&
-                    checkIsTypeInner(errors, sourceVal, sourceType.getBTypeComponent(), targetType.getBTypeComponent());
-//            return t1;
-//            boolean t2 = checkIsTypeInner(errors, sourceVal, sourceType, targetType);
-//            if (t1 != t2) {
-//                throw new IllegalStateException("Type check mismatch");
-//            }
-        }
-        return checkIsTypeInner(errors, sourceVal, sourceType, targetType);
+        return SemTypes.isSubtype(context, sourceType.getSemTypeComponent(), targetType.getSemTypeComponent()) &&
+                checkIsTypeInner(errors, sourceVal, sourceType.getBTypeComponent(), targetType.getBTypeComponent());
     }
 
     // TODO: may be factor this to a BType module?

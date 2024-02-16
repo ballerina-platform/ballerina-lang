@@ -25,7 +25,6 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * {@code BBooleanType} represents boolean type in Ballerina.
@@ -74,8 +73,8 @@ public class BBooleanType extends BType implements BooleanType {
     }
 
     @Override
-    public Optional<SemType> getSemTypeComponent() {
-        return Optional.of(Objects.requireNonNullElse(semType, PredefinedType.BOOLEAN));
+    public SemType getSemTypeComponent() {
+        return Objects.requireNonNullElse(semType, PredefinedType.BOOLEAN);
     }
 
     @Override

@@ -548,21 +548,11 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     @Override
-    public Optional<SemType> getSemTypeComponent() {
+    public SemType getSemTypeComponent() {
         // TODO: cache this calculation -> problem is each element in the list and change
         // TODO: simplify
-        SemType semtype = PredefinedType.NEVER;
-        for (Type type : this.memberTypes) {
-            Optional<SemType> semTypeComponent = type.getSemTypeComponent();
-            if (semTypeComponent.isEmpty()) {
-                continue;
-            }
-            semtype = SemTypes.union(semtype, semTypeComponent.get());
-        }
-        if (semtype == PredefinedType.NEVER) {
-            return Optional.empty();
-        }
-        return Optional.of(semtype);
+        return this.memberTypes.stream().map(Type::getSemTypeComponent)
+                .reduce(PredefinedType.NEVER, SemTypes::union);
     }
 
     @Override

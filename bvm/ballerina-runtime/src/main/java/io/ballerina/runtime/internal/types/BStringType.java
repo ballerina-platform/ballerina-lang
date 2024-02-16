@@ -26,7 +26,6 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * {@code BStringType} represents a String type in ballerina.
@@ -82,8 +81,8 @@ public class BStringType extends BType implements StringType {
     }
 
     @Override
-    public Optional<SemType> getSemTypeComponent() {
-        return Optional.of(Objects.requireNonNullElse(this.semType, PredefinedType.STRING));
+    public SemType getSemTypeComponent() {
+        return Objects.requireNonNullElse(this.semType, PredefinedType.STRING);
     }
 
     @Override

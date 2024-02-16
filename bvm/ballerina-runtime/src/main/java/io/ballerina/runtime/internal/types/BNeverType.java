@@ -53,8 +53,8 @@ public class BNeverType extends BNullType implements NeverType {
     }
 
     @Override
-    public Optional<SemType> getSemTypeComponent() {
-        return Optional.of(PredefinedType.NEVER);
+    public SemType getSemTypeComponent() {
+        return PredefinedType.NEVER;
     }
 
     @Override

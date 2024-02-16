@@ -28,7 +28,6 @@ import io.ballerina.types.SemType;
 
 import java.math.BigDecimal;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * {@code BDecimalType} represents decimal type in Ballerina.
@@ -77,8 +76,8 @@ public class BDecimalType extends BType implements DecimalType {
     }
 
     @Override
-    public Optional<SemType> getSemTypeComponent() {
-        return Optional.of(Objects.requireNonNullElse(this.semType, PredefinedType.DECIMAL));
+    public SemType getSemTypeComponent() {
+        return Objects.requireNonNullElse(this.semType, PredefinedType.DECIMAL);
     }
 
     @Override

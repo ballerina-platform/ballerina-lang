@@ -24,8 +24,6 @@ import io.ballerina.runtime.api.types.NullType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 
-import java.util.Optional;
-
 /**
  * {@code BNullType} represents the type of a {@code NullLiteral}.
  *
@@ -67,8 +65,8 @@ public class BNullType extends BType implements NullType {
     }
 
     @Override
-    public Optional<SemType> getSemTypeComponent() {
-        return Optional.of(PredefinedType.NIL);
+    public SemType getSemTypeComponent() {
+        return PredefinedType.NIL;
     }
 
     @Override

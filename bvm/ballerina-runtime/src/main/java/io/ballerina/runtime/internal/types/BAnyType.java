@@ -119,8 +119,8 @@ public class BAnyType extends BType implements AnyType {
     }
 
     @Override
-    public Optional<SemType> getSemTypeComponent() {
-        return Optional.of(semType);
+    public SemType getSemTypeComponent() {
+        return semType;
     }
 
     @Override

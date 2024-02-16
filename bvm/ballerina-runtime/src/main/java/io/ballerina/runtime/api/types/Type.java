@@ -22,8 +22,6 @@ import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 
-import java.util.Optional;
-
 /**
  * {@code Type} represents a type in Ballerina.
  * <p>
@@ -38,8 +36,8 @@ public interface Type {
 
     // TODO: make this not optional when we have implemented for all types
     // Types for which there is no semtype implementation will return empty
-    default Optional<SemType> getSemTypeComponent() {
-        return Optional.of(PredefinedType.NEVER);
+    default SemType getSemTypeComponent() {
+        return PredefinedType.NEVER;
     }
 
     // If {@code getSemTypeComponent} is not empty, this will return the BType component of type else return itself

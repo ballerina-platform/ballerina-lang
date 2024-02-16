@@ -220,35 +220,15 @@ public class BIntersectionType extends BType implements IntersectionType {
     }
 
     @Override
-    public Optional<SemType> getSemTypeComponent() {
-        // TODO: cache this calculation
-        SemType semtype = PredefinedType.TOP;
-        for (Type type : this.constituentTypes) {
-            Optional<SemType> semTypeComponent = type.getSemTypeComponent();
-            if (semTypeComponent.isEmpty()) {
-                // FIXME: all cases where we don't have a semtype component we should be returning never
-                return Optional.of(PredefinedType.NEVER);
-            }
-            semtype = SemTypes.intersection(semtype, semTypeComponent.get());
-        }
-        if (semtype == PredefinedType.TOP) {
-            return Optional.empty();
-        }
-        return Optional.of(semtype);
+    public SemType getSemTypeComponent() {
+        return this.constituentTypes.stream().map(Type::getSemTypeComponent)
+                .reduce(PredefinedType.TOP, SemTypes::intersection);
     }
 
-    // TODO: may be this should return optional as well to indicated there is no BType component
     @Override
     public BType getBTypeComponent() {
-        // FIXME: this is super enefficient
-        if (getSemTypeComponent().isEmpty()) {
-            return this;
-        }
-        List<Type> constituentTypes = new ArrayList<>();
-        for (Type constituentType : this.constituentTypes) {
-            constituentTypes.add(constituentType.getBTypeComponent());
-        }
-        return new BIntersectionType(this.typeName, this.pkg, constituentTypes.toArray(new Type[0]), this.effectiveType
+        return new BIntersectionType(this.typeName, this.pkg,
+                this.constituentTypes.stream().map(Type::getBTypeComponent).toArray(Type[]::new), this.effectiveType
                 .getBTypeComponent(), this.typeFlags, this.readonly);
     }
 }
