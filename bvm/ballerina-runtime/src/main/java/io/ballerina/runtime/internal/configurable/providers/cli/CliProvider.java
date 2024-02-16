@@ -56,24 +56,18 @@ import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_INVALID_BYT
  * @since 2.0.0
  */
 public class CliProvider implements ConfigProvider {
-
-    private final String[] cliConfigArgs;
-
     private final Map<String, String> cliVarKeyValueMap;
-
     private final Map<String, VariableKey> markedCliKeyVariableMap;
-
     private final Module rootModule;
 
     public CliProvider(Module rootModule, String... cliConfigArgs) {
         this.rootModule = rootModule;
-        this.cliConfigArgs = cliConfigArgs;
-        this.cliVarKeyValueMap = new HashMap<>();
+        this.cliVarKeyValueMap = filterCliArgs(cliConfigArgs);
         this.markedCliKeyVariableMap = new HashMap<>();
     }
 
-    @Override
-    public void initialize() {
+    private Map<String, String> filterCliArgs(String[] cliConfigArgs) {
+        Map<String, String> argMap = new HashMap<>();
         for (String cliConfigArg : cliConfigArgs) {
             if (cliConfigArg.startsWith(CLI_PREFIX)) {
                 String configKeyValue = cliConfigArg.substring(2);
@@ -83,10 +77,16 @@ public class CliProvider implements ConfigProvider {
                     if (key.endsWith("\\")) {
                         key = key + " ";
                     }
-                    cliVarKeyValueMap.put(key, keyValuePair[1]);
+                    argMap.put(key, keyValuePair[1]);
                 }
             }
         }
+        return argMap;
+    }
+
+    @Override
+    public void initialize() {
+        // do nothing
     }
 
     @Override
