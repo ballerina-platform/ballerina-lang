@@ -93,7 +93,6 @@ OPTIONS
        --parallel
             Enable parallel execution of tests.
 
-
 ARGUMENTS
        (-Ckey=value)...
            The list of configurable variables for the Ballerina program.

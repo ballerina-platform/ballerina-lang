@@ -79,20 +79,22 @@ isolated class Result {
 }
 
 isolated class ReportData {
-    private ResultData[] passed = [];
-    private ResultData[] failed = [];
-    private ResultData[] skipped = [];
+    private final ResultData[] passed = [];
+    private final ResultData[] failed = [];
+    private final ResultData[] skipped = [];
 
     isolated function onPassed(*ResultData result) {
         lock {
             self.passed.push(result);
         }
     }
+
     isolated function onFailed(*ResultData result) {
         lock {
             self.failed.push(result);
         }
     }
+
     isolated function onSkipped(*ResultData result) {
         lock {
             self.skipped.push(result);
@@ -104,11 +106,13 @@ isolated class ReportData {
             return self.passed.clone();
         }
     }
+
     isolated function failedCases() returns ResultData[] {
         lock {
             return self.failed.clone();
         }
     }
+
     function skippedCases() returns ResultData[] {
         lock {
             return self.skipped.clone();
@@ -120,17 +124,18 @@ isolated class ReportData {
             return self.passed.length();
         }
     }
+
     isolated function failedCount() returns int {
         lock {
             return self.failed.length();
         }
     }
+
     isolated function skippedCount() returns int {
         lock {
             return self.skipped.length();
         }
     }
-
 }
 
 isolated function consoleReport(ReportData data) {

@@ -132,7 +132,6 @@ public class RunTestsTask implements Task {
         this.cliArgs = List.of(cliArgs);
         this.isParallelExecution = isParallelExecution;
 
-
         if (disableGroupList != null) {
             this.disableGroupList = disableGroupList;
         } else if (groupList != null) {

@@ -18,7 +18,7 @@ import ballerina/lang.'error as langError;
 isolated boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
 isolated int exitCode = 0;
-isolated final ConcurrentExecutionManager conMgr = new ();
+isolated final ConcurrentExecutionManager conMgr = new;
 map<DataProviderReturnType?> dataDrivenTestParams = {};
 
 public function startSuite() returns int {
@@ -28,7 +28,6 @@ public function startSuite() returns int {
             return exitCode;
         }
     }
-
     if listGroups {
         string[] groupsList = groupStatusRegistry.getGroupsList();
         if groupsList.length() == 0 {
@@ -44,7 +43,6 @@ public function startSuite() returns int {
                 return exitCode;
             }
         }
-
         error? err = orderTests();
         if err is error {
             enableExit();
@@ -68,25 +66,26 @@ public function startSuite() returns int {
 function executeTests() returns error? {
     decimal startTime = currentTimeInMillis();
     foreach TestFunction testFunction in testRegistry.getFunctions() {
-        _ = testFunction.parallelizable ? conMgr.addInitialParallelTest(testFunction) : conMgr.addInitialSerialTest(testFunction);
+        if !testFunction.serialExecution {
+            conMgr.addInitialParallelTest(testFunction);
+            continue;
+        }
+        conMgr.addInitialSerialTest(testFunction);
     }
     while !conMgr.isExecutionDone() {
-        conMgr.populateExecutionQueues();
         if conMgr.getSerialQueueLength() != 0 && conMgr.countTestInExecution() == 0 {
             TestFunction testFunction = conMgr.getSerialTest();
             conMgr.addTestInExecution(testFunction);
             executeTest(testFunction);
-        } else if conMgr.getParallelQueueLength() != 0 && conMgr.getSerialQueueLength() == 0 {
+        } else if conMgr.getParallelQueueLength() != 0 {
             TestFunction testFunction = conMgr.getParallelTest();
             conMgr.addTestInExecution(testFunction);
             DataProviderReturnType? testFunctionArgs = dataDrivenTestParams[testFunction.name];
-            if testFunctionArgs is map<readonly[]>|readonly[][] {
-                testFunctionArgs = testFunctionArgs.cloneReadOnly();
-            }
             _ = start executeTestIso(testFunction, testFunctionArgs);
         }
+        conMgr.populateExecutionQueues();
     }
-    println("\n\t\tTest execution time :" + (currentTimeInMillis() - startTime).toString() + "ms\n");
+    println(string `${"\n"}${"\t"}${"\t"}Test execution time : ${currentTimeInMillis() - startTime}ms${"\n"}`);
 }
 
 function executeBeforeSuiteFunctions() {
@@ -160,9 +159,9 @@ isolated function getErrorMessage(error err) returns string {
 }
 
 isolated function getTestType(DataProviderReturnType? params) returns TestType {
-    if (params is map<AnyOrErrorOrReadOnlyType[]>) {
+    if (params is map<AnyOrError[]>) {
         return DATA_DRIVEN_MAP_OF_TUPLE;
-    } else if (params is AnyOrErrorOrReadOnlyType[][]) {
+    } else if (params is AnyOrError[][]) {
         return DATA_DRIVEN_TUPLE_OF_TUPLE;
     }
     return GENERAL_TEST;
@@ -185,7 +184,7 @@ isolated function nestedEnabledDependentsAvailable(TestFunction[] dependents) re
 }
 
 isolated function isDataDrivenTest(DataProviderReturnType? params) returns boolean =>
-        params is map<AnyOrErrorOrReadOnlyType[]> || params is AnyOrErrorOrReadOnlyType[][];
+        params is map<AnyOrError[]> || params is AnyOrError[][];
 
 isolated function enableShouldSkip() {
     lock {
@@ -210,11 +209,10 @@ isolated function isTestReadyToExecute(TestFunction testFunction, DataProviderRe
         conMgr.setExecutionSuspended(testFunction.name);
         return false;
     }
-
     error? diagnoseError = testFunction.diagnostics;
     if diagnoseError is error {
         reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunctionArgs));
-        println("\n" + testFunction.name + " has failed.\n");
+        println(string `${"\n"}${testFunction.name} has failed.${"\n"}`);
         enableExit();
         conMgr.setExecutionSuspended(testFunction.name);
         return false;
@@ -228,7 +226,7 @@ isolated function finishTestExecution(TestFunction testFunction, boolean shouldS
             conMgr.setSkip(dependent.name);
         });
     }
-    conMgr.setExecutionDone(testFunction.name);
+    conMgr.setExecutionCompleted(testFunction.name);
 }
 
 isolated function handleBeforeGroupOutput(TestFunction testFunction, string 'group, ExecutionError? err) {
@@ -253,7 +251,7 @@ isolated function handleNonDataDrivenTestOutput(TestFunction testFunction, Execu
     if output is ExecutionError {
         failed = true;
         reportData.onFailed(name = testFunction.name, message = output.message(), testType = GENERAL_TEST);
-        println("\n" + testFunction.name + " has failed.\n");
+        println(string `${"\n"}${testFunction.name} has failed.${"\n"}`);
     } else if output {
         failed = true;
     }
@@ -280,7 +278,7 @@ isolated function handleDataDrivenTestOutput(ExecutionError|boolean err, TestFun
     if err is ExecutionError {
         reportData.onFailed(name = testFunction.name, suffix = suffix, message = "[fail data provider for the function " + testFunction.name
                 + "]\n" + getErrorMessage(err), testType = testType);
-        println("\n" + testFunction.name + ":" + suffix + " has failed.\n");
+        println(string `${"\n"}${testFunction.name}:${suffix} has failed.${"\n"}`);
         enableExit();
     }
 }
@@ -307,7 +305,7 @@ isolated function handleTestFuncOutput(any|error output, TestFunction testFuncti
     if output is TestError {
         enableExit();
         reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
-        println("\n" + testFunction.name + ":" + suffix + " has failed\n");
+        println(string `${"\n"}${testFunction.name}:${suffix} has failed.${"\n"}`);
         return true;
     } else if output is any {
         reportData.onPassed(name = testFunction.name, suffix = suffix, testType = testType);
@@ -319,17 +317,17 @@ isolated function handleTestFuncOutput(any|error output, TestFunction testFuncti
 }
 
 isolated function prepareDataSet(DataProviderReturnType? testFunctionArgs, string[] keys,
-        AnyOrErrorOrReadOnlyType[][] values) returns TestType {
+        AnyOrError[][] values) returns TestType {
     TestType testType = DATA_DRIVEN_MAP_OF_TUPLE;
-    if testFunctionArgs is map<AnyOrErrorOrReadOnlyType[]> {
-        foreach [string, AnyOrErrorOrReadOnlyType[]] entry in testFunctionArgs.entries() {
+    if testFunctionArgs is map<AnyOrError[]> {
+        foreach [string, AnyOrError[]] entry in testFunctionArgs.entries() {
             keys.push(entry[0]);
             values.push(entry[1]);
         }
-    } else if testFunctionArgs is AnyOrErrorOrReadOnlyType[][] {
+    } else if testFunctionArgs is AnyOrError[][] {
         testType = DATA_DRIVEN_TUPLE_OF_TUPLE;
         int i = 0;
-        foreach AnyOrErrorOrReadOnlyType[] entry in testFunctionArgs {
+        foreach AnyOrError[] entry in testFunctionArgs {
             keys.push(i.toString());
             values.push(entry);
             i += 1;

@@ -87,7 +87,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERI
 import static java.util.Objects.requireNonNull;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.CACHE_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.CLASS_EXTENSION;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.DEFAULT_TEST_WORKERS;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT_REPLACER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;

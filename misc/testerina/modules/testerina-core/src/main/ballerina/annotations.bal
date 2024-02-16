@@ -30,7 +30,7 @@ public type TestConfig record {
     function () returns (any|error) before?;
     function () returns (any|error) after?;
     function[] dependsOn = [];
-    serialExecutionType serialExecution = ();
+    true serialExecution?;
 };
 
 # Configuration of the function to be mocked.

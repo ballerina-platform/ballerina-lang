@@ -18,10 +18,8 @@ isolated function executeTestIso(TestFunction testFunction, DataProviderReturnTy
     if !isTestReadyToExecute(testFunction, testFunctionArgs) {
         return;
     }
-
     executeBeforeGroupFunctionsIso(testFunction);
     executeBeforeEachFunctionsIso();
-
     boolean shouldSkipDependents = false;
     if !isSkipFunction(testFunction) {
         if (isDataDrivenTest(testFunctionArgs)) {
@@ -53,23 +51,24 @@ isolated function executeBeforeEachFunctionsIso() =>
 
 isolated function executeDataDrivenTestSetIso(TestFunction testFunction, DataProviderReturnType? testFunctionArgs) {
     string[] keys = [];
-    AnyOrErrorOrReadOnlyType[][] values = [];
+    AnyOrError[][] values = [];
     TestType testType = prepareDataSet(testFunctionArgs, keys, values);
-    map<future> futures = {};
-
+    map<future> futuresMap = {};
     while keys.length() != 0 {
         string key = keys.remove(0);
-        ReadOnlyType[] value = <ReadOnlyType[]>values.remove(0);
-        future<()> futureResult = start prepareDataDrivenTestIso(testFunction, key, value.clone(), testType);
-        futures[key] = futureResult;
+        final readonly & readonly[] readOnlyVal = from any|error item in values.remove(0)
+            where item is readonly
+            select item;
+        future<()> futureResult = start prepareDataDrivenTestIso(testFunction, key, readOnlyVal, testType);
+        futuresMap[key] = futureResult;
     }
-    foreach [string, future<any|error>] futureResult in futures.entries() {
+    foreach [string, future<any|error>] futureResult in futuresMap.entries() {
         string suffix = futureResult[0];
         any|error parallelDataProviderResult = wait futureResult[1];
         if parallelDataProviderResult is error {
             reportData.onFailed(name = testFunction.name, suffix = suffix, message = "[fail data provider for the function " + testFunction.name
                 + "]\n" + getErrorMessage(parallelDataProviderResult), testType = testType);
-            println("\n" + testFunction.name + ":" + suffix + " has failed.\n");
+            println(string `${"\n"}${testFunction.name}:${suffix} has failed.${"\n"}`);
             enableExit();
         }
     }
@@ -81,9 +80,7 @@ isolated function executeNonDataDrivenTestIso(TestFunction testFunction, DataPro
         reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunctionArgs));
         return true;
     }
-
     boolean failed = handleNonDataDrivenTestOutput(testFunction, executeTestFunctionIso(testFunction, "", GENERAL_TEST));
-
     if executeAfterFunctionIso(testFunction) {
         return true;
     }
@@ -112,7 +109,7 @@ isolated function executeFunctionsIso(TestFunction[] testFunctions, boolean skip
     }
 }
 
-isolated function prepareDataDrivenTestIso(TestFunction testFunction, string key, ReadOnlyType[] value, TestType testType) {
+isolated function prepareDataDrivenTestIso(TestFunction testFunction, string key, AnyOrError[] value, TestType testType) {
     if executeBeforeFunctionIso(testFunction) {
         reportData.onSkipped(name = testFunction.name, testType = testType);
     } else {
@@ -121,11 +118,10 @@ isolated function prepareDataDrivenTestIso(TestFunction testFunction, string key
     }
 }
 
-isolated function executeDataDrivenTestIso(TestFunction testFunction, string suffix, TestType testType, AnyOrErrorOrReadOnlyType[] params) {
+isolated function executeDataDrivenTestIso(TestFunction testFunction, string suffix, TestType testType, AnyOrError[] params) {
     if (skipDataDrivenTest(testFunction, suffix, testType)) {
         return;
     }
-
     ExecutionError|boolean err = executeTestFunctionIso(testFunction, suffix, testType, params);
     handleDataDrivenTestOutput(err, testFunction, suffix, testType);
 }
@@ -138,7 +134,7 @@ isolated function executeBeforeFunctionIso(TestFunction testFunction) returns bo
     return failed;
 }
 
-isolated function executeTestFunctionIso(TestFunction testFunction, string suffix, TestType testType, AnyOrErrorOrReadOnlyType[]? params = ()) returns ExecutionError|boolean {
+isolated function executeTestFunctionIso(TestFunction testFunction, string suffix, TestType testType, AnyOrError[]? params = ()) returns ExecutionError|boolean {
     any|error output = params == () ? trap function:call(<isolated function>testFunction.executableFunction)
         : trap function:call(<isolated function>testFunction.executableFunction, ...params);
     return handleTestFuncOutput(output, testFunction, suffix, testType);

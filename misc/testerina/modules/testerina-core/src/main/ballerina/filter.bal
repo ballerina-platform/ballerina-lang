@@ -20,6 +20,7 @@ boolean terminate = false;
 boolean listGroups = false;
 isolated final TestOptions testOptions = new ();
 
+//TODO: remove public and see effect
 public function setTestOptions(string inTargetPath, string inPackageName, string inModuleName, string inReport,
         string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed,
         string inListGroups, string inIsParallelExecution) {

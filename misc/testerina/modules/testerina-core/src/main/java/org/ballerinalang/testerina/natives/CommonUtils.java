@@ -28,7 +28,7 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 /**
  * Common utility functions for the Testerina module.
  *
- * @since 2201.7.0
+ * @since 2201.9.0
  */
 public class CommonUtils {
     public static BDecimal currentTimeInMillis() {
@@ -40,10 +40,9 @@ public class CommonUtils {
         Parameter[] functionParameters = functionType.getParameters();
         for (Parameter functionParameter : functionParameters) {
             Type parameterType = functionParameter.type;
-            if (isSubTypeOfReadOnly(parameterType)) {
-                continue;
+            if (!isSubTypeOfReadOnly(parameterType)) {
+                return false;
             }
-            return false;
         }
         return true;
     }

@@ -3,7 +3,6 @@ import ballerina/test;
 
 @test:BeforeSuite
 function setup() {
-
 }
 
 @test:BeforeEach
@@ -27,7 +26,6 @@ function mapDataProviderTest(int value1, int value2, string fruit) returns error
 }
 
 function beforeFunc() {
-
 }
 
 function mapDataProvider() returns map<[int, int, string]>|error {
@@ -92,5 +90,4 @@ function afterEachFunc() {
 
 @test:AfterSuite
 function cleanup() {
-
 }

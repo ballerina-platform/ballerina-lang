@@ -54,12 +54,12 @@ function executeBeforeEachFunctions() =>
 function executeDataDrivenTestSet(TestFunction testFunction) {
     DataProviderReturnType? params = dataDrivenTestParams[testFunction.name];
     string[] keys = [];
-    AnyOrErrorOrReadOnlyType[][] values = [];
+    AnyOrError[][] values = [];
     TestType testType = prepareDataSet(params, keys, values);
 
     while keys.length() != 0 {
         string key = keys.remove(0);
-        AnyOrErrorOrReadOnlyType[] value = values.remove(0);
+        AnyOrError[] value = values.remove(0);
         prepareDataDrivenTest(testFunction, key, value, testType);
     }
 }
@@ -71,7 +71,6 @@ function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
         return true;
     }
     boolean failed = handleNonDataDrivenTestOutput(testFunction, executeTestFunction(testFunction, "", GENERAL_TEST));
-
     if executeAfterFunction(testFunction) {
         return true;
     }
@@ -100,7 +99,7 @@ function executeFunctions(TestFunction[] testFunctions, boolean skip = false) re
     }
 }
 
-function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrErrorOrReadOnlyType[] value, TestType testType) {
+function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrError[] value, TestType testType) {
     if executeBeforeFunction(testFunction) {
         reportData.onSkipped(name = testFunction.name, testType = getTestType(dataDrivenTestParams[testFunction.name]));
     } else {
@@ -109,7 +108,7 @@ function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrError
     }
 }
 
-function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType, AnyOrErrorOrReadOnlyType[] params) {
+function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType, AnyOrError[] params) {
     if skipDataDrivenTest(testFunction, suffix, testType) {
         return;
     }
@@ -125,7 +124,7 @@ function executeBeforeFunction(TestFunction testFunction) returns boolean {
     return failed;
 }
 
-function executeTestFunction(TestFunction testFunction, string suffix, TestType testType, AnyOrErrorOrReadOnlyType[]? params = ()) returns ExecutionError|boolean {
+function executeTestFunction(TestFunction testFunction, string suffix, TestType testType, AnyOrError[]? params = ()) returns ExecutionError|boolean {
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
     return handleTestFuncOutput(output, testFunction, suffix, testType);

@@ -15,15 +15,15 @@
 // under the License.
 import ballerina/lang.array;
 
-isolated final TestRegistry testRegistry = new ();
-isolated final TestRegistry beforeSuiteRegistry = new ();
-isolated final TestRegistry afterSuiteRegistry = new ();
-isolated final TestRegistry beforeEachRegistry = new ();
-isolated final TestRegistry afterEachRegistry = new ();
+isolated final TestRegistry testRegistry = new;
+isolated final TestRegistry beforeSuiteRegistry = new;
+isolated final TestRegistry afterSuiteRegistry = new;
+isolated final TestRegistry beforeEachRegistry = new;
+isolated final TestRegistry afterEachRegistry = new;
 
-isolated final GroupRegistry beforeGroupsRegistry = new ();
-isolated final GroupRegistry afterGroupsRegistry = new ();
-isolated final GroupStatusRegistry groupStatusRegistry = new ();
+isolated final GroupRegistry beforeGroupsRegistry = new;
+isolated final GroupRegistry afterGroupsRegistry = new;
+isolated final GroupStatusRegistry groupStatusRegistry = new;
 
 type TestFunction record {|
     string name;
@@ -34,7 +34,7 @@ type TestFunction record {|
     readonly & string[] groups = [];
     error? diagnostics = ();
     readonly & function[] dependsOn = [];
-    boolean parallelizable = true;
+    boolean serialExecution = false;
     TestConfig? config = ();
 |} & readonly;
 
@@ -44,7 +44,7 @@ type TestFunctionMetaData record {|
     int dependsOnCount = 0;
     TestFunction[] dependents = [];
     boolean visited = false;
-    boolean isInExecutionQueue = false;
+    boolean isReadyToExecute = false;
     TestCompletionStatus executionCompletionStatus = YET_TO_COMPLETE;
 |};
 
@@ -53,15 +53,15 @@ isolated class ConcurrentExecutionManager {
     private final TestFunction[] serialTestExecutionList = [];
     private final TestFunction[] testsInExecution = [];
     private final map<TestFunctionMetaData> testMetaData = {};
-    private boolean isParalleleExecutionEnabled = false;
+    private boolean parallelExecutionEnabled = false;
 
-    isolated function createTestFunctionMetaData(string functionName, *TestFunctionMetaData intialMetaData) {
+    isolated function createTestFunctionMetaData(string functionName, int dependsOnCount, boolean enabled) { // accept as readonly (str, str, int,boolean) param and remove clone usage
         lock {
-            self.testMetaData[functionName] = intialMetaData.clone();
+            self.testMetaData[functionName] = {dependsOnCount: dependsOnCount, enabled: enabled};
         }
     }
 
-    isolated function setExecutionDone(string functionName) {
+    isolated function setExecutionCompleted(string functionName) {
         lock {
             self.testMetaData[functionName].executionCompletionStatus = COMPLETED;
         }
@@ -88,10 +88,7 @@ isolated class ConcurrentExecutionManager {
     isolated function isEnabled(string functionName) returns boolean {
         lock {
             TestFunctionMetaData? testFunctionMetaData = self.testMetaData[functionName];
-            if testFunctionMetaData is TestFunctionMetaData {
-                return testFunctionMetaData.enabled;
-            }
-            return false;
+            return testFunctionMetaData is TestFunctionMetaData && testFunctionMetaData.enabled;
         }
     }
 
@@ -104,20 +101,15 @@ isolated class ConcurrentExecutionManager {
     isolated function isVisited(string functionName) returns boolean {
         lock {
             TestFunctionMetaData? testFunctionMetaData = self.testMetaData[functionName];
-            if testFunctionMetaData is TestFunctionMetaData {
-                return testFunctionMetaData.visited;
-            }
-            return false;
+            return testFunctionMetaData is TestFunctionMetaData && testFunctionMetaData.visited;
         }
     }
 
     isolated function isSkip(string functionName) returns boolean {
         lock {
             TestFunctionMetaData? testFunctionMetaData = self.testMetaData[functionName];
-            if testFunctionMetaData is TestFunctionMetaData {
-                return testFunctionMetaData.skip;
-            }
-            return false;
+            return testFunctionMetaData is TestFunctionMetaData && testFunctionMetaData.skip;
+
         }
     }
 
@@ -148,25 +140,13 @@ isolated class ConcurrentExecutionManager {
 
     isolated function setParallelExecutionStatus(boolean isParalleleExecutionEnabled) {
         lock {
-            self.isParalleleExecutionEnabled = isParalleleExecutionEnabled;
+            self.parallelExecutionEnabled = isParalleleExecutionEnabled;
         }
     }
 
     isolated function isParallelExecutionEnabled() returns boolean {
         lock {
-            return self.isParalleleExecutionEnabled;
-        }
-    }
-
-    isolated function addParallelTest(TestFunction testFunction) {
-        lock {
-            self.parallelTestExecutionList.push(testFunction);
-        }
-    }
-
-    isolated function addSerialTest(TestFunction testFunction) {
-        lock {
-            self.serialTestExecutionList.push(testFunction);
+            return self.parallelExecutionEnabled;
         }
     }
 
@@ -234,7 +214,7 @@ isolated class ConcurrentExecutionManager {
                 TestFunction testInProgress = self.testsInExecution[i];
                 TestFunctionMetaData? inProgressTestMetaData = self.testMetaData[testInProgress.name];
                 if inProgressTestMetaData == () {
-                    return;
+                    continue;
                 }
                 executionCompletionStatus = inProgressTestMetaData.executionCompletionStatus;
                 if executionCompletionStatus == COMPLETED {
@@ -243,7 +223,7 @@ isolated class ConcurrentExecutionManager {
                 } else if executionCompletionStatus == SUSPENDED {
                     _ = self.testsInExecution.remove(i);
                 } else {
-                    i = i + 1;
+                    i += 1;
                 }
             }
         }
@@ -252,12 +232,18 @@ isolated class ConcurrentExecutionManager {
     private isolated function checkExecutionReadiness(TestFunction testFunction) {
         lock {
             TestFunctionMetaData? testFunctionMetaData = self.testMetaData[testFunction.name];
-            if testFunctionMetaData is TestFunctionMetaData {
-                testFunctionMetaData.dependsOnCount -= 1;
-                if testFunctionMetaData.dependsOnCount == 0 && testFunctionMetaData.isInExecutionQueue != true {
-                    testFunctionMetaData.isInExecutionQueue = true;
-                    _ = testFunction.parallelizable ? self.parallelTestExecutionList.push(testFunction) : self.serialTestExecutionList.push(testFunction);
-                }
+            if testFunctionMetaData == () {
+                return;
+            }
+            testFunctionMetaData.dependsOnCount -= 1;
+            if testFunctionMetaData.dependsOnCount != 0 || testFunctionMetaData.isReadyToExecute {
+                return;
+            }
+            testFunctionMetaData.isReadyToExecute = true;
+            if !testFunction.serialExecution {
+                self.parallelTestExecutionList.push(testFunction);
+            } else {
+                self.serialTestExecutionList.push(testFunction);
             }
         }
     }
@@ -281,7 +267,7 @@ isolated class TestOptions {
     isolated function getFilterSubTest(string key) returns string[] {
         lock {
             string[]? nullOrSubTests = self.filterSubTests[key];
-            if nullOrSubTests is string[] {
+            if nullOrSubTests is string[] { // TODO: use ternary
                 return nullOrSubTests.clone();
             }
             return [];
@@ -395,6 +381,7 @@ isolated class TestOptions {
             return self.hasFilteredTests;
         }
     }
+
 }
 
 isolated class TestRegistry {

@@ -1,6 +1,5 @@
-
-import ballerina/test;
 import ballerina/lang.runtime;
+import ballerina/test;
 
 @test:BeforeSuite
 function beforeSuiteFunc() {
