@@ -19,7 +19,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -28,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.formatter.core.Formatter;
@@ -45,10 +45,9 @@ import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionP
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -67,97 +66,56 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
 
     @Override
     public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {
-        // Check if the referenced match symbol has a type of record
         TypeSymbol matchedTypeSymbol = posDetails.matchedTopLevelTypeSymbol();
-        RecordTypeWrapper inputRecordTypeWrapper = getReferredRecordSymbol(matchedTypeSymbol);
-        if (inputRecordTypeWrapper == null) {
-            return Collections.emptyList();
-        }
+        NonTerminalNode matchedCodeActionNode = posDetails.matchedCodeActionNode();
+        NonTerminalNode parentNode = matchedCodeActionNode.parent();
 
-        // Check if the parent node is a specific field
-        NonTerminalNode parentNode = posDetails.matchedCodeActionNode().parent();
-        if (parentNode.kind() != SyntaxKind.SPECIFIC_FIELD) {
-            return Collections.emptyList();
-        }
+        RecordTypeWrapper inputRecordTypeWrapper, outputRecordTypeWrapper;
+        IdentifierToken fieldName;
+        SemanticModel semanticModel;
+        Node enclosingNode;
+        Document currentDocument;
 
-        // Check if the field node has a type of record
-        Node fieldNameNode = ((SpecificFieldNode) parentNode).fieldName();
-        if (fieldNameNode.kind() != SyntaxKind.IDENTIFIER_TOKEN) {
-            return Collections.emptyList();
-        }
-
-        IdentifierToken fieldName = (IdentifierToken) fieldNameNode;
-        Optional<Symbol> optionalFieldNameSymbol =
-                context.currentSemanticModel().flatMap(semanticModel -> semanticModel.symbol(fieldName));
-        if (optionalFieldNameSymbol.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Symbol fieldSymbol = optionalFieldNameSymbol.get();
-        if (fieldSymbol.kind() != SymbolKind.RECORD_FIELD) {
-            return Collections.emptyList();
-        }
-        RecordTypeWrapper outputRecordTypeWrapper =
-                getReferredRecordSymbol(((RecordFieldSymbol) fieldSymbol).typeDescriptor());
-        if (outputRecordTypeWrapper == null) {
-            return Collections.emptyList();
-        }
-        RecordTypeSymbol outputRecordSymbol = outputRecordTypeWrapper.recordTypeSymbol();
-
-        List<TextEdit> textEdits = new ArrayList<>();
-
-        Map<String, RecordFieldSymbol> stringRecordFieldSymbolMap = outputRecordSymbol.fieldDescriptors();
-        if (stringRecordFieldSymbolMap.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        String parameterName = inputRecordTypeWrapper.recordTypeName + " " + fieldName;
-        String returnSignature =
-                FunctionGenerator.getReturnTypeAsString(context, outputRecordTypeWrapper.recordTypeName());
-
-        Optional<Node> enclosingNode =
-                CommonUtil.getMatchingNode(parentNode, node -> node.parent().kind() == SyntaxKind.MODULE_PART);
-        if (enclosingNode.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Position position = PositionUtil.toPosition(enclosingNode.get().lineRange().endLine());
-        LinePosition linePosition = PositionUtil.getLinePosition(position);
-
-        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
-        if (semanticModel.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<Symbol> visibleSymbols = semanticModel.get().visibleSymbols(context.currentDocument().get(), linePosition);
-
-        String functionName = FunctionGenerator.generateFunctionName(EXTRACTED_PREFIX, visibleSymbols);
-        String editText = RecordUtil.getFillAllRecordFieldInsertText(stringRecordFieldSymbolMap);
-        String generatedFunctionExpression = CommonKeys.FUNCTION_KEYWORD_KEY + " " + functionName +
-                CommonKeys.OPEN_PARENTHESES_KEY + parameterName + CommonKeys.CLOSE_PARENTHESES_KEY + " " +
-                "returns " + returnSignature + CommonKeys.ARROW_FUNCTION_SYMBOL_KEY + " " + CommonKeys.OPEN_BRACE_KEY +
-                System.lineSeparator() + "    " + editText + System.lineSeparator() +
-                CommonKeys.CLOSE_BRACE_KEY + CommonKeys.SEMI_COLON_SYMBOL_KEY;
-        String functionCall =
-                functionName + CommonKeys.OPEN_PARENTHESES_KEY +
-                        posDetails.matchedCodeActionNode().toSourceCode().stripTrailing() +
-                        CommonKeys.CLOSE_PARENTHESES_KEY;
+        // Extracting the input and output record types
         try {
-            generatedFunctionExpression = Formatter.format(generatedFunctionExpression);
-        } catch (FormatterException e) {
+            inputRecordTypeWrapper = getReferredRecordSymbol(matchedTypeSymbol).orElseThrow();
+            Node fieldNameNode = ((SpecificFieldNode) parentNode).fieldName();
+            fieldName = (IdentifierToken) fieldNameNode;
+
+            semanticModel = context.currentSemanticModel().orElseThrow();
+            Symbol fieldSymbol = semanticModel.symbol(fieldName).orElseThrow();
+            outputRecordTypeWrapper =
+                    getReferredRecordSymbol(((RecordFieldSymbol) fieldSymbol).typeDescriptor()).orElseThrow();
+
+            enclosingNode = CommonUtil.getMatchingNode(parentNode,
+                    node -> node.parent().kind() == SyntaxKind.MODULE_PART).orElseThrow();
+            currentDocument = context.currentDocument().orElseThrow();
+        } catch (Exception e) {
             return Collections.emptyList();
         }
-        generatedFunctionExpression =
-                CommonUtil.LINE_SEPARATOR + CommonUtil.LINE_SEPARATOR + generatedFunctionExpression;
-        textEdits.add(new TextEdit(PositionUtil.toRange(enclosingNode.get().lineRange().endLine()),
-                generatedFunctionExpression));
-        textEdits.add(new TextEdit(PositionUtil.toRange(posDetails.matchedCodeActionNode().lineRange()), functionCall));
 
-        CodeAction codeAction =
-                CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_TRANSFORM_FUNCTION, textEdits,
-                        context.fileUri(),
-                        CodeActionKind.RefactorExtract);
+        // Extracting the line position and the range
+        LinePosition functionEndLine = enclosingNode.lineRange().endLine();
+        Range extractedRange = PositionUtil.toRange(matchedCodeActionNode.lineRange());
+
+        // Generating the transformation function and the function call
+        List<Symbol> visibleSymbols = semanticModel.visibleSymbols(currentDocument, functionEndLine);
+        String functionName = FunctionGenerator.generateFunctionName(EXTRACTED_PREFIX, visibleSymbols);
+        String extractedFunction = getFunction(context, functionName, outputRecordTypeWrapper,
+                inputRecordTypeWrapper.recordTypeName(), fieldName.text());
+        String functionCall = functionName + CommonKeys.OPEN_PARENTHESES_KEY +
+                matchedCodeActionNode.toSourceCode().stripTrailing() +
+                CommonKeys.CLOSE_PARENTHESES_KEY;
+
+        // Generating the text edits and the code action
+        List<TextEdit> textEdits = List.of(
+                new TextEdit(PositionUtil.toRange(functionEndLine), extractedFunction),
+                new TextEdit(extractedRange, functionCall)
+        );
+        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_TRANSFORM_FUNCTION,
+                textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
         CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_FUNCTION,
-                textEdits.get(1).getRange().getStart());
+                extractedRange.getStart());
         return Collections.singletonList(codeAction);
     }
 
@@ -183,23 +141,40 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
                 CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode());
     }
 
-    private static RecordTypeWrapper getReferredRecordSymbol(TypeSymbol typeSymbol) {
-        if (typeSymbol.typeKind() != TypeDescKind.TYPE_REFERENCE) {
-            return null;
+    private static Optional<RecordTypeWrapper> getReferredRecordSymbol(TypeSymbol typeSymbol) {
+        try {
+            TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
+            String name = typeReferenceTypeSymbol.getName().orElseThrow();
+            TypeSymbol typeDescriptorTypeSymbol = typeReferenceTypeSymbol.typeDescriptor();
+            return Optional.of(new RecordTypeWrapper((RecordTypeSymbol) typeDescriptorTypeSymbol, name));
+        } catch (Exception e) {
+            return Optional.empty();
         }
+    }
 
-        TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
-        Optional<String> name = typeReferenceTypeSymbol.getName();
-        if (name.isEmpty()) {
-            return null;
+    private static String getFunction(CodeActionContext context, String functionName,
+                                      RecordTypeWrapper outputRecordTypeWrapper, String inputRecordTypeName,
+                                      String fieldName) {
+        // Generating the transform function
+        Map<String, RecordFieldSymbol> recordFieldSymbolMap =
+                outputRecordTypeWrapper.recordTypeSymbol.fieldDescriptors();
+        String bodyText = recordFieldSymbolMap.isEmpty() ? "" :
+                RecordUtil.getFillAllRecordFieldInsertText(recordFieldSymbolMap);
+        String parameterName = inputRecordTypeName + " " + fieldName;
+        String returnSignature = FunctionGenerator.getReturnTypeAsString(context,
+                outputRecordTypeWrapper.recordTypeName());
+        String generatedFunction = String.format("%s %s %s%s%s returns %s %s %s%n    %s%n%s",
+                CommonKeys.FUNCTION_KEYWORD_KEY, functionName, CommonKeys.OPEN_PARENTHESES_KEY, parameterName,
+                CommonKeys.CLOSE_PARENTHESES_KEY, returnSignature, CommonKeys.ARROW_FUNCTION_SYMBOL_KEY,
+                CommonKeys.OPEN_BRACE_KEY, bodyText, CommonKeys.CLOSE_BRACE_KEY + CommonKeys.SEMI_COLON_SYMBOL_KEY);
+
+        // Formatting the generated function
+        try {
+            generatedFunction = Formatter.format(generatedFunction);
+        } catch (FormatterException e) {
+            // Ignore the formatter exception
         }
-
-        TypeSymbol typeDescriptorTypeSymbol = typeReferenceTypeSymbol.typeDescriptor();
-        if (typeDescriptorTypeSymbol.typeKind() != TypeDescKind.RECORD) {
-            return null;
-        }
-
-        return new RecordTypeWrapper((RecordTypeSymbol) typeDescriptorTypeSymbol, name.get());
+        return CommonUtil.LINE_SEPARATOR + CommonUtil.LINE_SEPARATOR + generatedFunction;
     }
 
     @Override
@@ -207,6 +182,12 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
         return NAME;
     }
 
+    /**
+     * A record class that wraps a RecordTypeSymbol and its name as a String.
+     *
+     * @param recordTypeSymbol The symbol representation of the record type.
+     * @param recordTypeName   The name of the record type as a String.
+     */
     private record RecordTypeWrapper(RecordTypeSymbol recordTypeSymbol, String recordTypeName) {
 
     }

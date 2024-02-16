@@ -450,14 +450,9 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     }
 
     private String getFunctionName(CodeActionContext context, Node matchedNode) {
-        Set<String> visibleSymbolNames = getVisibleSymbols(context,
-                PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
-                .map(Symbol::getName)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
-
-        return NameUtil.generateTypeName(EXTRACTED_PREFIX, visibleSymbolNames);
+        List<Symbol> visibleSymbols = getVisibleSymbols(context,
+                PositionUtil.toPosition(matchedNode.lineRange().endLine()));
+        return FunctionGenerator.generateFunctionName(EXTRACTED_PREFIX, visibleSymbols);
     }
 
     private List<NonTerminalNode> getPossibleExpressionNodes(NonTerminalNode node) {
