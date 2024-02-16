@@ -33,6 +33,7 @@ import java.util.Map;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILES_ENV_VARIABLE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.ENV_VAR_PREFIX;
 import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
 
 /**
@@ -83,12 +84,29 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testConfigurableVariablesWithCliArgs() throws BallerinaTestException {
         LogLeecher logLeecher = new LogLeecher(testsPassed);
-        bMainInstance.runMain(testFileLocation + "/configurableCliProject", "main", null,
+        bMainInstance.runMain(testFileLocation + "/configurableSimpleProject", "main", null,
                               new String[]{"-CintVar=42", "-CbyteVar=22", "-CstringVar=waru=na", "-CbooleanVar=true",
                                       "-CxmlVar=<book>The Lost World</book>", "-CtestOrg.main.floatVar=3.5",
                                       "-Cmain.decimalVar=24.87", "-Cmain.color=RED", "-Cmain.countryCode=Sri Lanka"},
                               null, null, new LogLeecher[]{logLeecher});
         logLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testConfigurableVariablesWithEnvVars() throws BallerinaTestException {
+        Map<String, String> envVariables = Map.ofEntries(
+                Map.entry(ENV_VAR_PREFIX + "INTVAR", "42"),
+                Map.entry(ENV_VAR_PREFIX + "BYTEVAR", "22"),
+                Map.entry(ENV_VAR_PREFIX + "STRINGVAR", "waru=na"),
+                Map.entry(ENV_VAR_PREFIX + "BOOLEANVAR", "true"),
+                Map.entry(ENV_VAR_PREFIX + "XMLVAR", "<book>The Lost World</book>"),
+                Map.entry(ENV_VAR_PREFIX + "TESTORG_MAIN_FLOATVAR", "3.5"),
+                Map.entry(ENV_VAR_PREFIX + "MAIN_DECIMALVAR", "24.87"),
+                Map.entry(ENV_VAR_PREFIX + "MAIN_COLOR", "RED"),
+                Map.entry(ENV_VAR_PREFIX + "MAIN_COUNTRYCODE", "Sri Lanka")
+        );
+        executeBalCommand("/configurableSimpleProject", "main",
+                addEnvironmentVariables(envVariables));
     }
 
     @Test
@@ -269,7 +287,7 @@ public class ConfigurableTest extends BaseTest {
                 "=true", "-CxmlVar=123<?????", "-CtestOrg.main.floatVar=eee",
                 "-Cmain.decimalVar=24.87"}, null, new String[]{}, new LogLeecher[]{errorLeecher1,
                 errorLeecher2, errorLeecher3, errorLeecher4, errorLeecher5}, testFileLocation +
-                                      "/configurableCliProject");
+                                      "/configurableSimpleProject");
         errorLeecher1.waitForText(5000);
         errorLeecher2.waitForText(5000);
         errorLeecher3.waitForText(5000);
@@ -307,6 +325,41 @@ public class ConfigurableTest extends BaseTest {
                 new LogLeecher[]{errorLog},
                 Paths.get(testFileLocation, "testAmbiguousCases", "multipleSubModuleClash").toString());
         errorLog.waitForText(5000);
+    }
+
+    @Test
+    public void testConfigurableVariablesWithInvalidEnvVars() throws BallerinaTestException {
+        LogLeecher errorLeecher1 = new LogLeecher("error: [BAL_CONFIG_INTVAR=hinduja] configurable variable " +
+                                        "'intVar' is expected to be of type 'int', but found 'hinduja'", ERROR);
+        LogLeecher errorLeecher2 = new LogLeecher("error: [BAL_CONFIG_BYTEVAR=2200] value provided for byte " +
+                                                  "variable 'byteVar' is out of range. Expected range is (0-255), " +
+                                                  "found '2200'", ERROR);
+        LogLeecher errorLeecher3 = new LogLeecher("error: [BAL_CONFIG_TESTORG_MAIN_FLOATVAR=eee] configurable " +
+                                                  "variable 'floatVar' is expected to be of type 'float', but found " +
+                                                  "'eee'", ERROR);
+        LogLeecher errorLeecher4 = new LogLeecher("error: value not provided for required configurable variable " +
+                                                  "'stringVar'", ERROR);
+        LogLeecher errorLeecher5 = new LogLeecher("error: [BAL_CONFIG_XMLVAR=123<?????] configurable variable " +
+                                                  "'xmlVar' is expected to be of type 'xml<((lang.xml:Element|lang" +
+                                                  ".xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)" +
+                                                  " & readonly)>', but found '123<?????", ERROR);
+        Map<String, String> envVariables = Map.ofEntries(
+                Map.entry(ENV_VAR_PREFIX + "INTVAR", "hinduja"),
+                Map.entry(ENV_VAR_PREFIX + "BYTEVAR", "2200"),
+                Map.entry(ENV_VAR_PREFIX + "BOOLEANVAR", "true"),
+                Map.entry(ENV_VAR_PREFIX + "XMLVAR", "123<?????"),
+                Map.entry(ENV_VAR_PREFIX + "TESTORG_MAIN_FLOATVAR", "eee"),
+                Map.entry(ENV_VAR_PREFIX + "MAIN_DECIMALVAR", "24.87")
+        );
+
+        bMainInstance.runMain("run", new String[]{"main"}, addEnvironmentVariables(envVariables),
+                new String[]{}, new LogLeecher[]{errorLeecher1, errorLeecher2, errorLeecher3, errorLeecher4,
+                        errorLeecher5}, testFileLocation + "/configurableSimpleProject");
+        errorLeecher1.waitForText(5000);
+        errorLeecher2.waitForText(5000);
+        errorLeecher3.waitForText(5000);
+        errorLeecher4.waitForText(5000);
+        errorLeecher5.waitForText(5000);
     }
 
     private void executeBalCommand(String projectPath, String packageName,
