@@ -25,4 +25,5 @@ module io.ballerina.cli {
     requires io.ballerina.identifier;
     requires org.objectweb.asm;
     requires org.apache.commons.io;
+    requires maven.resolver;
 }

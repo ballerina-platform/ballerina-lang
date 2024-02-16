@@ -46,12 +46,19 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_PREFIX;
+
+import org.jline.terminal.TerminalBuilder;
+import org.jline.jansi.AnsiConsole;
+import static org.jline.jansi.Ansi.ansi;
+
 
 /**
  * Task for compiling a package.
@@ -232,7 +239,7 @@ public class CompileTask implements Task {
             HashSet<String> diagnosticSet = new HashSet<>();
             // HashMap for documents based on filename
             HashMap<String, Document> documentMap = new HashMap<>();
-            int terminalWidth = AnnotateDiagnostics.getTerminalWidth();
+            int terminalWidth = AnsiConsole.getTerminalWidth();
 
             project.currentPackage().moduleIds().forEach(moduleId -> {
                 project.currentPackage().module(moduleId).documentIds().forEach(documentId -> {
@@ -241,6 +248,7 @@ public class CompileTask implements Task {
                 });
             });
 
+            AnsiConsole.systemInstall();
             for (Diagnostic d : diagnostics) {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
                     hasErrors = true;
@@ -250,13 +258,14 @@ public class CompileTask implements Task {
                     if (diagnosticSet.add(d.toString())) {
                         Document document = documentMap.get(d.location().lineRange().fileName());
                         if (document != null) {
-                            err.println(AnnotateDiagnostics.renderDiagnostic(d, document, terminalWidth));
+                            err.println(ansi().render(AnnotateDiagnostics.renderDiagnostic(d, document, terminalWidth)));
                         } else {
-                            err.println(d.toString());
+                            err.println(ansi().render(AnnotateDiagnostics.renderDiagnostic(d)));
                         }
                     }
                 }
             }
+            AnsiConsole.systemUninstall();
             if (hasErrors) {
                 throw createLauncherException("compilation contains errors");
             }
