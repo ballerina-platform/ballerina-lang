@@ -101,4 +101,18 @@ public class TesterinaConstants {
     public static final int IDENTIFIER_START_INDEX = 1;
     public static final int IDENTIFIER_END_INDEX = 5;
 
+    //class to identify the indices of the BTestMain args
+    public static class RunTimeArgs {
+        public static final int IS_FAT_JAR_EXECUTION = 0;
+        public static final int TEST_SUITE_JSON_PATH = 1;
+        public static final int TARGET_DIR = 2;
+        public static final int JACOCO_AGENT_PATH = 3;
+        public static final int REPORT = 4;
+        public static final int COVERAGE = 5;
+        public static final int GROUP_LIST = 6;
+        public static final int DISABLE_GROUP_LIST = 7;
+        public static final int SINGLE_EXEC_TESTS = 8;
+        public static final int IS_RERUN_TEST_EXECUTION = 9;
+    }
+
 }
