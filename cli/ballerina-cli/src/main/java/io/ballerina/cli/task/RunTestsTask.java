@@ -120,6 +120,34 @@ public class RunTestsTask implements Task {
     private List<String> mockClasses;
     private List<String> moduleNamesList;
 
+    public String getGroupList() {
+        return groupList;
+    }
+
+    public String getDisableGroupList() {
+        return disableGroupList;
+    }
+
+    public boolean isReport() {
+        return report;
+    }
+
+    public boolean isCoverage() {
+        return coverage;
+    }
+
+    public String getSingleExecTests() {
+        return singleExecTests;
+    }
+
+    public boolean isListGroups() {
+        return listGroups;
+    }
+
+    public List<String> getCliArgs() {
+        return cliArgs;
+    }
+
     public void setMockClasses(List<String> mockClasses) {
         this.mockClasses = mockClasses;
     }
