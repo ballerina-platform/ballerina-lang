@@ -71,7 +71,7 @@ function testClosureInQueryActionInDoWithBindingVar() {
             arr.push(k + j + offset);
         };
     };
-    assertEquality([7, 8, 8, 9, 9, 10, 10, 11, 11, 12], arr);
+    assertEquality(arr, [7, 8, 8, 9, 9, 10, 10, 11, 11, 12]);
 }
 
 type Student record {
@@ -105,7 +105,10 @@ function testNestedQueryInSelectWithBindingVar() returns () {
                 grade: grade + bonus
             };
 
-    assertEquality([[{"name": "Alice", "grade": 80.2}], [{"name": "Bob", "grade": 65.2}, {"name": "Bob", "grade": 75.3}], [{"name": "Charlie", "grade": 60.5}]], results);
+    assertEquality(results,
+                   [[{"name": "Alice", "grade": 80.2}],
+                    [{"name": "Bob", "grade": 65.2}, {"name": "Bob", "grade": 75.3}],
+                    [{"name": "Charlie", "grade": 60.5}]]);
 }
 
 function testLimitClauseAndQueryExprWithBindingVar() {
@@ -129,12 +132,12 @@ function testLimitClauseAndQueryExprWithBindingVar() {
         grade: newMarks
     };
 
-    assertEquality([{"name": "Alex", "grade": 85.0}, {"name": "Ranjan", "grade": 95.0}], topList);
+    assertEquality(topList, [{"name": "Alex", "grade": 85.0}, {"name": "Ranjan", "grade": 95.0}]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
-function assertEquality(anydata expected, anydata actual) {
+function assertEquality(anydata actual, anydata expected) {
     if expected == actual {
         return;
     }

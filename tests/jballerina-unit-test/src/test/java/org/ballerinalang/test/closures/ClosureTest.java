@@ -287,6 +287,11 @@ public class ClosureTest {
         BRunUtil.invoke(compileResult, "testClosureWithBindingPatternDefaultValues");
     }
 
+    @Test(description = "Test closure with a referenced variable of error binding type")
+    public void testClosureWithErrorBindingPatterns() {
+        BRunUtil.invoke(compileResult, "testClosureWithErrorBindingPatterns");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

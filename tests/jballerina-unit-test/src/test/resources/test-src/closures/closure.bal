@@ -863,6 +863,23 @@ function testClosureWithBindingPatternDefaultValues() {
     assert(f(), "int");
 }
 
+type SampleErrorData record {|
+    int code;
+    string reason;
+|};
+
+type SampleError error<SampleErrorData>;
+
+function testClosureWithErrorBindingPatterns() {
+    SampleError e = error("Transaction Failure", error("Database Error"), code = 20,
+                                            reason = "deadlock condition");
+    var error(code = code, reason = reason) = e;
+    var formatMessage = function() returns string {
+        return code.toString() + ":" + reason;
+    };
+    assert(formatMessage(), "20:deadlock condition");
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected == actual) {
             return;

@@ -1529,6 +1529,8 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangErrorVariable varNode) {
         // Create error destruct block stmt.
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
+        blockStmt.parent = env.node;
+        blockStmt.internal = true;
 
         BType errorType = varNode.getBType() == null ? symTable.errorType : varNode.getBType();
         // Create a simple var for the error 'error x = ($error$)'.
