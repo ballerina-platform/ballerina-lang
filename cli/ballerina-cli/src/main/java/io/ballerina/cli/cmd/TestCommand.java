@@ -202,7 +202,7 @@ public class TestCommand implements BLauncherCmd {
             "'.jar' extension.")
     private String output;
 
-    @CommandLine.Option(names = "--emit", description =  "Emit the test executable fat jars")
+    @CommandLine.Option(names = "--emit", description =  "Emit the test executable fat jar")
     private Boolean emitTestExecutable;
 
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
@@ -339,6 +339,11 @@ public class TestCommand implements BLauncherCmd {
                     "flag is not set");
         }
 
+        if (!project.buildOptions().cloud().isEmpty() && project.buildOptions().codeCoverage()) {
+            this.outStream.println("WARNING: Code coverage generation is not supported with Ballerina cloud test");
+        }
+
+
         Iterable<Module> originalModules = project.currentPackage().modules();
         Map<String, Module> moduleMap = new HashMap<>();
 
@@ -358,8 +363,9 @@ public class TestCommand implements BLauncherCmd {
 
         CreateTestExecutableTask createTestExecutableTask = null;
 
-        if (emitTestExecutable != null) {   //if emit flag is set, create the test executable
-         createTestExecutableTask = new CreateTestExecutableTask(outStream, this.output, runTestsTask);
+        if (emitTestExecutable != null || !project.buildOptions().cloud().isEmpty()) {
+            //if emit flag is set, create the test executable
+            createTestExecutableTask = new CreateTestExecutableTask(outStream, this.output, runTestsTask);
         }
 
         RunNativeImageTestTask runNativeImageTestTask = new RunNativeImageTestTask(outStream, rerunTests, groupList,
@@ -373,7 +379,8 @@ public class TestCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(compileTask);
 
-        if (emitTestExecutable != null && createTestExecutableTask != null) {
+        if ((emitTestExecutable != null || !project.buildOptions().cloud().isEmpty())
+                && createTestExecutableTask != null) {
             taskBuilder.addTask(createTestExecutableTask);
         }
         //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
