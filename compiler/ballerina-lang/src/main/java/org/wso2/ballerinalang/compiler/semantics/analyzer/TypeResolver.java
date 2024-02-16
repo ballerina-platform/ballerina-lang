@@ -802,7 +802,7 @@ public class TypeResolver {
         BTypedescType constrainedType = new BTypedescType(symTable.empty, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
+                typeSymbol.originalName, data.env.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
                 td.pos, BUILTIN);
         td.setBType(constrainedType);
         BType constraintType = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.constraint, data);
@@ -821,7 +821,7 @@ public class TypeResolver {
         BFutureType constrainedType = new BFutureType(TypeTags.FUTURE, symTable.empty, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
+                typeSymbol.originalName, data.env.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
                 td.pos, BUILTIN);
         td.setBType(constrainedType);
         BType constraintType = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.constraint, data);
@@ -840,7 +840,7 @@ public class TypeResolver {
         BXMLType constrainedType = new BXMLType(symTable.empty, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
+                typeSymbol.originalName, data.env.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
                 td.pos, BUILTIN);
 
         td.setBType(constrainedType);
@@ -1748,7 +1748,7 @@ public class TypeResolver {
         BTableType tableType = new BTableType(TypeTags.TABLE, symTable.empty, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
-                typeSymbol.name, typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID,
+                typeSymbol.name, typeSymbol.originalName, data.env.enclPkg.symbol.pkgID,
                 tableType, symEnv.scope.owner, td.pos, BUILTIN);
         tableType.tsymbol.flags = typeSymbol.flags;
         tableType.constraintPos = td.constraint.pos;
@@ -1804,7 +1804,7 @@ public class TypeResolver {
         BStreamType streamType = new BStreamType(TypeTags.STREAM, symTable.empty, error, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, streamType,
+                typeSymbol.originalName, data.env.enclPkg.symbol.pkgID, streamType,
                 symEnv.scope.owner, td.pos, BUILTIN);
         td.setBType(streamType);
         resolvingTypes.push(streamType);
