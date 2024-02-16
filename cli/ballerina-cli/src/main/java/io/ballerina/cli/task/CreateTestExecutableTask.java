@@ -10,6 +10,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.testerina.core.TestProcessor;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -46,6 +47,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
             List<Diagnostic> diagnostics = new ArrayList<>();
+            Path testCachePath = target.getTestsCachePath();
 
             long start = 0;
             if (project.buildOptions().dumpBuildTime()) { //TODO: change to dumpTestBuildTime??
@@ -69,39 +71,40 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
             }
 
             if (status) {
+                Path testExecutablePath = getTestExecutableBasePath(target).resolve(
+                        project.currentPackage().packageName().toString() +
+                                ProjectConstants.TEST_UBER_JAR_SUFFIX +
+                                ProjectConstants.BLANG_COMPILED_JAR_EXT);
+
+                //write the cmd args to a file, so it can be read on c2c side
+                writeCmdArgsToFile(testExecutablePath.getParent(), target, TestUtils.getJsonFilePath(testCachePath));
                 //create the single fat jar for all the test modules that includes the test suite json
-                try {
-                    List<Path> moduleJarPaths = TestUtils.getModuleJarPaths(jBallerinaBackend, project.currentPackage());
 
-                    List<String> excludingClassPaths = new ArrayList<>();
+                List<Path> moduleJarPaths = TestUtils.getModuleJarPaths(jBallerinaBackend, project.currentPackage());
 
-                    for (Path moduleJarPath : moduleJarPaths) {
-                        ZipFile zipFile = new ZipFile(moduleJarPath.toFile());
+                List<String> excludingClassPaths = new ArrayList<>();
 
-                        zipFile.stream().forEach(entry -> {
-                            if (entry.getName().endsWith(".class")) {
-                                excludingClassPaths.add(entry.getName().replace("/", ".")
-                                        .replace(".class", ""));
-                            }
-                        });
-                    }
+                for (Path moduleJarPath : moduleJarPaths) {
+                    ZipFile zipFile = new ZipFile(moduleJarPath.toFile());
 
-                    EmitResult result = jBallerinaBackend.emit(
-                            JBallerinaBackend.OutputType.TEST,
-                            getTestExecutableBasePath(target).resolve(
-                                    project.currentPackage().packageName().toString() +
-                                            ProjectConstants.TEST_UBER_JAR_SUFFIX +
-                                            ProjectConstants.BLANG_COMPILED_JAR_EXT),
-                            testExecDependencies,
-                            TestUtils.getJsonFilePath(target.getTestsCachePath()),
-                            TestUtils.getJsonFilePathInFatJar("/"),
-                            excludingClassPaths,
-                            ProjectConstants.EXCLUDING_CLASSES_FILE
-                    );
-                    diagnostics.addAll(result.diagnostics().diagnostics());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    zipFile.stream().forEach(entry -> {
+                        if (entry.getName().endsWith(".class")) {
+                            excludingClassPaths.add(entry.getName().replace("/", ".")
+                                    .replace(".class", ""));
+                        }
+                    });
                 }
+
+                EmitResult result = jBallerinaBackend.emit(
+                        JBallerinaBackend.OutputType.TEST,
+                        testExecutablePath,
+                        testExecDependencies,
+                        TestUtils.getJsonFilePath(testCachePath),
+                        TestUtils.getJsonFilePathInFatJar("/"),
+                        excludingClassPaths,
+                        ProjectConstants.EXCLUDING_CLASSES_FILE
+                );
+                diagnostics.addAll(result.diagnostics().diagnostics());
             }
 
 //            if(project.buildOptions().cloud() != null) {
@@ -142,7 +145,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                     diagnostics.forEach(d -> out.println("\n" + d.toString()));
                 }
             }
-        } catch (ProjectException e) {
+        } catch (ProjectException | IOException e) {
             throw createLauncherException(e.getMessage());
         }
         // notify plugin
@@ -199,5 +202,31 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         catch (IOException e) {
             throw createLauncherException(e.getMessage());
         }
+    }
+
+    private void writeCmdArgsToFile(Path path, Target target, Path testSuiteJsonPath) {
+            List<String> cmdArgs = new ArrayList<>();
+
+            TestUtils.addOtherNeededArgs(
+                    cmdArgs, target.path().toString(), TestUtils.getJacocoAgentJarPath(),
+                    testSuiteJsonPath.toString(), this.runTestsTask.isReport(),
+                    this.runTestsTask.isCoverage(), this.runTestsTask.getGroupList(),
+                    this.runTestsTask.getDisableGroupList(), this.runTestsTask.getSingleExecTests(),
+                    this.runTestsTask.isRerunTestExecution(), this.runTestsTask.isListGroups(),
+                    this.runTestsTask.getCliArgs(), false
+            );
+
+            //write the cmdArgs to a file in path
+            Path writingPath = path.resolve(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
+
+            try (BufferedWriter writer = java.nio.file.Files.newBufferedWriter(writingPath)) {
+                for (String arg : cmdArgs) {
+                    writer.write(arg);
+                    writer.newLine();
+                }
+            }
+            catch (IOException e) {
+                throw createLauncherException("error while writing to file: " + e.getMessage());
+            }
     }
 }
