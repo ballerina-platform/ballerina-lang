@@ -83,7 +83,6 @@ import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
 import io.ballerina.types.Context;
 import io.ballerina.types.Env;
-import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 
 import java.util.ArrayList;
@@ -145,7 +144,6 @@ public class TypeChecker {
 
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
     private static final String REG_EXP_TYPENAME = "RegExp";
-    // FIXME: do we need a type context to runtime type checks?
     private static final Context context = Context.from(new Env());
 
     public static Object checkCast(Object sourceVal, Type targetType) {
@@ -300,11 +298,11 @@ public class TypeChecker {
 
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
         return SemTypes.isSubtype(context, sourceType.getSemTypeComponent(), targetType.getSemTypeComponent()) &&
-                checkIsTypeInner(errors, sourceVal, sourceType.getBTypeComponent(), targetType.getBTypeComponent());
+                checkIsBType(errors, sourceVal, sourceType.getBTypeComponent(), targetType.getBTypeComponent());
     }
 
     // TODO: may be factor this to a BType module?
-    public static boolean checkIsTypeInner(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
+    private static boolean checkIsBType(List<String> errors, Object sourceVal, BType sourceType, BType targetType) {
         if (checkIsType(sourceVal, sourceType, targetType, null)) {
             return true;
         }
@@ -363,7 +361,6 @@ public class TypeChecker {
             return TYPE_NULL;
         } else if (value instanceof BString) {
             return PredefinedTypes.singletonType((BString) value);
-//            return TYPE_STRING;
         } else if (value instanceof Number) {
             return PredefinedTypes.singletonType((Number) value);
         } else if (value instanceof Boolean) {
@@ -562,11 +559,18 @@ public class TypeChecker {
      * @return flag indicating the the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
-        return checkIsType(sourceType, targetType, (List<TypePair>) null);
+        return SemTypes.isSubtype(context, sourceType.getSemTypeComponent(), targetType.getSemTypeComponent()) &&
+                checkIsType(sourceType.getBTypeComponent(), targetType.getBTypeComponent(), null);
     }
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
+        return SemTypes.isSubtype(context, sourceType.getSemTypeComponent(), targetType.getSemTypeComponent()) &&
+                checkIsBType(sourceType.getBTypeComponent(), targetType.getBTypeComponent(), unresolvedTypes);
+    }
+
+    @Deprecated
+    public static boolean checkIsBType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         // First check whether both types are the same.
         if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
             return true;

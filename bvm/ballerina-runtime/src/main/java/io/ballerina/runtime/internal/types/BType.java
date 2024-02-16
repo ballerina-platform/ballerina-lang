@@ -24,6 +24,8 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
 
 import java.util.Objects;
 
@@ -198,5 +200,10 @@ public abstract class BType implements Type {
     @Override
     public BType getBTypeComponent() {
         return this;
+    }
+
+    @Override
+    public SemType getSemTypeComponent() {
+        return PredefinedType.NEVER;
     }
 }

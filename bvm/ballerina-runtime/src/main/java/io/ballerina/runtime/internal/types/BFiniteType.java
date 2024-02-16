@@ -30,7 +30,6 @@ import io.ballerina.types.SemTypes;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -202,8 +201,8 @@ public class BFiniteType extends BType implements FiniteType {
 
     @Override
     public BType getBTypeComponent() {
-        List<Type> memberTypes = this.valueSpace.stream().map((value) -> (Type) getType(value).getBTypeComponent())
-                .toList();
-        return new BUnionType(typeName, this.pkg, memberTypes, true);
+        return new BUnionType(typeName, this.pkg,
+                this.valueSpace.stream().map((value) -> (Type) getType(value).getBTypeComponent())
+                        .toList(), true);
     }
 }

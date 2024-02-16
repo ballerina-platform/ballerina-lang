@@ -27,7 +27,6 @@ import java.util.Map;
  */
 public class Context {
     public final Env env;
-    // FIXME: may be these need to be concurrent hashmaps since unlike the compiler runtime is multithreaded
     public final Map<Bdd, BddMemo> functionMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();

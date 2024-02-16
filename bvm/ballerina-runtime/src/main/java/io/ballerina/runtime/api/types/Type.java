@@ -19,7 +19,6 @@ package io.ballerina.runtime.api.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.internal.types.BType;
-import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 
 /**
@@ -34,14 +33,28 @@ import io.ballerina.types.SemType;
  */
 public interface Type {
 
-    // TODO: make this not optional when we have implemented for all types
-    // Types for which there is no semtype implementation will return empty
+    // TODO: we have default implementations here to avoid breaking runtime types (and avoid having to do checked casts
+    // in TypeChecker. Consider cleaning this up when we have fully implemented semtypes
+
+    /**
+     * Get the {@code SemType} part of the type. Any type that is used for runtime type checking must return a nonnull
+     * value. This type and type returned by {@code getBTypeComponent} must be disjoint.
+     *
+     * @return {@code SemType} part of the type
+     */
     default SemType getSemTypeComponent() {
-        return PredefinedType.NEVER;
+        return null;
     }
 
-    // If {@code getSemTypeComponent} is not empty, this will return the BType component of type else return itself
-    BType getBTypeComponent();
+    /**
+     * Get the {@code BType} part of the type. Any type that is used for runtime type checking must return a nonnull
+     * value. This type and type returned by {@code getSemTypeComponent} must be disjoint.
+     *
+     * @return {@code BType} part of the type
+     */
+    default BType getBTypeComponent() {
+        return null;
+    }
 
     /**
      * Get the default value of the type. This is the value of an uninitialized variable of this type.
