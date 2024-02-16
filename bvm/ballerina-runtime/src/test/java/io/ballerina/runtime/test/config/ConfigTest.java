@@ -243,7 +243,7 @@ public class ConfigTest {
                 new VariableKey[]{new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, null
                         , false), variableKey});
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
-                List.of(new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_INTVAR" ,"22")),
+                List.of(new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_INTVAR", "22")),
                         new TomlFileProvider(ROOT_MODULE, getConfigPathForNegativeCases(
                                 "UnsupportedCliConfig.toml"), Set.of(ROOT_MODULE))));
         Map<VariableKey, ConfigValue> valueMap = configResolver.resolveConfigs();
