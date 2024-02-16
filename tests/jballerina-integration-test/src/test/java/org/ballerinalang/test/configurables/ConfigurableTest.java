@@ -136,10 +136,12 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testConfigurableModuleStructureWithTestAPI() throws BallerinaTestException {
-        LogLeecher testLog1 = new LogLeecher("4 passing");
+        LogLeecher testLog1 = new LogLeecher("5 passing");
+        LogLeecher testLog2 = new LogLeecher("4 passing");
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
-                new LogLeecher[]{testLog1}, testFileLocation + "/testModuleStructureProject");
+                new LogLeecher[]{testLog1, testLog2}, testFileLocation + "/testModuleStructureProject");
         testLog1.waitForText(5000);
+        testLog2.waitForText(5000);
     }
 
     @Test
