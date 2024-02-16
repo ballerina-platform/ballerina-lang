@@ -451,36 +451,92 @@ type XmlType2 xml<xml:Element|xml:ProcessingInstruction>;
 type XmlType3 XmlType1|XmlType2;
 
 function testXmlIndexedAccessWithUnionType() {
+    xml value;
     xml:Element|xml:Comment x1 = xml `<a>abc</a>`;
-    assert(x1[0], xml `<a>abc</a>`);
-    assert(x1[1], xml ``);
+    value = x1[0];
+    assert(value, xml `<a>abc</a>`);
+    assertTrue(typeof value is typedesc<xml:Element>);
+    value = x1[1];
+    assert(value, xml ``);
+    assertTrue(typeof value is typedesc<xml:Text>);
+
     xml:Element|xml:Text x2 = xml `Hello World`;
-    assert(x2[0], xml `Hello World`);
-    assert(x2[0][1], xml ``);
+    value = x2[0];
+    assert(value, xml `Hello World`);
+    assertTrue(typeof value is typedesc<xml:Text>);
+    value = x2[0][1];
+    assert(value, xml ``);
+    assertTrue(typeof value is typedesc<xml:Text>);
+
     xml:Element|xml:ProcessingInstruction x3 = xml `<?target data?>`;
-    assert(x3[0], xml `<?target data?>`);
-    assert(x3[1][100], xml ``);
+    value = x3[0];
+    assert(value, xml `<?target data?>`);
+    assertTrue(typeof value is typedesc<xml:ProcessingInstruction>);
+    value = x3[1][100];
+    assert(value, xml ``);
+    assertTrue(typeof value is typedesc<xml:Text>);
+
     xml:Element|xml:Comment x4 = xml `<!-- comment node-->`;
-    assert(x4[0], xml `<!-- comment node-->`);
-    assert(x4[50], xml ``);
+    value = x4[0];
+    assert(value, xml `<!-- comment node-->`);
+    assertTrue(typeof value is typedesc<xml:Comment>);
+    value = x4[10];
+    assert(value, xml ``);
+    assertTrue(typeof value is typedesc<xml:Text>);
+
     xml:Text|xml:Comment x5 = xml `<!-- comment node 2 -->`;
-    assert(x5[0], xml `<!-- comment node 2 -->`);
+    value = x5[0];
+    assert(value, xml `<!-- comment node 2 -->`);
+    assertTrue(typeof value is typedesc<xml:Comment>);
+
     xml:ProcessingInstruction|xml:Comment x6 = xml `<?target test?>`;
-    assert(x6[0], xml `<?target test?>`);
+    value = x6[0];
+    assert(value, xml `<?target test?>`);
+    assertTrue(typeof value is typedesc<xml:ProcessingInstruction>);
+
     xml:ProcessingInstruction|xml:Text x7 = xml `Test Text`;
-    assert(x7[0], xml `Test Text`);
+    value = x7[0];
+    assert(value, xml `Test Text`);
+    assertTrue(typeof value is typedesc<xml:Text>);
+
     xml|xml:Comment x8 = xml `<a>abc</a><b>def</b>`;
-    assert(x8[0], xml `<a>abc</a>`);
+    value = x8[0];
+    assert(value, xml `<a>abc</a>`);
+    assertTrue(typeof value is typedesc<xml:Element>);
+
     xml|xml x9 = xml `<c>ghi</c><d>jkl</d>`;
-    assert(x9[0], xml `<c>ghi</c>`);
+    value = x9[0];
+    assert(value, xml `<c>ghi</c>`);
+    assertTrue(typeof value is typedesc<xml:Element>);
+
     xml<xml:Text|xml:Comment>|xml<xml:ProcessingInstruction|xml:Element> x10 = xml `<name>Dan Brown</name>`;
-    assert(x10[0], xml `<name>Dan Brown</name>`);
-    assert(x10[50], xml ``);
+    value = x10[0];
+    assert(value, xml `<name>Dan Brown</name>`);
+    assertTrue(typeof value is typedesc<xml:Element>);
+    value = x10[1];
+    assert(value, xml ``);
+    assertTrue(typeof value is typedesc<xml:Text>);
+
     XmlType1 x11 = xml `Hello!`;
-    assert(x11[0], xml `Hello!`);
-    XmlType3 x12 = xml `<name>Sherlock Holmes</name>`;
-    assert(x12[0], xml `<name>Sherlock Holmes</name>`);
-    assert(x12[50][1], xml ``);
+    value = x11[0];
+    assert(value, xml `Hello!`);
+    assertTrue(typeof value is typedesc<xml:Text>);
+
+    XmlType2 x12 = xml `<name>Sherlock Holmes</name><work>Detective</work>`;
+    value = x12[0];
+    assert(value, xml `<name>Sherlock Holmes</name>`);
+    assertTrue(typeof value is typedesc<xml:Element>);
+    value = x12[1];
+    assert(value, xml `<work>Detective</work>`);
+    assertTrue(typeof value is typedesc<xml:Element>);
+
+    XmlType3 x13 = xml `<name>Sherlock Holmes</name>`;
+    value = x13[0];
+    assert(value, xml `<name>Sherlock Holmes</name>`);
+    assertTrue(typeof value is typedesc<xml:Element>);
+    value = x13[50][1];
+    assert(value, xml ``);
+    assertTrue(typeof value is typedesc<xml:Text>);
 }
 
 function testInvalidXMLUnionAccessWithNegativeIndex() {
