@@ -29,7 +29,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
 import java.io.File;
@@ -38,10 +37,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
@@ -127,16 +123,9 @@ public class CreateExecutableTask implements Task {
                 }
             }
 
-            List<Diagnostic> diagnostics = new ArrayList<>(emitResult.diagnostics().diagnostics());
-            if (!diagnostics.isEmpty()) {
-                //  TODO: When deprecating the lifecycle compiler plugin, we can remove this check for duplicates
-                //   in JBallerinaBackend diagnostics and the diagnostics added to EmitResult.
-                diagnostics = diagnostics.stream()
-                        .filter(diagnostic -> !jBallerinaBackend.diagnosticResult().diagnostics().contains(diagnostic))
-                        .collect(Collectors.toList());
-                if (!diagnostics.isEmpty()) {
-                    diagnostics.forEach(d -> out.println("\n" + d.toString()));
-                }
+            // Print diagnostics found during emit executable
+            if (!emitResult.diagnostics().diagnostics().isEmpty()) {
+                emitResult.diagnostics().diagnostics().forEach(d -> out.println("\n" + d.toString()));
             }
 
         } catch (ProjectException e) {
