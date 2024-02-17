@@ -86,6 +86,8 @@ public class ManifestBuilder {
     private final PackageManifest packageManifest;
     private final BuildOptions buildOptions;
     private final Path projectPath;
+    Set<String> toolIdsSet = new HashSet<>();
+    Set<String> targetModuleSet = new HashSet<>();
 
     private static final String PACKAGE = "package";
     private static final String VERSION = "version";
@@ -249,54 +251,77 @@ public class ManifestBuilder {
         }
         TomlTableNode toolTable = (TomlTableNode) toolEntries;
         Set<String> toolCodes = toolTable.entries().keySet();
-        Set<String> toolIdsSet = new HashSet<>();
-        Set<String> targetModuleSet = new HashSet<>();
 
         // Gather tool configurations and add the tools to a list
         for (String toolCode : toolCodes) {
-            TopLevelNode toolCodeNode = toolTable.entries().get(toolCode);
-            if (toolCodeNode.kind() != TomlType.TABLE_ARRAY) {
-                break;
-            }
-            TomlTableArrayNode toolEntriesArray = (TomlTableArrayNode) toolCodeNode;
-            for (TomlTableNode dependencyNode : toolEntriesArray.children()) {
-                if (dependencyNode.entries().isEmpty()) {
-                    break;
-                }
-                String id = getStringValueFromPreBuildToolNode(dependencyNode, "id", toolCode);
-                String filePath = getStringValueFromPreBuildToolNode(dependencyNode, "filePath",
-                    toolCode);
-                String targetModule = getStringValueFromPreBuildToolNode(dependencyNode,
-                    TARGETMODULE, toolCode);
-                Toml optionsToml = getToml(dependencyNode, OPTIONS);
-                TopLevelNode topLevelNode = dependencyNode.entries().get(OPTIONS);
-                TomlTableNode optionsNode = null;
-                if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
-                    optionsNode = (TomlTableNode) topLevelNode;
-                }
-
-                // Validate recurring tool ids and target modules
-                if (!toolIdsSet.add(id)) {
-                    reportDiagnostic(dependencyNode, "recurring tool id '" + id + "' found in Ballerina.toml. " +
-                                    "Tool id must be unique for each tool",
-                            ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES,
-                            DiagnosticSeverity.ERROR);
-                }
-                if (!targetModuleSet.add(targetModule)) {
-                    reportDiagnostic(dependencyNode, "recurring target module found in Ballerina.toml. Target " +
-                                    "module must be unique for each tool",
-                            ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES,
-                            DiagnosticSeverity.ERROR);
-                }
-
-                // Add a flag for tools with error diagnostics
-                boolean hasErrorDiagnostic = !Diagnostics.filterErrors(dependencyNode.diagnostics()).isEmpty();
-                PackageManifest.Tool tool = new PackageManifest.Tool(toolCode, id, filePath,
-                    targetModule, optionsToml, optionsNode, hasErrorDiagnostic);
-                tools.add(tool);
-            }
+            addToolAndSubTools(tools, toolCode, toolTable.entries().get(toolCode), "");
         }
         return tools;
+    }
+
+    private void addToolAndSubTools(List<PackageManifest.Tool> tools, String toolCode, TopLevelNode toolCodeNode,
+                                    String toolCodePrefix) {
+        if (toolCodeNode.kind() == TomlType.TABLE) {
+            TomlTableNode toolEntry = (TomlTableNode) toolCodeNode;
+            addSubTools(tools, toolEntry, toolCode, toolCodePrefix);
+        } else if (toolCodeNode.kind() == TomlType.TABLE_ARRAY) {
+            TomlTableArrayNode toolEntriesArray = (TomlTableArrayNode) toolCodeNode;
+            for (TomlTableNode toolEntry : toolEntriesArray.children()) {
+                addSubTools(tools, toolEntry, toolCode, toolCodePrefix);
+                addTool(tools, toolEntry, toolCode, toolCodePrefix);
+            }
+        }
+    }
+
+    private void addSubTools(List<PackageManifest.Tool> tools, TomlTableNode toolEntry, String toolCode,
+                             String toolCodePrefix) {
+        if (toolEntry.entries().isEmpty()) {
+            return;
+        }
+        Set<String> toolFields = toolEntry.entries().keySet();
+        for (String field : toolFields) {
+            if (field.equals(OPTIONS) || field.equals(ID) || field.equals(VERSION) || field.equals(TARGETMODULE) ||
+                    field.equals("filePath")) {
+                continue;
+            }
+            addToolAndSubTools(tools, field, toolEntry.entries().get(field), toolCodePrefix + toolCode + ".");
+        }
+    }
+
+    private void addTool(List<PackageManifest.Tool> tools, TomlTableNode toolEntry, String toolCode,
+                         String toolCodePrefix) {
+        // TODO: check if not null before accessing the fields
+        String id = getStringValueFromPreBuildToolNode(toolEntry, "id", toolCode);
+        String filePath = getStringValueFromPreBuildToolNode(toolEntry, "filePath",
+                toolCode);
+        String targetModule = getStringValueFromPreBuildToolNode(toolEntry,
+                TARGETMODULE, toolCode);
+        Toml optionsToml = getToml(toolEntry, OPTIONS);
+        TopLevelNode topLevelNode = toolEntry.entries().get(OPTIONS);
+        TomlTableNode optionsNode = null;
+        if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
+            optionsNode = (TomlTableNode) topLevelNode;
+        }
+
+        // Validate recurring tool ids and target modules
+        if (!toolIdsSet.add(id)) {
+            reportDiagnostic(toolEntry, "recurring tool id '" + id + "' found in Ballerina.toml. " +
+                            "Tool id must be unique for each tool",
+                    ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES,
+                    DiagnosticSeverity.ERROR);
+        }
+        if (!targetModuleSet.add(targetModule)) {
+            reportDiagnostic(toolEntry, "recurring target module found in Ballerina.toml. Target " +
+                            "module must be unique for each tool",
+                    ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES,
+                    DiagnosticSeverity.ERROR);
+        }
+
+        // Add a flag for tools with error diagnostics
+        boolean hasErrorDiagnostic = !Diagnostics.filterErrors(toolEntry.diagnostics()).isEmpty();
+        PackageManifest.Tool tool = new PackageManifest.Tool(toolCodePrefix + toolCode, id, filePath,
+                targetModule, optionsToml, optionsNode, hasErrorDiagnostic);
+        tools.add(tool);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
