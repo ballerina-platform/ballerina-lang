@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.cli.launcher.util.BalToolsUtil;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Diagnostics;
 import io.ballerina.projects.Project;
@@ -40,6 +41,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
+import static io.ballerina.cli.cmd.Constants.HELP_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.PackageManifest.Tool;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_PREFIX;
@@ -51,6 +53,7 @@ import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_P
  */
 public class RunBallerinaPreBuildToolsTask implements Task {
     private final PrintStream outStream;
+    private ClassLoader customToolClassLoader = BalToolsUtil.getCustomToolClassLoader(HELP_COMMAND);
 
     public RunBallerinaPreBuildToolsTask(PrintStream out) {
         this.outStream = out;
@@ -70,7 +73,12 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         if (!tools.isEmpty()) {
             this.outStream.println("\nExecuting Build Tools");
         }
-        ServiceLoader<CodeGeneratorTool> buildRunners = ServiceLoader.load(CodeGeneratorTool.class);
+//         ServiceLoader<CodeGeneratorTool> buildRunners = ServiceLoader.load(CodeGeneratorTool.class);
+        // TODO: passing HELP_COMMAND as the tool name is wrong. This should be fixed
+//        CustomToolClassLoader customToolClassLoader = BalToolsUtil.getCustomToolClassLoader(HELP_COMMAND);
+        // TODO: Do we need the setContextClassLoader here?
+//        Thread.currentThread().setContextClassLoader(customToolClassLoader);
+        ServiceLoader<CodeGeneratorTool> buildRunners = ServiceLoader.load(CodeGeneratorTool.class, customToolClassLoader);
         for (Tool tool : tools) {
             String commandName = tool.type();
             ToolContext toolContext = ToolContext.from(tool, project.currentPackage());
@@ -93,6 +101,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
             }
             if (!tool.hasErrorDiagnostic() && !hasOptionErrors) {
                 try {
+                    // TODO: move this check to before validation of the schema
                     CodeGeneratorTool targetTool = getTargetTool(commandName, buildRunners);
                     if (targetTool == null) {
                         // TODO: Installing tool if not found to be implemented at a later phase
@@ -128,6 +137,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         project.setToolContextMap(toolContextMap);
     }
 
+    // TODO: modify this to return Optional<CodeGeneratorTool>
     private CodeGeneratorTool getTargetTool(String commandName, ServiceLoader<CodeGeneratorTool> buildRunners) {
         for (CodeGeneratorTool buildRunner : buildRunners) {
             if (buildRunner.toolName().equals(commandName)) {
@@ -141,14 +151,15 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         if (optionsToml == null) {
             return validateEmptyOptionsToml(toolName);
         }
-        FileUtils.validateToml(optionsToml, toolName);
+        FileUtils.validateToml(optionsToml, toolName, customToolClassLoader);
         optionsToml.diagnostics().forEach(outStream::println);
         return !Diagnostics.filterErrors(optionsToml.diagnostics()).isEmpty();
     }
 
     private boolean validateEmptyOptionsToml(String toolName) throws IOException {
-        Schema schema = Schema.from(io.ballerina.projects.util.FileUtils
-                .readFileAsString(toolName + "-options-schema.json"));
+        Schema schema = Schema.from(FileUtils.readSchema(toolName, customToolClassLoader));
+//        Schema schema = Schema.from(io.ballerina.projects.util.FileUtils
+//                .readFileAsString(toolName + "-options-schema.json"));
         List<String> requiredFields = schema.required();
         if (!requiredFields.isEmpty()) {
             for (String field: requiredFields) {
