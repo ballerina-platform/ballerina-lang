@@ -5,6 +5,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SimpleBTypeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,7 +65,12 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
 
     protected void populateTypeDefPool(BIRNode.BIRPackage birPackage, HashSet<String> interopDependencies) {
         birPackage.typeDefs.forEach(typeDef -> {
-            globalTypeDefPool.putIfAbsent(typeDef.type, typeDef);
+            // In case there are more than one reference types referencing to the same type
+            if (typeDef.referenceType != null && typeDef.type.tag == TypeTags.TYPEREFDESC) {
+                globalTypeDefPool.putIfAbsent(typeDef.referenceType, typeDef);
+            } else {
+                globalTypeDefPool.putIfAbsent(typeDef.type, typeDef);
+            }
             if (interopDependencies != null && interopDependencies.contains(typeDef.internalName.toString())) {
                 pkgCache.getInvocationData(typeDef.getPackageID()).startPointNodes.add(typeDef);
             }
