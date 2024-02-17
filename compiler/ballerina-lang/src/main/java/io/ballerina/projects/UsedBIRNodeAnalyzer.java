@@ -55,7 +55,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     private static final HashMap<String, HashSet<String>> INTEROP_DEPENDENCIES = new HashMap<>();
     private static final HashSet<InstructionKind> ANALYZED_INSTRUCTION_KINDS = new HashSet<>(
             Arrays.asList(InstructionKind.NEW_TYPEDESC, InstructionKind.NEW_INSTANCE, InstructionKind.TYPE_CAST,
-                    InstructionKind.FP_LOAD, InstructionKind.TYPE_TEST, InstructionKind.RECORD_DEFAULT_FP_LOAD));
+                    InstructionKind.FP_LOAD, InstructionKind.TYPE_TEST, InstructionKind.RECORD_DEFAULT_FP_LOAD,
+                    InstructionKind.NEW_TABLE));
     private static final HashSet<InstructionKind> ANALYZED_TERMINATOR_KINDS =
             new HashSet<>(Arrays.asList(InstructionKind.CALL, InstructionKind.FP_CALL));
     private static final String EXTERNAL_METHOD_ANNOTATION_TAG = "Method";
@@ -284,6 +285,11 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     @Override
     public void visit(BIRNonTerminator.TypeTest typeTest) {
         usedTypeDefAnalyzer.analyzeTypeDefWithinScope(typeTest.type, currentParentFunction);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewTable newTable) {
+        usedTypeDefAnalyzer.analyzeTypeDefWithinScope(newTable.type, currentParentFunction);
     }
 
     private BIRNode.BIRFunction lookupBirFunction(PackageID pkgId, String funcName) {
