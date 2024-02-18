@@ -65,6 +65,7 @@ public class BalRuntime extends Runtime {
 
     private final Scheduler scheduler;
     private final Module module;
+    private boolean moduleInitialized = false;
 
     public BalRuntime(Scheduler scheduler, Module module) {
         this.scheduler = scheduler;
@@ -96,15 +97,23 @@ public class BalRuntime extends Runtime {
         }
         // Invoke module init
         invokeMethodAsync("$moduleInit", new Object[1], null, null, PredefinedTypes.TYPE_NULL, "init");
+        moduleInitialized = true;
     }
 
     public void start() {
+        if (!moduleInitialized) {
+            throw ErrorCreator.createError(StringUtils.fromString("failed to complete module initialization"));
+        }
         invokeMethodAsync("$moduleStart", new Object[1], null, null, PredefinedTypes.TYPE_NULL, "start");
     }
 
     public void invokeMethodAsync(String functionName, Object[] args, Callback callback) {
         invokeMethodAsync(functionName, args, callback, Scheduler.getDaemonStrand(), PredefinedTypes.TYPE_ANY,
                 "strand-" + functionName);
+    }
+
+    public void stop() {
+        invokeMethodAsync("$moduleStop", new Object[1], null, null, PredefinedTypes.TYPE_NULL, "stop");
     }
 
     private void invokeMethodAsync(String functionName, Object[] args, Callback callback, Strand parent,

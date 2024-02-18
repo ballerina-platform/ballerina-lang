@@ -57,6 +57,8 @@ public abstract class Runtime {
 
     public abstract void start();
 
+    public abstract void stop();
+
     /**
      * Invoke Object method asynchronously and sequentially. This method will ensure that the object methods are
      * invoked in the same thread where other object methods are executed. So, the methods will be executed
