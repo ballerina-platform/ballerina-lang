@@ -569,7 +569,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     public void addInt(long index, long value) {
         if (intValues != null) {
-            prepareForAdd(index, value, PredefinedTypes.TYPE_INT, intValues.length);
+            prepareForAdd(index, value, PredefinedTypes.singletonType(value), intValues.length);
             intValues[(int) index] = value;
             return;
         }
@@ -579,17 +579,17 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void addBoolean(long index, boolean value) {
-        prepareForAdd(index, value, PredefinedTypes.TYPE_BOOLEAN, booleanValues.length);
+        prepareForAdd(index, value, PredefinedTypes.singletonType(value), booleanValues.length);
         booleanValues[(int) index] = value;
     }
 
     private void addByte(long index, byte value) {
-        prepareForAdd(index, value, PredefinedTypes.TYPE_BYTE, byteValues.length);
+        prepareForAdd(index, value, PredefinedTypes.singletonType(value), byteValues.length);
         byteValues[(int) index] = value;
     }
 
     private void addFloat(long index, double value) {
-        prepareForAdd(index, value, PredefinedTypes.TYPE_FLOAT, floatValues.length);
+        prepareForAdd(index, value, PredefinedTypes.singletonType(value), floatValues.length);
         floatValues[(int) index] = value;
     }
 
@@ -599,7 +599,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void addBString(long index, BString value) {
-        prepareForAdd(index, value, PredefinedTypes.TYPE_STRING, bStringValues.length);
+        prepareForAdd(index, value, PredefinedTypes.singletonType(value), bStringValues.length);
         bStringValues[(int) index] = value;
     }
 

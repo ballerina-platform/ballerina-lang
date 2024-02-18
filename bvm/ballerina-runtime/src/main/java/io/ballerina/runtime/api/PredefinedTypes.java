@@ -299,7 +299,9 @@ public class PredefinedTypes {
             SemType semType = FloatSubtype.floatConst((Double) value);
             return new BFloatType(TypeConstants.FLOAT_TNAME, EMPTY_MODULE, semType);
         }
-        SemType semType = IntSubtype.intConst(value.longValue());
+        // Java byte is signed
+        SemType semType = IntSubtype.intConst(
+                value instanceof Byte ? Byte.toUnsignedLong(value.byteValue()) : value.longValue());
         // BTypeHack: This is a hack to make BType work
         if (value instanceof Long) {
             return new BIntegerType(TypeConstants.INT_TNAME, EMPTY_MODULE, semType);
@@ -314,6 +316,11 @@ public class PredefinedTypes {
 
     public static Type singletonType(BString value) {
         SemType semType = StringSubtype.stringConst(value.getValue());
+        return new BStringType(TypeConstants.STRING_TNAME, EMPTY_MODULE, semType);
+    }
+
+    public static Type singletonType(String value) {
+        SemType semType = StringSubtype.stringConst(value);
         return new BStringType(TypeConstants.STRING_TNAME, EMPTY_MODULE, semType);
     }
 

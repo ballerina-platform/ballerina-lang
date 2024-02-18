@@ -41,7 +41,7 @@ public abstract class StringValue implements BString, SimpleValue {
 
     @Override
     public Type getType() {
-        return PredefinedTypes.TYPE_STRING;
+        return PredefinedTypes.singletonType(value);
     }
 
     @Override

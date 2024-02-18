@@ -99,7 +99,8 @@ public class StringSubtype implements ProperSubtypeData {
     public static SemType stringConst(String value) {
         CharStringSubtype chara;
         NonCharStringSubtype nonChar;
-        if (value.length() == 1) {
+        // value could be a unicode value therefore directly taking the length is invalid
+        if (value.codePointCount(0, value.length()) == 1) {
             chara = CharStringSubtype.from(true,
                     new EnumerableCharString[]{EnumerableCharString.from(value)});
             nonChar = NonCharStringSubtype.from(true, new EnumerableString[]{});

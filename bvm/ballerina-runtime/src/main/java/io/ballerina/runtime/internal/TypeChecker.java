@@ -3603,7 +3603,7 @@ public class TypeChecker {
 
         Object firstElement = finiteTypeValueSpace.iterator().next();
         for (Object value : finiteTypeValueSpace) {
-            if (value.getClass() != firstElement.getClass()) {
+            if (!isSameKind(firstElement, value)) {
                 return false;
             }
         }
@@ -3620,6 +3620,17 @@ public class TypeChecker {
         } else {
             return false;
         }
+    }
+
+    private static boolean isSameKind(Object value1, Object value2) {
+        if (value1.getClass() == value2.getClass()) {
+            return true;
+        }
+        // We need to properly handle int subtypes
+        if (value1 instanceof Number && value2 instanceof Number) {
+            return !(value1 instanceof Double) && !(value2 instanceof Double);
+        }
+        return false;
     }
 
     private static boolean containsElement(Set<Object> valueSpace, String e) {

@@ -19,13 +19,13 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 
-import java.util.Objects;
+import static io.ballerina.runtime.api.TypeTags.CHAR_STRING_TAG;
+import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
 
 /**
  * {@code BStringType} represents a String type in ballerina.
@@ -45,13 +45,13 @@ public class BStringType extends BType implements StringType {
      */
     public BStringType(String typeName, Module pkg) {
         super(typeName, pkg, String.class);
-        tag = TypeTags.STRING_TAG;
+        tag = STRING_TAG;
         semType = null;
     }
 
     public BStringType(String typeName, Module pkg, SemType semType) {
         super(typeName, pkg, String.class);
-        tag = TypeTags.STRING_TAG;
+        tag = STRING_TAG;
         this.semType = semType;
     }
 
@@ -82,7 +82,14 @@ public class BStringType extends BType implements StringType {
 
     @Override
     public SemType getSemTypeComponent() {
-        return Objects.requireNonNullElse(this.semType, PredefinedType.STRING);
+        if (semType != null) {
+            return semType;
+        }
+        return switch (tag) {
+            case STRING_TAG -> PredefinedType.STRING;
+            case CHAR_STRING_TAG -> PredefinedType.STRING_CHAR;
+            default -> throw new IllegalStateException("Unexpected tag value: " + tag);
+        };
     }
 
     @Override
