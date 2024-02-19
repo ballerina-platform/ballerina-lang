@@ -155,8 +155,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         String returnTypeDescriptor = "";
         if (updatedVar.isPresent()) {
-            Optional<String> posType =
-                    CodeActionUtil.getPossibleType(updatedVar.get().typeDescriptor(), new ArrayList<>(), context);
+            Optional<String> posType = CodeActionUtil.getPossibleType(updatedVar.get().typeDescriptor(), context);
             if (posType.isEmpty()) {
                 return Collections.emptyList();
             }
@@ -582,8 +581,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             if (typeSymbol.isEmpty()) {
                 return Optional.empty();
             }
-            Optional<String> possibleType =
-                    CodeActionUtil.getPossibleType(typeSymbol.get(), new ArrayList<>(), context);
+            Optional<String> possibleType = CodeActionUtil.getPossibleType(typeSymbol.get(), context);
             if (possibleType.isEmpty()) {
                 return Optional.empty();
             }

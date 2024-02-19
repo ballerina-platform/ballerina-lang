@@ -146,8 +146,7 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
                                                                        TypeSymbol typeSymbol) {
         try {
             TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
-            String name =
-                    CodeActionUtil.getPossibleType(typeReferenceTypeSymbol, new ArrayList<>(), context).orElseThrow();
+            String name = CodeActionUtil.getPossibleType(typeReferenceTypeSymbol, context).orElseThrow();
             TypeSymbol typeDescriptorTypeSymbol = typeReferenceTypeSymbol.typeDescriptor();
             return Optional.of(new RecordTypeWrapper((RecordTypeSymbol) typeDescriptorTypeSymbol, name));
         } catch (Exception e) {
@@ -168,12 +167,11 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
         String bodyText = recordFieldSymbolMap.isEmpty() ? "" :
                 RecordUtil.getFillAllRecordFieldInsertText(recordFieldSymbolMap);
         String parameterName = inputRecordTypeName + " " + fieldName;
-        String returnSignature = FunctionGenerator.getReturnTypeAsString(context,
-                outputRecordTypeWrapper.recordTypeName());
         String generatedFunction = String.format("%s %s %s%s%s returns %s %s %s%n    %s%n%s",
                 CommonKeys.FUNCTION_KEYWORD_KEY, functionName, CommonKeys.OPEN_PARENTHESES_KEY, parameterName,
-                CommonKeys.CLOSE_PARENTHESES_KEY, returnSignature, CommonKeys.ARROW_FUNCTION_SYMBOL_KEY,
-                CommonKeys.OPEN_BRACE_KEY, bodyText, CommonKeys.CLOSE_BRACE_KEY + CommonKeys.SEMI_COLON_SYMBOL_KEY);
+                CommonKeys.CLOSE_PARENTHESES_KEY, outputRecordTypeWrapper.recordTypeName(),
+                CommonKeys.ARROW_FUNCTION_SYMBOL_KEY, CommonKeys.OPEN_BRACE_KEY, bodyText,
+                CommonKeys.CLOSE_BRACE_KEY + CommonKeys.SEMI_COLON_SYMBOL_KEY);
 
         // Formatting the generated function
         try {
