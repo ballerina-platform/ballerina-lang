@@ -21,19 +21,15 @@ package io.ballerina.cli.task;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleDescriptor;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
@@ -44,7 +40,6 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.testerina.core.TestProcessor;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
@@ -60,7 +55,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -83,13 +77,13 @@ import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.*;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.FULLY_QULAIFIED_MODULENAME_SEPRATOR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.IGNORE_PATTERN;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.STANDALONE_SRC_PACKAGENAME;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTERINA_TEST_SUITE;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.WILDCARD;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
  * Task for executing tests.
@@ -252,8 +246,7 @@ public class RunTestsTask implements Task {
         if (emitTestExecutable) {
             HashSet<String> exclusionClassList = new HashSet<>();
             runTestsUsingEmits(project, moduleNamesList, target, exclusionClassList, testsCachePath, jBallerinaBackend);
-        }
-        else {
+        } else {
             runTestsUsingSuiteJSON(project, jarResolver, hasTests, target, testsCachePath, jBallerinaBackend, cachesRoot);
         }
 
@@ -345,7 +338,7 @@ public class RunTestsTask implements Task {
                 continue;
             }
 
-            if(!hasTests) {
+            if (!hasTests) {
                 hasTests = true;
             }
 
@@ -545,7 +538,8 @@ public class RunTestsTask implements Task {
     }
 
     //first 3 args are required for loading the test class
-    public List<String> getAllTestArgs(Target target, String packageName, String moduleName, Project project, ModuleDescriptor moduleDescriptor) {
+    public List<String> getAllTestArgs(Target target, String packageName, String moduleName,
+                                       Project project, ModuleDescriptor moduleDescriptor) {
         //set test report and coverage report from the project
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
@@ -607,12 +601,14 @@ public class RunTestsTask implements Task {
 
                 if (sourceFile.split(Pattern.quote(PATH_SEPARATOR)).length == 2) {
                     String moduleName = sourceFile.split(Pattern.quote(PATH_SEPARATOR))[0];
-                    String balFile = sourceFile.split(Pattern.quote(PATH_SEPARATOR))[1].replace(BLANG_SOURCE_EXT, "");
+                    String balFile = sourceFile.split(Pattern.quote(PATH_SEPARATOR))[1]
+                            .replace(BLANG_SOURCE_EXT, "");
                     String className = getQualifiedClassName(org, packageName +
                                     FULLY_QULAIFIED_MODULENAME_SEPRATOR + moduleName, version, balFile);
                     classFileList.add(className);
                 } else if (sourceFile.split(Pattern.quote(PATH_SEPARATOR)).length == 1) {
-                    String balFile = sourceFile.split(Pattern.quote(PATH_SEPARATOR))[0].replace(BLANG_SOURCE_EXT, "");
+                    String balFile = sourceFile.split(Pattern.quote(PATH_SEPARATOR))[0]
+                            .replace(BLANG_SOURCE_EXT, "");
                     String className = getQualifiedClassName(org, packageName, version, balFile);
                     classFileList.add(className);
                 }

@@ -2,8 +2,16 @@ package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.TestUtils;
-import io.ballerina.projects.*;
+import io.ballerina.projects.EmitResult;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
+import io.ballerina.projects.JarResolver;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleDescriptor;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -50,7 +58,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
             Path testCachePath = target.getTestsCachePath();
 
             long start = 0;
-            if (project.buildOptions().dumpBuildTime()) { //TODO: change to dumpTestBuildTime??
+            if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
             }
 
@@ -107,21 +115,6 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                 diagnostics.addAll(result.diagnostics().diagnostics());
             }
 
-//            if(project.buildOptions().cloud() != null) {
-//                //if cloud is enabled, we need to create the docker artifacts
-//                //create the test suite suitable for docker
-//                Path basePath = getTestExecutableBasePath(target);
-//                boolean status1 = createTestSuiteForCloudArtifacts(project, jBallerinaBackend, target);
-//
-//                if (status1) {
-//                    //now notify the compilation completion
-//                    List<Diagnostic> pluginDiagnostics = jBallerinaBackend.
-//                            notifyCompilationCompletion(basePath, ArtifactType.TEST);
-//                    diagnostics.addAll(pluginDiagnostics);
-//                }
-//
-//            }
-
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
                 BuildTime.getInstance().compile = false;
@@ -138,6 +131,8 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
             if (!diagnostics.isEmpty()) {
                 //  TODO: When deprecating the lifecycle compiler plugin, we can remove this check for duplicates
                 //   in JBallerinaBackend diagnostics and the diagnostics added to EmitResult.
+                // THE ABOVE COMMENT IS APPLIED TO CreateExecutableTask.java, since this class extends that class,
+                // this was added.
                 diagnostics = diagnostics.stream()
                         .filter(diagnostic -> !jBallerinaBackend.diagnosticResult().diagnostics().contains(diagnostic))
                         .collect(Collectors.toList());
@@ -150,6 +145,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         }
         // notify plugin
         // todo following call has to be refactored after introducing new plugin architecture
+        // Similar case as in CreateExecutableTask.java
         notifyPlugins(project, target);
     }
 
@@ -172,15 +168,13 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
 
         if (status) {
             //now write the map to a json file
-            try{
+            try {
                 TestUtils.writeToTestSuiteJson(testSuiteMap, target.getTestsCachePath());
                 return true;
-            }
-            catch(IOException e) {
+            } catch (IOException e) {
                 throw createLauncherException("error while writing to test suite json file: " + e.getMessage());
             }
-        }
-        else{
+        } else {
             return false;
         }
     }
@@ -198,8 +192,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
     private Path getTestExecutableBasePath(Target target) {
         try {
             return target.getTestExecutableBasePath();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw createLauncherException(e.getMessage());
         }
     }
@@ -224,8 +217,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                     writer.write(arg);
                     writer.newLine();
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 throw createLauncherException("error while writing to file: " + e.getMessage());
             }
     }
