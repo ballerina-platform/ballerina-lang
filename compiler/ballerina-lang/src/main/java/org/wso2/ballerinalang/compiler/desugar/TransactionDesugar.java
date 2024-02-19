@@ -441,6 +441,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         // transactional
         BLangTransactionalExpr isTransactionalCheck = TreeBuilder.createTransactionalExpressionNode();
+        isTransactionalCheck.setBType(symTable.booleanType);
         isTransactionalCheck.pos = pos;
 
         // if(($trxError$ is error) && !($trxError$ is TransactionError) && transactional)

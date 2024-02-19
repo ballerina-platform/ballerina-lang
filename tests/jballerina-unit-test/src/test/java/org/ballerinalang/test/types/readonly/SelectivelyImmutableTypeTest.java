@@ -193,6 +193,8 @@ public class SelectivelyImmutableTypeTest {
                 "'(json & readonly)[]'", 407, 28);
         validateError(result, index++, "incompatible types: expected '(json & readonly)[]', found " +
                 "'(xml & readonly)[]'", 408, 29);
+        validateError(result, index++, "incompatible types: expected " +
+                "'((stream<int>|ballerina/lang.string:0.0.0:RegExp) & readonly)', found 'stream<int>'", 412, 48);
 
         assertEquals(result.getErrorCount(), index);
     }

@@ -1,0 +1,49 @@
+{
+  "position": {
+    "line": 3,
+    "character": 30
+  },
+  "source": "project/importMultipleModules3.bal",
+  "expected": [
+    {
+      "title": "Import module 'ballerina/module1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Import module 'project.module1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import project.module1;\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

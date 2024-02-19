@@ -10,33 +10,25 @@ Running Tests
 
 	invalid-data-provider-test2.bal
 
-testInvalidDataProvider2:0 has failed.
-
-
-		Test execution time :*****ms
-
-
 		[fail] testInvalidDataProvider2#0:
 
 		    [fail data provider for the function testInvalidDataProvider2]
 			error {ballerina/test:0}ExecutionError ("error("{ballerina/lang.function}IncompatibleArguments",message="arguments of incompatible types: argument list '(int,int,int)' cannot be passed to function expecting parameter list '(string,string,string)'")
 				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
-				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 209
-				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 185
-				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 175
-				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 109
-				callableName: executeTest moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 40
-				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
-				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 55
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 336
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 136
+				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 123
+				callableName: executeTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 83
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 58
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 48
 				callableName: __execute__  fileName: invalid-data-provider-test2.bal lineNumber: 39
 			",functionName="testInvalidDataProvider2")
-				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 220
-				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 185
-				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 175
-				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 109
-				callableName: executeTest moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 40
-				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
-				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 55
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 346
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 136
+				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 123
+				callableName: executeTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 83
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 58
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 48
 				callableName: __execute__  fileName: invalid-data-provider-test2.bal lineNumber: 39
 			
 

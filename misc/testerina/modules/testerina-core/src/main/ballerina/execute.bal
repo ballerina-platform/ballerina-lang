@@ -377,10 +377,9 @@ isolated function skipDataDrivenTest(TestFunction testFunction, string suffix, T
         foreach string subFilter in subTests {
             string updatedSubFilter = subFilter;
             if (testType == DATA_DRIVEN_MAP_OF_TUPLE) {
-                if !subFilter.startsWith(SINGLE_QUOTE) || !subFilter.endsWith(SINGLE_QUOTE) {
-                    continue;
+                if (subFilter.startsWith(SINGLE_QUOTE) && subFilter.endsWith(SINGLE_QUOTE)) {
+                    updatedSubFilter = subFilter.substring(1, subFilter.length() - 1);
                 }
-                updatedSubFilter = subFilter.substring(1, subFilter.length() - 1);
             }
             string|error decodedSubFilter = escapeSpecialCharacters(updatedSubFilter);
             updatedSubFilter = decodedSubFilter is string ? decodedSubFilter : updatedSubFilter;

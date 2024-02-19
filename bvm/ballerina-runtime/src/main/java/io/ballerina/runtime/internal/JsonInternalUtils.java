@@ -326,7 +326,7 @@ public class JsonInternalUtils {
                 if (jsonValue instanceof BString) {
                     return jsonValue;
                 }
-                return jsonValue.toString();
+                return StringUtils.fromString(jsonValue.toString());
             case TypeTags.BOOLEAN_TAG:
                 return jsonNodeToBoolean(jsonValue);
             case TypeTags.JSON_TAG:
