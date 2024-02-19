@@ -144,16 +144,8 @@ public class RunTestsTask implements Task {
         this.mockClasses = mockClasses;
     }
 
-    public List<String> getMockClasses() {
-        return mockClasses;
-    }
-
     public void setModuleNamesList(List<String> moduleNamesList) {
         this.moduleNamesList = moduleNamesList;
-    }
-
-    public List<String> getModuleNamesList() {
-        return moduleNamesList;
     }
 
     TestReport testReport;
@@ -230,8 +222,6 @@ public class RunTestsTask implements Task {
             throw createLauncherException("error while creating target directory: ", e);
         }
 
-        boolean hasTests = false;
-
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
@@ -239,7 +229,7 @@ public class RunTestsTask implements Task {
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
-        runTestsUsingSuiteJSON(project, jarResolver, hasTests, target, testsCachePath, jBallerinaBackend, cachesRoot);
+        runTestsUsingSuiteJSON(project, jarResolver, target, testsCachePath, jBallerinaBackend, cachesRoot);
 
         // Cleanup temp cache for SingleFileProject
         cleanTempCache(project, cachesRoot);
@@ -248,8 +238,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private void runTestsUsingSuiteJSON(Project project, JarResolver jarResolver,
-                                        boolean hasTests, Target target, Path testsCachePath,
+    private void runTestsUsingSuiteJSON(Project project, JarResolver jarResolver, Target target, Path testsCachePath,
                                         JBallerinaBackend jBallerinaBackend, Path cachesRoot) {
         TestProcessor testProcessor = new TestProcessor(jarResolver);
         List<String> moduleNamesList = new ArrayList<>();
@@ -257,7 +246,7 @@ public class RunTestsTask implements Task {
         List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
 
-        hasTests = createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap,
+        boolean hasTests = createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap,
                 moduleNamesList, mockClassNames, this.isRerunTestExecution, this.report, this.coverage);
 
         writeToTestSuiteJson(testSuiteMap, testsCachePath);
