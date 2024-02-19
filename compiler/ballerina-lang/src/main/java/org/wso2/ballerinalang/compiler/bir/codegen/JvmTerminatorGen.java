@@ -1258,12 +1258,12 @@ public class JvmTerminatorGen {
             this.mv.visitIntInsn(BIPUSH, i);
             this.mv.visitTypeInsn(NEW, RECEIVE_FIELD);
             this.mv.visitInsn(DUP);
-            this.mv.visitLdcInsn(receiveField.key);
+            this.mv.visitLdcInsn(receiveField.key());
             this.mv.visitVarInsn(ILOAD, invocationVarIndex);
             this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
                     new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
                             HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false),
-                    receiveField.workerReceive + START_OF_HEADING_WITH_SEMICOLON);
+                    receiveField.workerReceive() + START_OF_HEADING_WITH_SEMICOLON);
             this.mv.visitMethodInsn(INVOKESPECIAL, RECEIVE_FIELD, JVM_INIT_METHOD, INIT_RECEIVE_FIELD, false);
             this.mv.visitInsn(AASTORE);
             i += 1;

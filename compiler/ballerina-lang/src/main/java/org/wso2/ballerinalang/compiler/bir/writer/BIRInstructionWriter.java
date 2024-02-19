@@ -244,8 +244,8 @@ public class BIRInstructionWriter extends BIRVisitor {
     @Override
     public void visit(BIRTerminator.WorkerMultipleReceive entry) {
         entry.receiveFields.forEach(key -> {
-            buf.writeInt(addStringCPEntry(key.key));
-            buf.writeInt(addStringCPEntry(key.workerReceive));
+            buf.writeInt(addStringCPEntry(key.key()));
+            buf.writeInt(addStringCPEntry(key.workerReceive()));
         });
         writeType(entry.targetType);
         entry.lhsOp.accept(this);

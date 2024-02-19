@@ -777,18 +777,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         }
 
         /**
-         * This static inner class represents key-value pair in a multiple worker.
+         * A worker receive field for multiple receive action.
          *
          * @since 2201.9.0
          */
-        public static class ReceiveField {
-            public String key;
-            public String workerReceive;
-
-            public ReceiveField(String key, String workerReceive) {
-                this.key = key;
-                this.workerReceive = workerReceive;
-            }
+        public record ReceiveField(String key, String workerReceive) {
         }
     }
 

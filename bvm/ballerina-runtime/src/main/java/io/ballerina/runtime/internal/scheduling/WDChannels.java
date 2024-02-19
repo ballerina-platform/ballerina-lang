@@ -43,6 +43,10 @@ public class WDChannels {
     private Map<String, WorkerDataChannel> wDChannels;
     private final List<ErrorValue> errors = new ArrayList<>();
 
+    // A worker receive field for multiple receive action.
+    public record ReceiveField(String fieldName, String channelName) {
+    }
+
     //TODO try to generalize this to a normal data channel, in that case we won't need these classes.
 
     public synchronized WorkerDataChannel getWorkerDataChannel(String name) {
@@ -63,13 +67,13 @@ public class WDChannels {
             strand.workerReceiveMap = ValueCreator.createMapValue(targetType);
         }
         for (ReceiveField field : receiveFields) {
-            WorkerDataChannel channel = getWorkerDataChannel(field.channelName);
+            WorkerDataChannel channel = getWorkerDataChannel(field.channelName());
             if (!channel.isClosed()) {
                 Object result = channel.tryTakeData(strand, true);
                 checkAndPopulateResult(strand, field, result, channel);
             } else {
                 if (channel.getState() == WorkerDataChannel.State.AUTO_CLOSED) {
-                    checkAndPopulateResult(strand, field, ErrorUtils.createNoMessageError(field.channelName), channel);
+                    checkAndPopulateResult(strand, field, ErrorUtils.createNoMessageError(field.channelName()), channel);
                 }
             }
         }
@@ -79,7 +83,7 @@ public class WDChannels {
     private void checkAndPopulateResult(Strand strand, ReceiveField field, Object result, WorkerDataChannel channel) {
         if (result != null) {
             result = getResultValue(result);
-            strand.workerReceiveMap.populateInitialValue(StringUtils.fromString(field.fieldName), result);
+            strand.workerReceiveMap.populateInitialValue(StringUtils.fromString(field.fieldName()), result);
             channel.close();
             ++strand.channelCount;
         } else {
