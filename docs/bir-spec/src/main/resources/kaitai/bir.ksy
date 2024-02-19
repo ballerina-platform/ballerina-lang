@@ -389,14 +389,12 @@ types:
         type: s4
       - id: flags
         type: s8
-  finite_value:
-    seq:
-      - id : type_cp_index
+      - id: value_space_size
         type: s4
-      - id: value_length
-        type: s4
-      - id: value
-        size: value_length
+      - id: values_as_semtypes
+        type: semtype_info
+        repeat: expr
+        repeat-expr: value_space_size
   closure_symbol_body:
     seq:
       - id: name_cp_index

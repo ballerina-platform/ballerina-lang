@@ -986,7 +986,7 @@ const boolean Boolean = true;
 function testFiniteTypeArrayNegative() {
     (1|2.0|3.0d|true|"Hello"|()|NIL|Interger|String|Float|Decimal|Byte|Boolean)[] a = [];
     any c = a;
-    assertTypeCastFailureWithMessage(trap <int>c, "incompatible types: '(()|1|\"Ballerina\"|2.3f|4.5d|5|true|(true|1|2.0f|3.0d|\"Hello\"))?[]' cannot be cast to 'int'");
+    assertTypeCastFailureWithMessage(trap <int>c, "incompatible types: '(()|1|\"Ballerina\"|2.3f|4.5d|5|true|(1|2.0f|3.0d|true|\"Hello\"))?[]' cannot be cast to 'int'");
 }
 
 class Obj {
