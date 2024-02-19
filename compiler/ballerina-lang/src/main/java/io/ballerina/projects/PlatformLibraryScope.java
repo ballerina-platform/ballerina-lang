@@ -33,7 +33,13 @@ public enum PlatformLibraryScope {
      * Libraries marked with scope="testOnly" in Ballerina.toml, get this value.
      * Included phases: run tests.
      */
-    TEST_ONLY("testOnly");
+    TEST_ONLY("testOnly"),
+
+    /**
+     * Libraries marked with scope="provided" in Ballerina.toml, get this value.
+     * Included phases: compilation, run tests, executable, not included in the bala.
+     */
+    PROVIDED("provided");
 
     private final String strValue;
 
