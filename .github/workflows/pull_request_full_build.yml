@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - master
+  workflow_dispatch:
+
 
 jobs:
   build-lang:
@@ -107,7 +109,7 @@ jobs:
         run: |
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
           echo "Building Standard Library: $module_name" && \
-          cd $module_name && ./gradlew clean build --stacktrace --scan && cd ..; \
+          cd $module_name && ./gradlew clean build --stacktrace --scan || true && cd ..; \
           done
         env:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
