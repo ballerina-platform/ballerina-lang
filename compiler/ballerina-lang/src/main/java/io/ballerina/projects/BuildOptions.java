@@ -35,12 +35,10 @@ public class BuildOptions {
     private Boolean exportComponentModel;
     private String graalVMBuildOptions;
 
-    private Boolean emitTestExecutable;
-
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
                  Boolean nativeImage, Boolean exportComponentModel,
-                 String graalVMBuildOptions, Boolean emitTestExecutable) {
+                 String graalVMBuildOptions) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -51,7 +49,6 @@ public class BuildOptions {
         this.nativeImage = nativeImage;
         this.exportComponentModel = exportComponentModel;
         this.graalVMBuildOptions = graalVMBuildOptions;
-        this.emitTestExecutable = emitTestExecutable;
 
     }
 
@@ -131,10 +128,6 @@ public class BuildOptions {
         return Objects.requireNonNullElse(this.graalVMBuildOptions, "");
     }
 
-    public boolean emitTestExecutable() {
-        return toBooleanDefaultIfNull(this.emitTestExecutable);
-    }
-
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
      *
@@ -187,11 +180,6 @@ public class BuildOptions {
             buildOptionsBuilder.setGraalVMBuildOptions(theirOptions.graalVMBuildOptions);
         } else {
             buildOptionsBuilder.setGraalVMBuildOptions(this.graalVMBuildOptions);
-        }
-        if (theirOptions.emitTestExecutable != null) {
-            buildOptionsBuilder.setEmitTestExecutable(theirOptions.emitTestExecutable);
-        } else {
-            buildOptionsBuilder.setEmitTestExecutable(this.emitTestExecutable);
         }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
@@ -276,7 +264,6 @@ public class BuildOptions {
         private Boolean nativeImage;
         private Boolean exportComponentModel;
         private String graalVMBuildOptions;
-        private Boolean emitTestExecutable;
 
 
         private BuildOptionsBuilder() {
@@ -325,11 +312,6 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setGraalVMBuildOptions(String value) {
             graalVMBuildOptions = value;
-            return this;
-        }
-
-        public BuildOptionsBuilder setEmitTestExecutable(Boolean value) {
-            emitTestExecutable = value;
             return this;
         }
 
@@ -409,7 +391,7 @@ public class BuildOptions {
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions,
-                    targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions, emitTestExecutable);
+                    targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions);
         }
     }
 }

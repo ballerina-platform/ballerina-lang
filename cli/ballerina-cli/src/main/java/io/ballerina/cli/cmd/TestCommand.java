@@ -202,9 +202,6 @@ public class TestCommand implements BLauncherCmd {
             "'.jar' extension.")
     private String output;
 
-    @CommandLine.Option(names = "--emit", description =  "Emit the test executable fat jar")
-    private Boolean emitTestExecutable;
-
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
 
@@ -363,8 +360,8 @@ public class TestCommand implements BLauncherCmd {
 
         CreateTestExecutableTask createTestExecutableTask = null;
 
-        if (emitTestExecutable != null || !project.buildOptions().cloud().isEmpty()) {
-            //if emit flag is set, create the test executable
+        if (!project.buildOptions().cloud().isEmpty()) {
+            //if cloud flag is set, create the test executable
             createTestExecutableTask = new CreateTestExecutableTask(outStream, this.output, runTestsTask);
         }
 
@@ -379,7 +376,7 @@ public class TestCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(compileTask);
 
-        if ((emitTestExecutable != null || !project.buildOptions().cloud().isEmpty())
+        if (!project.buildOptions().cloud().isEmpty()
                 && createTestExecutableTask != null) {
             taskBuilder.addTask(createTestExecutableTask);
         }
@@ -412,8 +409,7 @@ public class TestCommand implements BLauncherCmd {
                 .setNativeImage(nativeImage)
                 .setEnableCache(enableCache)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
-                .setGraalVMBuildOptions(graalVMBuildOptions)
-                .setEmitTestExecutable(emitTestExecutable);
+                .setGraalVMBuildOptions(graalVMBuildOptions);
 
 
         if (targetDir != null) {
