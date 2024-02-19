@@ -1,0 +1,8 @@
+[package]
+org = "pabadhi"
+name = "projectForTestOffline"
+version = "0.1.0"
+distribution = "2201.9.0-SNAPSHOT"
+
+[build-options]
+observabilityIncluded = true

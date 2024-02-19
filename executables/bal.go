@@ -17,8 +17,6 @@ func main() {
 	javaCmd := os.Getenv("JAVACMD")
 	javaHome := os.Getenv("JAVA_HOME")
 	ballerinaVersion := os.Getenv("BALLERINA_VERSION")
-	//ballerinaVersion = "2201.8.4"
-	fmt.Println(ballerinaVersion)
 	if stat, err := os.Stat(javaPath); err == nil && stat.IsDir() {
 		javaHome := javaPath
 		os.Setenv("JAVA_HOME", javaHome)
@@ -114,11 +112,10 @@ func main() {
 	os.Setenv("BALLERINA_CLI_WIDTH", ballerinaCLIWidth)
 
 	//Setting Ballerina debug port
-	balJavaDebug := os.Getenv("BAL_JAVA_DEBUG")
-	javaOpts := ""
-	if balJavaDebug != "" {
-		fmt.Println("BAL_JAVA_DEBUG is set")
 
+	balJavaDebug, isSet := os.LookupEnv("BAL_JAVA_DEBUG")
+	javaOpts := ""
+	if isSet {
 		if balJavaDebug == "" {
 			fmt.Println("Please specify the debug port for the BAL_JAVA_DEBUG variable")
 			os.Exit(1)
@@ -136,11 +133,7 @@ func main() {
 			} else {
 				javaOpts = javaOpts + " -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + balJavaDebug
 			}
-
-			fmt.Println("Java Options:", javaOpts)
 		}
-	} else {
-		fmt.Println("BAL_JAVA_DEBUG is not set")
 	}
 	jarPath := filepath.Join(ballerinaHome, "bre", "lib")
 	//Ballerina Classpath Setting

@@ -60,8 +60,5 @@ tasks.register('go_windows_build_arm64', Exec) {
     commandLine 'env', 'GOOS=windows', 'GOARCH=arm64','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_windows_arm64", "$rootDir/executables/bal.go"
 }
 
-/*windows/amd64
-linux/amd64
-darwin/amd64
-darwin/arm64*/
+
 
