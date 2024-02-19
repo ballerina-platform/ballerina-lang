@@ -1,3 +1,19 @@
+// Copyright (c) 2024 WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
@@ -19,6 +35,7 @@ import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.testerina.core.TestProcessor;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -39,82 +56,71 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
 
     public CreateTestExecutableTask(PrintStream out, String output, RunTestsTask runTestsTask) {
         super(out, output);
-        this.runTestsTask = runTestsTask;   //to use the getCmdArgs() method
+        this.runTestsTask = runTestsTask;   // To invoke related methods in the run tests task
     }
 
     @Override
     public void execute(Project project) {
         this.out.println();
-
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
         Target target = getTarget(project);
-
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
-
-            List<Diagnostic> diagnostics = new ArrayList<>();
+            List<Diagnostic> emitDiagnostics = new ArrayList<>();
             Path testCachePath = target.getTestsCachePath();
-
             long start = 0;
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
             }
-
             HashSet<JarLibrary> testExecDependencies = new HashSet<>();
             Map<String, TestSuite> testSuiteMap = new HashMap<>();
 
-            //write the test suite json that is used to execute the tests
+            // Write the test suite json that is used to execute the tests
             boolean status = createTestSuiteForCloudArtifacts(project, jBallerinaBackend, target, testSuiteMap);
 
-            //get all the dependencies required for test execution for each module
+            // Get all the dependencies required for test execution for each module
             for (ModuleDescriptor moduleDescriptor :
                     project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
-
                 Module module = project.currentPackage().module(moduleDescriptor.name());
                 testExecDependencies.addAll(jarResolver
                         .getJarFilePathsRequiredForTestExecution(module.moduleName())
                 );
             }
-
             if (status) {
                 Path testExecutablePath = getTestExecutableBasePath(target).resolve(
                         project.currentPackage().packageName().toString() +
                                 ProjectConstants.TEST_UBER_JAR_SUFFIX +
                                 ProjectConstants.BLANG_COMPILED_JAR_EXT);
 
-                //write the cmd args to a file, so it can be read on c2c side
+                // Write the cmd args to a file, so it can be read on c2c side
                 writeCmdArgsToFile(testExecutablePath.getParent(), target, TestUtils.getJsonFilePath(testCachePath));
-                //create the single fat jar for all the test modules that includes the test suite json
-
                 List<Path> moduleJarPaths = TestUtils.getModuleJarPaths(jBallerinaBackend, project.currentPackage());
-
                 List<String> excludingClassPaths = new ArrayList<>();
-
                 for (Path moduleJarPath : moduleJarPaths) {
                     ZipFile zipFile = new ZipFile(moduleJarPath.toFile());
-
                     zipFile.stream().forEach(entry -> {
-                        if (entry.getName().endsWith(".class")) {
-                            excludingClassPaths.add(entry.getName().replace("/", ".")
-                                    .replace(".class", ""));
+                        if (entry.getName().endsWith(ProjectConstants.JAVA_CLASS_EXT)) {
+                            excludingClassPaths.add(entry.getName().replace(File.separator, ProjectConstants.DOT)
+                                    .replace(ProjectConstants.JAVA_CLASS_EXT, ""));
                         }
                     });
+                    zipFile.close();
                 }
 
+                // Create the single fat jar for all the test modules that includes the test suite json
                 EmitResult result = jBallerinaBackend.emit(
                         JBallerinaBackend.OutputType.TEST,
                         testExecutablePath,
                         testExecDependencies,
                         TestUtils.getJsonFilePath(testCachePath),
-                        TestUtils.getJsonFilePathInFatJar("/"),
+                        TestUtils.getJsonFilePathInFatJar(File.separator),
                         excludingClassPaths,
                         ProjectConstants.EXCLUDING_CLASSES_FILE
                 );
-                diagnostics.addAll(result.diagnostics().diagnostics());
+                emitDiagnostics.addAll(result.diagnostics().diagnostics());
             }
-
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
                 BuildTime.getInstance().compile = false;
@@ -127,18 +133,8 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                     out.println(conflict.getWarning(project.buildOptions().listConflictedClasses()));
                 }
             }
-
-            if (!diagnostics.isEmpty()) {
-                //  TODO: When deprecating the lifecycle compiler plugin, we can remove this check for duplicates
-                //   in JBallerinaBackend diagnostics and the diagnostics added to EmitResult.
-                // THE ABOVE COMMENT IS APPLIED TO CreateExecutableTask.java, since this class extends that class,
-                // this was added.
-                diagnostics = diagnostics.stream()
-                        .filter(diagnostic -> !jBallerinaBackend.diagnosticResult().diagnostics().contains(diagnostic))
-                        .collect(Collectors.toList());
-                if (!diagnostics.isEmpty()) {
-                    diagnostics.forEach(d -> out.println("\n" + d.toString()));
-                }
+            if (!emitDiagnostics.isEmpty()) {
+                emitDiagnostics.forEach(d -> out.println("\n" + d.toString()));
             }
         } catch (ProjectException | IOException e) {
             throw createLauncherException(e.getMessage());
@@ -153,21 +149,18 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                                                      Target target, Map<String, TestSuite> testSuiteMap) {
         boolean report = project.buildOptions().testReport();
         boolean coverage = project.buildOptions().codeCoverage();
-
         TestProcessor testProcessor = new TestProcessor(jBallerinaBackend.jarResolver());
         List<String> moduleNamesList = new ArrayList<>();
         List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
-
-        boolean status = RunTestsTask.createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap,
+        boolean status = RunTestsTask.createTestSuitesForProject(project, target, testProcessor, testSuiteMap,
                 moduleNamesList, mockClassNames, runTestsTask.isRerunTestExecution(), report, coverage);
 
-        //set the module names list and the mock classes to the run tests task
+        // Set the module names list and the mock classes to the run tests task
         this.runTestsTask.setModuleNamesList(moduleNamesList);
         this.runTestsTask.setMockClasses(mockClassNames);
-
         if (status) {
-            //now write the map to a json file
+            // Now write the map to a json file
             try {
                 TestUtils.writeToTestSuiteJson(testSuiteMap, target.getTestsCachePath());
                 return true;
@@ -179,16 +172,6 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         }
     }
 
-    private Path getTestExecutablePath(Target target, Module module) {
-        Path executablePath;
-        try {
-            executablePath = target.getTestExecutablePath(module).toAbsolutePath().normalize();
-        } catch (IOException e) {
-            throw createLauncherException(e.getMessage());
-        }
-        return executablePath;
-    }
-
     private Path getTestExecutableBasePath(Target target) {
         try {
             return target.getTestExecutableBasePath();
@@ -198,27 +181,25 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
     }
 
     private void writeCmdArgsToFile(Path path, Target target, Path testSuiteJsonPath) {
-            List<String> cmdArgs = new ArrayList<>();
+        List<String> cmdArgs = new ArrayList<>();
+        TestUtils.appendRequiredArgs(
+                cmdArgs, target.path().toString(), TestUtils.getJacocoAgentJarPath(),
+                testSuiteJsonPath.toString(), this.runTestsTask.isReport(),
+                this.runTestsTask.isCoverage(), this.runTestsTask.getGroupList(),
+                this.runTestsTask.getDisableGroupList(), this.runTestsTask.getSingleExecTests(),
+                this.runTestsTask.isRerunTestExecution(), this.runTestsTask.isListGroups(),
+                this.runTestsTask.getCliArgs(), false
+        );
 
-            TestUtils.addOtherNeededArgs(
-                    cmdArgs, target.path().toString(), TestUtils.getJacocoAgentJarPath(),
-                    testSuiteJsonPath.toString(), this.runTestsTask.isReport(),
-                    this.runTestsTask.isCoverage(), this.runTestsTask.getGroupList(),
-                    this.runTestsTask.getDisableGroupList(), this.runTestsTask.getSingleExecTests(),
-                    this.runTestsTask.isRerunTestExecution(), this.runTestsTask.isListGroups(),
-                    this.runTestsTask.getCliArgs(), false
-            );
-
-            //write the cmdArgs to a file in path
-            Path writingPath = path.resolve(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
-
-            try (BufferedWriter writer = java.nio.file.Files.newBufferedWriter(writingPath)) {
-                for (String arg : cmdArgs) {
-                    writer.write(arg);
-                    writer.newLine();
-                }
-            } catch (IOException e) {
-                throw createLauncherException("error while writing to file: " + e.getMessage());
+        // Write the cmdArgs to a file in path
+        Path writingPath = path.resolve(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
+        try (BufferedWriter writer = java.nio.file.Files.newBufferedWriter(writingPath)) {
+            for (String arg : cmdArgs) {
+                writer.write(arg);
+                writer.newLine();
             }
+        } catch (IOException e) {
+            throw createLauncherException("error while writing to file: " + e.getMessage());
+        }
     }
 }

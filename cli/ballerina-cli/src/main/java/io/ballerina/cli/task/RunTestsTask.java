@@ -63,7 +63,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static io.ballerina.cli.utils.TestUtils.addMockClasses;
-import static io.ballerina.cli.utils.TestUtils.addOtherNeededArgs;
+import static io.ballerina.cli.utils.TestUtils.appendRequiredArgs;
 import static io.ballerina.cli.utils.TestUtils.cleanTempCache;
 import static io.ballerina.cli.utils.TestUtils.clearFailedTestsJson;
 import static io.ballerina.cli.utils.TestUtils.getInitialCmdArgs;
@@ -143,10 +143,6 @@ public class RunTestsTask implements Task {
 
     public void setMockClasses(List<String> mockClasses) {
         this.mockClasses = mockClasses;
-    }
-
-    public List<String> getMockClasses() {
-        return mockClasses;
     }
 
     public void setModuleNamesList(List<String> moduleNamesList) {
@@ -235,8 +231,6 @@ public class RunTestsTask implements Task {
             throw createLauncherException("error while creating target directory: ", e);
         }
 
-        boolean hasTests = false;
-
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
@@ -244,7 +238,7 @@ public class RunTestsTask implements Task {
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
-        runTestsUsingSuiteJSON(project, jarResolver, hasTests, target, testsCachePath, jBallerinaBackend, cachesRoot);
+        runTestsUsingSuiteJSON(project, jarResolver, target, testsCachePath, jBallerinaBackend, cachesRoot);
 
         // Cleanup temp cache for SingleFileProject
         cleanTempCache(project, cachesRoot);
@@ -253,8 +247,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private void runTestsUsingSuiteJSON(Project project, JarResolver jarResolver,
-                                        boolean hasTests, Target target, Path testsCachePath,
+    private void runTestsUsingSuiteJSON(Project project, JarResolver jarResolver, Target target, Path testsCachePath,
                                         JBallerinaBackend jBallerinaBackend, Path cachesRoot) {
         TestProcessor testProcessor = new TestProcessor(jarResolver);
         List<String> moduleNamesList = new ArrayList<>();
@@ -262,7 +255,7 @@ public class RunTestsTask implements Task {
         List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
 
-        hasTests = createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap,
+        boolean hasTests = createTestSuitesForProject(project, target, testProcessor, testSuiteMap,
                 moduleNamesList, mockClassNames, this.isRerunTestExecution, this.report, this.coverage);
 
         writeToTestSuiteJson(testSuiteMap, testsCachePath);
@@ -274,7 +267,7 @@ public class RunTestsTask implements Task {
                 testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames,
                         exclusionClassList);
 
-                performTasksAfterTestCompletion(project, target, testsCachePath, jBallerinaBackend,
+                performPostTestsTasks(project, target, testsCachePath, jBallerinaBackend,
                         cachesRoot, moduleNamesList, exclusionClassList);
             } catch (IOException | InterruptedException | ClassNotFoundException e) {
                 cleanTempCache(project, cachesRoot);
@@ -290,7 +283,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private void performTasksAfterTestCompletion(Project project, Target target, Path testsCachePath,
+    private void performPostTestsTasks(Project project, Target target, Path testsCachePath,
                                                  JBallerinaBackend jBallerinaBackend, Path cachesRoot,
                                                  List<String> moduleNamesList, Set<String> exclusionClassList)
             throws IOException {
@@ -318,7 +311,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    public static boolean createTestSuiteIfHasTests(Project project, Target target,
+    public static boolean createTestSuitesForProject(Project project, Target target,
                                               TestProcessor testProcessor, Map<String, TestSuite> testSuiteMap,
                                               List<String> moduleNamesList, List<String> mockClassNames,
                                               boolean isRerunTestExecution, boolean report, boolean coverage) {
@@ -333,9 +326,7 @@ public class RunTestsTask implements Task {
                 continue;
             }
 
-            if (!hasTests) {
-                hasTests = true;
-            }
+            hasTests = true;
 
             if (!isRerunTestExecution) {
                 clearFailedTestsJson(target.path());
@@ -386,7 +377,7 @@ public class RunTestsTask implements Task {
         Path testSuiteJsonPath = target.path().resolve(ProjectConstants.CACHES_DIR_NAME)
                 .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME).resolve(TESTERINA_TEST_SUITE);
 
-        addOtherNeededArgs(cmdArgs, target.path().toString(), jacocoAgentJarPath,
+        appendRequiredArgs(cmdArgs, target.path().toString(), jacocoAgentJarPath,
                 testSuiteJsonPath.toString(), this.report, this.coverage,
                 this.groupList, this.disableGroupList, this.singleExecTests, this.isRerunTestExecution,
                 this.listGroups, this.cliArgs, false);

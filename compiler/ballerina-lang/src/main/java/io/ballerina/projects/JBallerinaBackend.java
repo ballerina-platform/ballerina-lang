@@ -238,7 +238,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         if (outputType == OutputType.TEST) {
-            generatedArtifact = emitTest(filePath, jarDependencies, testSuiteJsonPath, jsonCopyPath,
+            generatedArtifact = emitTestExecutable(filePath, jarDependencies, testSuiteJsonPath, jsonCopyPath,
                     excludingClassPaths, classPathTextCopyPath);
         } else {
             throw new RuntimeException("Unexpected output type: " + outputType);
@@ -548,16 +548,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private Manifest createTestManifest() {
-        String mainClassName;
-        mainClassName = "org.ballerinalang.test.runtime.BTestMain";
-//        try (JarInputStream jarStream = new JarInputStream(Files.newInputStream(rootModuleJarFile.path()))) {
-//            Manifest mf = jarStream.getManifest();
-//            mainClassName = (String) mf.getMainAttributes().get(Attributes.Name.MAIN_CLASS);
-//        } catch (IOException e) {
-//            throw new RuntimeException("Generated jar file cannot be found for the module: " +
-//                    packageContext.defaultModuleContext().moduleName());
-//        }
-
+        String mainClassName = "org.ballerinalang.test.runtime.BTestMain";
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
@@ -667,7 +658,7 @@ public class JBallerinaBackend extends CompilerBackend {
         return executableFilePath;
     }
 
-    private Path emitTest(Path executableFilePath, HashSet<JarLibrary> jarDependencies,
+    private Path emitTestExecutable(Path executableFilePath, HashSet<JarLibrary> jarDependencies,
                           Path testSuiteJsonPath, String jsonCopyPath, List<String> excludingClassPaths,
                           String classPathTextCopyPath) {
         Manifest manifest = createTestManifest();
@@ -675,7 +666,7 @@ public class JBallerinaBackend extends CompilerBackend {
             assembleTestExecutableJar(executableFilePath, manifest, jarDependencies, testSuiteJsonPath, jsonCopyPath,
                     excludingClassPaths, classPathTextCopyPath);
         } catch (IOException e) {
-            throw new ProjectException("error while creating the executable jar file for package '" +
+            throw new ProjectException("error while creating the test executable jar file for package '" +
                     this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
         }
         return executableFilePath;

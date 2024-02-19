@@ -49,6 +49,7 @@ public class ProjectConstants {
     public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
     public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
     public static final String BUILD_FILE = "build";
+    public static final String JAVA_CLASS_EXT = ".class";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
@@ -111,7 +112,7 @@ public class ProjectConstants {
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
     public static final String TEST_CORE_JAR_PREFIX = "testerina-core-";
     public static final String TEST_UBER_JAR_SUFFIX = "-testable";
-    public static final String TEST_RUNTIME_MAIN_ARGS_FILE_DIR = "/";
+    public static final String FAT_JAR_ROOT_DIR = "/";
     public static final String TEST_RUNTIME_MAIN_ARGS_FILE = "mainArgs.txt";
     public static final String EXCLUDING_CLASSES_FILE = "excludingClasses.txt";
 

@@ -326,7 +326,7 @@ public class TestUtils {
         return cmdArgs;
     }
 
-    public static void addOtherNeededArgs(List<String> cmdArgs, String target, String jacocoAgentJarPath,
+    public static void appendRequiredArgs(List<String> cmdArgs, String target, String jacocoAgentJarPath,
                                           String testSuiteJsonPath, boolean report,
                                           boolean coverage, String groupList, String disableGroupList,
                                           String singleExecTests, boolean isRerunTestExecution,
@@ -343,9 +343,7 @@ public class TestUtils {
         cmdArgs.add(singleExecTests != null ? singleExecTests : "");
         cmdArgs.add(Boolean.toString(isRerunTestExecution));
         cmdArgs.add(Boolean.toString(listGroups));
-        cliArgs.forEach((arg) -> {
-            cmdArgs.add(arg);
-        });
+        cmdArgs.addAll(cliArgs);
     }
 
     public static String getResolvedModuleName(Module module, ModuleName moduleName) {
@@ -411,8 +409,7 @@ public class TestUtils {
                 }
             }
         }
-        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
-        return dependencies;
+        return dependencies.stream().distinct().collect(Collectors.toList());
     }
 
     public static List<Path> getModuleJarPaths(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
