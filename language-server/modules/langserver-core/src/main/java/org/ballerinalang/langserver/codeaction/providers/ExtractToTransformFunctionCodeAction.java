@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (http://wso2.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,11 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
@@ -71,7 +73,6 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
         NonTerminalNode parentNode = matchedCodeActionNode.parent();
 
         RecordTypeWrapper inputRecordTypeWrapper, outputRecordTypeWrapper;
-        IdentifierToken fieldName;
         SemanticModel semanticModel;
         Node enclosingNode;
         Document currentDocument;
@@ -80,10 +81,9 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
         try {
             inputRecordTypeWrapper = getReferredRecordSymbol(matchedTypeSymbol).orElseThrow();
             Node fieldNameNode = ((SpecificFieldNode) parentNode).fieldName();
-            fieldName = (IdentifierToken) fieldNameNode;
 
             semanticModel = context.currentSemanticModel().orElseThrow();
-            Symbol fieldSymbol = semanticModel.symbol(fieldName).orElseThrow();
+            Symbol fieldSymbol = semanticModel.symbol(fieldNameNode).orElseThrow();
             outputRecordTypeWrapper =
                     getReferredRecordSymbol(((RecordFieldSymbol) fieldSymbol).typeDescriptor()).orElseThrow();
 
@@ -102,7 +102,7 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
         List<Symbol> visibleSymbols = semanticModel.visibleSymbols(currentDocument, functionEndLine);
         String functionName = FunctionGenerator.generateFunctionName(EXTRACTED_PREFIX, visibleSymbols);
         String extractedFunction = getFunction(context, functionName, outputRecordTypeWrapper,
-                inputRecordTypeWrapper.recordTypeName(), fieldName.text());
+                inputRecordTypeWrapper.recordTypeName(), matchedCodeActionNode);
         String functionCall = functionName + CommonKeys.OPEN_PARENTHESES_KEY +
                 matchedCodeActionNode.toSourceCode().stripTrailing() +
                 CommonKeys.CLOSE_PARENTHESES_KEY;
@@ -154,7 +154,11 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
 
     private static String getFunction(CodeActionContext context, String functionName,
                                       RecordTypeWrapper outputRecordTypeWrapper, String inputRecordTypeName,
-                                      String fieldName) {
+                                      NonTerminalNode matchedNode) {
+        ParameterNameFinder parameterNameFinder = new ParameterNameFinder();
+        matchedNode.accept(parameterNameFinder);
+        String fieldName = parameterNameFinder.getParameterName();
+
         // Generating the transform function
         Map<String, RecordFieldSymbol> recordFieldSymbolMap =
                 outputRecordTypeWrapper.recordTypeSymbol.fieldDescriptors();
@@ -190,5 +194,27 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
      */
     private record RecordTypeWrapper(RecordTypeSymbol recordTypeSymbol, String recordTypeName) {
 
+    }
+
+    private static class ParameterNameFinder extends NodeVisitor {
+        private String parameterName;
+
+        ParameterNameFinder() {
+            this.parameterName = "var1";
+        }
+
+        public String getParameterName() {
+            return parameterName;
+        }
+
+        @Override
+        public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
+            this.parameterName = simpleNameReferenceNode.name().text();
+        }
+
+        @Override
+        public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
+            fieldAccessExpressionNode.fieldName().accept(this);
+        }
     }
 }
