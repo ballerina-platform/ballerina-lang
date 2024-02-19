@@ -19,9 +19,9 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import org.ballerinalang.model.elements.PackageID;
@@ -55,9 +55,9 @@ public class TypeDefPackageIdTest {
     @Test(dataProvider = "TypeDefPackageID")
     public void testTypeDefPackageId(int line, int offset, String name,String srcFile, String packageID) {
         Optional<Document> srcDocument = getDocument(project, null, srcFile);
-        TypeDefinitionSymbol symbol = (TypeDefinitionSymbol) assertBasicsAndGetSymbol(model, srcDocument.get(), line, offset, name, SymbolKind.TYPE_DEFINITION);
+        BallerinaTypeDefinitionSymbol symbol = (BallerinaTypeDefinitionSymbol) assertBasicsAndGetSymbol(model, srcDocument.get(), line, offset, name, SymbolKind.TYPE_DEFINITION);
+        PackageID actualPackageID = ((AbstractTypeSymbol)(symbol).typeDescriptor()).getBType().tsymbol.pkgID;
 
-        PackageID actualPackageID = ((BallerinaTypeDefinitionSymbol) symbol).getInternalSymbol().pkgID;
         assertEquals(actualPackageID.toString(), packageID);
     }
 
@@ -66,7 +66,7 @@ public class TypeDefPackageIdTest {
         return new Object[][]{
                 {24, 5, "UserTable", "main.bal", "sample_package_id/symbol_package_id:0.1.0"},
                 {27, 5, "UserFuture", "main.bal", "sample_package_id/symbol_package_id:0.1.0"},
-                {30, 5, "UserXml", "main.bal", "sample_package_id/symbol_package_id:0.1.0"},
+                {30, 5, "UserXml", "main.bal", "ballerina/lang.annotations:0.0.0"},
                 {33, 5, "UserStream", "main.bal", "sample_package_id/symbol_package_id:0.1.0"},
                 {36, 5, "UserTypedesc", "main.bal", "sample_package_id/symbol_package_id:0.1.0"}
         };
