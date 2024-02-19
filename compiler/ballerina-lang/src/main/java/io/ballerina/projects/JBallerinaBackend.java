@@ -660,6 +660,8 @@ public class JBallerinaBackend extends CompilerBackend {
             scope = PlatformLibraryScope.DEFAULT;
         } else if (scopeValue.equals(PlatformLibraryScope.TEST_ONLY.getStringValue())) {
             scope = PlatformLibraryScope.TEST_ONLY;
+        } else if (scopeValue.equals(PlatformLibraryScope.PROVIDED.getStringValue())) {
+            scope = PlatformLibraryScope.PROVIDED;
         } else {
             throw new ProjectException("Invalid scope '" + scopeValue + "' is defined with the " +
                     "platform-specific library path: " + dependency.get(JarLibrary.KEY_PATH));
