@@ -50,6 +50,7 @@ import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -79,13 +80,13 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
 
         // Extracting the input and output record types
         try {
-            inputRecordTypeWrapper = getReferredRecordSymbol(matchedTypeSymbol).orElseThrow();
+            inputRecordTypeWrapper = getReferredRecordSymbol(context, matchedTypeSymbol).orElseThrow();
             Node fieldNameNode = ((SpecificFieldNode) parentNode).fieldName();
 
             semanticModel = context.currentSemanticModel().orElseThrow();
             Symbol fieldSymbol = semanticModel.symbol(fieldNameNode).orElseThrow();
             outputRecordTypeWrapper =
-                    getReferredRecordSymbol(((RecordFieldSymbol) fieldSymbol).typeDescriptor()).orElseThrow();
+                    getReferredRecordSymbol(context, ((RecordFieldSymbol) fieldSymbol).typeDescriptor()).orElseThrow();
 
             enclosingNode = CommonUtil.getMatchingNode(parentNode,
                     node -> node.parent().kind() == SyntaxKind.MODULE_PART).orElseThrow();
@@ -141,10 +142,12 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
                 CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode());
     }
 
-    private static Optional<RecordTypeWrapper> getReferredRecordSymbol(TypeSymbol typeSymbol) {
+    private static Optional<RecordTypeWrapper> getReferredRecordSymbol(CodeActionContext context,
+                                                                       TypeSymbol typeSymbol) {
         try {
             TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
-            String name = typeReferenceTypeSymbol.getName().orElseThrow();
+            String name =
+                    CodeActionUtil.getPossibleType(typeReferenceTypeSymbol, new ArrayList<>(), context).orElseThrow();
             TypeSymbol typeDescriptorTypeSymbol = typeReferenceTypeSymbol.typeDescriptor();
             return Optional.of(new RecordTypeWrapper((RecordTypeSymbol) typeDescriptorTypeSymbol, name));
         } catch (Exception e) {
