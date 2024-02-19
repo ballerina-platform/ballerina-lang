@@ -86,7 +86,6 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
 
                 //write the cmd args to a file, so it can be read on c2c side
                 writeCmdArgsToFile(testExecutablePath.getParent(), target, TestUtils.getJsonFilePath(testCachePath));
-                //create the single fat jar for all the test modules that includes the test suite json
 
                 List<Path> moduleJarPaths = TestUtils.getModuleJarPaths(jBallerinaBackend, project.currentPackage());
 
@@ -101,8 +100,11 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                                     .replace(".class", ""));
                         }
                     });
+
+                    zipFile.close();
                 }
 
+                //create the single fat jar for all the test modules that includes the test suite json
                 EmitResult result = jBallerinaBackend.emit(
                         JBallerinaBackend.OutputType.TEST,
                         testExecutablePath,
@@ -177,16 +179,6 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         } else {
             return false;
         }
-    }
-
-    private Path getTestExecutablePath(Target target, Module module) {
-        Path executablePath;
-        try {
-            executablePath = target.getTestExecutablePath(module).toAbsolutePath().normalize();
-        } catch (IOException e) {
-            throw createLauncherException(e.getMessage());
-        }
-        return executablePath;
     }
 
     private Path getTestExecutableBasePath(Target target) {

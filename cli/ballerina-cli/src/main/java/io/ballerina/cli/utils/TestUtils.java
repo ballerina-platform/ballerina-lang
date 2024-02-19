@@ -343,9 +343,7 @@ public class TestUtils {
         cmdArgs.add(singleExecTests != null ? singleExecTests : "");
         cmdArgs.add(Boolean.toString(isRerunTestExecution));
         cmdArgs.add(Boolean.toString(listGroups));
-        cliArgs.forEach((arg) -> {
-            cmdArgs.add(arg);
-        });
+        cmdArgs.addAll(cliArgs);
     }
 
     public static String getResolvedModuleName(Module module, ModuleName moduleName) {
