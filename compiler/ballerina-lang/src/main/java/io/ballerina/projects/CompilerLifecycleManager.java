@@ -196,7 +196,8 @@ class CompilerLifecycleManager {
         private Path binaryPath;
         private final List<Diagnostic> diagnostics = new ArrayList<>();
 
-        public CompilerLifecycleEventContextImpl(Package currentPackage, PackageCompilation compilation, ArtifactType artifactType) {
+        public CompilerLifecycleEventContextImpl(Package currentPackage, PackageCompilation compilation,
+                                                 ArtifactType artifactType) {
             this.currentPackage = currentPackage;
             this.compilation = compilation;
             this.artifactType = artifactType;
@@ -217,7 +218,9 @@ class CompilerLifecycleManager {
             diagnostics.add(diagnostic);
         }
 
-        public ArtifactType artifactType() { return artifactType; }
+        public ArtifactType artifactType() {
+            return artifactType;
+        }
 
         void setBinaryPath(Path binaryPath) {
             this.binaryPath = binaryPath;
