@@ -777,9 +777,10 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         }
 
         /**
-         * A worker receive field for multiple receive action.
-         *
-         * @since 2201.9.0
+         *  A worker receive field for multiple receive action.
+         *  @since 2201.9.0
+         * @param key the field name of the result
+         * @param workerReceive the channel name
          */
         public record ReceiveField(String key, String workerReceive) {
         }
