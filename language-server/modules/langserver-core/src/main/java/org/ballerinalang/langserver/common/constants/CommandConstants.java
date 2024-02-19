@@ -175,7 +175,6 @@ public class CommandConstants {
 
     public static final String EXTRACT_TO_FUNCTION = "Extract to function";
 
-
     public static final String EXTRACT_TO_TRANSFORM_FUNCTION = "Extract to transform function";
 
     public static final String MAKE_ANNOT_DECL_CONST = "Convert '%s' to constant";
