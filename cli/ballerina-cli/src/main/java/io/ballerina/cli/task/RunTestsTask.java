@@ -19,7 +19,6 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
-import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
@@ -111,7 +110,6 @@ public class RunTestsTask implements Task {
     private Map<String, Module> coverageModules;
     private boolean listGroups;
     private final List<String> cliArgs;
-    private boolean emitTestExecutable;
     private List<String> mockClasses;
     private List<String> moduleNamesList;
 
@@ -215,7 +213,6 @@ public class RunTestsTask implements Task {
 
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
-        emitTestExecutable = project.buildOptions().emitTestExecutable();
 
         if (report || coverage) {
             testReport = new TestReport();
@@ -247,14 +244,7 @@ public class RunTestsTask implements Task {
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
-
-        if (emitTestExecutable) {
-            HashSet<String> exclusionClassList = new HashSet<>();
-            runTestsUsingEmits(project, moduleNamesList, target, exclusionClassList, testsCachePath, jBallerinaBackend);
-        } else {
-            runTestsUsingSuiteJSON(project, jarResolver, hasTests, target, testsCachePath, jBallerinaBackend, cachesRoot);
-        }
-
+        runTestsUsingSuiteJSON(project, jarResolver, hasTests, target, testsCachePath, jBallerinaBackend, cachesRoot);
 
         // Cleanup temp cache for SingleFileProject
         cleanTempCache(project, cachesRoot);
@@ -364,75 +354,6 @@ public class RunTestsTask implements Task {
         return hasTests;
     }
 
-    private void runTestsUsingEmits(Project project, List<String> moduleNamesList,
-                                    Target target, HashSet<String> exclusionClassList,
-                                    Path testsCachePath, JBallerinaBackend jBallerinaBackend) {
-
-        Path testExecutablePath = target.path().resolve(ProjectConstants.BIN_DIR_NAME)
-                .resolve(ProjectConstants.TEST_DIR_NAME)
-                .resolve(project.currentPackage().packageName().toString() +
-                        ProjectConstants.TEST_UBER_JAR_SUFFIX + ProjectConstants.BLANG_COMPILED_JAR_EXT);
-
-        if (!Files.exists(testExecutablePath)) {
-            out.println("\tNo tests found");
-            return;
-        }
-
-        int testResult;
-
-        try {
-            testResult = runTestModule(testExecutablePath, target, project.currentPackage(),
-                    exclusionClassList, getJacocoAgentJarPath(), jBallerinaBackend);
-
-            performTasksAfterTestCompletion(project, target, testsCachePath, jBallerinaBackend,
-                    testExecutablePath, moduleNamesList, exclusionClassList);
-
-        } catch (IOException | InterruptedException | ClassNotFoundException e) {
-            throw createLauncherException("error occurred while running tests", e);
-        }
-
-        if (testResult != 0) {
-            throw createLauncherException("there are test failures");
-        }
-    }
-
-    private int runTestModule(Path testExecutablePath, Target target, Package currentPackage,
-                              Set<String> exclusionClassList, String jacocoAgentJarPath,
-                              JBallerinaBackend jBallerinaBackend)
-            throws IOException, InterruptedException, ClassNotFoundException {
-
-        List<String> cmdArgs = getInitialCmdArgs(null, null);
-
-        if (coverage) {
-            if (!this.mockClasses.isEmpty()) {
-                jacocoOfflineInstrumentation(target, currentPackage, jBallerinaBackend, this.mockClasses);
-            }
-            String agentCommand = getAgentCommand(target, currentPackage, exclusionClassList,
-                    jacocoAgentJarPath, currentPackage.packageName().toString(),
-                    currentPackage.packageOrg().toString());
-
-            cmdArgs.add(agentCommand);
-        }
-
-        if (isInDebugMode()) {
-            cmdArgs.add(getDebugArgs(this.err));
-        }
-
-        cmdArgs.add("-jar");
-        cmdArgs.add(testExecutablePath.toString());
-        //this will start the jar file which has the BTestMain as the initial main class in the manifest
-        String testSuiteJsonPath = TestUtils.getJsonFilePathInFatJar("/");
-
-        addOtherNeededArgs(cmdArgs, target.path().toString(), jacocoAgentJarPath, testSuiteJsonPath,
-                this.report, this.coverage, this.groupList, this.disableGroupList,
-                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs, true);
-
-        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
-        Process proc = processBuilder.start();
-
-        return proc.waitFor();
-    }
-
     private int runTestSuite(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
                              List<String> mockClassNames, Set<String> exclusionClassList) throws IOException,
             InterruptedException, ClassNotFoundException {
@@ -509,51 +430,6 @@ public class RunTestsTask implements Task {
             }
         }
         return agentCommand;
-    }
-
-    private List<String> getTestRunnerCmdArgs(Target target, String packageName, String moduleName) {
-        List<String> cmdArgs = new ArrayList<>();
-        cmdArgs.add(getJacocoAgentJarPath());
-
-        cmdArgs.add(target.path().toString());
-        cmdArgs.add(packageName);
-        cmdArgs.add(moduleName);
-//        addOtherNeededArgs(cmdArgs, this.report, this.coverage, this.groupList, this.disableGroupList,
-//                this.singleExecTests, this.isRerunTestExecution, this.listGroups, this.cliArgs);
-        return cmdArgs;
-    }
-
-    //to load the correct class file for the test module
-    //1st arg is the test package ID
-    //2nd arg is the org name
-    //3rd arg is the version
-    private List<String> getArgsRequiredForLoadingTestClass(Project project, ModuleDescriptor moduleDescriptor) {
-        String testPackageID = TestProcessor.getTestModuleName(
-                project.currentPackage().module(moduleDescriptor.name())
-        );
-        String org = moduleDescriptor.org().toString();
-        String version = moduleDescriptor.version().toString();
-
-        List<String> args = new ArrayList<>();
-        args.add(testPackageID);
-        args.add(org);
-        args.add(version);
-
-        return args;
-    }
-
-    //first 3 args are required for loading the test class
-    public List<String> getAllTestArgs(Target target, String packageName, String moduleName,
-                                       Project project, ModuleDescriptor moduleDescriptor) {
-        //set test report and coverage report from the project
-        report = project.buildOptions().testReport();
-        coverage = project.buildOptions().codeCoverage();
-
-        List<String> allArgs = getArgsRequiredForLoadingTestClass(project, moduleDescriptor);
-
-        allArgs.addAll(getTestRunnerCmdArgs(target, packageName, moduleName));
-
-        return allArgs;
     }
 
     private List<Path> getAllSourceFilePaths(String projectRootString) throws IOException {
