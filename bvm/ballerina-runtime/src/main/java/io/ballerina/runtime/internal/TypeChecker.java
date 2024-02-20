@@ -297,11 +297,13 @@ public class TypeChecker {
      */
 
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
+        if (containsParameterizedTypes(sourceType) || containsParameterizedTypes(targetType)) {
+            return checkIsBType(errors, sourceVal, (BType) sourceType, (BType) targetType);
+        }
         return SemTypes.isSubtype(context, sourceType.getSemTypeComponent(), targetType.getSemTypeComponent()) &&
                 checkIsBType(errors, sourceVal, sourceType.getBTypeComponent(), targetType.getBTypeComponent());
     }
 
-    // TODO: may be factor this to a BType module?
     private static boolean checkIsBType(List<String> errors, Object sourceVal, BType sourceType, BType targetType) {
         if (checkIsType(sourceVal, sourceType, targetType, null)) {
             return true;
@@ -559,14 +561,36 @@ public class TypeChecker {
      * @return flag indicating the the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
+        if (containsParameterizedTypes(sourceType) || containsParameterizedTypes(targetType)) {
+            return checkIsType(sourceType, targetType, null);
+        }
         return SemTypes.isSubtype(context, sourceType.getSemTypeComponent(), targetType.getSemTypeComponent()) &&
                 checkIsType(sourceType.getBTypeComponent(), targetType.getBTypeComponent(), null);
     }
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
+        if (containsParameterizedTypes(sourceType) || containsParameterizedTypes(targetType)) {
+            return checkIsBType((BType) sourceType, (BType) targetType, unresolvedTypes);
+        }
         return SemTypes.isSubtype(context, sourceType.getSemTypeComponent(), targetType.getSemTypeComponent()) &&
                 checkIsBType(sourceType.getBTypeComponent(), targetType.getBTypeComponent(), unresolvedTypes);
+    }
+
+    // BTypeHack: Type of function application (i.e. type of function invocation expression) is different from the
+    // actual type of the function value. Former is function of both value type and argument types. This
+    // distinction is important when calling functions whose type is a union/intersection (this is not supported
+    // currently) as well as when we have dependently typed return values. Syntactic type checker doesn't
+    // distinguish this and semantic type checker expects these to be different. Hence, whenever we are dealing with
+    // types that contains parametrized types we must use only one of the type checkers.
+    private static boolean containsParameterizedTypes(Type type) {
+        int tag = type.getTag();
+        if (tag == TypeTags.PARAMETERIZED_TYPE_TAG) {
+            return true;
+        } else if (tag == TypeTags.UNION_TAG) {
+            return ((BUnionType) type).containsParameterizedTypes();
+        }
+        return false;
     }
 
     @Deprecated

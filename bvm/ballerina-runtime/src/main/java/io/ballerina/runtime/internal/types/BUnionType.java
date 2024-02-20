@@ -559,4 +559,26 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
                 this.memberTypes.stream().map((each) -> (Type) each.getBTypeComponent())
                         .toList(), this.readonly);
     }
+
+    public boolean containsParameterizedTypes() {
+        for (Type memberType : memberTypes) {
+            if (memberType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
+                return true;
+            } else if (memberType instanceof BUnionType && ((BUnionType) memberType).containsParameterizedTypes()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsParameterizedTypes() {
+        for (Type memberType : memberTypes) {
+            if (memberType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
+                return true;
+            } else if (memberType instanceof BUnionType && ((BUnionType) memberType).containsParameterizedTypes()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
