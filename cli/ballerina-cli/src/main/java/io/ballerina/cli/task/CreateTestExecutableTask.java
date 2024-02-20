@@ -169,7 +169,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
 
-        boolean status = RunTestsTask.createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap,
+        boolean status = RunTestsTask.createTestSuitesForProject(project, target, testProcessor, testSuiteMap,
                 moduleNamesList, mockClassNames, runTestsTask.isRerunTestExecution(), report, coverage);
 
         // Set the module names list and the mock classes to the run tests task
@@ -200,7 +200,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
     private void writeCmdArgsToFile(Path path, Target target, Path testSuiteJsonPath) {
             List<String> cmdArgs = new ArrayList<>();
 
-            TestUtils.addOtherNeededArgs(
+            TestUtils.appendRequiredArgs(
                     cmdArgs, target.path().toString(), TestUtils.getJacocoAgentJarPath(),
                     testSuiteJsonPath.toString(), this.runTestsTask.isReport(),
                     this.runTestsTask.isCoverage(), this.runTestsTask.getGroupList(),
