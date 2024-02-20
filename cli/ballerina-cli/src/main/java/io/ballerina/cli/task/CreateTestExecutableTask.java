@@ -70,7 +70,6 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
-
             List<Diagnostic> emitDiagnostics = new ArrayList<>();
             Path testCachePath = target.getTestsCachePath();
 
@@ -88,7 +87,6 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
             // Get all the dependencies required for test execution for each module
             for (ModuleDescriptor moduleDescriptor :
                     project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
-
                 Module module = project.currentPackage().module(moduleDescriptor.name());
                 testExecDependencies.addAll(jarResolver
                         .getJarFilePathsRequiredForTestExecution(module.moduleName())
@@ -105,19 +103,16 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                 writeCmdArgsToFile(testExecutablePath.getParent(), target, TestUtils.getJsonFilePath(testCachePath));
 
                 List<Path> moduleJarPaths = TestUtils.getModuleJarPaths(jBallerinaBackend, project.currentPackage());
-
                 List<String> excludingClassPaths = new ArrayList<>();
 
                 for (Path moduleJarPath : moduleJarPaths) {
                     ZipFile zipFile = new ZipFile(moduleJarPath.toFile());
-
                     zipFile.stream().forEach(entry -> {
                         if (entry.getName().endsWith(ProjectConstants.JAVA_CLASS_EXT)) {
-                            excludingClassPaths.add(entry.getName().replace(File.pathSeparator, ProjectConstants.DOT)
+                            excludingClassPaths.add(entry.getName().replace(File.separator, ProjectConstants.DOT)
                                     .replace(ProjectConstants.JAVA_CLASS_EXT, ""));
                         }
                     });
-
                     zipFile.close();
                 }
 
@@ -127,7 +122,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                         testExecutablePath,
                         testExecDependencies,
                         TestUtils.getJsonFilePath(testCachePath),
-                        TestUtils.getJsonFilePathInFatJar(File.pathSeparator),
+                        TestUtils.getJsonFilePathInFatJar(File.separator),
                         excludingClassPaths,
                         ProjectConstants.EXCLUDING_CLASSES_FILE
                 );
