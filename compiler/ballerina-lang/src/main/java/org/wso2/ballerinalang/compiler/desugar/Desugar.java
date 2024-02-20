@@ -9758,9 +9758,9 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         // position information is not passed to remove code coverage for record/class definition
-        expr.pos = null;
-        fieldName.pos = null;
-        fieldSymbol.pos = null;
+        expr.pos = this.symTable.builtinPos;
+        fieldName.pos =  this.symTable.builtinPos;
+        fieldSymbol.pos =  this.symTable.builtinPos;
         assignmentStmt.expr = expr;
         assignmentStmt.pos = function.pos;
         assignmentStmt.setVariable(fieldAccess);

@@ -2103,8 +2103,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLetExpression letExpr) {
-        letExpr.expr = rewrite(letExpr.expr);
         letExpr.letVarDeclarations.forEach(var -> this.acceptNode((BLangNode) var.definitionNode));
+        letExpr.expr = rewrite(letExpr.expr);
         result = letExpr;
     }
 

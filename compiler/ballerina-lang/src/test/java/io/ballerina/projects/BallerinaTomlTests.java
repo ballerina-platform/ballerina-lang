@@ -145,10 +145,10 @@ public class BallerinaTomlTests {
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
         PackageManifest.Tool tool = packageManifest.tools().get(0);
-        Assert.assertEquals(tool.getType(), "openapi");
-        Assert.assertEquals(tool.getId(), "generate-delivery-client");
-        Assert.assertEquals(tool.getFilePath(), "delivery.json");
-        Assert.assertEquals(tool.getTargetModule(), "delivery");
+        Assert.assertEquals(tool.type(), "openapi");
+        Assert.assertEquals(tool.id(), "generate-delivery-client");
+        Assert.assertEquals(tool.filePath(), "delivery.json");
+        Assert.assertEquals(tool.targetModule(), "delivery");
     }
 
     // Negative tests

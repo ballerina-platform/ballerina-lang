@@ -43,3 +43,23 @@ function test() {
     CancelledError distinctErr;
     IntersectionError intersectionErr;
 }
+
+type ErrorDetail1 record {
+    string msg;
+    int value?;
+};
+
+type ErrorDetail2 record {|
+    *ErrorDetail1;
+    boolean|int flag;
+|};
+
+type SimpleError error<ErrorDetail1>;
+type InclusionError error<ErrorDetail2>;
+
+type SimpleIntersectionError distinct error & error<ErrorDetail1> & error<ErrorDetail1>;
+type MultipleIntersectionError InclusionError & error<ErrorDetail1> & SimpleError & error<ErrorDetail2>;
+function testMultipleIntersectionError() {
+    SimpleIntersectionError simpleErr;
+    MultipleIntersectionError multipleErr;
+}

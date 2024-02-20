@@ -21,8 +21,7 @@ function testFunction() {
 
 @test:Config {}
 function negativeTestFunction() {
-    string name = "";
-    string welcomeMsg = hello(name);
+    string welcomeMsg = hello(());
     test:assertEquals("Hello, World!", welcomeMsg);
 }
 
