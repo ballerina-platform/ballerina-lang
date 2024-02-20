@@ -125,10 +125,10 @@ public class JBallerinaBackend extends CompilerBackend {
     private final List<JarConflict> conflictedJars;
     private final HashMap<String, ByteArrayOutputStream> optimizedJarStreams = new HashMap<>();
     private final SymbolTable symbolTable;
-    private final HashSet<PackageID> unusedPackageIDs = new HashSet<>();
-    private final HashSet<PackageId> unusedPackageIds = new HashSet<>();
-    private final HashSet<ModuleId> unusedModuleIds = new HashSet<>();
-    private final HashMap<PackageId, HashSet<String>> pkgWiseUsedNativeClassPaths = new HashMap<>();
+    protected final HashSet<PackageID> unusedPackageIDs = new HashSet<>();
+    protected final HashSet<PackageId> unusedPackageIds = new HashSet<>();
+    protected final HashSet<ModuleId> unusedModuleIds = new HashSet<>();
+    protected final HashMap<PackageId, HashSet<String>> pkgWiseUsedNativeClassPaths = new HashMap<>();
     private static long birOptimizeDeletionTimeTotal = 0;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
@@ -295,6 +295,7 @@ public class JBallerinaBackend extends CompilerBackend {
         pkgWiseUsedNativeClassPaths.get(moduleContext.moduleId().packageId())
                 .addAll(moduleContext.bLangPackage().symbol.invocationData.usedNativeClassPaths);
     }
+
     private boolean hasErrors(List<Diagnostic> diagnostics) {
         for (Diagnostic diagnostic : diagnostics) {
             if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
@@ -919,7 +920,6 @@ public class JBallerinaBackend extends CompilerBackend {
     private Path emitExecutable(Path executableFilePath) {
         Manifest manifest = createManifest(false);
         Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution(false);
-
         try {
             assembleExecutableJar(executableFilePath, manifest, jarLibraries);
         } catch (IOException e) {
