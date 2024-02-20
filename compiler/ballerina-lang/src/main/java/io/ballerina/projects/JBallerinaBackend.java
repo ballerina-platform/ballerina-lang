@@ -704,9 +704,9 @@ public class JBallerinaBackend extends CompilerBackend {
         // service loader related information should be merged together in the final executable jar creation.
         HashMap<String, StringBuilder> serviceEntries = new HashMap<>();
 
+        String birOptimizedJarPath = executableFilePath.toString().replace(".jar", "_BIR_OPTIMIZED.jar");
         ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(
-                new BufferedOutputStream(new FileOutputStream(executableFilePath.toString())));
-
+                new BufferedOutputStream(new FileOutputStream(birOptimizedJarPath)));
         try {
             writeManifest(manifest, outStream);
 
@@ -733,7 +733,7 @@ public class JBallerinaBackend extends CompilerBackend {
             outStream.close();
 
             long nativeOptStartTime = System.currentTimeMillis();
-            ZipFile originalFatJar = new ZipFile(executableFilePath.toString());
+            ZipFile birOptimizedFatJar = new ZipFile(birOptimizedJarPath);
 
             HashSet<String> startPoints = new HashSet<>();
             startPoints.add(getMainClassFileName(this.packageContext()));
@@ -741,7 +741,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     new FileOutputStream(executableFilePath.toString().replace(".jar", "_OPTIMIZED.jar")));
 
             NativeDependencyOptimizer nativeDependencyOptimizer =
-                    new NativeDependencyOptimizer(startPoints, originalFatJar, optimizedJarStream);
+                    new NativeDependencyOptimizer(startPoints, birOptimizedFatJar, optimizedJarStream);
 
             nativeDependencyOptimizer.analyzeWhiteListedClasses();
             nativeDependencyOptimizer.analyzeUsedClasses();
