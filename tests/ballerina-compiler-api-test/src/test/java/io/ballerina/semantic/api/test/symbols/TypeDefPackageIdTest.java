@@ -72,7 +72,7 @@ public class TypeDefPackageIdTest {
         return new Object[][]{
                 {24, 5, "UserTable", "main.bal", "sample_org/symbol_package_id:0.1.0"},
                 {27, 5, "UserFuture", "main.bal", "sample_org/symbol_package_id:0.1.0"},
-                {30, 5, "UserXml", "main.bal", "ballerina/lang.annotations:0.0.0"},
+                {30, 5, "UserXml", "main.bal", "sample_org/symbol_package_id:0.1.0"},
                 {33, 5, "UserStream", "main.bal", "sample_org/symbol_package_id:0.1.0"},
                 {36, 5, "UserTypedesc", "main.bal", "sample_org/symbol_package_id:0.1.0"}
         };

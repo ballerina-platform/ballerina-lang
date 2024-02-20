@@ -28,7 +28,7 @@ type UserTable table<Employee> key(id);
 type UserFuture future<int>;
 
 // xml type
-type UserXml xml;
+type UserXml xml<xml:Element>;
 
 // stream type
 type UserStream stream<int>;
