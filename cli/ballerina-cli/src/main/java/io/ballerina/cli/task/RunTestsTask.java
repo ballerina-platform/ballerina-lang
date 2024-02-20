@@ -267,7 +267,7 @@ public class RunTestsTask implements Task {
                 testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames,
                         exclusionClassList);
 
-                performTasksAfterTestCompletion(project, target, testsCachePath, jBallerinaBackend,
+                performPostTestsTasks(project, target, testsCachePath, jBallerinaBackend,
                         cachesRoot, moduleNamesList, exclusionClassList);
             } catch (IOException | InterruptedException | ClassNotFoundException e) {
                 cleanTempCache(project, cachesRoot);
@@ -283,7 +283,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private void performTasksAfterTestCompletion(Project project, Target target, Path testsCachePath,
+    private void performPostTestsTasks(Project project, Target target, Path testsCachePath,
                                                  JBallerinaBackend jBallerinaBackend, Path cachesRoot,
                                                  List<String> moduleNamesList, Set<String> exclusionClassList)
             throws IOException {
