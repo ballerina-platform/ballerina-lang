@@ -409,8 +409,7 @@ public class TestUtils {
                 }
             }
         }
-        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
-        return dependencies;
+        return dependencies.stream().distinct().collect(Collectors.toList());
     }
 
     public static List<Path> getModuleJarPaths(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
