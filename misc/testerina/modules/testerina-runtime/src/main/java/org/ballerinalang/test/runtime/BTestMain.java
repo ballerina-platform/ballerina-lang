@@ -19,7 +19,6 @@ package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import io.ballerina.projects.Resource;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
@@ -79,8 +78,6 @@ public class BTestMain {
         if (args.length >= 4) { //running using the suite json
             boolean isFatJarExecution = Boolean.parseBoolean(args[0]);
             Path testSuiteJsonPath = Paths.get(args[1]);
-
-
             Path targetPath = Paths.get(args[2]);
             Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
                             .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
@@ -99,18 +96,15 @@ public class BTestMain {
             }
             out.println();
 
-            BufferedReader br;
-            if (Files.notExists(testSuiteJsonPath)) {
-                InputStream is = BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR
-                        + testSuiteJsonPath);
-                assert is != null;
-                br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-            }
-            else {
-                br = Files.newBufferedReader(testSuiteJsonPath, StandardCharsets.UTF_8);
-            }
+            try (InputStream is = BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR
+                        + testSuiteJsonPath)) {
+                BufferedReader br;
+                if (is != null) {
+                    br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+                } else {
+                    br = Files.newBufferedReader(testSuiteJsonPath, StandardCharsets.UTF_8);
+                }
 
-            try (br) {
                 Gson gson = new Gson();
                 Map<String, TestSuite> testSuiteMap = gson.fromJson(br,
                         new TypeToken<Map<String, TestSuite>>() { }.getType());
@@ -129,10 +123,9 @@ public class BTestMain {
 
                         if (isFatJarExecution && !testSuite.getMockFunctionNamesMap().isEmpty()) {
                             classLoader = createInitialCustomClassLoader();
-                        }
-                        else {
-                            //even if it is fat jar execution but there are no mock functions,
-                            //we can use the URLClassLoader
+                        } else {
+                            // Even if it is fat jar execution but there are no mock functions,
+                            // We can use the URLClassLoader
                             classLoader = createURLClassLoader(getURLList(testExecutionDependencies));
                         }
 
@@ -159,6 +152,7 @@ public class BTestMain {
                 } else {
                     exitStatus = 1;
                 }
+                br.close();
             }
         } else {
             exitStatus = 1;
