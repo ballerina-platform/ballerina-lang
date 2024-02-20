@@ -56,6 +56,7 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.model.types.Type;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -67,6 +68,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -328,6 +330,75 @@ public class CommonUtil {
             return rawType;
         }
         return typeDescriptor;
+    }
+    
+    public static boolean isErrorOrUnionOfErrors(TypeSymbol type) {
+        TypeDescKind kind = type.typeKind();
+        if (kind == TypeDescKind.ERROR) {
+            return true;
+        }
+        if (kind == TypeDescKind.TYPE_REFERENCE) {
+            TypeSymbol rawType = getRawType(type);
+            if (rawType.typeKind() == TypeDescKind.UNION) {
+                return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
+                        .allMatch(CommonUtil::isErrorOrUnionOfErrors);
+            }
+            return isErrorOrUnionOfErrors(rawType);
+        }
+        return false;
+    }
+    
+    private static void getErrorTypes(TypeSymbol type, TypeSymbol typeRef, List<TypeSymbol> errorTypes) {
+        TypeDescKind kind = type.typeKind();
+        if (kind == TypeDescKind.ERROR) {
+            errorTypes.add(Objects.requireNonNullElse(typeRef, type));
+        } else if (kind == TypeDescKind.TYPE_REFERENCE) {
+            TypeSymbol rawType = getRawType(type);
+            if (rawType.typeKind() == TypeDescKind.UNION) {
+                if (((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
+                        .allMatch(CommonUtil::isErrorOrUnionOfErrors)) { 
+                    errorTypes.add(type);    
+                } else {
+                    for (TypeSymbol memberType : ((UnionTypeSymbol) rawType).userSpecifiedMemberTypes()) {
+                        getErrorTypes(memberType, memberType, errorTypes);
+                    }
+                }
+            } else {
+                getErrorTypes(rawType, type, errorTypes);
+            }
+        }
+    }
+
+    public static List<TypeSymbol> extractErrorTypesFromUnion(UnionTypeSymbol unionType) {
+        List<TypeSymbol> exactErrorTypes = new ArrayList<>();
+        for (TypeSymbol memType : unionType.userSpecifiedMemberTypes()) {
+            getErrorTypes(memType, null, exactErrorTypes);
+        }
+        List<TypeSymbol> errorMemberTypes = unionType.memberTypeDescriptors().stream()
+                .filter(member -> CommonUtil.getRawType(member).typeKind() == TypeDescKind.ERROR)
+                .collect(Collectors.toList());
+        List<TypeSymbol> missingErrorTypes = new ArrayList<>();
+        setMissingErrorTypes(exactErrorTypes, errorMemberTypes, missingErrorTypes);
+        errorMemberTypes.addAll(missingErrorTypes);
+        return exactErrorTypes;
+    }
+    
+    private static void setMissingErrorTypes(List<TypeSymbol> types, List<TypeSymbol> rawErrors, List<TypeSymbol> missingErrors) {
+        for (TypeSymbol type : types) {
+            TypeDescKind kind = type.typeKind();
+            if (kind == TypeDescKind.ERROR) {
+                if (!rawErrors.contains(type)) {
+                    missingErrors.add(type);
+                }
+            } else if (kind == TypeDescKind.TYPE_REFERENCE) {
+                TypeSymbol rawType = getRawType(type);
+                if (rawType.typeKind() == TypeDescKind.UNION) {
+                    setMissingErrorTypes(((UnionTypeSymbol) rawType).memberTypeDescriptors(), rawErrors, missingErrors);
+                } else {
+                    setMissingErrorTypes(List.of(rawType), rawErrors, missingErrors);
+                }
+            }
+        }
     }
 
     /**

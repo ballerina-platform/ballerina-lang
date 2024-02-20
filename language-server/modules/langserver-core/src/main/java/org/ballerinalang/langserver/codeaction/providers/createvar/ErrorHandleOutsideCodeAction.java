@@ -83,9 +83,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
             return Collections.emptyList();
         }
         UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol.get();
-        List<TypeSymbol> errorMemberTypes = unionTypeDesc.memberTypeDescriptors().stream()
-                .filter(member -> CommonUtil.getRawType(member).typeKind() == TypeDescKind.ERROR)
-                .collect(Collectors.toList());
+        List<TypeSymbol> errorMemberTypes = CommonUtil.extractErrorTypesFromUnion(unionTypeDesc);
         long nonErrorNonNilMemberCount = unionTypeDesc.memberTypeDescriptors().stream()
                 .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR
                         && member.typeKind() != TypeDescKind.NIL)
