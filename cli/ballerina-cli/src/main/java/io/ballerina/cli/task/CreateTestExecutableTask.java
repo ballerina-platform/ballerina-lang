@@ -17,6 +17,8 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.cli.utils.BuildUtils;
+import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -28,6 +30,7 @@ import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -38,6 +41,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -45,17 +49,24 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.zip.ZipFile;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
+import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 
-public class CreateTestExecutableTask extends CreateExecutableTask {
+public class CreateTestExecutableTask implements Task {
+    private final transient PrintStream out;
+    private Path output;
+    private Path currentDir;
     private final RunTestsTask runTestsTask;
 
     public CreateTestExecutableTask(PrintStream out, String output, RunTestsTask runTestsTask) {
-        super(out, output);
+        this.out = out;
+        if (output != null) {
+            this.output = Paths.get(output);
+        }
         this.runTestsTask = runTestsTask;   // To invoke related methods in the run tests task
     }
 
@@ -142,7 +153,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         // notify plugin
         // todo following call has to be refactored after introducing new plugin architecture
         // Similar case as in CreateExecutableTask.java
-        notifyPlugins(project, target);
+        BuildUtils.notifyPlugins(project, target);
     }
 
     private boolean createTestSuiteForCloudArtifacts(Project project, JBallerinaBackend jBallerinaBackend,
@@ -201,5 +212,48 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         } catch (IOException e) {
             throw createLauncherException("error while writing to file: " + e.getMessage());
         }
+    }
+
+    private Target getTarget(Project project) {
+        Target target;
+        try {
+            if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
+                target = new Target(project.targetDir());
+            } else {
+                target = new Target(Files.createTempDirectory("ballerina-cache" + System.nanoTime()));
+                target.setOutputPath(getExecutablePath(project));
+            }
+        } catch (IOException e) {
+            throw createLauncherException("unable to resolve target path:" + e.getMessage());
+        } catch (ProjectException e) {
+            throw createLauncherException("unable to create executable:" + e.getMessage());
+        }
+        return target;
+    }
+
+    private Path getExecutablePath(Project project) {
+
+        Path fileName = project.sourceRoot().getFileName();
+
+        // If the --output flag is not set, create the executable in the current directory
+        if (this.output == null) {
+            return this.currentDir.resolve(getFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
+        }
+
+        if (!this.output.isAbsolute()) {
+            this.output = currentDir.resolve(this.output);
+        }
+
+        // If the --output is a directory create the executable in the given directory
+        if (Files.isDirectory(this.output)) {
+            return output.resolve(getFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
+        }
+
+        // If the --output does not have an extension, append the .jar extension
+        if (!FileUtils.hasExtension(this.output)) {
+            return Paths.get(this.output.toString() + BLANG_COMPILED_JAR_EXT);
+        }
+
+        return this.output;
     }
 }
