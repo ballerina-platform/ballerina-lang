@@ -10,7 +10,7 @@
     }
   },
   "source": "extract_to_transform_function14.bal",
-  "description": "Extract to transform function for same records",
+  "description": "Extract to transform function for a imported record as a simple var ref",
   "expected": [
     {
       "title": "Extract to transform function",
