@@ -36,15 +36,17 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBas
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocument;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for user defined builtinType type definition packageIDs
  *
+ * @since 2201.9.0
  */
 public class TypeDefPackageIdTest {
 
-    private SemanticModel model;
     protected Project project;
+    private SemanticModel model;
 
     @BeforeClass
     public void setup() {
@@ -52,23 +54,27 @@ public class TypeDefPackageIdTest {
         model = getDefaultModulesSemanticModel(project);
     }
 
-    @Test(dataProvider = "TypeDefPackageID")
-    public void testTypeDefPackageId(int line, int offset, String name,String srcFile, String packageID) {
+    @Test(dataProvider = "TypeDefPackageIDPosProvider")
+    public void testTypeDefPackageId(int line, int offset, String name, String srcFile, String packageID) {
         Optional<Document> srcDocument = getDocument(project, null, srcFile);
-        BallerinaTypeDefinitionSymbol symbol = (BallerinaTypeDefinitionSymbol) assertBasicsAndGetSymbol(model, srcDocument.get(), line, offset, name, SymbolKind.TYPE_DEFINITION);
-        PackageID actualPackageID = ((AbstractTypeSymbol)(symbol).typeDescriptor()).getBType().tsymbol.pkgID;
+        assertTrue(srcDocument.isPresent());
+
+        BallerinaTypeDefinitionSymbol symbol =
+                (BallerinaTypeDefinitionSymbol) assertBasicsAndGetSymbol(model, srcDocument.get(), line, offset, name,
+                        SymbolKind.TYPE_DEFINITION);
+        PackageID actualPackageID = ((AbstractTypeSymbol) (symbol).typeDescriptor()).getBType().tsymbol.pkgID;
 
         assertEquals(actualPackageID.toString(), packageID);
     }
 
-    @DataProvider(name = "TypeDefPackageID")
+    @DataProvider(name = "TypeDefPackageIDPosProvider")
     public Object[][] getTypeDefPackageIDPos() {
         return new Object[][]{
-                {24, 5, "UserTable", "main.bal", "sample_package_id/symbol_package_id:0.1.0"},
-                {27, 5, "UserFuture", "main.bal", "sample_package_id/symbol_package_id:0.1.0"},
+                {24, 5, "UserTable", "main.bal", "sample_org/symbol_package_id:0.1.0"},
+                {27, 5, "UserFuture", "main.bal", "sample_org/symbol_package_id:0.1.0"},
                 {30, 5, "UserXml", "main.bal", "ballerina/lang.annotations:0.0.0"},
-                {33, 5, "UserStream", "main.bal", "sample_package_id/symbol_package_id:0.1.0"},
-                {36, 5, "UserTypedesc", "main.bal", "sample_package_id/symbol_package_id:0.1.0"}
+                {33, 5, "UserStream", "main.bal", "sample_org/symbol_package_id:0.1.0"},
+                {36, 5, "UserTypedesc", "main.bal", "sample_org/symbol_package_id:0.1.0"}
         };
     }
 }

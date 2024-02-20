@@ -1734,7 +1734,7 @@ public class TypeResolver {
         BTableType tableType = new BTableType(TypeTags.TABLE, symTable.empty, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
-                typeSymbol.name, typeSymbol.originalName, data.env.enclPkg.symbol.pkgID,
+                typeSymbol.name, typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID,
                 tableType, symEnv.scope.owner, td.pos, BUILTIN);
         tableType.tsymbol.flags = typeSymbol.flags;
         tableType.constraintPos = td.constraint.pos;
@@ -1790,7 +1790,7 @@ public class TypeResolver {
         BStreamType streamType = new BStreamType(TypeTags.STREAM, symTable.empty, error, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                typeSymbol.originalName, data.env.enclPkg.symbol.pkgID, streamType,
+                typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, streamType,
                 symEnv.scope.owner, td.pos, BUILTIN);
         td.setBType(streamType);
         resolvingTypes.push(streamType);
