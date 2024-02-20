@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -40,6 +41,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.RecordUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -50,11 +52,12 @@ import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Code Action for extracting a transform function from a mapping.
@@ -103,7 +106,7 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
         List<Symbol> visibleSymbols = semanticModel.visibleSymbols(currentDocument, functionEndLine);
         String functionName = FunctionGenerator.generateFunctionName(EXTRACTED_PREFIX, visibleSymbols);
         String extractedFunction = getFunction(context, functionName, outputRecordTypeWrapper,
-                inputRecordTypeWrapper.recordTypeName(), matchedCodeActionNode);
+                inputRecordTypeWrapper, matchedCodeActionNode, visibleSymbols);
         String functionCall = functionName + CommonKeys.OPEN_PARENTHESES_KEY +
                 matchedCodeActionNode.toSourceCode().stripTrailing() +
                 CommonKeys.CLOSE_PARENTHESES_KEY;
@@ -155,18 +158,26 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
     }
 
     private static String getFunction(CodeActionContext context, String functionName,
-                                      RecordTypeWrapper outputRecordTypeWrapper, String inputRecordTypeName,
-                                      NonTerminalNode matchedNode) {
+                                      RecordTypeWrapper outputRecordTypeWrapper, RecordTypeWrapper inputRecordTypeWrapper,
+                                      NonTerminalNode matchedNode, List<Symbol> visibleSymbols) {
+
+        // Obtain the parameter name
         ParameterNameFinder parameterNameFinder = new ParameterNameFinder();
         matchedNode.accept(parameterNameFinder);
-        String fieldName = parameterNameFinder.getParameterName();
+        Set<String> visibleSymbolNames = visibleSymbols.stream()
+                .map(Symbol::getName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+        String fieldName = NameUtil.generateParameterName(parameterNameFinder.getParameterName(), 0,
+                inputRecordTypeWrapper.recordTypeSymbol, visibleSymbolNames);
 
         // Generating the transform function
         Map<String, RecordFieldSymbol> recordFieldSymbolMap =
                 outputRecordTypeWrapper.recordTypeSymbol.fieldDescriptors();
         String bodyText = recordFieldSymbolMap.isEmpty() ? "" :
                 RecordUtil.getFillAllRecordFieldInsertText(recordFieldSymbolMap);
-        String parameterName = inputRecordTypeName + " " + fieldName;
+        String parameterName = inputRecordTypeWrapper.recordTypeName() + " " + fieldName;
         String generatedFunction = String.format("%s %s %s%s%s returns %s %s %s%n    %s%n%s",
                 CommonKeys.FUNCTION_KEYWORD_KEY, functionName, CommonKeys.OPEN_PARENTHESES_KEY, parameterName,
                 CommonKeys.CLOSE_PARENTHESES_KEY, outputRecordTypeWrapper.recordTypeName(),
@@ -216,6 +227,11 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
         @Override
         public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
             fieldAccessExpressionNode.fieldName().accept(this);
+        }
+
+        @Override
+        public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
+            this.parameterName = "";
         }
     }
 }
