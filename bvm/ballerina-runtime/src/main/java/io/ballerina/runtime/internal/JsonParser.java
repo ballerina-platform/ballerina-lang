@@ -28,19 +28,17 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
+import io.ballerina.runtime.internal.util.StreamParser;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import org.apache.commons.lang3.StringEscapeUtils;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -54,6 +52,9 @@ import static io.ballerina.runtime.api.utils.JsonUtils.NonStringValueProcessingM
  */
 @SuppressWarnings("unchecked")
 public class JsonParser {
+
+    private JsonParser() {
+    }
 
     private static ThreadLocal<StateMachine> tlStateMachine = new ThreadLocal<StateMachine>() {
         @Override
@@ -70,8 +71,7 @@ public class JsonParser {
      * @throws BError for any parsing error
      */
     public static Object parse(InputStream in) throws BError {
-        Object jsonObj = parse(in, Charset.defaultCharset().name());
-        return changeForBString(jsonObj);
+        return StreamParser.parse(in, PredefinedTypes.TYPE_JSON);
     }
 
     /**
@@ -83,14 +83,7 @@ public class JsonParser {
      * @throws BError for any parsing error
      */
     public static Object parse(InputStream in, String charsetName) throws BError {
-        try {
-            Object jsonObj = parse(new InputStreamReader(new BufferedInputStream(in), charsetName),
-                                   JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
-            return changeForBString(jsonObj);
-        } catch (IOException e) {
-            throw ErrorCreator
-                    .createError(StringUtils.fromString(("Error in parsing JSON data: " + e.getMessage())));
-        }
+        return StreamParser.parse(in, charsetName, PredefinedTypes.TYPE_JSON);
     }
 
     /**
@@ -101,7 +94,7 @@ public class JsonParser {
      * @throws BError for any parsing error
      */
     public static Object parse(String jsonStr) throws BError {
-        return parse(new StringReader(jsonStr), JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
+        return StreamParser.parse(jsonStr, PredefinedTypes.TYPE_JSON);
     }
 
     /**

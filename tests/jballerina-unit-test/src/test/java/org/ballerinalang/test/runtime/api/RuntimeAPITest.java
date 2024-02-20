@@ -55,7 +55,8 @@ public class RuntimeAPITest {
                 "async",
                 "utils",
                 "identifier_utils",
-                "environment"
+                "environment",
+                "stream"
         };
     }
 
