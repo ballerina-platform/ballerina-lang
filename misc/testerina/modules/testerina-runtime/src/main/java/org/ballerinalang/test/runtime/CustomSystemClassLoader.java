@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2024 WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,9 +19,12 @@ package org.ballerinalang.test.runtime;
 
 import io.ballerina.projects.util.ProjectConstants;
 
-import java.io.*;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -41,17 +44,16 @@ public class CustomSystemClassLoader extends ClassLoader {
     }
 
     private void populateExcludingClasses() {
-        try(InputStream is = BTestMain.class.getResourceAsStream("/" + ProjectConstants.EXCLUDING_CLASSES_FILE);
+        try(InputStream is = BTestMain.class.getResourceAsStream(ProjectConstants.FAT_JAR_ROOT_DIR +
+                ProjectConstants.EXCLUDING_CLASSES_FILE);
             BufferedReader br = new BufferedReader(new InputStreamReader(Objects.requireNonNull(is)))) {
             String line;
             while ((line = br.readLine()) != null) {
                 excludingClasses.add(line);
             }
-        }
-        catch (NullPointerException | IOException e) {
+        } catch (NullPointerException | IOException e) {
             throw new RuntimeException("Error reading excludingClasses.txt", e);
         }
-
     }
 
     public CustomSystemClassLoader(Map<String, byte[]> modifiedClassDefs) {
@@ -100,7 +102,8 @@ public class CustomSystemClassLoader extends ClassLoader {
     }
 
     private byte[] getClassBytes(String classFileName) throws IOException {
-        String path = File.separator + classFileName.replace('.', File.separatorChar) + ".class";
+        String path = File.separator + classFileName.replace('.', File.separatorChar)
+                + ProjectConstants.JAVA_CLASS_EXT;
         InputStream is = BTestMain.class.getResourceAsStream(path);
 
         int size = Objects.requireNonNull(is).available();
