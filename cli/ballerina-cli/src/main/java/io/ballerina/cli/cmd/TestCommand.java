@@ -378,7 +378,7 @@ public class TestCommand implements BLauncherCmd {
         CreateTestExecutableTask createTestExecutableTask = null;
 
         if (!project.buildOptions().cloud().isEmpty()) {
-            //if cloud flag is set, create the test executable
+            // If cloud flag is set, create the test executable
             createTestExecutableTask = new CreateTestExecutableTask(outStream, this.output, runTestsTask);
         }
 

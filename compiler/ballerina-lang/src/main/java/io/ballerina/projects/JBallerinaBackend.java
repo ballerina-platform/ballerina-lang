@@ -542,16 +542,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private Manifest createTestManifest() {
-        String mainClassName;
-        mainClassName = "org.ballerinalang.test.runtime.BTestMain";
-//        try (JarInputStream jarStream = new JarInputStream(Files.newInputStream(rootModuleJarFile.path()))) {
-//            Manifest mf = jarStream.getManifest();
-//            mainClassName = (String) mf.getMainAttributes().get(Attributes.Name.MAIN_CLASS);
-//        } catch (IOException e) {
-//            throw new RuntimeException("Generated jar file cannot be found for the module: " +
-//                    packageContext.defaultModuleContext().moduleName());
-//        }
-
+        String mainClassName = "org.ballerinalang.test.runtime.BTestMain";
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");

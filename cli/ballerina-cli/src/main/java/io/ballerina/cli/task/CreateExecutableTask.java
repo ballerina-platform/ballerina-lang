@@ -136,13 +136,11 @@ public class CreateExecutableTask implements Task {
     }
 
     private Path getExecutablePath(Project project, Target target) {
-        Path executablePath;
         try {
-            executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
+            return target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
         } catch (IOException e) {
             throw createLauncherException(e.getMessage());
         }
-        return executablePath;
     }
 
     protected Target getTarget(Project project) {
