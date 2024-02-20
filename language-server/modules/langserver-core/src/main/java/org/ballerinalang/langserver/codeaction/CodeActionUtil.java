@@ -180,7 +180,6 @@ public class CodeActionUtil {
         return possibleTypes.isEmpty() ? Optional.empty() : Optional.of(possibleTypes.get(0));
     }
 
-
     /**
      * Returns first possible type for this type descriptor.
      *
