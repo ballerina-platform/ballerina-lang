@@ -4,3 +4,11 @@ function f  {
 
     }
 }
+
+function g  {
+    if
+        worker
+        B {
+
+    }
+}
