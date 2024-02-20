@@ -89,7 +89,7 @@ public class CreateTestExecutableTask implements Task {
             Map<String, TestSuite> testSuiteMap = new HashMap<>();
 
             // Write the test suite json that is used to execute the tests
-            boolean status = createTestSuiteForCloudArtifacts(project, jBallerinaBackend, target, testSuiteMap);
+            boolean suiteCreated = createTestSuiteForCloudArtifacts(project, jBallerinaBackend, target, testSuiteMap);
 
             // Get all the dependencies required for test execution for each module
             for (ModuleDescriptor moduleDescriptor :
@@ -99,7 +99,7 @@ public class CreateTestExecutableTask implements Task {
                         .getJarFilePathsRequiredForTestExecution(module.moduleName())
                 );
             }
-            if (status) {
+            if (suiteCreated) {
                 Path testExecutablePath = getTestExecutableBasePath(target).resolve(
                         project.currentPackage().packageName().toString() +
                                 ProjectConstants.TEST_UBER_JAR_SUFFIX +
@@ -164,13 +164,13 @@ public class CreateTestExecutableTask implements Task {
         List<String> moduleNamesList = new ArrayList<>();
         List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
-        boolean status = RunTestsTask.createTestSuitesForProject(project, target, testProcessor, testSuiteMap,
+        boolean hasTests = RunTestsTask.createTestSuitesForProject(project, target, testProcessor, testSuiteMap,
                 moduleNamesList, mockClassNames, runTestsTask.isRerunTestExecution(), report, coverage);
 
         // Set the module names list and the mock classes to the run tests task
         this.runTestsTask.setModuleNamesList(moduleNamesList);
         this.runTestsTask.setMockClasses(mockClassNames);
-        if (status) {
+        if (hasTests) {
             // Now write the map to a json file
             try {
                 TestUtils.writeToTestSuiteJson(testSuiteMap, target.getTestsCachePath());
@@ -179,6 +179,7 @@ public class CreateTestExecutableTask implements Task {
                 throw createLauncherException("error while writing to test suite json file: " + e.getMessage());
             }
         } else {
+            out.println("\tNo tests found");
             return false;
         }
     }
