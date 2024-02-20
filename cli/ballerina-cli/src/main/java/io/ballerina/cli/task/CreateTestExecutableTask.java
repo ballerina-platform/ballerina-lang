@@ -62,22 +62,18 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
     @Override
     public void execute(Project project) {
         this.out.println();
-
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
         Target target = getTarget(project);
-
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
             List<Diagnostic> emitDiagnostics = new ArrayList<>();
             Path testCachePath = target.getTestsCachePath();
-
             long start = 0;
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
             }
-
             HashSet<JarLibrary> testExecDependencies = new HashSet<>();
             Map<String, TestSuite> testSuiteMap = new HashMap<>();
 
@@ -92,7 +88,6 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                         .getJarFilePathsRequiredForTestExecution(module.moduleName())
                 );
             }
-
             if (status) {
                 Path testExecutablePath = getTestExecutableBasePath(target).resolve(
                         project.currentPackage().packageName().toString() +
@@ -101,10 +96,8 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
 
                 // Write the cmd args to a file, so it can be read on c2c side
                 writeCmdArgsToFile(testExecutablePath.getParent(), target, TestUtils.getJsonFilePath(testCachePath));
-
                 List<Path> moduleJarPaths = TestUtils.getModuleJarPaths(jBallerinaBackend, project.currentPackage());
                 List<String> excludingClassPaths = new ArrayList<>();
-
                 for (Path moduleJarPath : moduleJarPaths) {
                     ZipFile zipFile = new ZipFile(moduleJarPath.toFile());
                     zipFile.stream().forEach(entry -> {
@@ -128,7 +121,6 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                 );
                 emitDiagnostics.addAll(result.diagnostics().diagnostics());
             }
-
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
                 BuildTime.getInstance().compile = false;
@@ -141,7 +133,6 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                     out.println(conflict.getWarning(project.buildOptions().listConflictedClasses()));
                 }
             }
-
             if (!emitDiagnostics.isEmpty()) {
                 emitDiagnostics.forEach(d -> out.println("\n" + d.toString()));
             }
@@ -158,19 +149,16 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                                                      Target target, Map<String, TestSuite> testSuiteMap) {
         boolean report = project.buildOptions().testReport();
         boolean coverage = project.buildOptions().codeCoverage();
-
         TestProcessor testProcessor = new TestProcessor(jBallerinaBackend.jarResolver());
         List<String> moduleNamesList = new ArrayList<>();
         List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
-
         boolean status = RunTestsTask.createTestSuitesForProject(project, target, testProcessor, testSuiteMap,
                 moduleNamesList, mockClassNames, runTestsTask.isRerunTestExecution(), report, coverage);
 
         // Set the module names list and the mock classes to the run tests task
         this.runTestsTask.setModuleNamesList(moduleNamesList);
         this.runTestsTask.setMockClasses(mockClassNames);
-
         if (status) {
             // Now write the map to a json file
             try {
@@ -193,27 +181,25 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
     }
 
     private void writeCmdArgsToFile(Path path, Target target, Path testSuiteJsonPath) {
-            List<String> cmdArgs = new ArrayList<>();
+        List<String> cmdArgs = new ArrayList<>();
+        TestUtils.appendRequiredArgs(
+                cmdArgs, target.path().toString(), TestUtils.getJacocoAgentJarPath(),
+                testSuiteJsonPath.toString(), this.runTestsTask.isReport(),
+                this.runTestsTask.isCoverage(), this.runTestsTask.getGroupList(),
+                this.runTestsTask.getDisableGroupList(), this.runTestsTask.getSingleExecTests(),
+                this.runTestsTask.isRerunTestExecution(), this.runTestsTask.isListGroups(),
+                this.runTestsTask.getCliArgs(), false
+        );
 
-            TestUtils.appendRequiredArgs(
-                    cmdArgs, target.path().toString(), TestUtils.getJacocoAgentJarPath(),
-                    testSuiteJsonPath.toString(), this.runTestsTask.isReport(),
-                    this.runTestsTask.isCoverage(), this.runTestsTask.getGroupList(),
-                    this.runTestsTask.getDisableGroupList(), this.runTestsTask.getSingleExecTests(),
-                    this.runTestsTask.isRerunTestExecution(), this.runTestsTask.isListGroups(),
-                    this.runTestsTask.getCliArgs(), false
-            );
-
-            // Write the cmdArgs to a file in path
-            Path writingPath = path.resolve(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
-
-            try (BufferedWriter writer = java.nio.file.Files.newBufferedWriter(writingPath)) {
-                for (String arg : cmdArgs) {
-                    writer.write(arg);
-                    writer.newLine();
-                }
-            } catch (IOException e) {
-                throw createLauncherException("error while writing to file: " + e.getMessage());
+        // Write the cmdArgs to a file in path
+        Path writingPath = path.resolve(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
+        try (BufferedWriter writer = java.nio.file.Files.newBufferedWriter(writingPath)) {
+            for (String arg : cmdArgs) {
+                writer.write(arg);
+                writer.newLine();
             }
+        } catch (IOException e) {
+            throw createLauncherException("error while writing to file: " + e.getMessage());
+        }
     }
 }
