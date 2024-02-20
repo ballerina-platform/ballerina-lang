@@ -327,7 +327,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    public Object getRefValueForcefully(int index) {
+    public Object getRefValue(int index) {
         return refValues[index];
     }
 
@@ -1243,12 +1243,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     // Private methods
-
-    private void prepareForAddForcefully(int intIndex, int currentArraySize) {
-        ensureCapacity(intIndex + 1, currentArraySize);
-        fillValues(intIndex);
-        resetSize(intIndex);
-    }
 
     private void prepareForAdd(long index, Object value, Type sourceType, int currentArraySize) {
         // check types

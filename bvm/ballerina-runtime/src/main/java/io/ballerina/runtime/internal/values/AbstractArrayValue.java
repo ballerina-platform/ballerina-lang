@@ -241,6 +241,12 @@ public abstract class AbstractArrayValue implements ArrayValue {
 
     protected abstract void checkFixedLength(long length);
 
+    protected void prepareForAddForcefully(int intIndex, int currentArraySize) {
+        ensureCapacity(intIndex + 1, currentArraySize);
+        fillValues(intIndex);
+        resetSize(intIndex);
+    }
+
     /**
      * {@code {@link ArrayIterator}} provides iterator implementation for Ballerina array values.
      *

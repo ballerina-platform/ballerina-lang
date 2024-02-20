@@ -133,6 +133,10 @@ public interface Type {
     @Deprecated
     void setImmutableType(IntersectionType immutableType);
 
-    // TODO: Deprecate and remove this. Issue: https://github.com/ballerina-platform/ballerina-lang/issues/42113
+    /*
+     * @deprecated use {@link Type#getPackage(Object, Type)} instead
+     */
+    // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/42113
+    @Deprecated
     Module getPkg();
 }

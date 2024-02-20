@@ -128,9 +128,8 @@ public class TypeConverter {
             case TypeTags.STRING_TAG:
                 if (inputValue instanceof BString) {
                     return inputValue;
-                } else {
-                    return StringUtils.fromString(anyToString(inputValue));
                 }
+                return StringUtils.fromString(anyToString(inputValue));
             case TypeTags.BOOLEAN_TAG:
                 return anyToBoolean(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BOOLEAN));

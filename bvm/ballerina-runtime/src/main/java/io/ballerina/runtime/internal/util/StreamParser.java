@@ -116,7 +116,7 @@ public class StreamParser {
      *
      * @param in          input stream which contains the content
      * @param charsetName the character set name of the input stream
-     * @return value of the given target type
+     * @return value of the given target typezzz
      * @throws BError for any parsing error
      */
     public static Object parse(InputStream in, String charsetName, Type targetType) throws BError {
@@ -706,7 +706,7 @@ public class StreamParser {
                         sm.currentQuoteChar = ch;
                         state = STRING_VALUE_STATE;
                     } else if (ch == EOF) {
-                        throw new StreamParserException("empty content from the input stream");
+                        throw new StreamParserException("empty JSON document");
                     } else {
                         state = NON_STRING_VALUE_STATE;
                     }
@@ -1799,7 +1799,7 @@ public class StreamParser {
                 ArrayType arrayType = (ArrayType) targetType;
                 ArrayValueImpl newArray = new ArrayValueImpl(targetRefType, arrayType.getSize());
                 for (int i = 0; i < array.size(); i++) {
-                    newArray.addRefValueForcefully(i, convert(array.getRefValueForcefully(i),
+                    newArray.addRefValueForcefully(i, convert(array.getRefValue(i),
                             arrayType.getElementType(), unresolvedValues));
                 }
                 return newArray;
@@ -1810,7 +1810,7 @@ public class StreamParser {
                 for (int i = 0; i < array.size(); i++) {
                     Type elementType = (i < minLen) ? tupleType.getTupleTypes().get(i) : tupleType.getRestType();
                     tupleValues[i] = ValueCreator.createListInitialValueEntry(
-                            convert(array.getRefValueForcefully(i), elementType, unresolvedValues));
+                            convert(array.getRefValue(i), elementType, unresolvedValues));
                 }
                 return new TupleValueImpl(targetRefType, tupleValues);
             case TypeTags.TABLE_TAG:

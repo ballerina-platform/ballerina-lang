@@ -760,12 +760,6 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     // private methods
 
-    private void prepareForAddForcefully(int index, int currentArraySize) {
-        ensureCapacity(index + 1, currentArraySize);
-        fillValues(index);
-        resetSize(index);
-    }
-
     private void prepareForAdd(long index, Object value, int currentArraySize) {
         int intIndex = (int) index;
         rangeCheck(index, size);
