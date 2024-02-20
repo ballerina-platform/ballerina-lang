@@ -71,7 +71,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
-            List<Diagnostic> diagnostics = new ArrayList<>();
+            List<Diagnostic> emitDiagnostics = new ArrayList<>();
             Path testCachePath = target.getTestsCachePath();
 
             long start = 0;
@@ -131,7 +131,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                         excludingClassPaths,
                         ProjectConstants.EXCLUDING_CLASSES_FILE
                 );
-                diagnostics.addAll(result.diagnostics().diagnostics());
+                emitDiagnostics.addAll(result.diagnostics().diagnostics());
             }
 
             if (project.buildOptions().dumpBuildTime()) {
@@ -147,17 +147,8 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                 }
             }
 
-            if (!diagnostics.isEmpty()) {
-                //  TODO: When deprecating the lifecycle compiler plugin, we can remove this check for duplicates
-                //   in JBallerinaBackend diagnostics and the diagnostics added to EmitResult.
-                // THE ABOVE COMMENT IS APPLIED TO CreateExecutableTask.java, since this class extends that class,
-                // this was added.
-                diagnostics = diagnostics.stream()
-                        .filter(diagnostic -> !jBallerinaBackend.diagnosticResult().diagnostics().contains(diagnostic))
-                        .collect(Collectors.toList());
-                if (!diagnostics.isEmpty()) {
-                    diagnostics.forEach(d -> out.println("\n" + d.toString()));
-                }
+            if (!emitDiagnostics.isEmpty()) {
+                emitDiagnostics.forEach(d -> out.println("\n" + d.toString()));
             }
         } catch (ProjectException | IOException e) {
             throw createLauncherException(e.getMessage());
