@@ -101,7 +101,11 @@ public class TesterinaConstants {
     public static final int IDENTIFIER_START_INDEX = 1;
     public static final int IDENTIFIER_END_INDEX = 5;
 
-    //class to identify the indices of the BTestMain args
+    /**
+     * RuntimeArgs identifies the indices of the BTestMain arg
+     *
+     * @since 2201.9.0
+     */
     public static class RunTimeArgs {
         public static final int IS_FAT_JAR_EXECUTION = 0;
         public static final int TEST_SUITE_JSON_PATH = 1;
@@ -114,5 +118,4 @@ public class TesterinaConstants {
         public static final int SINGLE_EXEC_TESTS = 8;
         public static final int IS_RERUN_TEST_EXECUTION = 9;
     }
-
 }
