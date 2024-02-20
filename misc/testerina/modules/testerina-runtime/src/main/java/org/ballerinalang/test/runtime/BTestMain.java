@@ -104,11 +104,9 @@ public class BTestMain {
                 } else {
                     br = Files.newBufferedReader(testSuiteJsonPath, StandardCharsets.UTF_8);
                 }
-
                 Gson gson = new Gson();
                 Map<String, TestSuite> testSuiteMap = gson.fromJson(br,
                         new TypeToken<Map<String, TestSuite>>() { }.getType());
-
                 if (!testSuiteMap.isEmpty()) {
                     for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
                         String moduleName = entry.getKey();
@@ -138,13 +136,11 @@ public class BTestMain {
                             replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir,
                                     coverage, isFatJarExecution);
                         }
-
                         String[] testArgs = new String[]{targetPath.toString(), packageName, moduleName};
                         for (int i = 4; i < args.length; i++) {
                             testArgs = Arrays.copyOf(testArgs, testArgs.length + 1);
                             testArgs[testArgs.length - 1] = args[i];
                         }
-
                         result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, classLoader,
                                 testArgs);
                         exitStatus = (result == 1) ? result : exitStatus;
@@ -157,7 +153,6 @@ public class BTestMain {
         } else {
             exitStatus = 1;
         }
-
         Runtime.getRuntime().exit(exitStatus);
     }
 
