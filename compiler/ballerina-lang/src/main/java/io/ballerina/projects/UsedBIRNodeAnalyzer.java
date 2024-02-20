@@ -46,6 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
+
 public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     private static final CompilerContext.Key<UsedBIRNodeAnalyzer> USED_BIR_NODE_ANALYZER_KEY =
@@ -233,11 +235,15 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
         FunctionPointerData fpData = new FunctionPointerData(fpLoadInstruction, currentInstructionArr, pointedFunction);
 
+        // Used to detect record default fields containing function pointers
+        if (currentParentFunction.name.value.contains(RECORD_DELIMITER)) {
+            fpData.lambdaPointerVar.markAsUsed();
+        }
+
         if (fpData.lambdaPointerVar.getUsedState() == UsedState.USED && pointedFunction != null) {
             visitNode(pointedFunction);
         }
         pkgCache.getInvocationData(currentPkgID).varDeclWiseFPDataPool.put(fpLoadInstruction.lhsOp.variableDcl, fpData);
-
     }
 
     /*
