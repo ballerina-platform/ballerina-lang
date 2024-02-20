@@ -131,7 +131,7 @@ public class CoverageReport {
                     filterPaths(jBallerinaBackend.jarResolver().getJarFilePathsRequiredForTestExecution(
                             this.module.moduleName()), jBallerinaBackend, module.packageInstance());
         } else {
-            filteredPathList = filterPaths(jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution(),
+            filteredPathList = filterPaths(jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution(false),
                     jBallerinaBackend, module.packageInstance());
         }
         if (!filteredPathList.isEmpty()) {

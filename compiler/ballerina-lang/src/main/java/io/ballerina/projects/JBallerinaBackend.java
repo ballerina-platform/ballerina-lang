@@ -955,7 +955,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private Path emitExecutable(Path executableFilePath) {
         Manifest manifest = createManifest(false);
-        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
+        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution(false);
 
         try {
             assembleExecutableJar(executableFilePath, manifest, jarLibraries);
@@ -969,8 +969,8 @@ public class JBallerinaBackend extends CompilerBackend {
     private Path emitOptimizedExecutable(Path executableFilePath) {
         Manifest manifest = createManifest(true);
         Collection<JarLibrary> jarLibraries =
-                jarResolver.getJarFilePathsRequiredForOptimizedExecution(unusedPackageIds, unusedModuleIds,
-                        pkgWiseUsedNativeClassPaths);
+                jarResolver.getJarFilePathsRequiredForExecution(true);
+
         // Add warning when provided platform dependencies are found
         addProvidedDependencyWarning(emitResultDiagnostics);
         try {
