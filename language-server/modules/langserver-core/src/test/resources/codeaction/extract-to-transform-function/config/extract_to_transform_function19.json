@@ -1,16 +1,16 @@
 {
   "range": {
     "start": {
-      "line": 30,
-      "character": 14
+      "line": 40,
+      "character": 20
     },
     "end": {
-      "line": 30,
-      "character": 24
+      "line": 40,
+      "character": 22
     }
   },
-  "source": "extract_to_transform_function10.bal",
-  "description": "Extract to transform function for a checked function call expression",
+  "source": "extract_to_transform_function19.bal",
+  "description": "Extract to transform function for a union type with error",
   "expected": [
     {
       "title": "Extract to transform function",
@@ -19,38 +19,38 @@
         {
           "range": {
             "start": {
-              "line": 31,
+              "line": 41,
               "character": 2
             },
             "end": {
-              "line": 31,
+              "line": 41,
               "character": 2
             }
           },
-          "newText": "\n\nfunction transform1(Address t) returns Address => {\n    country: \"\",\n    city: \"\",\n    houseNo: \"\",\n    line2: \"\",\n    line1: \"\"\n};\n"
+          "newText": "\n\nfunction transform1(Address|error address) returns Location => {\n    country: \"\",\n    city: \"\"\n};\n"
         },
         {
           "range": {
             "start": {
-              "line": 30,
-              "character": 13
+              "line": 40,
+              "character": 14
             },
             "end": {
-              "line": 30,
-              "character": 31
+              "line": 40,
+              "character": 28
             }
           },
-          "newText": "transform1(check retAddress())"
+          "newText": "transform1(person.address)"
         }
       ],
       "command": {
         "title": "Rename function",
         "command": "ballerina.action.positional.rename",
         "arguments": [
-          "extract_to_transform_function10.bal",
+          "extract_to_transform_function19.bal",
           {
-            "line": 30,
-            "character": 13
+            "line": 40,
+            "character": 14
           }
         ]
       },
