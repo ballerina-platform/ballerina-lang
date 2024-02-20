@@ -122,7 +122,7 @@ public class RunExecutableTask implements Task {
     private String getAllClassPaths(JarResolver jarResolver) {
 
         StringJoiner cp = new StringJoiner(File.pathSeparator);
-        jarResolver.getJarFilePathsRequiredForExecution().stream()
+        jarResolver.getJarFilePathsRequiredForExecution(false).stream()
                 .map(JarLibrary::path).map(Path::toString)
                 .forEach(cp::add);
         return cp.toString();
