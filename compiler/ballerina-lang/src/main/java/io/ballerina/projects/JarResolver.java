@@ -160,9 +160,8 @@ public class JarResolver {
             if (jBalBackend.unusedModuleIds.contains(moduleId)) {
                 continue;
             }
-            ModuleContext moduleContext = packageContext.moduleContext(moduleId);
             PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
-                    packageContext.packageId(), moduleContext.moduleName());
+                    packageContext.packageId(), packageContext.moduleContext(moduleId).moduleName());
             libraryPaths.add(new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext)));
         }
     }
@@ -173,26 +172,23 @@ public class JarResolver {
         // Add all the jar library dependencies of current package (packageId)
         Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(
                 packageContext.packageId(), scope);
-
         HashSet<String> usedNativeClassPaths = jBalBackend.pkgWiseUsedNativeClassPaths.get(packageContext.packageId());
 
         for (PlatformLibrary otherJarDependency : otherJarDependencies) {
             JarLibrary newEntry = (JarLibrary) otherJarDependency;
 
             // If there are more than one platform dependency, there could be secondary dependencies
-            if (addOnlyUsedLibraries && (otherJarDependencies.size() == 1 || usedNativeClassPaths == null) &&
-                    !isUsedDependency(newEntry, usedNativeClassPaths)) {
+            if (addOnlyUsedLibraries && !isUsedDependency(newEntry, usedNativeClassPaths, otherJarDependencies.size())) {
                 continue;
             }
-            if (newEntry.groupId().isEmpty() || newEntry.artifactId().isEmpty() || newEntry.version().isEmpty()) {
+            if (hasEmptyIdOrVersion(newEntry)) {
                 libraryPaths.add(new JarLibrary(otherJarDependency.path(), scope, getPackageName(packageContext)));
                 continue;
             }
             if (libraryPaths.contains(newEntry)) {
                 JarLibrary existingEntry = libraryPaths.stream().filter(jarLibrary1 ->
                         jarLibrary1.equals(newEntry)).findAny().orElseThrow();
-                if (existingEntry.groupId().isEmpty() || existingEntry.artifactId().isEmpty() ||
-                        existingEntry.version().isEmpty()) {
+                if (hasEmptyIdOrVersion(existingEntry)) {
                     continue;
                 }
                 ComparableVersion existingVersion = new ComparableVersion(existingEntry.version().orElseThrow());
@@ -217,8 +213,16 @@ public class JarResolver {
         }
     }
 
-    private boolean isUsedDependency(JarLibrary otherJarDependency, HashSet<String> usedNativeClassPaths) {
+    private boolean hasEmptyIdOrVersion(JarLibrary entry) {
+        return entry.groupId().isEmpty() || entry.artifactId().isEmpty() || entry.version().isEmpty();
+    }
+
+    private boolean isUsedDependency(JarLibrary otherJarDependency, HashSet<String> usedNativeClassPaths,
+                                     int totalJarDependencies) {
         String pkgName = otherJarDependency.packageName().get();
+        if (totalJarDependencies != 1) {
+            return true;
+        }
         if (isWhiteListedPkg(pkgName)) {
             return true;
         }

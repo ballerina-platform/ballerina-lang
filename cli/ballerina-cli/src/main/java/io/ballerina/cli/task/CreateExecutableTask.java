@@ -139,7 +139,6 @@ public class CreateExecutableTask implements Task {
             Path relativePathToExecutable = currentDir.relativize(executablePath);
             String relativePathToExecutableString =
                     relativePathToExecutable.toString().replace(".jar", "_OPTIMIZED.jar");
-
             String executablePathString =
                     executablePath.toString().replace(".jar", "_OPTIMIZED.jar");
 
