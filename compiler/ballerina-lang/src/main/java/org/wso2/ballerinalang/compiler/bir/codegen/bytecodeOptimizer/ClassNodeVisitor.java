@@ -40,19 +40,15 @@ import static org.objectweb.asm.Opcodes.ASM9;
  */
 public class ClassNodeVisitor extends ClassNode {
 
-//    private String name;
-//    private boolean isAnonymousClass;
     private DependencyCollector collector;
     private ClassReader reader;
 
     public ClassNodeVisitor() {
         super(ASM9);
-//        isAnonymousClass = false;
     }
 
     public ClassNodeVisitor(byte[] classBytes) {
         super(ASM9);
-//        isAnonymousClass = false;
         this.reader = new ClassReader(classBytes);
         this.collector = new DependencyCollector();
     }
@@ -75,12 +71,7 @@ public class ClassNodeVisitor extends ClassNode {
     @Override
     public void visit(int version, int access, String name, String signature, String superName,
                       String[] interfaces) {
-//        this.name = name;
         this.access = access;
-        String[] parts = name.split("[$]");
-//        if (parts.length > 1 && parts[parts.length - 1].matches("\\d+")) {
-//            isAnonymousClass = true;
-//        }
         if (signature == null) {
             if (superName != null) {
                 collector.addName(superName);
