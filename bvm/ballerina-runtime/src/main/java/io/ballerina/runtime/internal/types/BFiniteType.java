@@ -28,8 +28,10 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -45,6 +47,7 @@ public class BFiniteType extends BType implements FiniteType {
     public Set<Object> valueSpace;
     private int typeFlags;
     private String originalName;
+    private TypeComponentMemo typeComponents = null;
 
     public BFiniteType(String typeName) {
         this(typeName, new LinkedHashSet<>(), 0);
@@ -193,16 +196,30 @@ public class BFiniteType extends BType implements FiniteType {
         return this.valueSpace.size() == that.valueSpace.size() && this.valueSpace.containsAll(that.valueSpace);
     }
 
+    private TypeComponentMemo createTypeComponentMemo() {
+        SemType semType = PredefinedType.NEVER;
+        List<Type> bTypeComponents = new ArrayList<>();
+        for (Object value : valueSpace) {
+            Type valueType = getType(value);
+            semType = SemTypes.union(semType, valueType.getSemTypeComponent());
+            bTypeComponents.add(valueType.getBTypeComponent());
+        }
+        return new TypeComponentMemo(semType, new BUnionType(typeName, this.pkg, bTypeComponents, true));
+    }
+
     @Override
     public SemType getSemTypeComponent() {
-        return valueSpace.stream().map(val -> getType(val).getSemTypeComponent())
-                .reduce(PredefinedType.NEVER, SemTypes::union);
+        if (typeComponents == null) {
+            typeComponents = createTypeComponentMemo();
+        }
+        return typeComponents.semTypeComponent();
     }
 
     @Override
     public BType getBTypeComponent() {
-        return new BUnionType(typeName, this.pkg,
-                this.valueSpace.stream().map((value) -> (Type) getType(value).getBTypeComponent())
-                        .toList(), true);
+        if (typeComponents == null) {
+            typeComponents = createTypeComponentMemo();
+        }
+        return typeComponents.bTypeComponent();
     }
 }

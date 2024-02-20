@@ -295,7 +295,6 @@ public class TypeChecker {
      * @param targetType type to be test against
      * @return true if the value belongs to the given type, false otherwise
      */
-
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
         if (containsParameterizedTypes(sourceType) || containsParameterizedTypes(targetType)) {
             return checkIsBType(errors, sourceVal, (BType) sourceType, (BType) targetType);

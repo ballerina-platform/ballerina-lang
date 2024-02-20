@@ -57,6 +57,8 @@ public class BIntersectionType extends BType implements IntersectionType {
     private String cachedToString;
     private boolean resolving;
 
+    private TypeComponentMemo typeComponents = null;
+
     public BIntersectionType(Module pkg, Type[] constituentTypes, Type effectiveType,
                              int typeFlags, boolean readonly) {
         this(TypeConstants.INTERSECTION_TNAME, pkg, constituentTypes, typeFlags, readonly);
@@ -219,16 +221,30 @@ public class BIntersectionType extends BType implements IntersectionType {
         this.intersectionType = intersectionType;
     }
 
+    private TypeComponentMemo createTypeComponentMemo() {
+        SemType semtype = PredefinedType.TOP;
+        List<Type> bTypeComponents = new ArrayList<>();
+        for (Type memberType : constituentTypes) {
+            semtype = SemTypes.intersection(semtype, memberType.getSemTypeComponent());
+            bTypeComponents.add(memberType.getBTypeComponent());
+        }
+        return new TypeComponentMemo(semtype, new BIntersectionType(this.typeName, this.pkg,
+                bTypeComponents.toArray(Type[]::new), this.effectiveType
+                .getBTypeComponent(), this.typeFlags, this.readonly));
+    }
     @Override
     public SemType getSemTypeComponent() {
-        return this.constituentTypes.stream().map(Type::getSemTypeComponent)
-                .reduce(PredefinedType.TOP, SemTypes::intersection);
+        if (typeComponents == null) {
+            typeComponents = createTypeComponentMemo();
+        }
+        return typeComponents.semTypeComponent();
     }
 
     @Override
     public BType getBTypeComponent() {
-        return new BIntersectionType(this.typeName, this.pkg,
-                this.constituentTypes.stream().map(Type::getBTypeComponent).toArray(Type[]::new), this.effectiveType
-                .getBTypeComponent(), this.typeFlags, this.readonly);
+        if (typeComponents == null) {
+            typeComponents = createTypeComponentMemo();
+        }
+        return typeComponents.bTypeComponent();
     }
 }

@@ -125,11 +125,10 @@ public class BAnyType extends BType implements AnyType {
 
     @Override
     public BType getBTypeComponent() {
-        // TODO: cache this as well (when we have fixed this)
-        // NOTE: this is wrong but it is working since for types that we have implemented
+        // BTypeHack: this is wrong, but it is working because for types that we have implemented
         // we return NEVER as the bTypeComponent which is a subtype of every type.
-        // Correct solution is to return the only the unimplemented parts (similar to how we
-        // return the implemented parts in semtype)
+        // Also note that Any is any way not a subtype of any other type don't contain any.
+        // Correct solution is to return only the unimplemented parts.
         return this;
     }
 }

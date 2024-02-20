@@ -60,15 +60,14 @@ public class BReadonlyType extends BType implements ReadonlyType {
         return true;
     }
 
+    // BTypeHack: replace with ReadOnly when we have fully implemented semtypes
+    private static final SemType semtype = SemTypes.union(PredefinedType.NIL, SemTypes.union(PredefinedType.BOOLEAN,
+            SemTypes.union(PredefinedType.INT, SemTypes.union(PredefinedType.FLOAT,
+                    SemTypes.union(PredefinedType.DECIMAL, PredefinedType.STRING)))));
+
+
     @Override
     public SemType getSemTypeComponent() {
-        // TODO: common code with SemType resolver
-        return SemTypes.union(PredefinedType.NIL,
-                SemTypes.union(PredefinedType.BOOLEAN,
-                        SemTypes.union(PredefinedType.INT,
-                                SemTypes.union(PredefinedType.FLOAT,
-                                        SemTypes.union(PredefinedType.DECIMAL, PredefinedType.STRING)))));
+        return semtype;
     }
-
-    // BTypeHack: we need to have readonly component for BType as well?
 }

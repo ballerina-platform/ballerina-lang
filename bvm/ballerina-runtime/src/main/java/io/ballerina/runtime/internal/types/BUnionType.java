@@ -62,6 +62,8 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     private String cachedToString;
     private boolean resolving;
     public boolean resolvingReadonly;
+    private TypeComponentMemo typeComponents = null;
+    private boolean parametrizedType = false;
 
     private static final String INT_CLONEABLE = "__Cloneable";
     private static final String CLONEABLE = "Cloneable";
@@ -547,38 +549,41 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this.intersectionType = intersectionType;
     }
 
+    private TypeComponentMemo createTypeComponentMemo() {
+        SemType semtype = PredefinedType.NEVER;
+        List<Type> bTypeComponents = new ArrayList<>();
+        for (Type memberType : memberTypes) {
+            this.parametrizedType = switch (memberType.getTag()) {
+                case TypeTags.PARAMETERIZED_TYPE_TAG -> true;
+                case TypeTags.UNION_TAG -> ((BUnionType) memberType).containsParameterizedTypes();
+                default -> this.parametrizedType;
+            };
+            semtype = SemTypes.union(semtype, memberType.getSemTypeComponent());
+            bTypeComponents.add(memberType.getBTypeComponent());
+        }
+        return new TypeComponentMemo(semtype, new BUnionType(typeName, this.pkg, bTypeComponents, this.readonly));
+    }
+
     @Override
     public SemType getSemTypeComponent() {
-        return this.memberTypes.stream().map(Type::getSemTypeComponent)
-                .reduce(PredefinedType.NEVER, SemTypes::union);
+        if (this.typeComponents == null) {
+            this.typeComponents = createTypeComponentMemo();
+        }
+        return this.typeComponents.semTypeComponent();
     }
 
     @Override
     public BType getBTypeComponent() {
-        return new BUnionType(typeName, this.pkg,
-                this.memberTypes.stream().map((each) -> (Type) each.getBTypeComponent())
-                        .toList(), this.readonly);
+        if (this.typeComponents == null) {
+            this.typeComponents = createTypeComponentMemo();
+        }
+        return this.typeComponents.bTypeComponent();
     }
 
     public boolean containsParameterizedTypes() {
-        for (Type memberType : memberTypes) {
-            if (memberType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
-                return true;
-            } else if (memberType instanceof BUnionType && ((BUnionType) memberType).containsParameterizedTypes()) {
-                return true;
-            }
+        if (this.typeComponents == null) {
+            this.typeComponents = createTypeComponentMemo();
         }
-        return false;
-    }
-
-    public boolean containsParameterizedTypes() {
-        for (Type memberType : memberTypes) {
-            if (memberType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
-                return true;
-            } else if (memberType instanceof BUnionType && ((BUnionType) memberType).containsParameterizedTypes()) {
-                return true;
-            }
-        }
-        return false;
+        return this.parametrizedType;
     }
 }
