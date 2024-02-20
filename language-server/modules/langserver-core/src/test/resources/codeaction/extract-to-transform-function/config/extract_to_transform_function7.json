@@ -10,7 +10,7 @@
     }
   },
   "source": "extract_to_transform_function7.bal",
-  "description": "Extract to transform function for different records",
+  "description": "Extract to transform function with an imported record as output",
   "expected": [
     {
       "title": "Extract to transform function",

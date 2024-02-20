@@ -10,7 +10,7 @@
     }
   },
   "source": "extract_to_transform_function11.bal",
-  "description": "Extract to transform function for different records",
+  "description": "Extract to transform function for a checked field access expression",
   "expected": [
     {
       "title": "Extract to transform function",

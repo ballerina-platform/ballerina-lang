@@ -10,7 +10,7 @@
     }
   },
   "source": "extract_to_transform_function5.bal",
-  "description": "Extract to transform function for different records",
+  "description": "Extract to transform function for for a record with a nested record",
   "expected": [
     {
       "title": "Extract to transform function",
