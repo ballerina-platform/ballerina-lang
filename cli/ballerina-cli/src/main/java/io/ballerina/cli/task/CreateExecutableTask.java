@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.cli.utils.BuildUtils;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.cli.utils.GraalVMCompatibilityUtils;
 import io.ballerina.projects.EmitResult;
@@ -50,9 +51,9 @@ import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
  * @since 2.0.0
  */
 public class CreateExecutableTask implements Task {
-    protected final transient PrintStream out;
-    protected Path output;
-    protected Path currentDir;
+    private final transient PrintStream out;
+    private Path output;
+    private Path currentDir;
 
     public CreateExecutableTask(PrintStream out, String output) {
         this.out = out;
@@ -132,18 +133,10 @@ public class CreateExecutableTask implements Task {
 
         // notify plugin
         // todo following call has to be refactored after introducing new plugin architecture
-        notifyPlugins(project, target);
+        BuildUtils.notifyPlugins(project, target);
     }
 
-    private Path getExecutablePath(Project project, Target target) {
-        try {
-            return target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
-        } catch (IOException e) {
-            throw createLauncherException(e.getMessage());
-        }
-    }
-
-    protected Target getTarget(Project project) {
+    private Target getTarget(Project project) {
         Target target;
         try {
             if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
@@ -159,11 +152,11 @@ public class CreateExecutableTask implements Task {
         }
         return target;
     }
-
-    protected void notifyPlugins(Project project, Target target) {
-        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-        for (CompilerPlugin plugin : processorServiceLoader) {
-            plugin.codeGenerated(project, target);
+    private Path getExecutablePath(Project project, Target target) {
+        try {
+            return target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
+        } catch (IOException e) {
+            throw createLauncherException(e.getMessage());
         }
     }
 
