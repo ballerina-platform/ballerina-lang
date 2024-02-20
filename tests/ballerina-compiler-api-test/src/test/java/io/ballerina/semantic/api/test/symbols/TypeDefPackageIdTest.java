@@ -39,7 +39,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Test cases for user defined builtinType type definition packageIDs
+ * Test cases for user defined builtinType type definition packageIDs.
  *
  * @since 2201.9.0
  */
@@ -55,26 +55,37 @@ public class TypeDefPackageIdTest {
     }
 
     @Test(dataProvider = "TypeDefPackageIDPosProvider")
-    public void testTypeDefPackageId(int line, int offset, String name, String srcFile, String packageID) {
+    public void testTypeDefPackageId(int line, int offset, String name, String srcFile, String typeDescPackageID,
+                                     String internalPackageID) {
         Optional<Document> srcDocument = getDocument(project, null, srcFile);
         assertTrue(srcDocument.isPresent());
 
         BallerinaTypeDefinitionSymbol symbol =
                 (BallerinaTypeDefinitionSymbol) assertBasicsAndGetSymbol(model, srcDocument.get(), line, offset, name,
                         SymbolKind.TYPE_DEFINITION);
-        PackageID actualPackageID = ((AbstractTypeSymbol) (symbol).typeDescriptor()).getBType().tsymbol.pkgID;
-
-        assertEquals(actualPackageID.toString(), packageID);
+        PackageID actualTypeDescPackageID = ((AbstractTypeSymbol) (symbol).typeDescriptor()).getBType().tsymbol.pkgID;
+        PackageID actualInternalPackageID = symbol.getInternalSymbol().pkgID;
+        assertEquals(actualTypeDescPackageID.toString(), typeDescPackageID);
+        assertEquals(actualInternalPackageID.toString(), internalPackageID);
     }
 
     @DataProvider(name = "TypeDefPackageIDPosProvider")
     public Object[][] getTypeDefPackageIDPos() {
         return new Object[][]{
-                {24, 5, "UserTable", "main.bal", "sample_org/symbol_package_id:0.1.0"},
-                {27, 5, "UserFuture", "main.bal", "sample_org/symbol_package_id:0.1.0"},
-                {30, 5, "UserXml", "main.bal", "sample_org/symbol_package_id:0.1.0"},
-                {33, 5, "UserStream", "main.bal", "sample_org/symbol_package_id:0.1.0"},
-                {36, 5, "UserTypedesc", "main.bal", "sample_org/symbol_package_id:0.1.0"}
+                {24, 5, "UserTable", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {27, 5, "UserFuture", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {30, 5, "UserXml_1", "main.bal", "ballerina/lang.annotations:0.0.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {31, 5, "UserXml_2", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {34, 5, "UserStream", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {37, 5, "UserTypedesc_1", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {38, 5, "UserTypedesc_2", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"}
         };
     }
 }

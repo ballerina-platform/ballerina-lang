@@ -791,14 +791,15 @@ public class TypeResolver {
             return td.getBType();
         }
 
-        BType type = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.type, data);
+        SymbolEnv symEnv = data.env;
+        BType type = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.type, data);
         BTypedescType constrainedType = new BTypedescType(symTable.empty, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                typeSymbol.originalName, data.env.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
+                typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
                 td.pos, BUILTIN);
         td.setBType(constrainedType);
-        BType constraintType = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.constraint, data);
+        BType constraintType = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.constraint, data);
         constrainedType.constraint = constraintType;
         symResolver.markParameterizedType(constrainedType, constraintType);
         return constrainedType;
@@ -809,14 +810,15 @@ public class TypeResolver {
             return td.getBType();
         }
 
-        BType type = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.type, data);
+        SymbolEnv symEnv = data.env;
+        BType type = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.type, data);
         BFutureType constrainedType = new BFutureType(TypeTags.FUTURE, symTable.empty, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                typeSymbol.originalName, data.env.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
+                typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
                 td.pos, BUILTIN);
         td.setBType(constrainedType);
-        BType constraintType = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.constraint, data);
+        BType constraintType = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.constraint, data);
         constrainedType.constraint = constraintType;
         symResolver.markParameterizedType(constrainedType, constraintType);
         return constrainedType;
@@ -827,17 +829,18 @@ public class TypeResolver {
             return td.getBType();
         }
 
-        BType type = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.type, data);
+        SymbolEnv symEnv = data.env;
+        BType type = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.type, data);
         BXMLType constrainedType = new BXMLType(symTable.empty, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                typeSymbol.originalName, data.env.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
+                typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
                 td.pos, BUILTIN);
 
         td.setBType(constrainedType);
         resolvingTypes.push(constrainedType);
 
-        BType constraintType = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.constraint, data);
+        BType constraintType = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.constraint, data);
 
         if (constraintType.tag == TypeTags.PARAMETERIZED_TYPE) {
             BType typedescType = ((BParameterizedType) constraintType).paramSymbol.type;
@@ -858,17 +861,18 @@ public class TypeResolver {
             return td.getBType();
         }
 
-        BType type = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.type, data);
+        SymbolEnv symEnv = data.env;
+        BType type = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.type, data);
         BTypeSymbol typeSymbol = type.tsymbol;
         BTypeSymbol tSymbol = Symbols.createTypeSymbol(SymTag.TYPE, typeSymbol.flags, Names.EMPTY,
-                typeSymbol.originalName, data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
+                typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner,
                 td.pos, BUILTIN);
         BMapType constrainedType = new BMapType(TypeTags.MAP, symTable.empty, tSymbol);
         td.setBType(constrainedType);
         tSymbol.type = type;
         resolvingTypes.push(constrainedType);
 
-        BType constraintType = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.constraint, data);
+        BType constraintType = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.constraint, data);
         constrainedType.constraint = constraintType;
         symResolver.markParameterizedType(constrainedType, constraintType);
         resolvingTypes.pop();
@@ -886,9 +890,10 @@ public class TypeResolver {
         BArrayType firstDimArrType = null;
         boolean firstDim = true;
 
+        SymbolEnv symEnv = data.env;
         for (int i = 0; i < td.dimensions; i++) {
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
-                    data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner, td.pos, BUILTIN);
+                    symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner, td.pos, BUILTIN);
             BArrayType arrType;
             if (td.sizes.size() == 0) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
@@ -918,7 +923,7 @@ public class TypeResolver {
                     Name typeName = names.fromIdNode(sizeReference.variableName);
 
                     BSymbol sizeSymbol =
-                            symResolver.lookupMainSpaceSymbolInPackage(size.pos, data.env, pkgAlias, typeName);
+                            symResolver.lookupMainSpaceSymbolInPackage(size.pos, symEnv, pkgAlias, typeName);
                     sizeReference.symbol = sizeSymbol;
 
                     if (symTable.notFoundSymbol == sizeSymbol) {
@@ -975,7 +980,7 @@ public class TypeResolver {
             return symTable.semanticError;
         }
 
-        firstDimArrType.eType = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.elemtype, data);
+        firstDimArrType.eType = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.elemtype, data);
         symResolver.markParameterizedType(firstDimArrType, firstDimArrType.eType);
         resolvingTypes.pop();
         return resultType;

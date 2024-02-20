@@ -28,10 +28,12 @@ type UserTable table<Employee> key(id);
 type UserFuture future<int>;
 
 // xml type
-type UserXml xml<xml:Element>;
+type UserXml_1 xml;
+type UserXml_2 xml<xml:Element>;
 
 // stream type
 type UserStream stream<int>;
 
 // typedesc type
-type UserTypedesc typedesc<int>;
+type UserTypedesc_1 typedesc<int>;
+type UserTypedesc_2 typedesc<Employee>;
