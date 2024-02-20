@@ -63,7 +63,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static io.ballerina.cli.utils.TestUtils.addMockClasses;
-import static io.ballerina.cli.utils.TestUtils.addOtherNeededArgs;
+import static io.ballerina.cli.utils.TestUtils.appendRequiredArgs;
 import static io.ballerina.cli.utils.TestUtils.cleanTempCache;
 import static io.ballerina.cli.utils.TestUtils.clearFailedTestsJson;
 import static io.ballerina.cli.utils.TestUtils.getInitialCmdArgs;
@@ -255,7 +255,7 @@ public class RunTestsTask implements Task {
         List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
 
-        boolean hasTests = createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap,
+        boolean hasTests = createTestSuitesForProject(project, target, testProcessor, testSuiteMap,
                 moduleNamesList, mockClassNames, this.isRerunTestExecution, this.report, this.coverage);
 
         writeToTestSuiteJson(testSuiteMap, testsCachePath);
@@ -311,7 +311,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    public static boolean createTestSuiteIfHasTests(Project project, Target target,
+    public static boolean createTestSuitesForProject(Project project, Target target,
                                               TestProcessor testProcessor, Map<String, TestSuite> testSuiteMap,
                                               List<String> moduleNamesList, List<String> mockClassNames,
                                               boolean isRerunTestExecution, boolean report, boolean coverage) {
@@ -326,9 +326,7 @@ public class RunTestsTask implements Task {
                 continue;
             }
 
-            if (!hasTests) {
-                hasTests = true;
-            }
+            hasTests = true;
 
             if (!isRerunTestExecution) {
                 clearFailedTestsJson(target.path());
@@ -379,7 +377,7 @@ public class RunTestsTask implements Task {
         Path testSuiteJsonPath = target.path().resolve(ProjectConstants.CACHES_DIR_NAME)
                 .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME).resolve(TESTERINA_TEST_SUITE);
 
-        addOtherNeededArgs(cmdArgs, target.path().toString(), jacocoAgentJarPath,
+        appendRequiredArgs(cmdArgs, target.path().toString(), jacocoAgentJarPath,
                 testSuiteJsonPath.toString(), this.report, this.coverage,
                 this.groupList, this.disableGroupList, this.singleExecTests, this.isRerunTestExecution,
                 this.listGroups, this.cliArgs, false);

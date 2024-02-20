@@ -326,7 +326,7 @@ public class TestUtils {
         return cmdArgs;
     }
 
-    public static void addOtherNeededArgs(List<String> cmdArgs, String target, String jacocoAgentJarPath,
+    public static void appendRequiredArgs(List<String> cmdArgs, String target, String jacocoAgentJarPath,
                                           String testSuiteJsonPath, boolean report,
                                           boolean coverage, String groupList, String disableGroupList,
                                           String singleExecTests, boolean isRerunTestExecution,
