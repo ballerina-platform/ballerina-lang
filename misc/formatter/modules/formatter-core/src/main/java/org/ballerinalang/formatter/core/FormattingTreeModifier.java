@@ -245,6 +245,7 @@ import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -4495,11 +4496,13 @@ public class FormattingTreeModifier extends TreeModifier {
      * @param token token of which the indentation is required.
      */
     private int getPreservedIndentation(Token token) {
-        int position = token.lineRange().startLine().offset();
-        int startLine = token.lineRange().startLine().line();
+        LinePosition startLinePos = token.lineRange().startLine();
+        int position = startLinePos.offset();
+        int startLine = startLinePos.line();
         for (Token invalidToken : token.leadingInvalidTokens()) {
-            if (invalidToken.lineRange().startLine().line() == startLine) {
-                position = invalidToken.lineRange().startLine().offset();
+            LinePosition invalidTokenStartLinePos = invalidToken.lineRange().startLine();
+            if (invalidTokenStartLinePos.line() == startLine) {
+                position = invalidTokenStartLinePos.offset();
                 break;
             }
         }
