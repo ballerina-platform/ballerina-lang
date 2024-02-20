@@ -16,12 +16,14 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -72,10 +74,8 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
 
     @Override
     public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {
-        TypeSymbol matchedTypeSymbol = posDetails.matchedTopLevelTypeSymbol();
-        NonTerminalNode matchedCodeActionNode = posDetails.matchedCodeActionNode();
-        NonTerminalNode parentNode = matchedCodeActionNode.parent();
-
+        ExpressionNode valueExprNode;
+        SpecificFieldNode specificFieldNode;
         RecordTypeWrapper inputRecordTypeWrapper, outputRecordTypeWrapper;
         SemanticModel semanticModel;
         Node enclosingNode;
@@ -83,15 +83,28 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
 
         // Extracting the input and output record types
         try {
-            inputRecordTypeWrapper = getReferredRecordSymbol(context, matchedTypeSymbol).orElseThrow();
-            Node fieldNameNode = ((SpecificFieldNode) parentNode).fieldName();
+            NonTerminalNode matchedCodeActionNode = posDetails.matchedCodeActionNode();
+            if (matchedCodeActionNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
+                specificFieldNode = (SpecificFieldNode) matchedCodeActionNode;
+                valueExprNode = specificFieldNode.valueExpr().orElseThrow();
+            } else {
+                specificFieldNode = (SpecificFieldNode) matchedCodeActionNode.parent();
+                valueExprNode = (ExpressionNode) matchedCodeActionNode;
+            }
 
             semanticModel = context.currentSemanticModel().orElseThrow();
-            Symbol fieldSymbol = semanticModel.symbol(fieldNameNode).orElseThrow();
-            outputRecordTypeWrapper =
-                    getReferredRecordSymbol(context, ((RecordFieldSymbol) fieldSymbol).typeDescriptor()).orElseThrow();
+            TypeSymbol matchedTypeSymbol = posDetails.matchedTopLevelTypeSymbol();
+            Symbol inputRecordSymbol = matchedTypeSymbol == null ?
+                    semanticModel.symbol(context.nodeAtRange()).orElseThrow() : matchedTypeSymbol;
+            inputRecordTypeWrapper = getReferredRecordSymbol(context,
+                    getTypeSymbol(inputRecordSymbol).orElseThrow()).orElseThrow();
+            Node fieldNameNode = (specificFieldNode).fieldName();
 
-            enclosingNode = CommonUtil.getMatchingNode(parentNode,
+            Symbol outputRecordSymbol = semanticModel.symbol(fieldNameNode).orElseThrow();
+            outputRecordTypeWrapper = getReferredRecordSymbol(context,
+                    getTypeSymbol(outputRecordSymbol).orElseThrow()).orElseThrow();
+
+            enclosingNode = CommonUtil.getMatchingNode(specificFieldNode,
                     node -> node.parent().kind() == SyntaxKind.MODULE_PART).orElseThrow();
             currentDocument = context.currentDocument().orElseThrow();
         } catch (Exception e) {
@@ -100,15 +113,15 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
 
         // Extracting the line position and the range
         LinePosition functionEndLine = enclosingNode.lineRange().endLine();
-        Range extractedRange = PositionUtil.toRange(matchedCodeActionNode.lineRange());
+        Range extractedRange = PositionUtil.toRange(valueExprNode.lineRange());
 
         // Generating the transformation function and the function call
         List<Symbol> visibleSymbols = semanticModel.visibleSymbols(currentDocument, functionEndLine);
         String functionName = FunctionGenerator.generateFunctionName(EXTRACTED_PREFIX, visibleSymbols);
         String extractedFunction = getFunction(context, functionName, outputRecordTypeWrapper,
-                inputRecordTypeWrapper, matchedCodeActionNode, visibleSymbols);
+                inputRecordTypeWrapper, valueExprNode, visibleSymbols);
         String functionCall = functionName + CommonKeys.OPEN_PARENTHESES_KEY +
-                matchedCodeActionNode.toSourceCode().stripTrailing() +
+                valueExprNode.toSourceCode().stripTrailing() +
                 CommonKeys.CLOSE_PARENTHESES_KEY;
 
         // Generating the text edits and the code action
@@ -128,6 +141,7 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
         return List.of(
                 SyntaxKind.FIELD_ACCESS,
                 SyntaxKind.OPTIONAL_FIELD_ACCESS,
+                SyntaxKind.SPECIFIC_FIELD,
                 SyntaxKind.SIMPLE_NAME_REFERENCE,
                 SyntaxKind.QUALIFIED_NAME_REFERENCE,
                 SyntaxKind.INDEXED_EXPRESSION,
@@ -140,8 +154,8 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
 
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
-        return positionDetails.matchedTopLevelTypeSymbol().typeKind() == TypeDescKind.TYPE_REFERENCE &&
-                positionDetails.matchedCodeActionNode().parent().kind() == SyntaxKind.SPECIFIC_FIELD &&
+        return (positionDetails.matchedCodeActionNode().parent().kind() == SyntaxKind.SPECIFIC_FIELD ||
+                positionDetails.matchedCodeActionNode().kind() == SyntaxKind.SPECIFIC_FIELD) &&
                 CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode());
     }
 
@@ -158,7 +172,8 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
     }
 
     private static String getFunction(CodeActionContext context, String functionName,
-                                      RecordTypeWrapper outputRecordTypeWrapper, RecordTypeWrapper inputRecordTypeWrapper,
+                                      RecordTypeWrapper outputRecordTypeWrapper,
+                                      RecordTypeWrapper inputRecordTypeWrapper,
                                       NonTerminalNode matchedNode, List<Symbol> visibleSymbols) {
 
         // Obtain the parameter name
@@ -193,6 +208,20 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
         return CommonUtil.LINE_SEPARATOR + CommonUtil.LINE_SEPARATOR + generatedFunction;
     }
 
+    private static Optional<TypeSymbol> getTypeSymbol(Symbol symbol) {
+        TypeSymbol typeSymbol;
+        switch (symbol.kind()) {
+            case RECORD_FIELD -> typeSymbol = ((RecordFieldSymbol) symbol).typeDescriptor();
+            case PARAMETER -> typeSymbol = ((ParameterSymbol) symbol).typeDescriptor();
+            case VARIABLE -> typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
+            case TYPE -> typeSymbol = (TypeSymbol) symbol;
+            default -> {
+                return Optional.empty();
+            }
+        }
+        return Optional.of(typeSymbol);
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -209,6 +238,7 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
     }
 
     private static class ParameterNameFinder extends NodeVisitor {
+
         private String parameterName;
 
         ParameterNameFinder() {
