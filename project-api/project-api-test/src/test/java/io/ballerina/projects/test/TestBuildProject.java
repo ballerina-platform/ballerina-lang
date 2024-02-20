@@ -2305,7 +2305,7 @@ public class TestBuildProject extends BaseTest {
             Assert.fail("unexpected compilation failure:\n" + getErrorsAsString(compilation.diagnosticResult()));
         }
         Collection<JarLibrary> jarLibraries =
-                jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution();
+                jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution(false);
         Assert.assertEquals(jarLibraries.size(), 9);
 
         Assert.assertTrue(jarLibraries.contains(new JarLibrary(
