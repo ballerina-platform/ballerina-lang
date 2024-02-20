@@ -140,15 +140,11 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(
                 SyntaxKind.FIELD_ACCESS,
-                SyntaxKind.OPTIONAL_FIELD_ACCESS,
                 SyntaxKind.SPECIFIC_FIELD,
-                SyntaxKind.SIMPLE_NAME_REFERENCE,
-                SyntaxKind.QUALIFIED_NAME_REFERENCE,
                 SyntaxKind.INDEXED_EXPRESSION,
                 SyntaxKind.FUNCTION_CALL,
                 SyntaxKind.METHOD_CALL,
-                SyntaxKind.CHECK_EXPRESSION,
-                SyntaxKind.LET_EXPRESSION
+                SyntaxKind.CHECK_EXPRESSION
         );
     }
 
