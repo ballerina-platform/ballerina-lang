@@ -39,7 +39,6 @@ public class CustomSystemClassLoader extends ClassLoader {
     public CustomSystemClassLoader() {
         super(getSystemClassLoader());
         this.modifiedClassDefs = new HashMap<>();
-
         populateExcludingClasses();
     }
 
@@ -59,30 +58,27 @@ public class CustomSystemClassLoader extends ClassLoader {
     public CustomSystemClassLoader(Map<String, byte[]> modifiedClassDefs) {
         super(getSystemClassLoader());
         this.modifiedClassDefs = new HashMap<>(modifiedClassDefs);
-
         populateExcludingClasses();
     }
 
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
         Class<?> loadedClass;
-
-        //return the class if it is already loaded
+        // Return the class if it is already loaded
         loadedClass = findLoadedClass(name);
         if (loadedClass != null) {
             return loadedClass;
         }
 
-        //if the class is an inbuilt class, delegate the classloading to the system classloader
+        // If the class is an inbuilt class, delegate the classloading to the system classloader
         if (name.startsWith("java.") || name.startsWith("javax.")) {
             return super.loadClass(name);
         }
 
-        //if the class is in not in the excludingClasses list, delegate the classloading to the system classloader
+        // If the class is in not in the excludingClasses list, delegate the classloading to the system classloader
         if (!excludingClasses.contains(name)) {
             return super.loadClass(name);
         }
-
         return findClass(name);
     }
 
@@ -107,7 +103,6 @@ public class CustomSystemClassLoader extends ClassLoader {
         InputStream is = BTestMain.class.getResourceAsStream(path);
 
         int size = Objects.requireNonNull(is).available();
-
         byte[] buff = new byte[size];
 
         DataInputStream dis = new DataInputStream(is);
