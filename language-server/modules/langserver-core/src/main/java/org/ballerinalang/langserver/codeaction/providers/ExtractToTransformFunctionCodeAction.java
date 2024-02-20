@@ -83,7 +83,7 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
         Node enclosingNode;
         Document currentDocument;
 
-        // Extracting the input and output record types
+        // Extracting the input type and output record type
         try {
             NonTerminalNode matchedCodeActionNode = posDetails.matchedCodeActionNode();
             if (matchedCodeActionNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
@@ -96,13 +96,11 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
 
             semanticModel = context.currentSemanticModel().orElseThrow();
             TypeSymbol matchedTypeSymbol = posDetails.matchedTopLevelTypeSymbol();
-            Symbol inputRecordSymbol = matchedTypeSymbol == null ?
+            Symbol inputSymbol = matchedTypeSymbol == null ?
                     semanticModel.symbol(context.nodeAtRange()).orElseThrow() : matchedTypeSymbol;
-            inputType = getInputRecord(context,
-                    getTypeSymbol(inputRecordSymbol).orElseThrow()).orElseThrow();
-            Node fieldNameNode = (specificFieldNode).fieldName();
+            inputType = getInputRecord(context, getTypeSymbol(inputSymbol).orElseThrow()).orElseThrow();
 
-            Symbol outputRecordSymbol = semanticModel.symbol(fieldNameNode).orElseThrow();
+            Symbol outputRecordSymbol = semanticModel.symbol(specificFieldNode.fieldName()).orElseThrow();
             outputRecord = getOutputRecord(context,
                     getTypeSymbol(outputRecordSymbol).orElseThrow()).orElseThrow();
 
@@ -151,9 +149,10 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
 
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
-        return (positionDetails.matchedCodeActionNode().parent().kind() == SyntaxKind.SPECIFIC_FIELD ||
-                positionDetails.matchedCodeActionNode().kind() == SyntaxKind.SPECIFIC_FIELD) &&
-                CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode());
+        NonTerminalNode matchedCodeActionNode = positionDetails.matchedCodeActionNode();
+        return (matchedCodeActionNode.parent().kind() == SyntaxKind.SPECIFIC_FIELD ||
+                matchedCodeActionNode.kind() == SyntaxKind.SPECIFIC_FIELD) &&
+                CodeActionNodeValidator.validate(matchedCodeActionNode);
     }
 
     private static Optional<OutputRecord> getOutputRecord(CodeActionContext context,
@@ -196,11 +195,11 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
         String bodyText = recordFieldSymbolMap.isEmpty() ? "" :
                 RecordUtil.getFillAllRecordFieldInsertText(recordFieldSymbolMap);
         String parameterName = inputType.typeName() + " " + fieldName;
-        String generatedFunction = String.format("%s %s %s%s%s returns %s %s %s%n    %s%n%s",
-                CommonKeys.FUNCTION_KEYWORD_KEY, functionName, CommonKeys.OPEN_PARENTHESES_KEY, parameterName,
-                CommonKeys.CLOSE_PARENTHESES_KEY, outputRecord.typeName(),
-                CommonKeys.ARROW_FUNCTION_SYMBOL_KEY, CommonKeys.OPEN_BRACE_KEY, bodyText,
-                CommonKeys.CLOSE_BRACE_KEY + CommonKeys.SEMI_COLON_SYMBOL_KEY);
+        String generatedFunction =
+                String.format("%s %s %s%s%s returns %s %s %s%n    %s%n%s", CommonKeys.FUNCTION_KEYWORD_KEY,
+                        functionName, CommonKeys.OPEN_PARENTHESES_KEY, parameterName, CommonKeys.CLOSE_PARENTHESES_KEY,
+                        outputRecord.typeName(), CommonKeys.ARROW_FUNCTION_SYMBOL_KEY, CommonKeys.OPEN_BRACE_KEY,
+                        bodyText, CommonKeys.CLOSE_BRACE_KEY + CommonKeys.SEMI_COLON_SYMBOL_KEY);
 
         // Formatting the generated function
         try {
@@ -241,7 +240,7 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
     }
 
     /**
-     * Represents the input record of the transformation function.
+     * Represents the input type of the transformation function.
      *
      * @param typeSymbol The symbol representation of the type
      * @param typeName   The name of the type as a String
