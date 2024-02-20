@@ -340,7 +340,6 @@ public class TestCommand implements BLauncherCmd {
             this.outStream.println("WARNING: Code coverage generation is not supported with Ballerina cloud test");
         }
 
-
         Iterable<Module> originalModules = project.currentPackage().modules();
         Map<String, Module> moduleMap = new HashMap<>();
 
@@ -361,7 +360,7 @@ public class TestCommand implements BLauncherCmd {
         CreateTestExecutableTask createTestExecutableTask = null;
 
         if (!project.buildOptions().cloud().isEmpty()) {
-            //if cloud flag is set, create the test executable
+            // If cloud flag is set, create the test executable
             createTestExecutableTask = new CreateTestExecutableTask(outStream, this.output, runTestsTask);
         }
 

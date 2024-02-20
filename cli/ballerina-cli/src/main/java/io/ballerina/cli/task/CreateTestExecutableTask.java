@@ -35,6 +35,7 @@ import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.testerina.core.TestProcessor;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -55,7 +56,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
 
     public CreateTestExecutableTask(PrintStream out, String output, RunTestsTask runTestsTask) {
         super(out, output);
-        this.runTestsTask = runTestsTask;   //to use the getCmdArgs() method
+        this.runTestsTask = runTestsTask;   // To invoke related methods in the run tests task
     }
 
     @Override
@@ -81,10 +82,10 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
             HashSet<JarLibrary> testExecDependencies = new HashSet<>();
             Map<String, TestSuite> testSuiteMap = new HashMap<>();
 
-            //write the test suite json that is used to execute the tests
+            // Write the test suite json that is used to execute the tests
             boolean status = createTestSuiteForCloudArtifacts(project, jBallerinaBackend, target, testSuiteMap);
 
-            //get all the dependencies required for test execution for each module
+            // Get all the dependencies required for test execution for each module
             for (ModuleDescriptor moduleDescriptor :
                     project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
 
@@ -100,7 +101,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                                 ProjectConstants.TEST_UBER_JAR_SUFFIX +
                                 ProjectConstants.BLANG_COMPILED_JAR_EXT);
 
-                //write the cmd args to a file, so it can be read on c2c side
+                // Write the cmd args to a file, so it can be read on c2c side
                 writeCmdArgsToFile(testExecutablePath.getParent(), target, TestUtils.getJsonFilePath(testCachePath));
 
                 List<Path> moduleJarPaths = TestUtils.getModuleJarPaths(jBallerinaBackend, project.currentPackage());
@@ -111,22 +112,22 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                     ZipFile zipFile = new ZipFile(moduleJarPath.toFile());
 
                     zipFile.stream().forEach(entry -> {
-                        if (entry.getName().endsWith(".class")) {
-                            excludingClassPaths.add(entry.getName().replace("/", ".")
-                                    .replace(".class", ""));
+                        if (entry.getName().endsWith(ProjectConstants.JAVA_CLASS_EXT)) {
+                            excludingClassPaths.add(entry.getName().replace(File.pathSeparator, ProjectConstants.DOT)
+                                    .replace(ProjectConstants.JAVA_CLASS_EXT, ""));
                         }
                     });
 
                     zipFile.close();
                 }
 
-                //create the single fat jar for all the test modules that includes the test suite json
+                // Create the single fat jar for all the test modules that includes the test suite json
                 EmitResult result = jBallerinaBackend.emit(
                         JBallerinaBackend.OutputType.TEST,
                         testExecutablePath,
                         testExecDependencies,
                         TestUtils.getJsonFilePath(testCachePath),
-                        TestUtils.getJsonFilePathInFatJar("/"),
+                        TestUtils.getJsonFilePathInFatJar(File.pathSeparator),
                         excludingClassPaths,
                         ProjectConstants.EXCLUDING_CLASSES_FILE
                 );
@@ -180,12 +181,12 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         boolean status = RunTestsTask.createTestSuiteIfHasTests(project, target, testProcessor, testSuiteMap,
                 moduleNamesList, mockClassNames, runTestsTask.isRerunTestExecution(), report, coverage);
 
-        //set the module names list and the mock classes to the run tests task
+        // Set the module names list and the mock classes to the run tests task
         this.runTestsTask.setModuleNamesList(moduleNamesList);
         this.runTestsTask.setMockClasses(mockClassNames);
 
         if (status) {
-            //now write the map to a json file
+            // Now write the map to a json file
             try {
                 TestUtils.writeToTestSuiteJson(testSuiteMap, target.getTestsCachePath());
                 return true;
@@ -217,7 +218,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                     this.runTestsTask.getCliArgs(), false
             );
 
-            //write the cmdArgs to a file in path
+            // Write the cmdArgs to a file in path
             Path writingPath = path.resolve(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
 
             try (BufferedWriter writer = java.nio.file.Files.newBufferedWriter(writingPath)) {
