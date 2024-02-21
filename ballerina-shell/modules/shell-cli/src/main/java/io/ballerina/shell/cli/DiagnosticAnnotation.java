@@ -17,7 +17,6 @@ public class DiagnosticAnnotation {
     private final DiagnosticSeverity severity;
     private final DiagnosticAnnotationType type;
 
-
     public static final HashMap<DiagnosticSeverity, String> SEVERITY_COLORS = new HashMap<>() {{
         put(DiagnosticSeverity.INTERNAL, "blue");
         put(DiagnosticSeverity.HINT, "blue");
@@ -32,7 +31,8 @@ public class DiagnosticAnnotation {
         INVALID
     }
 
-    public DiagnosticAnnotation(ArrayList<String> lines, int start, int length, int startLineNumber, DiagnosticSeverity severity, DiagnosticAnnotationType type, int terminalWidth) {
+    public DiagnosticAnnotation(ArrayList<String> lines, int start, int length, int startLineNumber,
+                                DiagnosticSeverity severity, DiagnosticAnnotationType type, int terminalWidth) {
         this.start = start + 3 * countTabChars(lines.get(0), start);
         lines.set(0, replaceTabs(lines.get(0), start));
         this.lines = lines;
@@ -45,7 +45,8 @@ public class DiagnosticAnnotation {
         this.terminalWidth = terminalWidth;
     }
 
-    public DiagnosticAnnotation(ArrayList<String> lines, int start, int length, int endOffset, int startLineNumber, DiagnosticSeverity severity,DiagnosticAnnotationType type ,int terminalWidth) {
+    public DiagnosticAnnotation(ArrayList<String> lines, int start, int length, int endOffset, int startLineNumber,
+                                DiagnosticSeverity severity, DiagnosticAnnotationType type, int terminalWidth) {
         this.start = start + 3 * countTabChars(lines.get(0), start);
         lines.set(0, replaceTabs(lines.get(0), start));
         this.lines = lines;
@@ -66,7 +67,8 @@ public class DiagnosticAnnotation {
             TruncateResult result = truncate(lines.get(0), maxLength, start, length);
             return padding + "| " + "\n"
                     + String.format("%" + n_digits + "d ", startLineNumber) + "| " + result.line + "\n"
-                    + padding + "| " + getUnderline(result.diagnosticStart, result.diagnosticLength, this.severity, this.type) + "\n";
+                    + padding + "| " +
+                    getUnderline(result.diagnosticStart, result.diagnosticLength, this.severity, this.type) + "\n";
 
         }
 
@@ -85,7 +87,8 @@ public class DiagnosticAnnotation {
         if (lines.size() == 2) {
             return padding + "| " + "\n"
                     + String.format("%" + n_digits_end + "d ", startLineNumber) + "| " + result1.line + "\n"
-                    + padding + "| " + getUnderline(result1.diagnosticStart, result1.diagnosticLength, this.severity, this.type) + "\n"
+                    + padding + "| " +
+                    getUnderline(result1.diagnosticStart, result1.diagnosticLength, this.severity, this.type) + "\n"
                     + String.format("%" + n_digits_end + "d ", startLineNumber + 1) + "| " + result2.line + "\n"
                     + padding + "| " + getUnderline(0, result2.diagnosticLength, this.severity, this.type) + "\n"
                     + padding + "| " + "\n";
@@ -93,7 +96,8 @@ public class DiagnosticAnnotation {
         String padding2 = " ".repeat(Math.min(terminalWidth, max_length_line) / 2);
         return padding + "| " + "\n"
                 + String.format("%" + n_digits_end + "d ", startLineNumber) + "| " + result1.line + "\n"
-                + paddingWithColon + "| " + getUnderline(result1.diagnosticStart, result1.diagnosticLength, this.severity, this.type) + "\n"
+                + paddingWithColon + "| " +
+                getUnderline(result1.diagnosticStart, result1.diagnosticLength, this.severity, this.type) + "\n"
                 + paddingWithColon + "| " + padding2 + ":" + "\n"
                 + paddingWithColon + "| " + padding2 + ":" + "\n"
                 + String.format("%" + n_digits_end + "d ", startLineNumber + lines.size() - 1) + "| "
@@ -103,12 +107,13 @@ public class DiagnosticAnnotation {
 
     }
 
-    private static String getUnderline(int offset, int length, DiagnosticSeverity severity, DiagnosticAnnotationType type) {
+    private static String getUnderline(int offset, int length, DiagnosticSeverity severity,
+                                       DiagnosticAnnotationType type) {
         String symbol = "^";
         if (type == DiagnosticAnnotationType.MISSING) {
             symbol = "+";
         } else if (type == DiagnosticAnnotationType.INVALID) {
-            symbol = "-";
+            symbol = "^";
         }
         return " ".repeat(offset) + "@|" + SEVERITY_COLORS.get(severity) + " " + symbol.repeat(length) + "|@";
     }
@@ -153,5 +158,6 @@ public class DiagnosticAnnotation {
     }
 
     private record TruncateResult(String line, int diagnosticStart, int diagnosticLength) {
+
     }
 }
