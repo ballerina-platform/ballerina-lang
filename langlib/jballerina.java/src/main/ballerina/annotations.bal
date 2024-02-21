@@ -126,3 +126,12 @@ public const annotation FieldData FieldSet on source external;
 # }
 # ```
 public const annotation ObjectData Binding on class;
+
+# Describes a type, class or function that is a dependency of java native code.
+# ```ballerina
+# @externalDependency
+# function foo(int x) returns int {
+#     return x * 2;
+# }
+# ```
+public const annotation ExternalDependency on source type, source class, source function;
