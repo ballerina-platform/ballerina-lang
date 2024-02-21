@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -559,9 +560,18 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
                 default -> this.parametrizedType;
             };
             semtype = SemTypes.union(semtype, memberType.getSemTypeComponent());
-            bTypeComponents.add(memberType.getBTypeComponent());
+            BType memberTypeBTypeComponent = memberType.getBTypeComponent();
+            if (memberTypeBTypeComponent.getTag() != TypeTags.NEVER_TAG) {
+                bTypeComponents.add(memberTypeBTypeComponent);
+            }
         }
-        return new TypeComponentMemo(semtype, new BUnionType(typeName, this.pkg, bTypeComponents, this.readonly));
+        // BTypeHack: these are the same semantically but syntactic type checker sometimes treat them as different
+        BType bTypeComponent = switch (bTypeComponents.size()) {
+            case 0 -> (BType) PredefinedTypes.TYPE_NEVER;
+            case 1 -> (BType) bTypeComponents.get(0);
+            default -> new BUnionType(typeName, pkg, bTypeComponents, readonly);
+        };
+        return new TypeComponentMemo(semtype, bTypeComponent);
     }
 
     @Override
