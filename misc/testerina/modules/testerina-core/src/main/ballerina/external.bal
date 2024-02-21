@@ -15,7 +15,7 @@
 // under the License.` `
 import ballerina/jballerina.java;
 
-isolated handle outStreamObj = outStream();
+final handle outStreamObj = outStream();
 
 isolated function print(handle printStream, any|error obj) = @java:Method {
     name: "print",

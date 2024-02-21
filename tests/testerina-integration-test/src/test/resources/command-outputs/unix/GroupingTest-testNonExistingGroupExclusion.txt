@@ -7,10 +7,10 @@ Running Tests
 
 	groups-test.bal
 
-testFunc4: has failed
+testFunc4: has failed.
 
 
-testFunc5: has failed
+testFunc5: has failed.
 
 
 		Test execution time :*****ms

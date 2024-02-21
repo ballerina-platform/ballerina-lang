@@ -18,7 +18,7 @@ import ballerina/lang.'error as langError;
 isolated boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
 isolated int exitCode = 0;
-isolated final ConcurrentExecutionManager conMgr = new;
+final ConcurrentExecutionManager conMgr = new;
 map<DataProviderReturnType?> dataDrivenTestParams = {};
 
 public function startSuite() returns int {
@@ -81,7 +81,7 @@ function executeTests() returns error? {
             TestFunction testFunction = conMgr.getParallelTest();
             conMgr.addTestInExecution(testFunction);
             DataProviderReturnType? testFunctionArgs = dataDrivenTestParams[testFunction.name];
-            _ = start executeTestIso(testFunction, testFunctionArgs);
+            _ = start executeTestIsolated(testFunction, testFunctionArgs);
         }
         conMgr.populateExecutionQueues();
     }
@@ -108,11 +108,11 @@ function executeAfterSuiteFunctions() {
 
 function orderTests() returns error? {
     string[] descendants = [];
-    foreach TestFunction testFunction in testRegistry.getDependentFunctions() {
-        if !conMgr.isVisited(testFunction.name) && conMgr.isEnabled(testFunction.name) {
-            check restructureTest(testFunction, descendants);
-        }
-    }
+    from TestFunction testFunction in testRegistry.getDependentFunctions()
+    where !conMgr.isVisited(testFunction.name) && conMgr.isEnabled(testFunction.name)
+    do {
+        check restructureTest(testFunction, descendants);
+    };
 }
 
 function restructureTest(TestFunction testFunction, string[] descendants) returns error? {
@@ -124,7 +124,7 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
         // dependsOnTestFunction.config?.enable is used instead of dependsOnTestFunction.enable to ensure that
         // the user has deliberately passed enable=false
         boolean? dependentEnabled = dependsOnTestFunction.config?.enable;
-        if dependentEnabled != () && !dependentEnabled {
+        if dependentEnabled == false {
             string errMsg = string `error: Test [${testFunction.name}] depends on function [${dependsOnTestFunction.name}], `
             + string `but it is either disabled or not included.`;
             return error(errMsg);
@@ -146,34 +146,37 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
     _ = descendants.pop();
 }
 
-isolated function printExecutionError(ExecutionError err, string functionSuffix)
-    => println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " + formatFailedError(err.message(), 2));
+isolated function printExecutionError(ExecutionError err, string functionSuffix) {
+    println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " + formatFailedError(err.message(), 2));
+}
 
 isolated function getErrorMessage(error err) returns string {
     string message = err.toBalString();
     string accumulatedTrace = "";
-    foreach langError:StackFrame stackFrame in err.stackTrace() {
+    from langError:StackFrame stackFrame in err.stackTrace()
+    do {
         accumulatedTrace = accumulatedTrace + "\t" + stackFrame.toString() + "\n";
-    }
+    };
     return message + "\n" + accumulatedTrace;
 }
 
 isolated function getTestType(DataProviderReturnType? params) returns TestType {
-    if (params is map<AnyOrError[]>) {
+    if params is map<AnyOrError[]> {
         return DATA_DRIVEN_MAP_OF_TUPLE;
-    } else if (params is AnyOrError[][]) {
+    }
+    if params is AnyOrError[][] {
         return DATA_DRIVEN_TUPLE_OF_TUPLE;
     }
     return GENERAL_TEST;
 }
 
 isolated function nestedEnabledDependentsAvailable(TestFunction[] dependents) returns boolean {
-    if (dependents.length() == 0) {
+    if dependents.length() == 0 {
         return false;
     }
     TestFunction[] queue = [];
     foreach TestFunction dependent in dependents {
-        if (conMgr.isEnabled(dependent.name)) {
+        if conMgr.isEnabled(dependent.name) {
             return true;
         }
         foreach TestFunction superDependent in conMgr.getDependents(dependent.name) {
@@ -276,8 +279,7 @@ isolated function handleAfterGroupOutput(ExecutionError? err) {
 isolated function handleDataDrivenTestOutput(ExecutionError|boolean err, TestFunction testFunction, string suffix,
         TestType testType) {
     if err is ExecutionError {
-        reportData.onFailed(name = testFunction.name, suffix = suffix, message = "[fail data provider for the function " + testFunction.name
-                + "]\n" + getErrorMessage(err), testType = testType);
+        reportData.onFailed(name = testFunction.name, suffix = suffix, message = string `[fail data provider for the function ${testFunction.name}]${"\n"} ${getErrorMessage(err)}`, testType = testType);
         println(string `${"\n"}${testFunction.name}:${suffix} has failed.${"\n"}`);
         enableExit();
     }
@@ -307,30 +309,28 @@ isolated function handleTestFuncOutput(any|error output, TestFunction testFuncti
         reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
         println(string `${"\n"}${testFunction.name}:${suffix} has failed.${"\n"}`);
         return true;
-    } else if output is any {
+    }
+    if output is any {
         reportData.onPassed(name = testFunction.name, suffix = suffix, testType = testType);
         return false;
-    } else {
-        enableExit();
-        return error(getErrorMessage(output), functionName = testFunction.name);
     }
+    enableExit();
+    return error(getErrorMessage(output), functionName = testFunction.name);
 }
 
 isolated function prepareDataSet(DataProviderReturnType? testFunctionArgs, string[] keys,
         AnyOrError[][] values) returns TestType {
     TestType testType = DATA_DRIVEN_MAP_OF_TUPLE;
     if testFunctionArgs is map<AnyOrError[]> {
-        foreach [string, AnyOrError[]] entry in testFunctionArgs.entries() {
-            keys.push(entry[0]);
-            values.push(entry[1]);
+        foreach [string, AnyOrError[]] [k, v] in testFunctionArgs.entries() {
+            keys.push(k);
+            values.push(v);
         }
     } else if testFunctionArgs is AnyOrError[][] {
         testType = DATA_DRIVEN_TUPLE_OF_TUPLE;
-        int i = 0;
-        foreach AnyOrError[] entry in testFunctionArgs {
-            keys.push(i.toString());
-            values.push(entry);
-            i += 1;
+        foreach AnyOrError[] [k, v] in testFunctionArgs.enumerate() {
+            keys.push(k.toBalString());
+            values.push(v);
         }
     }
     return testType;
@@ -338,13 +338,13 @@ isolated function prepareDataSet(DataProviderReturnType? testFunctionArgs, strin
 
 isolated function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType testType) returns boolean {
     string functionName = testFunction.name;
-    if (!testOptions.getHasFilteredTests()) {
+    if !testOptions.getHasFilteredTests() {
         return false;
     }
     TestFunction[] dependents = conMgr.getDependents(functionName);
 
     // if a dependent in a below level is enabled, this test should run
-    if (dependents.length() > 0 && nestedEnabledDependentsAvailable(dependents)) {
+    if dependents.length() > 0 && nestedEnabledDependentsAvailable(dependents) {
         return false;
     }
     string functionKey = functionName;
@@ -353,14 +353,14 @@ isolated function skipDataDrivenTest(TestFunction testFunction, string suffix, T
     boolean prefixMatch = testOptions.isFilterSubTestsContains(functionName);
 
     // if prefix matches to a wildcard
-    if (!prefixMatch && hasTest(functionName)) {
+    if !prefixMatch && hasTest(functionName) {
 
         // get the matching wildcard
         prefixMatch = true;
         foreach string filter in testOptions.getFilterTests() {
-            if (filter.includes(WILDCARD)) {
+            if filter.includes(WILDCARD) {
                 boolean|error wildCardMatch = matchWildcard(functionKey, filter);
-                if (wildCardMatch is boolean && wildCardMatch && matchModuleName(filter)) {
+                if wildCardMatch is boolean && wildCardMatch && matchModuleName(filter) {
                     functionKey = filter;
                     break;
                 }
@@ -372,12 +372,12 @@ isolated function skipDataDrivenTest(TestFunction testFunction, string suffix, T
     boolean suffixMatch = !testOptions.isFilterSubTestsContains(functionKey);
 
     // if a subtest is found specified
-    if (!suffixMatch) {
+    if !suffixMatch {
         string[] subTests = testOptions.getFilterSubTest(functionKey);
         foreach string subFilter in subTests {
             string updatedSubFilter = subFilter;
-            if (testType == DATA_DRIVEN_MAP_OF_TUPLE) {
-                if (subFilter.startsWith(SINGLE_QUOTE) && subFilter.endsWith(SINGLE_QUOTE)) {
+            if testType == DATA_DRIVEN_MAP_OF_TUPLE {
+                if subFilter.startsWith(SINGLE_QUOTE) && subFilter.endsWith(SINGLE_QUOTE) {
                     updatedSubFilter = subFilter.substring(1, subFilter.length() - 1);
                 }
             }
@@ -387,11 +387,11 @@ isolated function skipDataDrivenTest(TestFunction testFunction, string suffix, T
             string updatedSuffix = decodedSuffix is string ? decodedSuffix : suffix;
 
             boolean wildCardMatchBoolean = false;
-            if (updatedSubFilter.includes(WILDCARD)) {
+            if updatedSubFilter.includes(WILDCARD) {
                 boolean|error wildCardMatch = matchWildcard(updatedSuffix, updatedSubFilter);
                 wildCardMatchBoolean = wildCardMatch is boolean && wildCardMatch;
             }
-            if ((updatedSubFilter == updatedSuffix) || wildCardMatchBoolean) {
+            if (updatedSubFilter == updatedSuffix) || wildCardMatchBoolean {
                 suffixMatch = true;
                 break;
             }

@@ -7,7 +7,7 @@ Running Tests with Coverage
 
 	dataproviders
 
-testGetState:1 has failed
+testGetState:1 has failed.
 
 
 		Test execution time :*****ms
@@ -42,4 +42,4 @@ testGetState:1 has failed
 Generating Test Report
 	data-providers\target\report\test_results.json
 
-error: there are test failures
+error: there are test failures

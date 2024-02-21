@@ -24,7 +24,7 @@ function executeTest(TestFunction testFunction) {
 
     boolean shouldSkipDependents = false;
     if !isSkipFunction(testFunction) {
-        if (isDataDrivenTest(dataDrivenTestParams[testFunction.name])) {
+        if isDataDrivenTest(dataDrivenTestParams[testFunction.name]) {
             executeDataDrivenTestSet(testFunction);
         } else {
             shouldSkipDependents = executeNonDataDrivenTest(testFunction);
@@ -104,7 +104,7 @@ function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrError
         reportData.onSkipped(name = testFunction.name, testType = getTestType(dataDrivenTestParams[testFunction.name]));
     } else {
         executeDataDrivenTest(testFunction, key, testType, value);
-        var _ = executeAfterFunction(testFunction);
+        _ = executeAfterFunction(testFunction);
     }
 }
 

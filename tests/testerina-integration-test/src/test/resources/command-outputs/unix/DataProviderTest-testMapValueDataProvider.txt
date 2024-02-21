@@ -7,7 +7,7 @@ Running Tests with Coverage
 
 	dataproviders
 
-testGetState:1 has failed
+testGetState:1 has failed.
 
 
 		Test execution time :*****ms

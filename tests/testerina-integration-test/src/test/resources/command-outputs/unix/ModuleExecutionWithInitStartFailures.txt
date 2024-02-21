@@ -17,7 +17,7 @@ error: Error from start of moduleC
 
 	moduleExecutionInitStartFailure.moduleB
 
-test2: has failed
+test2: has failed.
 
 
 		Test execution time :*****ms

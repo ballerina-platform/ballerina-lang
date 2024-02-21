@@ -7,10 +7,10 @@ Running Tests with Coverage
 
 	dataproviders
 
-intDataProviderTest:Case1 has failed
+intDataProviderTest:Case1 has failed.
 
 
-intDataProviderTest:Case2 has failed
+intDataProviderTest:Case2 has failed.
 
 
 		Test execution time :*****ms

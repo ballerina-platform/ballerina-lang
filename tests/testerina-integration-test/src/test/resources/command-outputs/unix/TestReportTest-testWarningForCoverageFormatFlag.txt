@@ -7,7 +7,7 @@ Running Tests
 
 	foo
 
-testMain: has failed
+testMain: has failed.
 
 
 		Test execution time :*****ms

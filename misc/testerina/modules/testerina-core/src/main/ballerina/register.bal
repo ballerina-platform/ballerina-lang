@@ -15,15 +15,15 @@
 // under the License.
 import ballerina/lang.array;
 
-isolated final TestRegistry testRegistry = new;
-isolated final TestRegistry beforeSuiteRegistry = new;
-isolated final TestRegistry afterSuiteRegistry = new;
-isolated final TestRegistry beforeEachRegistry = new;
-isolated final TestRegistry afterEachRegistry = new;
+final TestRegistry testRegistry = new;
+final TestRegistry beforeSuiteRegistry = new;
+final TestRegistry afterSuiteRegistry = new;
+final TestRegistry beforeEachRegistry = new;
+final TestRegistry afterEachRegistry = new;
 
-isolated final GroupRegistry beforeGroupsRegistry = new;
-isolated final GroupRegistry afterGroupsRegistry = new;
-isolated final GroupStatusRegistry groupStatusRegistry = new;
+final GroupRegistry beforeGroupsRegistry = new;
+final GroupRegistry afterGroupsRegistry = new;
+final GroupStatusRegistry groupStatusRegistry = new;
 
 type TestFunction record {|
     string name;

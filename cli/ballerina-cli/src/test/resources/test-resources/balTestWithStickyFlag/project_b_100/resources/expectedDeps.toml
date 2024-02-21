@@ -15,6 +15,26 @@ scope = "testOnly"
 
 [[package]]
 org = "ballerina"
+name = "lang.__internal"
+version = "0.0.0"
+scope = "testOnly"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.object"}
+]
+
+[[package]]
+org = "ballerina"
+name = "lang.array"
+version = "0.0.0"
+scope = "testOnly"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.__internal"}
+]
+
+[[package]]
+org = "ballerina"
 name = "lang.error"
 version = "0.0.0"
 scope = "testOnly"
@@ -24,12 +44,9 @@ dependencies = [
 
 [[package]]
 org = "ballerina"
-name = "lang.runtime"
+name = "lang.object"
 version = "0.0.0"
 scope = "testOnly"
-dependencies = [
-	{org = "ballerina", name = "jballerina.java"}
-]
 
 [[package]]
 org = "ballerina"
@@ -38,11 +55,12 @@ version = "0.0.0"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "lang.error"},
-	{org = "ballerina", name = "lang.runtime"}
+	{org = "ballerina", name = "lang.array"},
+	{org = "ballerina", name = "lang.error"}
 ]
 modules = [
-	{org = "ballerina", packageName = "test", moduleName = "test"}
+	{org = "ballerina", packageName = "test", moduleName = "test"},
+	{org = "ballerina", packageName = "test", moduleName = "test.test"}
 ]
 
 [[package]]

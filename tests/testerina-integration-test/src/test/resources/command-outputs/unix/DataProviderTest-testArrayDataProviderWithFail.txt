@@ -7,10 +7,10 @@ Running Tests with Coverage
 
 	dataproviders
 
-intArrayDataProviderTest:0 has failed
+intArrayDataProviderTest:0 has failed.
 
 
-intArrayDataProviderTest:1 has failed
+intArrayDataProviderTest:1 has failed.
 
 
 		Test execution time :*****ms

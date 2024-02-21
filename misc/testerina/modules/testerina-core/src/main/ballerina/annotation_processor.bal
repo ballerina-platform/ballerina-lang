@@ -227,13 +227,13 @@ isolated function hasTest(string name) returns boolean {
         int? testIndex = testOptions.getFilterTestIndex(testName);
         if testIndex == () {
             foreach string filter in testOptions.getFilterTests() {
-                if (filter.includes(WILDCARD)) {
+                if filter.includes(WILDCARD) {
                     boolean|error wildCardMatch = matchWildcard(testName, filter);
                     return (wildCardMatch is boolean && wildCardMatch && matchModuleName(filter));
                 }
             }
             return false;
-        } else if (matchModuleName(testName)) {
+        } else if matchModuleName(testName) {
             return true;
         }
         return false;

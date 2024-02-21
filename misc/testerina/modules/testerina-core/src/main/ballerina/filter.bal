@@ -18,9 +18,8 @@ string[] filterGroups = [];
 string[] filterDisableGroups = [];
 boolean terminate = false;
 boolean listGroups = false;
-isolated final TestOptions testOptions = new ();
+final TestOptions testOptions = new ();
 
-//TODO: remove public and see effect
 public function setTestOptions(string inTargetPath, string inPackageName, string inModuleName, string inReport,
         string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed,
         string inListGroups, string inIsParallelExecution) {
@@ -61,16 +60,16 @@ function filterKeyBasedTests(string packageName, string moduleName, string[] tes
     foreach string testName in tests {
         string updatedName = testName;
         string? prefix = ();
-        if (containsModulePrefix(packageName, moduleName, testName)) {
+        if containsModulePrefix(packageName, moduleName, testName) {
             int separatorIndex = <int>updatedName.indexOf(MODULE_SEPARATOR);
             prefix = updatedName.substring(0, separatorIndex);
             updatedName = updatedName.substring(separatorIndex + 1);
         }
-        if (containsDataKeySuffix(updatedName)) {
+        if containsDataKeySuffix(updatedName) {
             int separatorIndex = <int>updatedName.indexOf(DATA_KEY_SEPARATOR);
             string suffix = updatedName.substring(separatorIndex + 1);
             string testPart = updatedName.substring(0, separatorIndex);
-            if (testOptions.isFilterSubTestsContains(updatedName) && testOptions.getFilterSubTest(updatedName) is string[]) {
+            if testOptions.isFilterSubTestsContains(updatedName) && testOptions.getFilterSubTest(updatedName) is string[] {
                 string[] subTestList = <string[]>testOptions.getFilterSubTest(testPart);
                 subTestList.push(suffix);
                 testOptions.addFilterSubTest(testPart, subTestList);
@@ -138,15 +137,15 @@ isolated function readRerunJson() returns map<ModuleRerunJson>|error {
 }
 
 function containsModulePrefix(string packageName, string moduleName, string testName) returns boolean {
-    if (containsAPrefix(testName)) {
+    if containsAPrefix(testName) {
         return isPrefixInCorrectFormat(packageName, moduleName, testName);
     }
     return false;
 }
 
 function containsAPrefix(string testName) returns boolean {
-    if (testName.includes(MODULE_SEPARATOR)) {
-        if (containsDataKeySuffix(testName)) {
+    if testName.includes(MODULE_SEPARATOR) {
+        if containsDataKeySuffix(testName) {
             return testName.indexOf(MODULE_SEPARATOR) < testName.indexOf(DATA_KEY_SEPARATOR);
         }
         return true;

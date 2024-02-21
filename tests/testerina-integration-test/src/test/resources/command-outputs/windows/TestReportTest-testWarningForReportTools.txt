@@ -6,7 +6,7 @@ Running Tests with Coverage
 
 	foo
 
-testMain: has failed
+testMain: has failed.
 
 
 		Test execution time :*****ms
@@ -53,4 +53,4 @@ testMain: has failed
 Generating Test Report*****project-based-tests\test-report-tests\target\report\test_results.json
 
 warning: Could not find the required HTML report tools for code coverage at <ballerina.home>\lib\tools\coverage\report.zip
-error: there are test failures
+error: there are test failures

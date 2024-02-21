@@ -21,7 +21,7 @@ const string TESTS_CACHE_DIRECTORY = "tests_cache";
 
 type ReportGenerate function (ReportData data);
 
-isolated final ReportData reportData = new ();
+final ReportData reportData = new ();
 
 ReportGenerate[] reportGenerators = [consoleReport, failedTestsReport];
 
@@ -139,7 +139,7 @@ isolated class ReportData {
 }
 
 isolated function consoleReport(ReportData data) {
-    if (!isSystemConsole()) {
+    if !isSystemConsole() {
         data.passedCases().forEach(isolated function(ResultData entrydata) {
             Result entry = new (entrydata);
             println("\t\t[pass] " + entry.fullName());
@@ -155,7 +155,7 @@ isolated function consoleReport(ReportData data) {
     int totalTestCount = data.passedCount() + data.failedCount() + data.skippedCount();
 
     println("\n");
-    if (totalTestCount == 0) {
+    if totalTestCount == 0 {
         println("\t\tNo tests found");
     } else {
         println("\t\t" + data.passedCount().toString() + " passing");
@@ -187,8 +187,8 @@ isolated function failedTestsReport(ReportData data) {
             SINGLE_QUOTE + result.testSuffix() + SINGLE_QUOTE : result.testSuffix();
         testNames.push(testPrefix);
         testModuleNames[testPrefix] = testOptions.getModuleName();
-        if (result.isDataProvider()) {
-            if (subTestNames.hasKey(testPrefix) && subTestNames[testPrefix] is string[]) {
+        if result.isDataProvider() {
+            if subTestNames.hasKey(testPrefix) && subTestNames[testPrefix] is string[] {
                 string[] subTestList = <string[]>subTestNames[testPrefix];
                 subTestList.push(testSuffix);
             } else {
