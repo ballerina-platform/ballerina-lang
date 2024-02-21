@@ -708,7 +708,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, constantSymbol.flags, Names.EMPTY,
                                                                 constantSymbol.pkgID, null, constantSymbol.owner,
                                                                 constantSymbol.pos, VIRTUAL);
-        return new BFiniteType(finiteTypeSymbol, SemTypeResolver.resolveSingletonType(literal));
+        return BFiniteType.newSingletonBFiniteType(finiteTypeSymbol, SemTypeResolver.resolveSingletonType(literal));
     }
 
     private BType checkType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, BType type,

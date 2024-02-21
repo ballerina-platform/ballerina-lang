@@ -113,6 +113,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -143,6 +144,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -1247,24 +1249,11 @@ public class BIRPackageSymbolEnter {
 
         public BType readType(int cpI) throws IOException {
             SemType semType = readSemType();
-            String userStrRep = readUserStrRep();
             BType bType = readTypeInternal(cpI);
             if (bType != null) {
                 bType.setSemType(semType);
-                bType.userStrRep = userStrRep;
             }
             return bType;
-        }
-
-        private String readUserStrRep() throws IOException {
-            boolean hasUserStrRep = inputStream.readBoolean();
-            String userStrRep;
-            if (hasUserStrRep) {
-                userStrRep = getStringCPEntryValue(inputStream);
-            } else {
-                userStrRep = null;
-            }
-            return userStrRep;
         }
 
         private BType readTypeInternal(int cpI) throws IOException {
@@ -1653,11 +1642,11 @@ public class BIRPackageSymbolEnter {
                                                                   COMPILED_SOURCE);
                     symbol.scope = new Scope(symbol);
                     int valueSpaceLength = inputStream.readInt();
-                    SemType[] vs = new SemType[valueSpaceLength];
+                    SemNamedType[] valueSpace = new SemNamedType[valueSpaceLength];
                     for (int i = 0; i < valueSpaceLength; i++) {
-                        vs[i] = readSemType();
+                        valueSpace[i] = readSemNamedType();
                     }
-                    BFiniteType finiteType = new BFiniteType(symbol, null, null, vs);
+                    BFiniteType finiteType = new BFiniteType(symbol, valueSpace);
                     finiteType.flags = flags;
                     symbol.type = finiteType;
                     return finiteType;
@@ -1875,6 +1864,21 @@ public class BIRPackageSymbolEnter {
             objectSymbol.referencedFunctions.add(attachedFunction);
             objectSymbol.attachedFuncs.add(attachedFunction);
             objectSymbol.scope.define(funcName, attachedFuncSymbol);
+        }
+
+        private Optional<String> readNullableString() throws IOException {
+            boolean hasNonNullString = inputStream.readBoolean();
+            if (hasNonNullString) {
+                return Optional.of(getStringCPEntryValue(inputStream));
+            } else {
+                return Optional.empty();
+            }
+        }
+
+        private SemNamedType readSemNamedType() throws IOException {
+            SemType semType = readSemType();
+            Optional<String> optName = readNullableString();
+            return new SemNamedType(semType, optName);
         }
 
         // --------------------------------------- Read SemType ----------------------------------------------

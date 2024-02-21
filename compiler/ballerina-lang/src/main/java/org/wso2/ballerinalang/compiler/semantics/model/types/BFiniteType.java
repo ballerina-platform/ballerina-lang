@@ -18,31 +18,35 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Core;
-import io.ballerina.types.EnumerableCharString;
-import io.ballerina.types.EnumerableDecimal;
-import io.ballerina.types.EnumerableFloat;
-import io.ballerina.types.EnumerableString;
-import io.ballerina.types.EnumerableType;
+import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
-import io.ballerina.types.SubtypeData;
-import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BooleanSubtype;
-import io.ballerina.types.subtypedata.CharStringSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
-import io.ballerina.types.subtypedata.NonCharStringSubtype;
-import io.ballerina.types.subtypedata.Range;
 import io.ballerina.types.subtypedata.StringSubtype;
 import org.ballerinalang.model.types.ReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.StringJoiner;
+
+import static io.ballerina.types.Core.getComplexSubtypeData;
+import static io.ballerina.types.Core.singleShape;
+import static io.ballerina.types.SemTypes.isSubtypeSimple;
+import static io.ballerina.types.UniformTypeCode.UT_BOOLEAN;
+import static io.ballerina.types.UniformTypeCode.UT_DECIMAL;
+import static io.ballerina.types.UniformTypeCode.UT_FLOAT;
+import static io.ballerina.types.UniformTypeCode.UT_INT;
+import static io.ballerina.types.UniformTypeCode.UT_STRING;
 
 /**
  * {@code BFiniteType} represents the finite type in Ballerina.
@@ -50,22 +54,49 @@ import java.util.StringJoiner;
  */
 public class BFiniteType extends BType implements ReferenceType {
 
-    public SemType[] valueSpace;
+    public SemNamedType[] valueSpace;
 
-    @Deprecated
-    public BFiniteType(BTypeSymbol tsymbol, SemType semType) { // TODO: Get rid of this constructor
-        this(tsymbol, semType, null, new SemType[]{semType});
-    }
-
-    public BFiniteType(BTypeSymbol tsymbol, SemType semType, String userStrRep, SemType[] valueSpace) {
-        super(TypeTags.FINITE, tsymbol, semType, userStrRep);
+    public BFiniteType(BTypeSymbol tsymbol, SemNamedType[] valueSpace) {
+        super(TypeTags.FINITE, tsymbol);
         this.flags |= Flags.READONLY;
         this.valueSpace = valueSpace;
+        assert validValueSpace(valueSpace);
+    }
+
+    public static BFiniteType newSingletonBFiniteType(BTypeSymbol tsymbol, SemType singletonSemType) {
+        return new BFiniteType(tsymbol, new SemNamedType[]{
+                new SemNamedType(singletonSemType, Optional.empty())
+        });
+    }
+
+    private boolean validValueSpace(SemNamedType[] valueSpace) {
+        for (SemNamedType semNamedType : valueSpace) {
+            if (singleShape(semNamedType.semType()).isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public TypeKind getKind() {
         return TypeKind.FINITE;
+    }
+
+    @Override
+    public SemType getSemType() {
+        if (this.semType == null) {
+            this.semType = computeResultantSemType(valueSpace);
+        }
+        return this.semType;
+    }
+
+    private SemType computeResultantSemType(SemNamedType[] valueSpace) {
+        SemType s = PredefinedType.NEVER;
+        for (SemNamedType semNamedType : valueSpace) {
+            s = Core.union(s, semNamedType.semType());
+        }
+        return s;
     }
 
     @Override
@@ -78,73 +109,40 @@ public class BFiniteType extends BType implements ReferenceType {
         return visitor.visit(this, t);
     }
 
-    public String toNormalizedString() {
+    @SuppressWarnings("OptionalGetWithoutIsPresent") // xxxSubtypeSingleValue() are guaranteed to have a value
+    @Override
+    public String toString() {
         StringJoiner joiner = new StringJoiner("|");
-        for (SemType t : this.valueSpace) {
-            if (Core.containsNil(t)) {
-                joiner.add("()");
+        for (SemNamedType semNamedType : valueSpace) {
+            SemType semType = semNamedType.semType();
+            Optional<String> name = semNamedType.optName();
+
+            if (PredefinedType.NIL.equals(semType)) {
+                joiner.add(name.orElse(Names.NIL_VALUE.value));
+                continue;
             }
 
-            SubtypeData subtypeData = Core.booleanSubtype(t);
-            if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
-                if (allOrNothing.isAllSubtype()) {
-                    joiner.add("true");
-                    joiner.add("false");
-                }
+            ComplexSemType cs = (ComplexSemType) semType;
+            if (isSubtypeSimple(semType, PredefinedType.BOOLEAN)) {
+                boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, UT_BOOLEAN)).get();
+                joiner.add(name.orElse(boolVal ? "true" : "false"));
+            } else if (isSubtypeSimple(semType, PredefinedType.INT)) {
+                long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, UT_INT)).get();
+                joiner.add(name.orElse(Long.toString(longVal)));
+            } else if (isSubtypeSimple(semType, PredefinedType.FLOAT)) {
+                double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, UT_FLOAT)).get();
+                joiner.add((name.orElse(Double.toString(doubleVal))) + "f");
+            } else if (isSubtypeSimple(semType, PredefinedType.DECIMAL)) {
+                BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, UT_DECIMAL)).get();
+                joiner.add((name.orElse(bVal.toPlainString()) + "d"));
+            } else if (isSubtypeSimple(semType, PredefinedType.STRING)) {
+                String stringVal = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, UT_STRING)).get();
+                joiner.add("\"" + name.orElse(stringVal) + "\"");
             } else {
-                BooleanSubtype booleanSubtype = (BooleanSubtype) subtypeData;
-                joiner.add(booleanSubtype.value ? "true" : "false");
-            }
-
-            subtypeData = Core.intSubtype(t);
-            if (subtypeData instanceof IntSubtype intSubtype) {
-                for (Range range : intSubtype.ranges) {
-                    for (long i = range.min; i <= range.max; i++) {
-                        joiner.add(Long.toString(i));
-                        if (i == Long.MAX_VALUE) {
-                            // To avoid overflow
-                            break;
-                        }
-                    }
-                }
-            }
-
-            subtypeData = Core.floatSubtype(t);
-            if (subtypeData instanceof FloatSubtype floatSubtype) {
-                for (EnumerableType enumerableFloat : floatSubtype.values()) {
-                    joiner.add(((EnumerableFloat) enumerableFloat).value + "f");
-                }
-            }
-
-            subtypeData = Core.decimalSubtype(t);
-            if (subtypeData instanceof DecimalSubtype decimalSubtype) {
-                for (EnumerableType enumerableDecimal : decimalSubtype.values()) {
-                    joiner.add(((EnumerableDecimal) enumerableDecimal).value + "d");
-                }
-            }
-
-            subtypeData = Core.stringSubtype(t);
-            if (subtypeData instanceof StringSubtype stringSubtype) {
-                CharStringSubtype charStringSubtype = stringSubtype.getChar();
-                for (EnumerableType enumerableType : charStringSubtype.values()) {
-                    joiner.add("\"" + ((EnumerableCharString) enumerableType).value + "\"");
-                }
-
-                NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
-                for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
-                    joiner.add("\"" + ((EnumerableString) enumerableType).value + "\"");
-                }
+                throw new IllegalStateException("Unexpected value space type: " + cs.toString());
             }
         }
 
         return joiner.toString();
-    }
-
-    @Override
-    public String toString() {
-        if (this.userStrRep != null) {
-            return userStrRep;
-        }
-        return toNormalizedString();
     }
 }

@@ -85,6 +85,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -4094,12 +4095,18 @@ public class Types {
      * @return a new finite type if at least one value in the value space of the specified finiteType is
      * assignable to targetType (the same if all are assignable), else semanticError
      */
-    Optional<BType> getFiniteTypeForAssignableValues(BType finiteType, BType targetType) {
-        assert finiteType.tag == TypeTags.FINITE;
-        SemType intersectingSemType = Core.intersect(finiteType.getSemType(),
-                SemTypeResolver.getSemTypeComponent(targetType));
+    private Optional<BType> getFiniteTypeForAssignableValues(BType finiteType, BType targetType) {
+        BFiniteType bFiniteType = (BFiniteType) finiteType;
+        List<SemNamedType> newValueSpace = new ArrayList<>(bFiniteType.valueSpace.length);
 
-        if (PredefinedType.NEVER.equals(intersectingSemType)) {
+        SemType targetSemType = SemTypeResolver.getSemTypeComponent(targetType);
+        for (SemNamedType semNamedType : bFiniteType.valueSpace) {
+            if (SemTypes.isSubtype(semTypeCtx, semNamedType.semType(), targetSemType)) {
+                newValueSpace.add(semNamedType);
+            }
+        }
+
+        if (newValueSpace.isEmpty()) {
             return Optional.empty();
         }
 
@@ -4109,9 +4116,9 @@ public class Types {
                 finiteType.tsymbol.pkgID, null,
                 finiteType.tsymbol.owner, finiteType.tsymbol.pos,
                 VIRTUAL);
-        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, intersectingSemType);
-        finiteTypeSymbol.type = intersectingFiniteType;
-        return Optional.of(intersectingFiniteType);
+        BFiniteType ft = new BFiniteType(finiteTypeSymbol, newValueSpace.toArray(SemNamedType[]::new));
+        finiteTypeSymbol.type = ft;
+        return Optional.of(ft);
     }
 
     /**
@@ -5669,15 +5676,20 @@ public class Types {
     }
 
     private BType getRemainingType(BFiniteType originalType, List<BType> removeTypes) {
-        SemType originalSemType = originalType.getSemType();
         SemType removeSemType = PredefinedType.NEVER;
         for (BType removeType : removeTypes) {
             SemType semTypeToRemove = SemTypeResolver.getSemTypeComponent(removeType);
             removeSemType = Core.union(removeSemType, semTypeToRemove);
         }
 
-        SemType diffSemType = Core.diff(originalSemType, removeSemType);
-        if (Core.isEmpty(semTypeCtx, diffSemType)) {
+        List<SemNamedType> newValueSpace = new ArrayList<>();
+        for (SemNamedType semNamedType : originalType.valueSpace) {
+            if (!SemTypes.isSubtype(semTypeCtx, semNamedType.semType(), removeSemType)) {
+                newValueSpace.add(semNamedType);
+            }
+        }
+
+        if (newValueSpace.isEmpty()) {
             return symTable.semanticError;
         }
 
@@ -5686,9 +5698,9 @@ public class Types {
                 originalType.tsymbol.pkgID, null,
                 originalType.tsymbol.owner, originalType.tsymbol.pos,
                 VIRTUAL);
-        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, diffSemType);
-        finiteTypeSymbol.type = intersectingFiniteType;
-        return intersectingFiniteType;
+        BFiniteType ft = new BFiniteType(finiteTypeSymbol, newValueSpace.toArray(SemNamedType[]::new));
+        finiteTypeSymbol.type = ft;
+        return ft;
     }
 
     public BType getSafeType(BType bType, boolean liftNil, boolean liftError) {

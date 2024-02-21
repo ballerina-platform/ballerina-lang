@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -817,7 +818,7 @@ public class SemTypeResolver {
         type.setSemTypeComponent(semType);
     }
 
-    public static SemType getSemTypeComponent(BType t) {
+    public static SemType getSemTypeComponent(BType t) { // TODO: refactor
         if (t == null) {
             return PredefinedType.NEVER;
         }
@@ -995,7 +996,8 @@ public class SemTypeResolver {
 
     public static Set<BType> singletonBroadTypes(BFiniteType finiteType, SymbolTable symTable) {
         Set<BType> types = new LinkedHashSet<>(7);
-        for (SemType t: finiteType.valueSpace) {
+        for (SemNamedType semNamedType: finiteType.valueSpace) {
+            SemType t = semNamedType.semType();
             UniformTypeBitSet uniformTypeBitSet = widenToBasicTypes(t);
             if ((uniformTypeBitSet.bitset & PredefinedType.NIL.bitset) != 0) {
                 types.add(symTable.nilType);

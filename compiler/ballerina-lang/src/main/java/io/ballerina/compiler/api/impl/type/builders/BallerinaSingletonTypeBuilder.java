@@ -76,7 +76,8 @@ public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
                 Names.fromString(value.toString()), symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol,
                 symTable.builtinPos, COMPILED_SOURCE);
 
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, SemTypeResolver.resolveSingletonType(valueLiteral));
+        BFiniteType finiteType = BFiniteType.newSingletonBFiniteType(finiteTypeSymbol,
+                SemTypeResolver.resolveSingletonType(valueLiteral));
         finiteTypeSymbol.type = finiteType;
         SingletonTypeSymbol singletonTypeSymbol = (SingletonTypeSymbol) typesFactory.getTypeDescriptor(finiteType,
                 finiteTypeSymbol, true);

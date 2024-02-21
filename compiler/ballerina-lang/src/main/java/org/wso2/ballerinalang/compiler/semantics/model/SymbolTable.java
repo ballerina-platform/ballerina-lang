@@ -303,12 +303,12 @@ public class SymbolTable {
         BTypeSymbol trueFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
                 Names.fromString("$anonType$TRUE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
                 this.builtinPos, VIRTUAL);
-        this.trueType = new BFiniteType(trueFiniteTypeSymbol, SemTypes.booleanConst(true));
+        this.trueType = BFiniteType.newSingletonBFiniteType(trueFiniteTypeSymbol, SemTypes.booleanConst(true));
 
         BTypeSymbol falseFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
                 Names.fromString("$anonType$FALSE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
                 this.builtinPos, VIRTUAL);
-        this.falseType = new BFiniteType(falseFiniteTypeSymbol, SemTypes.booleanConst(false));
+        this.falseType = BFiniteType.newSingletonBFiniteType(falseFiniteTypeSymbol, SemTypes.booleanConst(false));
 
         this.anyAndReadonly =
                 ImmutableTypeCloner.getImmutableIntersectionType(this.anyType, this, names, this.types,

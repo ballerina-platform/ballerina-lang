@@ -19,20 +19,13 @@ package io.ballerina.projects.internal.configschema;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import io.ballerina.types.Core;
-import io.ballerina.types.EnumerableCharString;
-import io.ballerina.types.EnumerableFloat;
-import io.ballerina.types.EnumerableString;
-import io.ballerina.types.EnumerableType;
+import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
-import io.ballerina.types.SubtypeData;
-import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BooleanSubtype;
-import io.ballerina.types.subtypedata.CharStringSubtype;
+import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
-import io.ballerina.types.subtypedata.NonCharStringSubtype;
-import io.ballerina.types.subtypedata.Range;
 import io.ballerina.types.subtypedata.StringSubtype;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -47,14 +40,23 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import static io.ballerina.types.Core.getComplexSubtypeData;
+import static io.ballerina.types.SemTypes.isSubtypeSimple;
+import static io.ballerina.types.UniformTypeCode.UT_BOOLEAN;
+import static io.ballerina.types.UniformTypeCode.UT_DECIMAL;
+import static io.ballerina.types.UniformTypeCode.UT_FLOAT;
+import static io.ballerina.types.UniformTypeCode.UT_INT;
+import static io.ballerina.types.UniformTypeCode.UT_STRING;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.DECIMAL;
@@ -281,53 +283,32 @@ public class TypeConverter {
      * @param finiteType BFiniteType to retrieve enum values from
      */
     private static void getEnumArray(JsonArray enumArray, BFiniteType finiteType) {
-        for (SemType t : finiteType.valueSpace) {
-            if (Core.containsNil(t)) {
+        // TODO: verify against BFiniteType.toString();
+        for (SemNamedType semNamedType : finiteType.valueSpace) {
+            SemType s = semNamedType.semType();
+            if (PredefinedType.NIL.equals(s)) {
                 enumArray.add("()");
+                continue;
             }
 
-            SubtypeData subtypeData = Core.booleanSubtype(t);
-            if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
-                if (allOrNothing.isAllSubtype()) {
-                    enumArray.add("true");
-                    enumArray.add("false");
-                }
+            ComplexSemType cs = (ComplexSemType) s;
+            if (isSubtypeSimple(s, PredefinedType.BOOLEAN)) {
+                boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, UT_BOOLEAN)).get();
+                enumArray.add(boolVal ? "true" : "false");
+            } else if (isSubtypeSimple(s, PredefinedType.INT)) {
+                long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, UT_INT)).get();
+                enumArray.add(longVal);
+            } else if (isSubtypeSimple(s, PredefinedType.FLOAT)) {
+                double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, UT_FLOAT)).get();
+                enumArray.add(doubleVal);
+            } else if (isSubtypeSimple(s, PredefinedType.DECIMAL)) {
+                BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, UT_DECIMAL)).get();
+                enumArray.add(bVal.toString());
+            } else if (isSubtypeSimple(s, PredefinedType.STRING)) {
+                String stringVal = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, UT_STRING)).get();
+                enumArray.add(stringVal);
             } else {
-                BooleanSubtype booleanSubtype = (BooleanSubtype) subtypeData;
-                enumArray.add(booleanSubtype.value ? "true" : "false");
-            }
-
-            subtypeData = Core.intSubtype(t);
-            if (subtypeData instanceof IntSubtype intSubtype) {
-                for (Range range : intSubtype.ranges) {
-                    for (long i = range.min; i <= range.max; i++) {
-                        enumArray.add(i);
-                        if (i == Long.MAX_VALUE) {
-                            // To avoid overflow
-                            break;
-                        }
-                    }
-                }
-            }
-
-            subtypeData = Core.floatSubtype(t);
-            if (subtypeData instanceof FloatSubtype floatSubtype) {
-                for (EnumerableType enumerableFloat : floatSubtype.values()) {
-                    enumArray.add(((EnumerableFloat) enumerableFloat).value);
-                }
-            }
-
-            subtypeData = Core.stringSubtype(t);
-            if (subtypeData instanceof StringSubtype stringSubtype) {
-                CharStringSubtype charStringSubtype = stringSubtype.getChar();
-                for (EnumerableType enumerableType : charStringSubtype.values()) {
-                    enumArray.add(((EnumerableCharString) enumerableType).value);
-                }
-
-                NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
-                for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
-                    enumArray.add(((EnumerableString) enumerableType).value);
-                }
+                throw new IllegalStateException("Unexpected value space type: " + s);
             }
         }
     }

@@ -27,6 +27,7 @@ import io.ballerina.types.EnumerableString;
 import io.ballerina.types.EnumerableType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformTypeBitSet;
 import io.ballerina.types.UniformTypeCode;
@@ -101,6 +102,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -202,6 +204,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -214,7 +217,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
-import java.util.StringJoiner;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -988,6 +990,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType getFiniteTypeWithValuesOfSingleType(BUnionType unionType, BType matchType) {
+        assert matchType.tag == TypeTags.BYTE || matchType.tag == TypeTags.INT ||
+                matchType.tag == TypeTags.FLOAT || matchType.tag == TypeTags.DECIMAL;
+
         List<BFiniteType> finiteTypeMembers = types.getAllTypes(unionType, true).stream()
                 .filter(memType -> Types.getImpliedType(memType).tag == TypeTags.FINITE)
                 .map(memFiniteType -> (BFiniteType) memFiniteType)
@@ -997,18 +1002,20 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return symTable.semanticError;
         }
 
-        SemType t = PredefinedType.NEVER;
+        List<SemNamedType> newValueSpace = new ArrayList<>();
         for (BFiniteType finiteType : finiteTypeMembers) {
-            t = Core.union(t, finiteType.getSemType());
+            for (SemNamedType semNamedType : finiteType.valueSpace) {
+                if (SemTypes.isSubtype(types.semTypeCtx, semNamedType.semType(), matchType.getSemType())) {
+                    newValueSpace.add(semNamedType);
+                }
+            }
         }
 
-        SemType matchSemType = SemTypeResolver.getSemTypeComponent(matchType);
-        SemType intersection = Core.intersect(t, matchSemType);
-        if (PredefinedType.NEVER.equals(intersection)) {
+        if (newValueSpace.isEmpty()) {
             return symTable.semanticError;
         }
 
-        return new BFiniteType(null, intersection);
+        return new BFiniteType(null, newValueSpace.toArray(SemNamedType[]::new));
     }
 
     private BType getIntLiteralType(BType expType, Object literalValue, AnalyzerData data) {
@@ -5343,7 +5350,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
                 0, Names.EMPTY, data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
                 unaryExpr.pos, SOURCE);
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol,
+        BFiniteType finiteType = BFiniteType.newSingletonBFiniteType(finiteTypeSymbol,
                 SemTypeResolver.resolveSingletonType(newNumericLiteral));
         finiteTypeSymbol.type = finiteType;
 
@@ -8757,18 +8764,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
                 }
                 if (!finiteTypes.isEmpty()) {
-                    SemType[] valueSpace = new SemType[finiteTypes.size()];
-                    SemType t2 = PredefinedType.NEVER;
-                    StringJoiner stringJoiner = new StringJoiner("|");
-                    for (int i = 0; i < finiteTypes.size(); i++) {
-                        BFiniteType finiteType = finiteTypes.get(i);
-                        SemType semType = finiteType.getSemType();
-                        valueSpace[i] = semType;
-                        t2 = Core.union(t2, semType);
-                        stringJoiner.add(finiteType.toString());
+                    List<SemNamedType> newValueSpace = new ArrayList<>();
+                    for (BFiniteType ft : finiteTypes) {
+                        newValueSpace.addAll(Arrays.asList(ft.valueSpace));
                     }
 
-                    BFiniteType finiteType = new BFiniteType(null, t2, stringJoiner.toString(), valueSpace);
+                    BFiniteType finiteType = new BFiniteType(null, newValueSpace.toArray(SemNamedType[]::new));
                     BType possibleType = checkArrayIndexBasedAccess(indexBasedAccess, finiteType, arrayType);
                     if (possibleType == symTable.semanticError) {
                         return symTable.semanticError;
@@ -8870,18 +8871,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 });
 
                 if (!finiteTypes.isEmpty()) {
-                    SemType[] valueSpace = new SemType[finiteTypes.size()];
-                    SemType t2 = PredefinedType.NEVER;
-                    StringJoiner stringJoiner = new StringJoiner("|");
-                    for (int i = 0; i < finiteTypes.size(); i++) {
-                        BFiniteType finiteType = finiteTypes.get(i);
-                        SemType semType = finiteType.getSemType();
-                        valueSpace[i] = semType;
-                        t2 = Core.union(t2, semType);
-                        stringJoiner.add(finiteType.toString());
+                    List<SemNamedType> newValueSpace = new ArrayList<>();
+                    for (BFiniteType ft : finiteTypes) {
+                        newValueSpace.addAll(Arrays.asList(ft.valueSpace));
                     }
 
-                    BFiniteType finiteType = new BFiniteType(null, t2, stringJoiner.toString(), valueSpace);
+                    BFiniteType finiteType = new BFiniteType(null, newValueSpace.toArray(SemNamedType[]::new));
                     BType possibleType = checkTupleIndexBasedAccess(accessExpr, tuple, finiteType);
                     if (possibleType.tag == TypeTags.UNION) {
                         possibleTypesByMember.addAll(((BUnionType) possibleType).getMemberTypes());
@@ -9066,18 +9061,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 });
 
                 if (!finiteTypes.isEmpty()) {
-                    SemType[] valueSpace = new SemType[finiteTypes.size()];
-                    SemType t2 = PredefinedType.NEVER;
-                    StringJoiner stringJoiner = new StringJoiner("|");
-                    for (int i = 0; i < finiteTypes.size(); i++) {
-                        BFiniteType finiteType = finiteTypes.get(i);
-                        SemType semType = finiteType.getSemType();
-                        valueSpace[i] = semType;
-                        t2 = Core.union(t2, finiteType.getSemType());
-                        stringJoiner.add(finiteType.toString());
+                    List<SemNamedType> newValueSpace = new ArrayList<>();
+                    for (BFiniteType ft : finiteTypes) {
+                        newValueSpace.addAll(Arrays.asList(ft.valueSpace));
                     }
 
-                    BFiniteType finiteType = new BFiniteType(null, t2, stringJoiner.toString(), valueSpace);
+                    BFiniteType finiteType = new BFiniteType(null, newValueSpace.toArray(SemNamedType[]::new));
                     BType possibleType = checkRecordIndexBasedAccess(accessExpr, record, finiteType, data);
                     if (possibleType.tag == TypeTags.UNION) {
                         possibleTypesByMember.addAll(((BUnionType) possibleType).getMemberTypes());
@@ -9591,15 +9580,22 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private LinkedHashSet<BType> getTypeWithoutNilForNonAnyTypeWithNil(BType type) {
         BType referredType = Types.getImpliedType(type);
         if (referredType.tag == TypeTags.FINITE) {
-            SemType semType = referredType.getSemType();
-            SemType diff = Core.diff(semType, PredefinedType.NIL);
+            BFiniteType finiteType = (BFiniteType) referredType;
+            List<SemNamedType> newValueSpace = new ArrayList<>(finiteType.valueSpace.length);
+            for (SemNamedType semNamedType : finiteType.valueSpace) {
+                if (!PredefinedType.NIL.equals(semNamedType.semType())) {
+                    newValueSpace.add(semNamedType);;
+                }
+            }
 
-            if (Core.isEmpty(types.semTypeCtx, diff)) {
+            if (newValueSpace.isEmpty()) {
                 return new LinkedHashSet<>(0);
             }
 
-            BFiniteType finiteType = new BFiniteType(null, diff, null, new SemType[]{diff});
-            return new LinkedHashSet<>(1) {{ add(finiteType); }};
+            BFiniteType ft = new BFiniteType(null, newValueSpace.toArray(SemNamedType[]::new));
+            return new LinkedHashSet<>(1) {{
+                add(ft);
+            }};
         }
 
         BUnionType unionType = (BUnionType) referredType;

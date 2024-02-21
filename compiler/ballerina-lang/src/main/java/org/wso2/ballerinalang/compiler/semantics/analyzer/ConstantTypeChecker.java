@@ -1937,7 +1937,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             case TypeTags.BOOLEAN:
                 BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, constantSymbol.flags,
                         Names.EMPTY, constantSymbol.pkgID, null, constantSymbol.owner, constantSymbol.pos, VIRTUAL);
-                return new BFiniteType(finiteTypeSymbol, SemTypeResolver.resolveSingletonType(value, type.getKind()));
+                return BFiniteType.newSingletonBFiniteType(finiteTypeSymbol,
+                        SemTypeResolver.resolveSingletonType(value, type.getKind()));
             default:
                 return type;
         }
@@ -2425,28 +2426,37 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             }
 
             BConstantSymbol constantSymbol = data.constantSymbol;
-            BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, constantSymbol.flags,
+            BTypeSymbol finiteTypeSym = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, constantSymbol.flags,
                     Names.EMPTY, constantSymbol.pkgID, null, constantSymbol.owner, constantSymbol.pos, VIRTUAL);
 
             BType refType = Types.getImpliedType(type);
             switch (refType.tag) {
-                case TypeTags.BOOLEAN -> {
+                case TypeTags.BOOLEAN:
                     data.resultType = symTable.falseType;
-                }
-                case TypeTags.INT, TypeTags.SIGNED8_INT, TypeTags.SIGNED16_INT, TypeTags.SIGNED32_INT,
-                        TypeTags.UNSIGNED8_INT, TypeTags.UNSIGNED16_INT, TypeTags.UNSIGNED32_INT, TypeTags.BYTE -> {
-                    data.resultType = new BFiniteType(finiteTypeSymbol, SemTypes.intConst(0));
-                }
-                case TypeTags.FLOAT -> {
-                    data.resultType = new BFiniteType(finiteTypeSymbol, SemTypes.floatConst(0));
-                }
-                case TypeTags.DECIMAL -> {
-                    data.resultType = new BFiniteType(finiteTypeSymbol, SemTypes.decimalConst("0"));
-                }
-                case TypeTags.STRING, TypeTags.CHAR_STRING -> {
-                    data.resultType = new BFiniteType(finiteTypeSymbol, SemTypes.stringConst(""));
-                }
-                default -> data.resultType = symTable.semanticError;
+                    break;
+                case TypeTags.INT:
+                case TypeTags.SIGNED8_INT:
+                case TypeTags.SIGNED16_INT:
+                case TypeTags.SIGNED32_INT:
+                case TypeTags.UNSIGNED8_INT:
+                case TypeTags.UNSIGNED16_INT:
+                case TypeTags.UNSIGNED32_INT:
+                case TypeTags.BYTE:
+                    data.resultType = BFiniteType.newSingletonBFiniteType(finiteTypeSym, SemTypes.intConst(0));
+                    break;
+                case TypeTags.FLOAT:
+                    data.resultType = BFiniteType.newSingletonBFiniteType(finiteTypeSym, SemTypes.floatConst(0));
+                    break;
+                case TypeTags.DECIMAL:
+                    data.resultType = BFiniteType.newSingletonBFiniteType(finiteTypeSym, SemTypes.decimalConst("0"));
+                    break;
+                case TypeTags.STRING:
+                case TypeTags.CHAR_STRING:
+                    data.resultType = BFiniteType.newSingletonBFiniteType(finiteTypeSym, SemTypes.stringConst(""));
+                    break;
+                default:
+                    data.resultType = symTable.semanticError;
+                    break;
             }
         }
 

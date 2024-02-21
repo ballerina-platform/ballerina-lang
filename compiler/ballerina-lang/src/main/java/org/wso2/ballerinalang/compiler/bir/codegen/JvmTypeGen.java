@@ -18,22 +18,13 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
-import io.ballerina.types.Core;
-import io.ballerina.types.EnumerableCharString;
-import io.ballerina.types.EnumerableDecimal;
-import io.ballerina.types.EnumerableFloat;
-import io.ballerina.types.EnumerableString;
-import io.ballerina.types.EnumerableType;
+import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
-import io.ballerina.types.SubtypeData;
-import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BooleanSubtype;
-import io.ballerina.types.subtypedata.CharStringSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
-import io.ballerina.types.subtypedata.NonCharStringSubtype;
-import io.ballerina.types.subtypedata.Range;
 import io.ballerina.types.subtypedata.StringSubtype;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -70,14 +61,23 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static io.ballerina.types.Core.getComplexSubtypeData;
+import static io.ballerina.types.SemTypes.isSubtypeSimple;
+import static io.ballerina.types.UniformTypeCode.UT_BOOLEAN;
+import static io.ballerina.types.UniformTypeCode.UT_DECIMAL;
+import static io.ballerina.types.UniformTypeCode.UT_FLOAT;
+import static io.ballerina.types.UniformTypeCode.UT_INT;
+import static io.ballerina.types.UniformTypeCode.UT_STRING;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -1115,6 +1115,7 @@ public class JvmTypeGen {
         }
     }
 
+    @SuppressWarnings("OptionalGetWithoutIsPresent") // xxxSubtypeSingleValue() are guaranteed to have a value
     private void loadFiniteType(MethodVisitor mv, BFiniteType finiteType) {
 
         mv.visitTypeInsn(NEW, FINITE_TYPE_IMPL);
@@ -1130,64 +1131,35 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
 
-        for (SemType semType : finiteType.valueSpace) {
-            if (Core.containsNil(semType)) {
+        for (SemNamedType semNamedType : finiteType.valueSpace) {
+            SemType s = semNamedType.semType();
+            if (PredefinedType.NIL.equals(s)) {
                 loadNilValue(mv);
+                continue;
             }
 
-            SubtypeData subtypeData = Core.booleanSubtype(semType);
-            if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
-                if (allOrNothing.isAllSubtype()) {
-                    loadBooleanValue(mv, true);
-                    loadBooleanValue(mv, false);
+            ComplexSemType cs = (ComplexSemType) s;
+            if (isSubtypeSimple(s, PredefinedType.BOOLEAN)) {
+                boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, UT_BOOLEAN)).get();
+                loadBooleanValue(mv, boolVal);
+            } else if (isSubtypeSimple(s, PredefinedType.INT)) {
+                long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, UT_INT)).get();
+                if (0 <= longVal && longVal <= 255) {
+                    loadByteValue(mv, (int) longVal);
+                } else {
+                    loadIntValue(mv, longVal);
                 }
+            } else if (isSubtypeSimple(s, PredefinedType.FLOAT)) {
+                double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, UT_FLOAT)).get();
+                loadFloatValue(mv, doubleVal);
+            } else if (isSubtypeSimple(s, PredefinedType.DECIMAL)) {
+                BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, UT_DECIMAL)).get();
+                loadDecimalValue(mv, bVal);
+            } else if (isSubtypeSimple(s, PredefinedType.STRING)) {
+                String stringVal = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, UT_STRING)).get();
+                loadStringValue(mv, stringVal);
             } else {
-                BooleanSubtype booleanSubtype = (BooleanSubtype) subtypeData;
-                loadBooleanValue(mv, booleanSubtype.value);
-            }
-
-            subtypeData = Core.intSubtype(semType);
-            if (subtypeData instanceof IntSubtype intSubtype) {
-                for (Range range : intSubtype.ranges) {
-                    for (long i = range.min; i <= range.max; i++) {
-                        if (0 <= i && i <= 255) {
-                            loadByteValue(mv, (int) i);
-                        } else {
-                            loadIntValue(mv, i);
-                        }
-                        if (i == Long.MAX_VALUE) {
-                            // To avoid overflow
-                            break;
-                        }
-                    }
-                }
-            }
-
-            subtypeData = Core.floatSubtype(semType);
-            if (subtypeData instanceof FloatSubtype floatSubtype) {
-                for (EnumerableType enumerableFloat : floatSubtype.values()) {
-                    loadFloatValue(mv, (EnumerableFloat) enumerableFloat);
-                }
-            }
-
-            subtypeData = Core.decimalSubtype(semType);
-            if (subtypeData instanceof DecimalSubtype decimalSubtype) {
-                for (EnumerableType enumerableDecimal : decimalSubtype.values()) {
-                    loadDecimalValue(mv, (EnumerableDecimal) enumerableDecimal);
-                }
-            }
-
-            subtypeData = Core.stringSubtype(semType);
-            if (subtypeData instanceof StringSubtype stringSubtype) {
-                CharStringSubtype charStringSubtype = stringSubtype.getChar();
-                for (EnumerableType enumerableType : charStringSubtype.values()) {
-                    loadStringValue(mv, enumerableType);
-                }
-
-                NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
-                for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
-                    loadStringValue(mv, enumerableType);
-                }
+                throw new IllegalStateException("Unexpected value space type: " + s);
             }
         }
 
@@ -1240,18 +1212,10 @@ public class JvmTypeGen {
         mv.visitInsn(POP);
     }
 
-    private void loadStringValue(MethodVisitor mv, EnumerableType enumerableType) {
+    private void loadStringValue(MethodVisitor mv, String stringVal) {
         mv.visitInsn(DUP);
 
-        int index;
-        if (enumerableType instanceof EnumerableCharString enumerableCharString) {
-            index = jvmConstantsGen.getBStringConstantVarIndex(enumerableCharString.value);
-        } else if (enumerableType instanceof EnumerableString enumerableString) {
-            index = jvmConstantsGen.getBStringConstantVarIndex(enumerableString.value);
-        } else {
-            throw new IllegalStateException();
-        }
-
+        int index = jvmConstantsGen.getBStringConstantVarIndex(stringVal);
         String varName = B_STRING_VAR_PREFIX + index;
         String stringConstantsClass = getStringConstantsClass(index, jvmConstantsGen);
         mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, GET_BSTRING);
@@ -1261,12 +1225,12 @@ public class JvmTypeGen {
         mv.visitInsn(POP);
     }
 
-    private void loadDecimalValue(MethodVisitor mv, EnumerableDecimal enumerableDecimal) {
+    private void loadDecimalValue(MethodVisitor mv, BigDecimal bigDecimal) {
         mv.visitInsn(DUP);
 
         mv.visitTypeInsn(NEW, DECIMAL_VALUE);
         mv.visitInsn(DUP);
-        mv.visitLdcInsn(enumerableDecimal.value.toPlainString());
+        mv.visitLdcInsn(bigDecimal.toPlainString());
         mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, INIT_WITH_STRING, false);
 
         // Add the value to the set
@@ -1274,10 +1238,10 @@ public class JvmTypeGen {
         mv.visitInsn(POP);
     }
 
-    private void loadFloatValue(MethodVisitor mv, EnumerableFloat enumerableFloat) {
+    private void loadFloatValue(MethodVisitor mv, double doubleVal) {
         mv.visitInsn(DUP);
 
-        mv.visitLdcInsn(enumerableFloat.value);
+        mv.visitLdcInsn(doubleVal);
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD, DOUBLE_VALUE_OF_METHOD, false);
 
         // Add the value to the set

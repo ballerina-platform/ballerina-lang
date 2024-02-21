@@ -432,7 +432,7 @@ public class TypeNarrower extends BLangNodeVisitor {
             semType = SemTypeResolver.resolveSingletonType((BLangLiteral) expr);
         }
 
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, semType);
+        BFiniteType finiteType = BFiniteType.newSingletonBFiniteType(finiteTypeSymbol, semType);
         finiteTypeSymbol.type = finiteType;
         return finiteType;
     }
