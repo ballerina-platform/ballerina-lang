@@ -20,7 +20,6 @@ package io.ballerina.cli.task;
 
 //import io.ballerina.cli.tool.AnnotateDiagnostics2;
 
-
 import io.ballerina.projects.*;
 import io.ballerina.shell.cli.AnnotateDiagnostics;
 import io.ballerina.cli.utils.BuildTime;
@@ -47,7 +46,6 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -61,10 +59,9 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_PREFIX;
 
-import org.jline.terminal.TerminalBuilder;
 import org.jline.jansi.AnsiConsole;
-import static org.jline.jansi.Ansi.ansi;
 
+import static org.jline.jansi.Ansi.ansi;
 
 /**
  * Task for compiling a package.
@@ -72,6 +69,7 @@ import static org.jline.jansi.Ansi.ansi;
  * @since 2.0.0
  */
 public class CompileTask implements Task {
+
     private final transient PrintStream out;
     private final transient PrintStream err;
     private final boolean compileForBalPack;
@@ -266,7 +264,8 @@ public class CompileTask implements Task {
                     if (diagnosticSet.add(d.toString())) {
                         Document document = documentMap.get(d.location().lineRange().fileName());
                         if (document != null) {
-                            err.println(ansi().render(AnnotateDiagnostics.renderDiagnostic(d, document, terminalWidth)));
+                            err.println(
+                                    ansi().render(AnnotateDiagnostics.renderDiagnostic(d, document, terminalWidth)));
                         } else {
                             err.println(ansi().render(AnnotateDiagnostics.renderDiagnostic(d)));
                         }
