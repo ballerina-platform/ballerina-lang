@@ -100,6 +100,12 @@ public class PredefinedTypes {
     private static final Module EMPTY_MODULE = new Module(null, null, null);
 
     public static final IntegerType TYPE_INT = new BIntegerType(TypeConstants.INT_TNAME, EMPTY_MODULE);
+    private static final SemType[] INT_SINGLETON_TYPE_CACHE = new SemType[256];
+    private static final Type BOOLEAN_TRUE =
+            new BBooleanType(TypeConstants.BOOLEAN_TNAME, EMPTY_MODULE, BooleanSubtype.booleanConst(true));
+    private static final Type BOOLEAN_FALSE =
+            new BBooleanType(TypeConstants.BOOLEAN_TNAME, EMPTY_MODULE, BooleanSubtype.booleanConst(false));
+
     public static final IntegerType TYPE_INT_SIGNED_8 =
             new BIntegerType(TypeConstants.SIGNED8, new Module(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null),
                              TypeTags.SIGNED8_INT_TAG);
@@ -300,18 +306,32 @@ public class PredefinedTypes {
             return new BFloatType(TypeConstants.FLOAT_TNAME, EMPTY_MODULE, semType);
         }
         // Java byte is signed
-        SemType semType = IntSubtype.intConst(
-                value instanceof Byte ? Byte.toUnsignedLong(value.byteValue()) : value.longValue());
-        // BTypeHack: This is a hack to make BType work
-        if (value instanceof Long) {
-            return new BIntegerType(TypeConstants.INT_TNAME, EMPTY_MODULE, semType);
+        long intValue = value instanceof Byte ? Byte.toUnsignedLong(value.byteValue()) : value.longValue();
+        boolean cacheable = intValue >= 0 && intValue < 255;
+        int cacheIndex = -1;
+        SemType semType = null;
+        if (cacheable) {
+            cacheIndex = (int) intValue;
+            semType = INT_SINGLETON_TYPE_CACHE[cacheIndex];
         }
-        return new BByteType(TypeConstants.BYTE_TNAME, EMPTY_MODULE, semType);
+        if (semType == null) {
+            semType = IntSubtype.intConst(intValue);
+        }
+        // BTypeHack: This is a hack to make BType work
+        Type type;
+        if (value instanceof Long) {
+            type = new BIntegerType(TypeConstants.INT_TNAME, EMPTY_MODULE, semType);
+        } else {
+            type = new BByteType(TypeConstants.BYTE_TNAME, EMPTY_MODULE, semType);
+        }
+        if (cacheable) {
+            INT_SINGLETON_TYPE_CACHE[cacheIndex] = semType;
+        }
+        return type;
     }
 
     public static Type singletonType(Boolean value) {
-        SemType semType = BooleanSubtype.booleanConst(value);
-        return new BBooleanType(TypeConstants.BOOLEAN_TNAME, EMPTY_MODULE, semType);
+        return value ? BOOLEAN_TRUE : BOOLEAN_FALSE;
     }
 
     public static Type singletonType(BString value) {
