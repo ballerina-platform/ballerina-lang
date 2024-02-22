@@ -22,7 +22,7 @@ public function main(int x, int? y, int a = 3, string s = "abc", float f = 5.5, 
     test:assertEquals(x, 10);
     test:assertEquals(y, 12);
     test:assertEquals(a, 0);
-    test:assertEquals(s, " ");
+    test:assertEquals(s, "");
     test:assertEquals(f, 0.0);
     test:assertEquals(i, 0);
     test:assertEquals(j, 0);
