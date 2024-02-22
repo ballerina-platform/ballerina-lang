@@ -70,13 +70,16 @@ public class JBallerinaBalaWriter extends BalaWriter {
     @Override
     protected Optional<JsonArray> addPlatformLibs(ZipOutputStream balaOutputStream)
             throws IOException {
-        // retrieve platform dependencies that have default scope
+        // retrieve platform dependencies
         Collection<PlatformLibrary> jars = backend.platformLibraryDependencies(packageContext.packageId(),
-                PlatformLibraryScope.DEFAULT);
-        if (jars.isEmpty()) {
+                PlatformLibraryScope.DEFAULT);// TODO: done
+        Collection<PlatformLibrary> providedJars = backend.platformLibraryDependencies(packageContext.packageId(),
+                PlatformLibraryScope.PROVIDED);
+        if (jars.isEmpty() && providedJars.isEmpty()) {
             return Optional.empty();
         }
-        // Iterate through native dependencies and add them to bala
+        // Iterate through native dependencies with default scope and add them to bala
+        // Native dependencies with provided scope are not added to the bala
         // organization would be
         // -- Bala Root
         //   - libs
@@ -91,7 +94,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
             Path libPath = jar.path();
             // null check is added for spot bug with the toml validation filename cannot be null
             String fileName = Optional.ofNullable(libPath.getFileName())
-                    .map(p -> p.toString()).orElse("annon");
+                    .map(Path::toString).orElse("annon");
             Path entryPath = Paths.get(PLATFORM)
                     .resolve(target)
                     .resolve(fileName);
@@ -106,6 +109,21 @@ public class JBallerinaBalaWriter extends BalaWriter {
                 newDependency.addProperty(JarLibrary.KEY_GROUP_ID, jar.groupId().get());
                 newDependency.addProperty(JarLibrary.KEY_VERSION, jar.version().get());
             }
+            newPlatformLibs.add(newDependency);
+        }
+
+        // include platform dependencies with provided scope in the Package.json
+        for (PlatformLibrary platformLibrary : providedJars) {
+            JarLibrary jar = (JarLibrary) platformLibrary;
+            JsonObject newDependency = new JsonObject();
+
+            // Create the Package.json entry
+            if (jar.artifactId().isPresent() && jar.groupId().isPresent() && jar.version().isPresent()) {
+                newDependency.addProperty(JarLibrary.KEY_ARTIFACT_ID, jar.artifactId().get());
+                newDependency.addProperty(JarLibrary.KEY_GROUP_ID, jar.groupId().get());
+                newDependency.addProperty(JarLibrary.KEY_VERSION, jar.version().get());
+            }
+            newDependency.addProperty(JarLibrary.KEY_SCOPE, jar.scope().getStringValue());
             newPlatformLibs.add(newDependency);
         }
 
@@ -280,7 +298,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
 
     private boolean isPlatformDependenciesTestOnly(List<Map<String, Object>> dependencies) {
         for (Map<String, Object> dependency : dependencies) {
-            if (null == dependency.get("scope") || dependency.get("scope").equals("default")) {
+            if (null == dependency.get("scope") || !dependency.get("scope").equals(PlatformLibraryScope.TEST_ONLY)) {
                 return false;
             }
         }
