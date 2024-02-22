@@ -14,26 +14,59 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// table type
-type Employee record {|
+// Simple types
+type UserNil null;
+type UserBoolean boolean;
+type UserInt int;
+type UserFloat float;
+type UserDecimal decimal;
+
+// Sequence types
+type UserString string;
+type UserXml_1 xml;
+type UserXml_2 xml<xml:Element>;
+
+// Other types
+type UserAny any;
+type UserAnydata anydata;
+type UserNever never;
+type UserReadonly readonly;
+type UserJson json;
+type UserByte byte;
+type UserUnion_1 int|float|null;
+type UserUnion_2 stream<int>|function(int x) returns int;
+type UserIntersection_1 int & readonly;
+type UserIntersection_2 UserRecord & readonly;
+
+// Builtin object types
+type UserIterable object:Iterable;
+type UserRawTemplate object:RawTemplate;
+
+// Structured types
+type UserArr_1 int[];
+type UserArr_2 stream<int>[];
+type UserTuple [int, string,  xml<xml:Element>];
+type UserMap_1 map<int>;
+type UserMap_2 map<stream<int>[]>;
+type UserTable_1 table<UserRecord> key(id);
+type UserTable_2 table<UserRecord> key<int>;
+type UserRecord record {|
     readonly int id;
     string firstName;
     string lastName;
     int salary;
 |};
 
-type UserTable table<Employee> key(id);
-
-// future type
+// Behavioral types
+type UserError error;
+type UserFunction function(int x) returns int;
+type UserClient client object {
+    int userInt;
+};
+type UserService service object {
+    int userInt;
+};
 type UserFuture future<int>;
-
-// xml type
-type UserXml_1 xml;
-type UserXml_2 xml<xml:Element>;
-
-// stream type
-type UserStream stream<int>;
-
-// typedesc type
 type UserTypedesc_1 typedesc<int>;
-type UserTypedesc_2 typedesc<Employee>;
+type UserTypedesc_2 typedesc<UserRecord>;
+type UserStream stream<int>;

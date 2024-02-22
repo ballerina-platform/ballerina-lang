@@ -72,20 +72,90 @@ public class TypeDefPackageIdTest {
     @DataProvider(name = "TypeDefPackageIDPosProvider")
     public Object[][] getTypeDefPackageIDPos() {
         return new Object[][]{
-                {24, 5, "UserTable", "main.bal", "sample_org/symbol_package_id:0.1.0",
+
+                // Simple types
+                {17, 5, "UserNil", "main.bal", "sample_org/symbol_package_id:0.1.0",
                         "sample_org/symbol_package_id:0.1.0"},
-                {27, 5, "UserFuture", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                {18, 5, "UserBoolean", "main.bal", "ballerina/lang.annotations:0.0.0",
                         "sample_org/symbol_package_id:0.1.0"},
-                {30, 5, "UserXml_1", "main.bal", "ballerina/lang.annotations:0.0.0",
+                {19, 5, "UserInt", "main.bal", "ballerina/lang.annotations:0.0.0",
                         "sample_org/symbol_package_id:0.1.0"},
-                {31, 5, "UserXml_2", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                {20, 5, "UserFloat", "main.bal", "ballerina/lang.annotations:0.0.0",
                         "sample_org/symbol_package_id:0.1.0"},
-                {34, 5, "UserStream", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                {21, 5, "UserDecimal", "main.bal", "ballerina/lang.annotations:0.0.0",
                         "sample_org/symbol_package_id:0.1.0"},
-                {37, 5, "UserTypedesc_1", "main.bal", "sample_org/symbol_package_id:0.1.0",
+
+                // Sequence types
+                {24, 5, "UserString", "main.bal", "ballerina/lang.annotations:0.0.0",
                         "sample_org/symbol_package_id:0.1.0"},
-                {38, 5, "UserTypedesc_2", "main.bal", "sample_org/symbol_package_id:0.1.0",
-                        "sample_org/symbol_package_id:0.1.0"}
+                {25, 5, "UserXml_1", "main.bal", "ballerina/lang.annotations:0.0.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {26, 5, "UserXml_2", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+
+                // Other types
+                {29, 5, "UserAny", "main.bal", "ballerina/lang.annotations:0.0.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {30, 5, "UserAnydata", "main.bal", "ballerina/lang.annotations:0.0.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {31, 5, "UserNever", "main.bal", "ballerina/lang.annotations:0.0.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {32, 5, "UserReadonly", "main.bal", "ballerina/lang.annotations:0.0.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {33, 5, "UserJson", "main.bal", "ballerina/lang.annotations:0.0.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {34, 5, "UserByte", "main.bal", "ballerina/lang.annotations:0.0.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {35, 5, "UserUnion_1", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {36, 5, "UserUnion_2", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {37, 5, "UserIntersection_1", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {38, 5, "UserIntersection_2", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+
+                // Builtin object types
+                {41, 5, "UserIterable", "main.bal", "ballerina/lang.object:0.0.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {42, 5, "UserRawTemplate", "main.bal", "ballerina/lang.object:0.0.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+
+                // Structured types
+                {45, 5, "UserArr_1", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {46, 5, "UserArr_2", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {47, 5, "UserTuple", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {48, 5, "UserMap_1", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {49, 5, "UserMap_2", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {50, 5, "UserTable_1", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {51, 5, "UserTable_2", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {52, 5, "UserRecord", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+
+                // Behavioral types
+                {60, 5, "UserError", "main.bal", "ballerina/lang.annotations:0.0.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {61, 5, "UserFunction", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {62, 5, "UserClient", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {65, 5, "UserService", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {68, 5, "UserFuture", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {69, 5, "UserTypedesc_1", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {70, 5, "UserTypedesc_2", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
+                {71, 5, "UserStream", "main.bal", "sample_org/symbol_package_id:0.1.0",
+                        "sample_org/symbol_package_id:0.1.0"},
         };
     }
 }
