@@ -116,6 +116,6 @@ public class RuntimeAPITest {
                         output[0] = error;
                     }
                 });
-        Assert.assertEquals(output[0],35L);
+        Assert.assertEquals(output[0], 35L);
     }
 }
