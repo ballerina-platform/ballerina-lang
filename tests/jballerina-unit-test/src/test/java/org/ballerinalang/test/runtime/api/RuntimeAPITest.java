@@ -113,7 +113,7 @@ public class RuntimeAPITest {
 
                     @Override
                     public void notifyFailure(BError error) {
-                        System.out.println("Error: " + error);
+                        output[0] = error;
                     }
                 });
         Assert.assertEquals(output[0],35L);
