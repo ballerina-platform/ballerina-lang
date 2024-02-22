@@ -215,6 +215,25 @@ function testXmlNavigationWithUnionType() {
     assert(x6/<m>, xml `<m><n></n></m>`);
 }
 
+function testXmlNavigationWithDefaultNamespaceDefinedLater() {
+    xml x1 = xml `<a>a<b>b<c>c</c></b><d>d</d></a><f/>`;
+
+    assert((x1.<a>).toString(), "<a>a<b>b<c>c</c></b><d>d</d></a>");
+    assert((x1/*).toString(), "a<b>b<c>c</c></b><d>d</d>");
+    assert((x1/<b>).toString(), "<b>b<c>c</c></b>");
+    assert((x1/<*>).toString(), "<b>b<c>c</c></b><d>d</d>");
+    assert((x1/**/<c>).toString(), "<c>c</c>");
+
+    xml x2 = xml `<e>e<f><g>f</g></f><h>h</h></e><j/>`;
+    xmlns "http://example.com/";
+
+    assert((x2.<e>).toString(), "");
+    assert((x2/*).toString(), "e<f><g>f</g></f><h>h</h>");
+    assert((x2/<f>).toString(), "");
+    assert((x2/<*>).toString(), "<f><g>f</g></f><h>h</h>");
+    assert((x2/**/<g>).toString(), "");
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         string reason = "expected `" + expected.toString() + "`, but found `" + actual.toString() + "`";
