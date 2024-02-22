@@ -306,7 +306,7 @@ public class TestparallelizationTest extends BaseTestCase {
                 new HashMap<>(), projectPath, false);
         Float executionTimeW1 = getTimeForTestExecution(output);
         Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
-        Assert.assertTrue(executionTimeW1 > 2 * executionTimeW30 );
+        Assert.assertTrue(executionTimeW1 > 2 * executionTimeW30);
     }
 
     @Test

@@ -59,8 +59,7 @@ dependencies = [
 	{org = "ballerina", name = "lang.error"}
 ]
 modules = [
-	{org = "ballerina", packageName = "test", moduleName = "test"},
-	{org = "ballerina", packageName = "test", moduleName = "test.test"}
+	{org = "ballerina", packageName = "test", moduleName = "test"}
 ]
 
 [[package]]
