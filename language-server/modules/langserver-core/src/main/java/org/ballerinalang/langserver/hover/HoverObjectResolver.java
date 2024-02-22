@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.hover;
 
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -22,15 +23,20 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.symbols.resourcepath.PathRestParam;
+import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
+import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -159,11 +165,39 @@ public class HoverObjectResolver {
         }
         List<String> hoverContent = new ArrayList<>();
         documentation.get().description().ifPresent(hoverContent::add);
+        List<PathParameterSymbol> parameterSymbols = new ArrayList<>();
+        boolean isResourceMethod = functionSymbol.kind() == SymbolKind.RESOURCE_METHOD;
 
+        if (isResourceMethod) {
+            ResourcePath resourcePath = ((ResourceMethodSymbol) functionSymbol).resourcePath();
+            switch (resourcePath.kind()) {
+                case PATH_SEGMENT_LIST -> {
+                    PathSegmentList pathSegmentList = (PathSegmentList) resourcePath;
+                    List<PathParameterSymbol> pathParameterSymbols = pathSegmentList.pathParameters();
+                    parameterSymbols.addAll(pathParameterSymbols);
+                    pathSegmentList.pathRestParameter().ifPresent(parameterSymbols::add);
+                }
+                case PATH_REST_PARAM -> parameterSymbols.add(((PathRestParam) resourcePath).parameter());
+                default -> {
+                    // ignore
+                }
+            }
+        }
         Map<String, String> paramsMap = documentation.get().parameterMap();
-        if (!paramsMap.isEmpty()) {
-            List<String> params = new ArrayList<>();
+        List<String> params = new ArrayList<>();
+
+        if (!paramsMap.isEmpty() || !parameterSymbols.isEmpty()) {
             params.add(MarkupUtils.header(3, ContextConstants.PARAM_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
+            params.addAll(parameterSymbols.stream().map(param -> {
+                if (param.getName().isEmpty()) {
+                    return MarkupUtils.quotedString(NameUtil
+                            .getModifiedTypeName(context, param.typeDescriptor()));
+                }
+                String paramName = param.getName().get();
+                String desc = paramsMap.getOrDefault(paramName, "");
+                return MarkupUtils.quotedString(NameUtil.getModifiedTypeName(context, param.typeDescriptor())) + " "
+                        + MarkupUtils.italicString(MarkupUtils.boldString(paramName)) + " : " + desc;
+            }).collect(Collectors.toList()));
             params.addAll(functionSymbol.typeDescriptor().params().get().stream().map(param -> {
                 if (param.getName().isEmpty()) {
                     return MarkupUtils.quotedString(NameUtil
@@ -196,12 +230,20 @@ public class HoverObjectResolver {
 
             Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
             if (restParam.isPresent()) {
-                String modifiedTypeName = NameUtil.getModifiedTypeName(context, restParam.get().typeDescriptor());
+                TypeSymbol typeSymbol = restParam.get().typeDescriptor();
+                String modifiedTypeName = typeSymbol.typeKind() == TypeDescKind.ARRAY ? NameUtil
+                        .getModifiedTypeName(context, ((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor())
+                        : NameUtil.getModifiedTypeName(context, typeSymbol);
+
                 StringBuilder restParamBuilder = new StringBuilder(MarkupUtils.quotedString(modifiedTypeName + "..."));
                 if (restParam.get().getName().isPresent()) {
+                    String paramName = paramsMap.get(restParam.get().getName().get());
+                    if (paramName == null) {
+                        paramName = "";
+                    }
                     restParamBuilder.append(" ")
                             .append(MarkupUtils.italicString(MarkupUtils.boldString(restParam.get().getName().get())))
-                            .append(" : ").append(paramsMap.get(restParam.get().getName().get()));
+                            .append(" : ").append(paramName);
                 }
                 params.add(restParamBuilder.toString());
             }

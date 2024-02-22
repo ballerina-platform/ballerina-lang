@@ -18,6 +18,8 @@
 
 package io.ballerina.cli.cmd;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.TomlDocument;
@@ -34,9 +36,11 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -202,6 +206,58 @@ public class PushCommandTest extends BaseCommandTest {
                     .resolve("foo").resolve("winery").resolve("0.1.0").resolve("any"));
         } catch (ProjectException e) {
             Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test(description = "Push a tool to local repository")
+    public void testPushToolToLocal() throws IOException {
+        Path validBalProject = Paths.get("build").resolve("tool-gayals");
+
+        FileUtils.copyDirectory(
+                this.testResources.resolve("tool-gayals").toFile(), validBalProject.toFile());
+        FileUtils.moveDirectory(
+                validBalProject.resolve("target-dir").toFile(), validBalProject.resolve("custom").toFile());
+
+        Path customTargetDirBalaPath = validBalProject.resolve("custom").resolve("bala")
+                .resolve("gayaldassanayake-tool_gayal-java17-1.1.0.bala");
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false,
+                customTargetDirBalaPath);
+        String[] args = { "--repository=local" };
+        new CommandLine(pushCommand).parse(args);
+
+        Path mockRepo = Paths.get("build").resolve("ballerina-home");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("1.0.0");
+            repoUtils.when(RepoUtils::readSettings).thenReturn(Settings.from());
+            pushCommand.execute();
+        }
+
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        String expected = "Successfully pushed " + customTargetDirBalaPath.toString() + " to 'local' repository.";
+        Assert.assertTrue(actual.contains(expected));
+
+        try {
+            ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories").resolve("local")
+                    .resolve("bala").resolve("gayaldassanayake").resolve("tool_gayal")
+                    .resolve("1.1.0").resolve("java17"));
+        } catch (ProjectException e) {
+            Assert.fail(e.getMessage());
+        }
+
+        Path localToolJsonPath = mockRepo.resolve("repositories").resolve("local").resolve("bala")
+                .resolve("local-tools.json");
+
+        Assert.assertTrue(Files.exists(localToolJsonPath));
+
+        try (BufferedReader bufferedReader = Files.newBufferedReader(localToolJsonPath, StandardCharsets.UTF_8)) {
+            JsonObject localToolJson = new Gson().fromJson(bufferedReader, JsonObject.class);
+            JsonObject pkgDesc = localToolJson.get("luhee").getAsJsonObject();
+
+            Assert.assertEquals(pkgDesc.get("org").getAsString(), "gayaldassanayake");
+            Assert.assertEquals(pkgDesc.get("name").getAsString(), "tool_gayal");
         }
 
     }
