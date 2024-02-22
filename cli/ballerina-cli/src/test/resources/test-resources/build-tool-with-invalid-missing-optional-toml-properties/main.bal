@@ -1,5 +1,3 @@
-import ballerina/io;
-
-public function main() {
-    io:println("Hello, World!");
+public function hello() returns string {
+    return "Hello, World!";
 }

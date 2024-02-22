@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 6,
+    "character": 51
+  },
+  "source": "fixReturnTypeForConditionalExpr.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'boolean|int'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 76
+            },
+            "end": {
+              "line": 5,
+              "character": 76
+            }
+          },
+          "newText": " returns boolean|int"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

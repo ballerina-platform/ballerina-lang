@@ -84,6 +84,7 @@ public class RunProfilerTask implements Task {
             pb.environment().put(JAVA_OPTS, getAgentArgs());
             pb.environment().put(BALLERINA_HOME, System.getProperty(BALLERINA_HOME));
             pb.environment().put(CURRENT_DIR_KEY, System.getProperty(USER_DIR));
+            pb.environment().put("java.command", System.getProperty("java.command"));
             pb.directory(new File(getProfilerPath(project).toUri()));
             Process process = pb.start();
             process.waitFor();
