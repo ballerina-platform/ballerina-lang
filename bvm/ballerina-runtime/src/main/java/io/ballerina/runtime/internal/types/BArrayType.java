@@ -21,13 +21,17 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.MaybeRoType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.Optional;
+
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 
 /**
  * {@code BArrayType} represents a type of an arrays in Ballerina.
@@ -40,7 +44,7 @@ import java.util.Optional;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BArrayType extends BType implements ArrayType {
+public class BArrayType extends BType implements ArrayType, MaybeRoType {
     private Type elementType;
     private int dimensions = 1;
     private int size = -1;
@@ -82,6 +86,18 @@ public class BArrayType extends BType implements ArrayType {
         }
         this.readonly = readonly;
         this.hasFillerValue = hasFillerValue;
+    }
+
+    @Deprecated
+    public BArrayType toReadonlyType() {
+        if (readonly) {
+            return this;
+        }
+        if (size == -1) {
+            return new BArrayType(this.elementType, true);
+        } else {
+            return new BArrayType(this.elementType, size, true);
+        }
     }
 
     public void setElementType(Type elementType, int dimensions, boolean elementRO) {
@@ -144,9 +160,8 @@ public class BArrayType extends BType implements ArrayType {
         Type tempElementType = elementType;
         sb.append(getSizeString());
         while (tempElementType.getTag() == TypeTags.ARRAY_TAG) {
-            BArrayType arrayElement = (BArrayType) tempElementType;
-            sb.append(arrayElement.getSizeString());
-            tempElementType = arrayElement.elementType;
+            sb.append(((BArrayType) unwrap(tempElementType)).getSizeString());
+            tempElementType = TypeHelper.listRestType(tempElementType);
         }
         sb.insert(0, tempElementType);
         return !readonly ? sb.toString() : sb.append(" & readonly").toString();

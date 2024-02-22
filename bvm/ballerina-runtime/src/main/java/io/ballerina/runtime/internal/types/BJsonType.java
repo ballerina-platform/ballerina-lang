@@ -18,7 +18,7 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -45,7 +45,7 @@ public class BJsonType extends BUnionType implements JsonType {
         super(typeName, pkg, readonly, MapValueImpl.class);
         if (!readonly) {
             BJsonType immutableJsonType = new BJsonType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
-            this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
+            this.immutableType = new BIntersectionType(pkg, new Type[]{this, TypeBuilder.readonlyType()},
                                                        immutableJsonType,
                                                        TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                         TypeFlags.PURETYPE), true);
@@ -55,7 +55,7 @@ public class BJsonType extends BUnionType implements JsonType {
     public BJsonType() {
         super(TypeConstants.JSON_TNAME, null, false, MapValueImpl.class);
         BJsonType immutableJsonType = new BJsonType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
-        this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},
+        this.immutableType = new BIntersectionType(pkg, new Type[]{this, TypeBuilder.readonlyType()},
                                                    immutableJsonType,
                                                    TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                     TypeFlags.PURETYPE), true);
@@ -65,7 +65,7 @@ public class BJsonType extends BUnionType implements JsonType {
         super(unionType, typeName, readonly);
         if (!readonly) {
             BJsonType immutableJsonType = new BJsonType(unionType, TypeConstants.READONLY_JSON_TNAME, true);
-            this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
+            this.immutableType = new BIntersectionType(pkg, new Type[]{this, TypeBuilder.readonlyType()},
                     immutableJsonType,
                     TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                             TypeFlags.PURETYPE), true);

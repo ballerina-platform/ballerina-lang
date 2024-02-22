@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.MaybeRoType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
  *
  * @since 0.995.0
  */
-public class BTupleType extends BAnnotatableType implements TupleType {
+public class BTupleType extends BAnnotatableType implements TupleType, MaybeRoType {
 
     private List<Type> tupleTypes;
     private Type restType;
@@ -129,6 +130,14 @@ public class BTupleType extends BAnnotatableType implements TupleType {
         if (isAllMembersAnydata) {
             this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA, TypeFlags.PURETYPE);
         }
+    }
+
+    @Deprecated
+    public BTupleType toReadonlyType() {
+        if (readonly) {
+            return this;
+        }
+        return new BTupleType(tupleTypes, restType, typeFlags, isCyclic, true);
     }
 
     private List<Type> getReadOnlyTypes(List<Type> typeList) {

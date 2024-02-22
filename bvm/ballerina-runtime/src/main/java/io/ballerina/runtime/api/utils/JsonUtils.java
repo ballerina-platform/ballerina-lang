@@ -21,11 +21,9 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.StructureType;
-import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -38,6 +36,7 @@ import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.JsonInternalUtils;
 import io.ballerina.runtime.internal.JsonParser;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
@@ -339,7 +338,7 @@ public class JsonUtils {
                 break;
             case TypeTags.TABLE_TAG:
                 BTable bTable = (BTable) value;
-                Type constrainedType = TypeUtils.getImpliedType(((TableType) sourceType).getConstrainedType());
+                Type constrainedType = TypeUtils.getImpliedType(TypeHelper.typeConstraint(sourceType));
                 if (constrainedType.getTag() == TypeTags.MAP_TAG) {
                     newValue = convertMapConstrainedTableToJson((BTable) value, unresolvedValues);
                 } else {
@@ -362,6 +361,7 @@ public class JsonUtils {
     }
 
     private static Object convertMapConstrainedTableToJson(BTable value, List<TypeValuePair> unresolvedValues) {
+        // FIXME:
         BArray membersArray = ValueCreator.createArrayValue(PredefinedTypes.TYPE_JSON_ARRAY);
         BIterator itr = value.getIterator();
         while (itr.hasNext()) {
@@ -384,7 +384,7 @@ public class JsonUtils {
     }
 
     private static Object convertArrayToJson(BArray array, List<TypeValuePair> unresolvedValues) {
-        BArray newArray = ValueCreator.createArrayValue((ArrayType) PredefinedTypes.TYPE_JSON_ARRAY);
+        BArray newArray = ValueCreator.createArrayValue(PredefinedTypes.TYPE_JSON_ARRAY);
         for (int i = 0; i < array.size(); i++) {
             Object newValue = convertToJsonType(array.get(i), unresolvedValues);
             newArray.add(i, newValue);

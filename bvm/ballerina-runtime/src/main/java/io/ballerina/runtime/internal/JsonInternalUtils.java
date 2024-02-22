@@ -39,11 +39,7 @@ import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BJsonType;
-import io.ballerina.runtime.internal.types.BMapType;
-import io.ballerina.runtime.internal.types.BStructureType;
-import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -59,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.TypeChecker.isByteLiteral;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -342,14 +339,14 @@ public class JsonInternalUtils {
                 return jsonValue;
             case TypeTags.UNION_TAG:
                 matchingType = TypeConverter.getConvertibleTypeInTargetUnionType(jsonValue,
-                        (BUnionType) targetType, null, new ArrayList<>(), new HashSet<>(), true);
+                        unwrap(targetType), null, new ArrayList<>(), new HashSet<>(), true);
                 if (matchingType == null) {
                     throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE, targetType,
                             getTypeName(jsonValue));
                 }
                 return convertJSON(jsonValue, matchingType);
             case TypeTags.FINITE_TYPE_TAG:
-                matchingType = TypeConverter.getConvertibleFiniteType(jsonValue, (BFiniteType) targetType,
+                matchingType = TypeConverter.getConvertibleFiniteType(jsonValue, unwrap(targetType),
                         null, new ArrayList<>(), new HashSet<>(), true);
                 if (matchingType == null) {
                     throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE, targetType,
@@ -358,11 +355,11 @@ public class JsonInternalUtils {
                 return convertJSON(jsonValue, matchingType);
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return convertJSONToRecord(jsonValue, (BStructureType) targetType);
+                return convertJSONToRecord(jsonValue, unwrap(targetType));
             case TypeTags.ARRAY_TAG:
-                return convertJSONToBArray(jsonValue, (BArrayType) targetType);
+                return convertJSONToBArray(jsonValue, unwrap(targetType));
             case TypeTags.MAP_TAG:
-                return jsonToMap(jsonValue, (BMapType) targetType);
+                return jsonToMap(jsonValue, unwrap(targetType));
             case TypeTags.NULL_TAG:
                 if (jsonValue == null) {
                     return null;
@@ -719,7 +716,8 @@ public class JsonInternalUtils {
                 case TypeTags.MAP_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
                 case TypeTags.OBJECT_TYPE_TAG:
-                    json.append(convertMapToJSON((MapValueImpl<BString, ?>) value, PredefinedTypes.TYPE_JSON));
+                    json.append(convertMapToJSON((MapValueImpl<BString, ?>) value,
+                            unwrap(PredefinedTypes.TYPE_JSON)));
                     break;
                 case TypeTags.ARRAY_TAG:
                     json.append(convertArrayToJSON((ArrayValue) value));

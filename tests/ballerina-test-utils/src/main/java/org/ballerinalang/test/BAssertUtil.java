@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test;
 
+import io.ballerina.runtime.api.TypeBuilder;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
@@ -158,5 +160,11 @@ public class BAssertUtil {
                 "incorrect line number:");
         Assert.assertEquals(diag.location().lineRange().startLine().offset() + 1, expectedHintCol,
                 "incorrect column position:");
+    }
+
+    // To check if a value belong to a class we should use a proper type checker instead of this
+    @Deprecated
+    public static <T extends Type> void assertTypeClass(T actual, Class<?> expected) {
+        Assert.assertEquals(TypeBuilder.unwrap(actual).getClass(), expected);
     }
 }

@@ -23,12 +23,12 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 
@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
@@ -53,9 +54,9 @@ public class MapLibUtils {
         mapType = TypeUtils.getImpliedType(mapType);
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                return ((MapType) mapType).getConstrainedType();
+                return TypeHelper.typeConstraint(mapType);
             case TypeTags.RECORD_TYPE_TAG:
-                return getCommonTypeForRecordField((RecordType) mapType);
+                return getCommonTypeForRecordField(unwrap(mapType));
             default:
                 throw createOpNotSupportedError(mapType, funcName);
         }

@@ -21,10 +21,12 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStringType;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -62,15 +64,15 @@ public class TupleTypeStampInbuiltFunctionTest {
         Object tupleValue2 = results.get(1);
 
         Assert.assertEquals(tupleValue1.toString(), "Mohan");
-        Assert.assertEquals(getType(tupleValue1).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(tupleValue1), BStringType.class);
 
-        Assert.assertEquals(getType(tupleValue2).getClass(), BRecordType.class);
+        BAssertUtil.assertTypeClass(getType(tupleValue2), BRecordType.class);
         Assert.assertEquals(getType(tupleValue2).getName(), "Teacher");
 
         Assert.assertEquals(((BMap) tupleValue2).size(), 5);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))),
                 BStringType.class);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("age")).toString(), "25");
@@ -78,15 +80,15 @@ public class TupleTypeStampInbuiltFunctionTest {
                 TypeTags.INT_TAG);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))),
                 BStringType.class);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))),
                 BStringType.class);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))),
                 BStringType.class);
     }
 
@@ -101,15 +103,16 @@ public class TupleTypeStampInbuiltFunctionTest {
         Object tupleValue2 = results.get(1);
 
         Assert.assertEquals(tupleValue1.toString(), "Mohan");
-        Assert.assertEquals(getType(tupleValue1).getClass(), BStringType.class);
 
-        Assert.assertEquals(getType(tupleValue2).getClass(), BRecordType.class);
+        BAssertUtil.assertTypeClass(getType(tupleValue1), BStringType.class);
+
+        BAssertUtil.assertTypeClass(getType(tupleValue2), BRecordType.class);
         Assert.assertEquals(getType(tupleValue2).getName(), "Employee");
 
         Assert.assertEquals(((BMap) tupleValue2).size(), 5);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))),
                 BStringType.class);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("age")).toString(), "25");
@@ -117,15 +120,15 @@ public class TupleTypeStampInbuiltFunctionTest {
                 TypeTags.INT_TAG);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))),
                 BStringType.class);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))),
                 BStringType.class);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))),
                 BStringType.class);
     }
 
@@ -140,10 +143,11 @@ public class TupleTypeStampInbuiltFunctionTest {
         Object tupleValue2 = results.get(1);
 
         Assert.assertEquals(tupleValue1.toString(), "Mohan");
-        Assert.assertEquals(getType(tupleValue1).getClass(), BStringType.class);
 
-        Assert.assertEquals(getType(tupleValue2).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) getType(tupleValue2)).getConstrainedType().getClass(), BAnydataType.class);
+        BAssertUtil.assertTypeClass(getType(tupleValue1), BStringType.class);
+
+        BAssertUtil.assertTypeClass(getType(tupleValue2), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(getType(tupleValue2)), BAnydataType.class);
     }
 
     @Test
@@ -156,28 +160,28 @@ public class TupleTypeStampInbuiltFunctionTest {
         Object arrayValue1 = results.get(0);
         Object arrayValue2 = results.get(1);
 
-        Assert.assertEquals(getType(arrayValue1).getClass(), BRecordType.class);
+        BAssertUtil.assertTypeClass(getType(arrayValue1), BRecordType.class);
         Assert.assertEquals(getType(arrayValue1).getName(), "Employee");
 
-        Assert.assertEquals(getType(arrayValue2).getClass(), BRecordType.class);
+        BAssertUtil.assertTypeClass(getType(arrayValue2), BRecordType.class);
         Assert.assertEquals(getType(arrayValue2).getName(), "Employee");
 
         Assert.assertEquals(((BMap) arrayValue2).size(), 4);
 
         Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertEquals(getType(((BMap) arrayValue2).get(StringUtils.fromString("name"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) arrayValue2).get(StringUtils.fromString("name"))),
                 BStringType.class);
 
         Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(((BMap) arrayValue2).get(StringUtils.fromString("status"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) arrayValue2).get(StringUtils.fromString("status"))),
                 BStringType.class);
 
         Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(((BMap) arrayValue2).get(StringUtils.fromString("batch"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) arrayValue2).get(StringUtils.fromString("batch"))),
                 BStringType.class);
 
         Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(((BMap) arrayValue2).get(StringUtils.fromString("school"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) arrayValue2).get(StringUtils.fromString("school"))),
                 BStringType.class);
     }
 

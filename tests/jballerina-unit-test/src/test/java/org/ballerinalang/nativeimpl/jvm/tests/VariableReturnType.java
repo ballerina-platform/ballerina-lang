@@ -37,10 +37,10 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -483,7 +483,7 @@ public class VariableReturnType {
     }
 
     public static Object funcReturningUnionWithBuiltInRefType(Object strm, BTypedesc td) {
-        int tag = ((BStreamType) TypeUtils.getImpliedType(td.getDescribingType())).getConstrainedType().getTag();
+        int tag = TypeHelper.typeConstraint(TypeUtils.getImpliedType(td.getDescribingType())).getTag();
 
         if (tag == INT_TAG) {
             return strm;
@@ -508,7 +508,7 @@ public class VariableReturnType {
 
         if (tag == OBJECT_TYPE_TAG) {
             Assert.assertEquals(describingType.getTag(), ARRAY_TAG);
-            Assert.assertEquals(((BArrayType) describingType).getElementType().getTag(), STRING_TAG);
+            Assert.assertEquals(TypeHelper.listRestType(describingType).getTag(), STRING_TAG);
             return val;
         }
 

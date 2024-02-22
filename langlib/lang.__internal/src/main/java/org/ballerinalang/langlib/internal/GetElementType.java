@@ -21,14 +21,14 @@ package org.ballerinalang.langlib.internal;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FiniteType;
-import io.ballerina.runtime.api.types.StreamType;
-import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
+import io.ballerina.runtime.internal.TypeHelper;
+
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 
 /**
  * Native implementation of lang.internal:getElementType(typedesc).
@@ -49,16 +49,16 @@ public class GetElementType {
         type = TypeUtils.getImpliedType(type);
         switch (type.getTag()) {
             case TypeTags.ARRAY_TAG:
-                return ValueCreator.createTypedescValue(((ArrayType) type).getElementType());
+                return ValueCreator.createTypedescValue(TypeHelper.listRestType(type));
             case TypeTags.TUPLE_TAG:
                 return ValueCreator.createTypedescValue(
-                        TypeCreator.createUnionType(((TupleType) type).getTupleTypes()));
+                        TypeCreator.createUnionType(TypeHelper.listMemberTypes(type)));
             case TypeTags.FINITE_TYPE_TAG:
                 // this is reached only for immutable values
                 return getElementTypeDescValue(
-                        ((BValue) (((FiniteType) type).getValueSpace().iterator().next())).getType());
+                        ((BValue) (((FiniteType) unwrap(type)).getValueSpace().iterator().next())).getType());
             default:
-                return ValueCreator.createTypedescValue(((StreamType) type).getConstrainedType());
+                return ValueCreator.createTypedescValue(TypeHelper.typeConstraint(type));
         }
     }
 }

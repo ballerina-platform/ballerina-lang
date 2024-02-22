@@ -23,12 +23,14 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStringType;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -64,7 +66,7 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.size(), 2);
 
-        Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
+        BAssertUtil.assertTypeClass(mapValue.getType(), BRecordType.class);
         Assert.assertEquals(mapValue.getType().getName(), "IntRecord");
 
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("a"))).getTag(), TypeTags.INT_TAG);
@@ -82,7 +84,7 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.size(), 2);
 
-        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
+        BAssertUtil.assertTypeClass(mapValue.getType(), BMapType.class);
         Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getTag(), TypeTags.JSON_TAG);
 
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("a"))).getTag(), TypeTags.INT_TAG);
@@ -100,7 +102,7 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.size(), 2);
 
-        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
+        BAssertUtil.assertTypeClass(mapValue.getType(), BMapType.class);
         Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getTag(), TypeTags.ANYDATA_TAG);
     }
 
@@ -147,10 +149,10 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.size(), 2);
 
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("firstName"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("firstName"))), BStringType.class);
         Assert.assertEquals(mapValue.get(StringUtils.fromString("firstName")).toString(), "mohan");
 
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("lastName"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("lastName"))), BStringType.class);
         Assert.assertEquals(mapValue.get(StringUtils.fromString("lastName")).toString(), "raj");
     }
 
@@ -162,10 +164,10 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.size(), 2);
 
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("firstName"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("firstName"))), BStringType.class);
         Assert.assertEquals(mapValue.get(StringUtils.fromString("firstName")).toString(), "mohan");
 
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("lastName"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("lastName"))), BStringType.class);
         Assert.assertEquals(mapValue.get(StringUtils.fromString("lastName")).toString(), "raj");
     }
 
@@ -177,24 +179,23 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.size(), 5);
 
-        Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
+        BAssertUtil.assertTypeClass(mapValue.getType(), BRecordType.class);
         Assert.assertEquals(mapValue.getType().getName(), "Teacher");
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("name"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("name"))), BStringType.class);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("age")).toString(), "25");
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("status"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("status"))), BStringType.class);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("batch"))), BStringType.class);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
-
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("school"))), BStringType.class);
     }
 
     @Test
@@ -205,24 +206,23 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.size(), 5);
 
-        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BJsonType.class);
+        BAssertUtil.assertTypeClass(mapValue.getType(), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue.getType()), BJsonType.class);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("name"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("name"))), BStringType.class);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("age")).toString(), "25");
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("status"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("status"))), BStringType.class);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("batch"))), BStringType.class);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
-
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("school"))), BStringType.class);
     }
 
     @Test
@@ -233,18 +233,17 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.size(), 5);
 
-        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BAnydataType.class);
+        BAssertUtil.assertTypeClass(mapValue.getType(), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue.getType()), BAnydataType.class);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("name"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("name"))), BStringType.class);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("age")).toString(), "25");
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("status"))).getClass(), BStringType.class);
-
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("status"))), BStringType.class);
     }
 
     @Test
@@ -259,17 +258,15 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(getType(((Object) ((BMap) mapValue.get(StringUtils.fromString("a"))).get(
                         StringUtils.fromString("age")))).getTag(),
                 TypeTags.INT_TAG);
-        Assert.assertEquals(getType(((Object) ((BMap) mapValue.get(StringUtils.fromString("a"))).get(
-                StringUtils.fromString("school")))).
-                getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(((BMap) mapValue.get(StringUtils.fromString("a"))).get(
+                StringUtils.fromString("school"))), BStringType.class);
 
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("b"))).getName(), "Employee");
         Assert.assertEquals(getType(((Object) ((BMap) mapValue.get(StringUtils.fromString("b"))).get(
                         StringUtils.fromString("age")))).getTag(),
                 TypeTags.INT_TAG);
-        Assert.assertEquals(getType(((Object) ((BMap) mapValue.get(StringUtils.fromString("b"))).get(
-                StringUtils.fromString("school")))).
-                getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(((Object) ((BMap) mapValue.get(StringUtils.fromString("b"))).get(
+                StringUtils.fromString("school")))), BStringType.class);
     }
 
     @Test
@@ -290,9 +287,9 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.size(), 2);
 
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("a"))).getClass(), BMapType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("a"))), BMapType.class);
         Assert.assertEquals(((BMap) mapValue.get(StringUtils.fromString("a"))).size(), 5);
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("b"))).getClass(), BMapType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("b"))), BMapType.class);
         Assert.assertEquals(((BMap) mapValue.get(StringUtils.fromString("b"))).size(), 5);
     }
 
@@ -308,17 +305,15 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(
                 getType(((BMap) mapValue.get(StringUtils.fromString("a"))).get(StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
-        Assert.assertEquals(
-                getType(((BMap) mapValue.get(StringUtils.fromString("a"))).get(StringUtils.fromString("school"))).
-                        getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(((BMap) mapValue.get(StringUtils.fromString("a"))).get(
+                StringUtils.fromString("school"))), BStringType.class);
 
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("b"))).getName(), "Employee");
         Assert.assertEquals(
                 getType(((BMap) mapValue.get(StringUtils.fromString("b"))).get(StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
-        Assert.assertEquals(
-                getType(((BMap) mapValue.get(StringUtils.fromString("b"))).get(StringUtils.fromString("school"))).
-                        getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(((BMap) mapValue.get(StringUtils.fromString("b"))).get(
+                StringUtils.fromString("school"))), BStringType.class);
     }
 
     @Test
@@ -378,10 +373,10 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.size(), 2);
 
-        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BAnydataType.class);
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("a"))).getClass(), BMapType.class);
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("b"))).getClass(), BMapType.class);
+        BAssertUtil.assertTypeClass(mapValue.getType(), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue.getType()), BAnydataType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("a"))), BMapType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("b"))), BMapType.class);
     }
 
     @Test
@@ -392,15 +387,14 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.size(), 2);
 
-        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
-        Assert.assertEquals(
-                TypeUtils.getImpliedType(((BMapType) mapValue.getType()).getConstrainedType()).getClass(),
+        BAssertUtil.assertTypeClass(mapValue.getType(), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeUtils.getImpliedType(TypeHelper.typeConstraint(mapValue.getType())),
                 BRecordType.class);
-        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getName(), "Teacher");
+        Assert.assertEquals(TypeHelper.typeConstraint(mapValue.getType()).getName(), "Teacher");
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("a"))).getName(), "Teacher");
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("a"))).getClass(), BRecordType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("a"))), BRecordType.class);
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("b"))).getName(), "Teacher");
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("b"))).getClass(), BRecordType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("b"))), BRecordType.class);
     }
 
     //---------------------------------- Negative Test cases ----------------------------------------------
@@ -411,7 +405,7 @@ public class MapStampInbuiltFunctionTest {
         Object results = BRunUtil.invoke(compileResult, "stampMapToRecordNegative");
         Object error = results;
 
-        Assert.assertEquals(getType(error).getClass(), BErrorType.class);
+        BAssertUtil.assertTypeClass(getType(error), BErrorType.class);
         Assert.assertEquals(
                 ((BMap<String, BString>) ((BError) results).getDetails()).get(StringUtils.fromString("message"))
                         .toString(),

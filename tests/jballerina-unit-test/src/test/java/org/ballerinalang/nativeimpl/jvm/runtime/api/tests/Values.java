@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -56,9 +57,9 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
-import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -423,8 +424,7 @@ public class Values {
     }
 
     public static BArray getIntArray(BTypedesc typedesc) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
-        BArray arrayValue = ValueCreator.createArrayValue(arrayType);
+        BArray arrayValue = ValueCreator.createArrayValue(TypeUtils.getReferredType(typedesc.getDescribingType()));
         arrayValue.add(0, 1L);
         arrayValue.add(1, 2L);
         arrayValue.add(2, 3L);
@@ -432,17 +432,16 @@ public class Values {
     }
 
     public static BArray getIntArrayWithInitialValues(BTypedesc typedesc, BArray array) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {
             elements[i] = ValueCreator.createListInitialValueEntry(array.get(i));
         }
-        return ValueCreator.createArrayValue(arrayType, elements);
+        return ValueCreator.createArrayValue(TypeUtils.getReferredType(typedesc.getDescribingType()), elements);
     }
 
     public static BArray getTupleWithInitialValues(BTypedesc typedesc, BArray array) {
-        BTupleType tupleType = (BTupleType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        BTupleType tupleType = TypeBuilder.unwrap(TypeUtils.getReferredType(typedesc.getDescribingType()));
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {
@@ -455,8 +454,7 @@ public class Values {
         Type describingType = typedesc.getDescribingType();
         if (describingType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG &&
                 ((ReferenceType) describingType).getReferredType().getTag() == TypeTags.INTERSECTION_TAG) {
-            describingType = ReadOnlyUtils.getMutableType(((BIntersectionType)
-                    ((ReferenceType) describingType).getReferredType()));
+            describingType = ReadOnlyUtils.getMutableType(TypeHelper.referredType(describingType));
         }
         if (!(describingType instanceof AnnotatableType)) {
             throw ErrorCreator.createError(StringUtils.fromString("Invalid type found."));

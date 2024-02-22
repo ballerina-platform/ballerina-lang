@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.TypeHelper;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -352,7 +352,7 @@ public class NativeConversionTest {
         BMap<String, Object> anyArrayStruct = (BMap<String, Object>) returns;
 
         BArray array = (BArray) anyArrayStruct.get(StringUtils.fromString("a"));
-        Assert.assertEquals(((BArrayType) array.getType()).getElementType().toString(), "int");
+        Assert.assertEquals(TypeHelper.listRestType(array.getType()).toString(), "int");
         Assert.assertEquals(array.getInt(0), 4);
         Assert.assertEquals(array.getInt(1), 3);
         Assert.assertEquals(array.getInt(2), 9);
@@ -365,7 +365,7 @@ public class NativeConversionTest {
         BMap<String, Object> anyArrayStruct = (BMap<String, Object>) returns;
         BArray array = (BArray) anyArrayStruct.get(StringUtils.fromString("a"));
 
-        Assert.assertEquals(((BArrayType) array.getType()).getElementType().toString(), "string");
+        Assert.assertEquals(TypeHelper.listRestType(array.getType()).toString(), "string");
         Assert.assertEquals(array.getString(0), "a");
         Assert.assertEquals(array.getString(1), "b");
         Assert.assertEquals(array.getString(2), "c");

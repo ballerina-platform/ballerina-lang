@@ -37,14 +37,12 @@ import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.TableUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
-import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 
 import java.util.AbstractMap;
@@ -64,6 +62,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -121,7 +120,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     public TableValueImpl(Type type, ArrayValue data, ArrayValue fieldNames) {
-        this((TableType) TypeUtils.getImpliedType(type), data, fieldNames);
+        this(unwrap(TypeUtils.getImpliedType(type)), data, fieldNames);
         this.type = type;
     }
 
@@ -358,7 +357,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return;
         }
 
-        this.tableType = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.tableType);
+        this.tableType = unwrap(ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.tableType));
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
 
         //we know that values are always BRefValues
@@ -422,19 +421,19 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private Type getTableConstraintField(Type constraintType, String fieldName) {
         switch (constraintType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
-                Map<String, Field> fieldList = ((BRecordType) constraintType).getFields();
+                Map<String, Field> fieldList = TypeHelper.mappingRequiredFields(constraintType);
                 return fieldList.get(fieldName).getFieldType();
             case TypeTags.MAP_TAG:
-                return ((BMapType) constraintType).getConstrainedType();
+                return TypeHelper.typeConstraint(constraintType);
             case TypeTags.INTERSECTION_TAG:
-                Type effectiveType = ((BIntersectionType) constraintType).getEffectiveType();
+                Type effectiveType = TypeHelper.effectiveType(constraintType);
                 return getTableConstraintField(effectiveType, fieldName);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                Type refType = ((BTypeReferenceType) constraintType).getReferredType();
+                Type refType = TypeHelper.referredType(constraintType);
                 return getTableConstraintField(refType, fieldName);
             case TypeTags.UNION_TAG:
                 HashSet<Type> possibleTypes = new HashSet<>();
-                for (Type memberType : ((BUnionType) constraintType).getMemberTypes()) {
+                for (Type memberType : TypeHelper.members(constraintType)) {
                     possibleTypes.add(getTableConstraintField(memberType, fieldName));
                 }
                 if (possibleTypes.size() == 1) {
@@ -730,11 +729,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 List<Type> keyTypes = new ArrayList<>();
                 Type constraintType = TypeUtils.getImpliedType(tableType.getConstrainedType());
                 if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                    BRecordType recordType = (BRecordType) constraintType;
+                    BRecordType recordType = unwrap(constraintType);
                     Arrays.stream(fieldNames)
                             .forEach(field -> keyTypes.add(recordType.getFields().get(field).getFieldType()));
                 } else if (constraintType.getTag() == TypeTags.MAP_TAG) {
-                    BMapType mapType = (BMapType) constraintType;
+                    BMapType mapType = unwrap(constraintType);
                     Arrays.stream(fieldNames).forEach(field -> keyTypes.add(mapType.getConstrainedType()));
                 }
                 keyType = new BTupleType(keyTypes);
@@ -742,7 +741,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
             public K wrapKey(MapValue data) {
                 TupleValueImpl arr = (TupleValueImpl) ValueCreator
-                        .createTupleValue((BTupleType) keyType);
+                        .createTupleValue(unwrap(keyType));
                 for (int i = 0; i < fieldNames.length; i++) {
                     arr.add(i, data.get(StringUtils.fromString(fieldNames[i])));
                 }

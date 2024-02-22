@@ -29,12 +29,9 @@ import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.types.BTypeReferenceType;
-import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.MapValue;
 
-import java.util.List;
-
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
@@ -116,8 +113,7 @@ public class MapUtils {
         type = TypeUtils.getImpliedType(type);
         int tag = type.getTag();
         if (tag == TypeTags.UNION_TAG) {
-            List<Type> memTypes = ((BUnionType) type).getMemberTypes();
-            for (Type memType : memTypes) {
+            for (Type memType : TypeHelper.constituentTypes(type)) {
                 if (containsNilType(memType)) {
                     return true;
                 }
@@ -147,18 +143,18 @@ public class MapUtils {
 
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType);
+                handleInherentTypeViolatingMapUpdate(value, unwrap(mapType));
                 mapValue.put(fieldName, value);
                 return;
             case TypeTags.RECORD_TYPE_TAG:
-                if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false)) {
+                if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, unwrap(mapType), false)) {
                     mapValue.put(fieldName, value);
                     return;
                 }
                 mapValue.remove(fieldName);
                 return;
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                updateMapValue(((BTypeReferenceType) mapType).getReferredType(), mapValue, fieldName, value);
+                updateMapValue(TypeHelper.referredType(mapType), mapValue, fieldName, value);
         }
     }
 }

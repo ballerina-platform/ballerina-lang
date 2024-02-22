@@ -36,6 +36,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
@@ -50,6 +51,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
@@ -72,7 +74,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     private Type elementReferredType;
     protected Type type;
-    protected ArrayType arrayType;
+    protected Type arrayType;
     protected Type elementType;
     private TypedescValue elementTypedescValue = null;
 
@@ -85,11 +87,11 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private BTypedesc typedesc;
     // ------------------------ Constructors -------------------------------------------------------------------
 
-    public ArrayValueImpl(Object[] values, ArrayType type) {
+    public ArrayValueImpl(Object[] values, Type type) {
         this.refValues = values;
         this.type = this.arrayType = type;
         this.size = values.length;
-        this.elementType = type.getElementType();
+        this.elementType = TypeHelper.listRestType(type);
         this.elementReferredType = TypeUtils.getImpliedType(this.elementType);
     }
 
@@ -132,12 +134,13 @@ public class ArrayValueImpl extends AbstractArrayValue {
         setArrayType(PredefinedTypes.TYPE_STRING, readonly);
     }
 
-    public ArrayValueImpl(ArrayType type) {
-        this(type, type.getSize());
+    public ArrayValueImpl(Type type) {
+        this(type, TypeHelper.listFixedSize(type));
     }
 
     private void initArrayValues() {
-        int initialArraySize = (arrayType.getSize() != -1) ? arrayType.getSize() : DEFAULT_ARRAY_SIZE;
+        int fixedSize = TypeHelper.listFixedSize(arrayType);
+        int initialArraySize = (fixedSize != -1) ? fixedSize : DEFAULT_ARRAY_SIZE;
         switch (elementReferredType.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.SIGNED32_INT_TAG:
@@ -154,7 +157,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
                 this.bStringValues = new BString[initialArraySize];
-                if (arrayType.getState() == ArrayState.CLOSED) {
+                if (TypeHelper.arrayState(type) == ArrayState.CLOSED) {
                     fillValues(initialArraySize);
                 }
                 break;
@@ -166,7 +169,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             default:
                 this.refValues = new Object[initialArraySize];
-                if (arrayType.getState() == ArrayState.CLOSED) {
+                if (TypeHelper.arrayState(arrayType) == ArrayState.CLOSED) {
                     fillValues(initialArraySize);
                 }
         }
@@ -235,9 +238,9 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    public ArrayValueImpl(ArrayType type, long size) {
+    public ArrayValueImpl(Type type, long size) {
         this.type = this.arrayType = type;
-        this.elementType = type.getElementType();
+        this.elementType = TypeHelper.listRestType(type);
         this.elementReferredType = TypeUtils.getImpliedType(this.elementType);
         initArrayValues();
         if (size != -1) {
@@ -251,7 +254,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public ArrayValueImpl(Type type, BListInitialValueEntry[] initialValues) {
-        this(type, ((ArrayType) TypeUtils.getImpliedType(type)).getSize(), initialValues, null);
+        this(type, ((BArrayType) unwrap(TypeUtils.getImpliedType(type))).getSize(), initialValues, null);
     }
 
     public ArrayValueImpl(ArrayType type, long size, BListInitialValueEntry[] initialValues) {
@@ -259,13 +262,13 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public ArrayValueImpl(Type type, BListInitialValueEntry[] initialValues, TypedescValue typedescValue) {
-        this(type, ((ArrayType) TypeUtils.getImpliedType(type)).getSize(), initialValues, typedescValue);
+        this(type, ((ArrayType) unwrap(TypeUtils.getImpliedType(type))).getSize(), initialValues, typedescValue);
     }
 
     public ArrayValueImpl(Type type, long size, BListInitialValueEntry[] initialValues, TypedescValue typedescValue) {
         this.type = type;
-        this.arrayType = (ArrayType) TypeUtils.getImpliedType(type);
-        this.elementType = arrayType.getElementType();
+        this.arrayType = unwrap(TypeUtils.getImpliedType(type));
+        this.elementType = TypeHelper.listRestType(type);
         this.elementReferredType = TypeUtils.getImpliedType(this.elementType);
         this.elementTypedescValue = typedescValue;
         initArrayValues();
@@ -970,7 +973,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
 
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
-        this.arrayType = (ArrayType) TypeUtils.getImpliedType(type);
+        this.arrayType = unwrap(TypeUtils.getImpliedType(type));
 
         if (this.elementType == null || this.elementReferredType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
@@ -1056,7 +1059,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.BOOLEAN_TAG:
                 return;
             default:
-                if (arrayType.hasFillerValue()) {
+                if (TypeHelper.hasFillerValue(arrayType)) {
                     extractComplexFillerValues(index);
                 }
         }
@@ -1102,7 +1105,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     protected void fillerValueCheck(int index, int size, int expectedLength) {
         // if the elementType doesn't have an implicit initial value & if the insertion is not a consecutive append
         // to the array, then an exception will be thrown.
-        if (arrayType.hasFillerValue()) {
+        if (TypeHelper.hasFillerValue(arrayType)) {
             return;
         }
         if (index > size) {
@@ -1117,7 +1120,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return;
         }
 
-        if (this.arrayType.getState() != ArrayState.OPEN) {
+        if (TypeHelper.arrayState(arrayType) != ArrayState.OPEN) {
             return;
         }
 
@@ -1134,7 +1137,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     protected void checkFixedLength(long length) {
-        if (this.arrayType.getState() == ArrayState.CLOSED) {
+        if (TypeHelper.arrayState(arrayType) == ArrayState.CLOSED) {
             throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     ErrorCodes.ILLEGAL_ARRAY_SIZE, size, length);
@@ -1173,7 +1176,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void fillRead(long index, int currentArraySize) {
-        if (!arrayType.hasFillerValue()) {
+        if (!TypeHelper.hasFillerValue(arrayType)) {
             throw ErrorHelper.getRuntimeException(ErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
                                                            ErrorCodes.ILLEGAL_ARRAY_INSERTION, size, index + 1);
         }

@@ -22,19 +22,19 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.MapType;
-import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
@@ -55,11 +55,10 @@ public class Filter {
         Type constraint;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                MapType type = (MapType) mapType;
-                constraint = type.getConstrainedType();
+                constraint = TypeHelper.typeConstraint(mapType);
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                constraint = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
+                constraint = MapLibUtils.getCommonTypeForRecordField(unwrap(mapType));
                 break;
             default:
                 throw createOpNotSupportedError(mapType, "filter()");

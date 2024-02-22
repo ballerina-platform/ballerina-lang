@@ -40,6 +40,7 @@ import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.JsonInternalUtils;
 import io.ballerina.runtime.internal.MapUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -64,6 +65,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
@@ -194,7 +196,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
         // The type should be a record or map for filling read.
         if (this.referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            BRecordType recordType = (BRecordType) this.referredType;
+            BRecordType recordType = unwrap(this.referredType);
             Map fields = recordType.getFields();
             if (fields.containsKey(key.toString())) {
                 expectedType = ((BField) fields.get(key.toString())).getFieldType();
@@ -207,7 +209,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 expectedType = recordType.restFieldType;
             }
         } else {
-            expectedType = ((BMapType) this.referredType).getConstrainedType();
+            expectedType = TypeHelper.typeConstraint(this.referredType);
         }
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
@@ -316,11 +318,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     public void populateInitialValue(K key, V value) {
         if (referredType.getTag() == TypeTags.MAP_TAG) {
-            MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) referredType);
+            MapUtils.handleInherentTypeViolatingMapUpdate(value, unwrap(referredType));
             putValue(key, value);
         } else {
             BString fieldName = (BString) key;
-            if (MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) referredType,
+            if (MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, unwrap(referredType),
                     true)) {
                 putValue(key, value);
             }
@@ -646,10 +648,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private void initializeIteratorNextReturnType() {
         Type type;
         if (this.referredType.getTag() == PredefinedTypes.TYPE_MAP.getTag()) {
-            BMapType mapType = (BMapType) this.referredType;
+            BMapType mapType = unwrap(this.referredType);
             type = mapType.getConstrainedType();
         } else {
-            BRecordType recordType = (BRecordType) this.referredType;
+            BRecordType recordType = unwrap(this.referredType);
             LinkedHashSet<Type> types = recordType.getFields().values().stream().map(Field::getFieldType)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
             if (recordType.restFieldType != null) {

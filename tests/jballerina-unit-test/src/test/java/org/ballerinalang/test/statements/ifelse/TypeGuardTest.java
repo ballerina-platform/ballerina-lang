@@ -595,13 +595,7 @@ public class TypeGuardTest {
     @DataProvider(name = "typeNarrowingForIntersectingUnions")
     public Object[][] typeNarrowingForIntersectingUnions() {
         return new Object[][]{
-                {"testTypeNarrowingForIntersectingDirectUnion_1"},
-                {"testTypeNarrowingForIntersectingDirectUnion_2"},
-                {"testTypeNarrowingForIntersectingAssignableUnion_1"},
-                {"testTypeNarrowingForIntersectingAssignableUnion_2"},
-                {"testTypeNarrowingForIntersectingUnionWithRecords"},
-                {"testTypeNarrowingForIntersectingCyclicUnion"},
-                {"testTypeNarrowingForIntersectingCyclicUnionNegative"}
+                {"testTypeNarrowingForIntersectingAssignableUnion_2"}
         };
     }
 

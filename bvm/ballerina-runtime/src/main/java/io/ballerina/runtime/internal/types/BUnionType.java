@@ -39,6 +39,8 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+
 /**
  * {@code BUnionType} represents a union type in Ballerina.
  *
@@ -486,7 +488,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
                 continue;
             }
 
-            BUnionType unionMemType = (BUnionType) type;
+            BUnionType unionMemType = unwrap(type);
             String typeName = unionMemType.typeName;
             if (typeName != null && !typeName.isEmpty()) {
                 uniqueTypes.add(type);
@@ -542,5 +544,11 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    @Override
+    public void addCyclicMembers(List<Type> members) {
+        this.isCyclic = true;
+        members.forEach(this::addMember);
     }
 }

@@ -26,8 +26,8 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 
 import java.util.Map;
@@ -73,7 +73,7 @@ public class TypedescValueImpl implements TypedescValue {
     public TypedescValueImpl(Type describingType, MapValue[] closures, MapValue annotations) {
         this(describingType, closures);
         this.annotations = annotations;
-        ((BAnnotatableType) describingType).setAnnotations(annotations);
+        TypeHelper.setAnnotations(describingType, annotations);
     }
 
     /**

@@ -22,15 +22,10 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.AnydataType;
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
-import io.ballerina.runtime.api.types.MapType;
-import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
-import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -171,7 +166,7 @@ public class ValueConverter {
     private static Type getTargetFromTypeDesc(Type targetType) {
         Type referredType = TypeUtils.getImpliedType(targetType);
         if (referredType.getTag() == TypeTags.TYPEDESC_TAG) {
-            return ((TypedescType) referredType).getConstraint();
+            return TypeHelper.typeConstraint(referredType);
         }
         return targetType;
     }
@@ -181,7 +176,7 @@ public class ValueConverter {
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
                 BMapInitialValueEntry[] initialValues = new BMapInitialValueEntry[map.entrySet().size()];
-                Type constraintType = ((MapType) targetType).getConstrainedType();
+                Type constraintType = TypeHelper.typeConstraint(targetType);
                 int count = 0;
                 for (Map.Entry<?, ?> entry : map.entrySet()) {
                     Object newValue = convert(entry.getValue(), constraintType, unresolvedValues);
@@ -191,10 +186,9 @@ public class ValueConverter {
                 }
                 return new MapValueImpl<>(targetRefType, initialValues);
             case TypeTags.RECORD_TYPE_TAG:
-                RecordType recordType = (RecordType) targetType;
-                Type restFieldType = recordType.getRestFieldType();
+                Type restFieldType = TypeHelper.mappingRestFieldType(targetType);
                 Map<String, Type> targetTypeField = new HashMap<>();
-                for (Field field : recordType.getFields().values()) {
+                for (Field field : TypeHelper.mappingRequiredFields(targetType).values()) {
                     targetTypeField.put(field.getFieldName(), field.getFieldType());
                 }
                 return convertToRecord(map, unresolvedValues, targetRefType, restFieldType,
@@ -234,34 +228,33 @@ public class ValueConverter {
                                        Set<TypeValuePair> unresolvedValues) {
         switch (targetType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                ArrayType arrayType = (ArrayType) targetType;
                 BListInitialValueEntry[] arrayValues = new BListInitialValueEntry[array.size()];
                 for (int i = 0; i < array.size(); i++) {
-                    Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues);
+                    Object newValue = convert(array.get(i), TypeHelper.listRestType(targetType), unresolvedValues);
                     arrayValues[i] = ValueCreator.createListInitialValueEntry(newValue);
                 }
-                return new ArrayValueImpl(targetRefType, arrayType.getSize(), arrayValues);
+                return new ArrayValueImpl(targetRefType, TypeHelper.listFixedSize(targetType), arrayValues);
             case TypeTags.TUPLE_TAG:
-                TupleType tupleType = (TupleType) targetType;
-                int minLen = tupleType.getTupleTypes().size();
+                List<Type> memberTypes = TypeHelper.listMemberTypes(targetType);
+                int minLen = memberTypes.size();
                 BListInitialValueEntry[] tupleValues = new BListInitialValueEntry[array.size()];
                 for (int i = 0; i < array.size(); i++) {
-                    Type elementType = (i < minLen) ? tupleType.getTupleTypes().get(i) : tupleType.getRestType();
+                    Type elementType = (i < minLen) ? memberTypes.get(i) : TypeHelper.listRestType(targetType);
                     Object newValue = convert(array.get(i), elementType, unresolvedValues);
                     tupleValues[i] = ValueCreator.createListInitialValueEntry(newValue);
                 }
                 return new TupleValueImpl(targetRefType, tupleValues);
             case TypeTags.TABLE_TAG:
-                TableType tableType = (TableType) targetType;
                 Object[] tableValues = new Object[array.size()];
+                Type constraintType = TypeHelper.typeConstraint(targetType);
                 for (int i = 0; i < array.size(); i++) {
-                    BMap<?, ?> bMap = (BMap<?, ?>) convert(array.get(i), tableType.getConstrainedType(),
-                            unresolvedValues);
+                    BMap<?, ?> bMap = (BMap<?, ?>) convert(array.get(i), constraintType, unresolvedValues);
                     tableValues[i] = bMap;
                 }
                 BArray data = ValueCreator
-                        .createArrayValue(tableValues, TypeCreator.createArrayType(tableType.getConstrainedType()));
-                BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
+                        .createArrayValue(tableValues,
+                                TypeCreator.createArrayType(constraintType));
+                BArray fieldNames = StringUtils.fromStringArray(TypeHelper.tableFieldNames(targetType));
                 return new TableValueImpl(targetRefType, (ArrayValue) data, (ArrayValue) fieldNames);
             default:
                 break;

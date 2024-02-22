@@ -26,6 +26,7 @@ import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
+import io.ballerina.types.subtypedata.XmlSubtype;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -55,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -68,6 +71,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -86,6 +90,7 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
@@ -103,6 +108,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getStringConstantsClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BASIC_TYPE_BUILDER_DESCRIPTOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINARY_TYPE_OPERATION_DESCRIPTOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINARY_TYPE_OPERATION_WITH_IDENTIFIER_DESCRIPTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
@@ -111,15 +119,19 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OB
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FINITE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTABLE_REFERENCE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_SUBTYPE_BUILDER_DESCRIPTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST_SUBTYPE_BUILDER_DESCRIPTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANON_TYPES_CLASS_NAME;
@@ -132,12 +144,20 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARAMETER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_SUBTYPE_BUILDER_DESCRIPTOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_SUBTYPE_DATA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_SUBTYPE_DATA_BUILDER_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_BUILDER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_BUILDER_IDENTIFIER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_BUILDER_INIT_DESCRIPTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_SIMPLE_SUBTYPE_BUILDER_DESCRIPTOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_SUBTYPE_BUILDER_DESCRIPTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOOLEAN_VALUE_OF_METHOD;
@@ -179,24 +199,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TAB
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_BOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_VALUE_OF_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_ANYDATA_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_ANY_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_BOOLEAN_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_BYTE_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_DECIMAL_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_FLOAT_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_HANDLE_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_INTEGER_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_JSON_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_NEVER_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_NULL_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_OBJECT_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_READONLY_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_SERVICE_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_STRING_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_UNION_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LONG_VALUE_OF;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
@@ -360,6 +363,330 @@ public class JvmTypeGen {
     //              Type loading methods
     // -------------------------------------------------------
 
+    private static void loadTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
+        if (type == null || type.tag == TypeTags.NIL) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "nilType", BASIC_TYPE_BUILDER_DESCRIPTOR, false);
+            return;
+        }
+        // NOTE: don't fully remove this until we unconditionally support xml
+        if (isXmlSubType(type)) {
+            loadXmlSubType(mv, type);
+            return;
+        }
+        if (isMayBeReadonlyType(type)) {
+            loadMayBeReadonlyTypeUsingTypeBuilder(mv, type);
+            return;
+        }
+        if (isIntSubType(type)) {
+            loadIntSubTypeUsingTypeBuilder(mv, type);
+            return;
+        }
+        int tag = type.tag;
+        if (tag == TypeTags.UNION) {
+            loadUnionTypeUsingTypeBuilder(mv, type);
+            return;
+        }
+        if (tag == TypeTags.CHAR_STRING) {
+            loadStringSubTypeUsingTypeBuilder(mv, type);
+            return;
+        }
+        String methodName = switch (tag) {
+            case TypeTags.BOOLEAN -> "booleanType";
+            case TypeTags.DECIMAL -> "decimalType";
+            case TypeTags.FLOAT -> "floatType";
+            case TypeTags.INT -> "intType";
+            case TypeTags.NEVER -> "neverType";
+            case TypeTags.STRING -> "stringType";
+            case TypeTags.XML -> "xmlType";
+            default -> throw new UnsupportedOperationException("Unexpected type: " + type);
+        };
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, methodName, BASIC_TYPE_BUILDER_DESCRIPTOR, false);
+    }
+
+    private static void loadUnionTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
+        BUnionType unionType = (BUnionType) type;
+        List<BType> memberTypes = new ArrayList<>(unionType.getMemberTypes());
+        loadTypeUsingTypeBuilder(mv, memberTypes.get(0));
+        loadTypeUsingTypeBuilder(mv, memberTypes.get(1));
+        // TODO: refactor this to make things clean
+        if (memberTypes.size() == 2 && hasIdentifier(type)) {
+            loadTypeBuilderIdentifier(mv, unionType);
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union", BINARY_TYPE_OPERATION_WITH_IDENTIFIER_DESCRIPTOR,
+                    false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union", BINARY_TYPE_OPERATION_DESCRIPTOR, false);
+        }
+        for (int i = 2; i < memberTypes.size(); i++) {
+            loadTypeUsingTypeBuilder(mv, memberTypes.get(i));
+            if (i == memberTypes.size() - 1 && hasIdentifier(type)) {
+                loadTypeBuilderIdentifier(mv, unionType);
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union",
+                        BINARY_TYPE_OPERATION_WITH_IDENTIFIER_DESCRIPTOR, false);
+            } else {
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union", BINARY_TYPE_OPERATION_DESCRIPTOR, false);
+            }
+        }
+    }
+
+    private static boolean hasIdentifier(BType type) {
+        return type.tsymbol != null && (type.name != null || type.tsymbol.name != null);
+    }
+
+    private static void loadTypeBuilderIdentifier(MethodVisitor mv, BType type) {
+        PackageID packageID = type.tsymbol.pkgID;
+        String org = packageID.orgName.value;
+        String pkgName = packageID.pkgName.value;
+        String version = packageID.version.value;
+        // TODO: get the name using utils
+        String name;
+        if (type.tsymbol.name != null) {
+            name = Utils.decodeIdentifier(type.tsymbol.name.getValue());
+        } else {
+            name = Utils.decodeIdentifier(type.name.getValue());
+        }
+        mv.visitTypeInsn(NEW, TYPE_BUILDER_IDENTIFIER);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(name);
+        mv.visitLdcInsn(org);
+        mv.visitLdcInsn(pkgName);
+        mv.visitLdcInsn(version);
+        mv.visitMethodInsn(INVOKESPECIAL, TYPE_BUILDER_IDENTIFIER, JVM_INIT_METHOD, TYPE_BUILDER_INIT_DESCRIPTOR,
+                false);
+    }
+
+    private static boolean isXmlSubType(BType type) {
+        return switch (type.tag) {
+            case TypeTags.XML_ELEMENT, TypeTags.XML_PI, TypeTags.XML_COMMENT, TypeTags.XML_TEXT -> true;
+            case TypeTags.XML -> ((BXMLType) type).constraint != null;
+            default -> false;
+        };
+    }
+
+    private static void loadXmlSubType(MethodVisitor mv, BType type) {
+        if (type instanceof BXMLType xmlType && xmlType.constraint != null) {
+            loadComplexXmlSubType(mv, xmlType);
+            return;
+        }
+        int primitives = xmlPrimitiveFlag(type);
+        mv.visitLdcInsn(primitives);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "xmlSimpleSubType", XML_SIMPLE_SUBTYPE_BUILDER_DESCRIPTOR,
+                false);
+    }
+
+    private static void loadComplexXmlSubType(MethodVisitor mv, BXMLType type) {
+        loadTypeUsingTypeBuilder(mv, type.constraint);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "xmlSubType", XML_SUBTYPE_BUILDER_DESCRIPTOR, false);
+    }
+
+    private static int xmlPrimitiveFlag(BType type) {
+        return switch (type.tag) {
+            case TypeTags.XML_ELEMENT ->
+                    Symbols.isFlagOn(type.flags, Flags.READONLY) ? XmlSubtype.XML_PRIMITIVE_ELEMENT_RO :
+                            XmlSubtype.XML_PRIMITIVE_ELEMENT_RW;
+            case TypeTags.XML_PI -> Symbols.isFlagOn(type.flags, Flags.READONLY) ? XmlSubtype.XML_PRIMITIVE_PI_RO :
+                    XmlSubtype.XML_PRIMITIVE_PI_RW;
+            case TypeTags.XML_COMMENT ->
+                    Symbols.isFlagOn(type.flags, Flags.READONLY) ? XmlSubtype.XML_PRIMITIVE_COMMENT_RO :
+                            XmlSubtype.XML_PRIMITIVE_COMMENT_RW;
+            case TypeTags.XML_TEXT -> XmlSubtype.XML_PRIMITIVE_TEXT;
+            default -> throw new UnsupportedOperationException("Unexpected XML subtype" + type);
+        };
+    }
+
+    private static boolean isIntSubType(BType type) {
+        return type.tag == TypeTags.BYTE || (type.tag >= TypeTags.SIGNED32_INT && type.tag <= TypeTags.UNSIGNED8_INT);
+    }
+
+    private static void loadStructureTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
+        switch (type.tag) {
+            case TypeTags.ARRAY -> loadArraySubTypeUsingTypeBuilder(mv, type);
+            case TypeTags.TUPLE -> loadTupleTypeUsingTypeBuilder(mv, type);
+            default -> throw new UnsupportedOperationException("Unexpected structure type: " + type);
+        }
+    }
+
+    private static void loadTupleTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
+        BTupleType tupleType = (BTupleType) type;
+        List<BTupleMember> members = tupleType.getMembers();
+        mv.visitLdcInsn(members.size());
+        mv.visitTypeInsn(ANEWARRAY, TYPE);
+        for (int i = 0; i < members.size(); i++) {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(i);
+            loadTypeUsingTypeBuilder(mv, members.get(i).type);
+            mv.visitInsn(AASTORE);
+        }
+
+        mv.visitLdcInsn(members.size());
+        if (tupleType.restType != null) {
+            loadTypeUsingTypeBuilder(mv, tupleType.restType);
+        } else {
+            loadNeverType(mv);
+        }
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "tupleSubType", LIST_SUBTYPE_BUILDER_DESCRIPTOR, false);
+    }
+
+    private static void loadArraySubTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
+        BArrayType arrayType = (BArrayType) type;
+        BType elementType = arrayType.eType;
+        if (arrayType.size != -1) {
+            // fixed length array
+            mv.visitLdcInsn(1);
+            mv.visitTypeInsn(ANEWARRAY, TYPE);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(0);
+            loadTypeUsingTypeBuilder(mv, elementType);
+            mv.visitInsn(AASTORE);
+
+            mv.visitLdcInsn(arrayType.size);
+
+            loadNeverType(mv);
+        } else {
+            mv.visitLdcInsn(0);
+            mv.visitTypeInsn(ANEWARRAY, TYPE);
+            mv.visitLdcInsn(0);
+            loadTypeUsingTypeBuilder(mv, elementType);
+        }
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "listSubType", LIST_SUBTYPE_BUILDER_DESCRIPTOR, false);
+    }
+
+    // TODO: to better
+    private static void loadNeverType(MethodVisitor mv) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "neverType", BASIC_TYPE_BUILDER_DESCRIPTOR, false);
+    }
+
+    private static boolean isMayBeReadonlyType(BType type) {
+        return type.tag == TypeTags.ANY || type.tag == TypeTags.ANYDATA || type.tag == TypeTags.JSON ||
+                isStructureType(type);
+    }
+
+    private static boolean isStructureType(BType type) {
+        return type.tag == TypeTags.ARRAY || type.tag == TypeTags.TUPLE;
+    }
+
+    // TODO: ideally we should handle xml here as well
+    private static void loadMayBeReadonlyTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
+        if (isStructureType(type)) {
+            loadStructureTypeUsingTypeBuilder(mv, type);
+        } else {
+            String baseTypeBuilderName = switch (type.tag) {
+                case TypeTags.ANY -> "anyType";
+                case TypeTags.ANYDATA -> "anydataType";
+                case TypeTags.JSON -> "jsonType";
+                default -> throw new UnsupportedOperationException("Unexpected maybe readonly type: " + type);
+            };
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, baseTypeBuilderName, BASIC_TYPE_BUILDER_DESCRIPTOR, false);
+        }
+        if (!Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+            return;
+        }
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "readonlyType", BASIC_TYPE_BUILDER_DESCRIPTOR, false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "intersect", BINARY_TYPE_OPERATION_DESCRIPTOR, false);
+    }
+
+    private static void loadIntSubTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
+        int tag = type.tag;
+        // TODO: BTypeHack: this is because we a separate BByte type that is treated different from BIntegerType
+        if (tag == TypeTags.BYTE) {
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "byteType", BASIC_TYPE_BUILDER_DESCRIPTOR, false);
+            return;
+        }
+        long min = switch (tag) {
+            case TypeTags.UNSIGNED8_INT, TypeTags.UNSIGNED16_INT, TypeTags.UNSIGNED32_INT -> 0;
+            case TypeTags.SIGNED8_INT -> -128;
+            case TypeTags.SIGNED16_INT -> -32768;
+            case TypeTags.SIGNED32_INT -> -2147483648;
+            default -> throw new UnsupportedOperationException("Unexpected Int subtype" + type);
+        };
+        long max = switch (tag) {
+            case TypeTags.UNSIGNED8_INT -> 255;
+            case TypeTags.UNSIGNED16_INT -> 65535;
+            case TypeTags.UNSIGNED32_INT -> 4294967295L;
+            case TypeTags.SIGNED8_INT -> 127;
+            case TypeTags.SIGNED16_INT -> 32767;
+            case TypeTags.SIGNED32_INT -> 2147483647;
+            default -> throw new UnsupportedOperationException("Unexpected Int subtype" + type);
+        };
+        mv.visitLdcInsn(min);
+        mv.visitLdcInsn(max);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "intSubType", INT_SUBTYPE_BUILDER_DESCRIPTOR, false);
+    }
+
+    private static void loadStringSubTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
+        if (type.tag != TypeTags.CHAR_STRING) {
+            throw new UnsupportedOperationException("Type loading is not supported for type: " + type);
+        }
+        mv.visitTypeInsn(NEW, STRING_SUBTYPE_DATA);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, STRING_SUBTYPE_DATA, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
+        stringSubtypeDataBuilderHelper(mv, List.of(), "excludeChars");
+        stringSubtypeDataBuilderHelper(mv, List.of(), "includeStrings");
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "stringSubType", STRING_SUBTYPE_BUILDER_DESCRIPTOR, false);
+    }
+
+    private static void stringSubtypeDataBuilderHelper(MethodVisitor mv, List<String> chars, String methodName) {
+        mv.visitLdcInsn(chars.size());
+        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
+        for (int i = 0; i < chars.size(); i++) {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(i);
+            mv.visitLdcInsn(chars.get(i));
+            mv.visitInsn(AASTORE);
+        }
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_SUBTYPE_DATA, methodName, STRING_SUBTYPE_DATA_BUILDER_DESC, false);
+    }
+
+    private static boolean canBeHandledByTypeBuilder(BType type) {
+        if (type == null) {
+            return true;
+        }
+        return switch (type.tag) {
+            case TypeTags.NEVER, TypeTags.INT, TypeTags.NIL, TypeTags.BYTE,
+                    TypeTags.UNSIGNED8_INT, TypeTags.UNSIGNED16_INT, TypeTags.UNSIGNED32_INT,
+                    TypeTags.SIGNED8_INT, TypeTags.SIGNED16_INT, TypeTags.SIGNED32_INT,
+                    TypeTags.FLOAT, TypeTags.STRING, TypeTags.CHAR_STRING, TypeTags.DECIMAL, TypeTags.BOOLEAN,
+                    TypeTags.ANY, TypeTags.ANYDATA, TypeTags.JSON,
+                    TypeTags.XML_COMMENT, TypeTags.XML_PI, TypeTags.XML_ELEMENT, TypeTags.XML_TEXT -> true;
+            case TypeTags.ARRAY -> {
+                BArrayType arrayType = (BArrayType) type;
+                yield canBeHandledByTypeBuilder(arrayType.eType);
+            }
+            case TypeTags.UNION -> {
+                BUnionType unionType = (BUnionType) type;
+                LinkedHashSet<BType> members = unionType.getMemberTypes();
+                if (members.size() < 2) {
+                    // TODO: how to handle this?
+                    yield false;
+                }
+                for (BType memberType : members) {
+                    if (!canBeHandledByTypeBuilder(memberType)) {
+                        yield false;
+                    }
+                }
+                yield true;
+            }
+            case TypeTags.TUPLE -> {
+                BTupleType tupleType = (BTupleType) type;
+                for (BTupleMember member : tupleType.getMembers()) {
+                    if (!canBeHandledByTypeBuilder(member.type)) {
+                        yield false;
+                    }
+                }
+                if (!canBeHandledByTypeBuilder(tupleType.restType)) {
+                    yield false;
+                }
+                yield !tupleType.isCyclic;
+            }
+            case TypeTags.XML -> {
+                BXMLType xmlType = (BXMLType) type;
+                // FIXME: handle intersections
+                yield xmlType.constraint == null || canBeHandledByTypeBuilder(xmlType.constraint);
+            }
+            // TODO: handle unions
+            default -> false;
+        };
+    }
+
     /**
      * Generate code to load an instance of the given type
      * to the top of the stack.
@@ -369,81 +696,18 @@ public class JvmTypeGen {
      */
     public void loadType(MethodVisitor mv, BType bType) {
         String typeFieldName;
-        if (bType == null || bType.tag == TypeTags.NIL) {
-            typeFieldName = "TYPE_NULL";
+        if (canBeHandledByTypeBuilder(bType)) {
+            loadTypeUsingTypeBuilder(mv, bType);
+            return;
         } else {
             switch (bType.tag) {
-                case TypeTags.NEVER:
-                    typeFieldName = "TYPE_NEVER";
-                    break;
-                case TypeTags.INT:
-                    typeFieldName = "TYPE_INT";
-                    break;
-                case TypeTags.SIGNED32_INT:
-                    typeFieldName = "TYPE_INT_SIGNED_32";
-                    break;
-                case TypeTags.SIGNED16_INT:
-                    typeFieldName = "TYPE_INT_SIGNED_16";
-                    break;
-                case TypeTags.SIGNED8_INT:
-                    typeFieldName = "TYPE_INT_SIGNED_8";
-                    break;
-                case TypeTags.UNSIGNED32_INT:
-                    typeFieldName = "TYPE_INT_UNSIGNED_32";
-                    break;
-                case TypeTags.UNSIGNED16_INT:
-                    typeFieldName = "TYPE_INT_UNSIGNED_16";
-                    break;
-                case TypeTags.UNSIGNED8_INT:
-                    typeFieldName = "TYPE_INT_UNSIGNED_8";
-                    break;
-                case TypeTags.FLOAT:
-                    typeFieldName = "TYPE_FLOAT";
-                    break;
-                case TypeTags.STRING:
-                    typeFieldName = "TYPE_STRING";
-                    break;
-                case TypeTags.CHAR_STRING:
-                    typeFieldName = "TYPE_STRING_CHAR";
-                    break;
-                case TypeTags.DECIMAL:
-                    typeFieldName = "TYPE_DECIMAL";
-                    break;
-                case TypeTags.BOOLEAN:
-                    typeFieldName = "TYPE_BOOLEAN";
-                    break;
-                case TypeTags.BYTE:
-                    typeFieldName = "TYPE_BYTE";
-                    break;
-                case TypeTags.ANY:
-                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_ANY" : "TYPE_ANY";
-                    break;
-                case TypeTags.ANYDATA:
                 case TypeTags.REGEXP:
                     typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_ANYDATA" :
                             "TYPE_ANYDATA";
                     break;
-                case TypeTags.JSON:
-                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_JSON" : "TYPE_JSON";
-                    break;
                 case TypeTags.XML:
                     loadXmlType(mv, (BXMLType) bType);
                     return;
-                case TypeTags.XML_ELEMENT:
-                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_ELEMENT" :
-                            "TYPE_ELEMENT";
-                    break;
-                case TypeTags.XML_PI:
-                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ?
-                            "TYPE_READONLY_PROCESSING_INSTRUCTION" : "TYPE_PROCESSING_INSTRUCTION";
-                    break;
-                case TypeTags.XML_COMMENT:
-                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_COMMENT" :
-                            "TYPE_COMMENT";
-                    break;
-                case TypeTags.XML_TEXT:
-                    typeFieldName = "TYPE_TEXT";
-                    break;
                 case TypeTags.TYPEDESC:
                     loadTypedescType(mv, (BTypedescType) bType);
                     return;
@@ -455,6 +719,7 @@ public class JvmTypeGen {
                     typeFieldName = "TYPE_HANDLE";
                     break;
                 case TypeTags.ARRAY:
+                    // NOTE: this is to handle cases where we still can't generate the element using type builder
                     jvmConstantsGen.generateGetBArrayType(mv, jvmConstantsGen.getTypeConstantsVar(bType, symbolTable));
                     return;
                 case TypeTags.MAP:
@@ -509,7 +774,7 @@ public class JvmTypeGen {
                     loadParameterizedType(mv, (BParameterizedType) bType);
                     return;
                 case TypeTags.TYPEREFDESC:
-                    String typeOwner = JvmCodeGenUtil.getModuleLevelClassName(bType.tsymbol.pkgID,
+                    String typeOwner = getModuleLevelClassName(bType.tsymbol.pkgID,
                             JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
                     mv.visitFieldInsn(GETSTATIC, typeOwner,
                             JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) bType), GET_TYPE_REF_TYPE_IMPL);
@@ -519,63 +784,63 @@ public class JvmTypeGen {
             }
         }
 
-        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, typeFieldName, loadTypeClass(bType));
+        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, typeFieldName, LOAD_TYPE);
     }
 
-    private String loadTypeClass(BType bType) {
-        bType = JvmCodeGenUtil.getImpliedType(bType);
-        if (bType == null || bType.tag == TypeTags.NIL) {
-            return LOAD_NULL_TYPE;
-        } else {
-            switch (bType.tag) {
-                case TypeTags.NEVER:
-                    return LOAD_NEVER_TYPE;
-                case TypeTags.INT:
-                case TypeTags.UNSIGNED8_INT:
-                case TypeTags.UNSIGNED16_INT:
-                case TypeTags.UNSIGNED32_INT:
-                case TypeTags.SIGNED8_INT:
-                case TypeTags.SIGNED16_INT:
-                case TypeTags.SIGNED32_INT:
-                    return LOAD_INTEGER_TYPE;
-                case TypeTags.FLOAT:
-                    return LOAD_FLOAT_TYPE;
-                case TypeTags.STRING:
-                case TypeTags.CHAR_STRING:
-                    return LOAD_STRING_TYPE;
-                case TypeTags.DECIMAL:
-                    return LOAD_DECIMAL_TYPE;
-                case TypeTags.BOOLEAN:
-                    return LOAD_BOOLEAN_TYPE;
-                case TypeTags.BYTE:
-                    return LOAD_BYTE_TYPE;
-                case TypeTags.ANY:
-                    return LOAD_ANY_TYPE;
-                case TypeTags.ANYDATA:
-                case TypeTags.REGEXP:
-                    return LOAD_ANYDATA_TYPE;
-                case TypeTags.JSON:
-                    return LOAD_JSON_TYPE;
-                case TypeTags.XML:
-                case TypeTags.XML_TEXT:
-                    return LOAD_XML_TYPE;
-                case TypeTags.XML_ELEMENT:
-                case TypeTags.XML_PI:
-                case TypeTags.XML_COMMENT:
-                    return Symbols.isFlagOn(bType.flags, Flags.READONLY) ? LOAD_TYPE : LOAD_XML_TYPE;
-                case TypeTags.OBJECT:
-                    return Symbols.isService(bType.tsymbol) ? LOAD_SERVICE_TYPE : LOAD_OBJECT_TYPE;
-                case TypeTags.HANDLE:
-                    return LOAD_HANDLE_TYPE;
-                case TypeTags.READONLY:
-                    return LOAD_READONLY_TYPE;
-                case TypeTags.UNION:
-                    return LOAD_UNION_TYPE;
-                default:
-                    return LOAD_TYPE;
-            }
-        }
-    }
+//    private String loadTypeClass(BType bType) {
+//        bType = JvmCodeGenUtil.getImpliedType(bType);
+//        if (bType == null || bType.tag == TypeTags.NIL) {
+//            return LOAD_NULL_TYPE;
+//        } else {
+//            switch (bType.tag) {
+//                case TypeTags.NEVER:
+//                    return LOAD_NEVER_TYPE;
+//                case TypeTags.INT:
+//                case TypeTags.UNSIGNED8_INT:
+//                case TypeTags.UNSIGNED16_INT:
+//                case TypeTags.UNSIGNED32_INT:
+//                case TypeTags.SIGNED8_INT:
+//                case TypeTags.SIGNED16_INT:
+//                case TypeTags.SIGNED32_INT:
+//                    return LOAD_INTEGER_TYPE;
+//                case TypeTags.FLOAT:
+//                    return LOAD_FLOAT_TYPE;
+//                case TypeTags.STRING:
+//                case TypeTags.CHAR_STRING:
+//                    return LOAD_STRING_TYPE;
+//                case TypeTags.DECIMAL:
+//                    return LOAD_DECIMAL_TYPE;
+//                case TypeTags.BOOLEAN:
+//                    return LOAD_BOOLEAN_TYPE;
+//                case TypeTags.BYTE:
+//                    return LOAD_BYTE_TYPE;
+//                case TypeTags.ANY:
+//                    return LOAD_ANY_TYPE;
+//                case TypeTags.ANYDATA:
+//                case TypeTags.REGEXP:
+//                    return LOAD_ANYDATA_TYPE;
+//                case TypeTags.JSON:
+//                    return LOAD_JSON_TYPE;
+//                case TypeTags.XML:
+//                case TypeTags.XML_TEXT:
+//                    return LOAD_XML_TYPE;
+//                case TypeTags.XML_ELEMENT:
+//                case TypeTags.XML_PI:
+//                case TypeTags.XML_COMMENT:
+//                    return Symbols.isFlagOn(bType.flags, Flags.READONLY) ? LOAD_TYPE : LOAD_XML_TYPE;
+//                case TypeTags.OBJECT:
+//                    return Symbols.isService(bType.tsymbol) ? LOAD_SERVICE_TYPE : LOAD_OBJECT_TYPE;
+//                case TypeTags.HANDLE:
+//                    return LOAD_HANDLE_TYPE;
+//                case TypeTags.READONLY:
+//                    return LOAD_READONLY_TYPE;
+//                case TypeTags.UNION:
+//                    return LOAD_UNION_TYPE;
+//                default:
+//                    return LOAD_TYPE;
+//            }
+//        }
+//    }
 
     /**
      * Generate code to load an instance of the given typedesc type
@@ -594,6 +859,7 @@ public class JvmTypeGen {
 
         // invoke the constructor
         mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_TYPE_IMPL, JVM_INIT_METHOD, TYPE_PARAMETER, false);
+        wrapType(mv);
     }
 
     /**
@@ -615,6 +881,7 @@ public class JvmTypeGen {
 
         // invoke the constructor
         mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE_IMPL, JVM_INIT_METHOD, INIT_WITH_BOOLEAN, false);
+        wrapType(mv);
     }
 
     public void loadReadonlyFlag(MethodVisitor mv, BType bType) {
@@ -644,6 +911,7 @@ public class JvmTypeGen {
 
         // invoke the constructor
         mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE_IMPL, JVM_INIT_METHOD, INIT_WITH_BOOLEAN, false);
+        wrapType(mv);
     }
 
     /**
@@ -687,6 +955,7 @@ public class JvmTypeGen {
             loadReadonlyFlag(mv, bType);
             mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE_IMPL, JVM_INIT_METHOD, INIT_WITH_BOOLEAN, false);
         }
+        wrapType(mv);
     }
 
     private void loadStreamType(MethodVisitor mv, BStreamType bType) {
@@ -700,6 +969,7 @@ public class JvmTypeGen {
 
         // invoke the constructor
         mv.visitMethodInsn(INVOKESPECIAL, STREAM_TYPE_IMPL, JVM_INIT_METHOD, INIT_STREAM_TYPE_IMPL, false);
+        wrapType(mv);
     }
 
     /**
@@ -712,9 +982,8 @@ public class JvmTypeGen {
     private void loadErrorType(MethodVisitor mv, BErrorType errorType) {
 
         PackageID pkgID = errorType.tsymbol.pkgID;
-        // TODO: Builtin error type will be loaded from BTypes java class. Need to handle this properly.
         if (JvmCodeGenUtil.isBuiltInPackage(pkgID)) {
-            mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPES_ERROR, GET_ERROR_TYPE);
+            mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPES_ERROR, GET_TYPE);
             return;
         }
         
@@ -840,6 +1109,9 @@ public class JvmTypeGen {
 
         // Load the effective type of the intersection.
         loadType(mv, bType.effectiveType);
+        String expectedType =
+                bType.effectiveType instanceof SelectivelyImmutableReferenceType ? INTERSECTABLE_REFERENCE_TYPE : TYPE;
+        unwrapType(mv, expectedType);
 
         // Load type flags.
         mv.visitLdcInsn(typeFlag(bType));
@@ -852,6 +1124,7 @@ public class JvmTypeGen {
             effectiveTypeClass = INIT_INTERSECTION_TYPE_WITH_TYPE;
         }
         mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE_IMPL, JVM_INIT_METHOD, effectiveTypeClass, false);
+        wrapType(mv);
     }
 
     private void generateCreateNewArray(MethodVisitor methodVisitor, Set<BType> members) {
@@ -924,6 +1197,7 @@ public class JvmTypeGen {
 
         loadType(mv, bType.constraint);
         mv.visitMethodInsn(INVOKESPECIAL, FUTURE_TYPE_IMPL, JVM_INIT_METHOD, TYPE_PARAMETER, false);
+        wrapType(mv);
     }
 
     /**
@@ -1247,5 +1521,23 @@ public class JvmTypeGen {
         // Add the value to the set
         mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
         mv.visitInsn(POP);
+    }
+
+    public static void unwrapType(MethodVisitor mv, String targetType) {
+        // Initialize mv
+        String owner = "io/ballerina/runtime/api/TypeBuilder";
+        String name = "unwrap";
+        String descriptor = "(Lio/ballerina/runtime/api/types/Type;)Lio/ballerina/runtime/api/types/Type;";
+        mv.visitMethodInsn(INVOKESTATIC, owner, name, descriptor, false);
+        mv.visitTypeInsn(CHECKCAST, targetType);
+    }
+
+    public static void wrapType(MethodVisitor mv) {
+        // Initialize mv
+        String owner = "io/ballerina/runtime/api/TypeBuilder";
+        String name = "wrap";
+        String descriptor =
+                "(Lio/ballerina/runtime/api/types/Type;)Lio/ballerina/runtime/internal/types/semType/BSemType;";
+        mv.visitMethodInsn(INVOKESTATIC, owner, name, descriptor, false);
     }
 }

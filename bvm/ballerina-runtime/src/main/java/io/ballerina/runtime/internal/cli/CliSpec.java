@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.cli;
 
+import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -31,6 +32,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,7 +81,7 @@ public class CliSpec {
             Operand curOperand = operands[opIndex++];
             Type typeOp = curOperand.type;
             if (TypeUtils.getImpliedType(typeOp).getTag() == TypeTags.ARRAY_TAG) {
-                ArrayType arrayType = (ArrayType) typeOp;
+                ArrayType arrayType = TypeBuilder.unwrap(typeOp);
                 BArray bArray = ValueCreator.createArrayValue(arrayType);
                 Type elementType = TypeUtils.getImpliedType(arrayType.getElementType());
                 int elementCount = getElementCount(operands, opIndex);
@@ -110,7 +112,7 @@ public class CliSpec {
             if (operand.hasDefaultable || CliUtil.isUnionWithNil(opType)) {
                 mainArgs.add(null);
             } else if (isSupportedArrayType(opType)) {
-                mainArgs.add(ValueCreator.createArrayValue((ArrayType) opType));
+                mainArgs.add(ValueCreator.createArrayValue(TypeBuilder.unwrap(opType)));
             } else {
                 throw ErrorCreator.createError(StringUtils.fromString(
                         "missing operand arguments for parameter '" + operand.name + "' of type '" + opType + "'"));
@@ -120,7 +122,7 @@ public class CliSpec {
 
     private boolean isSupportedArrayType(Type opType) {
         if (TypeUtils.getImpliedType(opType).getTag() == TypeTags.ARRAY_TAG) {
-            Type elementType = TypeUtils.getImpliedType(((ArrayType) opType).getElementType());
+            Type elementType = TypeUtils.getImpliedType(TypeHelper.listRestType(opType));
             return CliUtil.isSupportedType(elementType.getTag());
         }
         return false;
@@ -128,7 +130,7 @@ public class CliSpec {
 
     private int getElementCount(Operand[] operands, int opIndex) {
         int count = 0;
-        while (opIndex < operands.length && 
+        while (opIndex < operands.length &&
                 TypeUtils.getImpliedType(operands[opIndex++].type).getTag() != TypeTags.RECORD_TYPE_TAG) {
             count++;
         }

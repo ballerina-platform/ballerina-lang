@@ -22,11 +22,11 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
-import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 
@@ -69,11 +69,9 @@ public class Slice {
                 slicedArr = arr.slice(startIndex, endIndex);
                 break;
             case TypeTags.TUPLE_TAG:
-                TupleType tupleType = (TupleType) arrType;
+                List<Type> memTypes = new ArrayList<>(TypeHelper.listMemberTypes(arrType));
 
-                List<Type> memTypes = new ArrayList<>(tupleType.getTupleTypes());
-
-                Type restType = tupleType.getRestType();
+                Type restType = TypeHelper.listRestType(arrType);
                 if (restType != null) {
                     memTypes.add(restType);
                 }

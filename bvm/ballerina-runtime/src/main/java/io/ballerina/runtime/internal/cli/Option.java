@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 
 /**
@@ -56,7 +57,7 @@ public class Option {
     private static final Pattern HEX_LITERAL = Pattern.compile("[-+]?0[xX][\\dA-Fa-f.pP\\-+]+");
 
     public Option(Type recordType, int location) {
-        this((RecordType) getImpliedType(recordType), location);
+        this(unwrap(getImpliedType(recordType)), location);
     }
 
     public Option(RecordType recordType, int location) {
@@ -135,7 +136,7 @@ public class Option {
         Type fieldType = getImpliedType(recordType.getFields().get(optionName.getValue()).getFieldType());
         validateOptionArgument(optionStr, val);
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
-            handleArrayParameter(optionName, val, (ArrayType) fieldType);
+            handleArrayParameter(optionName, val, unwrap(fieldType));
         } else {
             validateRepeatingOptions(optionName);
             recordVal.put(optionName, CliUtil.getBValueWithUnionValue(fieldType, val, optionName.getValue()));
@@ -163,7 +164,7 @@ public class Option {
             recordVal.put(paramName, true);
             return true;
         } else if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
-            BArray bArray = getBArray(paramName, (ArrayType) fieldType);
+            BArray bArray = getBArray(paramName, unwrap(fieldType));
             Type elementType = getImpliedType(bArray.getElementType());
             if (isABoolean(elementType)) {
                 bArray.append(true);
@@ -197,7 +198,7 @@ public class Option {
 
     private boolean isSupportedArrayType(BString key, Type fieldType) {
         if (getImpliedType(fieldType).getTag() == TypeTags.ARRAY_TAG) {
-            BArray bArray = getBArray(key, (ArrayType) fieldType);
+            BArray bArray = getBArray(key, unwrap(fieldType));
             Type elementType = getImpliedType(bArray.getElementType());
             if (CliUtil.isSupportedType(elementType.getTag())) {
                 if (recordVal.get(key) == null) {
@@ -237,7 +238,7 @@ public class Option {
         String val = getValueString(arg);
         Type fieldType = getImpliedType(recordType.getFields().get(paramName.getValue()).getFieldType());
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
-            handleArrayParameter(paramName, val, (ArrayType) fieldType);
+            handleArrayParameter(paramName, val, unwrap(fieldType));
             return;
         }
         validateRepeatingOptions(paramName);

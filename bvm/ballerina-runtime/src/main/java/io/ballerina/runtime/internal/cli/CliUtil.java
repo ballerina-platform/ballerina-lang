@@ -22,12 +22,13 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeConverter;
+import io.ballerina.runtime.internal.TypeHelper;
 
 import java.util.List;
 
@@ -54,9 +55,10 @@ public class CliUtil {
     }
 
     static Object getUnionValue(Type type, String value, String parameterName) {
-        List<Type> unionMemberTypes = ((UnionType) type).getMemberTypes();
+        List<Type> unionMemberTypes = TypeHelper.memberList(type);
         if (isUnionWithNil(unionMemberTypes)) {
-            type = unionMemberTypes.get(0) == PredefinedTypes.TYPE_NULL ? unionMemberTypes.get(1) :
+            type = (TypeChecker.checkIsType(unionMemberTypes.get(0), PredefinedTypes.TYPE_NULL)) ?
+                    unionMemberTypes.get(1) :
                     unionMemberTypes.get(0);
             return getBValue(type, value, parameterName);
         }
@@ -116,7 +118,7 @@ public class CliUtil {
 
     static boolean isUnionWithNil(Type fieldType) {
         if (TypeUtils.getImpliedType(fieldType).getTag() == TypeTags.UNION_TAG) {
-            List<Type> unionMemberTypes = ((UnionType) fieldType).getMemberTypes();
+            List<Type> unionMemberTypes = TypeHelper.memberList(fieldType);
             if (isUnionWithNil(unionMemberTypes)) {
                 return true;
             }
@@ -126,7 +128,15 @@ public class CliUtil {
     }
 
     static boolean isUnionWithNil(List<Type> unionMemberTypes) {
-        return unionMemberTypes.size() == 2 && unionMemberTypes.contains(PredefinedTypes.TYPE_NULL);
+        if (unionMemberTypes.size() != 2) {
+            return false;
+        }
+        for (Type each : unionMemberTypes) {
+            if (TypeChecker.checkIsType(each, PredefinedTypes.TYPE_NULL)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static long getIntegerValue(String argument, String parameterName) {

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.javainterop.basic;
 
+import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -71,7 +72,7 @@ public class InstanceMethodTest {
         Object returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrows", args);
 
         Assert.assertNotNull(returns);
-        Assert.assertTrue(getType(returns) instanceof BErrorType);
+        Assert.assertTrue(TypeBuilder.unwrap(getType(returns)) instanceof BErrorType);
         Assert.assertEquals(((BError) returns).getMessage(), "java.lang.InterruptedException");
 
         returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrowsReturn", args);
@@ -85,7 +86,7 @@ public class InstanceMethodTest {
         args[0] = new HandleValue(testIns);
 
         Object returns = BRunUtil.invoke(result, "testHandleOrErrorReturn", args);
-        Assert.assertTrue(getType(returns) instanceof BHandleType);
+        Assert.assertTrue(TypeBuilder.unwrap(getType(returns)) instanceof BHandleType);
         Assert.assertEquals(((HandleValue) returns).getValue(), 70);
 
         returns = BRunUtil.invoke(result, "testHandleOrErrorReturnThrows", args);

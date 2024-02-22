@@ -22,11 +22,13 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStringType;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -66,10 +68,10 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(results.size(), 2);
 
-        Assert.assertEquals(getType((mapValue0)).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BAnydataType.class);
-        Assert.assertEquals(getType((mapValue1)).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue1.getType()).getConstrainedType().getClass(), BAnydataType.class);
+        BAssertUtil.assertTypeClass(getType((mapValue0)), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue0.getType()), BAnydataType.class);
+        BAssertUtil.assertTypeClass(getType((mapValue1)), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue1.getType()), BAnydataType.class);
     }
 
     @Test
@@ -98,11 +100,11 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue0.getType().getName(), "Employee");
         Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue0.get(StringUtils.fromString("school"))), BStringType.class);
 
         Assert.assertEquals(mapValue1.getType().getName(), "Employee");
         Assert.assertEquals(getType(mapValue1.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(getType(mapValue1.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue1.get(StringUtils.fromString("school"))), BStringType.class);
     }
 
     @Test
@@ -117,11 +119,11 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue0.getType().getName(), "Employee");
         Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue0.get(StringUtils.fromString("school"))), BStringType.class);
 
         Assert.assertEquals(mapValue1.getType().getName(), "Employee");
         Assert.assertEquals(getType(mapValue1.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(getType(mapValue1.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue1.get(StringUtils.fromString("school"))), BStringType.class);
     }
 
     @Test
@@ -134,22 +136,20 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(results.size(), 2);
 
-        Assert.assertEquals(getType(mapValue0).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BJsonType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue0), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue0.getType()), BJsonType.class);
         Assert.assertEquals((mapValue0).size(), 4);
         Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(
-                getType(((Object) ((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch")))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch"))),
                 BStringType.class);
 
-        Assert.assertEquals(getType(mapValue1).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BJsonType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue1), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue1.getType()), BJsonType.class);
         Assert.assertEquals((mapValue1).size(), 4);
         Assert.assertEquals(((LinkedHashMap) mapValue1).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(
-                getType(((Object) ((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch")))).getClass(),
-                BStringType.class);
 
+        BAssertUtil.assertTypeClass(getType(((LinkedHashMap) mapValue1).get(StringUtils.fromString("batch"))),
+                BStringType.class);
     }
 
     @Test
@@ -162,11 +162,10 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(results.size(), 2);
 
-        Assert.assertEquals(getType((mapValue0)).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) (mapValue0).getType()).getConstrainedType().getClass(), BAnydataType.class);
-        Assert.assertEquals(getType((mapValue1)).getClass(), BMapType.class);
-        Assert.assertEquals(getType((mapValue1)).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) (mapValue1).getType()).getConstrainedType().getClass(), BAnydataType.class);
+        BAssertUtil.assertTypeClass(getType((mapValue0)), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue0.getType()), BAnydataType.class);
+        BAssertUtil.assertTypeClass(getType((mapValue1)), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue1.getType()), BAnydataType.class);
     }
 
     @Test
@@ -179,10 +178,10 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(results.size(), 2);
 
-        Assert.assertEquals(getType(mapValue0).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BAnydataType.class);
-        Assert.assertEquals(getType(mapValue1).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue1.getType()).getConstrainedType().getClass(), BAnydataType.class);
+        BAssertUtil.assertTypeClass(getType((mapValue0)), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue0.getType()), BAnydataType.class);
+        BAssertUtil.assertTypeClass(getType((mapValue1)), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue1.getType()), BAnydataType.class);
     }
 
     @Test
@@ -197,11 +196,11 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue0.getType().getName(), "Employee");
         Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue0.get(StringUtils.fromString("school"))), BStringType.class);
 
         Assert.assertEquals(mapValue1.getType().getName(), "Employee");
         Assert.assertEquals(getType(mapValue1.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-        Assert.assertEquals(getType(mapValue1.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue1.get(StringUtils.fromString("school"))), BStringType.class);
     }
 
     @Test
@@ -214,32 +213,32 @@ public class ArrayStampInbuiltFunctionTest {
         Object tupleValue1 = results.get(0);
         Object tupleValue2 = results.get(1);
 
-        Assert.assertEquals(getType(tupleValue1).getClass(), BRecordType.class);
+        BAssertUtil.assertTypeClass(getType(tupleValue1), BRecordType.class);
         Assert.assertEquals(getType(tupleValue1).getName(), "Employee");
 
-        Assert.assertEquals(getType(tupleValue2).getClass(), BRecordType.class);
+        BAssertUtil.assertTypeClass(getType(tupleValue2), BRecordType.class);
         Assert.assertEquals(getType(tupleValue2).getName(), "Student");
 
         Assert.assertEquals(((BMap) tupleValue2).size(), 4);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))),
                 BStringType.class);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))),
                 BStringType.class);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))),
                 BStringType.class);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))),
                 BStringType.class);
 
         Assert.assertEquals(((BMap) tupleValue1).get(StringUtils.fromString("school")).toString(), "Royal College");
-        Assert.assertEquals(getType(((BMap) tupleValue1).get(StringUtils.fromString("school"))).getClass(),
+        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue1).get(StringUtils.fromString("school"))),
                 BStringType.class);
     }
 
@@ -386,11 +385,11 @@ public class ArrayStampInbuiltFunctionTest {
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results.get(0);
         BMap<BString, Object> mapValue1 = (BMap<BString, Object>) results.get(1);
 
-        Assert.assertEquals(getType(mapValue0).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BAnydataType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue0), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue0.getType()), BAnydataType.class);
 
-        Assert.assertEquals(getType(mapValue1).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue1.getType()).getConstrainedType().getClass(), BAnydataType.class);
+        BAssertUtil.assertTypeClass(getType(mapValue1), BMapType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue1.getType()), BAnydataType.class);
     }
 
     @Test
@@ -399,8 +398,8 @@ public class ArrayStampInbuiltFunctionTest {
         BArray results = (BArray) arr;
         BMap<BString, Object> jsonValue1 = (BMap<BString, Object>) results.get(0);
         BMap<BString, Object> jsonValue2 = (BMap<BString, Object>) results.get(1);
-        Assert.assertEquals(((BMapType) jsonValue1.getType()).getConstrainedType().getClass(), BJsonType.class);
-        Assert.assertEquals(((BMapType) jsonValue2.getType()).getConstrainedType().getClass(), BJsonType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(jsonValue1.getType()), BJsonType.class);
+        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(jsonValue2.getType()), BJsonType.class);
         Assert.assertEquals(jsonValue1.get(StringUtils.fromString("name")).toString(), "Waruna");
         Assert.assertEquals(jsonValue2.get(StringUtils.fromString("name")).toString(), "Heshitha");
         Assert.assertEquals((jsonValue1.get(StringUtils.fromString("age"))), 10L);

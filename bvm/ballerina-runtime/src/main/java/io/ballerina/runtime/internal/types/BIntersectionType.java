@@ -32,6 +32,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+
 /**
  * {@code BIntersectionType} represents an intersection type in Ballerina.
  *
@@ -77,7 +79,7 @@ public class BIntersectionType extends BType implements IntersectionType {
                              IntersectableReferenceType effectiveType, int typeFlags, boolean readonly) {
         this(typeName, pkg, constituentTypes, typeFlags, readonly);
         this.effectiveType = effectiveType;
-        effectiveType.setIntersectionType(this);
+        effectiveType.setIntersectionType(unwrap(this));
     }
 
     private BIntersectionType(String typeName, Module pkg, Type[] constituentTypes, int typeFlags, boolean readonly) {

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -44,7 +43,7 @@ public class Pop {
     public static Object pop(BArray arr) {
         Type type = TypeUtils.getImpliedType(arr.getType());
         checkIsArrayOnlyOperation(type, FUNCTION_SIGNATURE);
-        checkIsClosedArray((ArrayType) type, FUNCTION_SIGNATURE);
+        checkIsClosedArray(type, FUNCTION_SIGNATURE);
         return arr.shift(arr.size() - 1);
     }
 

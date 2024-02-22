@@ -24,7 +24,11 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semType.BTypeComponent;
+import io.ballerina.runtime.internal.types.semType.BSubTypeData;
+import io.ballerina.runtime.internal.types.semType.ProperSubTypeData;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -37,7 +41,7 @@ import java.util.Objects;
  *
  * @since 0.995.0
  */
-public abstract class BType implements Type {
+public abstract class BType implements Type, ProperSubTypeData, BTypeComponent {
     protected String typeName;
     protected Module pkg;
     protected Class<? extends Object> valueClass;
@@ -211,5 +215,45 @@ public abstract class BType implements Type {
 
     public Type getCachedImpliedType() {
         return this.cachedImpliedType;
+    }
+
+    @Override
+    public ProperSubTypeData union(ProperSubTypeData other) {
+        if (other instanceof BType bType) {
+//            boolean isReadOnly = this.isReadOnly() && bType.isReadOnly();
+//            String otherName = ((BType) other).getName();
+//            String thisName = getName();
+//            if (thisName.equals(otherName)) {
+//                return new BUnionType(thisName, this.pkg, List.of(this, bType), isReadOnly);
+//            }
+            return new BSubTypeData(List.of(this, bType));
+        }
+        return other.union(this);
+//        throw new IllegalStateException("union of different subtypes not possible");
+    }
+
+    @Override
+    public ProperSubTypeData intersect(ProperSubTypeData other) {
+        throw new RuntimeException("unimplemented");
+    }
+
+    @Override
+    public boolean isSubType(ProperSubTypeData other) {
+        throw new RuntimeException("unimplemented");
+    }
+
+    @Override
+    public BType getBTypeComponent() {
+        return this;
+    }
+
+    @Override
+    public BType getBTypeComponent(String name, Module module) {
+        return this;
+    }
+
+    @Override
+    public void addCyclicMembers(List<Type> members) {
+        throw new RuntimeException("unimplemented");
     }
 }

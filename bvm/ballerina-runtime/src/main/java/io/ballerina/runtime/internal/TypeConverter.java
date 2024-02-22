@@ -40,13 +40,10 @@ import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
-import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
-import io.ballerina.runtime.internal.types.BTypeReferenceType;
-import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -64,6 +61,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned16;
@@ -275,34 +273,34 @@ public class TypeConverter {
         int targetTypeTag = targetType.getTag();
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
-                return getConvertibleTypeInTargetUnionType(inputValue, (BUnionType) targetType, varName,
+                return getConvertibleTypeInTargetUnionType(inputValue, unwrap(targetType), varName,
                         errors, unresolvedValues, allowNumericConversion);
             case TypeTags.ARRAY_TAG:
-                if (isConvertibleToArrayType(inputValue, (BArrayType) targetType, unresolvedValues, varName, errors,
+                if (isConvertibleToArrayType(inputValue, unwrap(targetType), unresolvedValues, varName, errors,
                         allowNumericConversion)) {
                     return targetType;
                 }
                 break;
             case TypeTags.TUPLE_TAG:
-                if (isConvertibleToTupleType(inputValue, (BTupleType) targetType, unresolvedValues, varName, errors,
+                if (isConvertibleToTupleType(inputValue, unwrap(targetType), unresolvedValues, varName, errors,
                         allowNumericConversion)) {
                     return targetType;
                 }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, varName,
+                if (isConvertibleToRecordType(inputValue, unwrap(targetType), varName,
                         unresolvedValues, errors, allowNumericConversion)) {
                     return targetType;
                 }
                 break;
             case TypeTags.MAP_TAG:
-                if (isConvertibleToMapType(inputValue, (BMapType) targetType, unresolvedValues, varName, errors,
+                if (isConvertibleToMapType(inputValue, unwrap(targetType), unresolvedValues, varName, errors,
                         allowNumericConversion)) {
                     return targetType;
                 }
                 break;
             case TypeTags.TABLE_TAG:
-                if (isConvertibleToTableType(inputValue, ((BTableType) targetType), unresolvedValues, varName,
+                if (isConvertibleToTableType(inputValue, unwrap(targetType), unresolvedValues, varName,
                         errors, allowNumericConversion)) {
                     return targetType;
                 }
@@ -312,19 +310,19 @@ public class TypeConverter {
             case TypeTags.ANYDATA_TAG:
                 return resolveMatchingTypeForUnion(inputValue, targetType);
             case TypeTags.INTERSECTION_TAG:
-                Type effectiveType = ((BIntersectionType) targetType).getEffectiveType();
+                Type effectiveType = TypeHelper.effectiveType(targetType);
                 return getConvertibleType(inputValue, effectiveType, varName, unresolvedValues, errors,
                         allowNumericConversion);
             case TypeTags.FINITE_TYPE_TAG:
                 return getConvertibleFiniteType(inputValue, (BFiniteType) targetType, varName,
                         errors, unresolvedValues, allowNumericConversion);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                Type referredType = ((BTypeReferenceType) targetType).getReferredType();
+                Type referredType = TypeHelper.referredType(targetType);
                 Type convertibleType = getConvertibleType(inputValue, referredType, varName, unresolvedValues, errors,
                         allowNumericConversion);
                 return referredType == convertibleType ? targetType : convertibleType;
             case TypeTags.TYPEDESC_TAG:
-                return getConvertibleType(inputValue, ((BTypedescType) targetType).getConstraint(), varName,
+                return getConvertibleType(inputValue, TypeHelper.typeConstraint(targetType), varName,
                         unresolvedValues, errors, allowNumericConversion);
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, allowNumericConversion)
@@ -647,7 +645,7 @@ public class TypeConverter {
         Type targetTypeElementType = TypeUtils.getImpliedType(targetType.getElementType());
         Type sourceType = source.getType();
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            Type sourceElementType = TypeUtils.getImpliedType(((BArrayType) sourceType).getElementType());
+            Type sourceElementType = TypeUtils.getImpliedType(((BArrayType) unwrap(sourceType)).getElementType());
             if (isNumericType(sourceElementType) && isNumericType(targetTypeElementType)) {
                 return true;
             }
