@@ -649,7 +649,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public ImportDeclarationNode transform(ImportDeclarationNode importDeclarationNode) {
         boolean prevPreservedNewLine = env.hasPreservedNewline;
         setPreserveNewline(importDeclarationNode.textRangeWithMinutiae().startOffset() == 0 &&
-                hasCommentMinutiae(importDeclarationNode.leadingMinutiae()));
+                hasLeadingComments(importDeclarationNode));
         Token importKeyword = formatToken(importDeclarationNode.importKeyword(), 1, 0);
         setPreserveNewline(prevPreservedNewLine);
         boolean hasPrefix = importDeclarationNode.prefix().isPresent();
@@ -4756,7 +4756,7 @@ public class FormattingTreeModifier extends TreeModifier {
         imports.addAll(stdLibImportNodes.stream().collect(Collectors.toList()));
         imports.addAll(thirdPartyImportNodes.stream().collect(Collectors.toList()));
 
-        if (hasCommentMinutiae(firstImport.leadingMinutiae())) {
+        if (hasLeadingComments(firstImport)) {
             swapLeadingMinutiae(firstImport, imports);
         }
 
@@ -4774,7 +4774,8 @@ public class FormattingTreeModifier extends TreeModifier {
         return false;
     }
 
-    private boolean hasCommentMinutiae(MinutiaeList minutiaeList) {
+    private boolean hasLeadingComments(Node node) {
+        MinutiaeList minutiaeList = node.leadingMinutiae();
         for (Minutiae minutiae: minutiaeList) {
             if (minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE) {
                 return true;
