@@ -37,7 +37,7 @@ public class ListConstantInBalaTest {
     @BeforeClass
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
-        compileResult = BCompileUtil.compile("test-src/bala/test_bala/constant/list-literal-constant.bal");
+        compileResult = BCompileUtil.compile("test-src/bala/test_bala/constant/list_literal_constant.bal");
     }
 
     @Test(dataProvider = "listAccessTestDataProvider")

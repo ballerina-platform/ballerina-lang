@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
  *
  * @since 2201.9.0
  */
-
 public class ListConstantInBalaNegativeTest {
 
     @BeforeClass
@@ -43,21 +42,22 @@ public class ListConstantInBalaNegativeTest {
                 "test-src/bala/test_bala/constant/list_constant_negative.bal");
         int i = 0;
         BAssertUtil.validateError(compileResult, i++,
-                "incompatible types: expected '[string,string,int...]', found '[\"a\",\"b\",\"c\"] & readonly'", 4, 34);
+                "incompatible types: expected '[string,string,int...]', found '[\"a\",\"b\",\"c\"] & readonly'", 20,
+                34);
         BAssertUtil.validateError(compileResult, i++,
-                "incompatible types: expected 'int[]', found '[true,false,true] & readonly'", 5, 15);
+                "incompatible types: expected 'int[]', found '[true,false,true] & readonly'", 21, 15);
         BAssertUtil.validateError(compileResult, i++,
-                "cannot update 'readonly' value of type '[\"a\",\"b\",\"c\"] & readonly'", 10, 5);
+                "cannot update 'readonly' value of type '[\"a\",\"b\",\"c\"] & readonly'", 26, 5);
         BAssertUtil.validateError(compileResult, i++,
-                "cannot update 'readonly' value of type '[\"a\",\"b\",\"c\"] & readonly'", 11, 5);
+                "cannot update 'readonly' value of type '[\"a\",\"b\",\"c\"] & readonly'", 27, 5);
         BAssertUtil.validateError(compileResult, i++,
-                "incompatible types: expected '(\"a\"|\"b\"|\"c\")', found 'string:Char'", 11, 12);
+                "incompatible types: expected '(\"a\"|\"b\"|\"c\")', found 'string:Char'", 27, 12);
         BAssertUtil.validateError(compileResult, i++,
-                "cannot update 'readonly' value of type '[1,\"f\",\"g\"] & readonly'", 14, 5);
+                "cannot update 'readonly' value of type '[1,\"f\",\"g\"] & readonly'", 30, 5);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected '(1|\"f\"|\"g\")', found 'string'",
-                14, 12);
-        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l10'", 18, 17);
-        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l11'", 19, 18);
+                30, 12);
+        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l10'", 34, 17);
+        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l11'", 35, 18);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 
