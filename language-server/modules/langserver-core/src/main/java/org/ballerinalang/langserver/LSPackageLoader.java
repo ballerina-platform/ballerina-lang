@@ -97,7 +97,6 @@ public class LSPackageLoader {
     }
 
     private LSPackageLoader(LanguageServerContext context) {
-//        this.userHome = userHome;
         this.clientLogger = LSClientLogger.getInstance(context);
         this.centralPackageDescriptorLoader = CentralPackageDescriptorLoader.getInstance(context);
         context.put(LS_PACKAGE_LOADER_KEY, this);
