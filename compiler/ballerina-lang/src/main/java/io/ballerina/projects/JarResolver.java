@@ -212,7 +212,7 @@ public class JarResolver {
         }
     }
 
-    private boolean hasEmptyIdOrVersion(JarLibrary entry) {
+    private static boolean hasEmptyIdOrVersion(JarLibrary entry) {
         return entry.groupId().isEmpty() || entry.artifactId().isEmpty() || entry.version().isEmpty();
     }
 
@@ -228,16 +228,13 @@ public class JarResolver {
         if (usedNativeClassPaths == null) {
             return false;
         }
-        try {
-            JarFile jarFile = new JarFile(otherJarDependency.path().toFile());
-
+        try (JarFile jarFile = new JarFile(otherJarDependency.path().toFile())){
             for (String classPath : usedNativeClassPaths) {
                 ZipEntry usedClassEntry = jarFile.getJarEntry(classPath);
                 if (usedClassEntry != null) {
                     return true;
                 }
             }
-            jarFile.close();
             return false;
         } catch (IOException e) {
             throw new RuntimeException(e);
