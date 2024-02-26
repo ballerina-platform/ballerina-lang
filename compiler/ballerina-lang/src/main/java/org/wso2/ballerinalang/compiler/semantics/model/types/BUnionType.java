@@ -145,7 +145,6 @@ public class BUnionType extends BType implements UnionType {
         analyzer.visit(this, data);
     }
 
-
     @Override
     public String toString() {
         if (resolvingToString) {
