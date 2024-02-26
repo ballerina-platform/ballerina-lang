@@ -33,7 +33,7 @@ public class Utils {
     private static final String UNICODE_REGEX = "\\\\(\\\\*)u\\{([a-fA-F0-9]+)\\}";
     public static final Pattern UNICODE_PATTERN = Pattern.compile(UNICODE_REGEX);
 
-    private static final String CHAR_PREFIX = "$";
+    private static final String CHAR_PREFIX = "&";
     private static final String ESCAPE_PREFIX = "\\";
     private static final Pattern UNESCAPED_SPECIAL_CHAR_SET = Pattern.compile("([$&+,:;=\\?@#\\\\|/'\\ \\[\\}\\]<\\>" +
             ".\"^*{}~`()%!-])");
@@ -154,7 +154,7 @@ public class Utils {
         StringBuilder sb = new StringBuilder();
         int index = 0;
         while (index < encodedIdentifier.length()) {
-            if (encodedIdentifier.charAt(index) == '$' && index + 4 < encodedIdentifier.length()) {
+            if (encodedIdentifier.charAt(index) == '&' && index + 4 < encodedIdentifier.length()) {
                 if (isUnicodePoint(encodedIdentifier, index)) {
                     sb.append((char) Integer.parseInt(encodedIdentifier.substring(index + 1, index + 5)));
                     index += 5;
@@ -259,13 +259,13 @@ public class Utils {
         functionName = encodeIdentifier(functionName);
         switch (functionName) {
             case ".<init>":
-                return "$gen$$0046$0060init$0062";
+                return "$gen$&0046&0060init&0062";
             case ".<start>":
-                return "$gen$$0046$0060start$0062";
+                return "$gen$&0046&0060start&0062";
             case ".<stop>":
-                return "$gen$$0046$0060stop$0062";
+                return "$gen$&0046&0060stop&0062";
             case ".<testinit>":
-                return "$gen$$0046$0060testinit$0062";
+                return "$gen$&0046&0060testinit&0062";
         }
         Identifier encodedName = encodeGeneratedName(functionName);
         return encodedName.isEncoded ? GENERATED_METHOD_PREFIX + encodedName.name : functionName;

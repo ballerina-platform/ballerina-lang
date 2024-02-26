@@ -1,0 +1,69 @@
+{
+  "position": {
+    "line": 29,
+    "character": 11
+  },
+  "source": "fixReturnTypeForQueryExpr.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'map<any>[]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 28,
+              "character": 32
+            },
+            "end": {
+              "line": 28,
+              "character": 32
+            }
+          },
+          "newText": " returns map<any>[]"
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Change return type to 'record {|string name; float gpa;|}[]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 28,
+              "character": 32
+            },
+            "end": {
+              "line": 28,
+              "character": 32
+            }
+          },
+          "newText": " returns record {|string name; float gpa;|}[]"
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Change return type to 'json[]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 28,
+              "character": 32
+            },
+            "end": {
+              "line": 28,
+              "character": 32
+            }
+          },
+          "newText": " returns json[]"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

@@ -23,6 +23,9 @@ def extractedDist = "$buildDir/extractedDistribution/jballerina-tools-${project.
 
 configurations {
     jballerinaTools
+    compilerPluginJar {
+        transitive false
+    }
 }
 
 dependencies {
@@ -48,10 +51,20 @@ dependencies {
     implementation group: 'org.ow2.asm', name: 'asm-commons', version: "${project.ow2AsmCommonsVersion}"
     implementation group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
     implementation group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: "${project.javaDiffUtilsVersion}"
+
+    compilerPluginJar project(':project-api-test-artifact:init-function-code-modify-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:remove-function-code-modify-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:add-remove-function-code-modify-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
 }
 
 jacoco {
     toolVersion = "${project.jacocoVersion}"
+}
+
+task copyCompilerPluginJars(type: Copy) {
+    from configurations.compilerPluginJar
+    into "$buildDir/compiler-plugin-jars"
 }
 
 task extractDistribution(type: Copy) {
@@ -72,6 +85,7 @@ test {
     mustRunAfter ':jballerina-integration-test:test'
     dependsOn extractDistribution
     dependsOn testUtilsJar
+    dependsOn copyCompilerPluginJars
     systemProperty 'enableTesterinaTests', 'true'
 
     maxParallelForks = 1

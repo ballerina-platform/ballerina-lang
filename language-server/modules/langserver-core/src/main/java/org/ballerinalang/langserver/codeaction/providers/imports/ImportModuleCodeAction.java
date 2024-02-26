@@ -36,12 +36,14 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.model.Name;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,7 +81,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
         // Find the qualified name reference node within the diagnostic location
         Range diagRange = PositionUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode node = CommonUtil.findNode(diagRange, context.currentSyntaxTree().get());
-        QNameRefFinder finder = new QNameRefFinder();
+        QNameRefFinder finder = new QNameRefFinder(diagnostic.properties().get(0).value());
         node.accept(finder);
         Optional<QualifiedNameReferenceNode> qNameReferenceNode = finder.getQNameReferenceNode();
         if (qNameReferenceNode.isEmpty()) {
@@ -169,12 +171,25 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
      * A visitor to find the qualified name reference node within an expression.
      */
     static class QNameRefFinder extends NodeVisitor {
+        private final String moduleName;
+
+        public QNameRefFinder(Object nameObj) {
+            if (nameObj instanceof Name name) {
+                this.moduleName = name.getValue();
+            } else if (nameObj instanceof BLangIdentifier identifier) {
+                this.moduleName = identifier.getValue();
+            } else {
+                this.moduleName = nameObj.toString();
+            }
+        }
 
         private QualifiedNameReferenceNode qualifiedNameReferenceNode;
 
         @Override
         public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
-            this.qualifiedNameReferenceNode = qualifiedNameReferenceNode;
+            if (qualifiedNameReferenceNode.modulePrefix().text().equals(moduleName)) {
+                this.qualifiedNameReferenceNode = qualifiedNameReferenceNode;
+            }
         }
 
         Optional<QualifiedNameReferenceNode> getQNameReferenceNode() {

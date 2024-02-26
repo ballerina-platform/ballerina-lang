@@ -988,11 +988,7 @@ type Student record {
 function calGraduationYear(int year) returns int => year + 5;
 
 function getBestStudents() returns any|error {
-    Student s1 = {firstName: "Martin", lastName: "Sadler", intakeYear: 1990, gpa: 3.5};
-    Student s2 = {firstName: "Ranjan", lastName: "Fonseka", intakeYear: 2001, gpa: 1.9};
-    Student s3 = {firstName: "Michelle", lastName: "Guthrie", intakeYear: 2002, gpa: 3.7};
-    Student s4 = {firstName: "George", lastName: "Fernando", intakeYear: 2005, gpa: 4.0};
-    Student[] studentList = [s1, s2, s3];
+    Student[] studentList = getStudents();
 
     return from var student in studentList
         where student.gpa >= 2.0
@@ -1004,6 +1000,35 @@ function getBestStudents() returns any|error {
 
 function testQueryActionOrExprWithAnyOrErrResultType() {
     assertTrue(getBestStudents() is record {|string name; string degree; int graduationYear;|}[]);
+}
+
+function getStudents() returns Student[] {
+    return [
+        {firstName: "Martin", lastName: "Sadler", intakeYear: 1990, gpa: 3.5},
+        {firstName: "Ranjan", lastName: "Fonseka", intakeYear: 2001, gpa: 1.9},
+        {firstName: "Michelle", lastName: "Guthrie", intakeYear: 2002, gpa: 3.7},
+        {firstName: "George", lastName: "Fernando", intakeYear: 2005, gpa: 4.0}
+    ];
+}
+
+function testQueryActionWithLetExpression() {
+    Student[] studentList = getStudents();
+    float[] actualGpaList = [];
+    _ = from var {gpa} in studentList
+        do {
+            float gpaVal = let var sGpa = gpa in sGpa;
+            actualGpaList.push(gpaVal);
+        };
+    assertEquality([3.5, 1.9, 3.7, 4.0], actualGpaList);
+
+    int[] actualValues = [];
+    int weight = 2;
+    _ = from var i in [1, 2, 3, 4]
+        do {
+            int gpaVal = let var sGpa = i in weight * i;
+            actualValues.push(gpaVal);
+        };
+    assertEquality([2, 4, 6, 8], actualValues);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -1498,6 +1498,7 @@ public class Types {
             case TypeTags.INVOKABLE:
             case TypeTags.TYPEDESC:
             case TypeTags.HANDLE:
+            case TypeTags.REGEXP:    
                 return true;
             case TypeTags.XML:
                 return getImpliedType(((BXMLType) type).constraint).tag == TypeTags.NEVER;
@@ -5615,10 +5616,10 @@ public class Types {
                 invokableSymbol.flags = tsymbol.flags;
             } else {
                 recordFieldSymbol = new BVarSymbol(intersectionFlags, name, env.enclPkg.packageID,
-                                                   intersectionFieldType, newTypeSymbol, lhsRecordField.pos, SOURCE);
+                        intersectionFieldType, newTypeSymbol, lhsRecordField.symbol.pos, SOURCE);
             }
 
-            newTypeFields.put(key, new BField(name, null, recordFieldSymbol));
+            newTypeFields.put(key, new BField(name, recordFieldSymbol.pos, recordFieldSymbol));
             newTypeSymbol.scope.define(name,  recordFieldSymbol);
         }
         return true;

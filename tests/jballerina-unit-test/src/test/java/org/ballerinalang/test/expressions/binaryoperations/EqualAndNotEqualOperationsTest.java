@@ -190,7 +190,8 @@ public class EqualAndNotEqualOperationsTest {
                 "testUnequalXmlIgnoringAttributeOrder", "testEqualXmlWithPI", "testUnequalXmlWithUnequalPI",
                 "testUnequalXmlWithPIInWrongOrder", "testUnequalXmlWithMultiplePIInWrongOrder",
                 "testUnequalXmlWithMissingPI", "testXmlWithNamespacesPositive", "testXmlWithNamespacesNegative",
-                "testXmlSequenceAndXmlItemEqualityPositive", "testXmlSequenceAndXmlItemEqualityNegative"
+                "testXmlSequenceAndXmlItemEqualityPositive", "testXmlSequenceAndXmlItemEqualityNegative",
+                "testXmlSequenceLHSEquals"
         };
     }
 

@@ -149,6 +149,8 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     bLangTestablePackage.addMockFunction(
                             functionToMockID + MOCK_FN_DELIMITER + annotationValues[1],
                             mockFnObjectName);
+                    bLangTestablePackage.addIsLegacyMockingMap(
+                            functionToMockID + MOCK_FN_DELIMITER + annotationValues[1], false);
 
                     if (functionToMockID != null) {
                         // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
@@ -257,6 +259,8 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                             (BLangTestablePackage) ((BLangFunction) functionNode).parent; // parent -> BLangPackage
                     bLangTestablePackage.addMockFunction(functionToMockID + MOCK_LEGACY_DELIMITER + vals[1],
                             functionName);
+                    bLangTestablePackage.addIsLegacyMockingMap(functionToMockID + MOCK_LEGACY_DELIMITER + vals[1],
+                            true);
 
                     // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
                     String className = getQualifiedClassName(bLangTestablePackage,

@@ -19,10 +19,15 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaErrorTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaIntersectionTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaRecordTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.Documentable;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -41,6 +46,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -130,6 +136,46 @@ public class ErrorTypeSymbolTest {
                 {41, 4, "EmailError"},
                 {42, 4, "CancelledError"},
                 {43, 4, "IntersectionError"}
+        };
+    }
+
+    @Test(dataProvider = "IntersectionErrorTypeProvider")
+    public void testFieldDescriptorsOfErrorIntersection(int line, int offset, String expectedErrorType,
+                                                        List<String> expectedFieldNames) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, offset));
+        assertTrue(symbol.isPresent());
+
+        Symbol ballerinaTypeDefinitionSymbol = symbol.get();
+        assertEquals(ballerinaTypeDefinitionSymbol.kind(), SymbolKind.TYPE);
+        assertTrue(ballerinaTypeDefinitionSymbol.getName().isPresent());
+        assertEquals(ballerinaTypeDefinitionSymbol.getName().get(), expectedErrorType);
+
+        TypeSymbol ballerinaIntersectionTypeSymbol =
+                ((BallerinaTypeReferenceTypeSymbol) ballerinaTypeDefinitionSymbol).typeDescriptor();
+        assertEquals(ballerinaIntersectionTypeSymbol.kind(), SymbolKind.TYPE);
+
+        TypeSymbol ballerinaErrorTypeSymbol =
+                ((BallerinaIntersectionTypeSymbol) ballerinaIntersectionTypeSymbol).effectiveTypeDescriptor();
+        assertEquals(ballerinaErrorTypeSymbol.kind(), SymbolKind.TYPE);
+
+        TypeSymbol ballerinaRecordTypeSymbol =
+                ((BallerinaErrorTypeSymbol) ballerinaErrorTypeSymbol).detailTypeDescriptor();
+        assertEquals(ballerinaRecordTypeSymbol.kind(), SymbolKind.TYPE);
+
+        Map<String, RecordFieldSymbol> stringRecordFieldSymbolMap =
+                ((BallerinaRecordTypeSymbol) ballerinaRecordTypeSymbol).fieldDescriptors();
+        List<String> actualFieldNames = stringRecordFieldSymbolMap.keySet().stream().toList();
+        assertEquals(actualFieldNames.size(), expectedFieldNames.size());
+        for (int i = 0; i < actualFieldNames.size(); i++) {
+            assertEquals(actualFieldNames.get(i), expectedFieldNames.get(i));
+        }
+    }
+
+    @DataProvider(name = "IntersectionErrorTypeProvider")
+    public Object[][] getIntersectionErrorType() {
+        return new Object[][]{
+                {62, 4, "SimpleIntersectionError", List.of("msg", "value")},
+                {63, 4, "MultipleIntersectionError", List.of("flag", "msg", "value")}
         };
     }
 

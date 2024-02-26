@@ -200,6 +200,7 @@
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInWorkersTest" />
 
             <!--Type Of-->
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfConditionalExprTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfInCallStatementsTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfInResourceAccessActionTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfNegativeTest" />

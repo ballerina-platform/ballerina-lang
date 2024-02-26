@@ -1,0 +1,4 @@
+[package]
+org= "testorg"
+name="no_strand"
+version= "1.0.0"

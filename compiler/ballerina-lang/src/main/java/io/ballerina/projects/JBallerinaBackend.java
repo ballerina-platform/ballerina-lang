@@ -205,12 +205,11 @@ public class JBallerinaBackend extends CompilerBackend {
         return diagnosticResult;
     }
 
-    // TODO EmitResult should not contain compilation diagnostics.
     public EmitResult emit(OutputType outputType, Path filePath) {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
-            return new EmitResult(false, diagnosticResult, generatedArtifact);
+            return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), generatedArtifact);
         }
 
         switch (outputType) {
@@ -227,19 +226,23 @@ public class JBallerinaBackend extends CompilerBackend {
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
 
-        ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
+        ArrayList<Diagnostic> allDiagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
+        List<Diagnostic> emitResultDiagnostics = new ArrayList<>();
+        // Add lifecycle plugin diagnostics.
         List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion(filePath);
         if (!pluginDiagnostics.isEmpty()) {
-            diagnostics.addAll(pluginDiagnostics);
+            emitResultDiagnostics.addAll(pluginDiagnostics);
         }
-        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
-
-        List<Diagnostic> allDiagnostics = new ArrayList<>(diagnostics);
+        // Add jar resolver diagnostics.
         jarResolver().diagnosticResult().diagnostics().stream().forEach(
-                diagnostic -> allDiagnostics.add(diagnostic));
+                diagnostic -> emitResultDiagnostics.add(diagnostic));
+        allDiagnostics.addAll(emitResultDiagnostics);
+        // JBallerinaBackend diagnostics contains all diagnostics.
+        // EmitResult will only contain diagnostics related to emitting the executable.
+        diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
 
         // TODO handle the EmitResult properly
-        return new EmitResult(true, new DefaultDiagnosticResult(allDiagnostics), generatedArtifact);
+        return new EmitResult(true, new DefaultDiagnosticResult(emitResultDiagnostics), generatedArtifact);
     }
 
     private Path emitBala(Path filePath) {

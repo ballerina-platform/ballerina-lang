@@ -55,7 +55,7 @@ public class ProfilerMethodWrapper extends ClassLoader {
     public void invokeMethods(String debugArg) throws IOException, InterruptedException {
         String balJarArgs = Main.getBalJarArgs();
         List<String> commands = new ArrayList<>();
-        commands.add("java");
+        commands.add(System.getenv("java.command"));
         commands.add("-jar");
         if (debugArg != null) {
             commands.add(debugArg);

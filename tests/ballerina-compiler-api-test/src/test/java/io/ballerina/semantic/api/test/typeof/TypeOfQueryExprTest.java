@@ -20,6 +20,7 @@ package io.ballerina.semantic.api.test.typeof;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -35,13 +36,16 @@ import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -120,6 +124,50 @@ public class TypeOfQueryExprTest {
         return new Object[][]{
                 {21, 49, 21, 89},
                 {22, 44, 22, 92},
+        };
+    }
+
+    @Test(dataProvider = "ExprPos3")
+    public void testQueryExprWithInvalidExpectedType(int sLine, int sCol, int eLine, int eCol,
+                                                     TypeDescKind expectedKind, TypeDescKind expectedMemberKind,
+                                                     String expectedMemberName) {
+        TypeSymbol type = assertType(sLine, sCol, eLine, eCol, expectedKind);
+        assertNotNull(type);
+
+        switch (type.typeKind()) {
+            case ARRAY -> {
+                ArrayTypeSymbol arrayType = (ArrayTypeSymbol) type;
+                assertEquals(arrayType.memberTypeDescriptor().typeKind(), expectedMemberKind);
+                if (expectedMemberName != null) {
+                    assertTrue(arrayType.memberTypeDescriptor().getName().isPresent());
+                    assertEquals(arrayType.memberTypeDescriptor().getName().get(), expectedMemberName);
+                }
+            }
+            case STREAM -> {
+                StreamTypeSymbol streamType = (StreamTypeSymbol) type;
+                assertEquals(streamType.typeParameter().typeKind(), expectedMemberKind);
+                if (expectedMemberName != null) {
+                    assertTrue(streamType.typeParameter().getName().isPresent());
+                    assertEquals(streamType.typeParameter().getName().get(), expectedMemberName);
+                }
+            }
+            default -> assertEquals(type.typeKind(), expectedKind);
+        }
+    }
+
+    @DataProvider(name = "ExprPos3")
+    public Object[][] getExprPos3() {
+        return new Object[][]{
+                {98, 9, 99, 51, ARRAY, RECORD, null},
+                {100, 9, 101, 59, ARRAY, TYPE_REFERENCE, "Person"},
+                {104, 14, 106, 27, ARRAY, RECORD, null},
+                {109, 13, 111, 34, ARRAY, RECORD, null},
+                {114, 13, 116, 36, ARRAY, RECORD, null},
+                {119, 13, 121, 13, ARRAY, TYPE_REFERENCE, "Student"},
+                {124, 9, 126, 13, ARRAY, TYPE_REFERENCE, "Student"},
+                {129, 9, 131, 53, STREAM, TYPE_REFERENCE, "Person"},
+                {134, 14, 136, 14, ARRAY, UNION, null},
+                {139, 11, 141, 29, FLOAT, null, null},
         };
     }
 

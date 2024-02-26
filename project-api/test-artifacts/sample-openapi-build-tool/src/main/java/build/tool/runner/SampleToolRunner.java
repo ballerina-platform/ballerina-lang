@@ -18,8 +18,8 @@
 
 package build.tool.runner;
 
-import io.ballerina.cli.tool.CodeGeneratorTool;
-import io.ballerina.projects.ToolContext;
+import io.ballerina.projects.buildtools.CodeGeneratorTool;
+import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -44,7 +44,7 @@ public class SampleToolRunner implements CodeGeneratorTool {
                     "The provided filePath does not exist", DiagnosticSeverity.ERROR);
             toolContext.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, new NullLocation()));
         }
-        System.out.println("Running sample build tool: " + toolContext.toolType());
+        System.out.println("Running sample build tool: " + toolContext.toolId());
         System.out.println("Cache created at: " + toolContext.cachePath());
     }
 

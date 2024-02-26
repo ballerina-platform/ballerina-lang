@@ -8,3 +8,8 @@ id = "generate-delivery-client"
 filePath = "delivery.json"
 targetModule = "delivery"
 options.limit = "2"
+
+[[tool.openapi]]
+id = "generate-delivery-client-1"
+filePath = "delivery.json"
+targetModule = "client"

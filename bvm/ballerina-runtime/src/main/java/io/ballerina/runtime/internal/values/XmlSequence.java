@@ -34,7 +34,6 @@ import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.types.BXmlType;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -626,17 +625,12 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     }
 
     private Type getSequenceType(Type tempExprType) {
-        switch (tempExprType.getTag()) {
-            case TypeTags.XML_ELEMENT_TAG:
-                return new BXmlType(PredefinedTypes.TYPE_ELEMENT, false);
-            case TypeTags.XML_COMMENT_TAG:
-                return new BXmlType(PredefinedTypes.TYPE_COMMENT, false);
-            case TypeTags.XML_PI_TAG:
-                return new BXmlType(PredefinedTypes.TYPE_PROCESSING_INSTRUCTION, false);
-            default:
-                // Since 'xml:Text is same as xml<'xml:Text>
-                return PredefinedTypes.TYPE_TEXT;
-        }
+        return switch (tempExprType.getTag()) {
+            case TypeTags.XML_ELEMENT_TAG -> PredefinedTypes.TYPE_XML_ELEMENT_SEQUENCE;
+            case TypeTags.XML_COMMENT_TAG -> PredefinedTypes.TYPE_XML_COMMENT_SEQUENCE;
+            case TypeTags.XML_PI_TAG -> PredefinedTypes.TYPE_XML_PI_SEQUENCE;
+            default -> PredefinedTypes.TYPE_XML_TEXT_SEQUENCE;
+        };
     }
 
     private void initializeIteratorNextReturnType() {

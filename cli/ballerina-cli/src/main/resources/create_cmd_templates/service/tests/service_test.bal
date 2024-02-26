@@ -23,7 +23,7 @@ function testServiceWithProperName() {
 
 @test:Config {}
 function testServiceWithEmptyName() returns error? {
-    http:Response response = check testClient->get("/greeting/?name=");
+    http:Response response = check testClient->get("/greeting/");
     test:assertEquals(response.statusCode, 500);
     json errorPayload = check response.getJsonPayload();
     test:assertEquals(errorPayload.message, "name should not be empty!");

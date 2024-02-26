@@ -618,14 +618,14 @@ public class TomlProvider implements ConfigProvider {
         Optional<Toml> table = baseToml.getTable(moduleKey);
         List<TomlTableNode> moduleNodes = new ArrayList<>();
         if (table.isPresent()) {
-            moduleNodes.add(table.get().rootNode());
+            addToModuleNodesList(table.get(), moduleNodes);
         } else if (moduleInfo.hasModuleAmbiguity()) {
             throw new ConfigException(ErrorCodes.CONFIG_TOML_MODULE_AMBIGUITY, getLineRange(baseToml.rootNode()),
                     moduleName, moduleKey);
         }
         table = baseToml.getTable(moduleName);
         table.ifPresent(toml -> addToModuleNodesList(toml, moduleNodes));
-        moduleNodes.add(baseToml.rootNode());
+        addToModuleNodesList(baseToml, moduleNodes);
         return moduleNodes;
     }
 

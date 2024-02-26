@@ -602,7 +602,9 @@ public class LangLibArrayTest {
                 "testArrSortWithNamedArgs2",
                 "testArrSortWithNamedArgs3",
                 "testArrayPop",
-                "testSetLengthNegative"
+                "testSetLengthNegative",
+                "testArrayFilterWithEmptyArrayAndTypeBinding",
+                "testArrayReverseWithEmptyArrayAndTypeBinding"
         };
     }
 }

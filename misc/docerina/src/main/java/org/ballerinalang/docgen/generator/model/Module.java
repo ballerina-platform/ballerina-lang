@@ -76,7 +76,7 @@ public class Module extends ModuleMetaData {
     public List<BType> anyDataTypes = new ArrayList<>();
     @Expose
     public List<BType> anyTypes = new ArrayList<>();
-
+    @Expose
     public List<BType> stringTypes = new ArrayList<>();
     @Expose
     public List<BType> integerTypes = new ArrayList<>();
@@ -88,6 +88,8 @@ public class Module extends ModuleMetaData {
     public List<Enum> enums = new ArrayList<>();
     @Expose
     public List<DefaultableVariable> variables = new ArrayList<>();
-
+    @Expose
+    public List<DefaultableVariable> configurables = new ArrayList<>();
+    @Expose
     public List<Path> resources = new ArrayList<>();
 }

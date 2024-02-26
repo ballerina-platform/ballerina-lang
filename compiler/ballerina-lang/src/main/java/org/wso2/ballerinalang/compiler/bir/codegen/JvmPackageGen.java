@@ -567,7 +567,7 @@ public class JvmPackageGen {
             // link the bir function for lookup
             String birFuncName = birFunc.name.value;
             String balFileName;
-            if (birFunc.pos == null) {
+            if (birFunc.pos == null || birFunc.pos == symbolTable.builtinPos) {
                 balFileName = MODULE_INIT_CLASS_NAME;
             } else {
                 balFileName = birFunc.pos.lineRange().fileName();

@@ -117,7 +117,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
             CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
                     textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
             CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT,
-                    getRenamePosition(textEdits.get(1).getRange().getStart(), addNewLineAtStart));
+                    getRenamePosition(textEdits.get(1).getRange(), addNewLineAtStart));
             return Collections.singletonList(codeAction);
         }
 
@@ -127,7 +127,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
             CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
                     textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
             CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT,
-                    getRenamePosition(textEdits.get(1).getRange().getStart(), addNewLineAtStart));
+                    getRenamePosition(textEdits.get(1).getRange(), addNewLineAtStart));
             return Collections.singletonList(codeAction);
         }
 
@@ -141,7 +141,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
             LinkedHashMap<String, Position> renamePositionMap = new LinkedHashMap<>();
             nodeList.forEach(extractableNode ->
                     renamePositionMap.put(extractableNode.toSourceCode().strip(),
-                            getRenamePosition(PositionUtil.toRange(extractableNode.lineRange()).getStart(),
+                            getRenamePosition(PositionUtil.toRange(extractableNode.lineRange()),
                                     addNewLineAtStart)));
             return Collections.singletonList(
                     CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
@@ -171,13 +171,13 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         return node instanceof StatementNode || node instanceof ModuleMemberDeclarationNode;
     }
 
-    private Position getRenamePosition(Position replacePosition, boolean addNewLineAtStart) {
+    private Position getRenamePosition(Range range, boolean addNewLineAtStart) {
         // line position will increment by one due to const declaration statement
-        int line = replacePosition.getLine() + 1;
+        int line = range.getEnd().getLine() + 1;
         if (addNewLineAtStart) {
             line += 1;
         }
-        return new Position(line, replacePosition.getCharacter());
+        return new Position(line, range.getStart().getCharacter());
     }
 
     @Override

@@ -52,7 +52,7 @@ public class PackageDiagnostic extends Diagnostic {
     protected Project project;
     protected ModuleDescriptor moduleDescriptor;
 
-    protected PackageDiagnostic(DiagnosticInfo diagnosticInfo, Location location) {
+    public PackageDiagnostic(DiagnosticInfo diagnosticInfo, Location location) {
         this.diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
         this.location = location;
     }

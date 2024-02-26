@@ -1197,6 +1197,11 @@ function testReadOnlyIntersectionWithJsonAndAnydata() {
     assertFalse(l is (string|error)[]);
 }
 
+function testSelectivelyImmutabilityWithRegexp() {
+    (stream<int>|string:RegExp) & readonly x = re `pattern`;
+    assertTrue(x is (string:RegExp & readonly));
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 18,
+    "character": 28
+  },
+  "source": "fixReturnTypeForConditionalExpr.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'string|boolean'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 50
+            },
+            "end": {
+              "line": 17,
+              "character": 50
+            }
+          },
+          "newText": " returns string|boolean"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

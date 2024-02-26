@@ -44,3 +44,25 @@ listener test:MockListener ml = new (8080);
 public function testChangingListenerVariableAfterDefining() {
     ml = new test:MockListener(8081);
 }
+
+function testRestParamFinal(string p1, string... p2) {
+    p2 = ["a", "b"];
+}
+
+function (int a, int... b) testModuleLevelRestParamFinal = function (int i, int... b) {
+        b = [];
+    };
+
+public function testLocalLevelRestParamFinal() {
+    int[] arr = [];
+    function (int a, int... b) func = function (int i, int... b) {
+        b = arr;
+    };
+}
+
+public function testLocalLevelRestParamFinalWithVar() {
+    int[] arr = [];
+    var func = function (int i, int... b) {
+        b = arr;
+    };
+}

@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 49,
+    "character": 18
+  },
+  "source": "fixReturnTypeForQueryExpr.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'float'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 46,
+              "character": 35
+            },
+            "end": {
+              "line": 46,
+              "character": 35
+            }
+          },
+          "newText": " returns float"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

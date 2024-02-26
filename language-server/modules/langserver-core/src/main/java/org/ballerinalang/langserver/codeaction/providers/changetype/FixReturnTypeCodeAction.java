@@ -69,13 +69,36 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
             return false;
         }
 
-        //Suggest the code action only if the immediate parent of the matched node is either of return statement,
-        //check expression, check action.
+        // Suggest code action if the node is aligned with a check keyword.
         NonTerminalNode matchedNode = positionDetails.matchedNode();
-        if (matchedNode.parent() != null && matchedNode.parent().kind() != SyntaxKind.RETURN_STATEMENT &&
-                matchedNode.kind() != SyntaxKind.CHECK_EXPRESSION && 
-                matchedNode.kind() != SyntaxKind.CHECK_ACTION) {
+        if (matchedNode.kind() == SyntaxKind.CHECK_ACTION || matchedNode.kind() == SyntaxKind.CHECK_EXPRESSION) {
+            return CodeActionNodeValidator.validate(context.nodeAtRange());
+        }
+
+        // Suggest code action if the node is an expression inside a return statement.
+        NonTerminalNode parentNode = matchedNode.parent();
+        if (parentNode == null) {
             return false;
+        }
+        if (parentNode.kind() == SyntaxKind.RETURN_KEYWORD) {
+            return CodeActionNodeValidator.validate(context.nodeAtRange());
+        }
+
+        // Suggest code action if the node is an expression nested into a return statement.
+        NonTerminalNode grandParentNode = parentNode.parent();
+        if (grandParentNode == null) {
+            return false;
+        }
+        if (grandParentNode.kind() == SyntaxKind.RETURN_STATEMENT) {
+            return CodeActionNodeValidator.validate(context.nodeAtRange());
+        }
+
+        // Suggest code action if the node is an expression inside a collect clause.
+        if (matchedNode.kind() == SyntaxKind.COLLECT_CLAUSE) {
+            NonTerminalNode ancestorNode = grandParentNode.parent();
+            if (ancestorNode == null || ancestorNode.kind() != SyntaxKind.RETURN_STATEMENT) {
+                return false;
+            }
         }
 
         return CodeActionNodeValidator.validate(context.nodeAtRange());

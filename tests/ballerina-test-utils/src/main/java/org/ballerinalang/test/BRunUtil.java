@@ -373,8 +373,8 @@ public class BRunUtil {
         directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit",
                 new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
                         configurationDetails.paths, configurationDetails.configContent});
-        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
-        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
+        runOnSchedule(initClazz, "$moduleInit", scheduler);
+        runOnSchedule(initClazz, "$moduleStart", scheduler);
 //        if (temp) {
 //            scheduler.immortal = true;
 //            new Thread(scheduler::start).start();
@@ -395,6 +395,26 @@ public class BRunUtil {
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new BLangTestException(String.format(errorMsg, funcName, e.getMessage()), e);
         }
+    }
+
+    public static void runOnSchedule(CompileResult compileResult, String functionName, Scheduler scheduler) {
+        BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
+        PackageManifest packageManifest = compileResult.packageManifest();
+        String funcClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
+                packageManifest.name().toString(),
+                packageManifest.version().toString(),
+                getClassName(function.pos.lineRange().fileName()));
+        Class<?> funcClass = null;
+        try {
+            funcClass = compileResult.getClassLoader().loadClass(funcClassName);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+        }
+        runOnSchedule(funcClass, functionName, scheduler);
+    }
+
+    private static void runOnSchedule(Class<?> initClazz, String name, Scheduler scheduler) {
+        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, name), scheduler);
     }
 
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler) {
@@ -418,6 +438,7 @@ public class BRunUtil {
             };
             final FutureValue out = scheduler
                     .schedule(new Object[1], func, null, null, null, PredefinedTypes.TYPE_ANY, null, null);
+            Scheduler.setDaemonStrand(out.strand);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {

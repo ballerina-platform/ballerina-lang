@@ -115,35 +115,13 @@ public class MockDesugar {
         // Get the Mock Function map from the pkgNode
         Map<String, String> mockFunctionMap = pkgNode.getTestablePkg().getMockFunctionNamesMap();
 
-        // Get all the imports symbols from the testable package
+        // Get the mock function type map from the pkgNode
+        Map<String, Boolean> isLegacyMockingMap = pkgNode.getTestablePkg().getIsLegacyMockingMap();
+
+        // Get the set of functions to generate
         Set<String> mockFunctionSet = mockFunctionMap.keySet();
-        ArrayList<String> importsList = new ArrayList<>();
-        for (BLangImportPackage importPkg : pkgNode.getTestablePkg().getImports()) {
-            if (importPkg.symbol == null) {
-                continue;
-            }
-            if (!importPkg.symbol.toString().contains(testPackageSymbol)) {
-                importsList.add(importPkg.symbol.toString());
-            }
-        }
-
-        // Get all the imports from the current package
-        for (BLangImportPackage importPkg : pkgNode.getImports()) {
-            if (importPkg.symbol == null) {
-                continue;
-            }
-            if (importsList.contains(importPkg.symbol.toString())) {
-                continue;
-            }
-            if (!importPkg.symbol.toString().contains(testPackageSymbol)) {
-                importsList.add(importPkg.symbol.toString());
-            }
-        }
-
         for (String function : mockFunctionSet) {
-            if (function.contains(pkgNode.packageID.toString()) ? !function.split(pkgNode.packageID.toString())[1].
-                    startsWith(MOCK_LEGACY_DELIMITER) :
-                    !startsWithMockLegacyDelimiterForImportedMockFunctions(function, importsList)) {
+            if (!isLegacyMockingMap.get(function)) {
                 pkgNode.getTestablePkg().functions.add(generateMockFunction(function));
             }
         }

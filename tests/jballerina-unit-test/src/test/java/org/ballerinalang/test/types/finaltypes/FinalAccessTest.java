@@ -47,16 +47,21 @@ public class FinalAccessTest {
     public void testFinalFailCase() {
         CompileResult compileResultNegative = BCompileUtil.compile(
                 "test-src/types/finaltypes/test_implicitly_final_negative.bal");
-        Assert.assertEquals(compileResultNegative.getErrorCount(), 8);
-        BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to function argument 'a'", 11, 5);
-        BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to function argument 'a'", 17, 5);
-        BAssertUtil.validateError(compileResultNegative, 2, "cannot assign a value to function argument 'f'", 22, 5);
-        BAssertUtil.validateError(compileResultNegative, 3, "cannot assign a value to function argument 's'", 23, 5);
-        BAssertUtil.validateError(compileResultNegative, 4, "cannot assign a value to function argument 'b'", 24, 5);
-        BAssertUtil.validateError(compileResultNegative, 5, "cannot assign a value to function argument 'j'", 25, 5);
-        BAssertUtil.validateError(compileResultNegative, 6, "cannot assign a value to function argument 'a'", 38, 5);
-        BAssertUtil.validateError(compileResultNegative, 7, "invalid assignment: 'listener' declaration is final",
+        int i = 0;
+        BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'a'", 11, 5);
+        BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'a'", 17, 5);
+        BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'f'", 22, 5);
+        BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 's'", 23, 5);
+        BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'b'", 24, 5);
+        BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'j'", 25, 5);
+        BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'a'", 38, 5);
+        BAssertUtil.validateError(compileResultNegative, i++, "invalid assignment: 'listener' declaration is final",
                 45, 5);
+        BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'p2'", 49, 5);
+        BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'b'", 53, 9);
+        BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'b'", 59, 9);
+        BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'b'", 66, 9);
+        Assert.assertEquals(compileResultNegative.getErrorCount(), i);
     }
 
     @Test

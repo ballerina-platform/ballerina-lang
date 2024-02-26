@@ -1135,6 +1135,17 @@ public function testXmlSequenceAndXmlItemEqualityNegative() {
     test:assertFalse(x1 == x3 || !(x1 != x3) || x3 == x1 || !(x3 != x1));
 }
 
+public function testXmlSequenceLHSEquals() {
+    string a = "hello";
+    xml x1 = xml `AS-${a}`;
+    xml x2 = xml `AS-${a}`;
+    test:assertTrue(x1 == x2 && !(x1 != x2));
+
+    x1 = xml `<?target data?><?target_two data_two?>`;
+    x2 = xml `<?target data?><?target_two data_two?>`;
+    test:assertTrue(x1 == x2 && !(x1 != x2));
+}
+
 function testXmlStringNegative() {
     anydata x1 = xml `<book>The Lost World</book>`;
     anydata x2 = "<book>The Lost World</book>";

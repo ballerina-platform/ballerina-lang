@@ -697,6 +697,55 @@ function testAccessingResourceWithIncludedRecordParam() {
     assertEquality(d, 3);
 }
 
+client class Client11 {
+    resource function get v1\.2/greeting1() returns string {
+        return "Path1";
+    }
+    
+    resource function get ["v1.2"]/greeting2() returns string {
+        return "Path2";
+    }
+    
+    resource function get v1\.2/ab\.c/greeting3() returns string {
+        return "Path3";
+    }
+
+    resource function get v1\.\.2() returns string {
+        return "Path4";
+    }
+        
+    function abc\.abc() returns string {
+        return "abc.abc";
+    }
+}
+
+function testAccessingResourceWithEscapedChars() {
+    Client11 cl = new;
+    string a1 = cl->/v1\.2/greeting1;
+    assertEquality(a1, "Path1");
+    
+    string a2 = cl->/["v1.2"]/greeting1;
+    assertEquality(a2, "Path1");
+    
+    string b1 = cl->/["v1.2"]/greeting2;
+    assertEquality(b1, "Path2");
+    
+    string b2 = cl->/v1\.2/greeting2;
+    assertEquality(b2, "Path2");
+
+    string c1 = cl->/v1\.2/ab\.c/greeting3;
+    assertEquality(c1, "Path3");
+    
+    string c2 = cl->/["v1.2"]/["ab.c"]/greeting3;
+    assertEquality(c2, "Path3");
+    
+    string d1 = cl->/v1\.\.2;
+    assertEquality(d1, "Path4");
+    
+    string e1 = cl.abc\.abc();
+    assertEquality(e1, "abc.abc");    
+}
+
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

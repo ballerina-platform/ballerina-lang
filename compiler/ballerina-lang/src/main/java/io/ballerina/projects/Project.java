@@ -17,11 +17,13 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -37,6 +39,7 @@ public abstract class Project {
     private BuildOptions buildOptions;
     protected ProjectEnvironment projectEnvironment;
     private final ProjectKind projectKind;
+    private Map<String, ToolContext> toolContextMap;
 
     protected Project(ProjectKind projectKind,
                       Path projectPath,
@@ -91,6 +94,23 @@ public abstract class Project {
 
     public BuildOptions buildOptions() {
         return buildOptions;
+    }
+
+    /**
+     * Returns a map of build tools.
+     *
+     * @return map of {@code ToolContext}
+     */
+    public Map<String, ToolContext> getToolContextMap() {
+        return toolContextMap;
+    }
+
+    /**
+     * Assigns a map of build tools.
+     * @param toolContextMap map of {@code ToolContext}
+     */
+    public void setToolContextMap(Map<String, ToolContext> toolContextMap) {
+        this.toolContextMap = toolContextMap;
     }
 
     // Following project path was added to support old compiler extensions.

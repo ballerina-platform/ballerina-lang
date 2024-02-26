@@ -407,3 +407,7 @@ function testReadOnlyIntersectionWithJsonAndAnydataNegative() {
     (xml & readonly)[] n = k; // error
     (json & readonly)[] _ = n; // error
 }
+
+function testUnsupportedIntersectionWithReadonly(stream<int> strm) {
+    (stream<int>|string:RegExp) & readonly _ = strm;
+}

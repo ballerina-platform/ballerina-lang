@@ -48,7 +48,7 @@
         "arguments": [
           "extractToVariableInTableConstructor.bal",
           {
-            "line": 13,
+            "line": 16,
             "character": 21
           }
         ]

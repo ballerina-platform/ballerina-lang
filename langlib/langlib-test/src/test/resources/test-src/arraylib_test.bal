@@ -1832,3 +1832,19 @@ function testSetLengthNegative() {
         <string> checkpanic result.detail()["message"]);
     }
 }
+
+function testArrayFilterWithEmptyArrayAndTypeBinding() {
+    var x = [];
+    anydata[] y = x;
+    anydata[] z = y.filter(v => v is int);
+    assertValueEquality(z, []);
+    assertTrue(z is never[]);
+}
+
+function testArrayReverseWithEmptyArrayAndTypeBinding() {
+    var x = [];
+    anydata[] y = x;
+    anydata[] z = y.reverse();
+    assertValueEquality(z, []);
+    assertTrue(z is never[]);
+}

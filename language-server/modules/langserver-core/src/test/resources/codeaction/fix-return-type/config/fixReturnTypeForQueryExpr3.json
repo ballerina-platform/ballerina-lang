@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 42,
+    "character": 12
+  },
+  "source": "fixReturnTypeForQueryExpr.bal",
+  "expected": [
+    {
+      "title": "Change return type to '(int?)[]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 40,
+              "character": 35
+            },
+            "end": {
+              "line": 40,
+              "character": 35
+            }
+          },
+          "newText": " returns (int?)[]"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

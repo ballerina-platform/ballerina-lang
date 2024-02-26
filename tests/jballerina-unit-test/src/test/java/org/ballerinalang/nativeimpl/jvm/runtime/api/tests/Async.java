@@ -89,7 +89,7 @@ public class Async {
     }
 
     public static long getResourceA(Environment env, BObject obj) {
-        invokeAsync(env, obj, "$gen$$getA$$0046");
+        invokeAsync(env, obj, "$gen$$getA$&0046");
         return 0;
     }
 
@@ -117,12 +117,12 @@ public class Async {
     }
 
     public static long getNonIsolatedResourceA(Environment env, BObject obj) {
-        invokeMethodAsyncConcurrently(env, obj, "$gen$$getA$$0046");
+        invokeMethodAsyncConcurrently(env, obj, "$gen$$getA$&0046");
         return 0;
     }
 
     public static long getNonIsolatedResourceB(Environment env, BObject obj) {
-        invokeMethodAsyncConcurrently(env, obj, "$gen$$getB$$0046");
+        invokeMethodAsyncConcurrently(env, obj, "$gen$$getB$&0046");
         return 0;
     }
 
@@ -135,7 +135,7 @@ public class Async {
     }
 
     public static long isolatedServiceGetA(Environment env, BObject obj) {
-        invokeMethodAsyncConcurrently(env, obj, "$gen$$getA$$0046");
+        invokeMethodAsyncConcurrently(env, obj, "$gen$$getA$&0046");
         return 0;
     }
 
@@ -148,7 +148,7 @@ public class Async {
     }
 
     public static long nonIsolatedServiceGetA(Environment env, BObject obj) {
-        invokeMethodAsyncSequentially(env, obj, "$gen$$getA$$0046");
+        invokeMethodAsyncSequentially(env, obj, "$gen$$getA$&0046");
         return 0;
     }
 
@@ -253,7 +253,7 @@ public class Async {
     private static boolean isResourceMethodIsolated(BObject obj) {
         MethodType[] methods = ((BServiceType) obj.getType()).getResourceMethods();
         for (MethodType method : methods) {
-            if (method.getName().equals("$gen$$getA$$0046")) {
+            if (method.getName().equals("$gen$$getA$&0046")) {
                 return method.isIsolated();
             }
         }

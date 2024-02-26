@@ -80,7 +80,8 @@ public class QueryActionOrExprTest {
                 "testQueryActionOrExpressionWithUnionRecordResultType",
                 "testQueryActionOrExprWithAnyOrErrResultType",
                 "testNestedQueryActionOrExprWithClientResourceAccessAction",
-                "testQueryActionWithQueryExpression"
+                "testQueryActionWithQueryExpression",
+                "testQueryActionWithLetExpression"
         };
     }
 
