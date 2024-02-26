@@ -46,8 +46,8 @@ public class BTypeReferenceType extends BType implements ReferenceType {
     }
 
     @Override
-    public SemType getSemType() {
-        return referredType.getSemType();
+    public SemType semType() {
+        return referredType.semType();
     }
 
     @Override

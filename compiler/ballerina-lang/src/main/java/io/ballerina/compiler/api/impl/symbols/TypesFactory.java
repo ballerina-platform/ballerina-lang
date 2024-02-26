@@ -238,7 +238,7 @@ public class TypesFactory {
                 return new BallerinaNilTypeSymbol(this.context, bType);
             case FINITE:
                 BFiniteType finiteType = (BFiniteType) bType;
-                Optional<Value> value = Core.singleShape(finiteType.getSemType());
+                Optional<Value> value = Core.singleShape(finiteType.semType());
                 if (value.isPresent()) {
                     BType broadType = SemTypeResolver.singletonBroadTypes(finiteType, symTable).iterator()
                             .next();

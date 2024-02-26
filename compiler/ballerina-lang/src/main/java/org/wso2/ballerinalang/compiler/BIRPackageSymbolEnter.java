@@ -1251,7 +1251,7 @@ public class BIRPackageSymbolEnter {
             SemType semType = readSemType();
             BType bType = readTypeInternal(cpI);
             if (bType != null) {
-                bType.setSemType(semType);
+                bType.semType(semType);
             }
             return bType;
         }

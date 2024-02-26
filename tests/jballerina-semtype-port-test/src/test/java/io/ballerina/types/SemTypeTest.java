@@ -168,8 +168,8 @@ public class SemTypeTest {
                 if (v.length != 2) {
                     Assert.fail("test structure should be `variable = Type`");
                 }
-                SemType t1 = scope.lookup(new Name(v[0])).symbol.type.getSemType();
-                SemType t2 = globalScope.lookup(new Name(v[1])).symbol.type.getSemType();
+                SemType t1 = scope.lookup(new Name(v[0])).symbol.type.semType();
+                SemType t2 = globalScope.lookup(new Name(v[1])).symbol.type.semType();
 
                 String msg = "semtype in local scope is different from global scope";
                 Assert.assertTrue(SemTypes.isSubtype(tc, t1, t2), msg);

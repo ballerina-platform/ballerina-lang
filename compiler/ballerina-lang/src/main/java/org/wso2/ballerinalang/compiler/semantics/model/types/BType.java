@@ -96,11 +96,11 @@ public class BType implements ValueType {
         return new BNeverType();
     }
 
-    public SemType getSemType() { // TODO: rename to semType()
+    public SemType semType() {
         return semType;
     }
 
-    public void setSemType(SemType semtype) {
+    public void semType(SemType semtype) {
         this.semType = semtype;
     }
 
@@ -109,7 +109,7 @@ public class BType implements ValueType {
     }
 
     public boolean isNullable() {
-        return Core.containsNil(SemTypeResolver.getSemTypeComponent(this));
+        return Core.containsNil(SemTypeResolver.semTypeComponent(this));
     }
 
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {

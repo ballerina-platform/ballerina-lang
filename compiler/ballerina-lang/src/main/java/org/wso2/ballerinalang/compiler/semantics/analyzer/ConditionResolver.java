@@ -127,7 +127,7 @@ public class ConditionResolver {
                     return symTable.semanticError;
                 }
 
-                Optional<Value> val = Core.singleShape(baseType.getSemType());
+                Optional<Value> val = Core.singleShape(baseType.semType());
                 if (val.isEmpty()) {
                     return symTable.semanticError;
                 }

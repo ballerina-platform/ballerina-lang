@@ -144,7 +144,7 @@ public class SemTypeResolver {
 
         try {
             SemType s = resolveTypeDescSubset(env.enclPkg.semtypeEnv, modTable, null, 0, typeNode);
-            resultType.setSemType(s);
+            resultType.semType(s);
         } catch (UnsupportedOperationException e) {
             // Do nothing
         }
@@ -321,7 +321,7 @@ public class SemTypeResolver {
 
     private void addSemtypeBType(BLangType typeNode, SemType semType) {
         if (typeNode != null) {
-            typeNode.getBType().setSemType(semType);
+            typeNode.getBType().semType(semType);
         }
     }
 
@@ -797,11 +797,11 @@ public class SemTypeResolver {
 
         SemType semType = PredefinedType.NEVER;
         for (BType memberType : memberTypes) {
-            semType = SemTypes.union(semType, getSemTypeComponent(memberType));
+            semType = SemTypes.union(semType, semTypeComponent(memberType));
 
             if (memberType.tag == TypeTags.UNION) {
                 nonSemMemberTypes.addAll(((BUnionType) memberType).nonSemMemberTypes);
-            } else if (getBTypeComponent(memberType).tag != TypeTags.NEVER) {
+            } else if (bTypeComponent(memberType).tag != TypeTags.NEVER) {
                 nonSemMemberTypes.add(memberType);
             }
         }
@@ -813,18 +813,18 @@ public class SemTypeResolver {
     public static void resolveBIntersectionSemTypeComponent(BIntersectionType type) {
         SemType semType = PredefinedType.TOP;
         for (BType constituentType : type.getConstituentTypes()) {
-            semType = SemTypes.intersection(semType, getSemTypeComponent(constituentType));
+            semType = SemTypes.intersection(semType, semTypeComponent(constituentType));
         }
         type.setSemTypeComponent(semType);
     }
 
-    public static SemType getSemTypeComponent(BType t) { // TODO: refactor
+    public static SemType semTypeComponent(BType t) { // TODO: refactor
         if (t == null) {
             return PredefinedType.NEVER;
         }
 
         if (t.tag == TypeTags.TYPEREFDESC) {
-            return getSemTypeComponent(((BTypeReferenceType) t).referredType);
+            return semTypeComponent(((BTypeReferenceType) t).referredType);
         }
 
         if (t.tag == TypeTags.UNION || t.tag == TypeTags.ANYDATA || t.tag == TypeTags.JSON) {
@@ -844,7 +844,7 @@ public class SemTypeResolver {
         }
 
         if (semTypeSupported(t.tag)) {
-            return t.getSemType();
+            return t.semType();
         }
 
         return PredefinedType.NEVER;
@@ -855,7 +855,7 @@ public class SemTypeResolver {
      * Hence, should be called very carefully.
      */
     @Deprecated
-    public static BType getBTypeComponent(BType t) {
+    public static BType bTypeComponent(BType t) {
         if (t == null) {
             BType neverType = BType.createNeverType();
             neverType.isBTypeComponent = true;
@@ -863,7 +863,7 @@ public class SemTypeResolver {
         }
 
         if (t.tag == TypeTags.TYPEREFDESC) {
-            return getBTypeComponent(((BTypeReferenceType) t).referredType);
+            return bTypeComponent(((BTypeReferenceType) t).referredType);
         }
 
         if (semTypeSupported(t.tag)) {

@@ -123,7 +123,7 @@ public class BIRTypeWriter extends TypeVisitor {
     }
 
     public void visitType(BType type) {
-        writeSemType(type.getSemType());
+        writeSemType(type.semType());
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
         buff.writeLong(type.flags);

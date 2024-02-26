@@ -528,7 +528,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private int getPreferredMemberTypeTag(BFiniteType finiteType) {
-        UniformTypeBitSet uniformTypeBitSet = widenToBasicTypes(finiteType.getSemType());
+        UniformTypeBitSet uniformTypeBitSet = widenToBasicTypes(finiteType.semType());
         if ((uniformTypeBitSet.bitset & PredefinedType.INT.bitset) != 0) {
             return TypeTags.INT;
         } else if ((uniformTypeBitSet.bitset & PredefinedType.FLOAT.bitset) != 0) {
@@ -772,7 +772,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return symTable.floatType;
             } else if (expectedType.tag == TypeTags.FINITE) {
                 BType basicType;
-                UniformTypeBitSet uniformTypeBitSet = widenToBasicTypes(expectedType.getSemType());
+                UniformTypeBitSet uniformTypeBitSet = widenToBasicTypes(expectedType.semType());
                 if ((uniformTypeBitSet.bitset & PredefinedType.FLOAT.bitset) != 0) {
                     basicType = symTable.floatType;
                 } else if ((uniformTypeBitSet.bitset & PredefinedType.DECIMAL.bitset) != 0) {
@@ -1005,7 +1005,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         List<SemNamedType> newValueSpace = new ArrayList<>();
         for (BFiniteType finiteType : finiteTypeMembers) {
             for (SemNamedType semNamedType : finiteType.valueSpace) {
-                if (SemTypes.isSubtype(types.semTypeCtx, semNamedType.semType(), matchType.getSemType())) {
+                if (SemTypes.isSubtype(types.semTypeCtx, semNamedType.semType(), matchType.semType())) {
                     newValueSpace.add(semNamedType);
                 }
             }
@@ -8733,7 +8733,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         switch (tag) {
             case TypeTags.FINITE:
-                SemType t = indexExprType.getSemType();
+                SemType t = indexExprType.semType();
                 long maxIndexValue;
                 if (arrayType.state == BArrayState.OPEN) {
                     maxIndexValue = Long.MAX_VALUE;
@@ -8830,7 +8830,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         switch (tag) {
             case TypeTags.FINITE:
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
-                SemType t = currentType.getSemType();
+                SemType t = currentType.semType();
 
                 Optional<SubtypeData> properSubtypeData = getProperSubtypeData(t, UT_INT);
                 if (properSubtypeData.isEmpty()) {
@@ -9003,7 +9003,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 break;
             case TypeTags.FINITE:
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
-                SemType t = currentType.getSemType();
+                SemType t = currentType.semType();
 
                 Optional<SubtypeData> properSubtypeData = getProperSubtypeData(t, UT_STRING);
                 if (properSubtypeData.isEmpty()) {

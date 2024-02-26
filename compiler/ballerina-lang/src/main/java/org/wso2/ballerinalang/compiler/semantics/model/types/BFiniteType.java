@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -84,7 +83,7 @@ public class BFiniteType extends BType implements ReferenceType {
     }
 
     @Override
-    public SemType getSemType() {
+    public SemType semType() {
         if (this.semType == null) {
             this.semType = computeResultantSemType(valueSpace);
         }

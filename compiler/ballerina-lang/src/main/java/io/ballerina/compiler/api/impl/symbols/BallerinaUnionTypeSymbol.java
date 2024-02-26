@@ -266,7 +266,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         if (types.size() == 2) {
             for (TypeSymbol type : types) {
                 BType internalType = ((AbstractTypeSymbol) type).getBType();
-                if (internalType.tag == TypeTags.FINITE && Core.singleShape(internalType.getSemType()).isEmpty()) {
+                if (internalType.tag == TypeTags.FINITE && Core.singleShape(internalType.semType()).isEmpty()) {
                     return false;
                 }
             }
