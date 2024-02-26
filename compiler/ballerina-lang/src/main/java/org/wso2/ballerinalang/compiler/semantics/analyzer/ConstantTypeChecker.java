@@ -121,7 +121,7 @@ import java.util.function.BiFunction;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.singleShapeBroadType;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper.singleShapeBroadType;
 
 /**
  * Resolve the value and check the type of constant expression.
@@ -140,7 +140,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     private final Types types;
     private final TypeChecker typeChecker;
     private final TypeResolver typeResolver;
-    private final SemTypeResolver semTypeResolver;
     private final ConstantTypeChecker.FillMembers fillMembers;
     private BLangAnonymousModelHelper anonymousModelHelper;
 
@@ -155,8 +154,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         this.types = Types.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
-        this.typeResolver = TypeResolver.getInstance(context);
-        this.semTypeResolver = SemTypeResolver.getInstance(context);
+        this.typeResolver = TypeResolver.getInstance(context);;
         this.fillMembers = FillMembers.getInstance(context);
     }
 
@@ -1796,7 +1794,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 literalExpr.value = String.valueOf(literalValue);
                 return symTable.decimalType;
             case TypeTags.FINITE:
-                Set<BType> broadTypes = SemTypeResolver.singletonBroadTypes((BFiniteType) expectedType, symTable);
+                Set<BType> broadTypes = SemTypeHelper.singletonBroadTypes((BFiniteType) expectedType, symTable);
                 if (broadTypes.size() == 1) {
                     return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, broadTypes.iterator().next());
                 }
@@ -1938,7 +1936,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, constantSymbol.flags,
                         Names.EMPTY, constantSymbol.pkgID, null, constantSymbol.owner, constantSymbol.pos, VIRTUAL);
                 return BFiniteType.newSingletonBFiniteType(finiteTypeSymbol,
-                        SemTypeResolver.resolveSingletonType(value, type.getKind()));
+                        SemTypeHelper.resolveSingletonType(value, type.getKind()));
             default:
                 return type;
         }

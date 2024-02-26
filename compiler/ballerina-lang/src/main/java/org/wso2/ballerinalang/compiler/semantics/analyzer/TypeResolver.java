@@ -130,8 +130,8 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.semTypeSupported;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.singleShapeBroadType;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper.semTypeSupported;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper.singleShapeBroadType;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
 
@@ -1381,7 +1381,7 @@ public class TypeResolver {
         type.setOriginalMemberTypes(memberTypes);
         memberTypes.clear();
         memberTypes.addAll(flattenMemberTypes);
-        SemTypeResolver.resolveBUnionSemTypeComponent(type);
+        SemTypeHelper.resolveBUnionSemTypeComponent(type);
     }
 
     private BType resolveTypeDesc(BLangIntersectionTypeNode td, ResolverData data, boolean anonymous) {
@@ -1669,7 +1669,7 @@ public class TypeResolver {
                     td.valueSpace.set(i, exprOrLiteral);
                 }
 
-                SemType s = SemTypeResolver.resolveSingletonType((BLangLiteral) exprOrLiteral);
+                SemType s = SemTypeHelper.resolveSingletonType((BLangLiteral) exprOrLiteral);
                 valueSpace[i] = new SemNamedType(s, Optional.ofNullable(exprOrLiteral.toString()));
             } else {
                 throw new IllegalStateException("non-sem value found in BLangFiniteType!");

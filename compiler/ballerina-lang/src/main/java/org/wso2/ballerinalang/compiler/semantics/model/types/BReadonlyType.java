@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -33,7 +33,7 @@ import org.wso2.ballerinalang.util.Flags;
 public class BReadonlyType extends BBuiltInRefType {
 
     private boolean nullable = true;
-    private SemType semTypeComponent = SemTypeResolver.READONLY_SEM_COMPONENT;
+    private SemType semTypeComponent = SemTypeHelper.READONLY_SEM_COMPONENT;
 
     public BReadonlyType(BTypeSymbol tsymbol) {
         super(TypeTags.READONLY, tsymbol);

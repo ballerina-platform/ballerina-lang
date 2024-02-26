@@ -34,7 +34,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -560,7 +560,7 @@ class JMethodResolver {
                         return true;
                     }
 
-                    for (BType t : SemTypeResolver.singletonBroadTypes((BFiniteType) bType, symbolTable)) {
+                    for (BType t : SemTypeHelper.singletonBroadTypes((BFiniteType) bType, symbolTable)) {
                         if (!isValidParamBType(jType, t, isLastParam, restParamExist)) {
                             return false;
                         }
@@ -711,7 +711,7 @@ class JMethodResolver {
                         return true;
                     }
 
-                    for (BType t : SemTypeResolver.singletonBroadTypes((BFiniteType) bType, symbolTable)) {
+                    for (BType t : SemTypeHelper.singletonBroadTypes((BFiniteType) bType, symbolTable)) {
                         if (isValidReturnBType(jType, t, jMethodRequest, visitedSet)) {
                             return true;
                         }

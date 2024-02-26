@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import io.ballerina.types.SemType;
 import org.ballerinalang.model.types.IntersectionType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -55,7 +55,7 @@ public class BIntersectionType extends BType implements IntersectionType {
                 break;
             }
         }
-        SemTypeResolver.resolveBIntersectionSemTypeComponent(this);
+        SemTypeHelper.resolveBIntersectionSemTypeComponent(this);
         this.effectiveType = (BType) effectiveType;
     }
 
@@ -67,7 +67,7 @@ public class BIntersectionType extends BType implements IntersectionType {
                              long flags) {
         super(TypeTags.INTERSECTION, tsymbol, flags);
         this.constituentTypes = toFlatTypeSet(types);
-        SemTypeResolver.resolveBIntersectionSemTypeComponent(this);
+        SemTypeHelper.resolveBIntersectionSemTypeComponent(this);
         this.effectiveType = effectiveType;
     }
 
@@ -93,7 +93,7 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     public void setConstituentTypes(LinkedHashSet<BType> constituentTypes) {
         this.constituentTypes =  toFlatTypeSet(constituentTypes);
-        SemTypeResolver.resolveBIntersectionSemTypeComponent(this);
+        SemTypeHelper.resolveBIntersectionSemTypeComponent(this);
     }
 
     @Override

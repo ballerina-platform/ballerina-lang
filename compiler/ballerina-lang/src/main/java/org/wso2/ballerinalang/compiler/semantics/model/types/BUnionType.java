@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import io.ballerina.types.SemType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -92,7 +92,7 @@ public class BUnionType extends BType implements UnionType {
         this.originalMemberTypes = originalMemberTypes;
         this.memberTypes = memberTypes;
         this.isCyclic = isCyclic;
-        SemTypeResolver.resolveBUnionSemTypeComponent(this);
+        SemTypeHelper.resolveBUnionSemTypeComponent(this);
     }
 
     @Override
@@ -109,7 +109,7 @@ public class BUnionType extends BType implements UnionType {
         assert memberTypes.size() == 0;
         this.memberTypes = memberTypes;
         this.originalMemberTypes = new LinkedHashSet<>(memberTypes);
-        SemTypeResolver.resolveBUnionSemTypeComponent(this);
+        SemTypeHelper.resolveBUnionSemTypeComponent(this);
     }
 
     public void setOriginalMemberTypes(LinkedHashSet<BType> memberTypes) {
@@ -255,7 +255,7 @@ public class BUnionType extends BType implements UnionType {
         }
 
         setCyclicFlag(type);
-        SemTypeResolver.resolveBUnionSemTypeComponent(this); // TODO: Optimize
+        SemTypeHelper.resolveBUnionSemTypeComponent(this); // TODO: Optimize
     }
 
     private void setCyclicFlag(BType type) {
@@ -325,7 +325,7 @@ public class BUnionType extends BType implements UnionType {
         if (isImmutable) {
             this.flags |= Flags.READONLY;
         }
-        SemTypeResolver.resolveBUnionSemTypeComponent(this); // TODO: Optimize
+        SemTypeHelper.resolveBUnionSemTypeComponent(this); // TODO: Optimize
     }
 
     public void mergeUnionType(BUnionType unionType) {

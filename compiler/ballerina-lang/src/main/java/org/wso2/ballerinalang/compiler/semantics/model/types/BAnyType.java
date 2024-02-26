@@ -21,7 +21,7 @@ import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -33,7 +33,7 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
     private boolean nullable = true;
-    private SemType semTypeComponent = SemTypeResolver.READONLY_SEM_COMPONENT;
+    private SemType semTypeComponent = SemTypeHelper.READONLY_SEM_COMPONENT;
 
     public BAnyType(BTypeSymbol tsymbol) {
         super(TypeTags.ANY, tsymbol);

@@ -27,7 +27,7 @@ import io.ballerina.types.Value;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -240,7 +240,7 @@ public class TypesFactory {
                 BFiniteType finiteType = (BFiniteType) bType;
                 Optional<Value> value = Core.singleShape(finiteType.semType());
                 if (value.isPresent()) {
-                    BType broadType = SemTypeResolver.singletonBroadTypes(finiteType, symTable).iterator()
+                    BType broadType = SemTypeHelper.singletonBroadTypes(finiteType, symTable).iterator()
                             .next();
                     String valueString = Objects.toString(value.get().value, "()");
                     return new BallerinaSingletonTypeSymbol(this.context, broadType, valueString, bType);
