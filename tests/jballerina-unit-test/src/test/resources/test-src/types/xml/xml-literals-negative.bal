@@ -154,3 +154,44 @@ function testMissingClosingGTToken() {
     xml x1 = xml `<a/a>`;
     xml x2 = xml `<a n="a"/a>`;
 }
+
+type X xml;
+type XE xml<xml:Element>;
+type XP xml<xml:ProcessingInstruction>;
+type XC xml<xml:Comment>;
+type UX XE|XP|XC|xml:Text;
+
+function testXMLInvalidSubtype() {
+    X x1 = xml `<a></a><b></b>`;
+    UX _ = x1;
+
+    X x2 = xml `<?target instructions?><?a data?>`;
+    UX _ = x2;
+
+    X x3 = xml `<!--comment one--><!--comment two-->`;
+    UX _ = x3;
+
+    X x4 = xml `random sequence of text`;
+    UX _ = x4;
+
+    X x5 = xml `<a></a><b></b><?target instructions?><?c data?>`;
+    UX _ = x5;
+
+    X x6 = xml `<a></a><b></b><!--comment one--><!--comment two-->`;
+    UX _ = x6;
+
+    X x7 = xml `<a></a><b></b>random text`;
+    UX _ = x7;
+
+    X x8 = xml `<?target instructions?><?a data?>text`;
+    UX _ = x8;
+
+    X x9 = xml `<?target instructions?><?a data?><!--comment one--><!--comment two-->`;
+    UX _ = x9;
+
+    X x10 = xml `<!--comment one--><!--comment two-->text`;
+    UX _ = x10;
+
+    X x11 = xml `<a></a><b></b><?d data?><?c data?>?><!--comment--><!--comment-->text`;
+    UX _ = x11;
+}
