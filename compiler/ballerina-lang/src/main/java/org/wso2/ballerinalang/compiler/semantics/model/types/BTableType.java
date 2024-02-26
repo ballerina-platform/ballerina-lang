@@ -103,5 +103,4 @@ public class BTableType extends BType implements TableType {
     public <T> void accept(BTypeAnalyzer<T> analyzer, T data) {
         analyzer.visit(this, data);
     }
-
 }

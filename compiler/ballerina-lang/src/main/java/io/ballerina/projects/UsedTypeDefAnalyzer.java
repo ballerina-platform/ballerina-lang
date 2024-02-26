@@ -33,7 +33,7 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
     }
 
     @Override
-    public void visitType(BType bType, UsedTypeDefAnalyzer.AnalyzerData data) {
+    public void visitType(BType bType, AnalyzerData data) {
         if (bType == null) {
             return;
         }
@@ -53,7 +53,7 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
 
     // Since bRecordTypes can have related anon functions for default values we have to mark them as used as well
     @Override
-    public void analyzeType(BType bType, UsedTypeDefAnalyzer.AnalyzerData data) {
+    public void analyzeType(BType bType, AnalyzerData data) {
         HashSet<UsedBIRNodeAnalyzer.FunctionPointerData> fpDataSet = usedBIRNodeAnalyzer.currentInvocationData.getFpData(bType);
         if (fpDataSet != null) {
             fpDataSet.forEach(fpData -> {
@@ -78,14 +78,14 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
     }
 
     protected void analyzeTypeDef(BIRNode.BIRTypeDefinition typeDef) {
-        final UsedTypeDefAnalyzer.AnalyzerData data = new UsedTypeDefAnalyzer.AnalyzerData();
+        final AnalyzerData data = new AnalyzerData();
         data.currentParentNode = typeDef;
         typeDef.referencedTypes.forEach(refType -> visitType(refType, data));
         visitType(typeDef.type, data);
     }
 
     protected void analyzeTypeDefWithinScope(BType bType, BIRNode.BIRDocumentableNode parentNode) {
-        final UsedTypeDefAnalyzer.AnalyzerData data = new UsedTypeDefAnalyzer.AnalyzerData();
+        final AnalyzerData data = new AnalyzerData();
         data.currentParentNode = parentNode;
         visitType(bType, data);
     }
@@ -106,8 +106,7 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
         return null;
     }
 
-
-    private void addDependency(BType bType, UsedTypeDefAnalyzer.AnalyzerData data) {
+    private void addDependency(BType bType, AnalyzerData data) {
         data.shouldAnalyzeChildren = visitedTypes.add(bType);
         bType.isUsed = true;
         BIRNode.BIRTypeDefinition childTypeDefNode = getBIRTypeDef(bType);

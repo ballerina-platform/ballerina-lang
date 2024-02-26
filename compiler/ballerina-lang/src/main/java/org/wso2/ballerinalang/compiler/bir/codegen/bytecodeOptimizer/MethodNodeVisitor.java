@@ -46,20 +46,17 @@ public class MethodNodeVisitor extends MethodVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        collector.addDesc(desc);
-        return new AnnotationNodeVisitor(collector);
+        return getAnnotationNodeVisitor(collector, desc);
     }
 
     @Override
     public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
-        collector.addDesc(desc);
-        return new AnnotationNodeVisitor(collector);
+        return getAnnotationNodeVisitor(collector, desc);
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        collector.addDesc(desc);
-        return new AnnotationNodeVisitor(collector);
+        return getAnnotationNodeVisitor(collector, desc);
     }
 
     @Override
@@ -69,19 +66,16 @@ public class MethodNodeVisitor extends MethodVisitor {
 
     @Override
     public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-        collector.addInternalName(owner);
-        collector.addDesc(desc);
+        collectOwnerAndDesc(collector, owner, desc);
     }
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-        collector.addInternalName(owner);
-        collector.addMethodDesc(desc);
+        collectOwnerAndDesc(collector, owner, desc);
     }
 
     @Override
     public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
-
         collector.addMethodDesc(desc);
         collector.addConstant(bsm);
         for (int i = 0; i < bsmArgs.length; i++) {
@@ -109,6 +103,16 @@ public class MethodNodeVisitor extends MethodVisitor {
         if (type != null) {
             collector.addInternalName(type);
         }
+    }
+
+    private static AnnotationNodeVisitor getAnnotationNodeVisitor(DependencyCollector collector, String desc) {
+        collector.addDesc(desc);
+        return new AnnotationNodeVisitor(collector);
+    }
+
+    private static void collectOwnerAndDesc(DependencyCollector collector, String owner, String desc) {
+        collector.addInternalName(owner);
+        collector.addDesc(desc);
     }
 }
 

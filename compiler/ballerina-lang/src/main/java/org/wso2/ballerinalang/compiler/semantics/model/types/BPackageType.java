@@ -47,5 +47,4 @@ public class BPackageType extends BType {
     public <T> void accept(BTypeAnalyzer<T> analyzer, T data) {
         analyzer.visit(this, data);
     }
-
 }

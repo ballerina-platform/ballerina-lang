@@ -459,8 +459,11 @@ class ModuleContext {
             return;
         }
 
+        boolean shouldOptimizeModule =
+                moduleContext.isWhiteListedModule() || !moduleContext.project.buildOptions().optimizeCodegen();
+
         // Generate and write the thin JAR to the file system
-        if (moduleContext.isWhiteListedModule() || !moduleContext.project.buildOptions().optimizeCodegen()) {
+        if (shouldOptimizeModule) {
             compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
         }
 
@@ -476,7 +479,7 @@ class ModuleContext {
         // Write the bir to the file system
         // This code will execute only if JAR caching is successful
         // TODO: check the filesystem cache and delete if the cache is incomplete (if BIR or JAR is missing)
-        if (moduleContext.isWhiteListedModule() || !moduleContext.project.buildOptions().optimizeCodegen()) {
+        if (shouldOptimizeModule) {
             moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
         }
     }
