@@ -21,6 +21,7 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -31,11 +32,10 @@ import java.util.regex.Pattern;
  */
 public class DependencyCollector {
 
-    final Pattern pattern;
-    private Set<String> dependencies = new HashSet<>();
+    private final static Pattern pattern = Pattern.compile("([a-zA-Z]\\w+/)+(\\w|[$])+");
+    private final Set<String> dependencies = new HashSet<>();
 
     public DependencyCollector() {
-        pattern = Pattern.compile("([a-zA-Z]\\w+/)+(\\w|[$])+");
     }
 
     /**
@@ -43,15 +43,9 @@ public class DependencyCollector {
      */
     public void addType(Type type) {
         switch (type.getSort()) {
-            case Type.ARRAY:
-                addType(type.getElementType());
-                break;
-            case Type.OBJECT:
-                addName(type.getInternalName());
-                break;
-            case Type.METHOD:
-                addMethodDesc(type.getDescriptor());
-                break;
+            case Type.ARRAY -> addType(type.getElementType());
+            case Type.OBJECT -> addName(type.getInternalName());
+            case Type.METHOD -> addMethodDesc(type.getDescriptor());
         }
     }
 
@@ -67,7 +61,6 @@ public class DependencyCollector {
      */
     public void addSignature(String signature) {
         if (signature != null) {
-
             new SignatureReader(signature).accept(new SignatureNodeVisitor(this));
         }
     }
@@ -84,12 +77,10 @@ public class DependencyCollector {
     public void addConstant(Object constant) {
         if (constant instanceof Type) {
             addType((Type) constant);
-        } else if (constant instanceof Handle) {
-            Handle handle = (Handle) constant;
+        } else if (constant instanceof Handle handle) {
             addInternalName(handle.getOwner());
             addMethodDesc(handle.getDesc());
-        } else if (constant instanceof String) {
-            String s = (String) constant;
+        } else if (constant instanceof String s) {
             //if the passed string matches the patters of a class name, add it as a dependency
             if (checkStringConstant(s.replace('.', '/'))) {
                 addInternalName(s.replace('.', '/'));
@@ -119,10 +110,11 @@ public class DependencyCollector {
     }
 
     public void addInternalNames(String[] names) {
-        if (names != null) {
-            for (int i = 0; i < names.length; i++) {
-                addInternalName(names[i]);
-            }
+        if (names == null) {
+            return;
+        }
+        for (String name : names) {
+            addInternalName(name);
         }
     }
 
@@ -140,13 +132,10 @@ public class DependencyCollector {
      */
     public boolean checkStringConstant(String s) {
         Matcher matcher = pattern.matcher(s);
-        if (matcher.matches()) {
-            return true;
-        }
-        return false;
+        return matcher.matches();
     }
 
     public Set<String> getDependencies() {
-        return dependencies;
+        return Collections.unmodifiableSet(dependencies);
     }
 }

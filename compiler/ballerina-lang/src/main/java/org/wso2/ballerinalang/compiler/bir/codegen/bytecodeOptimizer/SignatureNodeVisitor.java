@@ -47,5 +47,3 @@ public class SignatureNodeVisitor extends SignatureVisitor {
         collector.addInternalName(signatureClassName);
     }
 }
-
-
