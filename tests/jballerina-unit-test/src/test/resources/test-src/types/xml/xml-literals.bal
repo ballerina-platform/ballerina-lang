@@ -467,3 +467,75 @@ function testXMLLiteralWithConditionExpr() {
     xml w3 = (s ?: (s ?: (v1 is xml:Element ? e2 : xml `<user>Foo</user>`))) + xml `<element>B</element>`;
     test:assertEquals(w3.toString(), "<user>Foo</user><element>B</element>");
 }
+
+type X xml;
+type XE xml<xml:Element>;
+type XP xml<xml:ProcessingInstruction>;
+type XC xml<xml:Comment>;
+type UX XE|XP|XC|xml:Text;
+
+function testXMLSubtype() {
+    X x1 = xml `<a></a><b></b>`;
+    UX _ = <UX>x1;
+
+    X x2 = xml `<?target instructions?><?a data?>`;
+    UX _ = <UX>x2;
+
+    X x3 = xml `<!--comment one--><!--comment two-->`;
+    UX _ = <UX>x3;
+
+    X x4 = xml `random sequence of text`;
+    UX _ = <UX>x4;
+
+    UX|error ux;
+    X x5 = xml `<a></a><b></b><?target instructions?><?c data?>`;
+    ux = trap <UX>x5;
+    assertError(ux, "{ballerina}TypeCastError",
+        "incompatible types: 'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>' cannot be cast to 'UX'");
+
+    X x6 = xml `<a></a><b></b><!--comment one--><!--comment two-->`;
+    ux = trap <UX>x6;
+    assertError(ux, "{ballerina}TypeCastError",
+        "incompatible types: 'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>' cannot be cast to 'UX'");
+
+    X x7 = xml `<a></a><b></b>random text`;
+    ux = trap <UX>x7;
+    assertError(ux, "{ballerina}TypeCastError",
+        "incompatible types: 'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>' cannot be cast to 'UX'");
+
+    X x8 = xml `<?target instructions?><?a data?>text`;
+    ux = trap <UX>x8;
+    assertError(ux, "{ballerina}TypeCastError",
+        "incompatible types: 'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>' cannot be cast to 'UX'");
+
+    X x9 = xml `<?target instructions?><?a data?><!--comment one--><!--comment two-->`;
+    ux = trap <UX>x9;
+    assertError(ux, "{ballerina}TypeCastError",
+        "incompatible types: 'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>' cannot be cast to 'UX'");
+
+    X x10 = xml `<!--comment one--><!--comment two-->text`;
+    ux = trap <UX>x10;
+    assertError(ux, "{ballerina}TypeCastError",
+        "incompatible types: 'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>' cannot be cast to 'UX'");
+
+    X x11 = xml `<a></a><b></b><?d data?><?c data?>?><!--comment--><!--comment-->text`;
+    ux = trap <UX>x11;
+    assertError(ux, "{ballerina}TypeCastError",
+        "incompatible types: 'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>' cannot be cast to 'UX'");
+}
+
+type Error error<record {string message;}>;
+
+function assertError(any|error value, string errorMessage, string expDetailMessage) {
+    if value is Error {
+        if value.message() != errorMessage {
+            panic error("Expected error message: " + errorMessage + " found: " + value.message());
+        }
+
+        if value.detail().message == expDetailMessage {
+            return;
+        }
+        panic error("Expected error detail message: " + expDetailMessage + " found: " + value.detail().message);
+    }
+    panic error("Expected: Error, found: " + (typeof value).toString());
+}

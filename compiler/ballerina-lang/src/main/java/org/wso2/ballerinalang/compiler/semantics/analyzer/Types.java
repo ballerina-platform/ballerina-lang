@@ -1449,7 +1449,7 @@ public class Types {
                 boolean isTypeParam = TypeParamAnalyzer.isTypeParam(targetParam);
 
                 if (isTypeParam) {
-                    if (!isAssignable(sourceParam, targetParam)) {
+                    if (!constituentTypesAssignable(sourceParam, targetParam)) {
                         return false;
                     }
                 } else {
@@ -1472,6 +1472,17 @@ public class Types {
         // Source param types should be contravariant with target param types. Hence s and t switched when checking
         // assignability.
         return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));
+    }
+
+    public boolean constituentTypesAssignable(BType varType, BType typeNodeType) {
+        if (varType.tag == TypeTags.XML) {
+            typeNodeType = getReferredType(typeNodeType);
+            if (typeNodeType.tag == TypeTags.UNION) {
+                return isAssignable(symTable.xmlItemType, typeNodeType);
+            }
+            return typeNodeType.tag == TypeTags.XML;
+        }
+        return isAssignable(varType, typeNodeType);
     }
 
     public boolean isInherentlyImmutableType(BType type) {
@@ -3659,11 +3670,6 @@ public class Types {
                 continue;
             }
             if (sMember.tag == TypeTags.FINITE && isAssignable(sMember, target, unresolvedTypes)) {
-                sourceIterator.remove();
-                continue;
-            }
-            if (sMember.tag == TypeTags.XML &&
-                    isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
                 sourceIterator.remove();
                 continue;
             }
