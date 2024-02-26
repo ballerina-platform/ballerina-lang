@@ -282,19 +282,19 @@ public class TypeConverter {
      * @param enumArray JSON array to add the enum values
      * @param finiteType BFiniteType to retrieve enum values from
      */
+    @SuppressWarnings("OptionalGetWithoutIsPresent") // xxxSubtypeSingleValue() are guaranteed to have a value
     private static void getEnumArray(JsonArray enumArray, BFiniteType finiteType) {
-        // TODO: verify against BFiniteType.toString();
         for (SemNamedType semNamedType : finiteType.valueSpace) {
             SemType s = semNamedType.semType();
             if (PredefinedType.NIL.equals(s)) {
-                enumArray.add("()");
+                enumArray.add(Names.NIL_VALUE.value);
                 continue;
             }
 
             ComplexSemType cs = (ComplexSemType) s;
             if (isSubtypeSimple(s, PredefinedType.BOOLEAN)) {
                 boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, UT_BOOLEAN)).get();
-                enumArray.add(boolVal ? "true" : "false");
+                enumArray.add(boolVal ? Names.TRUE.value : Names.FALSE.value);
             } else if (isSubtypeSimple(s, PredefinedType.INT)) {
                 long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, UT_INT)).get();
                 enumArray.add(longVal);

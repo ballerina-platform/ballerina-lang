@@ -127,7 +127,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             if (isSubtypeSimple(s, PredefinedType.BOOLEAN)) {
                 broadType = symTable.booleanType;
                 boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, UT_BOOLEAN)).get();
-                value = boolVal ? "true" : "false";
+                value = boolVal ? Names.TRUE.value : Names.FALSE.value;
             } else if (isSubtypeSimple(s, PredefinedType.INT)) {
                 broadType = symTable.intType;
                 long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, UT_INT)).get();

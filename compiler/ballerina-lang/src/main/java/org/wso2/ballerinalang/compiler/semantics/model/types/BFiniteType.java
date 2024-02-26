@@ -124,22 +124,29 @@ public class BFiniteType extends BType implements ReferenceType {
 
             ComplexSemType cs = (ComplexSemType) semType;
             if (isSubtypeSimple(semType, PredefinedType.BOOLEAN)) {
-                boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, UT_BOOLEAN)).get();
-                joiner.add(name.orElse(boolVal ? "true" : "false"));
+                joiner.add(name.orElse(
+                        BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, UT_BOOLEAN)).get() ?
+                                Names.TRUE.value : Names.FALSE.value
+                ));
             } else if (isSubtypeSimple(semType, PredefinedType.INT)) {
-                long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, UT_INT)).get();
-                joiner.add(name.orElse(Long.toString(longVal)));
+                joiner.add(name.orElse(
+                        Long.toString(IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, UT_INT)).get())
+                ));
             } else if (isSubtypeSimple(semType, PredefinedType.FLOAT)) {
-                double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, UT_FLOAT)).get();
-                joiner.add((name.orElse(Double.toString(doubleVal))) + "f");
+                joiner.add(name.orElse(
+                        Double.toString(FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, UT_FLOAT)).get())
+                ) + "f");
             } else if (isSubtypeSimple(semType, PredefinedType.DECIMAL)) {
-                BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, UT_DECIMAL)).get();
-                joiner.add((name.orElse(bVal.toPlainString()) + "d"));
+                joiner.add(name.orElse(
+                        DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, UT_DECIMAL)).get()
+                                .toPlainString()
+                ) + "d");
             } else if (isSubtypeSimple(semType, PredefinedType.STRING)) {
-                String stringVal = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, UT_STRING)).get();
-                joiner.add("\"" + name.orElse(stringVal) + "\"");
+                joiner.add("\"" + name.orElse(
+                        StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, UT_STRING)).get()
+                ) + "\"");
             } else {
-                throw new IllegalStateException("Unexpected value space type: " + cs.toString());
+                throw new IllegalStateException("Unexpected value space type in BFiniteType: " + semType);
             }
         }
 
