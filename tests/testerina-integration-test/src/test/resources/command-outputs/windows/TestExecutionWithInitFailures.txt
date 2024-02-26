@@ -33,4 +33,4 @@ error: {ballerina}DivisionByZero {"message":" / by zero"}
 
 	testExecutionWithModuleInitFailure.moduleB
 error: {ballerina}DivisionByZero {"message":" / by zero"}
-error: there are test failures
+error: there are test failures

@@ -42,4 +42,4 @@ testInvalidTupleDataProvider:0 has failed.
 		0 passing
 		1 failing
 		0 skipped
-error: there are test failures
+error: there are test failures
