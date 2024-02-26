@@ -747,7 +747,6 @@ public class BIRGen extends BLangNodeVisitor {
         }
         this.env.enclLoopEndBB = endLoopEndBB;
         this.currentBlock = prevBlock;
-
         addReturnBB(astBody.pos);
     }
 
@@ -1394,7 +1393,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand retVarRef = new BIROperand(this.env.enclFunc.returnVariable);
         setScopeAndEmit(new Move(astReturnStmt.pos, this.env.targetOperand, retVarRef));
 
-        // Check whether this function already has a returnBB.
+        // Check and add a returnBB if the function does not have a returnBB.
         // A given function can have only one BB that has a return instruction.
         addReturnBB(getFunctionLastLinePos());
         if (this.env.enclBB.terminator == null) {

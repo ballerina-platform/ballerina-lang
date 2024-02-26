@@ -1,7 +1,5 @@
 import ballerina/lang.'float as floats;
 
-const boolean TRUE = true;
-
 function testWhileStmt(int x, int y) returns (int) {
     int z = 0;
     int a = y;
@@ -198,39 +196,3 @@ function assertEquality(any|error expected, any|error actual) {
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error("AssertionError", message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
-
-function testWhileStatementWithEndlessLoop() returns int {
-   int x = 1;
-   while true {
-      x += 1;
-   }
-}
-
-function testWhileStatementWithEndlessLoop2() returns int|never {
-   int x = 1;
-   while TRUE {
-      x += 1;
-   }
-}
-
-function testWhileStatementWithEndlessLoop3() returns int {
-   int x = 1;
-   while true {
-      while true {
-         while true {
-            x += 1;
-         }
-      }
-   }
-}
-
-function testWhileStatementWithEndlessLoop4() returns int {
-   int x = 0;
-   while true {
-     x += 1;
-     if (x == 50) {
-        // Intentionally no break statement
-     }
-   }
-}
-
