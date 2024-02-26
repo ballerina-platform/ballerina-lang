@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package main
 
 import (
@@ -7,6 +24,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"testing"
 
 	cp "github.com/otiai10/copy"
@@ -21,15 +39,25 @@ func setup(dir string) (string, error) {
 	err = cp.Copy(dir, tmpDir)
 	return tmpDir, nil
 }
+func rootDir() string {
+	_, file, _, ok := runtime.Caller(1)
+	if !ok {
+		panic("Failed to retrieve caller information")
+	}
+	dir := filepath.Dir(file)
+	return filepath.Join(dir, "..", "..")
+}
 
 func TestBuildProjectByGivingTargertDir(t *testing.T) {
-	testResourcesDir := "/home/pabadhi/myGoProjects/ballerina-lang/cli/ballerina-cli/src/test/resources/test-resources/validApplicationProject"
+	rootDir := rootDir()
+	testResourcesDir := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "validApplicationProject")
 	tmpDir, err := setup(testResourcesDir)
 	defer os.RemoveAll(tmpDir)
 	projectPath := filepath.Join(tmpDir)
 	testTargetDir := filepath.Join(tmpDir, "test_target")
 	err = os.Mkdir(testTargetDir, os.ModePerm)
-	cmd := exec.Command("/home/pabadhi/myGoProjects/ballerina-lang/distribution/zip/jballerina-tools/build/extracted-distributions/jballerina-tools-2201.9.0-SNAPSHOT/bin/bal_linux_amd64", "build", "--target-dir", testTargetDir, projectPath)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	cmd := exec.Command(bal_path, "build", "--target-dir", testTargetDir, projectPath)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to build Ballerina project: %v\nOutput: %s", err, output)
@@ -38,7 +66,6 @@ func TestBuildProjectByGivingTargertDir(t *testing.T) {
 		filepath.Join(testTargetDir, "bin", "winery.jar"),
 		filepath.Join(testTargetDir, "cache", "foo", "winery", "0.1.0", "java17", "foo-winery-0.1.0.jar"),
 	}
-
 	for _, file := range expectedFiles {
 		if _, err := os.Stat(file); os.IsNotExist(err) {
 			t.Errorf("Expected file does not exist: %s", file)
@@ -48,7 +75,8 @@ func TestBuildProjectByGivingTargertDir(t *testing.T) {
 }
 
 func TestBuildBalFile(t *testing.T) {
-	testResourcesDir := "/home/pabadhi/myGoProjects/ballerina-lang/cli/ballerina-cli/src/test/resources/test-resources/valid-bal-file"
+	rootDir := rootDir()
+	testResourcesDir := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "valid-bal-file")
 	tmpDir, err := setup(testResourcesDir)
 	validBalFilePath := filepath.Join(tmpDir, "hello_world.bal")
 	defer os.RemoveAll(tmpDir)
@@ -56,13 +84,14 @@ func TestBuildBalFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	cmd := exec.Command("/home/pabadhi/myGoProjects/ballerina-lang/distribution/zip/jballerina-tools/build/extracted-distributions/jballerina-tools-2201.9.0-SNAPSHOT/bin/bal_linux_amd64", "build", validBalFilePath)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	cmd := exec.Command(bal_path, "build", validBalFilePath)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to build Ballerina file: %v\n%s", err, output)
 	}
 	fmt.Println(validBalFilePath)
-	expectedOutputPath := "/home/pabadhi/myGoProjects/ballerina-lang/go_tests/bal_build_test/bal_build_outputs/build-hello-world-bal.txt"
+	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_build_test", "bal_build_outputs", "build-hello-world-bal.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputPath)
 	if err != nil {
 		t.Fatalf("Failed to read expected output file: %v", err)
@@ -87,7 +116,8 @@ func TestBuildBalFile(t *testing.T) {
 }
 
 func TestBuildProjectWithDefaultBuildOptions(t *testing.T) {
-	testResourcesDir := "/home/pabadhi/myGoProjects/ballerina-lang/cli/ballerina-cli/src/test/resources/test-resources/validProjectWithBuildOptions"
+	rootDir := rootDir()
+	testResourcesDir := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "validProjectWithBuildOptions")
 	tmpDir, err := setup(testResourcesDir)
 	defer os.RemoveAll(tmpDir)
 	projectPath := filepath.Join(tmpDir)
@@ -95,13 +125,14 @@ func TestBuildProjectWithDefaultBuildOptions(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	cmd := exec.Command("/home/pabadhi/myGoProjects/ballerina-lang/distribution/zip/jballerina-tools/build/extracted-distributions/jballerina-tools-2201.9.0-SNAPSHOT/bin/bal_linux_amd64", "build")
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	cmd := exec.Command(bal_path, "build")
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to build Ballerina project: %v\nOutput: %s", err, output)
 	}
-	expectedOutputPath := "/home/pabadhi/myGoProjects/ballerina-lang/cli/ballerina-cli/src/test/resources/test-resources/command-outputs/unix/build-project-default-build-options.txt"
+	expectedOutputPath := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "command-outputs", "unix", "build-project-default-build-options.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputPath)
 	if removeWhitespace(string(output)) != removeWhitespace(string(expectedOutput)) {
 		t.Errorf("Build output does not match expected output:\nExpected: %s\nGot: %s", expectedOutput, output)
@@ -119,7 +150,8 @@ func TestBuildProjectWithDefaultBuildOptions(t *testing.T) {
 }
 
 func TestBuildWithOffline(t *testing.T) {
-	testResourcesDir := "/home/pabadhi/myGoProjects/ballerina-lang/go_tests/bal_build_test/projectForTestOffline"
+	rootDir := rootDir()
+	testResourcesDir := filepath.Join(rootDir, "go_tests", "bal_build_test", "projectForTestOffline")
 	tmpDir, err := setup(testResourcesDir)
 	currentUser, err := user.Current()
 	defer os.RemoveAll(tmpDir)
@@ -128,7 +160,8 @@ func TestBuildWithOffline(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	cmd := exec.Command("/home/pabadhi/myGoProjects/ballerina-lang/distribution/zip/jballerina-tools/build/extracted-distributions/jballerina-tools-2201.9.0-SNAPSHOT/bin/bal_linux_amd64", "build", "--offline")
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	cmd := exec.Command(bal_path, "build", "--offline")
 	output, err := cmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("Not get expected behaviour: %v", err)

@@ -232,8 +232,6 @@ dependencies {
 task configured {
     configurations.distBal.allDependencies.withType(ProjectDependency) {
         def path = it.getDependencyProject().path
-//        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
-//        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
     }
 
 }
@@ -303,13 +301,6 @@ def copyResourceSpec = {
     }
 }
 
-// def copyBinSpec = {
-//     path -> copySpec {
-//         from configurations.bin
-//     //        filter { line -> line.replace('${project.version}', "$project.version") }
-//         into(path + 'bin')
-//     }
-// }
 def copyBinSpec = { path ->
     copySpec {
         from configurations.bin

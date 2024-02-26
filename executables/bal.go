@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package main
 
 import (
@@ -24,17 +41,16 @@ func main() {
 
 	switch runtime.GOOS {
 	case "darwin":
-
-		javaHome := os.Getenv("JAVA_HOME")
 		javaVersion := os.Getenv("JAVA_VERSION")
+		path := filepath.Join("/", "usr", "libexec", "java_home")
 		if javaHome == "" {
 			if javaVersion == "" {
-				javaHomeCmd, _ := exec.Command("/usr/libexec/java_home").Output()
+				javaHomeCmd, _ := exec.Command(path).Output()
 				javaHome = string(javaHomeCmd)
 				os.Setenv("JAVA_HOME", javaHome)
 			} else {
 				// If JAVA_HOME is not set, but JAVA_VERSION is set, get the Java home for the specified version
-				javaHomeCmd := exec.Command("/usr/libexec/java_home", "-v", javaVersion)
+				javaHomeCmd := exec.Command(path, "-v", javaVersion)
 				javaHomeOutput, err := javaHomeCmd.Output()
 				if err == nil {
 					javaHome = string(javaHomeOutput)
@@ -48,7 +64,6 @@ func main() {
 	}
 
 	prg, err := os.Executable()
-	//prg = "/usr/lib/ballerina/distributions/ballerina-2201.8.4/bin/bal"
 	if err != nil {
 		fmt.Println("Error getting executable path:", err)
 		os.Exit(1)
@@ -72,11 +87,7 @@ func main() {
 	prgDir := filepath.Dir(prg)
 
 	// Set BALLERINA_HOME
-	ballerinaHome, err = filepath.Abs(filepath.Join(prgDir, ".."))
-	if err != nil {
-		fmt.Println("Error getting absolute path:", err)
-		os.Exit(1)
-	}
+	ballerinaHome, _ = filepath.Abs(filepath.Join(prgDir, ".."))
 	if javaCmd == "" {
 		if javaHome != "" {
 			var javacmdPath string
@@ -110,10 +121,9 @@ func main() {
 		}
 	}
 	os.Setenv("BALLERINA_CLI_WIDTH", ballerinaCLIWidth)
-
-	//Setting Ballerina debug port
-
+	var balJavaDebug string
 	balJavaDebug, isSet := os.LookupEnv("BAL_JAVA_DEBUG")
+
 	javaOpts := ""
 	if isSet {
 		if balJavaDebug == "" {
@@ -256,7 +266,6 @@ func main() {
 
 		cmdArgs := append(cmdLineArgs, "io.ballerina.cli.launcher.Main")
 		cmdArgs = append(cmdArgs, os.Args[1:]...)
-		// Execute the command
 		cmd := exec.Command(javaCmd, cmdArgs...)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
@@ -297,7 +306,6 @@ func getTerminalColumns() (int, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	return cols, nil
 }
 

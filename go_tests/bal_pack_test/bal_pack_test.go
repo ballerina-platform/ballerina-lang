@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package main
 
 import (
@@ -6,6 +23,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"testing"
 
 	cp "github.com/otiai10/copy"
@@ -20,9 +38,18 @@ func setup(dir string) (string, error) {
 	err = cp.Copy(dir, tmpDir)
 	return tmpDir, nil
 }
-
+func rootDir() string {
+	_, file, _, ok := runtime.Caller(1)
+	if !ok {
+		panic("Failed to retrieve caller information")
+	}
+	dir := filepath.Dir(file)
+	return filepath.Join(dir, "..", "..")
+}
 func TestPackCommand(t *testing.T) {
-	testResourcesDir := "/home/pabadhi/myGoProjects/ballerina-lang/cli/ballerina-cli/src/test/resources/test-resources/validApplicationProject"
+	rootDir := rootDir()
+	testResourcesDir := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "validApplicationProject")
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
 	tmpDir, err := setup(testResourcesDir)
 	defer os.RemoveAll(tmpDir)
 	projectPath := filepath.Join(tmpDir)
@@ -30,13 +57,13 @@ func TestPackCommand(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	cmd := exec.Command("/home/pabadhi/myGoProjects/ballerina-lang/distribution/zip/jballerina-tools/build/extracted-distributions/jballerina-tools-2201.9.0-SNAPSHOT/bin/bal_linux_amd64", "pack")
+	cmd := exec.Command(bal_path, "pack")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to execute pack command: %v", err)
 	}
-
-	expectedBuildLog, err := os.ReadFile("/home/pabadhi/myGoProjects/ballerina-lang/cli/ballerina-cli/src/test/resources/test-resources/command-outputs/unix/compile-bal-project.txt")
+	expectedBuildLogPath := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "command-outputs", "unix", "compile-bal-project.txt")
+	expectedBuildLog, err := os.ReadFile(expectedBuildLogPath)
 	if err != nil {
 		t.Fatalf("Failed to read expected build log: %v", err)
 	}

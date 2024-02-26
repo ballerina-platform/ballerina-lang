@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package main
 
 import (
@@ -7,6 +24,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -22,9 +40,18 @@ func setup(dir string) (string, error) {
 	err = cp.Copy(dir, tmpDir)
 	return tmpDir, nil
 }
+func rootDir() string {
+	_, file, _, ok := runtime.Caller(1)
+	if !ok {
+		panic("Failed to retrieve caller information")
+	}
+	dir := filepath.Dir(file)
+	return filepath.Join(dir, "..", "..")
+}
 
 func TestBuildMultiModuleProject(t *testing.T) {
-	testResourcesDir := "/home/pabadhi/myGoProjects/ballerina-lang/cli/ballerina-cli/src/test/resources/test-resources"
+	rootDir := rootDir()
+	testResourcesDir := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources")
 	tmpDir, err := setup(testResourcesDir)
 	defer os.RemoveAll(tmpDir)
 	projectPath := filepath.Join(tmpDir, "validMultiModuleProjectWithTests")
@@ -32,10 +59,11 @@ func TestBuildMultiModuleProject(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	testCmd := exec.Command("/home/pabadhi/myGoProjects/ballerina-lang/distribution/zip/jballerina-tools/build/extracted-distributions/jballerina-tools-2201.9.0-SNAPSHOT/bin/bal_linux_amd64", "test")
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	testCmd := exec.Command(bal_path, "test")
 	testCmd.Dir = projectPath
 	output, err := testCmd.CombinedOutput()
-	expectedOutputPath := "/home/pabadhi/myGoProjects/ballerina-lang/go_tests/bal_test_test/test_outputs/test_multiProject.txt"
+	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_test_test", "test_outputs", "test_multiProject.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputPath)
 	if err != nil {
 		t.Fatalf("failed to execute test command: %v", err)
@@ -47,7 +75,8 @@ func TestBuildMultiModuleProject(t *testing.T) {
 }
 
 func TestModule1SingleTest(t *testing.T) {
-	testResourcesDir := "/home/pabadhi/ballerina-lang/tests/testerina-integration-test/src/test/resources/project-based-tests/module-execution-tests"
+	rootDir := rootDir()
+	testResourcesDir := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "project-based-tests", "module-execution-tests")
 	tmpDir, err := setup(testResourcesDir)
 	defer os.RemoveAll(tmpDir)
 	projectPath := filepath.Join(tmpDir)
@@ -64,7 +93,7 @@ func TestModule1SingleTest(t *testing.T) {
 	firstString := "Compiling source"
 	endString := "Generating Test Report"
 	output = replaceVaryingString(firstString, endString, output)
-	expectedOutputPath := "/home/pabadhi/myGoProjects/ballerina-lang/tests/testerina-integration-test/src/test/resources/command-outputs/unix/ModuleExecutionTest-test_Module1_SingleTest.txt"
+	expectedOutputPath := filepath.Join(rootDir, "tests", "testerina-integration-test", "src", "test", "resources", "command-outputs", "unix", "ModuleExecutionTest-test_Module1_SingleTest.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputPath)
 	expectedOutputStr := replaceVaryingString(firstString, endString, string(expectedOutput))
 	if err != nil {
@@ -77,24 +106,22 @@ func TestModule1SingleTest(t *testing.T) {
 }
 
 func TestMultipleGroupExecution(t *testing.T) {
-	testResourcesDir := "/home/pabadhi/myGoProjects/ballerina-lang/go_tests/bal_test_test/bal_test_group"
+	rootDir := rootDir()
+	testResourcesDir := filepath.Join(rootDir, "go_tests", "bal_test_test", "bal_test_group")
 	tmpDir, err := setup(testResourcesDir)
 	defer os.RemoveAll(tmpDir)
-	projectPath := filepath.Join(tmpDir) //"tests")
+	projectPath := filepath.Join(tmpDir)
 	err = os.Chdir(projectPath)
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	//go_tests/bal_test_test/bal_test_group/tests/main_test.bal
-	//balFile := "main_test.bal"
 	groups := "g2,g4"
-	//args := []string{"--groups", groups, balFile}
 	args := []string{"--groups", groups}
 	output, err := runBallerinaTest(args)
 	if err != nil {
 		t.Fatalf("failed to execute test command: %v", err)
 	}
-	expectedOutputFile := "/home/pabadhi/myGoProjects/ballerina-lang/go_tests/bal_test_test/test_outputs/test_groups.txt"
+	expectedOutputFile := filepath.Join(rootDir, "go_tests", "bal_test_test", "test_outputs", "test_groups.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputFile)
 	if err != nil {
 		t.Fatalf("failed to read expected output file: %v", err)
@@ -106,7 +133,8 @@ func TestMultipleGroupExecution(t *testing.T) {
 }
 
 func TestTestWithReport(t *testing.T) {
-	testResourcesDir := "/home/pabadhi/myGoProjects/ballerina-lang/cli/ballerina-cli/src/test/resources/test-resources/validProjectWithTests"
+	rootDir := rootDir()
+	testResourcesDir := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "validProjectWithTests")
 	tmpDir, err := setup(testResourcesDir)
 	defer os.RemoveAll(tmpDir)
 	projectPath := filepath.Join(tmpDir)
@@ -120,7 +148,7 @@ func TestTestWithReport(t *testing.T) {
 		t.Fatalf("failed to execute test command: %v", err)
 	}
 	reportDir := filepath.Join(projectPath, "target", "report")
-	expectedOutputPath := "/home/pabadhi/myGoProjects/ballerina-lang/go_tests/bal_test_test/test_outputs/test_report.txt"
+	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_test_test", "test_outputs", "test_report.txt")
 	expexted_output, err := os.ReadFile(expectedOutputPath)
 	assertFileExists(t, reportDir, "test_results.json")
 	startString1 := "Compiling source"
@@ -142,8 +170,8 @@ func TestTestWithReport(t *testing.T) {
 }
 
 func TestMultipleModulePkgCoverageTest(t *testing.T) {
-	testResourcesDir := "/home/pabadhi/myGoProjects/ballerina-lang/tests/testerina-integration-test/src/test/resources/project-based-tests"
-	///home/pabadhi/ballerina-lang/tests/testerina-integration-test/src/test/resources/project-based-tests/test-report-tests
+	rootDir := rootDir()
+	testResourcesDir := filepath.Join(rootDir, "tests", "testerina-integration-test", "src", "test", "resources", "project-based-tests")
 	tmpDir, err := setup(testResourcesDir)
 	defer os.RemoveAll(tmpDir)
 	projectPath := filepath.Join(tmpDir, "test-report-tests")
@@ -151,18 +179,15 @@ func TestMultipleModulePkgCoverageTest(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	// args := []string{"--code-coverage", "--coverage-format=xml"}
-	// _, err = runBallerinaTest(args)
-	cmd := exec.Command("/home/pabadhi/myGoProjects/ballerina-lang/distribution/zip/jballerina-tools/build/extracted-distributions/jballerina-tools-2201.9.0-SNAPSHOT/bin/bal_linux_amd64", "test", "--code-coverage", "--coverage-format=xml")
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	cmd := exec.Command(bal_path, "test", "--code-coverage", "--coverage-format=xml")
 	_, err = cmd.CombinedOutput()
 
-	// Check if XML report generated
 	reportRoot := filepath.Join(projectPath, "target", "report", "foo")
 	coverageXMLPath := filepath.Join(reportRoot, "coverage-report.xml")
 	if _, err := os.Stat(reportRoot); os.IsNotExist(err) {
 		t.Fatal("Error occurred while generating the coverage XML for package.")
 	}
-	///home/pabadhi/myGoProjects/ballerina-lang/tests/testerina-integration-test/src/test/resources/project-based-tests/test-report-tests/target/report/foo/coverage-report.xml
 	expectedPackageNames := []string{
 		"testerina_report/foo&0046math$test/0/constants",
 		"testerina_report/foo$test/0/types",
@@ -227,7 +252,9 @@ func removeWhitespace(input string) string {
 }
 
 func runBallerinaTest(args []string) (string, error) {
-	cmd := exec.Command("/home/pabadhi/myGoProjects/ballerina-lang/distribution/zip/jballerina-tools/build/extracted-distributions/jballerina-tools-2201.9.0-SNAPSHOT/bin/bal_linux_amd64", append([]string{"test"}, args...)...)
+	rootDir := rootDir()
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	cmd := exec.Command(bal_path, append([]string{"test"}, args...)...)
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err

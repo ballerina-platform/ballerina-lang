@@ -129,7 +129,6 @@ CopySpec copyResourceSpec = copySpec {
 
 tasks.register('setBallerinaVersion', Exec) {
     doFirst {
-        // Set BALLERINA_VERSION environment variable
         environment 'BALLERINA_VERSION', project.version
     }
     commandLine 'echo', "Ballerina Version: ${project.version}"
@@ -140,7 +139,6 @@ tasks.named('go_build').configure {
 
 
 task createZip(type: Zip) {
-    //dependsOn go_build
     with copyJarSpec
     with copyBalaSpec
     with copyBinSpec
@@ -160,9 +158,6 @@ artifacts {
     resourceFiles file('resources')
     zip file: file("$buildDir/distributions/${basePath}.zip"), builtBy: createZip
 }
-
-
-
 
 build {
     dependsOn go_build

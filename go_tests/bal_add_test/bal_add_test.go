@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package main
 
 import (
@@ -6,10 +23,21 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"testing"
 )
 
+func rootDir() string {
+	_, file, _, ok := runtime.Caller(1)
+	if !ok {
+		panic("Failed to retrieve caller information")
+	}
+	dir := filepath.Dir(file)
+	return filepath.Join(dir, "..", "..")
+}
+
 func TestAddCommand(t *testing.T) {
+	rootDir := rootDir()
 	projectPath, tmpDir, err := setup("sample_add")
 	defer os.RemoveAll(tmpDir)
 	if err != nil {
@@ -21,7 +49,8 @@ func TestAddCommand(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	cmd := exec.Command("/home/pabadhi/myGoProjects/ballerina-lang/distribution/zip/jballerina-tools/build/extracted-distributions/jballerina-tools-2201.9.0-SNAPSHOT/bin/bal_linux_amd64", "add", moduleName)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	cmd := exec.Command(bal_path, "add", moduleName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to execute add command: %v", err)
@@ -44,6 +73,7 @@ func TestAddCommand(t *testing.T) {
 }
 
 func setup(projectName string) (string, string, error) {
+	rootDir := rootDir()
 	tmpDir, err := os.MkdirTemp("", "add_test")
 	if err != nil {
 		return "", "", fmt.Errorf("failed to create temporary directory: %v", err)
@@ -52,7 +82,8 @@ func setup(projectName string) (string, string, error) {
 	if err != nil {
 		fmt.Printf("Failed to change directory: %v", err)
 	}
-	cmd := exec.Command("/home/pabadhi/myGoProjects/ballerina-lang/distribution/zip/jballerina-tools/build/extracted-distributions/jballerina-tools-2201.9.0-SNAPSHOT/bin/bal_linux_amd64", append([]string{"new"}, projectName)...)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	cmd := exec.Command(bal_path, append([]string{"new"}, projectName)...)
 	cmd.Dir = tmpDir
 	if _, err := cmd.Output(); err != nil {
 		return "", "", fmt.Errorf("failed to run 'bal new' command: %v", err)
