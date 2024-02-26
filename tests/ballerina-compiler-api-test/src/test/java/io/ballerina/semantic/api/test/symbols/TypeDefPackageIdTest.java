@@ -39,7 +39,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Test cases for user defined builtinType type definition packageIDs.
+ * Test cases for user defined type packageIDs.
  *
  * @since 2201.9.0
  */
