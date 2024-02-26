@@ -127,12 +127,11 @@ public const annotation FieldData FieldSet on source external;
 # ```
 public const annotation ObjectData Binding on class;
 
-# Describes a type, class or function that is a dependency of java native code. This annotation should be added by the
-# developer if a type definition is being accessed by a `io.ballerina.runtime.api.creators` api such as `ValueCreator`.
+# Identifies a type, class, or function that is used in the Java native code. This annotation should be added by the
+# developer if the type, class, or function could be accessed via an `io.ballerina.runtime.api.creators` API such as
+# `ValueCreator`.
 # ```ballerina
-# @ExternalDependency
-# function foo(int x) returns int {
-#     return x * 2;
-# }
+# @java:ExternalDependency
+# function foo(int x) returns int => x * 2;
 # ```
 public const annotation ExternalDependency on source type, source class, source function;

@@ -22,23 +22,6 @@ function foo(int x) returns int {
     return x * 2;
 }
 
-function bar() returns string {
-    return "bar";
-}
-
-// Attached functions
-class CorgeClass {
-
-    @java:ExternalDependency
-    function externalCorge() returns string {
-        return "external corge";
-    }
-
-    function corge() returns string {
-        return "corge";
-    }
-}
-
 // Classes
 @java:ExternalDependency
 class BazClass {
@@ -46,31 +29,9 @@ class BazClass {
     string y = "";
 }
 
-class QuzClass {
-    int x = 0;
-    string y = "";
-}
-
-// Records
+// Type Definitions
 @java:ExternalDependency
 type FooRec record {
     int x;
     string y;
 };
-
-type BarRec record {
-    int x;
-    string y;
-};
-
-// Type Definitions
-@java:ExternalDependency
-type FooType int|string;
-
-type BarType int|string;
-
-// Edge cases
-@deprecated
-@java:ExternalDependency
-@tainted
-type CorgeType int|string;

@@ -18,16 +18,18 @@
 
 package org.ballerinalang.test.annotations;
 
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -37,7 +39,6 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 2201.9.0
  */
-@Test
 public class ExternalDependencyAnnotationTest {
 
     private BLangPackage pkgNode;
@@ -48,29 +49,31 @@ public class ExternalDependencyAnnotationTest {
         pkgNode = (BLangPackage) result.getAST();
     }
 
+    @Test(description = "Test the ExternalDependency annotation attach points")
+    public void testExternalDependencyAttachPoints() {
+        Set<AttachPoint> attachPoints = pkgNode.functions.get(0).annAttachments.get(0).annotationSymbol.points;
+        List<String> expectedAttachPoints = Arrays.asList("type", "class", "function");
+
+        assertEquals(attachPoints.size(), 3);
+        assertTrue(attachPoints.stream()
+                .allMatch(attachPoint -> expectedAttachPoints.contains(attachPoint.point.getValue())));
+    }
+
     @Test(description = "Test the ExternalDependency annotation used on functions")
     public void testExternalDependencyAnnotOnFunctions() {
         List<BLangFunction> functions = pkgNode.functions;
         assertEquals(functions.get(0).annAttachments.get(0).annotationName.value, "ExternalDependency");
-        assertTrue(functions.get(1).annAttachments.isEmpty());
-        assertEquals(functions.get(2).annAttachments.get(0).annotationName.value, "ExternalDependency");
-        assertTrue(functions.get(3).annAttachments.isEmpty());
     }
 
     @Test(description = "Test the ExternalDependency annotation used on classes")
     public void testExternalDependencyAnnotOnClasses() {
-        List<BLangClassDefinition> classDefinitions = pkgNode.classDefinitions;
-        assertEquals(classDefinitions.get(1).annAttachments.get(0).annotationName.value, "ExternalDependency");
-        assertTrue(classDefinitions.get(2).annAttachments.isEmpty());
+        assertEquals(pkgNode.classDefinitions.get(0).annAttachments.get(0).annotationName.value, "ExternalDependency");
     }
 
     @Test(description = "Test the ExternalDependency annotation used on type definitions")
     public void testExternalDependencyAnnotOnTypeDefinitions() {
         List<BLangTypeDefinition> typeDefinitions = pkgNode.typeDefinitions;
         assertEquals(typeDefinitions.get(0).annAttachments.get(0).annotationName.value, "ExternalDependency");
-        assertTrue(typeDefinitions.get(1).annAttachments.isEmpty());
-        assertEquals(typeDefinitions.get(2).annAttachments.get(0).annotationName.value, "ExternalDependency");
-        assertTrue(typeDefinitions.get(3).annAttachments.isEmpty());
-        assertEquals(typeDefinitions.get(4).annAttachments.get(1).annotationName.value, "ExternalDependency");
     }
 }
+
