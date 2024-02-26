@@ -23,3 +23,11 @@ function foo3() {
 }
 
 function getValueOrError3() returns int|Error|Error1 => 1;
+
+public type E E1 & E2;
+
+function foo4() {
+    getValueOrError4();
+}
+
+function getValueOrError4() returns int|E => 1;

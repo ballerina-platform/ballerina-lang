@@ -331,7 +331,13 @@ public class CommonUtil {
         }
         return typeDescriptor;
     }
-    
+
+    /**
+     * Check whether the given type is an error type or union of error types.
+     *
+     * @param type type descriptor to evaluate
+     * @return {@link Boolean} is error type or union or error types
+     */
     public static boolean isErrorOrUnionOfErrors(TypeSymbol type) {
         TypeDescKind kind = type.typeKind();
         if (kind == TypeDescKind.ERROR) {
@@ -369,6 +375,12 @@ public class CommonUtil {
         }
     }
 
+    /**
+     * Extract member error types from the union type.
+     *
+     * @param unionType union type descriptor to evaluate
+     * @return {@link List<TypeSymbol>} member error types
+     */
     public static List<TypeSymbol> extractErrorTypesFromUnion(UnionTypeSymbol unionType) {
         List<TypeSymbol> exactErrorTypes = new ArrayList<>();
         for (TypeSymbol memType : unionType.userSpecifiedMemberTypes()) {
