@@ -250,6 +250,9 @@ public class JBallerinaBackend extends CompilerBackend {
             // Its immediate dependent modules are marked as "used" and they are optimized after that.
             // This process happens till all "used" modules are exhausted.
             if (shouldOptimize(moduleContext) && (isRootModule(moduleContext) || moduleContext.isUsed())) {
+                if (moduleContext.bLangPackage().hasTestablePackage()) {
+                    usedBIRNodeAnalyzer.analyze(moduleContext.bLangPackage().getTestablePkg());
+                }
                 usedBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
                 updateNativeDependencyMap(moduleContext);
             }
@@ -278,8 +281,14 @@ public class JBallerinaBackend extends CompilerBackend {
         System.out.println("Duration for unused BIR node deletion : " + (birOptimizeDeletionTimeTotal) + "ms");
     }
 
+    // Build project module and testable modules are considered root module
     private boolean isRootModule(ModuleContext moduleContext) {
-        return pkgResolution.packageContext().defaultModuleContext().moduleId() == moduleContext.moduleId();
+        return pkgResolution.packageContext().defaultModuleContext().moduleId() == moduleContext.moduleId() ||
+                hasTests(moduleContext);
+    }
+
+    private boolean hasTests(ModuleContext moduleContext) {
+        return moduleContext.bLangPackage().hasTestablePackage();
     }
 
     private boolean shouldOptimize(ModuleContext moduleContext) {
