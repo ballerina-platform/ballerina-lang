@@ -149,9 +149,16 @@ public class TestProcessor {
     private TestSuite generateTestSuite(Module module, JarResolver jarResolver) {
         String testModuleName = getTestModuleName(module);
         TestSuite testSuite = createTestSuite(module, testModuleName);
+        if (jarResolver == null) {
+            throw new IllegalStateException("Jar resolver is null");
+        }
 
-        //skip if the cloud is set
-        if (jarResolver != null && module.project().buildOptions().cloud().isEmpty()) {
+        // If not a cloud build, add the test execution dependencies
+        if (module.project().buildOptions().cloud().isEmpty()) {
+            addTestExecutionDependencies(module, jarResolver, testSuite);
+        }
+        else if (module.project().buildOptions().nativeImage()) {
+            // If it is a cloud build, add the test execution dependencies only if native image is enabled
             addTestExecutionDependencies(module, jarResolver, testSuite);
         }
 

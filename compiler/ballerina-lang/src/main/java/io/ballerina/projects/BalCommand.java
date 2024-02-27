@@ -15,7 +15,7 @@
 // under the License.
 package io.ballerina.projects;
 
-public enum ArtifactType {
+public enum BalCommand {
     BUILD,
     TEST
 }

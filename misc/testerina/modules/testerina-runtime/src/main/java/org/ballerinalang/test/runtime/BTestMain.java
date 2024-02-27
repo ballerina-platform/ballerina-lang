@@ -44,7 +44,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.lang.reflect.Method;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -96,8 +98,8 @@ public class BTestMain {
             }
             out.println();
 
-            try (InputStream is = BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR
-                        + testSuiteJsonPath)) {
+            try (InputStream is = isFatJarExecution ? BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR
+                        + testSuiteJsonPath) : null) {
                 BufferedReader br;
                 if (is != null) {
                     br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));

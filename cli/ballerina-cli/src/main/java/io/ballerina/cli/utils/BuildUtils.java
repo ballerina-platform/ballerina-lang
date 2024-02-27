@@ -22,6 +22,12 @@ import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
 import java.util.ServiceLoader;
 
+/**
+ * Utilities related to creating fat jars.
+ *
+ * @since 2201.9.0
+ */
+
 public class BuildUtils {
     public static void notifyPlugins(Project project, Target target) {
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);

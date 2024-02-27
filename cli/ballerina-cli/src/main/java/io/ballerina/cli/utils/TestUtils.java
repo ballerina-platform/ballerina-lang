@@ -24,6 +24,7 @@ import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
@@ -83,7 +84,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
- * Utility functions and classes for Run Test Task.
+ * Utility functions and classes for Run Test Task and Create Test Executable Task.
  *
  * @since 2.3.0
  */
@@ -274,6 +275,47 @@ public class TestUtils {
         }
     }
 
+    /**
+     * Create test suites for the project.
+     * @param testSuiteCreatingArgs Arguments to use in creating test suites
+     * @return                    Whether the project has tests
+     */
+    public static boolean createTestSuitesForProject(TestSuiteCreatingArgs testSuiteCreatingArgs) {
+        boolean hasTests = false;
+        for (ModuleDescriptor moduleDescriptor :
+                testSuiteCreatingArgs.project().currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+            Module module = testSuiteCreatingArgs.project().currentPackage().module(moduleDescriptor.name());
+            ModuleName moduleName = module.moduleName();
+
+            TestSuite suite = testSuiteCreatingArgs.testProcessor().testSuite(module).orElse(null);
+            if (suite == null) {
+                continue;
+            }
+
+            hasTests = true;
+
+            if (!testSuiteCreatingArgs.isRerunTestExecution()) {
+                clearFailedTestsJson(testSuiteCreatingArgs.target().path());
+            }
+            if (testSuiteCreatingArgs.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                suite.setSourceFileName(testSuiteCreatingArgs.project().sourceRoot().getFileName().toString());
+            }
+            suite.setReportRequired(testSuiteCreatingArgs.report() || testSuiteCreatingArgs.coverage());
+            String resolvedModuleName =
+                    getResolvedModuleName(module, moduleName);
+            testSuiteCreatingArgs.testSuiteMap().put(resolvedModuleName, suite);
+            testSuiteCreatingArgs.moduleNamesList().add(resolvedModuleName);
+
+            addMockClasses(suite, testSuiteCreatingArgs.mockClassNames());
+        }
+        return hasTests;
+    }
+
+    /**
+     * Get the json file path for the test suite.
+     * @param testsCachePath    Path to the tests cache
+     * @return                  Path to the json file
+     */
     public static Path getJsonFilePath(Path testsCachePath) {
         return Paths.get(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
     }
@@ -301,11 +343,22 @@ public class TestUtils {
         }
     }
 
+    /**
+     * Get the jacoco agent jar path.
+     *
+     * @return jacoco agent jar path
+     */
     public static String getJacocoAgentJarPath() {
         return Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
                 .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
     }
 
+    /**
+     * Get the initial command arguments for the test execution.
+     * @param javaCommand   Specific java command to use
+     * @param userDir       User directory for the out of memory heap dump
+     * @return              List of command arguments to be used
+     */
     public static List<String> getInitialCmdArgs(String javaCommand, String userDir) {
         List<String> cmdArgs = new ArrayList<>();
 
@@ -326,6 +379,22 @@ public class TestUtils {
         return cmdArgs;
     }
 
+    /**
+     * Append the required arguments to the command arguments list.
+     * @param cmdArgs               List of command arguments to append to
+     * @param target                Target
+     * @param jacocoAgentJarPath    Jacoco agent jar path
+     * @param testSuiteJsonPath     Test suite json path
+     * @param report                Whether to report
+     * @param coverage              Whether to generate coverage
+     * @param groupList             Group list
+     * @param disableGroupList      Disable group list
+     * @param singleExecTests       Single execution tests
+     * @param isRerunTestExecution  Whether to rerun test execution
+     * @param listGroups            Whether to list groups
+     * @param cliArgs               List of cli arguments
+     * @param isFatJarExecution     Whether to execute from a fat jar
+     */
     public static void appendRequiredArgs(List<String> cmdArgs, String target, String jacocoAgentJarPath,
                                           String testSuiteJsonPath, boolean report,
                                           boolean coverage, String groupList, String disableGroupList,
@@ -350,6 +419,11 @@ public class TestUtils {
         return module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
     }
 
+    /**
+     * Add the mock classes of the test suite to the list of mock class names.
+     * @param suite            TestSuite to get the mock classes from
+     * @param mockClassNames    List of mock class names
+     */
     public static void addMockClasses(TestSuite suite, List<String> mockClassNames) {
         Map<String, String> mockFunctionMap = suite.getMockFunctionNamesMap();
         for (Map.Entry<String, String> entry : mockFunctionMap.entrySet()) {
@@ -378,6 +452,12 @@ public class TestUtils {
         return functionToMockClassName;
     }
 
+    /**
+     * Get the classpath for the test execution.
+     * @param jBallerinaBackend JBallerinaBackend
+     * @param currentPackage    Package
+     * @return String containing the classpath
+     */
     public static String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
@@ -390,12 +470,23 @@ public class TestUtils {
         return classPath.toString();
     }
 
+    /**
+     * Join the list of paths to a single string.
+     * @param dependencies  List of paths
+     * @return            StringJoiner containing the joined paths
+     */
     public static StringJoiner joinClassPaths(List<Path> dependencies) {
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.stream().map(Path::toString).forEach(classPath::add);
         return classPath;
     }
 
+    /**
+     * Get the dependencies required for test execution.
+     * @param currentPackage    Package
+     * @param jarResolver       JarResolver to get the jar paths
+     * @return                List of paths
+     */
     public static List<Path> getTestDependencyPaths(Package currentPackage, JarResolver jarResolver) {
         List<Path> dependencies = new ArrayList<>();
         for (ModuleId moduleId : currentPackage.moduleIds()) {
@@ -412,6 +503,12 @@ public class TestUtils {
         return dependencies.stream().distinct().collect(Collectors.toList());
     }
 
+    /**
+     * Get the jar paths that should be excluded from the classpath.
+     * @param jBallerinaBackend JBallerinaBackend
+     * @param currentPackage    Package
+     * @return               List of paths to be excluded
+     */
     public static List<Path> getModuleJarPaths(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
         List<Path> moduleJarPaths = new ArrayList<>();
 
@@ -445,6 +542,13 @@ public class TestUtils {
                 module.moduleName());
     }
 
+    /**
+     * Get the excluded jar paths for a particular module.
+     * @param currentPackage    Package
+     * @param jBallerinaBackend JBallerinaBackend
+     * @param module            Module
+     * @return                  List of paths to be excluded from the classpath
+     */
     public static List<Path> getModuleJarPathsForModule(Package currentPackage,
                                                         JBallerinaBackend jBallerinaBackend, Module module) {
         List<Path> moduleJarPaths = new ArrayList<>();

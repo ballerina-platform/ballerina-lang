@@ -34,31 +34,35 @@ import java.util.Objects;
 public class CustomSystemClassLoader extends ClassLoader {
 
     private final HashMap<String, byte[]> modifiedClassDefs;
-    private final List<String> excludingClasses = new ArrayList<>();
+    private final List<String> excludedClasses = new ArrayList<>();
 
     public CustomSystemClassLoader() {
         super(getSystemClassLoader());
         this.modifiedClassDefs = new HashMap<>();
-        populateExcludingClasses();
+        populateExcludedClasses();
     }
 
-    private void populateExcludingClasses() {
+    private void populateExcludedClasses() {
         try(InputStream is = BTestMain.class.getResourceAsStream(ProjectConstants.FAT_JAR_ROOT_DIR +
-                ProjectConstants.EXCLUDING_CLASSES_FILE);
-            BufferedReader br = new BufferedReader(new InputStreamReader(Objects.requireNonNull(is)))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                excludingClasses.add(line);
+                ProjectConstants.EXCLUDED_CLASSES_FILE)) {
+            if (is == null) {
+                throw new RuntimeException("Error reading " + ProjectConstants.EXCLUDED_CLASSES_FILE);
             }
-        } catch (NullPointerException | IOException e) {
-            throw new RuntimeException("Error reading excludingClasses.txt", e);
+            try(BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    excludedClasses.add(line);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading " + ProjectConstants.EXCLUDED_CLASSES_FILE, e);
         }
     }
 
     public CustomSystemClassLoader(Map<String, byte[]> modifiedClassDefs) {
         super(getSystemClassLoader());
         this.modifiedClassDefs = new HashMap<>(modifiedClassDefs);
-        populateExcludingClasses();
+        populateExcludedClasses();
     }
 
     @Override
@@ -71,12 +75,8 @@ public class CustomSystemClassLoader extends ClassLoader {
         }
 
         // If the class is an inbuilt class, delegate the classloading to the system classloader
-        if (name.startsWith("java.") || name.startsWith("javax.")) {
-            return super.loadClass(name);
-        }
-
-        // If the class is in not in the excludingClasses list, delegate the classloading to the system classloader
-        if (!excludingClasses.contains(name)) {
+        // If the class is in not in the excludedClasses list, delegate the classloading to the system classloader
+        if (name.startsWith("java.") || name.startsWith("javax.") || !excludedClasses.contains(name)) {
             return super.loadClass(name);
         }
         return findClass(name);
