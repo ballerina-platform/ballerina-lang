@@ -196,6 +196,9 @@ public class TestCommand implements BLauncherCmd {
             "generation")
     private String graalVMBuildOptions;
 
+    @CommandLine.Option(names = "--optimize", description = "generate optimized executable jar", defaultValue = "false")
+    private Boolean optimizeCodegen;
+
 
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
@@ -373,7 +376,8 @@ public class TestCommand implements BLauncherCmd {
                 .setNativeImage(nativeImage)
                 .setEnableCache(enableCache)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
-                .setGraalVMBuildOptions(graalVMBuildOptions);
+                .setGraalVMBuildOptions(graalVMBuildOptions)
+                .setOptimizeCodegen(optimizeCodegen);
 
 
         if (targetDir != null) {
