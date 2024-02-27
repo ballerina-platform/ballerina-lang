@@ -21,8 +21,8 @@ package io.ballerina.runtime.api.utils;
 import io.ballerina.runtime.api.types.AnydataType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.StreamParser;
 import io.ballerina.runtime.internal.ValueConverter;
-import io.ballerina.runtime.internal.util.StreamParser;
 
 import java.io.InputStream;
 
