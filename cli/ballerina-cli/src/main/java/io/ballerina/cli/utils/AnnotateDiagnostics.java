@@ -1,4 +1,4 @@
-package io.ballerina.shell.cli;
+package io.ballerina.cli.utils;
 
 import io.ballerina.compiler.internal.diagnostics.StringDiagnosticProperty;
 import io.ballerina.projects.Document;
@@ -12,8 +12,7 @@ import org.jline.terminal.TerminalBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static io.ballerina.shell.cli.DiagnosticAnnotation.SEVERITY_COLORS;
-
+import static io.ballerina.cli.utils.DiagnosticAnnotation.SEVERITY_COLORS;
 public class AnnotateDiagnostics {
 
     public static String renderDiagnostic(Diagnostic diagnostic, Document document, int terminalWidth) {
@@ -39,10 +38,12 @@ public class AnnotateDiagnostics {
 
     private static String diagnosticToString(Diagnostic diagnostic) {
         DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
-        int severityLength = severity.toString().length();
-        return "@|" + SEVERITY_COLORS.get(severity) + " " + severity + "|@"
-                + diagnostic.toString().substring(severityLength);
+        String severityString = severity.toString();
+        String color = SEVERITY_COLORS.get(severity);
+        String message = diagnostic.toString().substring(severityString.length());
+        String code = diagnostic.diagnosticInfo().code();
 
+        return String.format("@|%s %s|@%s (%s)", color, severityString, message, code);
     }
 
     private static DiagnosticAnnotation getDiagnosticLineFromSyntaxAPI(Document document, Location location,
