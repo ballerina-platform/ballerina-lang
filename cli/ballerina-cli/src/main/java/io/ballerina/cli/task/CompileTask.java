@@ -18,10 +18,8 @@
 
 package io.ballerina.cli.task;
 
-//import io.ballerina.cli.tool.AnnotateDiagnostics2;
-
 import io.ballerina.projects.*;
-import io.ballerina.shell.cli.AnnotateDiagnostics;
+import io.ballerina.cli.utils.AnnotateDiagnostics;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.CodeModifierResult;
@@ -46,7 +44,6 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -229,18 +226,6 @@ public class CompileTask implements Task {
                 BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
             }
 
-            // Report package compilation and backend diagnostics
-            diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
-            diagnostics.forEach(d -> {
-                if (d.diagnosticInfo().code() == null || (!d.diagnosticInfo().code().equals(
-                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId()) &&
-                        !d.diagnosticInfo().code().startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX))) {
-                    err.println(d);
-                }
-            });
-            // Add tool resolution diagnostics to diagnostics
-            diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
-            boolean hasErrors = false;
             // HashSet to keep track of the diagnostics to avoid duplicate diagnostics
             HashSet<String> diagnosticSet = new HashSet<>();
             // HashMap for documents based on filename
@@ -253,14 +238,13 @@ public class CompileTask implements Task {
                     documentMap.put(getDocumentPath(document.module().moduleName(), document.name()), document);
                 });
             });
-
             AnsiConsole.systemInstall();
-            for (Diagnostic d : diagnostics) {
-                if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                    hasErrors = true;
-                }
-                if (d.diagnosticInfo().code() == null || !d.diagnosticInfo().code().equals(
-                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId())) {
+            // Report package compilation and backend diagnostics
+            diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
+            diagnostics.forEach(d -> {
+                if (d.diagnosticInfo().code() == null || (!d.diagnosticInfo().code().equals(
+                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId()) &&
+                        !d.diagnosticInfo().code().startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX))) {
                     if (diagnosticSet.add(d.toString())) {
                         Document document = documentMap.get(d.location().lineRange().fileName());
                         if (document != null) {
@@ -271,8 +255,16 @@ public class CompileTask implements Task {
                         }
                     }
                 }
-            }
+            });
             AnsiConsole.systemUninstall();
+            // Add tool resolution diagnostics to diagnostics
+            diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
+            boolean hasErrors = false;
+            for (Diagnostic d : diagnostics) {
+                if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
+                    hasErrors = true;
+                }
+            }
             if (hasErrors) {
                 throw createLauncherException("compilation contains errors");
             }
