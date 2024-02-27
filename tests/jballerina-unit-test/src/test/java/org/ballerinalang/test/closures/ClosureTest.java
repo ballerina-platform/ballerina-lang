@@ -292,6 +292,11 @@ public class ClosureTest {
         BRunUtil.invoke(compileResult, "testClosureWithErrorBindingPatterns");
     }
 
+    @Test(description = "Test closure with closure variable of binding patterns of foreach loop")
+    public void testClosureWithBindingPatternsInForEach() {
+        BRunUtil.invoke(compileResult, "testClosureWithBindingPatternsInForEach");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
