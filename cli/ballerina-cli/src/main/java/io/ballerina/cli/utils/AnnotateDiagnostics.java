@@ -7,12 +7,11 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.TextDocument;
-import org.jline.terminal.TerminalBuilder;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import static io.ballerina.cli.utils.DiagnosticAnnotation.SEVERITY_COLORS;
+
 public class AnnotateDiagnostics {
 
     public static String renderDiagnostic(Diagnostic diagnostic, Document document, int terminalWidth) {
@@ -146,14 +145,6 @@ public class AnnotateDiagnostics {
                     terminalWidth);
         }
         return getDiagnosticLineFromSyntaxAPI(document, location, DiagnosticSeverity.ERROR, terminalWidth);
-    }
-
-    public static int getTerminalWidth() {
-        try (var terminal = TerminalBuilder.terminal()) {
-            return terminal.getWidth();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static ArrayList<String> getLines(TextDocument textDocument, int start, int end) {
