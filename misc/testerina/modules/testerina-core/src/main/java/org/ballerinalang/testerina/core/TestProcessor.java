@@ -151,8 +151,17 @@ public class TestProcessor {
         TestSuite testSuite = createTestSuite(module, testModuleName);
 
         //skip if the cloud is set
-        if (jarResolver != null && module.project().buildOptions().cloud().isEmpty()) {
-            addTestExecutionDependencies(module, jarResolver, testSuite);
+        if (jarResolver != null) {
+            // If not a cloud build, add the test execution dependencies
+            if (module.project().buildOptions().cloud().isEmpty()) {
+                addTestExecutionDependencies(module, jarResolver, testSuite);
+            }
+            else {
+                // If it is a cloud build, add the test execution dependencies only if native image is enabled
+                if (module.project().buildOptions().nativeImage()) {
+                    addTestExecutionDependencies(module, jarResolver, testSuite);
+                }
+            }
         }
 
         // TODO: Remove redundancy in addUtilityFunctions
