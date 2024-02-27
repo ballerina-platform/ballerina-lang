@@ -1,4 +1,4 @@
-package io.ballerina.shell.cli;
+package io.ballerina.cli.utils;
 
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
