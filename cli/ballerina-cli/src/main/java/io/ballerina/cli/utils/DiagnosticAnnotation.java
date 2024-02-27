@@ -74,9 +74,15 @@ public class DiagnosticAnnotation {
 
         int max_length_line = Math.max(lines.get(0).length(), lines.get(lines.size() - 1).length());
         int n_digits_end = (int) Math.log10(startLineNumber + lines.size() - 1) + 1;
-        String padding = " ".repeat(n_digits_end + 1);
-        String paddingWithColon = " :" + " ".repeat(n_digits_end - 1);
-
+        String padding;
+        String paddingWithColon;
+        if (n_digits_end == 1) {
+            padding = " ".repeat(n_digits_end + 1);
+            paddingWithColon = ":" + " ".repeat(n_digits_end);
+        } else {
+            padding = " ".repeat(n_digits_end + 1);
+            paddingWithColon = " :" + " ".repeat(n_digits_end - 1);
+        }
         int tabsInLastLine = countTabChars(lines.get(lines.size() - 1), this.endOffset);
         lines.set(lines.size() - 1, replaceTabs(lines.get(lines.size() - 1), this.endOffset));
         int maxLength = terminalWidth - n_digits_end - 3;
