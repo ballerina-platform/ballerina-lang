@@ -363,6 +363,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                 new HashSet<>(Arrays.asList("types.bal", "error.bal", "stream_types.bal"));
         private static final HashSet<String> PKGS_WITH_WHITELSITED_FILES = new HashSet<>(
                 Arrays.asList("ballerinax/mysql:1.11.0", "ballerina/sql:1.11.1", "ballerinax/persist.sql:1.2.1"));
+        private static final String BALLERINA_TEST_PKG_NAME = "ballerina/test:0.0.0";
         protected final HashSet<BIRNode.BIRFunction> usedFunctions = new HashSet<>();
         protected final HashSet<BIRNode.BIRFunction> unusedFunctions = new HashSet<>();
         protected final HashSet<BIRNode.BIRTypeDefinition> usedTypeDefs = new HashSet<>();
@@ -378,6 +379,11 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
         private static boolean isResourceFunction(BIRNode.BIRFunction birFunction) {
             return (birFunction.flags & Flags.RESOURCE) == Flags.RESOURCE;
+        }
+
+        private static boolean isTestFunction(BIRNode.BIRFunction birFunction) {
+            return birFunction.annotAttachments.stream()
+                    .anyMatch(annAttach -> annAttach.annotPkgId.toString().equals(BALLERINA_TEST_PKG_NAME));
         }
 
         protected void registerNodes(UsedTypeDefAnalyzer typeDefAnalyzer, BIRNode.BIRPackage birPackage) {
@@ -413,7 +419,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             this.unusedFunctions.add(birFunction);
             functionPool.putIfAbsent(birFunction.originalName.value, birFunction);
 
-            if (USED_FUNCTION_NAMES.contains(birFunction.name.value) || isResourceFunction(birFunction)) {
+            if (USED_FUNCTION_NAMES.contains(birFunction.name.value) || isResourceFunction(birFunction) ||
+                    isTestFunction(birFunction)) {
                 this.startPointNodes.add(birFunction);
             }
         }

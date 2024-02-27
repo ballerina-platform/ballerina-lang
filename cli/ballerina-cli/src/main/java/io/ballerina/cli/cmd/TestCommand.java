@@ -208,6 +208,8 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
+    @CommandLine.Option(names = "--optimize", description = "generate optimized executable jar", defaultValue = "false")
+    private Boolean optimizeCodegen;
 
 
     private static final String testCmd = "bal test [--OPTIONS]\n" +
@@ -416,6 +418,8 @@ public class TestCommand implements BLauncherCmd {
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics);
+                .setOptimizeCodegen(optimizeCodegen);
+
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
