@@ -224,6 +224,10 @@ public class CompileTask implements Task {
                     Document document = project.currentPackage().module(moduleId).document(documentId);
                     documentMap.put(getDocumentPath(document.module().moduleName(), document.name()), document);
                 });
+                project.currentPackage().module(moduleId).testDocumentIds().forEach(documentId -> {
+                    Document document = project.currentPackage().module(moduleId).document(documentId);
+                    documentMap.put(getDocumentPath(document.module().moduleName(), document.name()), document);
+                });
             });
             AnsiConsole.systemInstall();
             // Report package compilation and backend diagnostics
