@@ -87,7 +87,8 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.runMain(testFileLocation + "/configurableSimpleProject", "main", null,
                               new String[]{"-CintVar=42", "-CbyteVar=22", "-CstringVar=waru=na", "-CbooleanVar=true",
                                       "-CxmlVar=<book>The Lost World</book>", "-CtestOrg.main.floatVar=3.5",
-                                      "-Cmain.decimalVar=24.87", "-Cmain.color=RED", "-Cmain.countryCode=Sri Lanka"},
+                                      "-Cmain.decimalVar=24.87", "-Cmain.color=RED", "-Cmain.countryCode=Sri Lanka",
+                                      "-Cfiles=pqr-1.toml", "-Cdata=intVar=bbb"},
                               null, null, new LogLeecher[]{logLeecher});
         logLeecher.waitForText(5000);
     }
@@ -103,7 +104,9 @@ public class ConfigurableTest extends BaseTest {
                 Map.entry(ENV_VAR_PREFIX + "TESTORG_MAIN_FLOATVAR", "3.5"),
                 Map.entry(ENV_VAR_PREFIX + "MAIN_DECIMALVAR", "24.87"),
                 Map.entry(ENV_VAR_PREFIX + "MAIN_COLOR", "RED"),
-                Map.entry(ENV_VAR_PREFIX + "MAIN_COUNTRYCODE", "Sri Lanka")
+                Map.entry(ENV_VAR_PREFIX + "MAIN_COUNTRYCODE", "Sri Lanka"),
+                Map.entry(ENV_VAR_PREFIX + "FILES", "pqr-1.toml"),
+                Map.entry(ENV_VAR_PREFIX + "DATA", "intVar=bbb")
         );
         executeBalCommand("/configurableSimpleProject", "main",
                 addEnvironmentVariables(envVariables));
@@ -287,9 +290,9 @@ public class ConfigurableTest extends BaseTest {
 
         bMainInstance.runMain("run", new String[]{"main", "--", "-CintVar=waruna", "-CbyteVar=2200", "-CbooleanVar" +
                 "=true", "-CxmlVar=123<?????", "-CtestOrg.main.floatVar=eee",
-                "-Cmain.decimalVar=24.87"}, null, new String[]{}, new LogLeecher[]{errorLeecher1,
-                errorLeecher2, errorLeecher3, errorLeecher4, errorLeecher5}, testFileLocation +
-                                      "/configurableSimpleProject");
+                "-Cmain.decimalVar=24.87", "-Cfiles=pqr-1.toml", "-Cdata=intVar=bbb"}, null, new String[]{},
+                new LogLeecher[]{errorLeecher1, errorLeecher2, errorLeecher3, errorLeecher4, errorLeecher5},
+                testFileLocation + "/configurableSimpleProject");
         errorLeecher1.waitForText(5000);
         errorLeecher2.waitForText(5000);
         errorLeecher3.waitForText(5000);
@@ -331,17 +334,17 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testConfigurableVariablesWithInvalidEnvVars() throws BallerinaTestException {
-        LogLeecher errorLeecher1 = new LogLeecher("error: [BAL_CONFIG_INTVAR=hinduja] configurable variable " +
+        LogLeecher errorLeecher1 = new LogLeecher("error: [BAL_CONFIG_VAR_INTVAR=hinduja] configurable variable " +
                                         "'intVar' is expected to be of type 'int', but found 'hinduja'", ERROR);
-        LogLeecher errorLeecher2 = new LogLeecher("error: [BAL_CONFIG_BYTEVAR=2200] value provided for byte " +
+        LogLeecher errorLeecher2 = new LogLeecher("error: [BAL_CONFIG_VAR_BYTEVAR=2200] value provided for byte " +
                                                   "variable 'byteVar' is out of range. Expected range is (0-255), " +
                                                   "found '2200'", ERROR);
-        LogLeecher errorLeecher3 = new LogLeecher("error: [BAL_CONFIG_TESTORG_MAIN_FLOATVAR=eee] configurable " +
+        LogLeecher errorLeecher3 = new LogLeecher("error: [BAL_CONFIG_VAR_TESTORG_MAIN_FLOATVAR=eee] configurable " +
                                                   "variable 'floatVar' is expected to be of type 'float', but found " +
                                                   "'eee'", ERROR);
         LogLeecher errorLeecher4 = new LogLeecher("error: value not provided for required configurable variable " +
                                                   "'stringVar'", ERROR);
-        LogLeecher errorLeecher5 = new LogLeecher("error: [BAL_CONFIG_XMLVAR=123<?????] configurable variable " +
+        LogLeecher errorLeecher5 = new LogLeecher("error: [BAL_CONFIG_VAR_XMLVAR=123<?????] configurable variable " +
                                                   "'xmlVar' is expected to be of type 'xml<((lang.xml:Element|lang" +
                                                   ".xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)" +
                                                   " & readonly)>', but found '123<?????", ERROR);
@@ -351,7 +354,9 @@ public class ConfigurableTest extends BaseTest {
                 Map.entry(ENV_VAR_PREFIX + "BOOLEANVAR", "true"),
                 Map.entry(ENV_VAR_PREFIX + "XMLVAR", "123<?????"),
                 Map.entry(ENV_VAR_PREFIX + "TESTORG_MAIN_FLOATVAR", "eee"),
-                Map.entry(ENV_VAR_PREFIX + "MAIN_DECIMALVAR", "24.87")
+                Map.entry(ENV_VAR_PREFIX + "MAIN_DECIMALVAR", "24.87"),
+                Map.entry(ENV_VAR_PREFIX + "FILES", "pqr-1.toml"),
+                Map.entry(ENV_VAR_PREFIX + "DATA", "intVar=bbb")
         );
 
         bMainInstance.runMain("run", new String[]{"main"}, addEnvironmentVariables(envVariables),

@@ -76,23 +76,24 @@ public class EnvProviderTest {
     public Object[][] differentEnvVarsProvider() {
         return new Object[][]{
                 // Variable with no special characters
-                {"BAL_CONFIG_MYORG_MOD_INTVAR", "123", "myorg", "mod", "intVar", PredefinedTypes.TYPE_INT, 123L},
+                {"BAL_CONFIG_VAR_MYORG_MOD_INTVAR", "123", "myorg", "mod", "intVar", PredefinedTypes.TYPE_INT, 123L},
                 // Variable with space
-                {"BAL_CONFIG_MYORG_MOD_INTVAR\\ ", "123", "myorg", "mod", "intVar\\ ", PredefinedTypes.TYPE_INT, 123L},
+                {"BAL_CONFIG_VAR_MYORG_MOD_INTVAR\\ ", "123", "myorg", "mod", "intVar\\ ", PredefinedTypes.TYPE_INT,
+                        123L},
                 // key with space in float value
-                {"BAL_CONFIG_MYORG_MOD_X", "  4.675", "myorg", "mod", "x", PredefinedTypes.TYPE_FLOAT, 4.675},
+                {"BAL_CONFIG_VAR_MYORG_MOD_X", "  4.675", "myorg", "mod", "x", PredefinedTypes.TYPE_FLOAT, 4.675},
                 // key with space in string value
-                {"BAL_CONFIG_MYORG_MOD_X", "  Hello World  ", "myorg", "mod", "x", PredefinedTypes.TYPE_STRING,
+                {"BAL_CONFIG_VAR_MYORG_MOD_X", "  Hello World  ", "myorg", "mod", "x", PredefinedTypes.TYPE_STRING,
                         StringUtils.fromString("  Hello World  ")},
                 // module = root Module
-                {"BAL_CONFIG_INTVAR", "123", "rootOrg", "rootMod", "intVar", PredefinedTypes.TYPE_INT, 123L},
+                {"BAL_CONFIG_VAR_INTVAR", "123", "rootOrg", "rootMod", "intVar", PredefinedTypes.TYPE_INT, 123L},
                 // module = root Module and full org-module structure
-                {"BAL_CONFIG_ROOTORG_ROOTMOD_INTVAR", "123", "rootOrg", "rootMod", "intVar",
+                {"BAL_CONFIG_VAR_ROOTORG_ROOTMOD_INTVAR", "123", "rootOrg", "rootMod", "intVar",
                         PredefinedTypes.TYPE_INT, 123L},
                 // module org = root Module org
-                {"BAL_CONFIG_MOD_INTVAR", "123", "rootOrg", "mod", "intVar", PredefinedTypes.TYPE_INT, 123L},
+                {"BAL_CONFIG_VAR_MOD_INTVAR", "123", "rootOrg", "mod", "intVar", PredefinedTypes.TYPE_INT, 123L},
                 // Module and Value with multiple special characters
-                {"BAL_CONFIG_ORG453_IO_HTTP2_SOCKET_TRANSPORT_UTI123LS_I\\$NT\\=VA/*R\\==",
+                {"BAL_CONFIG_VAR_ORG453_IO_HTTP2_SOCKET_TRANSPORT_UTI123LS_I\\$NT\\=VA/*R\\==",
                         "=abc~!@#$%^&*()" + "_+=-210|}{?>\\=<", "org453", "io.http2.socket_transport.uti123ls",
                         "i\\$nt\\=va/*r\\==", PredefinedTypes.TYPE_STRING,
                         StringUtils.fromString("=abc~!@#$%^&*()_+=-210|}{?>\\=<")},
@@ -106,9 +107,9 @@ public class EnvProviderTest {
         VariableKey b = new VariableKey(ROOT_MODULE, "b", PredefinedTypes.TYPE_STRING, true);
         VariableKey c = new VariableKey(ROOT_MODULE, "c", PredefinedTypes.TYPE_STRING, true);
         Map<String, String> envVars = new HashMap<>();
-        envVars.put("BAL_CONFIG_A", "aaa");
-        envVars.put("BAL_CONFIG_ROOTMOD_B", "bbb");
-        envVars.put("BAL_CONFIG_ROOTORG_ROOTMOD_C", "ccc");
+        envVars.put("BAL_CONFIG_VAR_A", "aaa");
+        envVars.put("BAL_CONFIG_VAR_ROOTMOD_B", "bbb");
+        envVars.put("BAL_CONFIG_VAR_ROOTORG_ROOTMOD_C", "ccc");
         ConfigResolver configResolver =
                 new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{a, b, c})), diagnosticLog,
                         List.of(new EnvVarProvider(ROOT_MODULE, envVars)));
@@ -149,26 +150,28 @@ public class EnvProviderTest {
         FiniteType unionFinite2 = TypeCreator.createFiniteType(typeName, Set.of(3.24d, decimalVal), 0);
         FiniteType unionFinite3 = TypeCreator.createFiniteType(typeName, Set.of(3.23d, decimalVal, strVal), 0);
         return new Object[][]{
-                {"intSingleton", intFinite, 2L, "BAL_CONFIG_INTSINGLETON", "2"},
-                {"floatSingleton", floatFinite, 2.2d, "BAL_CONFIG_FLOATSINGLETON", "2.2"},
-                {"decimalSingleton", decimalFinite, decimalVal, "BAL_CONFIG_DECIMALSINGLETON", "3.23"},
-                {"booleanSingleton", booleanFinite, true, "BAL_CONFIG_BOOLEANSINGLETON", "true"},
-                {"unionVar1", unionFinite1, 1.34d, "BAL_CONFIG_UNIONVAR1", "1.34"},
-                {"unionVar2", unionFinite2, decimalVal, "BAL_CONFIG_UNIONVAR2", "3.23"},
-                {"unionVar3", unionFinite3, strVal, "BAL_CONFIG_UNIONVAR3", "test"},
+                {"intSingleton", intFinite, 2L, "BAL_CONFIG_VAR_INTSINGLETON", "2"},
+                {"floatSingleton", floatFinite, 2.2d, "BAL_CONFIG_VAR_FLOATSINGLETON", "2.2"},
+                {"decimalSingleton", decimalFinite, decimalVal, "BAL_CONFIG_VAR_DECIMALSINGLETON", "3.23"},
+                {"booleanSingleton", booleanFinite, true, "BAL_CONFIG_VAR_BOOLEANSINGLETON", "true"},
+                {"unionVar1", unionFinite1, 1.34d, "BAL_CONFIG_VAR_UNIONVAR1", "1.34"},
+                {"unionVar2", unionFinite2, decimalVal, "BAL_CONFIG_VAR_UNIONVAR2", "3.23"},
+                {"unionVar3", unionFinite3, strVal, "BAL_CONFIG_VAR_UNIONVAR3", "test"},
                 {"stringSingleton", getIntersectionType(ROOT_MODULE, stringFinite), strVal,
-                        "BAL_CONFIG_STRINGSINGLETON", "test"},
-                {"intSingleton", getIntersectionType(ROOT_MODULE, intFinite), 2L, "BAL_CONFIG_INTSINGLETON", "2"},
-                {"floatSingleton", getIntersectionType(ROOT_MODULE, floatFinite), 2.2d, "BAL_CONFIG_FLOATSINGLETON",
+                        "BAL_CONFIG_VAR_STRINGSINGLETON", "test"},
+                {"intSingleton", getIntersectionType(ROOT_MODULE, intFinite), 2L, "BAL_CONFIG_VAR_INTSINGLETON", "2"},
+                {"floatSingleton", getIntersectionType(ROOT_MODULE, floatFinite), 2.2d, "BAL_CONFIG_VAR_FLOATSINGLETON",
                         "2.2"},
                 {"decimalSingleton", getIntersectionType(ROOT_MODULE, decimalFinite), decimalVal,
-                        "BAL_CONFIG_DECIMALSINGLETON", "3.23"},
+                        "BAL_CONFIG_VAR_DECIMALSINGLETON", "3.23"},
                 {"booleanSingleton", getIntersectionType(ROOT_MODULE, booleanFinite), true,
-                        "BAL_CONFIG_BOOLEANSINGLETON", "true"},
-                {"unionVar1", getIntersectionType(ROOT_MODULE, unionFinite1), 1.34d, "BAL_CONFIG_UNIONVAR1", "1.34"},
-                {"unionVar2", getIntersectionType(ROOT_MODULE, unionFinite2), decimalVal, "BAL_CONFIG_UNIONVAR2",
+                        "BAL_CONFIG_VAR_BOOLEANSINGLETON", "true"},
+                {"unionVar1", getIntersectionType(ROOT_MODULE, unionFinite1), 1.34d, "BAL_CONFIG_VAR_UNIONVAR1",
+                        "1.34"},
+                {"unionVar2", getIntersectionType(ROOT_MODULE, unionFinite2), decimalVal, "BAL_CONFIG_VAR_UNIONVAR2",
                         "3.23"},
-                {"unionVar3", getIntersectionType(ROOT_MODULE, unionFinite3), strVal, "BAL_CONFIG_UNIONVAR3", "test"},
+                {"unionVar3", getIntersectionType(ROOT_MODULE, unionFinite3), strVal, "BAL_CONFIG_VAR_UNIONVAR3",
+                        "test"},
         };
     }
 
@@ -179,7 +182,7 @@ public class EnvProviderTest {
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver =
                 new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{finiteVar})), diagnosticLog
-                        , List.of(new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_UNIONVAR", "1.34"))));
+                        , List.of(new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_UNIONVAR", "1.34"))));
         Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
         Assert.assertFalse(configValueMap.containsKey(finiteVar));
     }
@@ -214,13 +217,14 @@ public class EnvProviderTest {
         UnionType floatBoolen = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_FLOAT,
                 PredefinedTypes.TYPE_BOOLEAN), true);
         return new Object[][]{
-                {"stringInt", getIntersectionType(ROOT_MODULE, stringInt), strVal, "BAL_CONFIG_STRINGINT", "test"},
-                {"intFloat", getIntersectionType(ROOT_MODULE, intFloat), 2.2d, "BAL_CONFIG_INTFLOAT", "2.2"},
-                {"byteBoolean", getIntersectionType(ROOT_MODULE, byteBoolean), 222, "BAL_CONFIG_BYTEBOOLEAN", "222"},
-                {"intBoolean", getIntersectionType(ROOT_MODULE, intBoolean), 2L, "BAL_CONFIG_INTBOOLEAN", "2"},
-                {"intDecimal", getIntersectionType(ROOT_MODULE, intDecimal), decimalVal, "BAL_CONFIG_INTDECIMAL",
+                {"stringInt", getIntersectionType(ROOT_MODULE, stringInt), strVal, "BAL_CONFIG_VAR_STRINGINT", "test"},
+                {"intFloat", getIntersectionType(ROOT_MODULE, intFloat), 2.2d, "BAL_CONFIG_VAR_INTFLOAT", "2.2"},
+                {"byteBoolean", getIntersectionType(ROOT_MODULE, byteBoolean), 222, "BAL_CONFIG_VAR_BYTEBOOLEAN",
+                        "222"},
+                {"intBoolean", getIntersectionType(ROOT_MODULE, intBoolean), 2L, "BAL_CONFIG_VAR_INTBOOLEAN", "2"},
+                {"intDecimal", getIntersectionType(ROOT_MODULE, intDecimal), decimalVal, "BAL_CONFIG_VAR_INTDECIMAL",
                         "3.23"},
-                {"floatBoolean", getIntersectionType(ROOT_MODULE, floatBoolen), true, "BAL_CONFIG_FLOATBOOLEAN",
+                {"floatBoolean", getIntersectionType(ROOT_MODULE, floatBoolen), true, "BAL_CONFIG_VAR_FLOATBOOLEAN",
                         "true"},
         };
     }
@@ -235,7 +239,7 @@ public class EnvProviderTest {
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver =
                 new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{unionVar})), diagnosticLog
-                        , List.of(new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_INTXML",
+                        , List.of(new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_INTXML",
                         "<!--I am a comment-->"))));
         Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
         Object value = configValueMap.get(unionVar).getValue();

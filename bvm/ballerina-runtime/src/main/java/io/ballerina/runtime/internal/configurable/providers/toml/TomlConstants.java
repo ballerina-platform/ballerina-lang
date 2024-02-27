@@ -30,9 +30,9 @@ import java.nio.file.Paths;
  */
 public class TomlConstants {
     public static final String CONFIG_FILE_NAME = "Config.toml";
-    public static final String ENV_VAR_PREFIX = "BAL_CONFIG_";
-    public static final String CONFIG_FILES_ENV_VARIABLE = ENV_VAR_PREFIX + "FILES";
-    public static final String CONFIG_DATA_ENV_VARIABLE = ENV_VAR_PREFIX + "DATA";
+    public static final String ENV_VAR_PREFIX = "BAL_CONFIG_VAR_";
+    public static final String CONFIG_FILES_ENV_VARIABLE = "BAL_CONFIG_FILES";
+    public static final String CONFIG_DATA_ENV_VARIABLE = "BAL_CONFIG_DATA";
     public static final String MODULES_ROOT = "modules";
     public static final String TEST_DIR_NAME = "tests";
     public static final Path DEFAULT_CONFIG_PATH = Paths.get(RuntimeUtils.USER_DIR, CONFIG_FILE_NAME);

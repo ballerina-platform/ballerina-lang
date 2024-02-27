@@ -75,65 +75,65 @@ public class EnvProviderNegativeTest {
     public Object[][] envVarDataProvider() {
         return new Object[][]{
                 // Config value with invalid type value
-                {Map.of("BAL_CONFIG_MYORG_MOD_X", " hello  "), "myorg", "mod", "x", PredefinedTypes.TYPE_INT,
-                        "error: [BAL_CONFIG_MYORG_MOD_X= hello  ] configurable variable 'x' is expected to be of type"
-                        + " 'int', but found ' hello  '"},
+                {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", " hello  "), "myorg", "mod", "x", PredefinedTypes.TYPE_INT,
+                        "error: [BAL_CONFIG_VAR_MYORG_MOD_X= hello  ] configurable variable 'x' is expected " +
+                        "to be of type 'int', but found ' hello  '"},
                 // Config int value with spaces
-                {Map.of("BAL_CONFIG_MYORG_MOD_X", " 123  "), "myorg", "mod", "x", PredefinedTypes.TYPE_INT,
-                        "error: [BAL_CONFIG_MYORG_MOD_X= 123  ] configurable variable 'x' is expected to be of type "
-                        + "'int', but found ' 123  '"},
+                {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", " 123  "), "myorg", "mod", "x", PredefinedTypes.TYPE_INT,
+                        "error: [BAL_CONFIG_VAR_MYORG_MOD_X= 123  ] configurable variable 'x' is expected " +
+                        "to be of type 'int', but found ' 123  '"},
                 // Config byte value with spaces
-                {Map.of("BAL_CONFIG_MYORG_MOD_X", " 5 "), "myorg", "mod", "x", PredefinedTypes.TYPE_BYTE,
-                        "error: [BAL_CONFIG_MYORG_MOD_X= 5 ] configurable variable 'x' is expected to be of type "
+                {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", " 5 "), "myorg", "mod", "x", PredefinedTypes.TYPE_BYTE,
+                        "error: [BAL_CONFIG_VAR_MYORG_MOD_X= 5 ] configurable variable 'x' is expected to be of type "
                         + "'byte', but found ' 5 '"},
                 // Config boolean value with spaces
-                {Map.of("BAL_CONFIG_MYORG_MOD_X", " true "), "myorg", "mod", "x", PredefinedTypes.TYPE_BOOLEAN,
-                        "error: [BAL_CONFIG_MYORG_MOD_X= true ] configurable variable 'x' is expected to be of type" +
-                        " 'boolean', but found ' true '"},
+                {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", " true "), "myorg", "mod", "x", PredefinedTypes.TYPE_BOOLEAN,
+                        "error: [BAL_CONFIG_VAR_MYORG_MOD_X= true ] configurable variable 'x' is expected " +
+                        "to be of type 'boolean', but found ' true '"},
                 // Config decimal value with spaces
-                {Map.of("BAL_CONFIG_MYORG_MOD_X", " 27.5 "), "myorg", "mod", "x", PredefinedTypes.TYPE_DECIMAL,
-                        "error: [BAL_CONFIG_MYORG_MOD_X= 27.5 ] configurable variable 'x' is expected to be of type" +
-                        " 'decimal', but found ' 27.5 '"},
-                {Map.of("BAL_CONFIG_MYORG_MOD_X", "99999999.9e9999999999"), "myorg", "mod", "x",
+                {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", " 27.5 "), "myorg", "mod", "x", PredefinedTypes.TYPE_DECIMAL,
+                        "error: [BAL_CONFIG_VAR_MYORG_MOD_X= 27.5 ] configurable variable 'x' is expected " +
+                        "to be of type 'decimal', but found ' 27.5 '"},
+                {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", "99999999.9e9999999999"), "myorg", "mod", "x",
                         PredefinedTypes.TYPE_DECIMAL,
-                        "error: [BAL_CONFIG_MYORG_MOD_X=99999999.9e9999999999] configurable variable 'x' is expected " +
-                        "to be of type 'decimal', but found '99999999.9e9999999999'"},
+                        "error: [BAL_CONFIG_VAR_MYORG_MOD_X=99999999.9e9999999999] configurable variable 'x' is " +
+                        "expected to be of type 'decimal', but found '99999999.9e9999999999'"},
                 // Config byte value with invalid byte range
-                {Map.of("BAL_CONFIG_MYORG_MOD_X", "345"), "myorg", "mod", "x", PredefinedTypes.TYPE_BYTE,
-                        "error: [BAL_CONFIG_MYORG_MOD_X=345] value provided for byte variable 'x' is out of range." +
-                        " Expected range is (0-255), found '345'"},
+                {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", "345"), "myorg", "mod", "x", PredefinedTypes.TYPE_BYTE,
+                        "error: [BAL_CONFIG_VAR_MYORG_MOD_X=345] value provided for byte variable 'x' is " +
+                        "out of range. Expected range is (0-255), found '345'"},
                 // Config array value which is not supported as env var
-                {Map.of("BAL_CONFIG_MYORG_MOD_X", "345"), "myorg", "mod", "x",
+                {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", "345"), "myorg", "mod", "x",
                         new BIntersectionType(ROOT_MODULE, new Type[]{},
                                 TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 0, true),
                         "error: value for configurable variable 'x' with type 'int[]' is not supported as an " +
                         "environment variable"},
                 // Config tuple value which is not supported as env var
-                {Map.of("BAL_CONFIG_MYORG_MOD_X", "345"), "myorg", "mod", "x", new BIntersectionType(ROOT_MODULE,
+                {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", "345"), "myorg", "mod", "x", new BIntersectionType(ROOT_MODULE,
                         new Type[]{}, TypeCreator.createTupleType(List.of(PredefinedTypes.TYPE_INT,
                         PredefinedTypes.TYPE_STRING)), 0, true), "error: value for configurable " +
                         "variable 'x' with type '[int,string]' is not supported as an environment variable"},
                 // Config record value which is not supported as env var
-                {Map.of("BAL_CONFIG_MYORG_MOD_X", "345"), "myorg", "mod", "x",
+                {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", "345"), "myorg", "mod", "x",
                         new BIntersectionType(ROOT_MODULE, new Type[]{},
                         TypeCreator.createRecordType("customType", ROOT_MODULE, 0, false, 0), 0,
                         true),
                         "error: value for configurable variable 'x' with type 'rootMod:customType' is not supported " +
                                 "as an environment variable"},
                 // Config table value which is not supported as env var
-                {Map.of("BAL_CONFIG_MYORG_MOD_X", "345"), "myorg", "mod", "x",
+                {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", "345"), "myorg", "mod", "x",
                         new BIntersectionType(ROOT_MODULE, new Type[]{},
                                 TypeCreator.createTableType(PredefinedTypes.TYPE_STRING, false), 0, true),
                         "error: value for configurable variable 'x' with type 'table<string>' is not supported " +
                         "as an environment variable"},
-                {Map.of("BAL_CONFIG_XMLVAR", "<book"), "rootOrg", "rootMod", "xmlVar",
+                {Map.of("BAL_CONFIG_VAR_XMLVAR", "<book"), "rootOrg", "rootMod", "xmlVar",
                         new BIntersectionType(ROOT_MODULE, new Type[]{}, PredefinedTypes.TYPE_XML, 0, true),
-                        "error: [BAL_CONFIG_XMLVAR=<book] configurable variable 'xmlVar' is expected to be of type " +
-                        "'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'," +
-                        " but found '<book'"},
+                        "error: [BAL_CONFIG_VAR_XMLVAR=<book] configurable variable 'xmlVar' is expected " +
+                        "to be of type 'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|" +
+                        "lang.xml:Text)>', but found '<book'"},
                 // Invalid config enum value
-                {Map.of("BAL_CONFIG_COLOR", "red"), "rootOrg", "rootMod", "color", COLOR_ENUM,
-                        "error: [BAL_CONFIG_COLOR=red] configurable variable 'color' is expected to be of type " +
+                {Map.of("BAL_CONFIG_VAR_COLOR", "red"), "rootOrg", "rootMod", "color", COLOR_ENUM,
+                        "error: [BAL_CONFIG_VAR_COLOR=red] configurable variable 'color' is expected to be of type " +
                                 "'rootOrg/mod12:1:Colors', but found 'red'"}
         };
     }
@@ -146,17 +146,18 @@ public class EnvProviderNegativeTest {
         VariableKey x = new VariableKey(module, "x", PredefinedTypes.TYPE_INT, true);
 
         configVarMap.put(module, new VariableKey[]{x});
-        Map<String, String> envVariables = Map.of("BAL_CONFIG_MYORG_MOD_X", "123", "BAL_CONFIG_MYORG_MOD_Y", "apple",
-                "BAL_CONFIG_MYORG_MOD_Z", "27.5");
+        Map<String, String> envVariables = Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", "123",
+                "BAL_CONFIG_VAR_MYORG_MOD_Y", "apple",
+                "BAL_CONFIG_VAR_MYORG_MOD_Z", "27.5");
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new EnvVarProvider(ROOT_MODULE, envVariables)));
         Map<VariableKey, ConfigValue> varKeyValueMap = configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
         Assert.assertEquals(diagnosticLog.getErrorCount(), 2);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(),
-                "error: [BAL_CONFIG_MYORG_MOD_Z] unused environment variable");
+                "error: [BAL_CONFIG_VAR_MYORG_MOD_Y] unused environment variable");
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(),
-                "error: [BAL_CONFIG_MYORG_MOD_Y] unused environment variable");
+                "error: [BAL_CONFIG_VAR_MYORG_MOD_Z] unused environment variable");
         Assert.assertEquals(varKeyValueMap.get(x).getValue(), 123L);
     }
 
@@ -172,7 +173,7 @@ public class EnvProviderNegativeTest {
                 new VariableKey(rootModule, "c", PredefinedTypes.TYPE_INT, true), validKey
         };
         configVarMap.put(rootModule, keys);
-        Map<String, String> envVariables = Map.of("BAL_CONFIG_A_B_C", "123", "BAL_CONFIG_A_B_Y", "111");
+        Map<String, String> envVariables = Map.of("BAL_CONFIG_VAR_A_B_C", "123", "BAL_CONFIG_VAR_A_B_Y", "111");
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new EnvVarProvider(rootModule, envVariables)));
         Map<VariableKey, ConfigValue> varKeyValueMap = configResolver.resolveConfigs();
@@ -180,7 +181,7 @@ public class EnvProviderNegativeTest {
         Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable value for " +
                 "variable 'testOrg/a.b:c' clashes with variable 'a/b:c'. Please provide the env variable as " +
-                "'[BAL_CONFIG_TESTORG_A_B_C=<value>]'");
+                "'[BAL_CONFIG_VAR_TESTORG_A_B_C=<value>]'");
         Assert.assertEquals(varKeyValueMap.get(validKey).getValue(), 111L);
     }
 
@@ -193,16 +194,16 @@ public class EnvProviderNegativeTest {
                 new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true)
         };
         configVarMap.put(ROOT_MODULE, keys);
-        Map<String, String> envVariables = Map.of("BAL_CONFIG_INTVAR", "123", "BAL_CONFIG_ROOTMOD_INTVAR", "321");
-//        String[] args = {"-CrootMod.intVar=123", "-CintVar=321"};
+        Map<String, String> envVariables = Map.of("BAL_CONFIG_VAR_INTVAR", "123",
+                "BAL_CONFIG_VAR_ROOTMOD_INTVAR", "321");
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new EnvVarProvider(ROOT_MODULE, envVariables)));
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
         Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
-        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable value for " +
-                "variable 'intVar' clashes with multiple environment variables " +
-                "[BAL_CONFIG_INTVAR=123, BAL_CONFIG_ROOTMOD_INTVAR=321]");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable " +
+                "value for ariable 'intVar' clashes with multiple environment variables " +
+                "[BAL_CONFIG_VAR_INTVAR=123, BAL_CONFIG_VAR_ROOTMOD_INTVAR=321]");
     }
 
     @Test(dataProvider = "finite-error-provider")
@@ -213,7 +214,7 @@ public class EnvProviderNegativeTest {
         VariableKey finiteVar = new VariableKey(ROOT_MODULE, "finiteVar", intersectionType, true);
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{finiteVar}));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        Map<String, String> envVariables = Map.of("BAL_CONFIG_FINITEVAR", "3.23");
+        Map<String, String> envVariables = Map.of("BAL_CONFIG_VAR_FINITEVAR", "3.23");
         ConfigResolver configResolver = new ConfigResolver(configVarMap,
                 diagnosticLog, List.of(new EnvVarProvider(ROOT_MODULE, envVariables)));
         configResolver.resolveConfigs();
@@ -228,11 +229,11 @@ public class EnvProviderNegativeTest {
         BString strVal2 = fromString("3.23");
         BDecimal decimalVal = ValueCreator.createDecimalValue("3.23");
         return new Object[][]{
-                {Set.of(strVal1, 3.23d, decimalVal), "error: [BAL_CONFIG_FINITEVAR=3.23] ambiguous target types " +
+                {Set.of(strVal1, 3.23d, decimalVal), "error: [BAL_CONFIG_VAR_FINITEVAR=3.23] ambiguous target types " +
                         "found for configurable variable 'finiteVar' with type 'Finite'"},
-                {Set.of(strVal1, 1.34d, 1L), "error: [BAL_CONFIG_FINITEVAR=3.23] configurable variable 'finiteVar'" +
-                                             " is expected to be of type 'Finite', but found '3.23'"},
-                {Set.of(strVal2, 3.23d, 1.34d), "error: [BAL_CONFIG_FINITEVAR=3.23] ambiguous target types " +
+                {Set.of(strVal1, 1.34d, 1L), "error: [BAL_CONFIG_VAR_FINITEVAR=3.23] configurable variable " +
+                                             "'finiteVar' is expected to be of type 'Finite', but found '3.23'"},
+                {Set.of(strVal2, 3.23d, 1.34d), "error: [BAL_CONFIG_VAR_FINITEVAR=3.23] ambiguous target types " +
                         "found for configurable variable 'finiteVar' with type 'Finite'"},
         };
     }
@@ -258,30 +259,30 @@ public class EnvProviderNegativeTest {
     public Object[] getUnionConfigData() {
         MapType mapType = TypeCreator.createMapType(PredefinedTypes.TYPE_STRING, true);
         return new Object[][]{
-                {List.of(PredefinedTypes.TYPE_INT, mapType), "BAL_CONFIG_UNIONVAR", "3", "value for " +
+                {List.of(PredefinedTypes.TYPE_INT, mapType), "BAL_CONFIG_VAR_UNIONVAR", "3", "value for " +
                         "configurable variable 'unionVar' with type '(int|map<string> & readonly)' is not " +
                         "supported as an environment variable"},
-                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT), "BAL_CONFIG_UNIONVAR", "test",
-                        "[BAL_CONFIG_UNIONVAR=test] configurable variable 'unionVar' is expected to be of type " +
+                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT), "BAL_CONFIG_VAR_UNIONVAR", "test",
+                        "[BAL_CONFIG_VAR_UNIONVAR=test] configurable variable 'unionVar' is expected to be of type " +
                         "'(int|float)', but found 'test'"},
-                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT), "BAL_CONFIG_UNIONVAR", "3",
-                        "[BAL_CONFIG_UNIONVAR=3] ambiguous target types found for configurable variable 'unionVar' " +
-                        "with type '(int|float)'"},
-                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_BYTE), "BAL_CONFIG_UNIONVAR", "22",
-                        "[BAL_CONFIG_UNIONVAR=22] ambiguous target types found for configurable variable 'unionVar' " +
-                        "with type '(int|byte)'"},
-                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_BOOLEAN), "BAL_CONFIG_UNIONVAR", "1",
-                        "[BAL_CONFIG_UNIONVAR=1] ambiguous target types found for configurable variable 'unionVar' " +
-                        "with type '(int|boolean)'"},
-                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING), "BAL_CONFIG_UNIONVAR", "12",
-                        "[BAL_CONFIG_UNIONVAR=12] ambiguous target types found for configurable variable 'unionVar' " +
-                        "with type '(int|string)'"},
-                {List.of(PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_XML), "BAL_CONFIG_UNIONVAR", "test",
-                        "[BAL_CONFIG_UNIONVAR=test] ambiguous target types found for configurable variable " +
+                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT), "BAL_CONFIG_VAR_UNIONVAR", "3",
+                        "[BAL_CONFIG_VAR_UNIONVAR=3] ambiguous target types found for configurable variable " +
+                        "'unionVar' with type '(int|float)'"},
+                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_BYTE), "BAL_CONFIG_VAR_UNIONVAR", "22",
+                        "[BAL_CONFIG_VAR_UNIONVAR=22] ambiguous target types found for configurable variable " +
+                        "'unionVar' with type '(int|byte)'"},
+                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_BOOLEAN), "BAL_CONFIG_VAR_UNIONVAR", "1",
+                        "[BAL_CONFIG_VAR_UNIONVAR=1] ambiguous target types found for configurable variable " +
+                        "'unionVar' with type '(int|boolean)'"},
+                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING), "BAL_CONFIG_VAR_UNIONVAR", "12",
+                        "[BAL_CONFIG_VAR_UNIONVAR=12] ambiguous target types found for configurable variable " +
+                        "'unionVar' with type '(int|string)'"},
+                {List.of(PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_XML), "BAL_CONFIG_VAR_UNIONVAR", "test",
+                        "[BAL_CONFIG_VAR_UNIONVAR=test] ambiguous target types found for configurable variable " +
                         "'unionVar' with type '(string|xml<(lang.xml:Element|lang.xml:Comment|" +
                         "lang.xml:ProcessingInstruction|lang.xml:Text)>)'"},
-                {List.of(PredefinedTypes.TYPE_FLOAT, PredefinedTypes.TYPE_DECIMAL), "BAL_CONFIG_UNIONVAR", "1.23",
-                        "[BAL_CONFIG_UNIONVAR=1.23] ambiguous target types found for configurable variable " +
+                {List.of(PredefinedTypes.TYPE_FLOAT, PredefinedTypes.TYPE_DECIMAL), "BAL_CONFIG_VAR_UNIONVAR", "1.23",
+                        "[BAL_CONFIG_VAR_UNIONVAR=1.23] ambiguous target types found for configurable variable " +
                         "'unionVar' with type '(float|decimal)'"},
         };
     }

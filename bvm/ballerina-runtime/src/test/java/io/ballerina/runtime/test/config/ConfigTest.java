@@ -148,38 +148,39 @@ public class ConfigTest {
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.color=GREEN")},
                 // Int value given only with env var
                 {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 123L,
-                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_MYORG_TEST_MODULE_INTVAR", "123"))},
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_INTVAR", "123"))},
                 // Byte value given only with env var
                 {new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE, true), Integer.class, 7,
-                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_MYORG_TEST_MODULE_BYTEVAR", "7"))},
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_BYTEVAR", "7"))},
                 // Float value given only with env var
                 {new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT, true), Double.class, 99.9,
-                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_MYORG_TEST_MODULE_FLOATVAR", "99.9"))},
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_FLOATVAR", "99.9"))},
                 // String value given only with env var
                 {new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true), BString.class,
                         StringUtils.fromString("efg"),
-                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_MYORG_TEST_MODULE_STRINGVAR", "efg"))},
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_STRINGVAR", "efg"))},
                 // Boolean value given only with env var
                 {new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true), Boolean.class, false,
-                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_MYORG_TEST_MODULE_BOOLEANVAR", "0"))},
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_BOOLEANVAR", "0"))},
                 // Decimal value given only with env var
                 {new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
                         new DecimalValue("876.54"),
-                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_MYORG_TEST_MODULE_DECIMALVAR", "876.54"))},
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_DECIMALVAR",
+                                "876.54"))},
                 // Multiple provider but use the first registered provider ( env var as final value)
                 {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 42L,
-                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_MYORG_TEST_MODULE_INTVAR", "13579")),
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_INTVAR", "13579")),
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=13677"),
                         new TomlFileProvider(ROOT_MODULE, getConfigPath("SimpleTypesConfig.toml"), moduleSet)},
                 // Multiple provider but use the first registered provider ( Toml file value as final value)
                 {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 13579L,
                         new TomlFileProvider(ROOT_MODULE, getConfigPath("SimpleTypesConfig.toml"), moduleSet),
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=13677"),
-                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_MYORG_TEST_MODULE_INTVAR", "13579"))},
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_INTVAR", "13579"))},
                 // Enum value given with env var
                 {new VariableKey(module, "color", COLOR_ENUM,
                         true), BString.class, StringUtils.fromString("GREEN"),
-                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_MYORG_TEST_MODULE_COLOR", "GREEN"))},
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_COLOR", "GREEN"))},
         };
     }
 
@@ -243,7 +244,7 @@ public class ConfigTest {
                 new VariableKey[]{new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, null
                         , false), variableKey});
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
-                List.of(new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_INTVAR", "22")),
+                List.of(new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_INTVAR", "22")),
                         new TomlFileProvider(ROOT_MODULE, getConfigPathForNegativeCases(
                                 "UnsupportedCliConfig.toml"), Set.of(ROOT_MODULE))));
         Map<VariableKey, ConfigValue> valueMap = configResolver.resolveConfigs();
