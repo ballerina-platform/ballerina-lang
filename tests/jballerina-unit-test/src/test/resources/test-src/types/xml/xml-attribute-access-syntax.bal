@@ -86,72 +86,84 @@ function testXMLAfterRemoveAttribute() {
 
 function testXMLIndexedOptionalAttributeAccess() {
     xml x1 = xml `<item id="0">book</item><item id="1">pen</item>`;
-    assertNotErrorAndValue(x1.<item>[0]?.id, "0");
-    assertNotErrorAndValue(x1.<item>[1]?.id, "1");
-    assertNotErrorAndValue(x1.<*>[0]?.id, "0");
-    assertNotErrorAndValue(x1.<*>[1]?.id, "1");
-    assertNotErrorAndValue(x1.<items>[0]?.id, ());
-    assertNotErrorAndValue(x1.<item>[0]?.i, ());
-    assertNotErrorAndValue(x1.<item>[1]?.j, ());
+    assertNonErrorValue(x1.<item>[0]?.id, "0");
+    assertNonErrorValue(x1.<item>[1]?.id, "1");
+    assertNonErrorValue(x1.<*>[0]?.id, "0");
+    assertNonErrorValue(x1.<*>[1]?.id, "1");
+    assertNonErrorValue(x1.<items>[0]?.id, ());
+    assertNonErrorValue(x1.<item>[0]?.i, ());
+    assertNonErrorValue(x1.<item>[1]?.j, ());
+    assertNonErrorValue(x1.<item>[0][0]?.id, "0");
+    assertNonErrorValue(x1.<item>[0][2]?.id, ());
 
     xmlns "ns" as ns2;
     xmlns "ps" as ns3;
     xml x2 = xml `<ns2:a id="1">ns2a</ns2:a><ns2:a id="2">ns2a2</ns2:a><ns3:a id="3">ns3a</ns3:a>`;
-    assertNotErrorAndValue(x2.<ns2:a>[0]?.id, "1");
-    assertNotErrorAndValue(x2.<ns2:a>[1]?.id, "2");
-    assertNotErrorAndValue(x2.<ns3:*>[0]?.id, "3");
-    assertNotErrorAndValue(x2.<ns2:*>[0]?.id, "1");
-    assertNotErrorAndValue(x2.<ns2:*>[1]?.id, "2");
-    assertNotErrorAndValue(x2.<ns2:a|ns3:a>[2]?.id, "3");
-    assertNotErrorAndValue(x2.<ns2:c>[0]?.id, ());
-    assertNotErrorAndValue(x2.<ns2:a>[0]?.j, ());
-    assertNotErrorAndValue(x2.<ns2:*>[0]?.k, ());
-    assertNotErrorAndValue(x2.<ns2:a>[3]?.id, ());
+    assertNonErrorValue(x2.<ns2:a>[0]?.id, "1");
+    assertNonErrorValue(x2.<ns2:a>[1]?.id, "2");
+    assertNonErrorValue(x2.<ns3:*>[0]?.id, "3");
+    assertNonErrorValue(x2.<ns2:*>[0]?.id, "1");
+    assertNonErrorValue(x2.<ns2:*>[1]?.id, "2");
+    assertNonErrorValue(x2.<ns2:a|ns3:a>[2]?.id, "3");
+    assertNonErrorValue(x2.<ns2:c>[0]?.id, ());
+    assertNonErrorValue(x2.<ns2:a>[0]?.j, ());
+    assertNonErrorValue(x2.<ns2:*>[0]?.k, ());
+    assertNonErrorValue(x2.<ns2:a>[3]?.id, ());
+    assertNonErrorValue(x2.<ns2:a>[0][0]?.id, "1");
+    assertNonErrorValue(x2.<ns2:c>[0][0]?.id, ());
+    assertNonErrorValue(x2.<ns2:*>[1][0]?.id, "2");
 
     xml x3 = xml `<a i="2"><b n="3">book</b><c p="4">10</c><c p="5">10</c></a>`;
-    assertNotErrorAndValue((x3/*)[0]?.n, "3");
-    assertNotErrorAndValue(x3/*.<c>[0]?.p, "4");
-    assertNotErrorAndValue(x3/*.<c>[1]?.p, "5");
-    assertNotErrorAndValue(x3/*.<d>[0]?.p, ());
-    assertNotErrorAndValue((x3/<c>)[0]?.p, "4");
-    assertNotErrorAndValue((x3/<*>)[0]?.n, "3");
-    assertNotErrorAndValue((x3/<*>)[2]?.p, "5");
-    assertNotErrorAndValue((x3/<*>)[0]?.e, ());
-    assertNotErrorAndValue(x3/*.<c>[2]?.p, ());
+    assertNonErrorValue((x3/*)[0]?.n, "3");
+    assertNonErrorValue(x3/*.<c>[0]?.p, "4");
+    assertNonErrorValue(x3/*.<c>[1]?.p, "5");
+    assertNonErrorValue(x3/*.<d>[0]?.p, ());
+    assertNonErrorValue((x3/<c>)[0]?.p, "4");
+    assertNonErrorValue((x3/<*>)[0]?.n, "3");
+    assertNonErrorValue((x3/<*>)[2]?.p, "5");
+    assertNonErrorValue((x3/<*>)[0]?.e, ());
+    assertNonErrorValue(x3/*.<c>[2]?.p, ());
+    assertNonErrorValue((x3/*)[0][0]?.n, "3");
+    assertNonErrorValue((x3/*)[1][0]?.p, "4");
 
     xml x4 = xml `<a i="2"><ns2:b n="3">book</ns2:b><ns3:c p="4">10</ns3:c></a>`;
-    assertNotErrorAndValue(x4/*.<ns2:*>[0]?.n, "3");
-    assertNotErrorAndValue(x4/*.<ns3:c>[0]?.p, "4");
-    assertNotErrorAndValue((x4/<ns2:b>)[0]?.n, "3");
-    assertNotErrorAndValue((x4/<ns3:*>)[0]?.p, "4");
-    assertNotErrorAndValue((x4/<ns2:*|ns3:*>)[1]?.p, "4");
-    assertNotErrorAndValue((x4/<ns3:*>)[0]?.k, ());
-    assertNotErrorAndValue((x4/<ns2:b>)[0]?.l, ());
-    assertNotErrorAndValue((x4/<ns2:d>)[0]?.l, ());
-    assertNotErrorAndValue((x4/<ns2:*|ns3:*>)[4]?.p, ());
+    assertNonErrorValue(x4/*.<ns2:*>[0]?.n, "3");
+    assertNonErrorValue(x4/*.<ns3:c>[0]?.p, "4");
+    assertNonErrorValue((x4/<ns2:b>)[0]?.n, "3");
+    assertNonErrorValue((x4/<ns3:*>)[0]?.p, "4");
+    assertNonErrorValue((x4/<ns2:*|ns3:*>)[1]?.p, "4");
+    assertNonErrorValue((x4/<ns3:*>)[0]?.k, ());
+    assertNonErrorValue((x4/<ns2:b>)[0]?.l, ());
+    assertNonErrorValue((x4/<ns2:d>)[0]?.l, ());
+    assertNonErrorValue((x4/<ns2:*|ns3:*>)[4]?.p, ());
+    assertNonErrorValue(x4/*.<ns2:*>[0][0]?.n, "3");
+    assertNonErrorValue(x4/*.<ns2:*|ns3:*>[2][0]?.p, ());
 
     xml x5 = xml `<a i="2"><b n="3">book</b><c p="4"><d g="5">10</d><d g="6">11</d></c></a>`;
-    assertNotErrorAndValue((x5/**/<d>)[0]?.g, "5");
-    assertNotErrorAndValue((x5/**/<d>)[1]?.g, "6");
-    assertNotErrorAndValue((x5/**/<b>)[0]?.n, "3");
-    assertNotErrorAndValue((x5/**/<b>)[0]?.n, "3");
-    assertNotErrorAndValue((x5/**/<e>)[0]?.n, ());
-    assertNotErrorAndValue((x5/**/<d>)[0]?.f, ());
-    assertNotErrorAndValue((x5/**/<d>)[3]?.g, ());
+    assertNonErrorValue((x5/**/<d>)[0]?.g, "5");
+    assertNonErrorValue((x5/**/<d>)[1]?.g, "6");
+    assertNonErrorValue((x5/**/<b>)[0]?.n, "3");
+    assertNonErrorValue((x5/**/<b>)[0]?.n, "3");
+    assertNonErrorValue((x5/**/<e>)[0]?.n, ());
+    assertNonErrorValue((x5/**/<d>)[0]?.f, ());
+    assertNonErrorValue((x5/**/<d>)[3]?.g, ());
+    assertNonErrorValue((x5/**/<d>)[0][0]?.g, "5");
+    assertNonErrorValue((x5/**/<c>)[0][1]?.p, ());
 
     xml x6 = xml `<a i="2"><ns2:b n="3">book</ns2:b><c p="4"><ns2:d g="5">10</ns2:d><ns2:d g="6">1</ns2:d></c></a>`;
-    assertNotErrorAndValue((x6/**/<ns2:d>)[0]?.g, "5");
-    assertNotErrorAndValue((x6/**/<ns2:d>)[1]?.g, "6");
-    assertNotErrorAndValue((x6/**/<ns2:e>)[0]?.g, ());
-    assertNotErrorAndValue((x6/**/<ns2:d>)[0]?.j, ());
-    assertNotErrorAndValue((x6/**/<ns2:d>)[5]?.g, ());
+    assertNonErrorValue((x6/**/<ns2:d>)[0]?.g, "5");
+    assertNonErrorValue((x6/**/<ns2:d>)[1]?.g, "6");
+    assertNonErrorValue((x6/**/<ns2:e>)[0]?.g, ());
+    assertNonErrorValue((x6/**/<ns2:d>)[0]?.j, ());
+    assertNonErrorValue((x6/**/<ns2:d>)[5]?.g, ());
+    assertNonErrorValue((x6/**/<ns2:d>)[1][0]?.g, "6");
+    assertNonErrorValue((x6/**/<ns2:c>)[1][0]?.g, ());
 }
 
-function assertNotErrorAndValue(anydata|error actual, anydata expected) {
+function assertNonErrorValue(anydata|error actual, anydata expected) {
     if actual is error {
         string reason = "expected [" + expected.toString() + "] " + ", but got error with message " + actual.message();
-        error e = error(reason);
-        panic e;
+        panic error(reason);
     }
     assert(actual, expected);
 }
