@@ -7,6 +7,12 @@ Running Tests with Coverage
 
 	object_mocking
 
+testDefaultIncompatibleArgs has failed.
+
+
+		Test execution time :*****ms
+
+
 		[fail] testDefaultIncompatibleArgs:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("incorrect type of argument provided at position '1' to mock the function 'get()'")

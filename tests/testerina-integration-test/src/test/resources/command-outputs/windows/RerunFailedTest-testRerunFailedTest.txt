@@ -5,6 +5,15 @@ Running Tests with Coverage
 
 	rerun_failed
 
+testFunctionFail1: has failed.
+
+
+testFunctionFail2: has failed.
+
+
+		Test execution time :*****ms
+
+
 		[fail] testFunctionFail1:
 
 		    error {ballerina/test:0}TestError ("Failed!")
