@@ -29,7 +29,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
-import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
@@ -155,49 +154,40 @@ public class TestSourcesTest {
         Document bazConstantsDoc = baz.document(bazConstantsDocId);
 
         // `symbol(Document sourceDocument, LinePosition position)`
-        Optional<Symbol> personRecSymbol = fooSemanticModel.symbol(bazConstantsDoc, from(16, 13));
-        assertTrue(personRecSymbol.isEmpty());
+        assertTrue(fooSemanticModel.symbol(bazConstantsDoc, from(16, 13)).isEmpty());
 
         // `visibleSymbols(Document sourceFile, LinePosition position, DiagnosticState... states)`
-        List<Symbol> visibleSymbols = fooSemanticModel.visibleSymbols(bazConstantsDoc, from(16, 23));
-        assertTrue(visibleSymbols.isEmpty());
+        assertTrue(fooSemanticModel.visibleSymbols(bazConstantsDoc, from(16, 23)).isEmpty());
 
         // `references(Document sourceDocument, LinePosition position)`
-        List<Location> references1 = fooSemanticModel.references(bazConstantsDoc, from(0, 0));
-        assertTrue(references1.isEmpty());
+        assertTrue(fooSemanticModel.references(bazConstantsDoc, from(0, 0)).isEmpty());
 
         // `references(Document sourceDocument, LinePosition position, boolean withDefinition)`
-        List<Location> references2 = fooSemanticModel.references(bazConstantsDoc, from(0, 0), true);
-        assertTrue(references2.isEmpty());
+        assertTrue(fooSemanticModel.references(bazConstantsDoc, from(0, 0), true).isEmpty());
 
         // `references(Symbol symbol, Document targetDocument, boolean withDefinition)`
         Optional<Symbol> constSym = bazSemanticModel.symbol(bazConstantsDoc, from(16, 13));
         assertTrue(constSym.isPresent());
-        List<Location> references3 = fooSemanticModel.references(constSym.get(), bazConstantsDoc, true);
-        assertTrue(references3.isEmpty());
+        assertTrue(fooSemanticModel.references(constSym.get(), bazConstantsDoc, true).isEmpty());
 
         // `references(Document sourceDocument, Document targetDocument, LinePosition position, boolean withDefinition)`
-        List<Location> references4 = fooSemanticModel.references(bazConstantsDoc, bazConstantsDoc, from(16, 13), true);
-        assertTrue(references4.isEmpty());
+        assertTrue(fooSemanticModel.references(bazConstantsDoc, bazConstantsDoc, from(16, 13), true).isEmpty());
 
         // `expectedType(Document sourceDocument, LinePosition linePosition)`
-        Optional<TypeSymbol> expType = fooSemanticModel.expectedType(bazConstantsDoc, from(16, 18));
-        assertTrue(expType.isEmpty());
+        assertTrue(fooSemanticModel.expectedType(bazConstantsDoc, from(16, 18)).isEmpty());
     }
 
     private NodeVisitor getNodeVisitor(SemanticModel semanticModel) {
         return new NodeVisitor() {
             @Override
             public void visit(ConstantDeclarationNode constantDeclarationNode) {
-                Optional<Symbol> foundSymbol = semanticModel.symbol(constantDeclarationNode);
-                assertTrue(foundSymbol.isEmpty());
+                assertTrue(semanticModel.symbol(constantDeclarationNode).isEmpty());
                 constantDeclarationNode.initializer().accept(this);
             }
 
             @Override
             public void visit(BasicLiteralNode basicLiteralNode) {
-                Optional<TypeSymbol> foundTypeSymbol = semanticModel.typeOf(basicLiteralNode);
-                assertTrue(foundTypeSymbol.isEmpty());
+                assertTrue(semanticModel.typeOf(basicLiteralNode).isEmpty());
             }
         };
     }
