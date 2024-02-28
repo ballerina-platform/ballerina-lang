@@ -59,6 +59,7 @@ import java.util.zip.ZipFile;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.cli.utils.NativeUtils.modifyJarForFunctionMock;
+import static io.ballerina.cli.utils.TestUtils.createTestSuitesForProject;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 
@@ -66,14 +67,39 @@ public class CreateTestExecutableTask implements Task {
     private final transient PrintStream out;
     private Path output;
     private Path currentDir;
-    private final RunTestsTask runTestsTask;
+    private final String includesInCoverage;
+    private final String excludesInCoverage;
+    private String groupList;
+    private String disableGroupList;
+    private boolean report;
+    private boolean coverage;
+    private String coverageReportFormat;
+    private boolean isRerunTestExecution;
+    private String singleExecTests;
+    private Map<String, Module> coverageModules;
+    private boolean listGroups;
+    private final List<String> cliArgs;
 
-    public CreateTestExecutableTask(PrintStream out, String output, RunTestsTask runTestsTask) {
+    public CreateTestExecutableTask(PrintStream out, String output, String includesInCoverage,
+                                    String excludesInCoverage, String groupList, String disableGroupList,
+                                    String coverageReportFormat, String singleExecTests,
+                                    Map<String, Module> coverageModules, boolean listGroups, String[] cliArgs) {
         this.out = out;
         if (output != null) {
             this.output = Paths.get(output);
         }
-        this.runTestsTask = runTestsTask;   // To invoke related methods in the run tests task
+        this.includesInCoverage = includesInCoverage;
+        this.excludesInCoverage = excludesInCoverage;
+        this.groupList = groupList;
+        this.disableGroupList = disableGroupList;
+        this.report = false;    // This is set to false because the report is not generated in this task
+        this.coverage = false;  // This is set to false because the coverage is not generated in this task
+        this.coverageReportFormat = coverageReportFormat;
+        this.isRerunTestExecution = false; // This is set to false because the tests are not rerun in this task
+        this.singleExecTests = singleExecTests;
+        this.coverageModules = coverageModules;
+        this.listGroups = listGroups;
+        this.cliArgs = List.of(cliArgs);
     }
 
     @Override
@@ -299,12 +325,8 @@ public class CreateTestExecutableTask implements Task {
         List<String> moduleNamesList = new ArrayList<>();
         List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
-        boolean hasTests = RunTestsTask.createTestSuitesForProject(project, target, testProcessor, testSuiteMap,
-                moduleNamesList, mockClassNames, runTestsTask.isRerunTestExecution(), report, coverage);
-
-        // Set the module names list and the mock classes to the run tests task
-        this.runTestsTask.setModuleNamesList(moduleNamesList);
-        this.runTestsTask.setMockClasses(mockClassNames);
+        boolean hasTests = createTestSuitesForProject(project, target, testProcessor, testSuiteMap,
+                moduleNamesList, mockClassNames, this.isRerunTestExecution, report, coverage);
         if (hasTests) {
             // Now write the map to a json file
             try {
@@ -331,11 +353,11 @@ public class CreateTestExecutableTask implements Task {
         List<String> cmdArgs = new ArrayList<>();
         TestUtils.appendRequiredArgs(
                 cmdArgs, target.path().toString(), TestUtils.getJacocoAgentJarPath(),
-                testSuiteJsonPath.toString(), this.runTestsTask.isReport(),
-                this.runTestsTask.isCoverage(), this.runTestsTask.getGroupList(),
-                this.runTestsTask.getDisableGroupList(), this.runTestsTask.getSingleExecTests(),
-                this.runTestsTask.isRerunTestExecution(), this.runTestsTask.isListGroups(),
-                this.runTestsTask.getCliArgs(), false
+                testSuiteJsonPath.toString(), this.report,
+                this.coverage, this.groupList,
+                this.disableGroupList, this.singleExecTests,
+                this.isRerunTestExecution, this.listGroups,
+                this.cliArgs, false
         );
 
         // Write the cmdArgs to a file in path
