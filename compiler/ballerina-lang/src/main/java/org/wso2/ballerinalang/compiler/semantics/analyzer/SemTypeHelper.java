@@ -62,6 +62,12 @@ import static io.ballerina.types.UniformTypeCode.UT_STRING;
  */
 public class SemTypeHelper {
 
+    public static final SemType READONLY_SEM_COMPONENT = SemTypes.union(PredefinedType.NIL,
+                                            SemTypes.union(PredefinedType.BOOLEAN,
+                                            SemTypes.union(PredefinedType.INT,
+                                            SemTypes.union(PredefinedType.FLOAT,
+                                            SemTypes.union(PredefinedType.DECIMAL, PredefinedType.STRING)))));
+
     public static SemType resolveSingletonType(BLangLiteral literal) {
         return resolveSingletonType(literal.value, literal.getDeterminedType().getKind());
     }
@@ -104,25 +110,6 @@ public class SemTypeHelper {
         }
     }
 
-    public static void resolveBUnionSemTypeComponent(BUnionType type) {
-        LinkedHashSet<BType> memberTypes = type.getMemberTypes();
-        LinkedHashSet<BType> nonSemMemberTypes = new LinkedHashSet<>();
-
-        SemType semType = PredefinedType.NEVER;
-        for (BType memberType : memberTypes) {
-            semType = SemTypes.union(semType, semTypeComponent(memberType));
-
-            if (memberType.tag == TypeTags.UNION) {
-                nonSemMemberTypes.addAll(((BUnionType) memberType).nonSemMemberTypes);
-            } else if (bTypeComponent(memberType).tag != TypeTags.NEVER) {
-                nonSemMemberTypes.add(memberType);
-            }
-        }
-
-        type.nonSemMemberTypes = nonSemMemberTypes;
-        type.setSemTypeComponent(semType);
-    }
-
     public static void resolveBIntersectionSemTypeComponent(BIntersectionType type) {
         SemType semType = PredefinedType.TOP;
         for (BType constituentType : type.getConstituentTypes()) {
@@ -140,8 +127,8 @@ public class SemTypeHelper {
             return semTypeComponent(((BTypeReferenceType) t).referredType);
         }
 
-        if (t.tag == TypeTags.UNION || t.tag == TypeTags.ANYDATA || t.tag == TypeTags.JSON) {
-            return ((BUnionType) t).getSemTypeComponent();
+        if (isFullSemType(t.tag) || t.tag == TypeTags.UNION || t.tag == TypeTags.ANYDATA || t.tag == TypeTags.JSON) {
+            return t.semType();
         }
 
         if (t.tag == TypeTags.INTERSECTION) {
@@ -154,10 +141,6 @@ public class SemTypeHelper {
 
         if (t.tag == TypeTags.READONLY) {
             return ((BReadonlyType) t).getSemTypeComponent();
-        }
-
-        if (semTypeSupported(t.tag)) {
-            return t.semType();
         }
 
         return PredefinedType.NEVER;
@@ -179,7 +162,7 @@ public class SemTypeHelper {
             return bTypeComponent(((BTypeReferenceType) t).referredType);
         }
 
-        if (semTypeSupported(t.tag)) {
+        if (isFullSemType(t.tag)) {
             BType neverType = BType.createNeverType();
             neverType.isBTypeComponent = true;
             return neverType;
@@ -193,7 +176,7 @@ public class SemTypeHelper {
             return includesNonSemTypes(((BTypeReferenceType) t).referredType);
         }
 
-        if (semTypeSupported(t.tag)) {
+        if (isFullSemType(t.tag)) {
             return false;
         }
 
@@ -203,36 +186,50 @@ public class SemTypeHelper {
         }
 
         if (t.tag == TypeTags.UNION) { // TODO: Handle intersection
-            return !((BUnionType) t).nonSemMemberTypes.isEmpty();
+            return !((BUnionType) t).memberNonSemTypes.isEmpty();
         }
 
         return true;
     }
 
-    protected static boolean semTypeSupported(TypeKind kind) {
-        return switch (kind) {
-            case NIL, BOOLEAN, INT, BYTE, FLOAT, DECIMAL, STRING, FINITE -> true;
-            default -> false;
-        };
+    public static boolean isFullSemType(TypeKind kind) {
+        switch (kind) {
+            case NIL:
+            case BOOLEAN:
+            case INT:
+            case BYTE:
+            case FLOAT:
+            case DECIMAL:
+            case STRING:
+            case FINITE:
+                return true;
+            default:
+                return false;
+        }
     }
 
-    protected static boolean semTypeSupported(int tag) {
-        return switch (tag) {
-            case TypeTags.NIL, TypeTags.BOOLEAN, TypeTags.INT, TypeTags.BYTE,
-                    TypeTags.SIGNED32_INT, TypeTags.SIGNED16_INT, TypeTags.SIGNED8_INT,
-                    TypeTags.UNSIGNED32_INT, TypeTags.UNSIGNED16_INT, TypeTags.UNSIGNED8_INT ,
-                    TypeTags.FLOAT, TypeTags.DECIMAL,
-                    TypeTags.STRING, TypeTags.CHAR_STRING,
-                    TypeTags.FINITE-> true;
-            default -> false;
-        };
+    public static boolean isFullSemType(int tag) {
+        switch (tag) {
+            case TypeTags.NIL:
+            case TypeTags.BOOLEAN:
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
+            case TypeTags.FINITE:
+                return true;
+            default:
+                return false;
+        }
     }
-
-    public static final SemType READONLY_SEM_COMPONENT = SemTypes.union(PredefinedType.NIL,
-                                            SemTypes.union(PredefinedType.BOOLEAN,
-                                            SemTypes.union(PredefinedType.INT,
-                                            SemTypes.union(PredefinedType.FLOAT,
-                                            SemTypes.union(PredefinedType.DECIMAL, PredefinedType.STRING)))));
 
     /**
      * Returns the basic type of singleton.

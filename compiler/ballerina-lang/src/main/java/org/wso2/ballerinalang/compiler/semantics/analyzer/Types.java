@@ -3614,7 +3614,7 @@ public class Types {
 
     private void updateSet(Set<BType> set, BType ...types) {
         for (BType type : types) {
-            if (!SemTypeHelper.semTypeSupported(type.tag)) {
+            if (!SemTypeHelper.isFullSemType(type.tag)) {
                 set.add(type);
             }
         }
@@ -4215,16 +4215,16 @@ public class Types {
         switch (type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
-                if (!Core.isSubtypeSimple(unionType.getSemTypeComponent(), PredefinedType.NEVER)) {
+                if (!Core.isSubtypeSimple(unionType.semType(), PredefinedType.NEVER)) {
                     return false;
                 }
 
-                LinkedHashSet<BType> nonSemMemberTypes = unionType.nonSemMemberTypes;
-                if (nonSemMemberTypes.isEmpty()) {
+                LinkedHashSet<BType> memberNonSemTypes = unionType.memberNonSemTypes;
+                if (memberNonSemTypes.isEmpty()) {
                     return false;
                 }
 
-                for (BType nonSemMember : nonSemMemberTypes) {
+                for (BType nonSemMember : memberNonSemTypes) {
                     if (!isXmlSubType(nonSemMember)) {
                         return false;
                     }

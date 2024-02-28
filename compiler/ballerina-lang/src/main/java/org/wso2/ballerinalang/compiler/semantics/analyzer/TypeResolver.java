@@ -130,7 +130,6 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper.semTypeSupported;
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper.singleShapeBroadType;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
@@ -1381,7 +1380,7 @@ public class TypeResolver {
         type.setOriginalMemberTypes(memberTypes);
         memberTypes.clear();
         memberTypes.addAll(flattenMemberTypes);
-        SemTypeHelper.resolveBUnionSemTypeComponent(type);
+        type.populateMemberSemTypesAndNonSemTypes();
     }
 
     private BType resolveTypeDesc(BLangIntersectionTypeNode td, ResolverData data, boolean anonymous) {
@@ -1662,7 +1661,7 @@ public class TypeResolver {
                 exprOrLiteral.setBType(symTable.getTypeFromTag(type.tag));
             }
 
-            if (semTypeSupported(exprOrLiteral.getBType().getKind())) {
+            if (SemTypeHelper.isFullSemType(exprOrLiteral.getBType().getKind())) {
                 if (exprOrLiteral.getKind() == NodeKind.UNARY_EXPR) {
                     exprOrLiteral = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) exprOrLiteral);
                     // Replacing here as Semantic Analyzer BLangFiniteTypeNode visit may not invoke for all finite nodes
