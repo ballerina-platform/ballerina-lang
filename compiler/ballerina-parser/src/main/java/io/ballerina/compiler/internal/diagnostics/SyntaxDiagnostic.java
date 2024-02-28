@@ -19,7 +19,10 @@ package io.ballerina.compiler.internal.diagnostics;
 
 import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.compiler.syntax.tree.NodeLocation;
-import io.ballerina.tools.diagnostics.*;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +33,7 @@ import java.util.List;
  * @since 2.0.0
  */
 public class SyntaxDiagnostic extends Diagnostic {
+
     private final STNodeDiagnostic nodeDiagnostic;
     private final NodeLocation location;
     private DiagnosticInfo diagnosticInfo;
