@@ -110,10 +110,10 @@ public class ConfigNegativeTest {
                                         "type 'int', but found 'waruna'"
                         }},
                 // Invalid env var value only
-                {new String[]{}, null, Map.of("BAL_CONFIG_ORG_MOD1_INTVAR", "waruna"),
+                {new String[]{}, null, Map.of("BAL_CONFIG_VAR_ORG_MOD1_INTVAR", "waruna"),
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, null, true)}, 1
                         , 0, new String[]{
-                                "error: [BAL_CONFIG_ORG_MOD1_INTVAR=waruna] configurable variable 'intVar' is " +
+                                "error: [BAL_CONFIG_VAR_ORG_MOD1_INTVAR=waruna] configurable variable 'intVar' is " +
                                 "expected to be of type 'int', but found 'waruna'"
                         }},
                 // valid cli value invalid toml
@@ -124,10 +124,10 @@ public class ConfigNegativeTest {
                                 " is expected to be of type 'int', but found 'string'"
                 }},
                 // valid cli value invalid env var
-                {new String[]{"-Corg.mod1.intVar=1"}, null, Map.of("BAL_CONFIG_ORG_MOD1_INTVAR", "waruna"),
+                {new String[]{"-Corg.mod1.intVar=1"}, null, Map.of("BAL_CONFIG_VAR_ORG_MOD1_INTVAR", "waruna"),
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, null, true)}, 0
                         , 1, new String[]{
-                        "warning: [BAL_CONFIG_ORG_MOD1_INTVAR=waruna] configurable variable 'intVar'" +
+                        "warning: [BAL_CONFIG_VAR_ORG_MOD1_INTVAR=waruna] configurable variable 'intVar'" +
                         " is expected to be of type 'int', but found 'waruna'"
                 }},
                 // valid toml value invalid cli
@@ -138,21 +138,21 @@ public class ConfigNegativeTest {
                                         "of type 'int', but found 'waruna'"
                         }},
                 // valid toml value invalid env var
-                {new String[]{}, "MatchedTypeValues.toml", Map.of("BAL_CONFIG_ORG_MOD1_INTVAR", "waruna"),
+                {new String[]{}, "MatchedTypeValues.toml", Map.of("BAL_CONFIG_VAR_ORG_MOD1_INTVAR", "waruna"),
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, true)}, 2, 1,
                         new String[]{
-                                "warning: [BAL_CONFIG_ORG_MOD1_INTVAR=waruna] configurable variable 'intVar' is " +
+                                "warning: [BAL_CONFIG_VAR_ORG_MOD1_INTVAR=waruna] configurable variable 'intVar' is " +
                                 "expected to be of type 'int', but found 'waruna'"
                         }},
                 // valid env var value invalid cli
-                {new String[]{"-Corg.mod1.intVar=waruna"}, null,  Map.of("BAL_CONFIG_ORG_MOD1_INTVAR", "1"),
+                {new String[]{"-Corg.mod1.intVar=waruna"}, null,  Map.of("BAL_CONFIG_VAR_ORG_MOD1_INTVAR", "1"),
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, true)}, 0, 1,
                         new String[]{
                                 "warning: [org.mod1.intVar=waruna] configurable variable 'intVar' is expected to be " +
                                 "of type 'int', but found 'waruna'"
                         }},
                 // valid env var value invalid toml value
-                {new String[]{}, "MismatchedTypeValues.toml", Map.of("BAL_CONFIG_ORG_MOD1_INTVAR", "1"),
+                {new String[]{}, "MismatchedTypeValues.toml", Map.of("BAL_CONFIG_VAR_ORG_MOD1_INTVAR", "1"),
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, true)}, 0, 1,
                         new String[]{
                                 "warning: [MismatchedTypeValues.toml:(3:10,3:18)] configurable variable 'intVar' is " +
@@ -160,10 +160,10 @@ public class ConfigNegativeTest {
                         }},
                 // invalid env var value, invalid cli and invalid toml
                 {new String[]{"-Corg.mod1.intVar=waruna"}, "MismatchedTypeValues.toml",
-                        Map.of("BAL_CONFIG_ORG_MOD1_INTVAR", "waruna"),
+                        Map.of("BAL_CONFIG_VAR_ORG_MOD1_INTVAR", "waruna"),
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, null, true)}, 3
                         , 0, new String[]{
-                        "error: [BAL_CONFIG_ORG_MOD1_INTVAR=waruna] configurable variable 'intVar' is expected" +
+                        "error: [BAL_CONFIG_VAR_ORG_MOD1_INTVAR=waruna] configurable variable 'intVar' is expected" +
                         " to be of type 'int', but found 'waruna'",
                         "error: [org.mod1.intVar=waruna] configurable variable 'intVar' is expected to be " +
                                 "of type 'int', but found 'waruna'",
@@ -178,7 +178,7 @@ public class ConfigNegativeTest {
                                         "[Invalid.toml:(3:1,3:1)] missing equal token\n" +
                                         "[Invalid.toml:(3:1,3:1)] missing value\n"}},
                 // invalid toml but valid env var
-                {new String[]{}, "Invalid.toml", Map.of("BAL_CONFIG_ORG_MOD1_INTVAR", "2"),
+                {new String[]{}, "Invalid.toml", Map.of("BAL_CONFIG_VAR_ORG_MOD1_INTVAR", "2"),
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, true)}, 0, 1,
                         new String[]{
                                 "warning: invalid TOML file : \n" +
@@ -228,12 +228,12 @@ public class ConfigNegativeTest {
                         new String[]{"error: [InvalidUnionType.toml:(2:1,2:19)] configurable variable 'floatUnionVar'" +
                                 " is expected to be of type '(int|map<string>)', but found 'float'"}},
                 // not supported env var union type
-                {new String[]{}, null, Map.of("BAL_CONFIG_ORG_MOD1_MYUNION", "5"), new VariableKey[]{
+                {new String[]{}, null, Map.of("BAL_CONFIG_VAR_ORG_MOD1_MYUNION", "5"), new VariableKey[]{
                         new VariableKey(MODULE, "myUnion", incompatibleUnionType, null, true)}, 1, 0,
                         new String[]{"error: value for configurable variable 'myUnion' with type '(int|map<string>)' " +
                                      "is not supported as an environment variable"}},
                 // not supported env var type
-                {new String[]{}, null, Map.of("BAL_CONFIG_ORG_MOD1_MYMAP", "5"), new VariableKey[]{
+                {new String[]{}, null, Map.of("BAL_CONFIG_VAR_ORG_MOD1_MYMAP", "5"), new VariableKey[]{
                        new VariableKey(MODULE, "myMap",
                        new BIntersectionType(MODULE, new BType[]{}, PredefinedTypes.TYPE_MAP
                                , 0, true), null, true)}, 1

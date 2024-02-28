@@ -153,7 +153,8 @@ public enum ErrorCodes implements DiagnosticCode {
     CONFIG_ENV_VARS_AMBIGUITY("config.env.vars.ambiguity", "RUNTIME_0123"),
     CONFIG_ENV_VARIABLE_AMBIGUITY("config.env.variable.ambiguity", "RUNTIME_0124"),
     CONFIG_ENV_TYPE_NOT_SUPPORTED("config.env.type.not.supported", "RUNTIME_0125"),
-    CONFIG_UNUSED_ENV_VARS("config.env.unused.vars", "RUNTIME_0126");
+    CONFIG_UNUSED_ENV_VARS("config.env.unused.vars", "RUNTIME_0126"),
+    CONFIG_ENV_VAR_NAME_AMBIGUITY("config.env.variable.name.ambiguity", "RUNTIME_0127");
 
     private final String errorMsgKey;
     private final String errorCode;

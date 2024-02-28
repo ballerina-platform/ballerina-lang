@@ -43,6 +43,7 @@ import java.util.Set;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_ENV_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_ENV_VARIABLE_AMBIGUITY;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_ENV_VARS_AMBIGUITY;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_ENV_VAR_NAME_AMBIGUITY;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_INCOMPATIBLE_TYPE;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_INVALID_BYTE_RANGE;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_UNUSED_ENV_VARS;
@@ -310,13 +311,23 @@ public class EnvVarProvider implements ConfigProvider {
     }
 
     private EnvVar markAndGetEnvVar(String key, VariableKey variableKey, String value) {
-        // Handle cli args and module ambiguities
+        // Handle env vars and module ambiguities
         VariableKey existingKey = visitedEnvVariableMap.get(key);
         if (existingKey != null) {
-            Module module = variableKey.module;
-            String fullQualifiedKey = module.getOrg() + "." + module.getName() + "." + variableKey.variable;
+            Module currentModule = variableKey.module;
+            Module existingModule = existingKey.module;
+            String fullQualifiedKey1 =
+                    getRefinedEnvVarKey(currentModule.getOrg() + "." + currentModule.getName() + "."
+                                        + variableKey.variable);
+            String fullQualifiedKey2 =
+                    getRefinedEnvVarKey(existingModule.getOrg() + "." + existingModule.getName() + "."
+                                        + variableKey.variable);
+            if (fullQualifiedKey1.equalsIgnoreCase(fullQualifiedKey2)) {
+                throw new ConfigException(CONFIG_ENV_VAR_NAME_AMBIGUITY, key, variableKey.toString(),
+                        existingKey.toString());
+            }
             throw new ConfigException(CONFIG_ENV_VARIABLE_AMBIGUITY, variableKey.toString(), existingKey.toString(),
-                    getRefinedEnvVarKey(fullQualifiedKey) + "=" + "<value>");
+                    fullQualifiedKey1 + "=" + "<value>");
         }
         visitedEnvVariableMap.put(key, variableKey);
         return new EnvVar(key, value);

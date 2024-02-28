@@ -206,6 +206,49 @@ public class EnvProviderNegativeTest {
                 "[BAL_CONFIG_VAR_INTVAR=123, BAL_CONFIG_VAR_ROOTMOD_INTVAR=321]");
     }
 
+    @Test
+    public void testVariableNameAmbiguityWithCases() {
+
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        Module module1 = new Module("a", "b.c", "1");
+        Module module2 = new Module("a", "b_c", "1");
+        configVarMap.put(module1, new VariableKey[] {new VariableKey(module1, "d", PredefinedTypes.TYPE_INT,
+                true)});
+        configVarMap.put(module2, new VariableKey[] {new VariableKey(module2, "d", PredefinedTypes.TYPE_INT,
+                true)});
+
+        Map<String, String> envVariables = Map.of("BAL_CONFIG_VAR_A_B_C_D", "123");
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new EnvVarProvider(ROOT_MODULE, envVariables)));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable " +
+                "environment variable 'BAL_CONFIG_VAR_A_B_C_D' clashes for variable 'a/b.c:d' with variable 'a/b_c:d'");
+    }
+
+    @Test
+    public void testEnvVarAmbiguityWithDotAndUnderScore() {
+
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = {
+                new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true),
+                new VariableKey(ROOT_MODULE, "INTVAR", PredefinedTypes.TYPE_INT, true)
+        };
+        configVarMap.put(ROOT_MODULE, keys);
+        Map<String, String> envVariables = Map.of("BAL_CONFIG_VAR_INTVAR", "123");
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new EnvVarProvider(ROOT_MODULE, envVariables)));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable " +
+                "environment variable 'BAL_CONFIG_VAR_INTVAR' clashes for variable 'rootOrg/rootMod:INTVAR' with" +
+                " variable 'rootOrg/rootMod:intVar'");
+    }
+
     @Test(dataProvider = "finite-error-provider")
     public void testInvalidFiniteType(Set<Object> values, String errorMsg) {
         FiniteType type = TypeCreator.createFiniteType("Finite", values, 0);
