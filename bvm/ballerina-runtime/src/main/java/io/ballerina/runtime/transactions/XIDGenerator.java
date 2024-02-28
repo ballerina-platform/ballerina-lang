@@ -17,9 +17,6 @@
 */
 package io.ballerina.runtime.transactions;
 
-import java.security.SecureRandom;
-import java.util.concurrent.atomic.AtomicInteger;
-
 
 /**
  * Generates XID for the distributed transactions.
