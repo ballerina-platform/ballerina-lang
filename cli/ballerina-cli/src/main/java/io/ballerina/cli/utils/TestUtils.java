@@ -24,6 +24,7 @@ import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
@@ -41,6 +42,7 @@ import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
+import org.ballerinalang.testerina.core.TestProcessor;
 import org.jacoco.core.analysis.IClassCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.data.ExecutionData;
@@ -272,6 +274,40 @@ public class TestUtils {
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e);
         }
+    }
+
+    public static boolean createTestSuitesForProject(Project project, Target target,
+                                                     TestProcessor testProcessor, Map<String, TestSuite> testSuiteMap,
+                                                     List<String> moduleNamesList, List<String> mockClassNames,
+                                                     boolean isRerunTestExecution, boolean report, boolean coverage) {
+        boolean hasTests = false;
+        for (ModuleDescriptor moduleDescriptor :
+                project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+            Module module = project.currentPackage().module(moduleDescriptor.name());
+            ModuleName moduleName = module.moduleName();
+
+            TestSuite suite = testProcessor.testSuite(module).orElse(null);
+            if (suite == null) {
+                continue;
+            }
+
+            hasTests = true;
+
+            if (!isRerunTestExecution) {
+                clearFailedTestsJson(target.path());
+            }
+            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                suite.setSourceFileName(project.sourceRoot().getFileName().toString());
+            }
+            suite.setReportRequired(report || coverage);
+            String resolvedModuleName =
+                    getResolvedModuleName(module, moduleName);
+            testSuiteMap.put(resolvedModuleName, suite);
+            moduleNamesList.add(resolvedModuleName);
+
+            addMockClasses(suite, mockClassNames);
+        }
+        return hasTests;
     }
 
     public static Path getJsonFilePath(Path testsCachePath) {

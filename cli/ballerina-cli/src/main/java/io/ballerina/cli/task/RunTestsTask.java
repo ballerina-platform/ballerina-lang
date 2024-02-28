@@ -65,6 +65,7 @@ import static io.ballerina.cli.utils.TestUtils.addMockClasses;
 import static io.ballerina.cli.utils.TestUtils.appendRequiredArgs;
 import static io.ballerina.cli.utils.TestUtils.cleanTempCache;
 import static io.ballerina.cli.utils.TestUtils.clearFailedTestsJson;
+import static io.ballerina.cli.utils.TestUtils.createTestSuitesForProject;
 import static io.ballerina.cli.utils.TestUtils.getInitialCmdArgs;
 import static io.ballerina.cli.utils.TestUtils.getClassPath;
 import static io.ballerina.cli.utils.TestUtils.getJacocoAgentJarPath;
@@ -99,55 +100,11 @@ public class RunTestsTask implements Task {
     private boolean report;
     private boolean coverage;
     private String coverageReportFormat;
-
-    public boolean isRerunTestExecution() {
-        return isRerunTestExecution;
-    }
-
     private boolean isRerunTestExecution;
     private String singleExecTests;
     private Map<String, Module> coverageModules;
     private boolean listGroups;
     private final List<String> cliArgs;
-    private List<String> mockClasses;
-    private List<String> moduleNamesList;
-
-    public String getGroupList() {
-        return groupList;
-    }
-
-    public String getDisableGroupList() {
-        return disableGroupList;
-    }
-
-    public boolean isReport() {
-        return report;
-    }
-
-    public boolean isCoverage() {
-        return coverage;
-    }
-
-    public String getSingleExecTests() {
-        return singleExecTests;
-    }
-
-    public boolean isListGroups() {
-        return listGroups;
-    }
-
-    public List<String> getCliArgs() {
-        return cliArgs;
-    }
-
-    public void setMockClasses(List<String> mockClasses) {
-        this.mockClasses = mockClasses;
-    }
-
-    public void setModuleNamesList(List<String> moduleNamesList) {
-        this.moduleNamesList = moduleNamesList;
-    }
-
     TestReport testReport;
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");
@@ -182,7 +139,6 @@ public class RunTestsTask implements Task {
         this.coverageModules = modules;
         this.listGroups = listGroups;
         this.excludesInCoverage = excludes;
-        this.mockClasses = null;
     }
 
     @Override
@@ -300,40 +256,6 @@ public class RunTestsTask implements Task {
                 throw createLauncherException("error occurred while generating test report :", e);
             }
         }
-    }
-
-    public static boolean createTestSuitesForProject(Project project, Target target,
-                                              TestProcessor testProcessor, Map<String, TestSuite> testSuiteMap,
-                                              List<String> moduleNamesList, List<String> mockClassNames,
-                                              boolean isRerunTestExecution, boolean report, boolean coverage) {
-        boolean hasTests = false;
-        for (ModuleDescriptor moduleDescriptor :
-                project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
-            Module module = project.currentPackage().module(moduleDescriptor.name());
-            ModuleName moduleName = module.moduleName();
-
-            TestSuite suite = testProcessor.testSuite(module).orElse(null);
-            if (suite == null) {
-                continue;
-            }
-
-            hasTests = true;
-
-            if (!isRerunTestExecution) {
-                clearFailedTestsJson(target.path());
-            }
-            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                suite.setSourceFileName(project.sourceRoot().getFileName().toString());
-            }
-            suite.setReportRequired(report || coverage);
-            String resolvedModuleName =
-                    getResolvedModuleName(module, moduleName);
-            testSuiteMap.put(resolvedModuleName, suite);
-            moduleNamesList.add(resolvedModuleName);
-
-            addMockClasses(suite, mockClassNames);
-        }
-        return hasTests;
     }
 
     private int runTestSuite(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,

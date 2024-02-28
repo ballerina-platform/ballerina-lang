@@ -350,21 +350,19 @@ public class TestCommand implements BLauncherCmd {
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);
 
-        TaskExecutor.TaskBuilder taskBuilder = new TaskExecutor.TaskBuilder()
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified,
-                        buildOptions.enableCache()));
+                        buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
-
-        RunTestsTask runTestsTask = new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs);
-
-        TaskExecutor taskExecutor = taskBuilder
-                .addTask(new CreateTestExecutableTask(outStream, this.output, runTestsTask),
+                .addTask(new CreateTestExecutableTask(outStream, this.output, includes, excludes, groupList,
+                                disableGroupList, coverageFormat, testList, moduleMap, listGroups, cliArgs),
                         project.buildOptions().cloud().isEmpty())
-                .addTask(runTestsTask, (project.buildOptions().nativeImage() ||
+                .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
+                        testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs),
+                        (project.buildOptions().nativeImage() ||
                         !project.buildOptions().cloud().isEmpty()))
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups),
