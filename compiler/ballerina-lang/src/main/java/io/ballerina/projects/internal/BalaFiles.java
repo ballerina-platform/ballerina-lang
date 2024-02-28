@@ -103,7 +103,7 @@ public class BalaFiles {
     }
 
     private static PackageData loadPackageDataFromBalaFile(Path balaPath, PackageManifest packageManifest) {
-        URI zipURI = URI.create("jar:" + balaPath.toUri().toString());
+        URI zipURI = URI.create("jar:" + balaPath.toUri());
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             // Load default module
             String pkgName = packageManifest.name().toString();
@@ -216,7 +216,7 @@ public class BalaFiles {
             Path dependencyGraphJsonPath = balaPath.resolve(DEPENDENCY_GRAPH_JSON);
             dependencyGraphResult = createPackageDependencyGraphFromJson(dependencyGraphJsonPath);
         } else {
-            URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri().toString());
+            URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri());
             try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
                 Path dependencyGraphJsonPath = zipFileSystem.getPath(DEPENDENCY_GRAPH_JSON);
                 dependencyGraphResult = createPackageDependencyGraphFromJson(dependencyGraphJsonPath);
@@ -244,7 +244,7 @@ public class BalaFiles {
     }
 
     private static PackageManifest createPackageManifestFromBalaFile(Path balrPath) {
-        URI zipURI = URI.create("jar:" + balrPath.toAbsolutePath().toUri().toString());
+        URI zipURI = URI.create("jar:" + balrPath.toAbsolutePath().toUri());
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path packageJsonPath = zipFileSystem.getPath(PACKAGE_JSON);
             if (Files.notExists(packageJsonPath)) {
@@ -478,7 +478,7 @@ public class BalaFiles {
                                                modules);
             packages.add(pkg);
         }
-        return DependencyManifest.from(null, null, packages);
+        return DependencyManifest.from(null, null, packages, Collections.emptyList());
     }
 
     private static PackageJson readPackageJson(Path balaPath, Path packageJsonPath) {
@@ -629,7 +629,7 @@ public class BalaFiles {
             }
             packageJson = readPackageJson(balaPath, packageJsonPath);
         } else {
-            URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri().toString());
+            URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri());
             try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
                 Path packageJsonPath = zipFileSystem.getPath(PACKAGE_JSON);
                 if (Files.notExists(packageJsonPath)) {

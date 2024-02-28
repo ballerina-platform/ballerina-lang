@@ -72,6 +72,9 @@ public class DependencyManifestBuilder {
     private static final String DEPENDENCIES_TOML_VERSION_NAME = "dependencies-toml-version";
     private static final String DISTRIBUTION_VERSION_NAME = "distribution-version";
     private static final String BALLERINA = "ballerina";
+    private static final String TOOL = "tool";
+    private static final String ID = "id";
+    private static final String VERSION = "version";
 
     private DependencyManifestBuilder(TomlDocument dependenciesToml,
                                       PackageDescriptor packageDescriptor) {
@@ -113,7 +116,7 @@ public class DependencyManifestBuilder {
 
     private DependencyManifest parseAsDependencyManifest() {
         if (dependenciesToml.isEmpty() || dependenciesToml.get().toml().rootNode().entries().isEmpty()) {
-            return DependencyManifest.from(null, null, Collections.emptyList(), diagnostics());
+            return DependencyManifest.from(null, null, Collections.emptyList(), Collections.emptyList(), diagnostics());
         }
 
         // Check `dependencies-toml-version` exists
@@ -127,7 +130,9 @@ public class DependencyManifestBuilder {
             if (dependenciesTomlVersion != null) {
                 validateDependenciesTomlAgainstSchema("dependencies-toml-schema.json");
                 List<DependencyManifest.Package> packages = getPackages();
-                return DependencyManifest.from(dependenciesTomlVersion, distributionVersion, packages, diagnostics());
+                List<DependencyManifest.Tool> tools = getTools();
+                return DependencyManifest.from(dependenciesTomlVersion, distributionVersion, packages, tools,
+                        diagnostics());
             }
         } catch (CorruptedDependenciesTomlException e) {
             // Add warning and ignore this exception
@@ -136,7 +141,7 @@ public class DependencyManifestBuilder {
                     ProjectDiagnosticErrorCode.CORRUPTED_DEPENDENCIES_TOML.diagnosticId(), DiagnosticSeverity.WARNING,
                     dependenciesToml.get().toml().rootNode().location());
             // Continue as an empty Dependencies.toml
-            return DependencyManifest.from(null, null, Collections.emptyList(), diagnostics());
+            return DependencyManifest.from(null, null, Collections.emptyList(), Collections.emptyList(), diagnostics());
         }
 
         // Old `Dependencies.toml`
@@ -145,7 +150,7 @@ public class DependencyManifestBuilder {
                          dependenciesToml.get().toml().rootNode().location());
         validateDependenciesTomlAgainstSchema("old-dependencies-toml-schema.json");
         List<DependencyManifest.Package> packages = getPackagesFromOldBallerinaToml();
-        return DependencyManifest.from(null, null, packages, diagnostics());
+        return DependencyManifest.from(null, null, packages, Collections.emptyList(), diagnostics());
     }
 
     private void validateDependenciesTomlAgainstSchema(String schemaName) {
@@ -270,6 +275,42 @@ public class DependencyManifestBuilder {
             }
         }
         return dependencies;
+    }
+
+    private List<DependencyManifest.Tool> getTools() {
+        if (dependenciesToml.isEmpty()) {
+            return Collections.emptyList();
+        }
+        TomlTableNode tomlTableNode = dependenciesToml.get().toml().rootNode();
+        if (tomlTableNode.entries().isEmpty()) {
+            return Collections.emptyList();
+        }
+        TopLevelNode toolEntries = tomlTableNode.entries().get(TOOL);
+        if (toolEntries == null || toolEntries.kind() == TomlType.NONE) {
+            return Collections.emptyList();
+        }
+        List<DependencyManifest.Tool> tools = new ArrayList<>();
+        if (toolEntries.kind() == TomlType.TABLE_ARRAY) {
+            TomlTableArrayNode toolTableArray = (TomlTableArrayNode) toolEntries;
+            for (TomlTableNode toolNode : toolTableArray.children()) {
+                String id = getStringValueFromDependencyNode(toolNode, ID);
+                String version = getStringValueFromDependencyNode(toolNode, VERSION);
+
+                // If id or version is null, ignore dependency
+                if (id == null || version == null) {
+                    continue;
+                }
+                PackageVersion toolVersion;
+                try {
+                    toolVersion = PackageVersion.from(version);
+                } catch (ProjectException e) {
+                    // Ignore exception and dependency
+                    continue;
+                }
+                tools.add(new DependencyManifest.Tool(id, toolVersion, toolNode.location()));
+            }
+        }
+        return tools;
     }
 
     private List<DependencyManifest.Package> getPackagesFromOldBallerinaToml() {

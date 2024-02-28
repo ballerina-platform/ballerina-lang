@@ -113,6 +113,7 @@ public class ManifestBuilder {
     private static final String ID = "id";
     private static final String TARGETMODULE = "targetModule";
     private static final String OPTIONS = "options";
+    private static final String TOOL = "tool";
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
@@ -244,7 +245,7 @@ public class ManifestBuilder {
         if (rootNode.entries().isEmpty()) {
             return Collections.emptyList();
         }
-        TopLevelNode toolEntries = rootNode.entries().get("tool");
+        TopLevelNode toolEntries = rootNode.entries().get(TOOL);
         List<PackageManifest.Tool> tools = new ArrayList<>();
         if (toolEntries == null || toolEntries.kind() != TomlType.TABLE) {
             return Collections.emptyList();
