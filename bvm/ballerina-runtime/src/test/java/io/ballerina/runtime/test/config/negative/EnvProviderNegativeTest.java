@@ -202,7 +202,7 @@ public class EnvProviderNegativeTest {
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
         Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable " +
-                "value for ariable 'intVar' clashes with multiple environment variables " +
+                "value for variable 'intVar' clashes with multiple environment variables " +
                 "[BAL_CONFIG_VAR_INTVAR=123, BAL_CONFIG_VAR_ROOTMOD_INTVAR=321]");
     }
 
