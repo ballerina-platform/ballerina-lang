@@ -18,13 +18,14 @@
 
 package io.ballerina.cli.task;
 
-import io.ballerina.projects.*;
-import io.ballerina.cli.utils.AnnotateDiagnostics;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.CodeModifierResult;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
@@ -41,17 +42,22 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralClientConstants;
+import org.jline.jansi.AnsiConsole;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.PrintStream;
-import java.util.*;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.cli.utils.AnnotateDiagnostics.renderDiagnostic;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_PREFIX;
-
-import org.jline.jansi.AnsiConsole;
-
 import static org.jline.jansi.Ansi.ansi;
 
 /**
@@ -214,18 +220,19 @@ public class CompileTask implements Task {
                 BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
             }
             // HashSet to keep track of the diagnostics to avoid duplicate diagnostics
-            HashSet<String> diagnosticSet = new HashSet<>();
+            Set<String> diagnosticSet = new HashSet<>();
             // HashMap for documents based on filename
-            HashMap<String, Document> documentMap = new HashMap<>();
+            Map<String, Document> documentMap = new HashMap<>();
             int terminalWidth = AnsiConsole.getTerminalWidth();
 
-            project.currentPackage().moduleIds().forEach(moduleId -> {
-                project.currentPackage().module(moduleId).documentIds().forEach(documentId -> {
-                    Document document = project.currentPackage().module(moduleId).document(documentId);
+            Package currentPackage = project.currentPackage();
+            currentPackage.moduleIds().forEach(moduleId -> {
+                currentPackage.module(moduleId).documentIds().forEach(documentId -> {
+                    Document document = currentPackage.module(moduleId).document(documentId);
                     documentMap.put(getDocumentPath(document.module().moduleName(), document.name()), document);
                 });
-                project.currentPackage().module(moduleId).testDocumentIds().forEach(documentId -> {
-                    Document document = project.currentPackage().module(moduleId).document(documentId);
+                currentPackage.module(moduleId).testDocumentIds().forEach(documentId -> {
+                    Document document = currentPackage.module(moduleId).document(documentId);
                     documentMap.put(getDocumentPath(document.module().moduleName(), document.name()), document);
                 });
             });
@@ -240,9 +247,9 @@ public class CompileTask implements Task {
                         Document document = documentMap.get(d.location().lineRange().fileName());
                         if (document != null) {
                             err.println(
-                                    ansi().render(AnnotateDiagnostics.renderDiagnostic(d, document, terminalWidth)));
+                                    ansi().render(renderDiagnostic(d, document, terminalWidth)));
                         } else {
-                            err.println(ansi().render(AnnotateDiagnostics.renderDiagnostic(d)));
+                            err.println(ansi().render(renderDiagnostic(d)));
                         }
                     }
                 }
@@ -273,7 +280,7 @@ public class CompileTask implements Task {
         if (moduleName.isDefaultModuleName()) {
             return documentName;
         }
-        return "modules" + "/" + moduleName.moduleNamePart() + "/" + documentName;
+        return Paths.get("modules", moduleName.moduleNamePart(), documentName).toString();
     }
 
     private boolean isPackCmdForATemplatePkg(Project project) {
