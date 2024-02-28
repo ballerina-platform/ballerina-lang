@@ -280,6 +280,13 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
+        if (project.buildOptions().cloud().equals("k8s")) {
+            String errMsg = "Cloud artifact generation does not support Kubernetes for tests";
+            CommandUtil.printError(this.errStream, errMsg, null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         // If project is empty
         if (ProjectUtils.isProjectEmpty(project)) {
             CommandUtil.printError(this.errStream,
@@ -338,6 +345,14 @@ public class TestCommand implements BLauncherCmd {
 
         if (!project.buildOptions().cloud().isEmpty() && project.buildOptions().codeCoverage()) {
             this.outStream.println("WARNING: Code coverage generation is not supported with Ballerina cloud test");
+        }
+
+        if (!project.buildOptions().cloud().isEmpty() && this.rerunTests) {
+            this.outStream.println("WARNING: Rerun failed tests is not supported with Ballerina cloud test");
+        }
+
+        if (!project.buildOptions().cloud().isEmpty() && project.buildOptions().testReport()) {
+            this.outStream.println("WARNING: Test report generation is not supported with Ballerina cloud test");
         }
 
         Iterable<Module> originalModules = project.currentPackage().modules();
