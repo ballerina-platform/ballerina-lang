@@ -30,11 +30,9 @@ public class ConfigDetails {
 
     public final Path[] paths;
     public final String configContent;
-    public final Map<String, String> envVariables;
 
-    public ConfigDetails(Path[] paths, String configContent, Map<String, String> envVariables) {
+    public ConfigDetails(Path[] paths, String configContent) {
         this.paths = paths;
         this.configContent = configContent;
-        this.envVariables = envVariables;
     }
 }

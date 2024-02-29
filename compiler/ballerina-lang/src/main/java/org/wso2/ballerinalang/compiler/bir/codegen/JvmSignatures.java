@@ -285,10 +285,9 @@ public class JvmSignatures {
             + ";[L" + FUNCTION_PARAMETER + ";)V";
     public static final String INIT_CHANNEL_DETAILS = "(L" + STRING_VALUE + ";ZZ)V";
     public static final String INIT_CLI_SPEC = "(L" + OPTION + ";[L" + OPERAND + ";[L" + STRING_VALUE + ";)V";
-    public static final String INIT_CONFIG = "([L" + STRING_VALUE + ";[L" + PATH + ";L" + STRING_VALUE + ";L"
-                                             + MAP + ";)V";
+    public static final String INIT_CONFIG = "([L" + STRING_VALUE + ";[L" + PATH + ";L" + STRING_VALUE + ";)V";
     public static final String INIT_CONFIGURABLES = "(L" + MODULE + ";L" + MAP + ";[L" + STRING_VALUE + ";[L"
-                                                    + PATH + ";L" + STRING_VALUE + ";L" + MAP + ";)V";
+                                                    + PATH + ";L" + STRING_VALUE + ";)V";
     public static final String INIT_TEST_ARGS = "([L" + STRING_VALUE + ";)V";
     public static final String INIT_DECIMAL = "(L" + BIG_DECIMAL + ";)V";
     public static final String INIT_ERROR = "(L" + B_STRING_VALUE + ";)V";

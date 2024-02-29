@@ -121,18 +121,17 @@ public class ConfigMethodGen {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, HASH_MAP, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
 
-        mv.visitVarInsn(ASTORE, 4);
+        mv.visitVarInsn(ASTORE, 3);
 
         for (PackageID id : imprtMods) {
             generateInvokeConfiguration(mv, id);
         }
         generateInvokeConfiguration(mv, packageID);
         mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
-        mv.visitVarInsn(ALOAD, 4);
+        mv.visitVarInsn(ALOAD, 3);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ALOAD, 2);
-        mv.visitVarInsn(ALOAD, 3);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "initConfigurableVariables", INIT_CONFIGURABLES, false);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, CONFIGURE_INIT, innerClassName);
@@ -145,15 +144,15 @@ public class ConfigMethodGen {
 
         mv.visitMethodInsn(INVOKESTATIC, moduleClass, POPULATE_CONFIG_DATA_METHOD,
                 POPULATE_CONFIG_DATA, false);
-        mv.visitVarInsn(ASTORE, 5);
+        mv.visitVarInsn(ASTORE, 4);
 
-        mv.visitVarInsn(ALOAD, 5);
+        mv.visitVarInsn(ALOAD, 4);
         mv.visitInsn(ARRAYLENGTH);
         Label elseLabel = new Label();
         mv.visitJumpInsn(IFEQ, elseLabel);
-        mv.visitVarInsn(ALOAD, 4);
+        mv.visitVarInsn(ALOAD, 3);
         mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
-        mv.visitVarInsn(ALOAD, 5);
+        mv.visitVarInsn(ALOAD, 4);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "addModuleConfigData", ADD_MODULE_CONFIG_DATA, false);
         mv.visitLabel(elseLabel);
     }

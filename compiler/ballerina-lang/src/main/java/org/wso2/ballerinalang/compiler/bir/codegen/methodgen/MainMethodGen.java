@@ -241,8 +241,6 @@ public class MainMethodGen {
         mv.visitFieldInsn(GETFIELD, CONFIG_DETAILS, "paths", "[L" + PATH + ";");
         mv.visitVarInsn(ALOAD, configDetailsIndex);
         mv.visitFieldInsn(GETFIELD, CONFIG_DETAILS, "configContent", "L" + STRING_VALUE + ";");
-        mv.visitVarInsn(ALOAD, configDetailsIndex);
-        mv.visitFieldInsn(GETFIELD, CONFIG_DETAILS, "envVariables", "L" + MAP + ";");
         mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, INIT_CONFIG, false);
     }
 

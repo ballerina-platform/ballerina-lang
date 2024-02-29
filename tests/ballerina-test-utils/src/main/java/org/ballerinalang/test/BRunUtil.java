@@ -372,9 +372,8 @@ public class BRunUtil {
         final Scheduler scheduler = new Scheduler(false);
         ConfigDetails configurationDetails = LaunchUtils.getConfigurationDetails();
         directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit",
-                new Class[]{String[].class, Path[].class, String.class, Map.class}, new Object[]{new String[]{},
-                        configurationDetails.paths, configurationDetails.configContent,
-                        configurationDetails.envVariables});
+                new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
+                        configurationDetails.paths, configurationDetails.configContent});
         runOnSchedule(initClazz, "$moduleInit", scheduler);
         runOnSchedule(initClazz, "$moduleStart", scheduler);
 //        if (temp) {

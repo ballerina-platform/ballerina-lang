@@ -41,7 +41,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -105,8 +104,7 @@ public class LaunchUtils {
     }
 
     public static void initConfigurableVariables(Module rootModule, Map<Module, VariableKey[]> configurationData,
-                                                 String[] args, Path[] configFilePaths, String configContent,
-                                                 Map<String, String> envVariables) {
+                                                 String[] args, Path[] configFilePaths, String configContent) {
 
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         CliProvider cliConfigProvider = new CliProvider(rootModule, args);
@@ -119,9 +117,12 @@ public class LaunchUtils {
             supportedConfigProviders.add(new TomlFileProvider(rootModule, configFilePaths[i], moduleSet));
         }
         supportedConfigProviders.add(cliConfigProvider);
+        Map<String, String> envVariables = System.getenv();
         if (!envVariables.isEmpty()) {
             EnvVarProvider envVarProvider = new EnvVarProvider(rootModule, envVariables);
-            supportedConfigProviders.add(envVarProvider);
+            if (envVarProvider.hasConfigs()) {
+                supportedConfigProviders.add(envVarProvider);
+            }
         }
         ConfigResolver configResolver = new ConfigResolver(configurationData,
                                                            diagnosticLog, supportedConfigProviders);
@@ -135,7 +136,7 @@ public class LaunchUtils {
         List<Path> paths = new ArrayList<>();
         Map<String, String> envVars = System.getenv();
         String configContent = populateConfigDetails(paths, envVars);
-        return new ConfigDetails(paths.toArray(new Path[0]), configContent, envVars);
+        return new ConfigDetails(paths.toArray(new Path[0]), configContent);
     }
 
     private static String populateConfigDetails(List<Path> paths, Map<String, String> envVars) {
@@ -163,9 +164,9 @@ public class LaunchUtils {
         }
         testConfigPath = testConfigPath.resolve(TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);
         if (!Files.exists(testConfigPath)) {
-            return new ConfigDetails(new Path[]{}, null, new HashMap<>());
+            return new ConfigDetails(new Path[]{}, null);
         } else {
-            return new ConfigDetails(new Path[]{testConfigPath}, null, new HashMap<>());
+            return new ConfigDetails(new Path[]{testConfigPath}, null);
         }
     }
 
