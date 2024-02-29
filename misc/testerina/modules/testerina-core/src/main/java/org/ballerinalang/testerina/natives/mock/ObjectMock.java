@@ -21,23 +21,34 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
-import io.ballerina.runtime.api.types.*;
+import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.api.types.ParameterizedType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
+import io.ballerina.runtime.api.types.StreamType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
-import io.ballerina.runtime.api.values.*;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BClientType;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ObjectValue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.internal.TypeChecker.getType;
-import static io.ballerina.runtime.internal.TypeChecker.isSelectivelyImmutableType;
 
 /**
  * Class that contains inter-op function related to mocking.
@@ -165,7 +176,6 @@ public class ObjectMock {
      */
     public static BError validateResourcePath(String pathName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
-        // TODO: Separate out to a new validation function
         if (!validateResourcePath(pathName,
                 ((BClientType) genericMock.getType()).getResourceMethods())) {
             String detail = "invalid resource path '" + pathName + "' provided";
@@ -179,6 +189,12 @@ public class ObjectMock {
         return null;
     }
 
+    /**
+     * Validates the member resource method .
+     *
+     * @param caseObj ballerina MemberResourceFunctionStub object containing information about the mock
+     * @return an optional error if a validation fails
+     */
     public static BError validateResourceMethod(BObject caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
                 StringUtils.fromString(MockConstants.MOCK_OBJECT));
@@ -208,6 +224,13 @@ public class ObjectMock {
         return false;
     }
 
+    /**
+     * Validates the member resource method path parameter .
+     *
+     * @param caseObj ballerina MemberResourceFunctionStub object containing information about the mock
+     * @param pathParams path parameters map provided by the user
+     * @return an optional error if a validation fails
+     */
     public static BError validatePathParams(BObject caseObj, BMap pathParams) {
         String functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
         String[] pathSegments = functionName.split(MockConstants.PATH_SEPARATOR);
@@ -217,7 +240,7 @@ public class ObjectMock {
                     String detail = "required path param '" + pathSegment.substring(1) + "' is not provided";
                     throw ErrorCreator.createError(
                             MockConstants.TEST_PACKAGE_ID,
-                            MockConstants.INVALID_PATH_PARAM_ERROR,
+                            MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                             StringUtils.fromString(detail),
                             null,
                             new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
@@ -320,7 +343,7 @@ public class ObjectMock {
     }
 
     /**
-     * Validates the member field name provided to register mock cases.
+     * Validates the resource arguments(both path and function arguments).
      *
      * @param caseObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails

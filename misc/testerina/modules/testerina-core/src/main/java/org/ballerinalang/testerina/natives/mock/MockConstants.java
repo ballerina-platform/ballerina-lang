@@ -40,9 +40,7 @@ public class MockConstants {
     public static final String FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";
     public static final String INVALID_MEMBER_FIELD_ERROR = "InvalidMemberFieldError";
     public static final String NON_PUBLIC_MEMBER_FIELD_ERROR = "NonPublicMemberFieldError";
-
     public static final String FUNCTION_CALL_ERROR = "FunctionCallError";
-    public static final String INVALID_PATH_PARAM_ERROR = "InvalidPathParameterError";
     public static final String MOCK_OBJECT = "mockObject";
     public static final String FUNCTION_NAME = "functionName";
     public static final String ACCESSOR = "accessor";

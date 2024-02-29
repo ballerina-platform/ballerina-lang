@@ -21,9 +21,6 @@ public const ANY = "__ANY__";
 # Represents the reason for the mock object related errors.
 public const INVALID_OBJECT_ERROR = "InvalidObjectError";
 
-# Represents the reason for the mock object path parameter related errors.
-public const INVALID_PATH_PARAM_ERROR = "InvalidPathParameterError";
-
 # Represents an error where the object trying to be mocked is not valid.
 public type InvalidObjectError distinct error;
 
@@ -32,9 +29,6 @@ public const FUNCTION_NOT_FOUND_ERROR = "FunctionNotFoundError";
 
 # Represents an error where the function to be mocked cannot be found.
 public type FunctionNotFoundError distinct error;
-
-# Represents an error where the path parameter to a mock object cannot be found.
-public type InvalidPathParameterError distinct error;
 
 # Represents the reason for the function signature related errors.
 public const FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";
@@ -56,7 +50,7 @@ public type FunctionCallError distinct error;
 
 # Represents mocking related errors.
 public type Error InvalidObjectError|FunctionNotFoundError|FunctionSignatureMismatchError|InvalidMemberFieldError
-|FunctionCallError|InvalidPathParameterError;
+|FunctionCallError;
 
 # Prepares a provided default mock object for stubbing.
 #
@@ -233,6 +227,10 @@ public class MemberResourceFunctionStub {
         self.mockObject = mockObject;
     }
 
+    # Sets the resource accessor method to consider when stubbing the function call.
+    #
+    # + method - Resource accessor method
+    # + return - Object that allows stubbing calls to provided member function
     public isolated function onMethod(string method) returns MemberResourceFunctionStub {
         self.accessor = method;
         error? result = validateResourceMethodExt(self);
@@ -242,12 +240,16 @@ public class MemberResourceFunctionStub {
         return self;
     }
 
-    public isolated function withPathParams(map<anydata> params) returns MemberResourceFunctionStub {
-        error? result = validatePathParamsExt(self, params);
+    # Sets the path parameters list to consider when stubbing the function call.
+    #
+    # + paths - Path parameters list
+    # + return - Object that allows stubbing calls to provided member function
+    public isolated function withPathParams(map<anydata> paths) returns MemberResourceFunctionStub {
+        error? result = validatePathParamsExt(self, paths);
         if (result is error) {
             panic result;
         }
-        self.pathArgs = populatePathParams(self.functionName, params);
+        self.pathArgs = populatePathParams(self.functionName, paths);
         return self;
     }
 
