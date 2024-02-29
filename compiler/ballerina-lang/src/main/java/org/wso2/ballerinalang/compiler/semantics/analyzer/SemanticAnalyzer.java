@@ -2394,9 +2394,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     default -> 0;
                 };
 
-                if (remainingNonRestVars < noOfSpreadMembers) {
-                    return;
-                }
+                // remainingNonRestVars < noOfSpreadMembers case is ignored since it is already invalid scenario
 
                 nonRestTupleVarIndex += noOfSpreadMembers;
                 continue;
