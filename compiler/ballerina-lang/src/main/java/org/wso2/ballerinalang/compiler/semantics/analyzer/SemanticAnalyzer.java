@@ -416,14 +416,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv currentEnv = data.env;
         xmlnsNode.setBType(symTable.stringType);
 
+        typeChecker.checkExpr(xmlnsNode.namespaceURI, currentEnv, symTable.stringType, data.prevEnvs,
+                data.commonAnalyzerData);
         // Namespace node already having the symbol means we are inside an init-function,
         // and the symbol has already been declared by the original statement.
         if (xmlnsNode.symbol == null) {
             symbolEnter.defineNode(xmlnsNode, currentEnv);
         }
-
-        typeChecker.checkExpr(xmlnsNode.namespaceURI, currentEnv, symTable.stringType, data.prevEnvs,
-                data.commonAnalyzerData);
     }
 
     @Override
@@ -507,8 +506,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             // annotation validation for workers is done for the invocation.
             funcNode.annAttachments.forEach(annotationAttachment -> {
                 if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.REMOTE) && funcNode.receiver != null
-                        && Symbols.isService(funcNode.receiver.symbol)) {
+                        && Symbols.isService(funcNode.receiver.getBType().tsymbol)) {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.SERVICE_REMOTE);
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
                 } else if (funcNode.attachedFunction) {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
                 }

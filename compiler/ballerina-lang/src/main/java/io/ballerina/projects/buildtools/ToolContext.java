@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -20,6 +20,8 @@ package io.ballerina.projects.buildtools;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.nio.file.Path;
@@ -43,7 +45,7 @@ public class ToolContext {
     private final String toolId;
     private final String filePath;
     private final String targetModule;
-    private final Map<String, Object> options;
+    private final Map<String, Option> options;
     private final List<Diagnostic> diagnostics = new ArrayList<>();
 
     ToolContext(Package currentPackage, String toolId, String filePath,
@@ -93,7 +95,7 @@ public class ToolContext {
      *
      * @return a map of the optional tool configurations.
      */
-    public Map<String, Object> options() {
+    public Map<String, Option> options() {
         return this.options;
     }
 
@@ -148,15 +150,48 @@ public class ToolContext {
         diagnostics.add(diagnostic);
     }
 
-    private Map<String, Object> getOptions(TomlTableNode optionsTable) {
-        Map<String, Object> options = new HashMap<>();
+    private Map<String, Option> getOptions(TomlTableNode optionsTable) {
+        Map<String, Option> options = new HashMap<>();
         if (null == optionsTable) {
             return options;
         }
         for (String option: optionsTable.entries().keySet()) {
-            options.put(option, optionsTable.entries().get(option).toNativeObject());
+            options.put(option, new Option(optionsTable.entries().get(option)));
         }
         return options;
+    }
+
+    /**
+     * Represents a single option Toml node in Ballerina.toml file.
+     *
+     * @since 2201.9.0
+     */
+    public static class Option {
+        private final Object value;
+        private final TomlNodeLocation location;
+
+        public Option(TopLevelNode optionNode) {
+            this.value = optionNode.toNativeObject();
+            this.location = optionNode.location();
+        }
+
+        /**
+         * Returns the value of the option.
+         *
+         * @return the option value.
+         */
+        public Object value() {
+            return value;
+        }
+
+        /**
+         * Returns the location of the option node in Ballerina.toml.
+         *
+         * @return the option location.
+         */
+        public TomlNodeLocation location() {
+            return location;
+        }
     }
 }
 

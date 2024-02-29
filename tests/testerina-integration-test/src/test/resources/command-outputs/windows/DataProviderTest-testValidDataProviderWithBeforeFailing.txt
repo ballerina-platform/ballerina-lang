@@ -11,6 +11,9 @@ Running Tests with Coverage
 			callableName: beforeFailsFunction moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 121
 			callableName: beforeFailsFunction$lambda62$ moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 127
 		
+
+		Test execution time :*****ms
+
 		[pass] testDividingValuesWithBeforeFailing#0
 		[pass] testDividingValuesWithBeforeFailing#1
 		[pass] testDividingValuesWithBeforeFailing#3
@@ -23,6 +26,9 @@ Running Tests with Coverage
 		1 skipped
 
 	dataproviders.module1
+
+		Test execution time :*****ms
+
 
 
 		No tests found
