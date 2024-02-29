@@ -81,6 +81,7 @@ public class JarResolver {
         Set<JarLibrary> jarFiles = new HashSet<>();
         addCodeGeneratedLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
         addPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
+        addPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.PROVIDED, jarFiles);
 
         // 2) Get all the dependencies of the root package including transitives.
         // Filter out PackageDependencyScope.TEST_ONLY scope dependencies and lang libs
@@ -94,6 +95,7 @@ public class JarResolver {
                     addCodeGeneratedLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, jarFiles);
                     // All platform-specific libraries(specified in Ballerina.toml) having the default scope
                     addPlatformLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, jarFiles);
+                    addPlatformLibraryPaths(pkgContext, PlatformLibraryScope.PROVIDED, jarFiles);
                 });
 
         // 3) Add the runtime library path
@@ -204,6 +206,7 @@ public class JarResolver {
                     addCodeGeneratedLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, allJarFileForTestExec);
                     // All platform-specific libraries(specified in Ballerina.toml) having the default scope
                     addPlatformLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, allJarFileForTestExec);
+                    addPlatformLibraryPaths(pkgContext, PlatformLibraryScope.PROVIDED, allJarFileForTestExec);
                 });
 
         // 6 Add other dependencies required to run Ballerina test cases
