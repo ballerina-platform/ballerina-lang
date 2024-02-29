@@ -216,22 +216,28 @@ function testXmlNavigationWithUnionType() {
 }
 
 function testXmlNavigationWithDefaultNamespaceDefinedLater() {
+    xml[] results = [];
     xml x1 = xml `<a>a<b>b<c>c</c></b><d>d</d></a><f/>`;
-
-    assert((x1.<a>).toString(), "<a>a<b>b<c>c</c></b><d>d</d></a>");
-    assert((x1/*).toString(), "a<b>b<c>c</c></b><d>d</d>");
-    assert((x1/<b>).toString(), "<b>b<c>c</c></b>");
-    assert((x1/<*>).toString(), "<b>b<c>c</c></b><d>d</d>");
-    assert((x1/**/<c>).toString(), "<c>c</c>");
+    results.push(x1.<a>, (x1/*), (x1/<b>), (x1/<*>), (x1/**/<c>));
 
     xml x2 = xml `<e>e<f><g>f</g></f><h>h</h></e><j/>`;
     xmlns "http://example.com/";
+    results.push(x2.<e>, (x2/*), (x2/<f>), (x2/<*>), (x2/**/<g>));
 
-    assert((x2.<e>).toString(), "");
-    assert((x2/*).toString(), "e<f><g>f</g></f><h>h</h>");
-    assert((x2/<f>).toString(), "");
-    assert((x2/<*>).toString(), "<f><g>f</g></f><h>h</h>");
-    assert((x2/**/<g>).toString(), "");
+    assertXmlNavigationWithDefaultNamespaceDefinedLater(results);
+}
+
+function assertXmlNavigationWithDefaultNamespaceDefinedLater(xml[] results) {
+    assert(results[0], xml `<a>a<b>b<c>c</c></b><d>d</d></a>`);
+    assert(results[1], xml `a<b>b<c>c</c></b><d>d</d>`);
+    assert(results[2], xml `<b>b<c>c</c></b>`);
+    assert(results[3], xml `<b>b<c>c</c></b><d>d</d>`);
+    assert(results[4], xml `<c>c</c>`);
+    assert(results[5], xml ``);
+    assert(results[6], xml `e<f><g>f</g></f><h>h</h>`);
+    assert(results[7], xml ``);
+    assert(results[8], xml `<f><g>f</g></f><h>h</h>`);
+    assert(results[9], xml ``);
 }
 
 function assert(anydata actual, anydata expected) {
