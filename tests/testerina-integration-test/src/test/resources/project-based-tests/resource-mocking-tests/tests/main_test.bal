@@ -22,6 +22,9 @@ public function testGetMethod() {
     .onMethod("get").thenReturn("Hello, Luhee");
     string stringResult = clientEndpoint->/greeting/hello;
     test:assertEquals(stringResult, "Hello, Luhee");
+    test:prepare(clientEndpoint).whenResource("greeting/hello/").thenReturn("Hello, Lu");
+    stringResult = clientEndpoint->/greeting/hello;
+    test:assertEquals(stringResult, "Hello, Lu");
 }
 
 @test:Config {}

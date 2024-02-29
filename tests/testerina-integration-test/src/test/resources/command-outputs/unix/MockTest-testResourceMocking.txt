@@ -4,6 +4,27 @@ Compiling source
 Running Tests with Coverage
 
 	test1
+
+testArgsWThenReturnSeq has failed.
+
+
+testPathParamsWThenReturnSeq has failed.
+
+
+testWErrorneousMultiPath has failed.
+
+
+testWErrorneousResourceMethod has failed.
+
+
+testWMultiPathParamsWMultiArg_1 has failed.
+
+
+testWMultiPathParamsWMultiArg_2 has failed.
+
+
+		Test execution time :*****ms
+
 		[pass] testDoNoting1
 		[pass] testDoNoting2
 		[pass] testGetMethod
@@ -23,7 +44,7 @@ Running Tests with Coverage
 
 		    error("'withArguments' function cannot be specified with a return sequence")
 				callableName: thenReturnSequence moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 292
-				callableName: testArgsWThenReturnSeq moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 158
+				callableName: testArgsWThenReturnSeq moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 161
 				callableName: testArgsWThenReturnSeq$lambda14$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 18
 			
 
@@ -31,7 +52,7 @@ Running Tests with Coverage
 
 		    error("'withPathParams' function cannot be specified with a return sequence")
 				callableName: thenReturnSequence moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 296
-				callableName: testPathParamsWThenReturnSeq moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 144
+				callableName: testPathParamsWThenReturnSeq moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 147
 				callableName: testPathParamsWThenReturnSeq$lambda13$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 17
 			
 
@@ -40,7 +61,7 @@ Running Tests with Coverage
 		    error {ballerina/test:0}InvalidPathParameterError ("required path param 'town' is not provided")
 				callableName: validatePathParamsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 496
 				callableName: withPathParams moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 246
-				callableName: testWErrorneousMultiPath moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 184
+				callableName: testWErrorneousMultiPath moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 187
 				callableName: testWErrorneousMultiPath$lambda17$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 21
 			
 
@@ -49,7 +70,7 @@ Running Tests with Coverage
 		    error {ballerina/test:0}FunctionNotFoundError ("invalid accessor method 'postr' provided")
 				callableName: validateResourceMethodExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 486
 				callableName: onMethod moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 238
-				callableName: testWErrorneousResourceMethod moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 190
+				callableName: testWErrorneousResourceMethod moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 193
 				callableName: testWErrorneousResourceMethod$lambda18$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 22
 			
 
@@ -58,7 +79,7 @@ Running Tests with Coverage
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("incorrect type of argument provided at position '2' to mock the function 'greeting/hello2/:name/:town")
 				callableName: validateResourceArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 524
 				callableName: thenReturn moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 272
-				callableName: testWMultiPathParamsWMultiArg_1 moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 172
+				callableName: testWMultiPathParamsWMultiArg_1 moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 175
 				callableName: testWMultiPathParamsWMultiArg_1$lambda15$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 19
 			
 
@@ -67,7 +88,7 @@ Running Tests with Coverage
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("incorrect type of path provided for 'town' to mock the function 'greeting/hello2/:name/:town")
 				callableName: validateResourceArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 524
 				callableName: thenReturn moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 272
-				callableName: testWMultiPathParamsWMultiArg_2 moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 178
+				callableName: testWMultiPathParamsWMultiArg_2 moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 181
 				callableName: testWMultiPathParamsWMultiArg_2$lambda16$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 20
 			
 
