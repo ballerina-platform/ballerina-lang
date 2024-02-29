@@ -35,5 +35,5 @@ public interface CodeGeneratorTool {
      *
      * @return the name of the tool.
      */
-    String toolName();
+    String[] toolName();
 }

@@ -176,7 +176,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
     private Optional<CodeGeneratorTool> getTargetTool(
             String commandName, ServiceLoader<CodeGeneratorTool> buildRunners) {
         for (CodeGeneratorTool buildRunner : buildRunners) {
-            if (buildRunner.toolName().equals(commandName)) {
+            if (deriveSubcommandName(buildRunner.toolName()).equals(commandName)) {
                 return Optional.of(buildRunner);
             }
         }
@@ -307,6 +307,10 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                 .toArray(URL[]::new);
         ClassLoader systemClassLoader = this.getClass().getClassLoader();
         return new URLClassLoader(urls, systemClassLoader);
+    }
+
+    private String deriveSubcommandName(String[] toolName) {
+        return Arrays.stream(toolName).reduce((s1, s2) -> s1 + "." + s2).orElse("");
     }
 
     private static List<File> getToolCommandJarAndDependencyJars(List<BuildTool> resolvedTools) {

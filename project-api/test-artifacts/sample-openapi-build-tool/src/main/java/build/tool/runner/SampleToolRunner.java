@@ -49,8 +49,8 @@ public class SampleToolRunner implements CodeGeneratorTool {
     }
 
     @Override
-    public String toolName() {
-        return "openapi";
+    public String[] toolName() {
+        return new String[]{"openapi"};
     }
 
     private static class NullLocation implements Location {
