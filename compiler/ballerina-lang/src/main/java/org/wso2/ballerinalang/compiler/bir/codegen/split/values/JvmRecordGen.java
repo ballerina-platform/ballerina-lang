@@ -160,14 +160,21 @@ public class JvmRecordGen {
         mv.visitEnd();
         splitGetMethod(cw, fields, className, jvmCastGen);
 
-        createBooleanGetMethod(cw, fields, className, jvmCastGen);
-        createFloatGetMethod(cw, fields, className, jvmCastGen);
-        createIntGetMethod(cw, fields, className, jvmCastGen);
-        createStringGetMethod(cw, fields, className, jvmCastGen);
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.BOOLEAN, "getBooleanValue",
+                PASS_B_STRING_RETURN_BOOLEAN, true, BOOLEAN_VALUE);
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.FLOAT, "getFloatValue",
+                PASS_B_STRING_RETURN_DOUBLE, true, DOUBLE_VALUE);
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.INT, "getIntValue",
+                PASS_B_STRING_RETURN_LONG, true, LONG_VALUE);
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.STRING, "getStringValue",
+                PASS_B_STRING_RETURN_B_STRING, true, B_STRING_VALUE);
 
-        createUnboxedBooleanGetMethod(cw, fields, className, jvmCastGen);
-        createUnboxedFloatGetMethod(cw, fields, className, jvmCastGen);
-        createUnboxedIntGetMethod(cw, fields, className, jvmCastGen);
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.BOOLEAN, "getUnboxedBooleanValue",
+                PASS_B_STRING_RETURN_UNBOXED_BOOLEAN, false, null);
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.FLOAT, "getUnboxedFloatValue",
+                PASS_B_STRING_RETURN_UNBOXED_DOUBLE, false, null);
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.INT, "getUnboxedIntValue",
+                PASS_B_STRING_RETURN_UNBOXED_LONG, false, null);
     }
 
     private void splitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
@@ -896,48 +903,6 @@ public class JvmRecordGen {
         }
     }
 
-    void createUnboxedIntGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
-                                   JvmCastGen jvmCastGen) {
-        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.INT, "getUnboxedIntValue",
-                PASS_B_STRING_RETURN_UNBOXED_LONG, false, "");
-    }
-
-    void createUnboxedFloatGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
-                                     JvmCastGen jvmCastGen) {
-        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.FLOAT, "getUnboxedFloatValue",
-                PASS_B_STRING_RETURN_UNBOXED_DOUBLE, false, "");
-    }
-
-    void createUnboxedBooleanGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
-                                       JvmCastGen jvmCastGen) {
-        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.BOOLEAN, "getUnboxedBooleanValue",
-                PASS_B_STRING_RETURN_UNBOXED_BOOLEAN, false, "");
-    }
-
-    void createIntGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
-                            JvmCastGen jvmCastGen) {
-        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.INT, "getIntValue",
-                PASS_B_STRING_RETURN_LONG, true, LONG_VALUE);
-    }
-
-    void createFloatGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
-                              JvmCastGen jvmCastGen) {
-        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.FLOAT, "getFloatValue",
-                PASS_B_STRING_RETURN_DOUBLE, true, DOUBLE_VALUE);
-    }
-
-    void createBooleanGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
-                                JvmCastGen jvmCastGen) {
-        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.BOOLEAN, "getBooleanValue",
-                PASS_B_STRING_RETURN_BOOLEAN, true, BOOLEAN_VALUE);
-    }
-
-    void createStringGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
-                               JvmCastGen jvmCastGen) {
-        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.STRING, "getStringValue",
-                PASS_B_STRING_RETURN_B_STRING, true, B_STRING_VALUE);
-    }
-
     private void createBasicTypeGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                           JvmCastGen jvmCastGen, TypeKind basicType, String methodName,
                                           String methodDesc, boolean boxed, String boxedTypeDesc) {
@@ -992,8 +957,7 @@ public class JvmRecordGen {
 
         mv.visitVarInsn(ALOAD, selfRegister);
         mv.visitVarInsn(ALOAD, fieldNameBStringReg);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "get", PASS_OBJECT_RETURN_OBJECT,
-                false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "get", PASS_OBJECT_RETURN_OBJECT, false);
 
         if (boxed) {
             mv.visitTypeInsn(CHECKCAST, boxedTypeDesc);
