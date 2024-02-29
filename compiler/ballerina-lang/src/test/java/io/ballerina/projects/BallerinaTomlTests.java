@@ -139,6 +139,18 @@ public class BallerinaTomlTests {
         }
     }
 
+    @Test(description = "Test a valid Ballerina.toml file with tool id, filePath and targetModule")
+    public void testBallerinaTomlWithTool() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("tool-entries.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
+
+        PackageManifest.Tool tool = packageManifest.tools().get(0);
+        Assert.assertEquals(tool.type(), "openapi");
+        Assert.assertEquals(tool.id(), "generate-delivery-client");
+        Assert.assertEquals(tool.filePath(), "delivery.json");
+        Assert.assertEquals(tool.targetModule(), "delivery");
+    }
+
     // Negative tests
 
     @Test
@@ -195,6 +207,35 @@ public class BallerinaTomlTests {
         BuildOptions buildOptions =
                 getBuildOptions(BAL_TOML_REPO.resolve("build-options-as-table.toml"));
         Assert.assertTrue(buildOptions.graalVMBuildOptions().equals("--static"));
+    }
+
+    @DataProvider(name = "ballerinaTomlWithInvalidEntries")
+    public Object[][] provideBallerinaTomlWithInvalidEntries() {
+        return new Object[][] {
+                {
+                    "missing-tool-entries.toml",
+                    "missing key '[filePath]' in table '[tool.openapi]'.",
+                    "missing key '[id]' in table '[tool.openapi]'."
+                },
+                {
+                    "invalid-tool-entries.toml",
+                    "empty string found for key '[filePath]' in table '[tool.openapi]'.",
+                    "incompatible type found for key '[targetModule]': expected 'STRING'"
+                }
+        };
+    }
+
+    @Test(description = "Test Ballerina.toml file with invalid or missing tool properties",
+            dataProvider = "ballerinaTomlWithInvalidEntries")
+    public void testBallerinaTomlWithMissingToolEntries(String tomlFileName, String assertMessage1,
+        String assertMessage2) throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve(tomlFileName));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(), assertMessage1);
+        Assert.assertEquals(iterator.next().message(), assertMessage2);
     }
 
     @Test(description = "Platform libs should be given as [[platform.java17.dependency]], " +

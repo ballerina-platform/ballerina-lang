@@ -23,3 +23,6 @@ const int CONST1 = 10 + 20;
 
 int unaryNumericExpr = -100;
 boolean unaryLogicalExpr = !true;
+
+string str = "abc"
+           + "def";

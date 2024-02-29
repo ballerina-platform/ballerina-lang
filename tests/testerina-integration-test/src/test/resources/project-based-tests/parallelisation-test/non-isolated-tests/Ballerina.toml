@@ -1,0 +1,7 @@
+[package]
+org = "luheerathan"
+name = "test_parallelisation_test"
+
+
+[build-options]
+observabilityIncluded = true

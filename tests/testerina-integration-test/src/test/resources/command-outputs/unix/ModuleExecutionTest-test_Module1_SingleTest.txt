@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	moduleExecution.Module1
+
+		Test execution time :*****ms
+
 		[pass] module1_test1
 
 
@@ -12,6 +15,9 @@ Running Tests with Coverage
 		0 skipped
 
 	moduleExecution
+
+		Test execution time :*****ms
+
 
 
 		No tests found

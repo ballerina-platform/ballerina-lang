@@ -21,6 +21,7 @@ package io.ballerina.cli.task;
 import io.ballerina.cli.launcher.RuntimePanicException;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.internal.model.Target;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,7 +60,6 @@ public class RunProfilerTask implements Task {
     private void initiateProfiler(Project project) {
         String profilerSource = Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
                 "ballerina-profiler-1.0.jar").toString();
-        ProjectKind projectKind = project.kind();
         Path sourcePath = Path.of(profilerSource);
         Path targetPath = getTargetProfilerPath(project);
         StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
@@ -74,19 +74,17 @@ public class RunProfilerTask implements Task {
             commands.add("Profiler.jar");
             // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("--file");
-            commands.add(getPackageJarName(project, projectKind));
-            commands.add("--target");
-            commands.add(targetPath.toString());
-            commands.add("--source-root");
-            commands.add(getProjectPath(project).toString());
+            commands.add(getTargetFilePath(project));
             if (isInProfileDebugMode()) {
                 commands.add("--profiler-debug");
                 commands.add(getProfileDebugArg(err));
             }
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
             pb.environment().put(JAVA_OPTS, getAgentArgs());
+            pb.environment().put(BALLERINA_HOME, System.getProperty(BALLERINA_HOME));
             pb.environment().put(CURRENT_DIR_KEY, System.getProperty(USER_DIR));
-            setWorkingDirectory(project, projectKind, pb);
+            pb.environment().put("java.command", System.getProperty("java.command"));
+            pb.directory(new File(getProfilerPath(project).toUri()));
             Process process = pb.start();
             process.waitFor();
             int exitValue = process.exitValue();
@@ -95,22 +93,13 @@ public class RunProfilerTask implements Task {
             }
         } catch (IOException | InterruptedException e) {
             throw createLauncherException("error occurred while running the profiler ", e);
+        } finally {
+            try {
+                Files.deleteIfExists(targetPath);
+            } catch (IOException e) {
+                err.println("error occurred while deleting the profiler.jar file");
+            }
         }
-    }
-
-    private static void setWorkingDirectory(Project project, ProjectKind projectKind, ProcessBuilder pb) {
-        if (projectKind == ProjectKind.BUILD_PROJECT) {
-            pb.directory(new File(project.targetDir() + "/bin"));
-        } else {
-            pb.directory(new File(System.getProperty(USER_DIR)));
-        }
-    }
-
-    private static String getPackageJarName(Project project, ProjectKind kind) {
-        if (kind == ProjectKind.SINGLE_FILE_PROJECT) {
-            return getFileNameWithoutExtension(project.sourceRoot()) + BLANG_COMPILED_JAR_EXT;
-        }
-        return project.currentPackage().packageName() + BLANG_COMPILED_JAR_EXT;
     }
 
     @Override
@@ -127,14 +116,31 @@ public class RunProfilerTask implements Task {
     }
 
     private Path getTargetProfilerPath(Project project) {
-        return getProjectPath(project).resolve("Profiler" + BLANG_COMPILED_JAR_EXT);
+        return getProfilerPath(project).resolve("Profiler" + BLANG_COMPILED_JAR_EXT);
     }
 
-    private Path getProjectPath(Project project) {
-        // If the --output flag is not set, create the executable in the current directory
+    private Path getProfilerPath(Project project) {
+        try {
+            Target target = new Target(getTargetPath(project));
+            return target.getProfilerPath();
+        } catch (IOException e) {
+            throw createLauncherException("error while creating profiler directory: ", e);
+        }
+    }
+
+    private Path getTargetPath(Project project) {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             return Paths.get(System.getProperty(USER_DIR));
         }
-        return project.targetDir().resolve("bin");
+        return project.targetDir();
+    }
+
+    private String getTargetFilePath(Project project) {
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return Paths.get(System.getProperty(USER_DIR)).resolve(
+                    getFileNameWithoutExtension(project.sourceRoot()) + BLANG_COMPILED_JAR_EXT).toUri().getPath();
+        }
+        return project.targetDir().resolve("bin").resolve(project.currentPackage().packageName() +
+                BLANG_COMPILED_JAR_EXT).toUri().getPath();
     }
 }

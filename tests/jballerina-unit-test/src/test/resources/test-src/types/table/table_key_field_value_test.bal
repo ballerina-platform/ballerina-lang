@@ -605,7 +605,7 @@ function testStringAsKeyValue() {
     table<Row12> tbl1 = from Row12 r in tbl
         where r.key1 == "k1" && r.key2 == "k2"
         select r;
-    assertEqual(tbl1, tbl2);
+    assertEqual(tbl2, tbl1);
 
     // Test the get method of the table
     readonly & string keyString = "k1";
@@ -639,7 +639,7 @@ function testStringAsCompositeKeyValue() {
     table<Row12> tbl1 = from Row12 r in tbl
         where r.key1 == "k1" && r.key2 == "k2"
         select r;
-    assertEqual(tbl1, tbl2);
+    assertEqual(tbl2, tbl1);
 
     // Test the get method of the table
     [string & readonly, string & readonly] keyTuple = ["k1", "k2"];
@@ -679,7 +679,7 @@ function testMapAsCompositeKeyValue() {
     table<Row13> tbl1 = from Row13 r in tbl
         where r.keys == {"k1": "v1", "k2": "v2"} && r.values == {"k1": 1, "k2": 2}
         select r;
-    assertEqual(tbl1, tbl2);
+    assertEqual(tbl2, tbl1);
 
     // Test the get method of the table
     [map<string> & readonly, map<int> & readonly] keyTuple = [{"k1": "v1", "k2": "v2"}, {"k1": 1, "k2": 2}];
@@ -719,7 +719,7 @@ function testArrayAsCompositeKeyValue() {
     table<Row14> tbl1 = from Row14 r in tbl
         where r.keys == ["k1", "k2"] && r.values == [1, 2]
         select r;
-    assertEqual(tbl1, tbl2);
+    assertEqual(tbl2, tbl1);
 
     // Test the get method of the table
     [string[] & readonly, int[] & readonly] keyTuple = [["k1", "k2"], [1, 2]];

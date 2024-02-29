@@ -58,7 +58,6 @@ module io.ballerina.lang {
     exports org.wso2.ballerinalang.compiler.parser;
     exports org.ballerinalang.model.symbols;
     exports org.ballerinalang.repository.fs;
-    exports org.wso2.ballerinalang.compiler.spi;
     exports org.ballerinalang.util;
     exports org.wso2.ballerinalang.compiler.tree.clauses;
     exports org.ballerinalang.model.clauses;
@@ -82,4 +81,5 @@ module io.ballerina.lang {
     exports io.ballerina.projects.internal.configschema to org.ballerinalang.config.schema.generator,
             io.ballerina.language.server.core;
     exports io.ballerina.projects.plugins.completion;
+    exports io.ballerina.projects.buildtools;
 }

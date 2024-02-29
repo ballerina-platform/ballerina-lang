@@ -416,14 +416,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv currentEnv = data.env;
         xmlnsNode.setBType(symTable.stringType);
 
+        typeChecker.checkExpr(xmlnsNode.namespaceURI, currentEnv, symTable.stringType, data.prevEnvs,
+                data.commonAnalyzerData);
         // Namespace node already having the symbol means we are inside an init-function,
         // and the symbol has already been declared by the original statement.
         if (xmlnsNode.symbol == null) {
             symbolEnter.defineNode(xmlnsNode, currentEnv);
         }
-
-        typeChecker.checkExpr(xmlnsNode.namespaceURI, currentEnv, symTable.stringType, data.prevEnvs,
-                data.commonAnalyzerData);
     }
 
     @Override
@@ -498,12 +497,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         //set function param flag to final
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
+        BVarSymbol restParamSym = funcNode.symbol.restParam;
+        if (restParamSym != null) {
+            restParamSym.flags |= Flags.FUNCTION_FINAL;
+        }
+
         if (!funcNode.flagSet.contains(Flag.WORKER)) {
             // annotation validation for workers is done for the invocation.
             funcNode.annAttachments.forEach(annotationAttachment -> {
                 if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.REMOTE) && funcNode.receiver != null
-                        && Symbols.isService(funcNode.receiver.symbol)) {
+                        && Symbols.isService(funcNode.receiver.getBType().tsymbol)) {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.SERVICE_REMOTE);
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
                 } else if (funcNode.attachedFunction) {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
                 }
@@ -1530,6 +1535,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, currentEnv));
         }
 
+        analyzeNode(varNode.typeNode, data);
         long ownerSymTag = currentEnv.scope.owner.tag;
         // If this is a module record variable, checkTypeAndVarCountConsistency already done at symbolEnter.
         if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
@@ -1584,6 +1590,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, currentEnv));
         }
 
+        analyzeNode(varNode.typeNode, data);
         long ownerSymTag = currentEnv.scope.owner.tag;
         // If this is a module tuple variable, checkTypeAndVarCountConsistency already done at symbolEnter.
         if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
@@ -1733,6 +1740,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (varNode.getBType() == null) {
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, currentEnv));
         }
+        analyzeNode(varNode.typeNode, data);
 
         // match err1 { error(reason,....) => ... }
         // reason must be a const of subtype of string.

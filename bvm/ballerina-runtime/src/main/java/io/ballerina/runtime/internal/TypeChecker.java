@@ -1953,6 +1953,7 @@ public class TypeChecker {
             case TypeTags.TYPEDESC_TAG:
             case TypeTags.FUNCTION_POINTER_TAG:
             case TypeTags.HANDLE_TAG:
+            case TypeTags.REG_EXP_TYPE_TAG:    
                 return true;
             case TypeTags.XML_TAG:
                 return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
@@ -2980,8 +2981,8 @@ public class TypeChecker {
                 return checkDecimalEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue);
             case TypeTags.XML_TAG:
                 // Instance of xml never
-                if (lhsValue instanceof XmlText) {
-                    return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlText) lhsValue, (XmlValue) rhsValue);
+                if (lhsValue instanceof XmlText xmlText) {
+                    return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual(xmlText, (XmlValue) rhsValue);
                 }
                 return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlSequence) lhsValue, (XmlValue) rhsValue);
             case TypeTags.XML_ELEMENT_TAG:

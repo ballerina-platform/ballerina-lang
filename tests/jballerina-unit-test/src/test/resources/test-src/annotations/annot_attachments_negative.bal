@@ -975,3 +975,87 @@ type F4 record {|
 type F5 record {|
     int x;
 |};
+
+type Person record {|
+    string fname;
+    string lname;
+|};
+
+function getPerson() returns Person {
+    Person person = {fname: "Anne", lname: "Frank"};
+    return person;
+}
+
+[@UndefinedAnnotation int, int] [f1, s2] = [1, 2];
+
+record {|@UndefinedAnnotation string fname; string lname;|} {fname, lname} = getPerson();
+
+error<record {|@UndefinedAnnotation int i;|}> err = error("err", i = 33);
+
+error<map<[@UndefinedAnnotation int]>> error () = error("err");
+
+error<record {|@UndefinedAnnotation int x = 10;|}> error () = error("err");
+
+function testInvalidAnnotationAttachmentsOnMembersOfStructuredTypedBindingPatterns() {
+    [@UndefinedAnnotation int, int] [first, second] = [1, 2];
+    [@UndefinedAnnotation int, int, int] [a, b, c] = [1, 2, 3];
+    [[@UndefinedAnnotation int, int], int] [[a1, b1], c1] = [[1, 2], 3];
+    record {|@UndefinedAnnotation string fname; string lname;|} {fname, lname} = getPerson();
+    error<record {|@UndefinedAnnotation int i;|}> err = error("err", i = 33);
+    error<map<[@UndefinedAnnotation int]>> error () = error("err");
+    error<record {|@UndefinedAnnotation int x = 10;|}> error () = error("err");
+}
+
+public annotation v26 on service remote function;
+
+service class ServiceClass2 {
+    string name = "ballerina";
+
+    @v1 {
+        val: "v1"
+    }
+    @v2 {
+        val: "v2"
+    }
+    @v3 { // OK
+        val: "v3"
+    }
+    @v4 { // OK
+        x: 1
+    }
+    @v5 { // OK
+        val: "v5"
+    }
+    @v6 {
+        val: "v6"
+    }
+    @v7
+    @v8 {
+        val: "v8"
+    }
+    @v9 {
+        val: "v9"
+    }
+    @v10 {
+        val: "v10"
+    }
+    @v11 {
+        val: 11
+    }
+    @v12 {
+        val: "v12"
+    }
+    @v13 {
+        val: "v13"
+    }
+    @v15 {
+        val: false
+    }
+    remote function getName() returns string { return self.name; }
+
+    @v26
+    resource function get name() returns string { return self.name; }
+
+    @v26
+    function getFirstName() returns string { return self.name; }
+}
