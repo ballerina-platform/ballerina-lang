@@ -155,7 +155,7 @@
         }
       }
     },
-    "tools": {
+    "tool": {
       "type": "array",
       "items": {
         "type": "object",
