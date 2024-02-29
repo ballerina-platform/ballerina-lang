@@ -1,0 +1,8 @@
+Executing Build Tools
+	openapi(generate-delivery-client)
+
+Compiling source
+	foo/package_b:0.1.0
+
+Generating executable
+	target/bin/package_b.jar
