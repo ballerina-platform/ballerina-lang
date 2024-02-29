@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	annotations
+
+		Test execution time :*****ms
+
 		[pass] jsonDataProviderTest#0
 		[pass] stringDataProviderTest#0
 		[pass] stringDataProviderTest#1
@@ -26,4 +29,4 @@ Running Tests with Coverage
 
 Generating Test Report
 	annotations\target\report\test_results.json
-
+

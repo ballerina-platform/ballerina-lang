@@ -2981,8 +2981,8 @@ public class TypeChecker {
                 return checkDecimalEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue);
             case TypeTags.XML_TAG:
                 // Instance of xml never
-                if (lhsValue instanceof XmlText) {
-                    return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlText) lhsValue, (XmlValue) rhsValue);
+                if (lhsValue instanceof XmlText xmlText) {
+                    return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual(xmlText, (XmlValue) rhsValue);
                 }
                 return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlSequence) lhsValue, (XmlValue) rhsValue);
             case TypeTags.XML_ELEMENT_TAG:

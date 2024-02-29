@@ -11,6 +11,9 @@ Running Tests with Coverage
 			callableName: afterFailsFunction moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 153
 			callableName: afterFailsFunction$lambda72$ moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 160
 		
+
+		Test execution time :*****ms
+
 		[pass] testDividingValuesWithAfterFailing#0
 		[pass] testDividingValuesWithAfterFailing#1
 		[pass] testDividingValuesWithAfterFailing#2
@@ -24,6 +27,9 @@ Running Tests with Coverage
 		0 skipped
 
 	dataproviders.module1
+
+		Test execution time :*****ms
+
 
 
 		No tests found

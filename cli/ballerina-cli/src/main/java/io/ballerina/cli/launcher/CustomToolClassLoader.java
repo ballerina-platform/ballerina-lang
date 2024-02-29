@@ -46,8 +46,13 @@ public class CustomToolClassLoader extends URLClassLoader {
         Class<?> loadedClass = findLoadedClass(name);
         if (loadedClass == null) {
             try {
-                // First, try to load the class from the URLs
-                loadedClass = findClass(name);
+                // Load from parent if cli or picocli classes. This is to avoid SPI and class loading issues
+                if (name.startsWith("io.ballerina.cli") || name.startsWith("picocli")) {
+                    loadedClass = super.loadClass(name, resolve);
+                } else {
+                    // Try to load the class from the URLs
+                    loadedClass = findClass(name);
+                }
             } catch (ClassNotFoundException e) {
                 try {
                     // If not found, delegate to the parent

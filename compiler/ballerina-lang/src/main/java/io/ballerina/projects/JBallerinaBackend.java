@@ -39,8 +39,6 @@ import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
-import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Lists;
@@ -133,12 +131,6 @@ public class JBallerinaBackend extends CompilerBackend {
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.interopValidator = InteropValidator.getInstance(compilerContext);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
-        // TODO: Move to a compiler extension once Compiler revamp is complete
-        if (packageContext.compilationOptions().observabilityIncluded()) {
-            ObservabilitySymbolCollector observabilitySymbolCollector
-                    = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
-            observabilitySymbolCollector.process(packageContext.project());
-        }
         this.conflictedJars = new ArrayList<>();
         performCodeGen();
     }
