@@ -19,7 +19,6 @@
 package io.ballerina.runtime.internal.configurable.providers;
 
 import java.nio.file.Path;
-import java.util.Map;
 
 /**
  * Represents information on Configurable TOML data.
