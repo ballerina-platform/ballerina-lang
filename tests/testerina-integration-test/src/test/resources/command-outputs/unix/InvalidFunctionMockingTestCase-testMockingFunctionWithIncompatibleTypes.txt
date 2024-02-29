@@ -5,6 +5,12 @@ Running Tests
 
 	incompatible_type_mock
 
+functionMockingTest has failed.
+
+
+		Test execution time :*****ms
+
+
 		[fail] functionMockingTest:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("Return type of function stringHello does not match function intAdd")

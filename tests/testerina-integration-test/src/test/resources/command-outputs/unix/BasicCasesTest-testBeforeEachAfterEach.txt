@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	before_each_after_each
+
+		Test execution time :*****ms
+
 		[pass] testFunc
 		[pass] testFunc2
 		[pass] testFunc3
