@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import ballerina/jballerina.java;
 
 # Represents the placeholder to be given for object or record type arguments.
@@ -21,31 +20,43 @@ public const ANY = "__ANY__";
 
 # Represents the reason for the mock object related errors.
 public const INVALID_OBJECT_ERROR = "InvalidObjectError";
+
+# Represents the reason for the mock object path parameter related errors.
+public const INVALID_PATH_PARAM_ERROR = "InvalidPathParameterError";
+
 # Represents an error where the object trying to be mocked is not valid.
 public type InvalidObjectError distinct error;
 
 # Represents the reason for the non-existing member function related errors.
 public const FUNCTION_NOT_FOUND_ERROR = "FunctionNotFoundError";
+
 # Represents an error where the function to be mocked cannot be found.
 public type FunctionNotFoundError distinct error;
 
+# Represents an error where the path parameter to a mock object cannot be found.
+public type InvalidPathParameterError distinct error;
+
 # Represents the reason for the function signature related errors.
 public const FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";
+
 # Represents an error where the mock function contains a signature mismatch with the function to be mocked.
 public type FunctionSignatureMismatchError distinct error;
 
 # Represents the reason for the object member field related errors.
 public const INVALID_MEMBER_FIELD_ERROR = "InvalidMemberFieldError";
+
 # Represents an error where object member field is invalid.
 public type InvalidMemberFieldError distinct error;
 
 # Represents the reason for function mocking related errors.
 public const FUNCTION_CALL_ERROR = "FunctionCallError";
+
 # Represents an error during function call for mocking.
 public type FunctionCallError distinct error;
 
 # Represents mocking related errors.
-public type Error InvalidObjectError|FunctionNotFoundError|FunctionSignatureMismatchError|InvalidMemberFieldError|FunctionCallError;
+public type Error InvalidObjectError|FunctionNotFoundError|FunctionSignatureMismatchError|InvalidMemberFieldError
+|FunctionCallError|InvalidPathParameterError;
 
 # Prepares a provided default mock object for stubbing.
 #
@@ -68,7 +79,7 @@ public class MockObject {
     # Gets invoked during the mock object preparation.
     #
     # + mockObject - Object to register stubbing
-    public isolated function init(object{} mockObject) {
+    public isolated function init(object {} mockObject) {
         self.mockObject = mockObject;
     }
 
@@ -79,7 +90,7 @@ public class MockObject {
     public isolated function when(string functionName) returns MemberFunctionStub {
         error? result = validateFunctionNameExt(java:fromString(functionName), self.mockObject);
         if (result is error) {
-             panic result;
+            panic result;
         }
         MemberFunctionStub mockObjCaseMemFunc = new MemberFunctionStub(self.mockObject);
         mockObjCaseMemFunc.functionName = functionName;
@@ -93,7 +104,7 @@ public class MockObject {
     public isolated function whenResource(string functionName) returns MemberResourceFunctionStub {
         error? result = validateResourcePathExt(java:fromString(functionName), self.mockObject);
         if (result is error) {
-             panic result;
+            panic result;
         }
         MemberResourceFunctionStub mockObjCaseMemFunc = new MemberResourceFunctionStub(self.mockObject);
         mockObjCaseMemFunc.functionName = functionName;
@@ -108,7 +119,7 @@ public class MockObject {
         self.fieldName = fieldName;
         error? result = validateFieldNameExt(java:fromString(fieldName), self.mockObject);
         if (result is error) {
-             panic result;
+            panic result;
         }
         MemberVariableStub memberVariableStub = new MemberVariableStub(self.mockObject);
         memberVariableStub.fieldName = fieldName;
@@ -133,7 +144,7 @@ public class MemberFunctionStub {
     # Gets invoked during the stub registration.
     #
     # + mockObject - Object to register
-    public isolated function init(object{} mockObject) {
+    public isolated function init(object {} mockObject) {
         self.mockObject = mockObject;
     }
 
@@ -155,8 +166,8 @@ public class MemberFunctionStub {
     # + returnValue - Value or error to return
     public isolated function thenReturn(any|error returnValue) {
         if (self.functionName == "") {
-             error err = error("function to mock is not specified.");
-             panic err;
+            error err = error("function to mock is not specified.");
+            panic err;
         }
         self.returnValue = returnValue;
         error? thenReturnExtResult = thenReturnExt(self);
@@ -170,8 +181,8 @@ public class MemberFunctionStub {
     # + returnValues - Value or error to return
     public isolated function thenReturnSequence(any|error... returnValues) {
         if (self.functionName == "") {
-             error err = error("function to mock is not specified.");
-             panic err;
+            error err = error("function to mock is not specified.");
+            panic err;
         }
         if (self.args.length() != 0) {
             error err = error("'withArguments' function cannot be specified with a return sequence");
@@ -187,8 +198,8 @@ public class MemberFunctionStub {
     # Sets the function behavior to do nothing when called.
     public isolated function doNothing() {
         if (self.functionName == "") {
-             error err = error("function to mock is not specified.");
-             panic err;
+            error err = error("function to mock is not specified.");
+            panic err;
         }
         self.returnValue = ();
         error? thenReturnExtResult = thenReturnExt(self);
@@ -197,7 +208,6 @@ public class MemberFunctionStub {
         }
     }
 }
-
 
 # Represents an object that allows stubbing member resource function invocations.
 #
@@ -210,7 +220,8 @@ public class MemberResourceFunctionStub {
     object {} mockObject;
     string functionName = "";
     string accessor = "get";
-    map<string> pathParams = {};
+    (anydata|error)[] functionArgs = [];
+    anydata[] pathArgs = [];
     (anydata|error)[] args = [];
     any|error returnValue = ();
     any|error returnValueSeq = [];
@@ -218,7 +229,7 @@ public class MemberResourceFunctionStub {
     # Gets invoked during the stub registration.
     #
     # + mockObject - Object to register
-    public isolated function init(object{} mockObject) {
+    public isolated function init(object {} mockObject) {
         self.mockObject = mockObject;
     }
 
@@ -231,26 +242,21 @@ public class MemberResourceFunctionStub {
         return self;
     }
 
-    public isolated function withPathParams(map<string> params) returns MemberResourceFunctionStub {
-        self.pathParams = params;
-        error? result = validatePathParamsExt(self);
+    public isolated function withPathParams(map<anydata> params) returns MemberResourceFunctionStub {
+        error? result = validatePathParamsExt(self, params);
         if (result is error) {
             panic result;
         }
+        self.pathArgs = populatePathParams(self.functionName, params);
         return self;
     }
-
 
     # Sets the arguments list to consider when stubbing the function call.
     #
     # + args - Arguments list
     # + return - Object that allows stubbing calls to provided member function
     public isolated function withArguments(anydata|error... args) returns MemberResourceFunctionStub {
-        self.args = args;
-        error? result = validateArgumentsExt(self);
-        if (result is error) {
-            panic result;
-        }
+        self.functionArgs = args;
         return self;
     }
 
@@ -258,9 +264,14 @@ public class MemberResourceFunctionStub {
     #
     # + returnValue - Value or error to return
     public isolated function thenReturn(any|error returnValue) {
+        self.args = [...self.pathArgs, ...self.functionArgs];
         if (self.functionName == "") {
-             error err = error("function to mock is not specified.");
-             panic err;
+            error err = error("resource function to mock is not specified.");
+            panic err;
+        }
+        error? result = validateResourceArgumentsExt(self);
+        if (result is error) {
+            panic result;
         }
         self.returnValue = returnValue;
         error? thenReturnExtResult = thenReturnExt(self);
@@ -274,11 +285,15 @@ public class MemberResourceFunctionStub {
     # + returnValues - Value or error to return
     public isolated function thenReturnSequence(any|error... returnValues) {
         if (self.functionName == "") {
-             error err = error("function to mock is not specified.");
-             panic err;
+            error err = error("resource function to mock is not specified.");
+            panic err;
         }
-        if (self.args.length() != 0) {
+        if (self.functionArgs.length() != 0) {
             error err = error("'withArguments' function cannot be specified with a return sequence");
+            panic err;
+        }
+        if (self.pathArgs.length() != 0) {
+            error err = error("'withPathParams' function cannot be specified with a return sequence");
             panic err;
         }
         self.returnValueSeq = returnValues;
@@ -291,8 +306,8 @@ public class MemberResourceFunctionStub {
     # Sets the function behavior to do nothing when called.
     public isolated function doNothing() {
         if (self.functionName == "") {
-             error err = error("function to mock is not specified.");
-             panic err;
+            error err = error("resource function to mock is not specified.");
+            panic err;
         }
         self.returnValue = ();
         error? thenReturnExtResult = thenReturnExt(self);
@@ -302,6 +317,13 @@ public class MemberResourceFunctionStub {
     }
 }
 
+isolated function populatePathParams(string functionName, map<anydata> pathParamsMap) returns anydata[] {
+    string[] pathSegments = split(functionName, "/");
+    anydata[] pathArgs = from string pathSegment in pathSegments
+        where pathSegment.startsWith(":")
+        select pathParamsMap[pathSegment.substring(1)];
+    return pathArgs;
+}
 
 # Represents an object that allows stubbing member variables retrieved.
 #
@@ -315,7 +337,7 @@ public class MemberVariableStub {
     # Gets invoked during the stub registration.
     #
     # + mockObject - Object to register
-    public isolated function init(object{} mockObject) {
+    public isolated function init(object {} mockObject) {
         self.mockObject = mockObject;
     }
 
@@ -324,8 +346,8 @@ public class MemberVariableStub {
     # + returnValue - Value or error to return
     public isolated function thenReturn(any|error returnValue) {
         if (self.fieldName == "") {
-             error err = error("field name is not specified.");
-             panic err;
+            error err = error("field name is not specified.");
+            panic err;
         }
         self.returnValue = returnValue;
         error? thenReturnExtResult = thenReturnExt(self);
@@ -362,7 +384,6 @@ public class FunctionStub {
     MockFunction mockFuncObj;
     any|error returnValue = ();
     (anydata|error)[] args = [];
-
 
     # Gets invoked during the stub registration.
     #
@@ -425,7 +446,7 @@ public class FunctionStub {
 # + T - Type of object to create the mock
 # + mockObject - Mock object to replace the original (optional)
 # + return - Created mock object or throw an error if validation failed
-public isolated function mock(typedesc<object{}> T, object{} mockObject = object { }) returns T = @java:Method {
+public isolated function mock(typedesc<object {}> T, object {} mockObject = object {}) returns T = @java:Method {
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 
@@ -433,7 +454,7 @@ public isolated function mock(typedesc<object{}> T, object{} mockObject = object
 #
 # + mockObject - Mock object
 # + return - Return Value Description
-isolated function validatePreparedObjExt(object{} mockObject) returns error? = @java:Method {
+isolated function validatePreparedObjExt(object {} mockObject) returns error? = @java:Method {
     name: "validatePreparedObj",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
@@ -443,7 +464,7 @@ isolated function validatePreparedObjExt(object{} mockObject) returns error? = @
 # + functionName - Function name provided
 # + mockObject - Object to validate against
 # + return - error if function does not exist or in case of a signature mismatch
-isolated function validateFunctionNameExt(handle functionName, object{} mockObject) returns error? = @java:Method {
+isolated function validateFunctionNameExt(handle functionName, object {} mockObject) returns error? = @java:Method {
     name: "validateFunctionName",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
@@ -453,7 +474,7 @@ isolated function validateFunctionNameExt(handle functionName, object{} mockObje
 # + functionName - Function name provided
 # + mockObject - Object to validate against
 # + return - error if function does not exist or in case of a signature mismatch
-isolated function validateResourcePathExt(handle functionName, object{} mockObject) returns error? = @java:Method {
+isolated function validateResourcePathExt(handle functionName, object {} mockObject) returns error? = @java:Method {
     name: "validateResourcePath",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
@@ -472,18 +493,17 @@ isolated function validateResourceMethodExt(MemberResourceFunctionStub case) ret
 # + case - Case to validate
 # + pathParams - path parameters
 # + return - error in case of an argument mismatch
-isolated function validatePathParamsExt(MemberResourceFunctionStub case) returns error? = @java:Method {
+isolated function validatePathParamsExt(MemberResourceFunctionStub case, map<anydata> pathParams) returns error? = @java:Method {
     name: "validatePathParams",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
-
 
 # Inter-op to validate the field name.
 #
 # + fieldName - Field name provided
 # + mockObject - Object to validate against
 # + return - error if field does not exist
-isolated function validateFieldNameExt(handle fieldName, object{} mockObject) returns error? = @java:Method {
+isolated function validateFieldNameExt(handle fieldName, object {} mockObject) returns error? = @java:Method {
     name: "validateFieldName",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
@@ -494,6 +514,15 @@ isolated function validateFieldNameExt(handle fieldName, object{} mockObject) re
 # + return - error in case of an argument mismatch
 isolated function validateArgumentsExt(MemberResourceFunctionStub|MemberFunctionStub case) returns error? = @java:Method {
     name: "validateArguments",
+    'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
+} external;
+
+# Inter-op to validate the resource function arguments list.
+#
+# + case - Case to validate
+# + return - error in case of an argument mismatch
+isolated function validateResourceArgumentsExt(MemberResourceFunctionStub|MemberFunctionStub case) returns error? = @java:Method {
+    name: "validateResourceArguments",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 

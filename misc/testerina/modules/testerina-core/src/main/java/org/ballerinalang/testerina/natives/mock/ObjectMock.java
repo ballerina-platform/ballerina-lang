@@ -30,10 +30,14 @@ import io.ballerina.runtime.internal.types.BClientType;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ObjectValue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.internal.TypeChecker.getType;
+import static io.ballerina.runtime.internal.TypeChecker.isSelectivelyImmutableType;
 
 /**
  * Class that contains inter-op function related to mocking.
@@ -177,9 +181,9 @@ public class ObjectMock {
 
     public static BError validateResourceMethod(BObject caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
-                StringUtils.fromString("mockObject"));
-        String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
-        String accessor = caseObj.getStringValue(StringUtils.fromString("accessor")).toString();
+                StringUtils.fromString(MockConstants.MOCK_OBJECT));
+        String functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
+        String accessor = caseObj.getStringValue(StringUtils.fromString(MockConstants.ACCESSOR)).toString();
         if (!validateAccessor(functionName, accessor,
                 ((BClientType) genericMock.getType()).getResourceMethods())) {
             String detail = "invalid accessor method '" + accessor + "' provided";
@@ -196,29 +200,30 @@ public class ObjectMock {
     private static boolean validateAccessor(String resourcePath, String accessor, ResourceMethodType[] resourceMethods) {
         String functionPattern = getFunctionNameForResourcePath(resourcePath);
         for (ResourceMethodType attachedFunction : resourceMethods) {
-            if (attachedFunction.getName().endsWith(functionPattern)) {
-                return attachedFunction.getAccessor().equals(accessor);
+            if (attachedFunction.getName().endsWith(functionPattern) &&
+                    attachedFunction.getAccessor().equals(accessor)) {
+                return true;
             }
         }
         return false;
     }
 
-    public static BError validatePathParams(BObject caseObj) {
-        String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
-
-
-//
-//        String accessor = caseObj.getStringValue(StringUtils.fromString("accessor")).toString();;
-//        if (!validateAccessor(functionName, accessor,
-//                ((BClientType) caseObj.getType()).getResourceMethods())) {
-//            String detail = "invalid accessor method '" + accessor + "' provided";
-//            throw ErrorCreator.createError(
-//                    MockConstants.TEST_PACKAGE_ID,
-//                    MockConstants.FUNCTION_NOT_FOUND_ERROR,
-//                    StringUtils.fromString(detail),
-//                    null,
-//                    new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
-//        }
+    public static BError validatePathParams(BObject caseObj, BMap pathParams) {
+        String functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
+        String[] pathSegments = functionName.split(MockConstants.PATH_SEPARATOR);
+        for (String pathSegment : pathSegments) {
+            if (pathSegment.startsWith(MockConstants.PATH_PARAM_INDICATOR)) {
+                if (pathParams.get(StringUtils.fromString(pathSegment.substring(1))) == null) {
+                    String detail = "required path param '" + pathSegment.substring(1) + "' is not provided";
+                    throw ErrorCreator.createError(
+                            MockConstants.TEST_PACKAGE_ID,
+                            MockConstants.INVALID_PATH_PARAM_ERROR,
+                            StringUtils.fromString(detail),
+                            null,
+                            new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                }
+            }
+        }
         return null;
     }
 
@@ -251,11 +256,11 @@ public class ObjectMock {
      * @return an optional error if a validation fails
      */
     public static BError validateArguments(BObject caseObj) {
+        String mockType = caseObj.getOriginalType().getName();
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
-                StringUtils.fromString("mockObject"));
-        String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
-        BArray argsList = caseObj.getArrayValue(StringUtils.fromString("args"));
-
+                StringUtils.fromString(MockConstants.MOCK_OBJECT));
+        String functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
+        BArray argsList = caseObj.getArrayValue(StringUtils.fromString(MockConstants.ARGS));
         for (MethodType attachedFunction :
                 ((ObjectType) TypeUtils.getImpliedType(genericMock.getType())).getMethods()) {
             if (attachedFunction.getName().equals(functionName)) {
@@ -315,6 +320,77 @@ public class ObjectMock {
     }
 
     /**
+     * Validates the member field name provided to register mock cases.
+     *
+     * @param caseObj ballerina object that contains information about the case to register
+     * @return an optional error if a validation fails
+     */
+    public static BError validateResourceArguments(BObject caseObj) {
+        GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
+                StringUtils.fromString(MockConstants.MOCK_OBJECT));
+        String functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
+        String[] pathParamPlaceHolder = getPathParamPlaceHolders(functionName);
+        BArray argsList = caseObj.getArrayValue(StringUtils.fromString(MockConstants.ARGS));
+        String functionPattern = getFunctionNameForResourcePath(functionName);
+        for (ResourceMethodType attachedFunction : ((BClientType) genericMock.getType()).getResourceMethods()) {
+            if (attachedFunction.getName().endsWith(functionPattern)) {
+                // validate the number of arguments provided
+                if (argsList.size() > attachedFunction.getType().getParameters().length ) {
+                    String detail = "too many argument provided to mock the function '" + functionName + "()'";
+                    return ErrorCreator.createError(
+                            MockConstants.TEST_PACKAGE_ID,
+                            MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                            StringUtils.fromString(detail),
+                            null,
+                            new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                }
+
+                // validate if each argument is compatible with the type given in the function signature
+                int i = 0 ;
+                for (BIterator it = argsList.getIterator(); it.hasNext(); i++) {
+                    String detail;
+                    if (i < pathParamPlaceHolder.length){
+                        detail = "incorrect type of path provided for '" + pathParamPlaceHolder[i] +
+                                "' to mock the function '" + functionName ;
+                    } else {
+                        detail = "incorrect type of argument provided at position '" + (i + 1 -
+                                pathParamPlaceHolder.length) + "' to mock the function '" + functionName ;
+                    }
+                    Type paramType = TypeUtils.getImpliedType(attachedFunction.getType().getParameters()[i].type);
+                    if (paramType instanceof UnionType) {
+                        Object arg = it.next();
+                        boolean isTypeAvailable = false;
+                        List<Type> memberTypes = ((UnionType) paramType).getMemberTypes();
+                        for (Type memberType : memberTypes) {
+                            if (TypeChecker.checkIsType(arg, memberType)) {
+                                isTypeAvailable = true;
+                                break;
+                            }
+                        }
+                        if (!isTypeAvailable) {
+                            return ErrorCreator.createError(
+                                    MockConstants.TEST_PACKAGE_ID,
+                                    MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                                    StringUtils.fromString(detail),
+                                    null,
+                                    new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                        }
+                    } else if (!TypeChecker.checkIsType(it.next(), paramType)) {
+                        return ErrorCreator.createError(
+                                MockConstants.TEST_PACKAGE_ID,
+                                MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                                StringUtils.fromString(detail),
+                                null,
+                                new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                    }
+                }
+                break;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Registers the return value to the case provided.
      *
      * @param caseObj ballerina object that contains information about the case to register
@@ -322,12 +398,13 @@ public class ObjectMock {
      */
     public static BError thenReturn(BObject caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj
-                .get(StringUtils.fromString("mockObject"));
+                .get(StringUtils.fromString(MockConstants.MOCK_OBJECT));
         BObject mockObj = genericMock.getMockObj();
-        Object returnVal = caseObj.get(StringUtils.fromString("returnValue"));
+        Object returnVal = caseObj.get(StringUtils.fromString(MockConstants.RETURN_VALUE));
+        String mockType = caseObj.getOriginalType().getName();
         String functionName;
         try {
-            functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
+            functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
         } catch (Exception e) {
             if (!e.getMessage().contains("No such field: functionName")) {
                 throw e;
@@ -336,14 +413,19 @@ public class ObjectMock {
         }
         ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(genericMock.getType());
         if (functionName != null) {
+
             // register return value for member function
-            BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
-            if (objectType instanceof BClientType) {
+            BArray args = caseObj.getArrayValue(StringUtils.fromString(MockConstants.ARGS));
+            if (MockConstants.MEMBER_RESOURCE_FUNCTION_STUB.equals(mockType)) {
                 String functionPattern = getFunctionNameForResourcePath(functionName);
-                if (!validateReturnValueForResourcePath(functionPattern, returnVal,
+                String accessor = caseObj.getStringValue(StringUtils.fromString(MockConstants.ACCESSOR)).toString();
+                String resourceFunctionPattern = MockConstants.DOLLAR_RESOURCE_SEPARATOR + accessor +
+                        MockConstants.DOLLAR_RESOURCE_SEPARATOR + functionPattern;
+                if (!validateReturnValueForResourcePath(resourceFunctionPattern, returnVal,
                         ((BClientType) objectType).getResourceMethods())) {
                     String detail =
-                            "return value provided does not match the return type of the resource path '" + functionName + "'";
+                            "return value provided does not match the return type of the resource path '" +
+                                    functionName + "'";
                     return ErrorCreator.createError(
                             MockConstants.TEST_PACKAGE_ID,
                             MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
@@ -351,8 +433,6 @@ public class ObjectMock {
                             null,
                             new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
                 }
-                // Default accessor is `get`
-                String resourceFunctionPattern = "$get$" + functionPattern;
                 MockRegistry.getInstance().registerCase(mockObj, resourceFunctionPattern, args, returnVal);
             } else {
                 if (!validateReturnValue(functionName, returnVal, objectType.getMethods())) {
@@ -401,28 +481,49 @@ public class ObjectMock {
      * @return an optional error if a validation fails
      */
     public static BError thenReturnSequence(BObject caseObj) {
+        String mockType = caseObj.getOriginalType().getName();
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj
-                .get(StringUtils.fromString("mockObject"));
+                .get(StringUtils.fromString(MockConstants.MOCK_OBJECT));
+        ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(genericMock.getType());
         BObject mockObj = genericMock.getMockObj();
-        String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
-        BArray returnVals = caseObj.getArrayValue(StringUtils.fromString("returnValueSeq"));
-
-        for (int i = 0; i < returnVals.getValues().length; i++) {
-            if (returnVals.getValues()[i] == null) {
+        String functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
+        BArray returnValueSequence = caseObj.getArrayValue(StringUtils.fromString(MockConstants.RETURN_VALUE_SEQ));
+        for (int i = 0; i < returnValueSequence.getValues().length; i++) {
+            Object returnValue = returnValueSequence.getValues()[i];
+            if (returnValue == null) {
                 break;
             }
-            if (!validateReturnValue(functionName, returnVals.getValues()[i],
-                    ((ObjectType) TypeUtils.getImpliedType(genericMock.getType())).getMethods())) {
-                String detail = "return value provided at position '" + i
-                        + "' does not match the return type of function '" + functionName + "()'";
-                return ErrorCreator.createError(
-                        MockConstants.TEST_PACKAGE_ID,
-                        MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                        StringUtils.fromString(detail),
-                        null,
-                        new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+            if (MockConstants.MEMBER_RESOURCE_FUNCTION_STUB.equals(mockType)) {
+                String functionPattern = getFunctionNameForResourcePath(functionName);
+                String accessor = caseObj.getStringValue(StringUtils.fromString(MockConstants.ACCESSOR)).toString();
+                String resourceFunctionPattern = MockConstants.DOLLAR_RESOURCE_SEPARATOR + accessor +
+                        MockConstants.DOLLAR_RESOURCE_SEPARATOR + functionPattern;
+                if (!validateReturnValueForResourcePath(resourceFunctionPattern, returnValue,
+                        ((BClientType) objectType).getResourceMethods())) {
+                    String detail = "return value provided at position '" + i
+                            + "' does not match the return type of the resource path '" + functionName + "'";
+                    return ErrorCreator.createError(
+                            MockConstants.TEST_PACKAGE_ID,
+                            MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                            StringUtils.fromString(detail),
+                            null,
+                            new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                }
+                MockRegistry.getInstance().registerCase(mockObj, resourceFunctionPattern, null, returnValue, i + 1);
+            } else {
+                if (!validateReturnValue(functionName, returnValue,
+                        ((ObjectType) TypeUtils.getImpliedType(genericMock.getType())).getMethods())) {
+                    String detail = "return value provided at position '" + i
+                            + "' does not match the return type of function '" + functionName + "()'";
+                    return ErrorCreator.createError(
+                            MockConstants.TEST_PACKAGE_ID,
+                            MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                            StringUtils.fromString(detail),
+                            null,
+                            new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                }
+                MockRegistry.getInstance().registerCase(mockObj, functionName, null, returnValue, i + 1);
             }
-            MockRegistry.getInstance().registerCase(mockObj, functionName, null, returnVals.getValues()[i], i + 1);
         }
         return null;
     }
@@ -465,13 +566,24 @@ public class ObjectMock {
     }
 
     private static String getFunctionNameForResourcePath(String path) {
-        String[] components = path.split("/");
+        String[] components = path.split(MockConstants.PATH_SEPARATOR);
         for (int i = 0; i < components.length; i++) {
-            if (components[i].startsWith(":")) {
-                components[i] = "^";
+            if (components[i].startsWith(MockConstants.PATH_PARAM_INDICATOR)) {
+                components[i] = MockConstants.PATH_PARAM_PLACEHOLDER;
             }
         }
-        return String.join("$", components);
+        return String.join(MockConstants.DOLLAR_RESOURCE_SEPARATOR, components);
+    }
+
+    private static String[] getPathParamPlaceHolders(String path) {
+        List<String> placeHolderList = new ArrayList<>();
+        String[] components = path.split(MockConstants.PATH_SEPARATOR);
+        for (String component : components) {
+            if (component.startsWith(MockConstants.PATH_PARAM_INDICATOR)) {
+                placeHolderList.add(component.substring(1));
+            }
+        }
+        return placeHolderList.toArray(new String[0]);
     }
 
     /**
@@ -712,8 +824,6 @@ public class ObjectMock {
                             StringUtils.fromString(detail),
                             null,
                             new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
-
-
                 }
             }
         }
