@@ -586,7 +586,9 @@ public class CoverageReport {
     private List<Path> getPlatformLibsList(JBallerinaBackend jBallerinaBackend, Package pkg) {
         List<Path> platformLibsList = new ArrayList<>();
         Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
-                pkg.packageId(), PlatformLibraryScope.DEFAULT);
+                pkg.packageId(), PlatformLibraryScope.DEFAULT); // TODO: done
+        otherJarDependencies.addAll(jBallerinaBackend.platformLibraryDependencies(
+                pkg.packageId(), PlatformLibraryScope.PROVIDED));
         for (PlatformLibrary otherJarDependency : otherJarDependencies) {
             if (!platformLibsList.contains(otherJarDependency.path())) {
                 platformLibsList.add(otherJarDependency.path());
@@ -610,7 +612,9 @@ public class CoverageReport {
                         }
                     }
                     Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
-                            pkg.packageId(), PlatformLibraryScope.DEFAULT);
+                            pkg.packageId(), PlatformLibraryScope.DEFAULT); // TODO: done
+                    otherJarDependencies.addAll(jBallerinaBackend.platformLibraryDependencies(
+                            pkg.packageId(), PlatformLibraryScope.PROVIDED));
                     for (PlatformLibrary otherJarDependency : otherJarDependencies) {
                         if (!dependencyPathList.contains(otherJarDependency.path())) {
                             dependencyPathList.add(otherJarDependency.path());
