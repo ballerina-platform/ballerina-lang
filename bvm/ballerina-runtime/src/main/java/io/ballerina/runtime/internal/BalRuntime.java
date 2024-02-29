@@ -38,6 +38,7 @@ import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.ValueCreator;
@@ -50,11 +51,8 @@ import java.util.function.Function;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.CONFIGURATION_CLASS_NAME;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
-
 
 /**
  * Internal implementation of the API used by the interop users to control Ballerina runtime behavior.
@@ -93,10 +91,10 @@ public class BalRuntime extends Runtime {
                 new Object[]{new String[]{}, configDetails.paths, configDetails.configContent});
         if (response instanceof Throwable) {
             throw ErrorCreator.createError(StringUtils.fromString("configurable initialization failed due to " +
-                    formatErrorMessage((Throwable) response)), (Throwable) response);
+                    RuntimeUtils.formatErrorMessage((Throwable) response)), (Throwable) response);
         }
         // Invoke module init
-        invokeMethodAsync("$moduleInit", new Object[1], null, null, PredefinedTypes.TYPE_NULL, "init");
+        invokeMethodAsync("$moduleInit", new Object[1], null, PredefinedTypes.TYPE_NULL, "init");
         moduleInitialized = true;
     }
 
@@ -104,24 +102,23 @@ public class BalRuntime extends Runtime {
         if (!moduleInitialized) {
             throw ErrorCreator.createError(StringUtils.fromString("failed to complete module initialization"));
         }
-        invokeMethodAsync("$moduleStart", new Object[1], null, null, PredefinedTypes.TYPE_NULL, "start");
+        invokeMethodAsync("$moduleStart", new Object[1], null, PredefinedTypes.TYPE_NULL, "start");
     }
 
     public void invokeMethodAsync(String functionName, Object[] args, Callback callback) {
-        invokeMethodAsync(functionName, args, callback, Scheduler.getDaemonStrand(), PredefinedTypes.TYPE_ANY,
-                "strand-" + functionName);
+        invokeMethodAsync(functionName, args, callback, PredefinedTypes.TYPE_ANY, functionName);
     }
 
     public void stop() {
-        invokeMethodAsync("$moduleStop", new Object[1], null, null, PredefinedTypes.TYPE_NULL, "stop");
+        invokeMethodAsync("$moduleStop", new Object[1], null, PredefinedTypes.TYPE_NULL, "stop");
     }
 
-    private void invokeMethodAsync(String functionName, Object[] args, Callback callback, Strand parent,
-                                   Type returnType, String strandName) {
+    private void invokeMethodAsync(String functionName, Object[] args, Callback callback, Type returnType,
+                                   String strandName) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
                 module.getName(), module.getMajorVersion(), module.isTestPkg()));
         Function<?, ?> func = o -> valueCreator.call((Strand) (((Object[]) o)[0]), functionName, args);
-        FutureValue future = scheduler.createFuture(parent, callback, null, returnType, strandName, null);
+        FutureValue future = scheduler.createFuture(null, callback, null, returnType, strandName, null);
         Object[] argsWithStrand = new Object[args.length + 1];
         argsWithStrand[0] = future.strand;
         System.arraycopy(args, 0, argsWithStrand, 1, args.length);
@@ -359,68 +356,5 @@ public class BalRuntime extends Runtime {
             configClassName = encodeNonFunctionIdentifier(orgName) + "." +  configClassName;
         }
         return configClassName;
-    }
-
-    private static String formatErrorMessage(Throwable e) {
-        try {
-            if (e instanceof BError) {
-                return ((BError) e).getPrintableStackTrace();
-            } else if (e instanceof Exception | e instanceof Error) {
-                return getPrintableStackTrace(e);
-            } else {
-                return getPrintableStackTrace(e);
-            }
-        } catch (ClassCastException classCastException) {
-            // If an unhandled error type is passed to format error message
-            return getPrintableStackTrace(e);
-        }
-    }
-
-    private static String getPrintableStackTrace(Throwable throwable) {
-        String errorMsg = throwable.toString();
-        StringBuilder sb = new StringBuilder();
-        sb.append(errorMsg);
-        // Append function/action/resource name with package path (if any)
-        StackTraceElement[] stackTrace = throwable.getStackTrace();
-        if (stackTrace.length == 0) {
-            return sb.toString();
-        }
-        sb.append("\n\tat ");
-        // print first element
-        printStackElement(sb, stackTrace[0], "");
-        for (int i = 1; i < stackTrace.length; i++) {
-            printStackElement(sb, stackTrace[i], "\n\t   ");
-        }
-        return sb.toString();
-    }
-
-    private static void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
-        String pkgName = Utils.decodeIdentifier(stackTraceElement.getClassName());
-        String fileName = stackTraceElement.getFileName();
-
-        if (fileName == null) {
-            fileName = "unknown-source";
-        }
-
-        // clean file name from pkgName since we print the file name after the method name.
-        fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
-        fileName = fileName.replace("/", "-");
-        int index = pkgName.lastIndexOf("." + fileName);
-        if (index != -1) {
-            pkgName = pkgName.substring(0, index);
-        }
-        // todo we need to seperate orgname and module name with '/'
-
-        sb.append(tab);
-        if (!pkgName.equals(MODULE_INIT_CLASS_NAME)) {
-            sb.append(pkgName).append(":");
-        }
-
-        // Append the method name
-        sb.append(Utils.decodeIdentifier(stackTraceElement.getMethodName()));
-        // Append the filename
-        sb.append("(").append(fileName);
-        // Append the line number
-        sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
     }
 }
