@@ -7,6 +7,12 @@ Running Tests with Coverage
 
 	object_mocking
 
+testDefaultTooManyArgs has failed.
+
+
+		Test execution time :*****ms
+
+
 		[fail] testDefaultTooManyArgs:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("too many argument provided to mock the function 'get()'")

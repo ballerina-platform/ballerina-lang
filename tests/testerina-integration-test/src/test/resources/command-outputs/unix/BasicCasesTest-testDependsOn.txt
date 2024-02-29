@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	depends_on
+
+		Test execution time :*****ms
+
 		[pass] test1
 		[pass] test2
 		[pass] test3
