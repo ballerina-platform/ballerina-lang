@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	intersection_type
+
+		Test execution time :*****ms
+
 		[pass] testIntersectionTypes
 
 

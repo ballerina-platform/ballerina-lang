@@ -7,6 +7,9 @@ WARNING [tests\assertions-diff-error-messages.bal:(24:5,24:32)] undocumented fie
 Running Tests with Coverage
 
 	assertions
+
+		Test execution time :*****ms
+
 		[pass] testAssertDecimalValues
 		[pass] testAssertIntValues
 		[pass] testAssertJsonArray
