@@ -46,21 +46,23 @@ public class ToolContext {
     private final String filePath;
     private final String targetModule;
     private final Map<String, Option> options;
+    private final String type;
     private final List<Diagnostic> diagnostics = new ArrayList<>();
 
     ToolContext(Package currentPackage, String toolId, String filePath,
-                String targetModule, TomlTableNode optionsTable) {
+                String targetModule, TomlTableNode optionsTable, String type) {
         this.currentPackage = currentPackage;
         this.toolId = toolId;
         this.filePath = filePath;
         this.targetModule = targetModule;
         this.options = getOptions(optionsTable);
+        this.type = type;
     }
 
     public static ToolContext from(PackageManifest.Tool tool, Package currentPackage) {
         return new ToolContext(currentPackage, tool.id(),
                 tool.filePath(), tool.targetModule(),
-                tool.optionsTable());
+                tool.optionsTable(), tool.type());
     }
 
     /**
@@ -98,6 +100,16 @@ public class ToolContext {
     public Map<String, Option> options() {
         return this.options;
     }
+
+    /**
+     * Returns the type of the tool.
+     *
+     * @return the tool type.
+     */
+    public String type() {
+        return type;
+    }
+
 
     /**
      * Returns the cache path.
