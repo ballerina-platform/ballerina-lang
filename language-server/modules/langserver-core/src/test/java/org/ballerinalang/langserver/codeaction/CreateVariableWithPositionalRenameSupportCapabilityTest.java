@@ -178,7 +178,8 @@ public class CreateVariableWithPositionalRenameSupportCapabilityTest extends Abs
                 {"createVariableNegative2.json"},
                 {"createVariableNegative3.json"},
                 {"createVariableNegative4.json"},
-                {"createVariableInQueryActionNegative.json"}
+                {"createVariableInQueryActionNegative.json"},
+                {"createVariableWithCheckNegative1.json"},
         };
     }
 }

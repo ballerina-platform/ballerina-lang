@@ -56,7 +56,6 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.model.types.Type;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -395,7 +394,8 @@ public class CommonUtil {
         return exactErrorTypes;
     }
     
-    private static void setMissingErrorTypes(List<TypeSymbol> types, List<TypeSymbol> rawErrors, List<TypeSymbol> missingErrors) {
+    private static void setMissingErrorTypes(List<TypeSymbol> types, List<TypeSymbol> rawErrors, 
+                                             List<TypeSymbol> missingErrors) {
         for (TypeSymbol type : types) {
             TypeDescKind kind = type.typeKind();
             if (kind == TypeDescKind.ERROR) {

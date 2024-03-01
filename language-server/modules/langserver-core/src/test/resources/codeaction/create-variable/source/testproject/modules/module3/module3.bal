@@ -45,3 +45,7 @@ function foo2() {
 function foo3() {
     module4:getValueOrError3();
 }
+
+function foo4() {
+    module4:getValueOrError4();
+}
