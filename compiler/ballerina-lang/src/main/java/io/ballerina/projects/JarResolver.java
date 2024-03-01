@@ -28,7 +28,6 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
-import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -57,7 +56,6 @@ public class JarResolver {
     private final JBallerinaBackend jBalBackend;
     private final PackageResolution pkgResolution;
     private final PackageContext rootPackageContext;
-    private final PrintStream err = System.err;
     private final List<Diagnostic> diagnosticList;
     private DiagnosticResult diagnosticResult;
 
