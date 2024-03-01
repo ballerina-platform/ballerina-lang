@@ -84,12 +84,13 @@ public class ToolResolution {
 
     private void resolveToolDependencies(PackageContext packageContext) {
         Project currentProject = packageContext.project();
-        if (currentProject.getToolContextMap().isEmpty()) {
+        Map<String, ToolContext> toolContextMap = currentProject.getToolContextMap();
+        if (toolContextMap == null || toolContextMap.isEmpty()) {
             return;
         }
         List<BuildTool> buildTools = new ArrayList<>();
         Set<String> toolIds = new HashSet<>();
-        for (ToolContext toolContext: currentProject.getToolContextMap().values()) {
+        for (ToolContext toolContext: toolContextMap.values()) {
             // Populate the tools needed to resolve
             BuildToolId toolId = BuildToolId.from(toolContext.type().split("\\.")[0]);
             if (toolIds.add(toolId.value())) {

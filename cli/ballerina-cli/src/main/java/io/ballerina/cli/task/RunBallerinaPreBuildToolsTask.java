@@ -92,6 +92,8 @@ public class RunBallerinaPreBuildToolsTask implements Task {
 
     @Override
     public void execute(Project project) {
+        project.setToolContextMap(toolContextMap);
+
         // Print all build tool manifest diagnostics
         Collection<Diagnostic> toolManifestDiagnostics = project.currentPackage().manifest().diagnostics()
                 .diagnostics().stream().filter(diagnostic -> diagnostic.diagnosticInfo().code()
@@ -111,7 +113,6 @@ public class RunBallerinaPreBuildToolsTask implements Task {
             ToolContext toolContext = ToolContext.from(toolEntry, project.currentPackage());
             toolContextMap.put(toolEntry.id(), toolContext);
         }
-        project.setToolContextMap(toolContextMap);
         ToolResolution toolResolution = project.currentPackage().getToolResolution();
         toolResolution.getDiagnosticList().forEach(outStream::println);
         List<BuildTool> resolvedTools = toolResolution.getResolvedTools();
