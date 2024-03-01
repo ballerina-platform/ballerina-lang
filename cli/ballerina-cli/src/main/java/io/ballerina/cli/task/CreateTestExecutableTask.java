@@ -185,10 +185,13 @@ public class CreateTestExecutableTask implements Task {
             );
         }
 
+        String jarName = project.currentPackage().packageName().toString();
+        if (jarName.equals(ProjectConstants.DOT)) {
+            jarName = getFileNameWithoutExtension(project.sourceRoot().getFileName());
+        }
+
         Path testExecutablePath = getTestExecutableBasePath(target).resolve(
-                project.currentPackage().packageName().toString() +
-                        ProjectConstants.TEST_UBER_JAR_SUFFIX +
-                        ProjectConstants.BLANG_COMPILED_JAR_EXT);
+                jarName + ProjectConstants.TEST_UBER_JAR_SUFFIX + ProjectConstants.BLANG_COMPILED_JAR_EXT);
 
         List<Path> moduleJarPaths = TestUtils.getModuleJarPaths(jBallerinaBackend, project.currentPackage());
         List<String> excludingClassPaths = new ArrayList<>();
@@ -378,8 +381,12 @@ public class CreateTestExecutableTask implements Task {
             if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
                 target = new Target(project.targetDir());
             } else {
-                target = new Target(Files.createTempDirectory("ballerina-cache" + System.nanoTime()));
-                target.setOutputPath(getExecutablePath(project));
+                Path tempFilePath = Files.createTempDirectory("ballerina-test-cache" + System.nanoTime());
+                tempFilePath.toFile().deleteOnExit();
+                target = new Target(tempFilePath);
+                target.setOutputPath(target.path().resolve(
+                        getFileNameWithoutExtension(project.sourceRoot().getFileName()) + BLANG_COMPILED_JAR_EXT
+                ));
             }
         } catch (IOException e) {
             throw createLauncherException("unable to resolve target path:" + e.getMessage());
