@@ -94,7 +94,7 @@ public class BallerinaDocGenerator {
     private static final String BUILTIN_TYPES_DESCRIPTION_DIR = "builtin-types-descriptions";
     private static final String BUILTIN_KEYWORDS_DESCRIPTION_DIR = "keywords-descriptions";
     private static final String RELEASE_DESCRIPTION_MD = "/release-description.md";
-    public static final String SOURCE =  "http://localhost:9090/doc-ui-zip";
+    public static final String SOURCE =  "https://api.dev-central.ballerina.io/2.0/docs/doc-ui";
     public static final String PROPERTIES_FILE = "/META-INF/properties";
     static final String ACCEPT = "Accept";
     static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -225,6 +225,9 @@ public class BallerinaDocGenerator {
                     .resolve(moduleLib.modules.get(0).version).resolve("icon.png");
             Path iconPath = Paths.get(sourceLocation);
             try {
+                if (Files.exists(output)) {
+                    Files.delete(output);
+                }
                 Files.copy(iconPath, output);
             } catch (IOException e) {
                 log.error("Failed to copy icon.", e);
