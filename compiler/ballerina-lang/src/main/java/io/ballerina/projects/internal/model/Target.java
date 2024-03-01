@@ -143,7 +143,7 @@ public class Target {
 
     public Path getTestExecutableBasePath() throws IOException {
         if (outputPath != null) {
-            return outputPath;
+            return outputPath.getParent();
         }
 
         return getTestBinPath();
