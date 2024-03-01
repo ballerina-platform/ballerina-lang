@@ -64,7 +64,7 @@ public class BType implements ValueType {
         this(tag, tsymbol, Names.EMPTY, 0, null);
     }
 
-    public BType(int tag, BTypeSymbol tsymbol, SemType semType) { // TODO: remove
+    public BType(int tag, BTypeSymbol tsymbol, SemType semType) {
         this(tag, tsymbol, Names.EMPTY, 0, semType);
     }
 

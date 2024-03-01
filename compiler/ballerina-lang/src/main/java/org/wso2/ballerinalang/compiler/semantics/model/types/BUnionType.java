@@ -553,12 +553,12 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public SemType semType() {
         if (this.semType == null) {
-            this.semType = computeResultantSemType(memberSemTypes);
+            this.semType = computeResultantUnion(memberSemTypes);
         }
         return this.semType;
     }
 
-    private SemType computeResultantSemType(LinkedHashSet<SemType> memberSemTypes) {
+    private SemType computeResultantUnion(LinkedHashSet<SemType> memberSemTypes) {
         SemType t = PredefinedType.NEVER;
         for (SemType s : memberSemTypes) {
             t = Core.union(t, s);

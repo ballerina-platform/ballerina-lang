@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Core;
+import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
@@ -32,25 +34,24 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BReadonlyType extends BBuiltInRefType {
 
-    private boolean nullable = true;
-    private SemType semTypeComponent = SemTypeHelper.READONLY_SEM_COMPONENT;
-
     public BReadonlyType(BTypeSymbol tsymbol) {
-        super(TypeTags.READONLY, tsymbol);
+        this(tsymbol, SemTypeHelper.READONLY_SEMTYPE);
+    }
+
+    private BReadonlyType(BTypeSymbol tsymbol, SemType semType) {
+        super(TypeTags.READONLY, tsymbol, semType);
         this.flags |= Flags.READONLY;
     }
 
     public BReadonlyType(BTypeSymbol tsymbol, Name name, long flag) {
-        super(TypeTags.READONLY, tsymbol);
+        super(TypeTags.READONLY, tsymbol, SemTypeHelper.READONLY_SEMTYPE);
         this.name = name;
         this.flags = flag;
         this.flags |= Flags.READONLY;
     }
 
-    public BReadonlyType(BTypeSymbol tsymbol, boolean nullable) {
-        super(TypeTags.READONLY, tsymbol);
-        this.nullable = nullable;
-        this.flags |= Flags.READONLY;
+    public static BReadonlyType newNilLiftedBReadonlyType(BTypeSymbol tsymbol) {
+        return new BReadonlyType(tsymbol, Core.diff(SemTypeHelper.READONLY_SEMTYPE, PredefinedType.NIL));
     }
 
     @Override
@@ -59,20 +60,7 @@ public class BReadonlyType extends BBuiltInRefType {
     }
 
     @Override
-    public boolean isNullable() {
-        return nullable;
-    }
-
-    @Override
     public TypeKind getKind() {
         return TypeKind.READONLY;
-    }
-
-    public SemType getSemTypeComponent() {
-        return semTypeComponent;
-    }
-
-    public void setSemTypeComponent(SemType semTypeComponent) {
-        this.semTypeComponent = semTypeComponent;
     }
 }

@@ -31,10 +31,7 @@ import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -62,7 +59,7 @@ import static io.ballerina.types.UniformTypeCode.UT_STRING;
  */
 public class SemTypeHelper {
 
-    public static final SemType READONLY_SEM_COMPONENT = SemTypes.union(PredefinedType.NIL,
+    public static final SemType READONLY_SEMTYPE = SemTypes.union(PredefinedType.NIL,
                                             SemTypes.union(PredefinedType.BOOLEAN,
                                             SemTypes.union(PredefinedType.INT,
                                             SemTypes.union(PredefinedType.FLOAT,
@@ -110,16 +107,8 @@ public class SemTypeHelper {
         }
     }
 
-    public static void resolveBIntersectionSemTypeComponent(BIntersectionType type) {
-        SemType semType = PredefinedType.TOP;
-        for (BType constituentType : type.getConstituentTypes()) {
-            semType = SemTypes.intersection(semType, semTypeComponent(constituentType));
-        }
-        type.setSemTypeComponent(semType);
-    }
-
     public static SemType semTypeComponent(BType t) { // TODO: refactor
-        if (t == null) {
+        if (t == null) { // TODO: may be able fix after tackling bir recursion
             return PredefinedType.NEVER;
         }
 
@@ -127,23 +116,20 @@ public class SemTypeHelper {
             return semTypeComponent(((BTypeReferenceType) t).referredType);
         }
 
-        if (isFullSemType(t.tag) || t.tag == TypeTags.UNION || t.tag == TypeTags.ANYDATA || t.tag == TypeTags.JSON) {
-            return t.semType();
+        switch (t.tag) {
+            case TypeTags.INTERSECTION:
+            case TypeTags.UNION:
+            case TypeTags.ANYDATA:
+            case TypeTags.JSON:
+            case TypeTags.ANY:
+            case TypeTags.READONLY:
+                return t.semType();
+            default:
+                if (isFullSemType(t.tag)) {
+                    return t.semType();
+                }
+                return PredefinedType.NEVER;
         }
-
-        if (t.tag == TypeTags.INTERSECTION) {
-            return ((BIntersectionType) t).getSemTypeComponent();
-        }
-
-        if (t.tag == TypeTags.ANY) {
-            return ((BAnyType) t).getSemTypeComponent();
-        }
-
-        if (t.tag == TypeTags.READONLY) {
-            return ((BReadonlyType) t).getSemTypeComponent();
-        }
-
-        return PredefinedType.NEVER;
     }
 
     /**

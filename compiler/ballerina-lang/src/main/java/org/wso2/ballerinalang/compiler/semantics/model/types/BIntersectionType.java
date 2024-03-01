@@ -17,7 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.IntersectionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
@@ -42,7 +44,6 @@ public class BIntersectionType extends BType implements IntersectionType {
     public BType effectiveType;
 
     private LinkedHashSet<BType> constituentTypes;
-    private SemType semTypeComponent;
 
     public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types,
                              BType effectiveType) {
@@ -55,8 +56,7 @@ public class BIntersectionType extends BType implements IntersectionType {
                 break;
             }
         }
-        SemTypeHelper.resolveBIntersectionSemTypeComponent(this);
-        this.effectiveType = (BType) effectiveType;
+        this.effectiveType = effectiveType;
     }
 
     public BIntersectionType(BTypeSymbol tsymbol) {
@@ -67,7 +67,6 @@ public class BIntersectionType extends BType implements IntersectionType {
                              long flags) {
         super(TypeTags.INTERSECTION, tsymbol, flags);
         this.constituentTypes = toFlatTypeSet(types);
-        SemTypeHelper.resolveBIntersectionSemTypeComponent(this);
         this.effectiveType = effectiveType;
     }
 
@@ -93,7 +92,7 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     public void setConstituentTypes(LinkedHashSet<BType> constituentTypes) {
         this.constituentTypes =  toFlatTypeSet(constituentTypes);
-        SemTypeHelper.resolveBIntersectionSemTypeComponent(this);
+        this.semType = null; // reset cached sem-type if exists
     }
 
     @Override
@@ -136,11 +135,19 @@ public class BIntersectionType extends BType implements IntersectionType {
         return this.effectiveType;
     }
 
-    public SemType getSemTypeComponent() {
-        return semTypeComponent;
+    @Override
+    public SemType semType() {
+        if (this.semType == null) {
+            this.semType = computeResultantIntersection();
+        }
+        return this.semType;
     }
 
-    public void setSemTypeComponent(SemType semTypeComponent) {
-        this.semTypeComponent = semTypeComponent;
+    private SemType computeResultantIntersection() {
+        SemType t = PredefinedType.TOP;
+        for (BType constituentType : this.getConstituentTypes()) {
+            t = SemTypes.intersection(t, SemTypeHelper.semTypeComponent(constituentType));
+        }
+        return t;
     }
 }

@@ -5702,14 +5702,14 @@ public class Types {
                 case TypeTags.JSON:
                     return new BJSONType((BJSONType) type, false);
                 case TypeTags.ANY:
-                    return new BAnyType(type.tsymbol, false);
+                    return BAnyType.newNilLiftedBAnyType(type.tsymbol);
                 case TypeTags.ANYDATA:
                     return new BAnydataType((BAnydataType) type, false);
                 case TypeTags.READONLY:
                     if (liftError) {
                         return symTable.anyAndReadonly;
                     }
-                    return new BReadonlyType(type.tsymbol, false);
+                    return BReadonlyType.newNilLiftedBReadonlyType(type.tsymbol);
             }
         }
 
