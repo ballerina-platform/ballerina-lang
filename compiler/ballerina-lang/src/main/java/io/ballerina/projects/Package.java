@@ -36,12 +36,12 @@ public class Package {
     private final Map<ModuleId, Module> moduleMap;
     private final Function<ModuleId, Module> populateModuleFunc;
     // Following are not final since they will be lazy loaded
-    private Optional<PackageMd> packageMd = null;
-    private Optional<BallerinaToml> ballerinaToml = null;
-    private Optional<DependenciesToml> dependenciesToml = null;
-    private Optional<CloudToml> cloudToml = null;
-    private Optional<CompilerPluginToml> compilerPluginToml = null;
-    private Optional<BalToolToml> balToolToml = null;
+    private Optional<PackageMd> packageMd = Optional.empty();
+    private Optional<BallerinaToml> ballerinaToml = Optional.empty();
+    private Optional<DependenciesToml> dependenciesToml = Optional.empty();
+    private Optional<CloudToml> cloudToml = Optional.empty();
+    private Optional<CompilerPluginToml> compilerPluginToml = Optional.empty();
+    private Optional<BalToolToml> balToolToml = Optional.empty();
 
     private Package(PackageContext packageContext, Project project) {
         this.packageContext = packageContext;
@@ -177,7 +177,7 @@ public class Package {
     }
 
     public Optional<BallerinaToml> ballerinaToml() {
-        if (!this.ballerinaToml.isPresent()) {
+        if (this.ballerinaToml.isEmpty()) {
             this.ballerinaToml = this.packageContext.ballerinaTomlContext().map(c ->
                     BallerinaToml.from(c, this)
             );
@@ -186,7 +186,7 @@ public class Package {
     }
 
     public Optional<DependenciesToml> dependenciesToml() {
-        if (!this.dependenciesToml.isPresent()) {
+        if (this.dependenciesToml.isEmpty()) {
             this.dependenciesToml = this.packageContext.dependenciesTomlContext().map(c ->
                     DependenciesToml.from(c, this)
             );
@@ -195,7 +195,7 @@ public class Package {
     }
 
     public Optional<CloudToml> cloudToml() {
-        if (!this.cloudToml.isPresent()) {
+        if (this.cloudToml.isEmpty()) {
             this.cloudToml = this.packageContext.cloudTomlContext().map(c ->
                     CloudToml.from(c, this));
         }
@@ -203,7 +203,7 @@ public class Package {
     }
 
     public Optional<CompilerPluginToml> compilerPluginToml() {
-        if (!this.compilerPluginToml.isPresent()) {
+        if (this.compilerPluginToml.isEmpty()) {
             this.compilerPluginToml = this.packageContext.compilerPluginTomlContext()
                     .map(c -> CompilerPluginToml.from(c, this));
         }
@@ -211,7 +211,7 @@ public class Package {
     }
 
     public Optional<BalToolToml> balToolToml() {
-        if (!this.balToolToml.isPresent()) {
+        if (this.balToolToml.isEmpty()) {
             this.balToolToml = this.packageContext.balToolTomlContext()
                     .map(c -> BalToolToml.from(c, this));
         }
@@ -219,7 +219,7 @@ public class Package {
     }
 
     public Optional<PackageMd> packageMd() {
-        if (!this.packageMd.isPresent()) {
+        if (this.packageMd.isEmpty()) {
             this.packageMd = this.packageContext.packageMdContext().map(c ->
                     PackageMd.from(c, this)
             );
