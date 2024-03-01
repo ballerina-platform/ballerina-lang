@@ -285,6 +285,14 @@ type IntersectionType3 FooType & ReadonlyTypeDef3;
 type IntersectionType4 ReadonlyTypeDef3 & ReadonlyObjectType1;
 type IntersectionType5 ReadonlyObjectType1 & ReadonlyTypeDef3;
 
+function testReadonlyIntersection() {
+    assertTrue(IntersectionType1 is readonly);
+    assertTrue(IntersectionType2 is readonly);
+    assertTrue(IntersectionType3 is ReadonlyTypeDef1);
+    assertTrue(IntersectionType4 is ReadonlyTypeDef2);
+    assertTrue(IntersectionType5 is ReadonlyTypeDef3);
+}
+
 function assertError(any|error value, string errorMessage, string expDetailMessage) {
     if value is Error {
         if (value.message() != errorMessage) {
