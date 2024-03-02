@@ -25,7 +25,7 @@ import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
-import io.ballerina.cli.task.RunBallerinaPreBuildToolsTask;
+import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.task.RunProfilerTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
@@ -195,7 +195,7 @@ public class ProfileCommand implements BLauncherCmd {
                                             boolean isSingleFileBuild) {
         return new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
-                .addTask(new RunBallerinaPreBuildToolsTask(outStream))
+                .addTask(new RunBuildToolsTask(outStream))
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified,
                         buildOptions.enableCache()))

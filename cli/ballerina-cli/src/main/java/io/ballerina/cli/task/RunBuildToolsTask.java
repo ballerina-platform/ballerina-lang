@@ -80,14 +80,14 @@ import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
  *
  * @since 2201.9.0
  */
-public class RunBallerinaPreBuildToolsTask implements Task {
+public class RunBuildToolsTask implements Task {
     public static final String DEFAULT_VERSION = "0.0.0";
     private final PrintStream outStream;
     private ClassLoader toolClassLoader = this.getClass().getClassLoader();
     ServiceLoader<CodeGeneratorTool> toolServiceLoader = ServiceLoader.load(CodeGeneratorTool.class, toolClassLoader);
     private final Map<String, ToolContext> toolContextMap = new HashMap<>();
 
-    public RunBallerinaPreBuildToolsTask(PrintStream out) {
+    public RunBuildToolsTask(PrintStream out) {
         this.outStream = out;
     }
 
