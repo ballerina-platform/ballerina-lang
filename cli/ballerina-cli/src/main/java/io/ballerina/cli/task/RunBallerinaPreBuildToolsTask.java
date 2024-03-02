@@ -33,6 +33,7 @@ import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ToolUtils;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -127,9 +128,11 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         for (Tool toolEntry : toolEntries) {
             String commandName = toolEntry.type();
             ToolContext toolContext = toolContextMap.get(toolEntry.id());
-            Optional<CodeGeneratorTool> targetTool = getTargetTool(commandName, toolServiceLoader);
+            Optional<CodeGeneratorTool> targetTool = ToolUtils.getTargetTool(commandName, toolServiceLoader);
             if (targetTool.isEmpty()) {
-                reportBuildToolNotFoundDiagnostic(toolEntry.id(), toolContextMap.get(toolEntry.id()));
+                PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(toolEntry.id());
+                toolContextMap.get(toolEntry.id()).reportDiagnostic(diagnostic);
+                this.outStream.println(diagnostic);
                 continue;
             }
             boolean hasOptionErrors = false;
@@ -172,16 +175,6 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                 throw createLauncherException(e.getMessage());
             }
         }
-    }
-
-    private Optional<CodeGeneratorTool> getTargetTool(
-            String commandName, ServiceLoader<CodeGeneratorTool> buildRunners) {
-        for (CodeGeneratorTool buildRunner : buildRunners) {
-            if (deriveSubcommandName(buildRunner.toolName()).equals(commandName)) {
-                return Optional.of(buildRunner);
-            }
-        }
-        return Optional.empty();
     }
 
     private boolean validateOptionsToml(Toml optionsToml, String toolName) throws IOException {
@@ -236,18 +229,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         }
     }
 
-    // TODO: move this to a common place
-    private void reportBuildToolNotFoundDiagnostic(String toolId, ToolContext toolContext) {
-        String message = "Build tool '" + toolId + "' not found";
-        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(), message, DiagnosticSeverity.ERROR);
-        PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, toolId);
-        this.outStream.println(diagnostic);
-        toolContext.reportDiagnostic(diagnostic);
-    }
-
     private boolean isToolLocallyAvailable(String org, String name, String version) {
-        // TODO: Local repo support
         Path toolCacheDir = RepoUtils.createAndGetHomeReposPath()
                 .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME).resolve(org).resolve(name);
@@ -293,7 +275,6 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         }
     }
 
-    // TODO: try to use common methods for this and the ToolCommand
     private ClassLoader createToolClassLoader(List<BuildTool> resolvedTools) {
         List<File> toolJars = getToolCommandJarAndDependencyJars(resolvedTools);
         URL[] urls = toolJars.stream()
@@ -308,10 +289,6 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                 .toArray(URL[]::new);
         ClassLoader systemClassLoader = this.getClass().getClassLoader();
         return new URLClassLoader(urls, systemClassLoader);
-    }
-
-    private String deriveSubcommandName(String[] toolName) {
-        return Arrays.stream(toolName).reduce((s1, s2) -> s1 + "." + s2).orElse("");
     }
 
     private static List<File> getToolCommandJarAndDependencyJars(List<BuildTool> resolvedTools) {

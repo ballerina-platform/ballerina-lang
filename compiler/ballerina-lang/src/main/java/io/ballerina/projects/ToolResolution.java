@@ -24,11 +24,9 @@ import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ToolResolutionRequest;
 import io.ballerina.projects.internal.PackageDiagnostic;
-import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.model.BuildJson;
+import io.ballerina.projects.util.ToolUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticInfo;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
@@ -104,7 +102,7 @@ public class ToolResolution {
         // Find tools which need resolution
         List<BuildTool> resolutionRequiredTools = new ArrayList<>();
         for (BuildTool tool : buildTools) {
-            Optional<CodeGeneratorTool> targetTool = getTargetTool(tool.id().value(), toolServiceLoader);
+            Optional<CodeGeneratorTool> targetTool = ToolUtils.getTargetTool(tool.id().value(), toolServiceLoader);
             if (targetTool.isEmpty()) {
                 resolutionRequiredTools.add(tool);
             } else {
@@ -114,17 +112,6 @@ public class ToolResolution {
             }
         }
         resolvedTools.addAll(resolveToolVersions(currentProject, resolutionRequiredTools));
-    }
-
-    // TODO: redundant here and in RunBallerinaPreBuildToolsTask
-    private Optional<CodeGeneratorTool> getTargetTool(
-            String commandName, ServiceLoader<CodeGeneratorTool> buildRunners) {
-        for (CodeGeneratorTool buildRunner : buildRunners) {
-            if (deriveSubcommandName(buildRunner.toolName()).equals(commandName)) {
-                return Optional.of(buildRunner);
-            }
-        }
-        return Optional.empty();
     }
 
     private List<BuildTool> resolveToolVersions(Project project, List<BuildTool> unresolvedTools) {
@@ -210,18 +197,21 @@ public class ToolResolution {
         List<ToolResolutionCentralResponse.ResolvedTool> resolved = packageResolutionResponse.resolved();
         List<ToolResolutionCentralResponse.UnresolvedTool> unresolved = packageResolutionResponse.unresolved();
         for (ToolResolutionCentralResponse.UnresolvedTool tool : unresolved) {
-            reportBuildToolNotFoundDiagnostic(tool.id(), toolContextMap.get(tool.id()));
+            PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(tool.id());
+            toolContextMap.get(tool.id()).reportDiagnostic(diagnostic);
         }
         List<BuildTool> resolvedTools = new ArrayList<>();
         for (ToolResolutionCentralResponse.ResolvedTool tool : resolved) {
             if (tool.id() == null || tool.version() == null || tool.name() == null || tool.org() == null) {
-                reportBuildToolNotFoundDiagnostic(tool.id(), toolContextMap.get(tool.id()));
+                PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(tool.id());
+                toolContextMap.get(tool.id()).reportDiagnostic(diagnostic);
                 continue;
             }
             try {
                 PackageVersion.from(tool.version());
             } catch (ProjectException ignore) {
-                reportBuildToolNotFoundDiagnostic(tool.id(), toolContextMap.get(tool.id()));
+                PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(tool.id());
+                toolContextMap.get(tool.id()).reportDiagnostic(diagnostic);
                 continue;
             }
             resolvedTools.add(BuildTool.from(
@@ -282,18 +272,5 @@ public class ToolResolution {
                 }
             }
         }
-    }
-
-    private void reportBuildToolNotFoundDiagnostic(String toolId, ToolContext toolContext) {
-        String message = "Build tool '" + toolId + "' not found";
-        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(), message, DiagnosticSeverity.ERROR);
-        PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, toolId);
-        diagnosticList.add(diagnostic);
-        toolContext.reportDiagnostic(diagnostic);
-    }
-
-    private String deriveSubcommandName(String[] toolName) {
-        return Arrays.stream(toolName).reduce((s1, s2) -> s1 + "." + s2).orElse("");
     }
 }
