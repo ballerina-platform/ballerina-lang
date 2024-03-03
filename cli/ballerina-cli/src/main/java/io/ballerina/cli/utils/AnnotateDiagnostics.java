@@ -47,20 +47,22 @@ public class AnnotateDiagnostics {
     private static final int MISSING_TOKEN_KEYWORD_CODE_THRESHOLD = 400;
     private static final int INVALID_TOKEN_CODE = 600;
 
-    public static Ansi renderDiagnostic(Diagnostic diagnostic, Document document, int terminalWidth) {
+    public static Ansi renderDiagnostic(Diagnostic diagnostic, Document document, int terminalWidth,
+                                        boolean colorEnabled) {
 
         String diagnosticCode = diagnostic.diagnosticInfo().code();
         if (diagnostic instanceof PackageDiagnostic && diagnosticCode.startsWith(COMPILER_ERROR_PREFIX)) {
             int diagnosticCodeNumber = Integer.parseInt(diagnosticCode.substring(3));
             if (diagnosticCodeNumber < SYNTAX_ERROR_CODE_THRESHOLD) {
                 PackageDiagnostic packageDiagnostic = (PackageDiagnostic) diagnostic;
-                return Ansi.ansi().render(diagnosticToString(diagnostic) + NEW_LINE + getSyntaxDiagnosticAnnotation(
-                        document, packageDiagnostic, diagnosticCodeNumber, terminalWidth));
+                return Ansi.ansi()
+                        .render(diagnosticToString(diagnostic, colorEnabled) + NEW_LINE + getSyntaxDiagnosticAnnotation(
+                                document, packageDiagnostic, diagnosticCodeNumber, terminalWidth, colorEnabled));
             }
         }
         DiagnosticAnnotation diagnosticAnnotation = getDiagnosticLineFromSyntaxAPI(
-                document, diagnostic.location(), diagnostic.diagnosticInfo().severity(), terminalWidth);
-        return Ansi.ansi().render(diagnosticToString(diagnostic) + NEW_LINE + diagnosticAnnotation);
+                document, diagnostic.location(), diagnostic.diagnosticInfo().severity(), terminalWidth, colorEnabled);
+        return Ansi.ansi().render(diagnosticToString(diagnostic, colorEnabled) + NEW_LINE + diagnosticAnnotation);
 
     }
 
@@ -68,23 +70,24 @@ public class AnnotateDiagnostics {
         return AnsiConsole.getTerminalWidth();
     }
 
-    public static Ansi renderDiagnostic(Diagnostic diagnostic) {
-        return Ansi.ansi().render(diagnosticToString(diagnostic));
+    public static Ansi renderDiagnostic(Diagnostic diagnostic, boolean colorEnabled) {
+        return Ansi.ansi().render(diagnosticToString(diagnostic, colorEnabled));
     }
 
-    private static String diagnosticToString(Diagnostic diagnostic) {
+    private static String diagnosticToString(Diagnostic diagnostic, boolean colorEnabled) {
         DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
         String severityString = severity.toString();
         String color = SEVERITY_COLORS.get(severity);
         String message = diagnostic.toString().substring(severityString.length());
         String code = diagnostic.diagnosticInfo().code();
-        String formatString = getColoredString("%s", color) + "%s (%s)";
+        String formatString = getColoredString("%s", color, colorEnabled) + "%s (%s)";
 
         return String.format(formatString, severityString, message, code);
     }
 
     private static DiagnosticAnnotation getDiagnosticLineFromSyntaxAPI(Document document, Location location,
-                                                                       DiagnosticSeverity severity, int terminalWidth) {
+                                                                       DiagnosticSeverity severity, int terminalWidth,
+                                                                       boolean colorEnabled) {
         TextDocument textDocument = document.textDocument();
         int startOffset = location.lineRange().startLine().offset();
         int endOffset = location.lineRange().endLine().offset();
@@ -102,12 +105,13 @@ public class AnnotateDiagnostics {
                 startLine + 1,
                 severity,
                 DiagnosticAnnotation.DiagnosticAnnotationType.REGULAR,
-                terminalWidth);
+                terminalWidth, colorEnabled);
     }
 
     private static DiagnosticAnnotation getSyntaxDiagnosticAnnotation(Document document,
                                                                       PackageDiagnostic packageDiagnostic,
-                                                                      int diagnosticCode, int terminalWidth) {
+                                                                      int diagnosticCode, int terminalWidth,
+                                                                      boolean colorEnabled) {
         TextDocument textDocument = document.textDocument();
         Location location = packageDiagnostic.location();
         int startLine = location.lineRange().startLine().line();
@@ -120,7 +124,7 @@ public class AnnotateDiagnostics {
         if (diagnosticCode < MISSING_TOKEN_KEYWORD_CODE_THRESHOLD) {
             StringDiagnosticProperty strProperty = (StringDiagnosticProperty) packageDiagnostic.properties().get(0);
             String lineString = textDocument.line(startLine).text();
-            String missingTokenString = getColoredString(strProperty.value(), color);
+            String missingTokenString = getColoredString(strProperty.value(), color, colorEnabled);
             if (startOffset < lineString.length() && lineString.charAt(startOffset) != ' ') {
                 missingTokenString = missingTokenString + " ";
             }
@@ -142,16 +146,16 @@ public class AnnotateDiagnostics {
                     startLine + 1,
                     DiagnosticSeverity.ERROR,
                     DiagnosticAnnotation.DiagnosticAnnotationType.MISSING,
-                    terminalWidth);
+                    terminalWidth, colorEnabled);
         }
 
         if (diagnosticCode == INVALID_TOKEN_CODE) {
             List<String> lines = getLines(textDocument, startLine, endLine);
             if (lines.size() > 1) {
                 String annotatedLine1 = lines.get(0).substring(0, startOffset) +
-                        getColoredString(lines.get(0).substring(startOffset), color);
+                        getColoredString(lines.get(0).substring(startOffset), color, colorEnabled);
                 String annotatedLine2 =
-                        getColoredString(lines.get(lines.size() - 1).substring(0, endOffset), color) +
+                        getColoredString(lines.get(lines.size() - 1).substring(0, endOffset), color, colorEnabled) +
                                 lines.get(lines.size() - 1).substring(endOffset);
                 lines.set(0, annotatedLine1);
                 lines.set(lines.size() - 1, annotatedLine2);
@@ -164,11 +168,12 @@ public class AnnotateDiagnostics {
                         startLine + 1,
                         DiagnosticSeverity.ERROR,
                         DiagnosticAnnotation.DiagnosticAnnotationType.INVALID,
-                        terminalWidth);
+                        terminalWidth, colorEnabled);
             }
             String line = lines.get(0);
             String annotatedLine = line.substring(0, startOffset) +
-                    getColoredString(line.substring(startOffset, endOffset), color) + line.substring(endOffset);
+                    getColoredString(line.substring(startOffset, endOffset), color, colorEnabled) +
+                    line.substring(endOffset);
             lines.set(0, annotatedLine);
             return new DiagnosticAnnotation(
                     lines,
@@ -179,9 +184,10 @@ public class AnnotateDiagnostics {
                     startLine + 1,
                     DiagnosticSeverity.ERROR,
                     DiagnosticAnnotation.DiagnosticAnnotationType.INVALID,
-                    terminalWidth);
+                    terminalWidth, colorEnabled);
         }
-        return getDiagnosticLineFromSyntaxAPI(document, location, DiagnosticSeverity.ERROR, terminalWidth);
+        return getDiagnosticLineFromSyntaxAPI(document, location, DiagnosticSeverity.ERROR, terminalWidth,
+                colorEnabled);
     }
 
     private static List<String> getLines(TextDocument textDocument, int start, int end) {
