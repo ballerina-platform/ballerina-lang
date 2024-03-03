@@ -1,7 +1,11 @@
 Compiling source
 	file_create.bal
-WARNING [:(1:1,1:1)] Skipped adding the generated source file with prefix "dummyfunc". Source file generation is not supported with standalone bal files
-WARNING [file_create.bal:(6:4,6:58)] unused variable 'isSuccess'
+WARNING [:(1:1,1:1)] Skipped adding the generated source file with prefix "dummyfunc". Source file generation is not supported with standalone bal files (BCE5401)
+WARNING [file_create.bal:(6:4,6:58)] unused variable 'isSuccess' (BCE20403)
+  |
+6 |    boolean|error isSuccess = createNewFileInternal(file);
+  |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 Running executable
 

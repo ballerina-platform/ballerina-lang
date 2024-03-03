@@ -56,10 +56,11 @@ public class DiagnosticAnnotation {
     private final int terminalWidth;
     private final DiagnosticSeverity severity;
     private final DiagnosticAnnotationType type;
+    private final boolean colorEnabled;
 
     public DiagnosticAnnotation(List<String> lines, int start, int length, boolean isMultiline, int endOffset,
                                 int startLineNumber, DiagnosticSeverity severity, DiagnosticAnnotationType type,
-                                int terminalWidth) {
+                                int terminalWidth, boolean colorEnabled) {
         this.start = start + 3 * countTabChars(lines.get(0), start);
         lines.set(0, replaceTabs(lines.get(0), start));
         this.lines = lines;
@@ -70,6 +71,7 @@ public class DiagnosticAnnotation {
         this.severity = severity;
         this.type = type;
         this.terminalWidth = terminalWidth;
+        this.colorEnabled = colorEnabled;
     }
 
     public String toString() {
@@ -78,10 +80,11 @@ public class DiagnosticAnnotation {
             String padding = " ".repeat(digitsNum + 1);
             int maxLength = terminalWidth - digitsNum - 3;
             TruncateResult result = truncate(lines.get(0), maxLength, start, length);
-            return padding + "| " + NEW_LINE
+            return padding + "|" + NEW_LINE
                     + String.format("%" + digitsNum + "d ", startLineNumber) + "| " + result.line + NEW_LINE
                     + padding + "| " +
-                    getUnderline(result.diagnosticStart, result.diagnosticLength, this.severity, this.type) + NEW_LINE;
+                    getUnderline(result.diagnosticStart, result.diagnosticLength, this.severity, this.type,
+                            colorEnabled) + NEW_LINE;
 
         }
 
@@ -104,39 +107,44 @@ public class DiagnosticAnnotation {
                 endOffset + 3 * tabsInLastLine);
 
         if (lines.size() == 2) {
-            return padding + "| " + NEW_LINE
+            return padding + "|" + NEW_LINE
                     + String.format("%" + endDigitsNum + "d ", startLineNumber) + "| " + result1.line + NEW_LINE
                     + padding + "| " +
-                    getUnderline(result1.diagnosticStart, result1.diagnosticLength, this.severity, this.type) + NEW_LINE
+                    getUnderline(result1.diagnosticStart, result1.diagnosticLength, this.severity, this.type,
+                            colorEnabled) + NEW_LINE
                     + String.format("%" + endDigitsNum + "d ", startLineNumber + 1) + "| " + result2.line + NEW_LINE
-                    + padding + "| " + getUnderline(0, result2.diagnosticLength, this.severity, this.type) + NEW_LINE
-                    + padding + "| " + NEW_LINE;
+                    + padding + "| " +
+                    getUnderline(0, result2.diagnosticLength, this.severity, this.type, colorEnabled) + NEW_LINE
+                    + padding + "|" + NEW_LINE;
         }
         String padding2 = " ".repeat(Math.min(terminalWidth, maxLineLength) / 2);
-        return padding + "| " + NEW_LINE
+        return padding + "|" + NEW_LINE
                 + String.format("%" + endDigitsNum + "d ", startLineNumber) + "| " + result1.line + NEW_LINE
                 + paddingWithColon + "| " +
-                getUnderline(result1.diagnosticStart, result1.diagnosticLength, this.severity, this.type) + NEW_LINE
+                getUnderline(result1.diagnosticStart, result1.diagnosticLength, this.severity, this.type,
+                        colorEnabled) + NEW_LINE
                 + paddingWithColon + "| " + padding2 + ":" + NEW_LINE
                 + paddingWithColon + "| " + padding2 + ":" + NEW_LINE
                 + String.format("%" + endDigitsNum + "d ", startLineNumber + lines.size() - 1) + "| "
                 + result2.line + NEW_LINE
-                + padding + "| " + getUnderline(0, result2.diagnosticLength, this.severity, this.type) + NEW_LINE
-                + padding + "| " + NEW_LINE;
+                + padding + "| " + getUnderline(0, result2.diagnosticLength, this.severity, this.type, colorEnabled) +
+                NEW_LINE
+                + padding + "|" + NEW_LINE;
 
     }
 
-    public static String getColoredString(String message, String color) {
-        return JANSI_ANNOTATOR + color + " " + message + JANSI_RESET;
+    public static String getColoredString(String message, String color, boolean colorEnabled) {
+        return colorEnabled ? JANSI_ANNOTATOR + color + " " + message + JANSI_RESET : message;
     }
 
     private static String getUnderline(int offset, int length, DiagnosticSeverity severity,
-                                       DiagnosticAnnotationType type) {
+                                       DiagnosticAnnotationType type, boolean colorEnabled) {
         String symbol = "^";
         if (type == DiagnosticAnnotationType.MISSING) {
             symbol = "+";
         }
-        return " ".repeat(offset) + getColoredString(symbol.repeat(length), SEVERITY_COLORS.get(severity));
+        return " ".repeat(offset) +
+                getColoredString(symbol.repeat(length), SEVERITY_COLORS.get(severity), colorEnabled);
     }
 
     private static int countTabChars(String line, int end) {
