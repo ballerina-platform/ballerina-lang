@@ -25,6 +25,8 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.TextDocument;
+import org.jline.jansi.Ansi;
+import org.jline.jansi.AnsiConsole;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,25 +47,29 @@ public class AnnotateDiagnostics {
     private static final int MISSING_TOKEN_KEYWORD_CODE_THRESHOLD = 400;
     private static final int INVALID_TOKEN_CODE = 600;
 
-    public static String renderDiagnostic(Diagnostic diagnostic, Document document, int terminalWidth) {
+    public static Ansi renderDiagnostic(Diagnostic diagnostic, Document document, int terminalWidth) {
 
         String diagnosticCode = diagnostic.diagnosticInfo().code();
         if (diagnostic instanceof PackageDiagnostic && diagnosticCode.startsWith(COMPILER_ERROR_PREFIX)) {
             int diagnosticCodeNumber = Integer.parseInt(diagnosticCode.substring(3));
             if (diagnosticCodeNumber < SYNTAX_ERROR_CODE_THRESHOLD) {
                 PackageDiagnostic packageDiagnostic = (PackageDiagnostic) diagnostic;
-                return diagnosticToString(diagnostic) + NEW_LINE + getSyntaxDiagnosticAnnotation(
-                        document, packageDiagnostic, diagnosticCodeNumber, terminalWidth);
+                return Ansi.ansi().render(diagnosticToString(diagnostic) + NEW_LINE + getSyntaxDiagnosticAnnotation(
+                        document, packageDiagnostic, diagnosticCodeNumber, terminalWidth));
             }
         }
         DiagnosticAnnotation diagnosticAnnotation = getDiagnosticLineFromSyntaxAPI(
                 document, diagnostic.location(), diagnostic.diagnosticInfo().severity(), terminalWidth);
-        return diagnosticToString(diagnostic) + NEW_LINE + diagnosticAnnotation;
+        return Ansi.ansi().render(diagnosticToString(diagnostic) + NEW_LINE + diagnosticAnnotation);
 
     }
 
-    public static String renderDiagnostic(Diagnostic diagnostic) {
-        return diagnosticToString(diagnostic);
+    public static int getTerminalWidth() {
+        return AnsiConsole.getTerminalWidth();
+    }
+
+    public static Ansi renderDiagnostic(Diagnostic diagnostic) {
+        return Ansi.ansi().render(diagnosticToString(diagnostic));
     }
 
     private static String diagnosticToString(Diagnostic diagnostic) {
