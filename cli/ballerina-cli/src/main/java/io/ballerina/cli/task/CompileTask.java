@@ -231,6 +231,7 @@ public class CompileTask implements Task {
             // HashMap for documents based on filename
             Map<String, Document> documentMap = new HashMap<>();
             int terminalWidth = AnnotateDiagnostics.getTerminalWidth();
+            boolean colorEnabled = terminalWidth != 0;
 
             Package currentPackage = project.currentPackage();
             currentPackage.moduleIds().forEach(moduleId -> {
@@ -252,9 +253,10 @@ public class CompileTask implements Task {
                     if (diagnosticSet.add(d.toString())) {
                         Document document = documentMap.get(d.location().lineRange().fileName());
                         if (document != null) {
-                            err.println(AnnotateDiagnostics.renderDiagnostic(d, document, terminalWidth));
+                            err.println(AnnotateDiagnostics.renderDiagnostic(d, document,
+                                    terminalWidth == 0 ? 999 : terminalWidth, colorEnabled));
                         } else {
-                            err.println(AnnotateDiagnostics.renderDiagnostic(d));
+                            err.println(AnnotateDiagnostics.renderDiagnostic(d, colorEnabled));
                         }
                     }
                 }
