@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.cli.utils.AnnotateDiagnostics;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.CodeModifierResult;
@@ -43,7 +44,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralClientConstants;
-import org.jline.jansi.AnsiConsole;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.PrintStream;
@@ -57,10 +57,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static io.ballerina.cli.utils.AnnotateDiagnostics.renderDiagnostic;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_PREFIX;
-import static org.jline.jansi.Ansi.ansi;
 
 /**
  * Task for compiling a package.
@@ -232,7 +230,7 @@ public class CompileTask implements Task {
             Set<String> diagnosticSet = new HashSet<>();
             // HashMap for documents based on filename
             Map<String, Document> documentMap = new HashMap<>();
-            int terminalWidth = AnsiConsole.getTerminalWidth();
+            int terminalWidth = AnnotateDiagnostics.getTerminalWidth();
 
             Package currentPackage = project.currentPackage();
             currentPackage.moduleIds().forEach(moduleId -> {
@@ -245,7 +243,6 @@ public class CompileTask implements Task {
                     documentMap.put(getDocumentPath(document.module().moduleName(), document.name()), document);
                 });
             });
-            AnsiConsole.systemInstall();
             // Report package compilation and backend diagnostics
             diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
             diagnostics.forEach(d -> {
@@ -255,15 +252,13 @@ public class CompileTask implements Task {
                     if (diagnosticSet.add(d.toString())) {
                         Document document = documentMap.get(d.location().lineRange().fileName());
                         if (document != null) {
-                            err.println(
-                                    ansi().render(renderDiagnostic(d, document, terminalWidth)));
+                            err.println(AnnotateDiagnostics.renderDiagnostic(d, document, terminalWidth));
                         } else {
-                            err.println(ansi().render(renderDiagnostic(d)));
+                            err.println(AnnotateDiagnostics.renderDiagnostic(d));
                         }
                     }
                 }
             });
-            AnsiConsole.systemUninstall();
             // Add tool resolution diagnostics to diagnostics
             diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
             boolean hasErrors = false;
