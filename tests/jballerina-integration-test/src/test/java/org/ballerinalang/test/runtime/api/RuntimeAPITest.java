@@ -24,7 +24,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -73,7 +74,7 @@ public class RuntimeAPITest extends BaseTest {
         try {
             Process process = compile.start();
             process.waitFor();
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException | IOException e) {
             throw new BallerinaTestException("Error occurred while compiling the java file");
         }
 
