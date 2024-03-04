@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,11 +75,9 @@ func main() {
 			fmt.Println("Error resolving symbolic link:", err)
 			os.Exit(1)
 		}
-
 		if link == prg {
 			break
 		}
-
 		prg = link
 	}
 
@@ -121,9 +119,9 @@ func main() {
 		}
 	}
 	os.Setenv("BALLERINA_CLI_WIDTH", ballerinaCLIWidth)
+
 	var balJavaDebug string
 	balJavaDebug, isSet := os.LookupEnv("BAL_JAVA_DEBUG")
-
 	javaOpts := ""
 	if isSet {
 		if balJavaDebug == "" {
