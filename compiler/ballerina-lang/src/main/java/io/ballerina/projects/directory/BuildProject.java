@@ -431,7 +431,8 @@ public class BuildProject extends Project {
         if (toolResolution != null) {
             List<BuildTool> tools = toolResolution.getResolvedTools();
             for (BuildTool tool : tools) {
-                ToolDependency toolDependency = new ToolDependency(tool.id().value(), tool.version().toString());
+                ToolDependency toolDependency = new ToolDependency(
+                        tool.id().value(), tool.org().value(), tool.name().value(), tool.version().toString());
                 toolDependencies.add(toolDependency);
             }
         }

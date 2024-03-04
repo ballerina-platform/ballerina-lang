@@ -18,8 +18,6 @@
 
 package io.ballerina.projects.internal.model;
 
-import io.ballerina.projects.PackageDependencyScope;
-
 /**
  * {@code ToolDependency} Model for Tool Dependency.
  *
@@ -27,11 +25,14 @@ import io.ballerina.projects.PackageDependencyScope;
  */
 public class ToolDependency {
     String id;
+    String org;
+    String name;
     String version;
-    PackageDependencyScope scope;
 
-    public ToolDependency(String id, String version) {
+    public ToolDependency(String id, String org, String name, String version) {
         this.id = id;
+        this.org = org;
+        this.name = name;
         this.version = version;
     }
 
@@ -39,15 +40,15 @@ public class ToolDependency {
         return id;
     }
 
+    public String getOrg() {
+        return org;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public String getVersion() {
         return version;
-    }
-
-    public PackageDependencyScope getScope() {
-        return scope;
-    }
-
-    public void setScope(PackageDependencyScope scope) {
-        this.scope = scope;
     }
 }

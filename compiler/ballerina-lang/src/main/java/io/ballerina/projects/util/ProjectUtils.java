@@ -851,7 +851,12 @@ public class ProjectUtils {
         // write tool dependencies
         toolDependencies.forEach(toolDependency -> {
             content.append("\n");
-            addToolDependencyContent(content, toolDependency.getId(), toolDependency.getVersion());
+            addToolDependencyContent(
+                    content,
+                    toolDependency.getId(),
+                    toolDependency.getOrg(),
+                    toolDependency.getName(),
+                    toolDependency.getVersion());
         });
         return String.valueOf(content);
     }
@@ -909,9 +914,16 @@ public class ProjectUtils {
         }
     }
 
-    private static void addToolDependencyContent(StringBuilder content, String id, String version) {
+    private static void addToolDependencyContent(
+            StringBuilder content,
+            String id,
+            String org,
+            String name,
+            String version) {
         content.append("[[tool]]\n");
         content.append("id = \"").append(id).append("\"\n");
+        content.append("org = \"").append(org).append("\"\n");
+        content.append("name = \"").append(name).append("\"\n");
         content.append("version = \"").append(version).append("\"\n");
     }
 

@@ -257,18 +257,30 @@ public class DependencyManifest {
      * @since 2201.9.0
      */
     public static class Tool {
-        private final String id;
+        private final BuildToolId id;
+        private final PackageOrg org;
+        private final PackageName name;
         private final PackageVersion version;
         private final Location location;
 
-        public Tool(String id, PackageVersion version, Location location) {
+        public Tool(BuildToolId id, PackageOrg org, PackageName name, PackageVersion version, Location location) {
             this.id = id;
+            this.org = org;
+            this.name = name;
             this.version = version;
             this.location = location;
         }
 
-        public String id() {
+        public BuildToolId id() {
             return id;
+        }
+
+        public PackageOrg org() {
+            return org;
+        }
+
+        public PackageName name() {
+            return name;
         }
 
         public PackageVersion version() {

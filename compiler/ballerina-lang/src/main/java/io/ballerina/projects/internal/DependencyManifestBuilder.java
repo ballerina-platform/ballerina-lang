@@ -18,6 +18,7 @@
 
 package io.ballerina.projects.internal;
 
+import io.ballerina.projects.BuildToolId;
 import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageDescriptor;
@@ -74,6 +75,8 @@ public class DependencyManifestBuilder {
     private static final String BALLERINA = "ballerina";
     private static final String TOOL = "tool";
     private static final String ID = "id";
+    private static final String ORG = "org";
+    private static final String NAME = "name";
     private static final String VERSION = "version";
 
     private DependencyManifestBuilder(TomlDocument dependenciesToml,
@@ -244,9 +247,9 @@ public class DependencyManifestBuilder {
             List<DependencyManifest.Dependency> directDependencies = getRootPackageDependencies(dependencyTableArray);
 
             for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
-                String name = getStringValueFromDependencyNode(dependencyNode, "name");
-                String org = getStringValueFromDependencyNode(dependencyNode, "org");
-                String version = getStringValueFromDependencyNode(dependencyNode, "version");
+                String name = getStringValueFromDependencyNode(dependencyNode, NAME);
+                String org = getStringValueFromDependencyNode(dependencyNode, ORG);
+                String version = getStringValueFromDependencyNode(dependencyNode, VERSION);
 
                 // If name, org or version, one of the value is null, ignore dependency
                 if (name == null || org == null || version == null) {
@@ -294,12 +297,17 @@ public class DependencyManifestBuilder {
             TomlTableArrayNode toolTableArray = (TomlTableArrayNode) toolEntries;
             for (TomlTableNode toolNode : toolTableArray.children()) {
                 String id = getStringValueFromDependencyNode(toolNode, ID);
+                String org = getStringValueFromDependencyNode(toolNode, ORG);
+                String name = getStringValueFromDependencyNode(toolNode, NAME);
                 String version = getStringValueFromDependencyNode(toolNode, VERSION);
 
                 // If id or version is null, ignore dependency
-                if (id == null || version == null) {
+                if (id == null || org == null || name == null || version == null) {
                     continue;
                 }
+                BuildToolId toolId = BuildToolId.from(id);
+                PackageOrg toolOrg = PackageOrg.from(org);
+                PackageName toolName = PackageName.from(name);
                 PackageVersion toolVersion;
                 try {
                     toolVersion = PackageVersion.from(version);
@@ -307,7 +315,7 @@ public class DependencyManifestBuilder {
                     // Ignore exception and dependency
                     continue;
                 }
-                tools.add(new DependencyManifest.Tool(id, toolVersion, toolNode.location()));
+                tools.add(new DependencyManifest.Tool(toolId, toolOrg, toolName, toolVersion, toolNode.location()));
             }
         }
         return tools;

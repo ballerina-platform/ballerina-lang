@@ -266,7 +266,9 @@ public class ToolResolution {
         }
         for (BuildTool tool : unresolvedTools) {
             for (DependencyManifest.Tool toolDependency : dependencyManifest.tools()) {
-                if (toolDependency.id().equals(tool.id().value())) {
+                if (toolDependency.id().equals(tool.id())) {
+                    tool.setOrg(toolDependency.org());
+                    tool.setName(toolDependency.name());
                     tool.setVersion(toolDependency.version());
                     break;
                 }
