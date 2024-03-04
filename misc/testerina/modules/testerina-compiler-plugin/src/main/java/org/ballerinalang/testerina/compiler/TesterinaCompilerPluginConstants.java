@@ -46,6 +46,7 @@ public class TesterinaCompilerPluginConstants {
     public static final String TESTS_PARAMETER = "tests";
     public static final String RERUN_FAILED_PARAMETER = "rerunFailed";
     public static final String LIST_GROUPS_PARAMETER = "listGroups";
+    public static final String PARALLEL_EXECUTION_PARAMETER = "parallelExecution";
 
     private TesterinaCompilerPluginConstants() {}
 }

@@ -191,6 +191,66 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "incompatible types: expected " +
                 "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
                 "found 'table<record {| int id; |}>'", 566, 9);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                576, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                586, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                587, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                588, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                596, 23);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                605, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                606, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                607, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                608, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                616, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                625, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                626, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                627, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                628, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                629, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                630, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                631, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                632, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                633, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                634, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                642, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                643, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                644, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                645, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                646, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                647, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                648, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                649, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                650, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a constant expression",
+                651, 5);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
@@ -215,17 +275,17 @@ public class TableNegativeTest {
                         "</BLangXMLQName: (p) empId> [][5005]]'",
                 54, 9);
         validateError(compileResult, index++, "duplicate key found in table row key('firstName') : '<string> " +
-                        "(name is string && ! invalid?(BLangStringTemplateLiteral: [Hello , name, !!!]):James)'",
-                64, 9);
+                        "(val > 10 && ! (val < 10)?(BLangStringTemplateLiteral: [Hello , name, !!!]):James)'",
+                67, 9);
         validateError(compileResult, index++, "duplicate key found in table row key('id') : '[5005, 5006]'",
-                76, 5);
+                79, 5);
         validateError(compileResult, index++, "duplicate key found in table row key('id') : ' '",
-                102, 9);
+                105, 9);
         validateError(compileResult, index++, "duplicate key found in table row key('id') : " +
                         "'<(byte[] & readonly)> (base16 `5A`)'",
-                128, 9);
+                131, 9);
         validateError(compileResult, index, "duplicate key found in table row key('id') : 'ID2'",
-                136, 9);
+                139, 9);
     }
 
     @Test

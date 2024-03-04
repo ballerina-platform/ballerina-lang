@@ -65,17 +65,18 @@ public class NativeUtils {
 
     private static final ReflectConfigClassMethod REFLECTION_CONFIG_EXECUTE_METHOD = new  ReflectConfigClassMethod(
             TEST_EXEC_FUNCTION, new String[]{"io.ballerina.runtime.internal.scheduling.Strand",
-                "io.ballerina.runtime.api.values.BString",
-                "io.ballerina.runtime.api.values.BString",
-                "io.ballerina.runtime.api.values.BString",
-                "io.ballerina.runtime.api.values.BString",
-                "io.ballerina.runtime.api.values.BString",
-                "io.ballerina.runtime.api.values.BString",
-                "io.ballerina.runtime.api.values.BString",
-                "io.ballerina.runtime.api.values.BString",
-                "io.ballerina.runtime.api.values.BString",
-                "io.ballerina.runtime.api.values.BString"
-            });
+                                                "io.ballerina.runtime.api.values.BString",
+                                                "io.ballerina.runtime.api.values.BString",
+                                                "io.ballerina.runtime.api.values.BString",
+                                                "io.ballerina.runtime.api.values.BString",
+                                                "io.ballerina.runtime.api.values.BString",
+                                                "io.ballerina.runtime.api.values.BString",
+                                                "io.ballerina.runtime.api.values.BString",
+                                                "io.ballerina.runtime.api.values.BString",
+                                                "io.ballerina.runtime.api.values.BString",
+                                                "io.ballerina.runtime.api.values.BString",
+                                                "io.ballerina.runtime.api.values.BString"
+    });
 
     //Add dynamically loading classes and methods to reflection config
     public static void createReflectConfig(Path nativeConfigPath, Package currentPackage,
