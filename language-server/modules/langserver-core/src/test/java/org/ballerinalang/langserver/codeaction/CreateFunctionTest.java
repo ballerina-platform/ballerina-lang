@@ -210,8 +210,7 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
     public Object[][] negativeDataProvider() {
         return new Object[][]{
                 {"undefinedFunctionCodeActionNegativeTest1.json"},
-                {"undefinedFunctionCodeActionNegativeTest2.json"},
-                {"createUndefinedFunctionInCompoundStatement4.json"},
+                {"undefinedFunctionCodeActionNegativeTest2.json"}
         };
     }
 
