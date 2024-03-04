@@ -47,7 +47,7 @@ public enum PlatformLibraryScope {
         this.strValue = strValue;
     }
 
-    String getStringValue() {
+    public String getStringValue() {
         return strValue;
     }
 }

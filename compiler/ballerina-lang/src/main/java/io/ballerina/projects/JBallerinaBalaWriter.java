@@ -72,7 +72,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
             throws IOException {
         // retrieve platform dependencies
         Collection<PlatformLibrary> jars = backend.platformLibraryDependencies(packageContext.packageId(),
-                PlatformLibraryScope.DEFAULT);// TODO: done
+                PlatformLibraryScope.DEFAULT);
         Collection<PlatformLibrary> providedJars = backend.platformLibraryDependencies(packageContext.packageId(),
                 PlatformLibraryScope.PROVIDED);
         if (jars.isEmpty() && providedJars.isEmpty()) {
