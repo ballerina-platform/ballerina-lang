@@ -250,9 +250,6 @@ public class JBallerinaBackend extends CompilerBackend {
             // Its immediate dependent modules are marked as "used" and they are optimized after that.
             // This process happens till all "used" modules are exhausted.
             if (shouldOptimize(moduleContext) && (isRootModule(moduleContext) || moduleContext.isUsed())) {
-                if (moduleContext.bLangPackage().hasTestablePackage()) {
-                    usedBIRNodeAnalyzer.analyze(moduleContext.bLangPackage().getTestablePkg());
-                }
                 usedBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
                 updateNativeDependencyMap(moduleContext);
             }
@@ -266,7 +263,7 @@ public class JBallerinaBackend extends CompilerBackend {
         // Codegen cannot be done in the inverted order of the topologicallySortedModuleList.
         // Therefore, we had to move it into another for loop.
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
-            if (shouldOptimize(moduleContext)) {
+            if (shouldOptimize(moduleContext) || hasTests(moduleContext)) {
                 if (moduleContext.isUsed()) {
                     // Generate optimized thin JAR byte streams.
                     performOptimizedCodeGen(moduleContext);
@@ -288,7 +285,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private boolean hasTests(ModuleContext moduleContext) {
-        return moduleContext.bLangPackage().hasTestablePackage();
+        return platformLibraryGenerated(moduleContext) && moduleContext.bLangPackage().hasTestablePackage();
     }
 
     private boolean shouldOptimize(ModuleContext moduleContext) {
@@ -521,12 +518,12 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     public void performOptimizedCodeGen(ModuleContext moduleContext) {
+        BLangPackage bLangPackage = moduleContext.bLangPackage();
         long birOptimizeDeletionTimeStart = System.currentTimeMillis();
-        optimizeBirPackage(moduleContext.bLangPackage().symbol);
+        optimizeBirPackage(bLangPackage.symbol);
         long birOptimizeDeletionTimeEnd = System.currentTimeMillis();
         birOptimizeDeletionTimeTotal += (birOptimizeDeletionTimeEnd - birOptimizeDeletionTimeStart);
 
-        BLangPackage bLangPackage = moduleContext.bLangPackage();
         interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
         if (bLangPackage.getErrorCount() > 0) {
             return;
@@ -538,9 +535,38 @@ public class JBallerinaBackend extends CompilerBackend {
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
-            optimizedJarStreams.putIfAbsent(jarFileName, byteStream);
+            if (!this.packageContext.project().buildOptions().skipTests()) {
+                moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, jarFileName, byteStream);
+            } else {
+                optimizedJarStreams.putIfAbsent(jarFileName, byteStream);
+            }
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
+        }
+
+        // TODO merge this with performCodeGen
+        // skip generation of the test jar if --with-tests option is not provided
+        if (moduleContext.project().buildOptions().skipTests()) {
+            return;
+        }
+
+        if (!bLangPackage.hasTestablePackage()) {
+            return;
+        }
+
+        // Both invocation data are the same
+        // TODO do the merging inside usedBIRNodeAnalyzer
+        bLangPackage.testablePkgs.get(0).symbol.invocationData = bLangPackage.symbol.invocationData;
+
+        optimizeBirPackage(bLangPackage.testablePkgs.get(0).symbol);
+
+        String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
+        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
+        try {
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
+            moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
+        } catch (IOException e) {
+            throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
         }
     }
 
@@ -758,10 +784,12 @@ public class JBallerinaBackend extends CompilerBackend {
             optimizedJarStream.close();
 
             long nativeOptEndTime = System.currentTimeMillis();
+            float optimizedJarSize =
+                    Files.size(Path.of(executableFilePath.toString().replace(".jar", "_OPTIMIZED.jar"))) / (1024f*1024f);
 
             System.out.println("Duration for Bytecode Optimization (analysis + deletion) : " +
                     (nativeOptEndTime - nativeOptStartTime) + "ms");
-
+            System.out.printf("Optimized file size : %f MB%n", optimizedJarSize);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

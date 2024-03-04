@@ -322,6 +322,10 @@ class ModuleContext {
         return this.bLangPackage().symbol.invocationData.moduleIsUsed;
     }
 
+    public CompilationCache getCompilationCache() {
+        return this.compilationCache;
+    }
+
     private void addModuleDependency(PackageOrg org,
                                      String moduleName,
                                      PackageDependencyScope scope,
