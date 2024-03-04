@@ -30,6 +30,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -251,7 +252,33 @@ public class RunTestsTask implements Task {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("error occurred while generating test report :", e);
             }
+            if (project.buildOptions().dumpBuildTime()) {
+                BuildTime.getInstance().testingExecutionDuration = System.currentTimeMillis() - start;
+            }
         }
+    }
+
+    private void cleanCaches(TestSuite testSuite) {
+        testSuite.getTestExecutionDependencies().forEach(
+                dependency -> {
+                    // TODO find the proper constants for the cache locations
+                    if (dependency.startsWith(
+                            "C:\\Users\\Thushara Piyasekara\\.ballerina\\repositories\\central.ballerina.io\\cache-2201.9.0-SNAPSHOT\\ballerina\\") ||
+                            dependency.contains(
+                                    "C:\\Users\\BALLER~1\\BALLER~1\\DISTRI~1\\zip\\JBALLE~1\\build\\EXTRAC~1\\JBALLE~1.0-S\\bin\\..\\repo\\cache\\ballerina\\test\\0.0.0\\java17\\ballerina-test-0.0.0.jar")) {
+                        try {
+
+                            File dependencyJarFile = new File(dependency);
+                            File parentCache = dependencyJarFile.getParentFile().getParentFile().getParentFile();
+                            System.out.println("size of " + dependencyJarFile.getPath() + " : " + Files.size(dependencyJarFile.toPath())/1024 + " KB");
+                            System.out.println("deleted  " + parentCache.getPath());
+                            FileUtils.deleteDirectory(parentCache);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+        );
     }
 
     private int runTestSuite(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
