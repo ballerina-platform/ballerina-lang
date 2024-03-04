@@ -562,7 +562,8 @@ public class ManifestBuilder {
                         String artifactId = getStringValueFromPlatformEntry(platformEntryTable, ARTIFACT_ID);
                         String version = getStringValueFromPlatformEntry(platformEntryTable, VERSION);
                         String scope = getStringValueFromPlatformEntry(platformEntryTable, SCOPE);
-                        if (PlatformLibraryScope.PROVIDED.getStringValue().equals(scope) && !providedPlatformDependencyIsValid(artifactId, groupId, version)) {
+                        if (PlatformLibraryScope.PROVIDED.getStringValue().equals(scope)
+                                && !providedPlatformDependencyIsValid(artifactId, groupId, version)) {
                             reportDiagnostic(platformEntryTable,
                                     "artifactId, groupId and version must be provided for platform " +
                                             "dependencies with provided scope",
