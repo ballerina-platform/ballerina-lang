@@ -26,6 +26,7 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.TomlDocument;
@@ -561,7 +562,7 @@ public class ManifestBuilder {
                         String artifactId = getStringValueFromPlatformEntry(platformEntryTable, ARTIFACT_ID);
                         String version = getStringValueFromPlatformEntry(platformEntryTable, VERSION);
                         String scope = getStringValueFromPlatformEntry(platformEntryTable, SCOPE);
-                        if ("provided".equals(scope) && !providedPlatformDependencyIsValid(artifactId, groupId, version)) {
+                        if (PlatformLibraryScope.PROVIDED.getStringValue().equals(scope) && !providedPlatformDependencyIsValid(artifactId, groupId, version)) {
                             reportDiagnostic(platformEntryTable,
                                     "artifactId, groupId and version must be provided for platform " +
                                             "dependencies with provided scope",

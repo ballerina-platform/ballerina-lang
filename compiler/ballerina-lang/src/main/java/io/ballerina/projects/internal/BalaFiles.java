@@ -29,6 +29,7 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.bala.BalToolJson;
 import io.ballerina.projects.internal.bala.CompilerPluginJson;
@@ -358,16 +359,19 @@ public class BalaFiles {
             return;
         }
         packageJson.getPlatformDependencies().forEach(dependency -> {
-            Path libPath = balaPath.getParent().resolve(dependency.getPath());
-            if (!Files.exists(libPath)) {
-                try {
-                    Files.createDirectories(libPath.getParent());
-                    Files.copy(zipFileSystem.getPath(dependency.getPath()), libPath);
-                } catch (IOException e) {
-                    throw new ProjectException("Failed to extract platform dependency:" + libPath.getFileName(), e);
+            if (null == dependency.getScope()
+                    || !PlatformLibraryScope.PROVIDED.getStringValue().equals(dependency.getScope())) {
+                Path libPath = balaPath.getParent().resolve(dependency.getPath());
+                if (!Files.exists(libPath)) {
+                    try {
+                        Files.createDirectories(libPath.getParent());
+                        Files.copy(zipFileSystem.getPath(dependency.getPath()), libPath);
+                    } catch (IOException e) {
+                        throw new ProjectException("Failed to extract platform dependency:" + libPath.getFileName(), e);
+                    }
                 }
+                dependency.setPath(libPath.toString());
             }
-            dependency.setPath(libPath.toString());
         });
     }
 
