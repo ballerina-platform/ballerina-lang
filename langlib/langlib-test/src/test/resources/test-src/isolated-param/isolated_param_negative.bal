@@ -63,4 +63,22 @@ isolated function testInvalidNonIsolatedFuncArgInFixedLengthArrayRestArg() {
     int[] marks = [75, 80, 45, 90];
     (function (int x) returns boolean)[1] fns = [x => x > 79];
     _ = marks.filter(...fns);
+    _ = marks.filter(...[...fns]);
+    _ = marks.filter(...[...[...fns]]);
+}
+
+type Rec record {|
+    function(int) returns (boolean) func;
+|};
+
+isolated function testInvalidNonIsolatedFuncArgAsMappingsInFixedLengthArrayRestArg() {
+    int[] marks = [75, 80, 45, 90];
+    (function (int x) returns boolean) func = x => x > 79;
+    Rec rec = {
+        func
+    };
+    _ = marks.filter(...rec);
+    _ = marks.filter(...<Rec>{...rec});
+    _ = marks.filter(...<Rec>{func});
+    _ = marks.filter(...<Rec>{func: func});
 }
