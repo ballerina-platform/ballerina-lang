@@ -1573,6 +1573,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                             }
                         }
                         default -> {
+                            // Ignore the default case
                         }
                     }
                 }
