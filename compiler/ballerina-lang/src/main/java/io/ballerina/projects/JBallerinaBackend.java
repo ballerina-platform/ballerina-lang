@@ -21,11 +21,13 @@ import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
@@ -65,6 +67,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -204,19 +207,12 @@ public class JBallerinaBackend extends CompilerBackend {
             return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), generatedArtifact);
         }
 
-        switch (outputType) {
-            case GRAAL_EXEC:
-                generatedArtifact = emitGraalExecutable(filePath);
-                break;
-            case EXEC:
-                generatedArtifact = emitExecutable(filePath);
-                break;
-            case BALA:
-                generatedArtifact = emitBala(filePath);
-                break;
-            default:
-                throw new RuntimeException("Unexpected output type: " + outputType);
-        }
+        generatedArtifact = switch (outputType) {
+            case GRAAL_EXEC -> emitGraalExecutable(filePath);
+            case EXEC -> emitExecutable(filePath);
+            case BALA -> emitBala(filePath);
+            default -> throw new RuntimeException("Unexpected output type: " + outputType);
+        };
 
         ArrayList<Diagnostic> allDiagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
         List<Diagnostic> emitResultDiagnostics = new ArrayList<>();
@@ -226,11 +222,15 @@ public class JBallerinaBackend extends CompilerBackend {
             emitResultDiagnostics.addAll(pluginDiagnostics);
         }
         // Add jar resolver diagnostics.
-        jarResolver().diagnosticResult().diagnostics().stream().forEach(
-                diagnostic -> emitResultDiagnostics.add(diagnostic));
-        allDiagnostics.addAll(emitResultDiagnostics);
+        emitResultDiagnostics.addAll(jarResolver().diagnosticResult().diagnostics());
+
+        // Add warning for provided platform dependencies
+        if ((outputType.equals(OutputType.EXEC) || outputType.equals(OutputType.GRAAL_EXEC))) {
+            addProvidedDependencyWarning(emitResultDiagnostics);
+        }
         // JBallerinaBackend diagnostics contains all diagnostics.
         // EmitResult will only contain diagnostics related to emitting the executable.
+        allDiagnostics.addAll(emitResultDiagnostics);
         diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
 
         // TODO handle the EmitResult properly
@@ -261,7 +261,9 @@ public class JBallerinaBackend extends CompilerBackend {
         Package pkg = packageCache.getPackageOrThrow(packageId);
         Map<String, PackageManifest.Platform> platforms = pkg.manifest().platforms();
         List<PlatformLibrary> platformLibraries = new ArrayList<>();
-        for (PackageManifest.Platform javaPlatform : platforms.values()) {
+        for (Map.Entry<String, PackageManifest.Platform> entry : platforms.entrySet()) {
+            PackageManifest.Platform javaPlatform = entry.getValue();
+            String platform = entry.getKey();
             if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
                 continue;
             }
@@ -271,19 +273,27 @@ public class JBallerinaBackend extends CompilerBackend {
                 String groupId = (String) dependency.get(JarLibrary.KEY_GROUP_ID);
 
                 String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
+                PlatformLibraryScope dependencyScope = getPlatformLibraryScope(dependency);
+
                 // If dependencyFilePath does not exist, resolve it using MavenResolver
                 if (dependencyFilePath == null || dependencyFilePath.isEmpty()) {
-                    dependencyFilePath = getPlatformLibPath(groupId, artifactId, version);
-                }
 
-                // If the path is relative we will covert to absolute relative to Ballerina.toml file
+                    // if the dependency is transitive and has provided scope, check the current package's
+                    // Ballerina.toml for provided platform dependencies
+                    if (Objects.equals(dependencyScope, PlatformLibraryScope.PROVIDED)
+                            && !Objects.equals(packageId, this.packageContext().packageId())) {
+                        dependencyFilePath = getPlatformLibPathFromProvided(platform, groupId, artifactId, version);
+                    } else {
+                        dependencyFilePath = getPlatformLibPath(groupId, artifactId, version);
+                    }
+                    dependency.put(JarLibrary.KEY_PATH, dependencyFilePath);
+                }
+                // If the path is relative we will convert to absolute relative to Ballerina.toml file
                 Path jarPath = Paths.get(dependencyFilePath);
                 if (!jarPath.isAbsolute()) {
                     jarPath = pkg.project().sourceRoot().resolve(jarPath);
                 }
-
-                PlatformLibraryScope scope = getPlatformLibraryScope(dependency);
-                platformLibraries.add(new JarLibrary(jarPath, scope, artifactId, groupId, version,
+                platformLibraries.add(new JarLibrary(jarPath, dependencyScope, artifactId, groupId, version,
                         pkg.packageOrg().value() + "/" + pkg.packageName().value()));
             }
         }
@@ -394,8 +404,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
             // Sort jar libraries list to avoid inconsistent jar reporting
             List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
-                    .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName()))
-                    .collect(Collectors.toList());
+                    .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName())).toList();
 
             // Copy all the jars
             for (JarLibrary library : sortedJarLibraries) {
@@ -507,7 +516,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {
-        return copiedEntries.keySet().contains(entryName);
+        return copiedEntries.containsKey(entryName);
     }
 
     private static boolean isExcludedEntry(String entryName) {
@@ -623,8 +632,7 @@ public class JBallerinaBackend extends CompilerBackend {
             Thread.currentThread().interrupt();
         }
 
-        Path graalexectablepath = Path.of(FilenameUtils.removeExtension(executableFilePath.toString()));
-        return graalexectablepath;
+        return Path.of(FilenameUtils.removeExtension(executableFilePath.toString()));
     }
 
     private Map<String, byte[]> getResources(ModuleContext moduleContext) {
@@ -679,7 +687,7 @@ public class JBallerinaBackend extends CompilerBackend {
      */
     private String getPlatformLibPath(String groupId, String artifactId, String version) {
         String targetRepo =
-                this.packageContext.project().targetDir().resolve(ProjectConstants.TARGET_DIR_NAME).toString()
+                this.packageContext.project().targetDir().resolve(ProjectConstants.TARGET_DIR_NAME)
                         + File.separator + "platform" + "-libs";
         MavenResolver resolver = new MavenResolver(targetRepo);
         try {
@@ -688,6 +696,31 @@ public class JBallerinaBackend extends CompilerBackend {
         } catch (MavenResolverException e) {
             throw new ProjectException("cannot resolve " + artifactId + ": " + e.getMessage());
         }
+    }
+
+    /**
+     *
+     * @param platform java platform of the dependency
+     * @param groupId group id
+     * @param artifactId artifact id
+     * @param version version
+     * @return platform lib path provided by user
+     */
+    private String getPlatformLibPathFromProvided(String platform, String groupId, String artifactId, String version) {
+
+        for (Map<String, Object> platformDep :
+                this.packageContext().packageManifest().platform(platform).dependencies()) {
+            String depArtifactId = (String) platformDep.get(JarLibrary.KEY_ARTIFACT_ID);
+            String depVersion = (String) platformDep.get(JarLibrary.KEY_VERSION);
+            String depGroupId = (String) platformDep.get(JarLibrary.KEY_GROUP_ID);
+            String depFilepath = (String) platformDep.get(JarLibrary.KEY_PATH);
+            if (artifactId.equals(depArtifactId) && groupId.equals(depGroupId)
+                    && version.equals(depVersion) && depFilepath != null && !depFilepath.isEmpty()) {
+                return depFilepath;
+            }
+        }
+        throw new ProjectException("cannot resolve " + artifactId + "as platform dependencies belonging to the " +
+                "provided scope must be provided by the user. Please add the dependency in the Ballerina.toml file");
     }
 
     /**
@@ -784,5 +817,26 @@ public class JBallerinaBackend extends CompilerBackend {
             }
         }
         return null;
+    }
+
+    private void addProvidedDependencyWarning(List<Diagnostic> emitResultDiagnostics) {
+        Map<String, PackageManifest.Platform> platforms = this.packageContext().packageManifest().platforms();
+        for (PackageManifest.Platform javaPlatform : platforms.values()) {
+            if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
+                continue;
+            }
+            for (Map<String, Object> dependency : javaPlatform.dependencies()) {
+                if (Objects.equals(getPlatformLibraryScope(dependency), PlatformLibraryScope.PROVIDED)) {
+                    DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                            ProjectDiagnosticErrorCode.PROVIDED_PLATFORM_JAR_IN_EXECUTABLE.diagnosticId(),
+                            "Detected platform dependencies with provided scope in the executable. " +
+                                    "Please refrain from re-distributing the created executable",
+                            DiagnosticSeverity.WARNING);
+                    emitResultDiagnostics.add(new PackageDiagnostic(diagnosticInfo,
+                            this.packageContext().descriptor().name().toString()));
+                    return;
+                }
+            }
+        }
     }
 }
