@@ -18,6 +18,7 @@ package org.ballerinalang.test.annotations;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -51,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -161,15 +163,7 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotOnServiceOne() {
-        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                compileResult.getAST().getServices().stream()
-                        .filter(serviceNode ->
-                                serviceNode.getAbsolutePath().stream().anyMatch(p -> p.getValue().contains("ser")))
-                        .findFirst()
-                        .get().getServiceClass().getAnnotationAttachments()
-                        .stream()
-                        .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
-                        .collect(Collectors.toList());
+        List<BLangAnnotationAttachment> attachments = getServiceClassAnnotations("ser");
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v8", "val", "v8");
     }
@@ -568,6 +562,43 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(m1.annAttachments.get(0).annotationName.getValue(), "v30");
     }
 
+    @Test
+    public void testAnnotOnServiceRemoteMethodOfServiceClass() {
+        BLangClassDefinition serviceClass = getClassDefinition(((BLangPackage) compileResult.getAST()).topLevelNodes,
+                                                               "ServiceClass");
+        List<BLangAnnotationAttachment> attachments =
+                serviceClass.functions.stream()
+                        .filter(f -> f.name.value.equals("serviceRemoteFn1"))
+                        .findFirst()
+                        .get().getAnnotationAttachments();
+        Assert.assertEquals(attachments.size(), 2);
+        assertAnnotationNameAndKeyValuePair(attachments.get(0), "v31", "increment", 1111L);
+        assertAnnotationNameAndKeyValuePair(attachments.get(1), "v32", "increment", 1112L);
+    }
+
+    @Test
+    public void testAnnotOnServiceRemoteMethodOfServiceType() {
+        BLangTypeDefinition serviceObject = getTypeDefinition(compileResult.getAST().getTypeDefinitions(),
+                                                              "ServiceObject");
+        List<BLangAnnotationAttachment> attachments =
+                ((BLangObjectTypeNode) serviceObject.typeNode).functions.stream()
+                        .filter(f -> f.name.value.equals("serviceRemoteFn2"))
+                        .findFirst()
+                        .get().getAnnotationAttachments();
+        Assert.assertEquals(attachments.size(), 1);
+        assertAnnotationNameAndKeyValuePair(attachments.get(0), "v31", "increment", 1113L);
+    }
+
+    @Test
+    public void testAnnotOnServiceRemoteMethodOfServiceDecl() {
+        List<BLangAnnotationAttachment> attachments = getServiceClassForServiceDecl("ser2").getFunctions().stream()
+                .filter(f -> f.name.value.equals("serviceRemoteFn3"))
+                .findFirst()
+                .get().getAnnotationAttachments();
+        Assert.assertEquals(attachments.size(), 1);
+        assertAnnotationNameAndKeyValuePair(attachments.get(0), "v32", "increment", 1114L);
+    }
+
     private BLangTypeDefinition getTypeDefinition(List<? extends TypeDefinition> typeDefinitions, String name) {
         for (TypeDefinition typeDefinition : typeDefinitions) {
             BLangTypeDefinition bLangTypeDefinition = (BLangTypeDefinition) typeDefinition;
@@ -590,6 +621,23 @@ public class AnnotationAttachmentTest {
             }
         }
         throw new RuntimeException("Class Definition '" + name + "' not found.");
+    }
+
+    private List<BLangAnnotationAttachment> getServiceClassAnnotations(String name) {
+        return (List<BLangAnnotationAttachment>)
+                getServiceClassForServiceDecl(name).getAnnotationAttachments()
+                        .stream()
+                        .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
+                        .collect(Collectors.toList());
+    }
+
+    private ClassDefinition getServiceClassForServiceDecl(String name) {
+        return compileResult.getAST().getServices().stream()
+                .filter(serviceNode ->
+                                serviceNode.getAbsolutePath().stream()
+                                        .anyMatch(p -> p.getValue().contains(name)))
+                .findFirst()
+                .get().getServiceClass();
     }
 
     @AfterClass

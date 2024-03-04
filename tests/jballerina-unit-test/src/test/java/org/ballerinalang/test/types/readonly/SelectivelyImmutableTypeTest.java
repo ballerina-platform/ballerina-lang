@@ -107,6 +107,13 @@ public class SelectivelyImmutableTypeTest {
                 "'PersonalDetails'", 112, 18);
         validateError(result, index++, "incompatible types: expected '(Department & readonly)' for field 'dept', " +
                 "found 'Department'", 113, 12);
+        validateError(result, index++,
+                "invalid usage of spread field with open record of type 'record {| Department dept; anydata...; |}', " +
+                        "that may have rest fields, to construct a closed record", 113, 12);
+        validateError(result, index++,
+                "invalid usage of spread field with open record of type 'record {| readonly (Department & readonly) " +
+                        "dept; (anydata & readonly)...; |} & readonly', that may have rest fields, to construct a " +
+                        "closed record", 133, 12);
 
         // Updates.
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 136, 5);
@@ -193,6 +200,8 @@ public class SelectivelyImmutableTypeTest {
                 "'(json & readonly)[]'", 407, 28);
         validateError(result, index++, "incompatible types: expected '(json & readonly)[]', found " +
                 "'(xml & readonly)[]'", 408, 29);
+        validateError(result, index++, "incompatible types: expected " +
+                "'((stream<int>|ballerina/lang.string:0.0.0:RegExp) & readonly)', found 'stream<int>'", 412, 48);
 
         assertEquals(result.getErrorCount(), index);
     }

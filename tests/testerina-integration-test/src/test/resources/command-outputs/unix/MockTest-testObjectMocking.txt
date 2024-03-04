@@ -6,6 +6,30 @@ WARNING [main.bal:(47:5,47:47)] unused variable 'closeErr'
 Running Tests with Coverage
 
 	object_mocking
+
+testDefaultIncompatibleArgs has failed.
+
+
+testDefaultInvalidMemberReturnValue has failed.
+
+
+testDefaultMockInvalidFieldName has failed.
+
+
+testDefaultMockInvalidReturnValue has failed.
+
+
+testDefaultMockWrongAction has failed.
+
+
+testDefaultTooManyArgs has failed.
+
+
+testMockInvalidStream has failed.
+
+
+		Test execution time :*****ms
+
 		[pass] testDependentlyTypedFunctions_testDouble
 		[pass] testDependentlyTypedFunctions_thenReturn
 		[pass] testMockMemberVariable
