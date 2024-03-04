@@ -98,7 +98,9 @@ public abstract class SimpleBTypeAnalyzer<T> extends BTypeAnalyzer<T>{
     @Override
     public void visit(BInvokableType bInvokableType, T data) {
         analyzeType(bInvokableType, data);
-        bInvokableType.paramTypes.forEach(param -> visitType(param, data));
+        if (bInvokableType.paramTypes != null) {
+            bInvokableType.paramTypes.forEach(param -> visitType(param, data));
+        }
         visitType(bInvokableType.retType, data);
     }
 

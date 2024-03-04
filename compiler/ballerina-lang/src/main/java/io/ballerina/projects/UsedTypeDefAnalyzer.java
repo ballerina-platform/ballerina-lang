@@ -72,7 +72,7 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
                 globalTypeDefPool.putIfAbsent(typeDef.type, typeDef);
             }
             if (interopDependencies != null && interopDependencies.contains(typeDef.internalName.toString())) {
-                pkgCache.getInvocationData(typeDef.getPackageID()).startPointNodes.add(typeDef);
+                usedBIRNodeAnalyzer.getInvocationData(typeDef.getPackageID()).startPointNodes.add(typeDef);
             }
         });
     }
@@ -95,7 +95,10 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
             return null;
         }
 
-        UsedBIRNodeAnalyzer.InvocationData invocationData = pkgCache.getInvocationData(bType.tsymbol.pkgID);
+        UsedBIRNodeAnalyzer.InvocationData invocationData = usedBIRNodeAnalyzer.getInvocationData(bType.tsymbol.pkgID);
+        if (invocationData == null) {
+            return null;
+        }
         if (!invocationData.moduleIsUsed) {
             invocationData.registerNodes(this, pkgCache.getBirPkg(bType.tsymbol.pkgID));
         }
@@ -120,7 +123,7 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
         }
 
         if (!childTypeDefNode.isInSamePkg(usedBIRNodeAnalyzer.currentPkgID)) {
-            pkgCache.getInvocationData(childTypeDefNode.getPackageID()).startPointNodes.add(childTypeDefNode);
+            usedBIRNodeAnalyzer.getInvocationData(childTypeDefNode.getPackageID()).startPointNodes.add(childTypeDefNode);
             visitedTypes.remove(bType);
             data.shouldAnalyzeChildren = false;
             return;
