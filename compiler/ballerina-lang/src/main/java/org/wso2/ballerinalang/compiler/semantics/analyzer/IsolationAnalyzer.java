@@ -1288,7 +1288,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
         if (!recordFieldDefaultValue && !objectFieldDefaultValueRequiringIsolation && enclInvokable != null &&
                 isReferenceToVarDefinedInSameInvokable(symbol.owner, enclInvokable.symbol)) {
-            if (this.inIsolationStartAction 
+            if (this.inIsolationStartAction
                     && !isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(symbol.owner, symbol.getType())) {
                 inferredIsolated = false;
             }
@@ -1547,7 +1547,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         analyzeNode(resourceAccessInvocation.resourceAccessPathSegments, env);
         analyzeInvocation(resourceAccessInvocation);
     }
-    
+
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
         BInvokableSymbol initInvocationSymbol =
@@ -1631,18 +1631,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         for (BLangExpression expr : listConstructorExpr.exprs) {
             analyzeNode(expr, env);
-            if (!(expr instanceof BLangListConstructorExpr.BLangListConstructorSpreadOpExpr)) {
-                addToListConstructorExprs(expr);
-            }
+            addToListConstructorExprs(expr);
         }
     }
 
     @Override
     public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr listConstructorSpreadOpExpr) {
         analyzeNode(listConstructorSpreadOpExpr.expr, env);
-        if (!(listConstructorSpreadOpExpr.expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR)) {
-            addToListConstructorExprs(listConstructorSpreadOpExpr);
-        }
     }
 
     @Override
@@ -2339,12 +2334,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             if (reqArgCount < paramsCount) {
                 // Part of the non-rest params are provided via the vararg.
                 if (varArgType.tag == TypeTags.ARRAY || varArgType.tag == TypeTags.TUPLE) {
-                    analyzeListConstructorRestArgs(invocationExpr, symbol, expectsIsolation, params, 
+                    analyzeListConstructorRestArgs(invocationExpr, symbol, expectsIsolation, params,
                             paramsCount, reqArgCount, varArg, varArgType, varArgPos);
                     this.listConstructorExprs = null;
                     return;
                 }
-                analyzeMappingConstructorRestArgs(invocationExpr, symbol, expectsIsolation, params, 
+                analyzeMappingConstructorRestArgs(invocationExpr, symbol, expectsIsolation, params,
                         paramsCount, reqArgCount, varArg, varArgType, varArgPos);
                 this.mappingConstructorExprs = null;
                 return;
@@ -2355,11 +2350,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             for (BLangExpression restArg : restArgs) {
                 analyzeNode(restArg, env);
             }
-            return;
         }
-
-        // Args for rest param provided as both individual args and vararg.
-        analyzeRestArgsForRestParam(invocationExpr, restArgs, symbol, expectsIsolation);
     }
 
     private void analyzeMappingConstructorRestArgs(BLangInvocation invocationExpr, BInvokableSymbol symbol,
@@ -2450,7 +2441,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         for (int i = reqArgCount; i < paramsCount; i++) {
             if (Symbols.isFlagOn(params.get(i).flags, Flags.ISOLATED_PARAM)) {
                 BType type = memberTypes.get(tupleIndex);
-                
                 BLangExpression arg = null;
                 if (listConstrVarArg) {
                     // find the appropriate arg from the list constructor expr
@@ -2498,54 +2488,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
             tupleIndex++;
         }
-
-        BVarSymbol restParam = symbol.restParam;
-
-        if (restParam == null) {
-            return;
-        }
-
-        if (!Symbols.isFlagOn(restParam.flags, Flags.ISOLATED_PARAM)) {
-            return;
-        }
-
-        // isolated rest params are handled in below
-        // need to revisit this logic if we are to implement isolated rest params in language libs
-        int memberTypeCount = memberTypes.size();
-        if (tupleIndex < memberTypeCount) {
-            for (int i = tupleIndex; i < memberTypeCount; i++) {
-                BType type = memberTypes.get(i);
-                BLangExpression arg = null;
-                if (listConstrVarArg) {
-                    arg = listConstructorExpr.exprs.get(i);
-                    analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
-                    type = arg.getBType();
-                }
-
-                handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
-                                                               type, varArgPos);
-            }
-        }
-
-        if (listConstrVarArg) {
-            List<BLangExpression> exprs = listConstructorExpr.exprs;
-            for (int i = tupleIndex; i < exprs.size(); i++) {
-                BLangExpression arg = exprs.get(i);
-                analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
-
-                handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
-                                                               arg.getBType(), varArgPos);
-            }
-            return;
-        }
-
-        BType tupleRestType = tupleType.restType;
-        if (tupleRestType == null) {
-            return;
-        }
-
-        handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
-                                                       tupleRestType, varArgPos);
     }
 
     private BTupleType getRepresentativeTupleTypeForRemainingArgs(int paramCount, int reqArgCount,
@@ -2562,35 +2504,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         return new BTupleType(members);
-    }
-
-    private void analyzeRestArgsForRestParam(BLangInvocation invocationExpr, List<BLangExpression> restArgs,
-                                             BInvokableSymbol symbol, boolean expectsIsolation) {
-        if (Symbols.isFlagOn(((BArrayType) symbol.restParam.type).eType.flags, Flags.ISOLATED)) {
-            for (BLangExpression restArg : restArgs) {
-                analyzeNode(restArg, env);
-            }
-            return;
-        }
-
-        for (BLangExpression restArg : restArgs) {
-            analyzeAndSetArrowFuncFlagForIsolatedParamArg(restArg);
-        }
-
-        int size = restArgs.size();
-        BLangExpression lastArg = restArgs.get(size - 1);
-
-        boolean lastArgIsVarArg = lastArg.getKind() == NodeKind.REST_ARGS_EXPR;
-
-        for (int i = 0; i < (lastArgIsVarArg ? size - 1 : size); i++) {
-            BLangExpression arg = restArgs.get(i);
-            handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
-                                                           arg.getBType(), arg.pos);
-        }
-
-        if (lastArgIsVarArg) {
-            analyzeVarArgIsolatedness(invocationExpr, (BLangRestArgsExpression) lastArg, lastArg.pos, expectsIsolation);
-        }
     }
 
     private void analyzeVarArgIsolatedness(BLangInvocation invocationExpr, BLangRestArgsExpression restArgsExpression,
@@ -3693,18 +3606,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private void addToMappingConstructorExprs(RecordLiteralNode.RecordField field) {
         // need to collect only args given as rest args
-        if (this.inIsolationStartAction && this.mappingConstructorExprs != null) {
+        if (this.mappingConstructorExprs != null) {
             this.mappingConstructorExprs.add(field);
         }
     }
-    
+
     private void addToListConstructorExprs(BLangExpression expr) {
         // need to collect only args given as rest args
-        if (this.inIsolationStartAction && this.listConstructorExprs != null) {
+        if (this.listConstructorExprs != null) {
             this.listConstructorExprs.add(expr);
         }
     }
-    
+
     private boolean isNotInArrowFunctionBody(SymbolEnv env) {
         return env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY || env.enclEnv.node.getKind() != NodeKind.ARROW_EXPR;
     }
