@@ -36,6 +36,12 @@ public class Construct {
     @Expose
     public boolean isReadOnly;
 
+    public Construct(String name, String description, boolean isDeprecated) {
+        this.name = name;
+        this.description = description;
+        this.isDeprecated = isDeprecated;
+    }
+
     public Construct(String name, String description, List<String> descriptionSections, boolean isDeprecated) {
         this.name = name;
         this.description = description;
