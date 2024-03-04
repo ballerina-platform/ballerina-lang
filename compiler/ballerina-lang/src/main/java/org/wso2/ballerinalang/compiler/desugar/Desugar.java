@@ -1482,8 +1482,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create tuple destruct block stmt
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
-        blockStmt.parent = env.node;
-        blockStmt.internal = true;
+
         // Create a simple var for the array 'any[] x = (tuple)' based on the dimension for x
 
         String name = anonModelHelper.getNextTupleVarKey(env.enclPkg.packageID);
@@ -1508,8 +1507,6 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangRecordVariable varNode) {
         varNode.typeNode = rewrite(varNode.typeNode, env);
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
-        blockStmt.parent = env.node;
-        blockStmt.internal = true;
         String name = anonModelHelper.getNextRecordVarKey(env.enclPkg.packageID);
         final BLangSimpleVariable mapVariable =
                 ASTBuilderUtil.createVariable(varNode.pos, name, symTable.mapAllType, null,
@@ -1529,8 +1526,6 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangErrorVariable varNode) {
         // Create error destruct block stmt.
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
-        blockStmt.parent = env.node;
-        blockStmt.internal = true;
 
         BType errorType = varNode.getBType() == null ? symTable.errorType : varNode.getBType();
         // Create a simple var for the error 'error x = ($error$)'.
