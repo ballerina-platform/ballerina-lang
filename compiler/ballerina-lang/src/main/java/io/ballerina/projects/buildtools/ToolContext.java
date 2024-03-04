@@ -166,11 +166,11 @@ public class ToolContext {
     }
 
     /**
-     * Prints a log output from the tool to the printStream.
+     * Prints a message from the tool to the printStream.
      *
      * @param message message to be printed
      */
-    public void log(String message) {
+    public void println(String message) {
         printStream.printf("\t\t%s%n", message);
     }
 
