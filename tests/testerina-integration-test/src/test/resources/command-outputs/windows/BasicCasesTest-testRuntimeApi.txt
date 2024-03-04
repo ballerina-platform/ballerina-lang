@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	runtime_api
+
+		Test execution time :*****ms
+
 		[pass] testRuntimeApi
 
 
