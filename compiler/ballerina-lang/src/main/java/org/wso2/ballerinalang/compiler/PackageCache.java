@@ -135,6 +135,9 @@ public class PackageCache {
     }
 
     public UsedBIRNodeAnalyzer.InvocationData getInvocationData(PackageID packageID) {
+        if (packageID == null) {
+            return null;
+        }
         BPackageSymbol pkgSymbol = getSymbol(packageID);
         if (pkgSymbol == null) {
             return null;
