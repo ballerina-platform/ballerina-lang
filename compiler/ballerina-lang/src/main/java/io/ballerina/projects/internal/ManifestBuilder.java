@@ -103,6 +103,9 @@ public class ManifestBuilder {
     private static final String INCLUDE = "include";
     private static final String PLATFORM = "platform";
     private static final String SCOPE = "scope";
+    private static final String ARTIFACT_ID = "artifactId";
+    private static final String GROUP_ID = "groupId";
+    private static final String PATH = "path";
     private static final String TEMPLATE = "template";
     public static final String ICON = "icon";
     public static final String GRAALVM_COMPATIBLE = "graalvmCompatible";
@@ -542,28 +545,34 @@ public class ManifestBuilder {
                 for (TomlTableNode platformEntryTable : children) {
                     if (!platformEntryTable.entries().isEmpty()) {
                         Map<String, Object> platformEntryMap = new HashMap<>();
-                        String pathValue = getStringValueFromPlatformEntry(platformEntryTable, "path");
+                        String pathValue = getStringValueFromPlatformEntry(platformEntryTable, PATH);
                         if (pathValue != null) {
                             Path path = Paths.get(pathValue);
                             if (!path.isAbsolute()) {
                                 path = this.projectPath.resolve(path);
                             }
                             if (Files.notExists(path)) {
-                                reportDiagnostic(platformEntryTable.entries().get("path"),
+                                reportDiagnostic(platformEntryTable.entries().get(PATH),
                                         "could not locate dependency path '" + pathValue + "'",
                                         ProjectDiagnosticErrorCode.INVALID_PATH, DiagnosticSeverity.ERROR);
                             }
                         }
-                        platformEntryMap.put("path",
+                        String groupId = getStringValueFromPlatformEntry(platformEntryTable, GROUP_ID);
+                        String artifactId = getStringValueFromPlatformEntry(platformEntryTable, ARTIFACT_ID);
+                        String version = getStringValueFromPlatformEntry(platformEntryTable, VERSION);
+                        String scope = getStringValueFromPlatformEntry(platformEntryTable, SCOPE);
+                        if ("provided".equals(scope) && !providedPlatformDependencyIsValid(artifactId, groupId, version)) {
+                            reportDiagnostic(platformEntryTable,
+                                    "artifactId, groupId and version must be provided for platform " +
+                                            "dependencies with provided scope",
+                                    ProjectDiagnosticErrorCode.INVALID_PROVIDED_DEPENDENCY, DiagnosticSeverity.ERROR);
+                        }
+                        platformEntryMap.put(PATH,
                                 pathValue);
-                        platformEntryMap.put("groupId",
-                                getStringValueFromPlatformEntry(platformEntryTable, "groupId"));
-                        platformEntryMap.put("artifactId",
-                                getStringValueFromPlatformEntry(platformEntryTable, "artifactId"));
-                        platformEntryMap.put(VERSION,
-                                getStringValueFromPlatformEntry(platformEntryTable, VERSION));
-                        platformEntryMap.put(SCOPE,
-                                getStringValueFromPlatformEntry(platformEntryTable, SCOPE));
+                        platformEntryMap.put(GROUP_ID, groupId);
+                        platformEntryMap.put(ARTIFACT_ID, artifactId);
+                        platformEntryMap.put(VERSION, version);
+                        platformEntryMap.put(SCOPE, scope);
                         platformEntry.add(platformEntryMap);
                     }
                 }
@@ -867,6 +876,11 @@ public class ManifestBuilder {
         }
         TomlTableNode optionsNode = (TomlTableNode) topLevelNode;
         return new Toml(optionsNode);
+    }
+
+    private boolean providedPlatformDependencyIsValid(String artifactId, String groupId, String version) {
+        return artifactId != null && !artifactId.isEmpty() && groupId != null && !groupId.isEmpty()
+                && version != null && !version.isEmpty();
     }
 
     /**
