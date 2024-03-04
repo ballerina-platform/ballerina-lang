@@ -21,6 +21,7 @@ package org.ballerinalang.test.annotations;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -75,5 +76,9 @@ public class ExternalDependencyAnnotationTest {
         List<BLangTypeDefinition> typeDefinitions = pkgNode.typeDefinitions;
         assertEquals(typeDefinitions.get(0).annAttachments.get(0).annotationName.value, "ExternalDependency");
     }
-}
 
+    @AfterClass
+    public void tearDown() {
+        pkgNode = null;
+    }
+}
