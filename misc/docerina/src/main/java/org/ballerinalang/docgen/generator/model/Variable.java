@@ -26,7 +26,7 @@ public class Variable extends Construct {
 
     public Variable(String name, String description, boolean isDeprecated,
                     Type type) {
-        super(name, description, null, isDeprecated);
+        super(name, description, isDeprecated);
         this.type = type;
     }
 
