@@ -45,8 +45,9 @@ public class PlatformLibrary {
     public void setVersion(String version) {
         this.version = version;
     }
+
     /**
-     * Sets the platform library scope
+     * Sets the platform library scope.
      *
      * @param scope scope of the platform library
      */

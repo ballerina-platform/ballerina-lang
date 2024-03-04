@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.zip.ZipOutputStream;
 
@@ -298,7 +299,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
 
     private boolean isPlatformDependenciesTestOnly(List<Map<String, Object>> dependencies) {
         for (Map<String, Object> dependency : dependencies) {
-            if (null == dependency.get("scope") || !dependency.get("scope").equals(PlatformLibraryScope.TEST_ONLY)) {
+            if (!Objects.equals(PlatformLibraryScope.TEST_ONLY.getStringValue(), dependency.get("scope"))) {
                 return false;
             }
         }

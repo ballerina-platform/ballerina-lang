@@ -47,6 +47,11 @@ public enum PlatformLibraryScope {
         this.strValue = strValue;
     }
 
+    /**
+     * get the string value of the scope.
+     *
+     * @return scope as a string
+     */
     public String getStringValue() {
         return strValue;
     }
