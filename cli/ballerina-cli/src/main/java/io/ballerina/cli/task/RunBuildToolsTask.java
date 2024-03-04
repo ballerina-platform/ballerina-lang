@@ -111,7 +111,7 @@ public class RunBuildToolsTask implements Task {
         // Populate the tool context map
         for (Tool toolEntry : toolEntries) {
             // Populate tool context
-            ToolContext toolContext = ToolContext.from(toolEntry, project.currentPackage());
+            ToolContext toolContext = ToolContext.from(toolEntry, project.currentPackage(), outStream);
             toolContextMap.put(toolEntry.id(), toolContext);
         }
         ToolResolution toolResolution = project.currentPackage().getToolResolution();
@@ -161,7 +161,7 @@ public class RunBuildToolsTask implements Task {
 
             // Execute the build tool
             try {
-                this.outStream.printf("\t%s(%s)%n%n", toolEntry.type(), toolEntry.id());
+                this.outStream.printf("\t%s(%s)%n", toolEntry.type(), toolEntry.id());
                 targetTool.get().execute(toolContext);
                 for (Diagnostic d : toolContext.diagnostics()) {
                     if (d.toString().contains("(1:1,1:1)")) {
@@ -170,11 +170,11 @@ public class RunBuildToolsTask implements Task {
                         outStream.println(new PackageDiagnostic(d.diagnosticInfo(), d.location()));
                     }
                 }
-                toolContextMap.put(toolEntry.id(), toolContext);
             } catch (Exception e) {
                 throw createLauncherException(e.getMessage());
             }
         }
+        this.outStream.println();
     }
 
     private boolean validateOptionsToml(Toml optionsToml, String toolName) throws IOException {
