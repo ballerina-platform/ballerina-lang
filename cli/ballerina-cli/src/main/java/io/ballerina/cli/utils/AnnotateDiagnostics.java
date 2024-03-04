@@ -80,7 +80,8 @@ public class AnnotateDiagnostics {
         String color = SEVERITY_COLORS.get(severity);
         String message = diagnostic.toString().substring(severityString.length());
         String code = diagnostic.diagnosticInfo().code();
-        String formatString = getColoredString("%s", color, colorEnabled) + "%s (%s)";
+        boolean isMultiline = diagnostic.message().contains("\n");
+        String formatString = getColoredString("%s", color, colorEnabled) + "%s" + (isMultiline ? "\n(%s)" : " (%s)");
 
         return String.format(formatString, severityString, message, code);
     }
