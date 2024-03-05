@@ -415,7 +415,6 @@ public class PackageManifest {
         }
     }
 
-    // TODO: Make this a record
     /**
      * Represents the build tool configurations in Ballerina.toml file.
      *

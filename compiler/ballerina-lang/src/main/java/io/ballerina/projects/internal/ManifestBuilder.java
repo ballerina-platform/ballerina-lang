@@ -291,7 +291,6 @@ public class ManifestBuilder {
 
     private void addTool(List<PackageManifest.Tool> tools, TomlTableNode toolEntry, String toolCode,
                          String toolCodePrefix) {
-        // TODO: check if not null before accessing the fields
         String id = getStringValueFromPreBuildToolNode(toolEntry, "id", toolCode);
         String filePath = getStringValueFromPreBuildToolNode(toolEntry, "filePath",
                 toolCode);

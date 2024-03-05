@@ -141,7 +141,6 @@ public class PackageResolutionTestCaseBuilder {
     }
 
     private static DependencyManifest getDependencyManifest(Path dependenciesTomlPath) {
-        // TODO: check if we can/ should include tools into this method
         if (dependenciesTomlPath == null) {
             return DependencyManifest.from("2.0.0", null, Collections.emptyList(), Collections.emptyList());
         }
