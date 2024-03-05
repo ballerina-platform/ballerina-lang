@@ -32,9 +32,10 @@ public class BObjectType extends Construct {
     @Expose
     public boolean isDistinct = false;
 
-    public BObjectType(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
+    public BObjectType(String name, String description, List<String> descriptionSections, boolean isDeprecated,
+                       List<DefaultableVariable> fields,
                        List<Function> methods) {
-        super(name, description, isDeprecated);
+        super(name, description, descriptionSections, isDeprecated);
         this.fields = fields;
         this.methods = methods;
     }

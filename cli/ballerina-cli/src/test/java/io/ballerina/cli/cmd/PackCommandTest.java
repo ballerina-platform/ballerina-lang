@@ -24,6 +24,7 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 
 /**
  * Pack command tests.
@@ -248,6 +249,20 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("pack-project-with-test-only-platform-libs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-any-0.1.0.bala")
+                .toFile().exists());
+    }
+
+    @Test(description = "Pack a project with a build tool execution")
+    public void testPackProjectWithBuildTool() throws IOException {
+        Path projectPath = this.testResources.resolve("proper-build-tool");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("pack-project-with-build-tool.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala")
                 .toFile().exists());
     }
 

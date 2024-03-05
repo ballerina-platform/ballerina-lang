@@ -174,6 +174,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_SPECIFY_NAMED_ARG_FOR_FIELD_OF_INCLUDED_RECORD_WHEN_ARG_SPECIFIED_FOR_INCLUDED_RECORD("BCE2137",
             "cannot.specify.named.argument.for.field.of.included.record.when.arg.specified.for.included.record"),
     CYCLIC_TYPE_REFERENCE_NOT_YET_SUPPORTED("BCE2138", "cyclic.type.reference.not.yet.supported"),
+    INVALID_SPREAD_FIELD_TO_CREATE_CLOSED_RECORD_FROM_OPEN_RECORD("BCE2139",
+            "invalid.spread.field.to.create.closed.record.from.open.record"),
+    INVALID_SPREAD_FIELD_REST_FIELD_MISMATCH("BCE2140", "invalid.spread.field.rest.field.mismatch"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
