@@ -2475,11 +2475,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public AlternateReceiveNode transform(
-            AlternateReceiveNode alternateReceiveNode) {
+    public AlternateReceiveWorkerNode transform(
+            AlternateReceiveWorkerNode alternateReceiveWorkerNode) {
         SeparatedNodeList<SimpleNameReferenceNode> workers =
-                modifySeparatedNodeList(alternateReceiveNode.workers());
-        return alternateReceiveNode.modify(
+                modifySeparatedNodeList(alternateReceiveWorkerNode.workers());
+        return alternateReceiveWorkerNode.modify(
                 workers);
     }
 
@@ -3700,33 +3700,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 fieldName,
                 colon,
                 peerWorker);
-    }
-
-    @Override
-    public StreamReceiveNode transform(
-            StreamReceiveNode streamReceiveNode) {
-        Token streamKeyword =
-                modifyToken(streamReceiveNode.streamKeyword());
-        Token openParenthesis =
-                modifyToken(streamReceiveNode.openParenthesis());
-        SeparatedNodeList<SimpleNameReferenceNode> workers =
-                modifySeparatedNodeList(streamReceiveNode.workers());
-        Token closeParenthesis =
-                modifyToken(streamReceiveNode.closeParenthesis());
-        return streamReceiveNode.modify(
-                streamKeyword,
-                openParenthesis,
-                workers,
-                closeParenthesis);
-    }
-
-    @Override
-    public SingleReceiveNode transform(
-            SingleReceiveNode singleReceiveNode) {
-        SimpleNameReferenceNode worker =
-                modifyNode(singleReceiveNode.worker());
-        return singleReceiveNode.modify(
-                worker);
     }
 
     // Tokens

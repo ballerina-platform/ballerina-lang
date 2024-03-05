@@ -13076,147 +13076,63 @@ public class BallerinaParser extends AbstractParser {
      * multiple-receive-action := <-  { receive-field (, receive-field)* }
      * <br></br>
      * alternate-receive-action := <- peer-worker (| peer-worker)*
-     * <br></br>
-     * stream-receive-action := <- stream `(` peer-worker (| peer-worker)* `)`
      * </code>
      *
      * @return Receive action
      */
     private STNode parseReceiveAction() {
         STNode leftArrow = parseLeftArrowToken();
-        STNode receiveRhs = parseReceiveActionRhs();
-        return STNodeFactory.createReceiveActionNode(leftArrow, receiveRhs);
+        STNode receiveWorkers = parseReceiveWorkers();
+        return STNodeFactory.createReceiveActionNode(leftArrow, receiveWorkers);
     }
 
-    private STNode parseReceiveActionRhs() {
+    private STNode parseReceiveWorkers() {
         switch (peek().kind) {
             case FUNCTION_KEYWORD:
             case IDENTIFIER_TOKEN:
-                return parseSingleOrAlternateReceiveRhs();
+                return parseSingleOrAlternateReceiveWorkers();
             case OPEN_BRACE_TOKEN:
-                return parseMultipleReceiveRhs();
-            case STREAM_KEYWORD:
-                return parseStreamReceiveRhs();
+                return parseMultipleReceiveWorkers();
             default:
-                recover(peek(), ParserRuleContext.RECEIVE_ACTION_RHS);
-                return parseReceiveActionRhs();
+                recover(peek(), ParserRuleContext.RECEIVE_WORKERS);
+                return parseReceiveWorkers();
         }
     }
 
-    /**
-     * Parse single or alternate receive action rhs.
-     * <p>
-     * <p><code>
-     * single-receive-rhs := peer-worker
-     * <br></br>
-     * alternate-receive-rhs := peer-worker (| peer-worker)*
-     * </code>
-     *
-     * @return Receive action
-     */
-    private STNode parseSingleOrAlternateReceiveRhs() {
-        startContext(ParserRuleContext.SINGLE_OR_ALTERNATE_RECEIVE_RHS);
-        STNode firstPeerWorker = parsePeerWorkerName();
+    private STNode parseSingleOrAlternateReceiveWorkers() {
+        startContext(ParserRuleContext.SINGLE_OR_ALTERNATE_WORKER);
+        List<STNode> workers = new ArrayList<>();
+        // Parse first peer worker name, that has no leading comma
+        STNode peerWorker = parsePeerWorkerName();
+        workers.add(peerWorker);
+
         STToken nextToken = peek();
         if (nextToken.kind != SyntaxKind.PIPE_TOKEN) {
             endContext();
-            return STNodeFactory.createSingleReceiveNode(firstPeerWorker);
+            return peerWorker;
         }
 
-        STNode peerWorkers = parsePeerWorkers(firstPeerWorker);
-        endContext();
-        return STNodeFactory.createAlternateReceiveNode(peerWorkers);
-    }
-
-    /**
-     * Parse peer worker list separated by `|`.
-     *
-     * @param firstPeerWorker first peer worker node
-     * @return Parsed node
-     */
-    private STNode parsePeerWorkers(STNode firstPeerWorker) {
-        List<STNode> workers = new ArrayList<>();
-        workers.add(firstPeerWorker);
-
         // Parse the remaining peer worker names
-        STToken nextToken = peek();
         while (nextToken.kind == SyntaxKind.PIPE_TOKEN) {
             STNode pipeToken = consume();
             workers.add(pipeToken);
-            STNode peerWorker = parsePeerWorkerName();
+            peerWorker = parsePeerWorkerName();
             workers.add(peerWorker);
             nextToken = peek();
         }
 
-        return STNodeFactory.createNodeList(workers);
-    }
-
-    /**
-     * Parse stream receive action rhs.
-     * <p>
-     * <code>
-     * stream-receive-rhs := stream `(` peer-worker (| peer-worker)* `)`
-     * </code>
-     *
-     * @return Parsed node
-     */
-    private STNode parseStreamReceiveRhs() {
-        startContext(ParserRuleContext.STREAM_RECEIVE_RHS);
-        STNode streamKeyword = parseStreamKeyword();
-        STNode openParen = parseOpenParenthesis();
-        STNode workers = parseStreamPeerWorkers();
-        STNode closeParen = parseCloseParenthesis();
         endContext();
-        return STNodeFactory.createStreamReceiveNode(streamKeyword, openParen, workers, closeParen);
+        return STNodeFactory.createAlternateReceiveWorkerNode(STNodeFactory.createNodeList(workers));
     }
 
     /**
-     * Parse stream-keyword.
-     *
-     * @return Parsed node
-     */
-    private STNode parseStreamKeyword() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.STREAM_KEYWORD) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.STREAM_KEYWORD);
-            return parseStreamKeyword();
-        }
-    }
-
-    /**
-     * Parse stream receive peer worker list.
+     * Parse multiple worker receivers.
      * <p>
-     * <code>
-     * stream-receive-peer-workers := peer-worker (| peer-worker)*
-     * </code>
+     * <code>{ receive-field (, receive-field)* }</code>
      *
-     * @return Parsed node
+     * @return Multiple worker receiver node
      */
-    private STNode parseStreamPeerWorkers() {
-        STNode firstPeerWorker = parsePeerWorkerName();
-
-        STToken nextToken = peek();
-        if (nextToken.kind != SyntaxKind.PIPE_TOKEN) {
-            return STNodeFactory.createNodeList(new ArrayList<>(Collections.singletonList(firstPeerWorker)));
-        }
-
-        return parsePeerWorkers(firstPeerWorker);
-    }
-
-    /**
-     * Parse multiple receive action rhs.
-     * <p>
-     * <code>
-     * multiple-receive-rhs := { receive-field (, receive-field)* }
-     * <br></br>
-     * receive-field := peer-worker | field-name : peer-worker
-     * </code>
-     *
-     * @return Parsed node
-     */
-    private STNode parseMultipleReceiveRhs() {
+    private STNode parseMultipleReceiveWorkers() {
         startContext(ParserRuleContext.MULTI_RECEIVE_WORKERS);
         STNode openBrace = parseOpenBrace();
         STNode receiveFields = parseReceiveFields();

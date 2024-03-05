@@ -621,8 +621,8 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(receiveFieldsNode);
     }
 
-    public void visit(STAlternateReceiveNode alternateReceiveNode) {
-        visitSyntaxNode(alternateReceiveNode);
+    public void visit(STAlternateReceiveWorkerNode alternateReceiveWorkerNode) {
+        visitSyntaxNode(alternateReceiveWorkerNode);
     }
 
     public void visit(STRestDescriptorNode restDescriptorNode) {
@@ -943,14 +943,6 @@ public abstract class STNodeVisitor {
 
     public void visit(STReceiveFieldNode receiveFieldNode) {
         visitSyntaxNode(receiveFieldNode);
-    }
-
-    public void visit(STStreamReceiveNode streamReceiveNode) {
-        visitSyntaxNode(streamReceiveNode);
-    }
-
-    public void visit(STSingleReceiveNode singleReceiveNode) {
-        visitSyntaxNode(singleReceiveNode);
     }
 
     // STNodeList

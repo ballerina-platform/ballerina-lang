@@ -621,8 +621,8 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(receiveFieldsNode);
     }
 
-    public T transform(STAlternateReceiveNode alternateReceiveNode) {
-        return transformSyntaxNode(alternateReceiveNode);
+    public T transform(STAlternateReceiveWorkerNode alternateReceiveWorkerNode) {
+        return transformSyntaxNode(alternateReceiveWorkerNode);
     }
 
     public T transform(STRestDescriptorNode restDescriptorNode) {
@@ -943,14 +943,6 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STReceiveFieldNode receiveFieldNode) {
         return transformSyntaxNode(receiveFieldNode);
-    }
-
-    public T transform(STStreamReceiveNode streamReceiveNode) {
-        return transformSyntaxNode(streamReceiveNode);
-    }
-
-    public T transform(STSingleReceiveNode singleReceiveNode) {
-        return transformSyntaxNode(singleReceiveNode);
     }
 
     // Tokens
