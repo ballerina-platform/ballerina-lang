@@ -2,7 +2,11 @@ Code coverage is not yet supported with single bal files. Ignoring the flag and 
 warning: ignoring --includes flag since code coverage is not enabled
 Compiling source
 	skip-when-beforeSuite-fails.bal
-WARNING [skip-when-beforeSuite-fails.bal:(24:5,24:18)] unused variable 'i'
+WARNING [skip-when-beforeSuite-fails.bal:(24:5,24:18)] unused variable 'i' (BCE20403)
+   |
+24 |     int i = 12/0; // This will throw an exception and fail the function
+   |     ^^^^^^^^^^^^^
+
 
 Running Tests
 

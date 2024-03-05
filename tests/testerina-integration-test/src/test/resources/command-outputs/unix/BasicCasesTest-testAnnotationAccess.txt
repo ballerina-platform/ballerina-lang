@@ -1,6 +1,10 @@
 Compiling source
 	intg_tests/annotation_access:0.0.0
-HINT [tests/main_test.bal:(73:5,73:5)] concurrent calls will not be made to this method since the service is not an 'isolated' service
+HINT [tests/main_test.bal:(73:5,73:5)] concurrent calls will not be made to this method since the service is not an 'isolated' service (BCH2004)
+   |
+73 |     remote function xyz() {
+   |     ^
+
 ballerina: Oh no, something really went wrong. Bad. Sad.
 
 We appreciate it if you can report the code that broke Ballerina in

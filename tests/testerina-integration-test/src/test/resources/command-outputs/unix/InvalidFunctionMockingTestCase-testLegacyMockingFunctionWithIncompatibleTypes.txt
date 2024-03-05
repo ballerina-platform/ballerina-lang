@@ -1,4 +1,13 @@
 Compiling source
 	intg_tests/incompatible_type_mock:0.1.0
 ERROR [tests/test.bal:(6:1,8:2)] incompatible types: expected isolated function () returns (string) but found isolated function () returns (int)
+  |
+6 | function getMockClient() returns int {
+: | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+: |                    :
+: |                    :
+8 | }
+  | ^
+  |
+
 error: compilation contains errors

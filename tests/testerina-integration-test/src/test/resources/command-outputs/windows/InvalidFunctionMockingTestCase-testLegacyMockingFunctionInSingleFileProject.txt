@@ -3,4 +3,8 @@ warning: ignoring --includes flag since code coverage is not enabled
 Compiling source
 	function-legacy-mock.bal
 ERROR [function-legacy-mock.bal:(8:1,8:38)] function mocking is not supported with standalone Ballerina files
+  |
+8 | @test:Mock { functionName: "intAdd" }
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 error: compilation contains errors
