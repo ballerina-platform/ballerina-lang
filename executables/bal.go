@@ -288,6 +288,7 @@ func extractDebugPort(debugArg string) (int, error) {
 
 	return strconv.Atoi(matches[1])
 }
+
 func commandExists(cmd string) bool {
 	_, err := exec.LookPath(cmd)
 	return err == nil
