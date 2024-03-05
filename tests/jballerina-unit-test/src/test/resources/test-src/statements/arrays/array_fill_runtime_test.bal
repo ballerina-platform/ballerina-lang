@@ -244,6 +244,7 @@ public function main() {
     tesOneDimensionalArrayWithConstantSizeReferenceFill();
     tesTwoDimensionalArrayWithConstantSizeReferenceFill();
     testAnonRecordTypeWithDefaultValueFill();
+    testServiceClassArrayFilling();
     // testObjectArrayFillingWithDefaultValues();
 }
 
@@ -251,4 +252,15 @@ function assertEqualPanic(anydata expected, anydata actual, string message = "Va
     if (expected != actual) {
         panic error(message + " Expected : " + expected.toString() + " Actual : " + actual.toString());
     }
+}
+
+service class Class1 {}
+
+service class Class2 {}
+
+public function testServiceClassArrayFilling() {
+    [Class1, Class2] interceptors = [];
+    assertEqualPanic(2, interceptors.length());
+    assertEqualPanic(true, interceptors[0] is Class1);
+    assertEqualPanic(true, interceptors[1] is Class2);
 }
