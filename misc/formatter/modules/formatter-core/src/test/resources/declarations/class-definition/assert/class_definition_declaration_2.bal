@@ -10,6 +10,7 @@ class Person {
 
     public string name = "sample name";
     int year = 50;
+
     function bar() returns string {
         string b = "bar";
         return b;

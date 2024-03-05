@@ -36,7 +36,6 @@ import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
-import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ClauseNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
@@ -254,6 +253,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.isInlineRange;
@@ -289,7 +289,8 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ModulePartNode transform(ModulePartNode modulePartNode) {
         NodeList<ImportDeclarationNode> imports = sortAndGroupImportDeclarationNodes(modulePartNode.imports());
-        NodeList<ModuleMemberDeclarationNode> members = formatModuleMembers(modulePartNode.members());
+        NodeList<ModuleMemberDeclarationNode> members =
+                formatMemberDeclarations(modulePartNode.members(), n -> isMultilineModuleMember(n));
         Token eofToken = formatToken(modulePartNode.eofToken(), 0, 0);
         return modulePartNode.modify(imports, members, eofToken);
     }
@@ -313,25 +314,8 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         NodeList<Node> relativeResourcePath = formatNodeList(functionDefinitionNode.relativeResourcePath(), 0, 0, 0, 0);
         FunctionSignatureNode functionSignatureNode = formatNode(functionDefinitionNode.functionSignature(), 1, 0);
-        int trailingNL = env.trailingNL;
-        if (isMemberOfScope(functionDefinitionNode)) {
-            ChildNodeList parentChildren = functionDefinitionNode.parent().children();
-            int nChildren = parentChildren.size();
-            boolean lastNode = false;
-
-            for (int i = nChildren - 1; i > -1; i--) {
-                Node child = parentChildren.get(i);
-                if (isMemberOfScope(child)) {
-                    if (child.equals(functionDefinitionNode)) {
-                        lastNode = true;
-                    }
-                    break;
-                }
-            }
-            trailingNL = (env.trailingNL > 2 || lastNode) ? env.trailingNL : 2;
-        }
         FunctionBodyNode functionBodyNode =
-                formatNode(functionDefinitionNode.functionBody(), env.trailingWS, trailingNL);
+                formatNode(functionDefinitionNode.functionBody(), env.trailingWS, env.trailingNL);
 
         return functionDefinitionNode.modify()
                 .withMetadata(metadata)
@@ -718,7 +702,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatSeparatedNodeList(serviceDeclarationNode.expressions(), 0, 0, 1, 0);
         Token openBrace = formatToken(serviceDeclarationNode.openBraceToken(), 0, 1);
         indent(); // increase the indentation of the following statements.
-        NodeList<Node> members = formatNodeList(serviceDeclarationNode.members(), 0, 1, 0, 1);
+        NodeList<Node> members = formatMemberDeclarations(serviceDeclarationNode.members(), n -> isMemberOfScope(n));
         unindent(); // reset the indentation.
         Optional<Token> optSemicolon = serviceDeclarationNode.semicolonToken();
         Token closeBrace = optSemicolon.isPresent() ?
@@ -3480,7 +3464,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBrace = formatToken(classDefinitionNode.openBrace(), 0, 1);
 
         indent();
-        NodeList<Node> members = formatNodeList(classDefinitionNode.members(), 0, 1, 0, 1);
+        NodeList<Node> members = formatMemberDeclarations(classDefinitionNode.members(), n -> isMemberOfScope(n));
         unindent();
         Optional<Token> optSemicolon = classDefinitionNode.semicolonToken();
         Token closeBrace = optSemicolon.isPresent() ?
@@ -3855,7 +3839,14 @@ public class FormattingTreeModifier extends TreeModifier {
         return formatToken(token, trailingWS, trailingNL, null);
     }
 
-    protected <T extends Node> NodeList<T> formatModuleMembers(NodeList<T> members) {
+    /**
+     * Format members in module-level, class and service level.
+     *
+     * @param members Members of the scope
+     * @param filter filter to identify multiline members
+     * @return Formatted list of members
+     */
+    protected <T extends Node> NodeList<T> formatMemberDeclarations(NodeList<T> members, Predicate<Node> filter) {
         if (members.isEmpty()) {
             return members;
         }
@@ -3873,7 +3864,7 @@ public class FormattingTreeModifier extends TreeModifier {
             // We need to do this check, because different kinds of children needs
             // different number of newlines in-between.
             int itemTrailingNL = 1;
-            if (isMultilineModuleMember(currentMember) || isMultilineModuleMember(nextMember)) {
+            if (filter.test(currentMember) || filter.test(nextMember)) {
                 itemTrailingNL++;
             }
 
@@ -3915,10 +3906,13 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     private <T extends Node> boolean isMemberOfScope(T node) {
+        if (node == null) {
+            return false;
+        }
+
         switch (node.kind()) {
             case OBJECT_METHOD_DEFINITION:
             case RESOURCE_ACCESSOR_DEFINITION:
-            case OBJECT_FIELD:
                 return true;
             default:
                 return false;
@@ -4259,8 +4253,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         int consecutiveNewlines = 0;
         Minutiae prevMinutiae = null;
-        boolean missingTokenWithNL = token.isMissing() && env.hasNewline;
-        if (!token.isMissing() && env.hasNewline) {
+        if (env.hasNewline) {
             // 'hasNewlines == true' means a newline has already been added.
             // Therefore, increase the 'consecutiveNewlines' count
             consecutiveNewlines++;
@@ -4318,9 +4311,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 case INVALID_TOKEN_MINUTIAE_NODE:
                 case INVALID_NODE_MINUTIAE:
                 default:
-                    if (missingTokenWithNL) {
-                        missingTokenWithNL = false;
-                    }
                     consecutiveNewlines = 0;
                     leadingMinutiae.add(minutiae);
                     break;
@@ -4330,7 +4320,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         // token.isMission() issue has to be discussed.
-        if ((consecutiveNewlines > 0 || missingTokenWithNL) && !env.preserveIndentation) {
+        if (consecutiveNewlines > 0 && !env.preserveIndentation) {
             addWhitespace(env.currentIndentation, leadingMinutiae);
         }
 
