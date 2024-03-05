@@ -2,7 +2,11 @@ Code coverage is not yet supported with single bal files. Ignoring the flag and 
 warning: ignoring --includes flag since code coverage is not enabled
 Compiling source
 	invalid-data-provider-test.bal
-WARNING [invalid-data-provider-test.bal:(25:5,25:58)] unused variable 'resultErr'
+WARNING [invalid-data-provider-test.bal:(25:5,25:58)] unused variable 'resultErr' (BCE20403)
+   |
+25 |     int|error resultErr = trap result.cloneWithType(int);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 Running Tests
 

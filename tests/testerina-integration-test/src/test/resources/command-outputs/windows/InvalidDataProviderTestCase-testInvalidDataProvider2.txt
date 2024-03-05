@@ -2,9 +2,21 @@ Code coverage is not yet supported with single bal files. Ignoring the flag and 
 warning: ignoring --includes flag since code coverage is not enabled
 Compiling source
 	invalid-data-provider-test2.bal
-WARNING [invalid-data-provider-test2.bal:(25:5,25:53)] unused variable 'fErr'
-WARNING [invalid-data-provider-test2.bal:(26:5,26:53)] unused variable 'sErr'
-WARNING [invalid-data-provider-test2.bal:(27:5,27:58)] unused variable 'resultErr'
+WARNING [invalid-data-provider-test2.bal:(25:5,25:53)] unused variable 'fErr' (BCE20403)
+   |
+25 |     int|error fErr = trap fValue.cloneWithType(int);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+WARNING [invalid-data-provider-test2.bal:(26:5,26:53)] unused variable 'sErr' (BCE20403)
+   |
+26 |     int|error sErr = trap sValue.cloneWithType(int);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+WARNING [invalid-data-provider-test2.bal:(27:5,27:58)] unused variable 'resultErr' (BCE20403)
+   |
+27 |     int|error resultErr = trap result.cloneWithType(int);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 Running Tests
 
@@ -45,4 +57,4 @@ testInvalidDataProvider2:0 has failed.
 		0 passing
 		1 failing
 		0 skipped
-error: there are test failures
+error: there are test failures

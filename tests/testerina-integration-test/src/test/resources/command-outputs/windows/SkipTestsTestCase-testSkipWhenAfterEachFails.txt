@@ -2,7 +2,11 @@ Code coverage is not yet supported with single bal files. Ignoring the flag and 
 warning: ignoring --includes flag since code coverage is not enabled
 Compiling source
 	skip-when-afterEach-fails.bal
-WARNING [skip-when-afterEach-fails.bal:(30:5,30:18)] unused variable 'i'
+WARNING [skip-when-afterEach-fails.bal:(30:5,30:18)] unused variable 'i' (BCE20403)
+   |
+30 |     int i = 12/0;
+   |     ^^^^^^^^^^^^^
+
 
 Running Tests
 
@@ -21,4 +25,4 @@ Running Tests
 		1 passing
 		0 failing
 		2 skipped
-error: there are test failures
+error: there are test failures
