@@ -210,7 +210,7 @@ public class EnvVarProvider implements ConfigProvider {
         EnvVar envVar = getEnvVar(module, key);
         BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
         boolean isEnum = SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM);
-        if (!isEnum && ConfigUtils.containsSupportedMembers(unionType)) {
+        if (!isEnum && ConfigUtils.containsUnsupportedMembers(unionType)) {
             throw new ConfigException(CONFIG_ENV_TYPE_NOT_SUPPORTED, key.variable, unionType);
         }
         if (envVar.value == null) {

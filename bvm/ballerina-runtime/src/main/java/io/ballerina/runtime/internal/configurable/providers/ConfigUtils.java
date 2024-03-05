@@ -75,16 +75,16 @@ public class ConfigUtils {
         throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, arg, key.variable, typeName);
     }
 
-    public static boolean containsSupportedMembers(BUnionType unionType) {
+    public static boolean containsUnsupportedMembers(BUnionType unionType) {
         for (Type memberType : unionType.getMemberTypes()) {
-            if (!isCliSupported(TypeUtils.getImpliedType(memberType).getTag())) {
+            if (!isSimpleSequenceType(TypeUtils.getImpliedType(memberType).getTag())) {
                 return true;
             }
         }
         return false;
     }
 
-    private static boolean isCliSupported(int tag) {
+    private static boolean isSimpleSequenceType(int tag) {
         return tag <= TypeTags.BOOLEAN_TAG || TypeTags.isXMLTypeTag(tag);
     }
 

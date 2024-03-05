@@ -220,7 +220,7 @@ public class CliProvider implements ConfigProvider {
         CliArg cliArg = getCliArg(module, key);
         BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
         boolean isEnum = SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM);
-        if (!isEnum && ConfigUtils.containsSupportedMembers(unionType)) {
+        if (!isEnum && ConfigUtils.containsUnsupportedMembers(unionType)) {
             throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, unionType);
         }
         if (cliArg.value == null) {
