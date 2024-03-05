@@ -308,7 +308,6 @@ public class CliProviderNegativeTest {
                 new VariableKey(ROOT_MODULE, "unionVar", unionIntersectionType, true)
         };
         configVarMap.put(ROOT_MODULE, keys);
-        Map<String, String> envVariables = Map.of("BAL_CONFIG_VAR_INVALID", "123");
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new CliProvider(ROOT_MODULE, "-CinvalidVar=123")));
         configResolver.resolveConfigs();
