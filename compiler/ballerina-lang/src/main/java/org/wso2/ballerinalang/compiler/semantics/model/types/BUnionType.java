@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
@@ -561,7 +561,7 @@ public class BUnionType extends BType implements UnionType {
     private SemType computeResultantUnion(LinkedHashSet<SemType> memberSemTypes) {
         SemType t = PredefinedType.NEVER;
         for (SemType s : memberSemTypes) {
-            t = Core.union(t, s);
+            t = SemTypes.union(t, s);
         }
         return t;
     }

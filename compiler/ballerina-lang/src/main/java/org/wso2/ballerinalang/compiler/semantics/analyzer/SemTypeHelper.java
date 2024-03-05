@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.types.ComplexSemType;
-import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
@@ -107,8 +106,8 @@ public class SemTypeHelper {
         }
     }
 
-    public static SemType semTypeComponent(BType t) { // TODO: refactor
-        if (t == null) { // TODO: may be able fix after tackling bir recursion
+    public static SemType semTypeComponent(BType t) {
+        if (t == null) { // TODO: may be able to fix after tackling bir recursion issue
             return PredefinedType.NEVER;
         }
 
@@ -171,7 +170,7 @@ public class SemTypeHelper {
             return true;
         }
 
-        if (t.tag == TypeTags.UNION) { // TODO: Handle intersection
+        if (t.tag == TypeTags.UNION) { // TODO: Handle intersection?
             return !((BUnionType) t).memberNonSemTypes.isEmpty();
         }
 
@@ -229,23 +228,23 @@ public class SemTypeHelper {
             return Optional.of(symTable.nilType);
         } else if (t instanceof UniformTypeBitSet) {
             return Optional.empty();
-        } else if (Core.isSubtypeSimple(t, PredefinedType.INT)) {
+        } else if (SemTypes.isSubtypeSimple(t, PredefinedType.INT)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_INT);
             Optional<Long> value = IntSubtype.intSubtypeSingleValue(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(symTable.intType);
-        } else if (Core.isSubtypeSimple(t, PredefinedType.FLOAT)) {
+        } else if (SemTypes.isSubtypeSimple(t, PredefinedType.FLOAT)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_FLOAT);
             Optional<Double> value = FloatSubtype.floatSubtypeSingleValue(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(symTable.floatType);
-        } else if (Core.isSubtypeSimple(t, PredefinedType.STRING)) {
+        } else if (SemTypes.isSubtypeSimple(t, PredefinedType.STRING)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_STRING);
             Optional<String> value = StringSubtype.stringSubtypeSingleValue(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(symTable.stringType);
-        } else if (Core.isSubtypeSimple(t, PredefinedType.BOOLEAN)) {
+        } else if (SemTypes.isSubtypeSimple(t, PredefinedType.BOOLEAN)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_BOOLEAN);
             Optional<Boolean> value = BooleanSubtype.booleanSubtypeSingleValue(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(symTable.booleanType);
-        } else if (Core.isSubtypeSimple(t, PredefinedType.DECIMAL)) {
+        } else if (SemTypes.isSubtypeSimple(t, PredefinedType.DECIMAL)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_DECIMAL);
             Optional<BigDecimal> value = DecimalSubtype.decimalSubtypeSingleValue(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(symTable.decimalType);
@@ -260,7 +259,7 @@ public class SemTypeHelper {
      *
      * @param t SemType component of BFiniteType
      */
-    public static Set<BType> singletonBroadTypes(SemType t, SymbolTable symTable) { // Equivalent to getValueTypes()
+    public static Set<BType> broadTypes(SemType t, SymbolTable symTable) { // Equivalent to getValueTypes()
         Set<BType> types = new LinkedHashSet<>(7);
         UniformTypeBitSet uniformTypeBitSet = widenToBasicTypes(t);
         if ((uniformTypeBitSet.bitset & PredefinedType.NIL.bitset) != 0) {
@@ -290,7 +289,7 @@ public class SemTypeHelper {
         return types;
     }
 
-    public static Set<BType> singletonBroadTypes(BFiniteType finiteType, SymbolTable symTable) {
+    public static Set<BType> broadTypes(BFiniteType finiteType, SymbolTable symTable) {
         Set<BType> types = new LinkedHashSet<>(7);
         for (SemNamedType semNamedType: finiteType.valueSpace) {
             SemType t = semNamedType.semType();

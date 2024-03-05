@@ -88,6 +88,7 @@ public class SemTypeTest {
 
     public final HashSet<String> skipList() {
         HashSet<String> hashSet = new HashSet<>();
+        // Not yet supported in jBallerina
         hashSet.add("error2.bal");
         hashSet.add("readonly1.bal");
         hashSet.add("xml-sequence.bal");

@@ -146,7 +146,7 @@ public class BIntersectionType extends BType implements IntersectionType {
     private SemType computeResultantIntersection() {
         SemType t = PredefinedType.TOP;
         for (BType constituentType : this.getConstituentTypes()) {
-            t = SemTypes.intersection(t, SemTypeHelper.semTypeComponent(constituentType));
+            t = SemTypes.intersect(t, SemTypeHelper.semTypeComponent(constituentType));
         }
         return t;
     }

@@ -601,7 +601,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                                  Object literalValue, AnalyzerData data) {
         BType resIntegerLiteralType = symTable.semanticError;
         List<BType> compatibleTypes = new ArrayList<>();
-        Set<BType> broadTypes = SemTypeHelper.singletonBroadTypes(finiteType, symTable);
+        Set<BType> broadTypes = SemTypeHelper.broadTypes(finiteType, symTable);
         for (BType broadType : broadTypes) {
             resIntegerLiteralType = silentIntTypeCheck(literalExpr, literalValue, broadType, data);
             if (resIntegerLiteralType != symTable.semanticError) {
@@ -5336,7 +5336,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 basicNumericTypes.add(symTable.decimalType);
                 break;
             } else if (typeTag == TypeTags.FINITE) {
-                basicNumericTypes.addAll(SemTypeHelper.singletonBroadTypes((BFiniteType) referredType, symTable));
+                basicNumericTypes.addAll(SemTypeHelper.broadTypes((BFiniteType) referredType, symTable));
             }
         }
         return basicNumericTypes;
@@ -5381,7 +5381,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                             BUnionType.create(null, symTable.intType, symTable.floatType, symTable.decimalType),
                             referredType, data.env);
         } else if (referredTypeTag == TypeTags.FINITE) {
-            Set<BType> typesInValueSpace = SemTypeHelper.singletonBroadTypes((BFiniteType) referredType, symTable);
+            Set<BType> typesInValueSpace = SemTypeHelper.broadTypes((BFiniteType) referredType, symTable);
             newExpectedType = getNewExpectedTypeForFiniteAndUnion(typesInValueSpace, newExpectedType);
         } else if (referredTypeTag == TypeTags.UNION) {
             newExpectedType = getNewExpectedTypeForFiniteAndUnion(((BUnionType) referredType).getMemberTypes(),
@@ -8758,7 +8758,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 SemType allowedInts = PredefinedType.uniformSubtype(UniformTypeCode.UT_INT,
                         IntSubtype.createSingleRangeSubtype(0, maxIndexValue));
 
-                if (Core.isEmpty(types.semTypeCtx, Core.intersect(t, allowedInts))) {
+                if (Core.isEmpty(types.semTypeCtx, SemTypes.intersect(t, allowedInts))) {
                     return symTable.semanticError;
                 }
                 actualType = arrayType.eType;

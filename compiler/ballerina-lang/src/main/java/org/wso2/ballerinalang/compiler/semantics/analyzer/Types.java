@@ -144,8 +144,6 @@ import java.util.stream.Collectors;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper.bitCount;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper.singletonBroadTypes;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.SIGNED16_MAX_VALUE;
@@ -479,7 +477,7 @@ public class Types {
     }
 
     boolean finiteTypeContainsNumericTypeValues(BFiniteType finiteType) {
-        return !Core.isEmpty(semTypeCtx, Core.intersect(finiteType.semType(), PredefinedType.NUMBER));
+        return !Core.isEmpty(semTypeCtx, SemTypes.intersect(finiteType.semType(), PredefinedType.NUMBER));
     }
 
     public boolean containsErrorType(BType bType) {
@@ -3413,7 +3411,7 @@ public class Types {
         if (referredTypeKind == TypeKind.NIL) {
             return true;
         } else if (referredTypeKind == TypeKind.FINITE) {
-            return Core.isSubtype(semTypeCtx, referredType.semType(), PredefinedType.NIL);
+            return SemTypes.isSubtype(semTypeCtx, referredType.semType(), PredefinedType.NIL);
         }
         return false;
     }
@@ -3423,7 +3421,7 @@ public class Types {
         for (BType type : memberTypes) {
             type = getImpliedType(type);
             if (type.tag == TypeTags.FINITE) {
-                Set<BType> broadTypes = singletonBroadTypes((BFiniteType) type, symTable);
+                Set<BType> broadTypes = SemTypeHelper.broadTypes((BFiniteType) type, symTable);
                 for (BType broadType : broadTypes) {
                     if (!isSameOrderedType(broadType, baseType)) {
                         return false;
@@ -3455,7 +3453,7 @@ public class Types {
      */
     private boolean checkValueSpaceHasSameOrderedType(BFiniteType finiteType, BType type) {
         BType baseType = getImpliedType(type);
-        Set<BType> broadTypes = singletonBroadTypes(finiteType, symTable);
+        Set<BType> broadTypes = SemTypeHelper.broadTypes(finiteType, symTable);
         if (baseType.tag == TypeTags.FINITE) {
             BType baseExprType = broadTypes.iterator().next();
             return checkValueSpaceHasSameOrderedType(((BFiniteType) baseType), baseExprType);
@@ -4215,7 +4213,7 @@ public class Types {
         switch (type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
-                if (!Core.isSubtypeSimple(unionType.semType(), PredefinedType.NEVER)) {
+                if (!SemTypes.isSubtypeSimple(unionType.semType(), PredefinedType.NEVER)) {
                     return false;
                 }
 
@@ -4251,7 +4249,7 @@ public class Types {
         }
 
         SemType t = SemTypeHelper.semTypeComponent(type);
-        return Core.isSubtypeSimple(t, PredefinedType.STRING);
+        return SemTypes.isSubtypeSimple(t, PredefinedType.STRING);
     }
 
     /**
@@ -4294,7 +4292,7 @@ public class Types {
                 }
                 return true;
             case TypeTags.FINITE:
-                return !Core.isEmpty(semTypeCtx, Core.intersect(type.semType(), PredefinedType.INT));
+                return !Core.isEmpty(semTypeCtx, SemTypes.intersect(type.semType(), PredefinedType.INT));
             default:
                 return false;
         }
@@ -4346,7 +4344,7 @@ public class Types {
                 memberTypes.add(symTable.byteType);
                 break;
             case TypeTags.FINITE:
-                Set<BType> broadTypes = singletonBroadTypes((BFiniteType) referredType, symTable);
+                Set<BType> broadTypes = SemTypeHelper.broadTypes((BFiniteType) referredType, symTable);
                 memberTypes.addAll(broadTypes);
                 break;
             case TypeTags.UNION:
@@ -5669,7 +5667,7 @@ public class Types {
         SemType removeSemType = PredefinedType.NEVER;
         for (BType removeType : removeTypes) {
             SemType semTypeToRemove = SemTypeHelper.semTypeComponent(removeType);
-            removeSemType = Core.union(removeSemType, semTypeToRemove);
+            removeSemType = SemTypes.union(removeSemType, semTypeToRemove);
         }
 
         List<SemNamedType> newValueSpace = new ArrayList<>();
@@ -5805,7 +5803,7 @@ public class Types {
                 }
                 return true;
             case TypeTags.FINITE:
-                return isAllowedConstantType(singletonBroadTypes(type.semType(), symTable).iterator().next());
+                return isAllowedConstantType(SemTypeHelper.broadTypes(type.semType(), symTable).iterator().next());
             default:
                 return false;
         }
@@ -6029,7 +6027,7 @@ public class Types {
 
         for (BType member : getAllTypes(type, true)) {
             if (member.tag == TypeTags.FINITE) {
-                Set<BType> broadTypes = singletonBroadTypes((BFiniteType) member, symTable);
+                Set<BType> broadTypes = SemTypeHelper.broadTypes((BFiniteType) member, symTable);
                 memberTypes.addAll(broadTypes);
                 if (!hasFillerValue && hasImplicitDefaultValue(member.semType())) {
                     hasFillerValue = true;
@@ -6211,8 +6209,8 @@ public class Types {
         assert !PredefinedType.NEVER.equals(t);
         SemType tButNil = Core.diff(t, PredefinedType.NIL);
         UniformTypeBitSet uniformTypeBitSet = Core.widenToBasicTypes(tButNil);
-        if (Core.isSubtypeSimple(uniformTypeBitSet, PredefinedType.SIMPLE_OR_STRING)) {
-            int bitCount = bitCount(uniformTypeBitSet.bitset);
+        if (SemTypes.isSubtypeSimple(uniformTypeBitSet, PredefinedType.SIMPLE_OR_STRING)) {
+            int bitCount = SemTypeHelper.bitCount(uniformTypeBitSet.bitset);
             return bitCount <= 1;
         }
 
@@ -6258,7 +6256,7 @@ public class Types {
                 LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
                 return findCompatibleType(memberTypes.iterator().next());
             default:
-                Set<BType> broadTypes = singletonBroadTypes(type.semType(), symTable);
+                Set<BType> broadTypes = SemTypeHelper.broadTypes(type.semType(), symTable);
                 assert broadTypes.size() == 1; // all values should belong to a single basic type
                 return broadTypes.iterator().next();
         }

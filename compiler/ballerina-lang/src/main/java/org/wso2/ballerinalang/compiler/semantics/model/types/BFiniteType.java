@@ -19,9 +19,9 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.types.ComplexSemType;
-import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
@@ -93,7 +93,7 @@ public class BFiniteType extends BType implements ReferenceType {
     private SemType computeResultantSemType(SemNamedType[] valueSpace) {
         SemType s = PredefinedType.NEVER;
         for (SemNamedType semNamedType : valueSpace) {
-            s = Core.union(s, semNamedType.semType());
+            s = SemTypes.union(s, semNamedType.semType());
         }
         return s;
     }

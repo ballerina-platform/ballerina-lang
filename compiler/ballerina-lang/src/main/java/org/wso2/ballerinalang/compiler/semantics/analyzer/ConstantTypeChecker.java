@@ -765,7 +765,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             BType fieldName = checkConstExpr(key.expr, data);
             if (fieldName.tag == TypeTags.FINITE) {
                 SemType semtype = fieldName.semType();
-                if (Core.isSubtypeSimple(semtype, PredefinedType.STRING)) {
+                if (SemTypes.isSubtypeSimple(semtype, PredefinedType.STRING)) {
                     Optional<String> str = StringSubtype.stringSubtypeSingleValue(Core.stringSubtype(semtype));
                     if (str.isPresent()) {
                         exprToCheck = keyValue.valueExpr;
@@ -907,7 +907,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             BType fieldName = checkConstExpr(key.expr, data);
             if (fieldName.tag == TypeTags.FINITE) {
                 SemType semtype = fieldName.semType();
-                if (Core.isSubtypeSimple(semtype, PredefinedType.STRING)) {
+                if (SemTypes.isSubtypeSimple(semtype, PredefinedType.STRING)) {
                     Optional<String> str = StringSubtype.stringSubtypeSingleValue(Core.stringSubtype(semtype));
                     if (str.isPresent()) {
                         String keyName = str.get();
@@ -1794,7 +1794,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 literalExpr.value = String.valueOf(literalValue);
                 return symTable.decimalType;
             case TypeTags.FINITE:
-                Set<BType> broadTypes = SemTypeHelper.singletonBroadTypes((BFiniteType) expectedType, symTable);
+                Set<BType> broadTypes = SemTypeHelper.broadTypes((BFiniteType) expectedType, symTable);
                 if (broadTypes.size() == 1) {
                     return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, broadTypes.iterator().next());
                 }
