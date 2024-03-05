@@ -174,6 +174,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_SPECIFY_NAMED_ARG_FOR_FIELD_OF_INCLUDED_RECORD_WHEN_ARG_SPECIFIED_FOR_INCLUDED_RECORD("BCE2137",
             "cannot.specify.named.argument.for.field.of.included.record.when.arg.specified.for.included.record"),
     CYCLIC_TYPE_REFERENCE_NOT_YET_SUPPORTED("BCE2138", "cyclic.type.reference.not.yet.supported"),
+    INVALID_SPREAD_FIELD_TO_CREATE_CLOSED_RECORD_FROM_OPEN_RECORD("BCE2139",
+            "invalid.spread.field.to.create.closed.record.from.open.record"),
+    INVALID_SPREAD_FIELD_REST_FIELD_MISMATCH("BCE2140", "invalid.spread.field.rest.field.mismatch"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
@@ -468,7 +471,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
             "BCE3035", "fail.expr.no.matching.error.return.in.encl.invokable"),
-    INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION("BCE3036", "on.fail.no.matching.error"),
 
     START_REQUIRE_INVOCATION("BCE3037", "start.require.invocation"),
     INVALID_EXPR_STATEMENT("BCE3038", "invalid.expr.statement"),
@@ -814,7 +816,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_QUERY_CONSTRUCT_TYPE("BCE4055", "invalid.error.query.construct.type"),
     CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4056",
             "cannot.use.alternate.wait.action.within.multiple.wait.action"),
-    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected")
+    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected"),
+    INSTANTIATION_ERROR("BCE4058", "instantiation.error"),
+    INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4059", "invalid.binding.pattern.in.on.fail")
     ;
 
     private String diagnosticId;

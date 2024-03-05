@@ -167,8 +167,14 @@ public class Generator {
                         ((ModuleVariableDeclarationNode) node).visibilityQualifier().isPresent() &&
                         ((ModuleVariableDeclarationNode) node).visibilityQualifier().get().kind()
                                 .equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                    module.variables.add(getModuleVariable((ModuleVariableDeclarationNode) node, semanticModel,
-                            module));
+                    DefaultableVariable defaultableVariable = getModuleVariable((ModuleVariableDeclarationNode) node,
+                            semanticModel, module);
+                    if (containsToken(((ModuleVariableDeclarationNode) node).qualifiers(),
+                            SyntaxKind.CONFIGURABLE_KEYWORD)) {
+                        module.configurables.add(defaultableVariable);
+                    } else {
+                        module.variables.add(defaultableVariable);
+                    }
                 }
             }
         }

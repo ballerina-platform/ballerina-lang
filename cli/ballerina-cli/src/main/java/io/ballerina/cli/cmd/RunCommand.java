@@ -24,6 +24,7 @@ import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.RunBallerinaPreBuildToolsTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
@@ -72,7 +73,7 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--offline"}, description = "Builds offline without downloading dependencies and " +
             "then run.")
-    private boolean offline;
+    private Boolean offline;
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
@@ -233,6 +234,8 @@ public class RunCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean target dir for projects
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
+                // Run build tools
+                .addTask(new RunBallerinaPreBuildToolsTask(outStream))
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules

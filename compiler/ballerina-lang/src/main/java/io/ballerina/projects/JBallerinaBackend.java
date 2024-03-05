@@ -39,8 +39,6 @@ import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
-import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Lists;
@@ -78,6 +76,7 @@ import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 
 /**
  * This class represents the Ballerina compiler backend that produces executables that runs on the JVM.
@@ -132,12 +131,6 @@ public class JBallerinaBackend extends CompilerBackend {
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.interopValidator = InteropValidator.getInstance(compilerContext);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
-        // TODO: Move to a compiler extension once Compiler revamp is complete
-        if (packageContext.compilationOptions().observabilityIncluded()) {
-            ObservabilitySymbolCollector observabilitySymbolCollector
-                    = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
-            observabilitySymbolCollector.process(packageContext.project());
-        }
         this.conflictedJars = new ArrayList<>();
         performCodeGen();
     }
@@ -176,6 +169,11 @@ public class JBallerinaBackend extends CompilerBackend {
                 moduleDiagnostics.add(
                         new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
+
+            ModuleContext.shrinkDocuments(moduleContext);
+            if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
+                moduleContext.cleanBLangPackage();
+            }
         }
         // add compilation diagnostics
         diagnostics.addAll(moduleDiagnostics);
@@ -199,12 +197,11 @@ public class JBallerinaBackend extends CompilerBackend {
         return diagnosticResult;
     }
 
-    // TODO EmitResult should not contain compilation diagnostics.
     public EmitResult emit(OutputType outputType, Path filePath) {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
-            return new EmitResult(false, diagnosticResult, generatedArtifact);
+            return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), generatedArtifact);
         }
 
         switch (outputType) {
@@ -221,19 +218,23 @@ public class JBallerinaBackend extends CompilerBackend {
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
 
-        ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
+        ArrayList<Diagnostic> allDiagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
+        List<Diagnostic> emitResultDiagnostics = new ArrayList<>();
+        // Add lifecycle plugin diagnostics.
         List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion(filePath);
         if (!pluginDiagnostics.isEmpty()) {
-            diagnostics.addAll(pluginDiagnostics);
+            emitResultDiagnostics.addAll(pluginDiagnostics);
         }
-        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
-
-        List<Diagnostic> allDiagnostics = new ArrayList<>(diagnostics);
+        // Add jar resolver diagnostics.
         jarResolver().diagnosticResult().diagnostics().stream().forEach(
-                diagnostic -> allDiagnostics.add(diagnostic));
+                diagnostic -> emitResultDiagnostics.add(diagnostic));
+        allDiagnostics.addAll(emitResultDiagnostics);
+        // JBallerinaBackend diagnostics contains all diagnostics.
+        // EmitResult will only contain diagnostics related to emitting the executable.
+        diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
 
         // TODO handle the EmitResult properly
-        return new EmitResult(true, new DefaultDiagnosticResult(allDiagnostics), generatedArtifact);
+        return new EmitResult(true, new DefaultDiagnosticResult(emitResultDiagnostics), generatedArtifact);
     }
 
     private Path emitBala(Path filePath) {
@@ -553,15 +554,15 @@ public class JBallerinaBackend extends CompilerBackend {
         if (nativeImageCommand == null) {
             throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
                     "environment variable\nHINT: To install GraalVM, follow the link: " +
-                    "https://ballerina.io/learn/build-a-native-executable/#configure-graalvm");
+                    "https://ballerina.io/learn/build-the-executable-locally/#configure-graalvm");
         }
         nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
                 + (OS.contains("win") ? "native-image.cmd" : "native-image");
 
         File commandExecutable = Paths.get(nativeImageCommand).toFile();
         if (!commandExecutable.exists()) {
-            throw new ProjectException("cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
-                    "Install it using: gu install native-image");
+            throw new ProjectException("cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME/bin " +
+                    "directory. Install it using: gu install native-image");
         }
 
         String graalVMBuildOptions = project.buildOptions().graalVMBuildOptions();
@@ -753,7 +754,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void addConflictedJars(JarLibrary jarLibrary, HashMap<String, JarLibrary> copiedEntries, String entryName) {
-        if (entryName.endsWith(".class") && !entryName.endsWith("module-info.class")) {
+        if (entryName.endsWith(CLASS_FILE_SUFFIX) && !entryName.endsWith("module-info.class")) {
             JarLibrary conflictingJar = copiedEntries.get(entryName);
 
             // Ignore if conflicting jars has same name

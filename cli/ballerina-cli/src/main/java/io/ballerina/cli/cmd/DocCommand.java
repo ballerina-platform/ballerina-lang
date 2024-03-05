@@ -23,6 +23,7 @@ import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateDocsTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.RunBallerinaPreBuildToolsTask;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
@@ -88,7 +89,7 @@ public class DocCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--offline"}, description = "Compiles offline without downloading " +
             "dependencies.")
-    private boolean offline;
+    private Boolean offline;
 
     @CommandLine.Option(names = "--old-parser", description = "Enable old parser.", hidden = true)
     private boolean useOldParser;
@@ -181,6 +182,7 @@ public class DocCommand implements BLauncherCmd {
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CreateTargetDirTask()) // create target directory.
+                .addTask(new RunBallerinaPreBuildToolsTask(outStream)) // run build tools
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
                 .addTask(new CreateDocsTask(outStream, outputPath)) // creates API documentation

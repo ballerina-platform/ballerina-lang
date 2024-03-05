@@ -1,0 +1,16 @@
+Compiling source
+	sameera/myproject:0.1.0
+
+Creating bala
+
+************************************************************
+* WARNING: Package is not verified with GraalVM.           *
+************************************************************
+
+The GraalVM compatibility property has not been defined for the package 'myproject'. This could potentially lead to compatibility issues with GraalVM.
+
+To resolve this warning, please ensure that all Java dependencies of this package are compatible with GraalVM. Subsequently, update the Ballerina.toml file under the section '[platform.java17]' with the attribute 'graalvmCompatible = true'.
+
+************************************************************
+
+	target\bala\sameera-myproject-java17-0.1.0.bala

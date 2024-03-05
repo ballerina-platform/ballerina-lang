@@ -135,12 +135,13 @@ public class RunNativeImageTestTask implements Task {
     private boolean isRerunTestExecution;
     private String singleExecTests;
     private boolean listGroups;
+    private final boolean  isParallelExecution;
 
     TestReport testReport;
 
     public RunNativeImageTestTask(PrintStream out, boolean rerunTests, String groupList,
                                   String disableGroupList, String testList, String includes, String coverageFormat,
-                                  Map<String, Module> modules, boolean listGroups) {
+                                  Map<String, Module> modules, boolean listGroups, boolean isParallelExecution) {
         this.out = out;
         this.isRerunTestExecution = rerunTests;
 
@@ -154,6 +155,7 @@ public class RunNativeImageTestTask implements Task {
             singleExecTests = testList;
         }
         this.listGroups = listGroups;
+        this.isParallelExecution = isParallelExecution;
     }
 
 
@@ -471,15 +473,15 @@ public class RunNativeImageTestTask implements Task {
             if (nativeImageCommand == null) {
                 throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
                         "environment variable\nHINT: To install GraalVM, follow the link: " +
-                        "https://ballerina.io/learn/build-a-native-executable/#configure-graalvm");
+                        "https://ballerina.io/learn/build-the-executable-locally/#configure-graalvm");
             }
             nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
                     + (OS.contains("win") ? "native-image.cmd" : "native-image");
 
             File commandExecutable = Paths.get(nativeImageCommand).toFile();
             if (!commandExecutable.exists()) {
-                throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
-                        "Install it using: gu install native-image");
+                throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME/bin "
+                        + "directory. Install it using: gu install native-image");
             }
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
@@ -556,6 +558,7 @@ public class RunNativeImageTestTask implements Task {
             cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
             cmdArgs.add(Boolean.toString(isRerunTestExecution));
             cmdArgs.add(Boolean.toString(listGroups));                              // 8
+            cmdArgs.add(Boolean.toString(isParallelExecution));
 
             builder.command(cmdArgs.toArray(new String[0]));
             process = builder.start();

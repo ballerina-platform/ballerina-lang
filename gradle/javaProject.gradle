@@ -92,7 +92,6 @@ dependencies {
         implementation "org.wso2.transport.http:org.wso2.transport.http.netty:${project.wso2TransportHttpVersion}"
         implementation "org.wso2.transport.file:org.wso2.transport.local-file-system:${project.wso2TransportLocalFileSystemVersion}"
         implementation "org.wso2.staxon:staxon-core:${project.wso2StaxonCoreVersion}"
-        implementation "org.quartz-scheduler:quartz:${project.quartzSchedulerVersion}"
         implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${project.jacksonDatatypeJsr310Version}"
 
         implementation "info.picocli:picocli:${project.picocliVersion}"

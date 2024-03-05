@@ -337,14 +337,14 @@ public function main() {
     test:assertEquals(isolatedServiceClass.asyncGetA(), 3);
     test:assertTrue(isolatedServiceClass.isIsolated());
     test:assertTrue(isolatedServiceClass.isIsolatedFunction());
-    test:assertTrue(isolatedServiceClass.isIsolatedFunctionWithName("$gen$$getA$$0046"));
+    test:assertTrue(isolatedServiceClass.isIsolatedFunctionWithName("$gen$$getA$&0046"));
 
     NonIsolatedServiceClass nonIsolatedServiceClass = new ();
     test:assertEquals(nonIsolatedServiceClass.callGetA(), 4);
     test:assertEquals(nonIsolatedServiceClass.asyncGetA(), 4);
     test:assertFalse(nonIsolatedServiceClass.isIsolated());
     test:assertFalse(nonIsolatedServiceClass.isIsolatedFunction());
-    test:assertFalse(nonIsolatedServiceClass.isIsolatedFunctionWithName("$gen$$getA$$0046"));
+    test:assertFalse(nonIsolatedServiceClass.isIsolatedFunctionWithName("$gen$$getA$&0046"));
 
     // invokeAsync api calls negative test cases
 

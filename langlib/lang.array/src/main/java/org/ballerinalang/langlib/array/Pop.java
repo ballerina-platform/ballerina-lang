@@ -18,10 +18,13 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsClosedArray;
 
 /**
  * Native implementation of lang.array:pop((any|error)[]).
@@ -39,7 +42,11 @@ public class Pop {
     private static final String FUNCTION_SIGNATURE = "pop()";
 
     public static Object pop(BArray arr) {
-        checkIsArrayOnlyOperation(TypeUtils.getImpliedType(arr.getType()), FUNCTION_SIGNATURE);
+        Type type = TypeUtils.getImpliedType(arr.getType());
+        checkIsArrayOnlyOperation(type, FUNCTION_SIGNATURE);
+        checkIsClosedArray((ArrayType) type, FUNCTION_SIGNATURE);
         return arr.shift(arr.size() - 1);
     }
+
+    private Pop() {}
 }

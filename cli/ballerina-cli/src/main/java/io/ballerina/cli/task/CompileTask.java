@@ -29,6 +29,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.PackageDiagnostic;
@@ -47,6 +48,7 @@ import java.util.Set;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_PREFIX;
 
 /**
  * Task for compiling a package.
@@ -185,7 +187,11 @@ public class CompileTask implements Task {
                 diagnostics.addAll(project.currentPackage().manifest().diagnostics().diagnostics());
                 // add dependency manifest diagnostics
                 diagnostics.addAll(project.currentPackage().dependencyManifest().diagnostics().diagnostics());
-                diagnostics.forEach(d -> err.println(d.toString()));
+                diagnostics.forEach(d -> {
+                    if (!d.diagnosticInfo().code().startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX)) {
+                        err.println(d);
+                    }
+                });
                 throw createLauncherException("package resolution contains errors");
             }
 
@@ -205,14 +211,23 @@ public class CompileTask implements Task {
 
             // Report package compilation and backend diagnostics
             diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
+            diagnostics.forEach(d -> {
+                if (d.diagnosticInfo().code() == null || (!d.diagnosticInfo().code().equals(
+                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId()) &&
+                        !d.diagnosticInfo().code().startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX))) {
+                    err.println(d);
+                }
+            });
+            // Report build tool execution diagnostics
+            if (project.getToolContextMap() != null) {
+                for (ToolContext tool : project.getToolContextMap().values()) {
+                    diagnostics.addAll(tool.diagnostics());
+                }
+            }
             boolean hasErrors = false;
             for (Diagnostic d : diagnostics) {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
                     hasErrors = true;
-                }
-                if (d.diagnosticInfo().code() == null || !d.diagnosticInfo().code().equals(
-                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId())) {
-                    err.println(d);
                 }
             }
             if (hasErrors) {

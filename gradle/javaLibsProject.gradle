@@ -29,8 +29,6 @@ dependencies {
     dist "io.jaegertracing:jaeger-core:${project.jaegerCoreVersion}"
     dist "io.jaegertracing:jaeger-thrift:${project.jaegerThriftVersion}"
     dist "javax.transaction:javax.transaction-api:${project.javaxTransactionApiVersion}"
-    dist "org.quartz-scheduler:quartz-jobs:${project.quartzSchedulerJobsVersion}"
-    dist "org.quartz-scheduler:quartz:${project.quartzSchedulerVersion}"
     dist "org.wso2.carbon:org.wso2.carbon.core:${project.wso2CarbonCoreVersion}"
     dist "org.wso2.securevault:org.wso2.securevault:${project.wso2SecurevaultVersion}"
     dist "org.wso2.transport.file:org.wso2.transport.local-file-system:${project.wso2TransportLocalFileSystemVersion}"

@@ -44,8 +44,8 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 public class ProfileCommandTest extends BaseCommandTest {
     private Path testResources;
 
-    static Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-            "log_creator_combined_plugin/compiler-plugin.txt");
+    static Path logFile = Paths.get(".", "src", "test", "resources", "compiler_plugin_tests",
+            "log_creator_combined_plugin", "compiler-plugin.txt");
 
     @BeforeSuite
     public void setupSuite() throws IOException {
@@ -81,12 +81,36 @@ public class ProfileCommandTest extends BaseCommandTest {
         profileCommand.execute();
         String buildLog = readOutput(true).replaceAll("\r", "").strip();
         Assert.assertEquals(buildLog, getOutput("run-project-with-profile.txt"));
-        Path htmlPath = projectPath.resolve("target").resolve("bin").resolve("ProfilerOutput.html");
+        Path htmlPath = projectPath.resolve("target").resolve("profiler").resolve("ProfilerReport.html");
         Assert.assertTrue(htmlPath.toFile().exists());
         try {
             String htmlContent = Files.readString(htmlPath);
-            Assert.assertTrue(htmlContent.contains("foo/package_a/0/main.main()"));
-            Assert.assertTrue(htmlContent.contains("foo/package_a/0/$_init.$moduleExecute()"));
+            Assert.assertTrue(htmlContent.contains("foo/package_a/0/main.main"));
+            Assert.assertTrue(htmlContent.contains("foo/package_a/0/$_init.$moduleInit"));
+        } catch (IOException e) {
+            Assert.fail("Error reading html file");
+        }
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Profile a ballerina project with build tools")
+    public void testRunBalProjectWithProfileFlagWithBuildTools() throws IOException {
+        Path projectPath = this.testResources.resolve("projectForProfile").resolve("package_b");
+        System.setProperty("user.dir", projectPath.toString());
+
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        System.setOut(new java.io.PrintStream(out));
+
+        ProfileCommand profileCommand = new ProfileCommand(projectPath, printStream, false);
+        profileCommand.execute();
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        Assert.assertEquals(buildLog, getOutput("profile-project-with-build-tool.txt"));
+        Path htmlPath = projectPath.resolve("target").resolve("profiler").resolve("ProfilerReport.html");
+        Assert.assertTrue(htmlPath.toFile().exists());
+        try {
+            String htmlContent = Files.readString(htmlPath);
+            Assert.assertTrue(htmlContent.contains("foo/package_b/0/main.main"));
+            Assert.assertTrue(htmlContent.contains("foo/package_b/0/$_init.$moduleInit"));
         } catch (IOException e) {
             Assert.fail("Error reading html file");
         }

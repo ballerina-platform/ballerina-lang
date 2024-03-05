@@ -19,6 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -27,9 +28,12 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.ballerinalang.test.BCompileUtil;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -53,6 +57,7 @@ import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 
 /**
  * Test command tests.
@@ -180,6 +185,18 @@ public class TestCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("test-project.txt"));
     }
 
+    @Test(description = "Test a project with a build tool execution")
+    public void testTestProjectWithBuildTool() throws IOException {
+        Path projectPath = this.testResources.resolve("proper-build-tool-with-tests");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs();
+        testCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("test-project-with-build-tool.txt"));
+    }
+
     @Test(description = "Test the heap dump generation for a project with an OOM error")
     public void testHeapDumpGenerationForOOM() {
         Path projectPath = this.testResources.resolve("oom-project");
@@ -223,7 +240,7 @@ public class TestCommandTest extends BaseCommandTest {
                 .resolve("foo-winery-0.1.0-testable.jar").toFile().exists());
     }
 
-    @Test
+    @Test(description = "Test a ballerina project with an invalid argument for --coverage-format")
     public void testUnsupportedCoverageFormat() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         TestCommand testCommand = new TestCommand(
@@ -236,7 +253,7 @@ public class TestCommandTest extends BaseCommandTest {
                 "supported."));
     }
 
-    @Test ()
+    @Test (description = "Test a ballerina project with a custom value for --target-dir")
     public void testCustomTargetDirWithTestCmd() {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         Path customTargetDir = projectPath.resolve("customTargetDir3");
@@ -260,6 +277,31 @@ public class TestCommandTest extends BaseCommandTest {
                 ".json")));
     }
 
+    @Test(description = "Test a ballerina project with --test-report")
+    public void testTestWithReport() {
+        Path projectPath = this.testResources.resolve("validProjectWithTests");
+        TestCommand testCommand = new TestCommand(
+                projectPath, printStream, printStream, false, true, false, null);
+        new CommandLine(testCommand).parseArgs();
+        try (MockedStatic<TestUtils> testUtilsMockedStatic = Mockito.mockStatic(
+                TestUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            testUtilsMockedStatic.when(TestUtils::getReportToolsPath)
+                    .thenReturn(projectPath.resolve("resources").resolve("coverage").resolve("report.zip"));
+            testCommand.execute();
+        }
+        Path reportDir = projectPath.resolve("target").resolve("report");
+
+        Assert.assertTrue(Files.exists(reportDir));
+        Assert.assertTrue(Files.exists(reportDir.resolve("favicon.ico")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("index.html")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("test_results.json")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("manifest.json")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static").resolve("css").resolve("2.d5162072.chunk.css")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static").resolve("css").resolve("main.15691da7.chunk.css")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static").resolve("js").resolve("2.bc541f30.chunk.js")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static").resolve("js").resolve("main.ea323a3b.chunk.js")));
+    }
+
     @Test(description = "tests bal test command with sticky flag")
     public void testBalTestWithStickyFlag() throws IOException {
         // Cache package pkg_a 1.0.0
@@ -277,8 +319,9 @@ public class TestCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("bal-test-project.txt"));
         Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
-        Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(), readFileAsString(
-                projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml")).trim());
+        Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(),
+                readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml"))
+                        .trim().replace("INSERT_VERSION_HERE", RepoUtils.getBallerinaShortVersion()));
 
         // remove build file
         Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
@@ -294,8 +337,9 @@ public class TestCommandTest extends BaseCommandTest {
         String secondBuildLog = readOutput(true);
         Assert.assertEquals(secondBuildLog.replaceAll("\r", ""), getOutput("bal-test-project.txt"));
         Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
-        Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(), readFileAsString(
-                projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml")).trim());
+        Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(),
+                readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml"))
+                        .trim().replace("INSERT_VERSION_HERE", RepoUtils.getBallerinaShortVersion()));
     }
 
     @Test(description = "Test a ballerina project with the flag dump-graph")
@@ -408,5 +452,4 @@ public class TestCommandTest extends BaseCommandTest {
             Assert.assertTrue(buildLog.contains("WARNING: Package is not compatible with GraalVM."));
         }
     }
-
 }

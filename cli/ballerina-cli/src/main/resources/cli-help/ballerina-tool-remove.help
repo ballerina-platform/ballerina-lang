@@ -8,6 +8,9 @@ OPTIONS
        -h, --help
            Print the usage details of tool remove command.
 
+       --repository
+           Remove a tool from a custom repository.
+
 DESCRIPTION
        Remove a tool that was installed into to the local environment.
 
@@ -16,3 +19,7 @@ DESCRIPTION
 
        If the version is not specified, all versions of the tool will be
        removed including the active version.
+
+EXAMPLES
+       Remove the '1.1.0' version of the 'eod' tool from local repository.
+           $ bal tool remove eod:1.1.0 --repository=local

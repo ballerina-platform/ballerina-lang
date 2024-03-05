@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.profiler.runtime;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,48 +27,33 @@ import java.util.concurrent.TimeUnit;
  * @since 2201.8.0
  */
 public class Data {
-    private final String name;
-    private long startTime;
-    private long totalTime;
-    private long minTime;
-    private long maxTime;
+    protected final String stackKey;
+    protected final String stackIndex;
+    protected String stackTrace = null;
+    public long totalTime;
+    private final ConcurrentHashMap<String, Long> startTimes = new ConcurrentHashMap<>();
 
-    public Data(String name) {
-        this.name = name;
+    public Data(String stackIndex, String stackKey) {
+        this.stackIndex = stackIndex;
+        this.stackKey = stackKey;
         this.totalTime = 0L;
-        this.startTime = 0L;
-        this.minTime = Long.MAX_VALUE;
-        this.maxTime = Long.MIN_VALUE;
     }
 
-    public void start() {
-        this.startTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS);
+    public synchronized void start(String strandId) {
+        if (this.startTimes.containsKey(strandId)) {
+            return;
+        }
+        startTimes.put(strandId, TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS));
     }
 
-    public void stop() {
-        long elapsed = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) - this.startTime;
-        if (elapsed < this.minTime) {
-            this.minTime = elapsed;
-        }
-        if (elapsed > this.maxTime) {
-            this.maxTime = elapsed;
-        }
+    public synchronized void stop(String strandId) {
+        long elapsed = TimeUnit.MILLISECONDS.convert(System.nanoTime(),
+                TimeUnit.NANOSECONDS) - this.startTimes.remove(strandId);
         this.totalTime += elapsed;
     }
 
     private String getFormattedStats() {
-        int time = (int) this.totalTime;
-        String[] stackTrace = new String[]{this.name};
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("{");
-        sb.append("\"time\": \"").append(time).append("\", ");
-        sb.append("\"stackTrace\": ");
-        for (String s : stackTrace) {
-            sb.append(s);
-        }
-        sb.append("},");
-        return sb.toString();
+        return "{" + "\"time\": \"" + this.totalTime + "\", " + "\"stackTrace\": " + this.stackTrace + "}";
     }
 
     @Override

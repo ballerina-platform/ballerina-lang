@@ -1116,10 +1116,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        List<BPackageSymbol> imports = ((BPackageSymbol) this.env.scope.owner).imports;
-        if (!imports.contains(pkgSymbol)) {
-            imports.add(pkgSymbol);
-        }
+        Set<BPackageSymbol> imports = ((BPackageSymbol) this.env.scope.owner).imports;
+        imports.add(pkgSymbol);
 
         // get a copy of the package symbol, add compilation unit info to it,
         // and define it in the current package scope
@@ -1134,7 +1132,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void initPredeclaredModules(Map<Name, BPackageSymbol> predeclaredModules,
                                        List<BLangCompilationUnit> compUnits, SymbolEnv env) {
-        SymbolEnv prevEnv = this.env;
         this.env = env;
         for (Map.Entry<Name, BPackageSymbol> predeclaredModuleEntry : predeclaredModules.entrySet()) {
             Name alias = predeclaredModuleEntry.getKey();
@@ -1169,20 +1166,16 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
-        String nsURI;
+        String nsURI = "";
         if (xmlnsNode.namespaceURI.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) xmlnsNode.namespaceURI;
-            if (missingNodesHelper.isMissingNode(varRef.variableName.value)) {
-                nsURI = "";
-            } else {
-                // TODO: handle const-ref (#24911)
-                nsURI = "";
+            if (Symbols.isFlagOn(varRef.symbol.flags, Flags.CONSTANT)) {
+                nsURI = ((BConstantSymbol) varRef.symbol).value.toString();
+                checkInvalidNameSpaceDeclaration(xmlnsNode.pos, xmlnsNode.prefix, nsURI);
             }
         } else {
             nsURI = (String) ((BLangLiteral) xmlnsNode.namespaceURI).value;
-            if (!nullOrEmpty(xmlnsNode.prefix.value) && nsURI.isEmpty()) {
-                dlog.error(xmlnsNode.pos, DiagnosticErrorCode.INVALID_NAMESPACE_DECLARATION, xmlnsNode.prefix);
-            }
+            checkInvalidNameSpaceDeclaration(xmlnsNode.pos, xmlnsNode.prefix, nsURI);
         }
 
         // set the prefix of the default namespace
@@ -1211,6 +1204,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define it in the enclosing scope. Here we check for the owner equality,
         // to support overriding of namespace declarations defined at package level.
         defineSymbol(xmlnsNode.prefix.pos, xmlnsSymbol);
+    }
+
+    private void checkInvalidNameSpaceDeclaration(Location pos, BLangIdentifier prefix, String nsURI) {
+        if (!nullOrEmpty(prefix.value) && nsURI.isEmpty()) {
+            dlog.error(pos, DiagnosticErrorCode.INVALID_NAMESPACE_DECLARATION, prefix);
+        }
     }
 
     private boolean nullOrEmpty(String value) {
@@ -3073,6 +3072,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                        BType restConstraint) {
         BRecordTypeSymbol recordSymbol = createAnonRecordSymbol(env, pos);
         BRecordType recordVarType = new BRecordType(recordSymbol);
+        recordSymbol.type = recordVarType;
         LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
             putAll(recordType.fields);
             BType referredRestFieldType = Types.getImpliedType(recordType.restFieldType);
@@ -3089,8 +3089,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordVarType,
                 env.enclPkg.packageID, symTable, pos);
-        recordTypeNode.initFunction =
-                TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
         TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordVarType, recordSymbol, recordTypeNode, env);
 
         return recordVarType;
@@ -4813,24 +4811,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         BTypeSymbol typeSymbol = funcNode.receiver.getBType().tsymbol;
 
         // Check whether there exists a struct field with the same name as the function name.
-        if (isValidAttachedFunc) {
-            if (typeSymbol.tag == SymTag.OBJECT) {
-                validateFunctionsAttachedToObject(funcNode, funcSymbol);
-            } else if (typeSymbol.tag == SymTag.RECORD) {
-                validateFunctionsAttachedToRecords(funcNode, funcSymbol);
-            }
+        if (isValidAttachedFunc && typeSymbol.tag == SymTag.OBJECT) {
+            validateFunctionsAttachedToObject(funcNode, funcSymbol);
         }
 
         defineNode(funcNode.receiver, invokableEnv);
         funcSymbol.receiverSymbol = funcNode.receiver.symbol;
-    }
-
-    private void validateFunctionsAttachedToRecords(BLangFunction funcNode, BInvokableSymbol funcSymbol) {
-        BInvokableType funcType = (BInvokableType) funcSymbol.type;
-        BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) funcNode.receiver.getBType().tsymbol;
-
-        recordSymbol.initializerFunc = new BAttachedFunction(
-                names.fromIdNode(funcNode.name), funcSymbol, funcType, funcNode.pos);
     }
 
     private void validateFunctionsAttachedToObject(BLangFunction funcNode, BInvokableSymbol funcSymbol) {
