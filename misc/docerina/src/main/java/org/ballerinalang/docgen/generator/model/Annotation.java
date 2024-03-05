@@ -17,6 +17,8 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.List;
+
 /**
  * Represent documentation for an Annotation.
  */
@@ -26,8 +28,9 @@ public class Annotation extends Construct {
     @Expose
     public String attachmentPoints;
 
-    public Annotation(String name, String description, boolean isDeprecated, Type type, String attachmentPoints) {
-        super(name, description, isDeprecated);
+    public Annotation(String name, String description, List<String> descriptionSections, boolean isDeprecated,
+                      Type type, String attachmentPoints) {
+        super(name, description, descriptionSections, isDeprecated);
         this.type = type;
         this.attachmentPoints = attachmentPoints;
     }
