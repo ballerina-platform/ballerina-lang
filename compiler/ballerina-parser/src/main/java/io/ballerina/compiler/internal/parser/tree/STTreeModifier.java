@@ -1956,10 +1956,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STAlternateReceiveWorkerNode transform(
-            STAlternateReceiveWorkerNode alternateReceiveWorkerNode) {
-        STNode workers = modifyNode(alternateReceiveWorkerNode.workers);
-        return alternateReceiveWorkerNode.modify(
+    public STAlternateReceiveNode transform(
+            STAlternateReceiveNode alternateReceiveNode) {
+        STNode workers = modifyNode(alternateReceiveNode.workers);
+        return alternateReceiveNode.modify(
                 workers);
     }
 

@@ -85,7 +85,7 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE_WORKER",
+                      "kind": "ALTERNATE_RECEIVE",
                       "hasDiagnostics": true,
                       "children": [
                         {
@@ -260,7 +260,7 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE_WORKER",
+                      "kind": "ALTERNATE_RECEIVE",
                       "hasDiagnostics": true,
                       "children": [
                         {
@@ -430,7 +430,7 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE_WORKER",
+                      "kind": "ALTERNATE_RECEIVE",
                       "hasDiagnostics": true,
                       "children": [
                         {

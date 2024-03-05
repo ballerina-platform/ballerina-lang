@@ -13122,7 +13122,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         endContext();
-        return STNodeFactory.createAlternateReceiveWorkerNode(STNodeFactory.createNodeList(workers));
+        return STNodeFactory.createAlternateReceiveNode(STNodeFactory.createNodeList(workers));
     }
 
     /**

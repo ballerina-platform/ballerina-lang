@@ -2430,13 +2430,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stReceiveFieldsNode.createUnlinkedFacade();
     }
 
-    public static AlternateReceiveWorkerNode createAlternateReceiveWorkerNode(
+    public static AlternateReceiveNode createAlternateReceiveNode(
             SeparatedNodeList<SimpleNameReferenceNode> workers) {
         Objects.requireNonNull(workers, "workers must not be null");
 
-        STNode stAlternateReceiveWorkerNode = STNodeFactory.createAlternateReceiveWorkerNode(
+        STNode stAlternateReceiveNode = STNodeFactory.createAlternateReceiveNode(
                 workers.underlyingListNode().internalNode());
-        return stAlternateReceiveWorkerNode.createUnlinkedFacade();
+        return stAlternateReceiveNode.createUnlinkedFacade();
     }
 
     public static RestDescriptorNode createRestDescriptorNode(

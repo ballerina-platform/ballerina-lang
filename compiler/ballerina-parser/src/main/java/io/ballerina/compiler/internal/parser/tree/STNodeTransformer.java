@@ -621,8 +621,8 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(receiveFieldsNode);
     }
 
-    public T transform(STAlternateReceiveWorkerNode alternateReceiveWorkerNode) {
-        return transformSyntaxNode(alternateReceiveWorkerNode);
+    public T transform(STAlternateReceiveNode alternateReceiveNode) {
+        return transformSyntaxNode(alternateReceiveNode);
     }
 
     public T transform(STRestDescriptorNode restDescriptorNode) {

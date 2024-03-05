@@ -1,6 +1,6 @@
 {
-    "AlternateReceiveWorkerNode": {
-        "createdYear": "2023",
+    "AlternateReceiveNode": {
+        "createdYear": "2024",
         "since": "2201.9.0"
     },
     "ClientResourceActionNode": {

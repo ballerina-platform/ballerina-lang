@@ -186,7 +186,7 @@
                                       ]
                                     },
                                     {
-                                      "kind": "ALTERNATE_RECEIVE_WORKER",
+                                      "kind": "ALTERNATE_RECEIVE",
                                       "children": [
                                         {
                                           "kind": "LIST",
@@ -325,7 +325,7 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE_WORKER",
+                      "kind": "ALTERNATE_RECEIVE",
                       "children": [
                         {
                           "kind": "LIST",
@@ -400,7 +400,7 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE_WORKER",
+                      "kind": "ALTERNATE_RECEIVE",
                       "children": [
                         {
                           "kind": "LIST",
@@ -525,7 +525,7 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE_WORKER",
+                      "kind": "ALTERNATE_RECEIVE",
                       "children": [
                         {
                           "kind": "LIST",
@@ -672,7 +672,7 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE_WORKER",
+                      "kind": "ALTERNATE_RECEIVE",
                       "children": [
                         {
                           "kind": "LIST",
@@ -772,7 +772,7 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE_WORKER",
+                      "kind": "ALTERNATE_RECEIVE",
                       "children": [
                         {
                           "kind": "LIST",
@@ -920,7 +920,7 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE_WORKER",
+                      "kind": "ALTERNATE_RECEIVE",
                       "children": [
                         {
                           "kind": "LIST",

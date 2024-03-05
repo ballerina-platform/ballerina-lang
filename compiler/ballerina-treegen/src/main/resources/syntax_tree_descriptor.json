@@ -3342,9 +3342,9 @@
             ]
         },
         {
-            "name": "AlternateReceiveWorkerNode",
+            "name": "AlternateReceiveNode",
             "base": "Node",
-            "kind": "ALTERNATE_RECEIVE_WORKER",
+            "kind": "ALTERNATE_RECEIVE",
             "attributes": [
                 {
                     "name": "workers",

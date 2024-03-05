@@ -1826,10 +1826,10 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBrace);
     }
 
-    public static STNode createAlternateReceiveWorkerNode(
+    public static STNode createAlternateReceiveNode(
             STNode workers) {
 
-        return new STAlternateReceiveWorkerNode(
+        return new STAlternateReceiveNode(
                 workers);
     }
 

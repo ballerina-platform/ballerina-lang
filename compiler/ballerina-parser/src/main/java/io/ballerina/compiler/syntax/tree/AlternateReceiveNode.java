@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -26,9 +26,9 @@ import java.util.Objects;
  *
  * @since 2201.9.0
  */
-public class AlternateReceiveWorkerNode extends NonTerminalNode {
+public class AlternateReceiveNode extends NonTerminalNode {
 
-    public AlternateReceiveWorkerNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public AlternateReceiveNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -52,19 +52,19 @@ public class AlternateReceiveWorkerNode extends NonTerminalNode {
                 "workers"};
     }
 
-    public AlternateReceiveWorkerNode modify(
+    public AlternateReceiveNode modify(
             SeparatedNodeList<SimpleNameReferenceNode> workers) {
         if (checkForReferenceEquality(
                 workers.underlyingListNode())) {
             return this;
         }
 
-        return NodeFactory.createAlternateReceiveWorkerNode(
+        return NodeFactory.createAlternateReceiveNode(
                 workers);
     }
 
-    public AlternateReceiveWorkerNodeModifier modify() {
-        return new AlternateReceiveWorkerNodeModifier(this);
+    public AlternateReceiveNodeModifier modify() {
+        return new AlternateReceiveNodeModifier(this);
     }
 
     /**
@@ -72,23 +72,23 @@ public class AlternateReceiveWorkerNode extends NonTerminalNode {
      *
      * @since 2201.9.0
      */
-    public static class AlternateReceiveWorkerNodeModifier {
-        private final AlternateReceiveWorkerNode oldNode;
+    public static class AlternateReceiveNodeModifier {
+        private final AlternateReceiveNode oldNode;
         private SeparatedNodeList<SimpleNameReferenceNode> workers;
 
-        public AlternateReceiveWorkerNodeModifier(AlternateReceiveWorkerNode oldNode) {
+        public AlternateReceiveNodeModifier(AlternateReceiveNode oldNode) {
             this.oldNode = oldNode;
             this.workers = oldNode.workers();
         }
 
-        public AlternateReceiveWorkerNodeModifier withWorkers(
+        public AlternateReceiveNodeModifier withWorkers(
                 SeparatedNodeList<SimpleNameReferenceNode> workers) {
             Objects.requireNonNull(workers, "workers must not be null");
             this.workers = workers;
             return this;
         }
 
-        public AlternateReceiveWorkerNode apply() {
+        public AlternateReceiveNode apply() {
             return oldNode.modify(
                     workers);
         }

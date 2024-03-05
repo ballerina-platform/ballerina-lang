@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
-import io.ballerina.compiler.syntax.tree.AlternateReceiveWorkerNode;
+import io.ballerina.compiler.syntax.tree.AlternateReceiveNode;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
@@ -2534,9 +2534,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             return singleWorkerRecv;
         }
 
-        if (receiveWorkers.kind() == SyntaxKind.ALTERNATE_RECEIVE_WORKER) {
+        if (receiveWorkers.kind() == SyntaxKind.ALTERNATE_RECEIVE) {
             SeparatedNodeList<SimpleNameReferenceNode> alternateWorkers =
-                    ((AlternateReceiveWorkerNode) receiveWorkers).workers();
+                    ((AlternateReceiveNode) receiveWorkers).workers();
             List<BLangWorkerReceive> workerReceives = new ArrayList<>(alternateWorkers.size());
             for (SimpleNameReferenceNode w : alternateWorkers) {
                 workerReceives.add(createSimpleWorkerReceive(w.name()));
