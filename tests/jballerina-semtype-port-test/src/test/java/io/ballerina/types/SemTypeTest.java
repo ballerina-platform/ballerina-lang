@@ -60,7 +60,7 @@ public class SemTypeTest {
         List<String> testFiles = Arrays.stream(dataDir.listFiles())
                 .map(File::getAbsolutePath)
                 .filter(name -> name.endsWith(".bal") &&
-                        !skipList().contains(name.substring(name.lastIndexOf("/") + 1)))
+                        !skipList().contains(name.substring(name.lastIndexOf(File.separator) + 1)))
                 .collect(Collectors.toList());
 
         // blocked on https://github.com/ballerina-platform/ballerina-lang/issues/28334 and
