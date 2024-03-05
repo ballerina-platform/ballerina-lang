@@ -52,7 +52,8 @@ public class AnnotateDiagnostics {
                                         boolean colorEnabled) {
 
         String diagnosticCode = diagnostic.diagnosticInfo().code();
-        if (diagnostic instanceof PackageDiagnostic && diagnosticCode.startsWith(COMPILER_ERROR_PREFIX)) {
+        if (diagnostic instanceof PackageDiagnostic && diagnosticCode != null &&
+                diagnosticCode.startsWith(COMPILER_ERROR_PREFIX)) {
             int diagnosticCodeNumber = Integer.parseInt(diagnosticCode.substring(3));
             if (diagnosticCodeNumber < SYNTAX_ERROR_CODE_THRESHOLD) {
                 PackageDiagnostic packageDiagnostic = (PackageDiagnostic) diagnostic;
@@ -85,10 +86,11 @@ public class AnnotateDiagnostics {
         String color = SEVERITY_COLORS.get(severity);
         String message = diagnostic.toString().substring(severityString.length());
         String code = diagnostic.diagnosticInfo().code();
-        boolean isMultiline = diagnostic.message().contains("\n");
-        String formatString = getColoredString("%s", color, colorEnabled) + "%s" + (isMultiline ? "\n(%s)" : " (%s)");
+        boolean isMultiline = diagnostic.message().contains(NEW_LINE);
+        String formatString = getColoredString("%s", color, colorEnabled) + "%s" +
+                (code != null ? (isMultiline ? NEW_LINE + "(%s)" : " (%s)") : "");
 
-        return String.format(formatString, severityString, message, code);
+        return String.format(formatString, severityString, message, code != null ? code : "");
     }
 
     private static DiagnosticAnnotation getDiagnosticLineFromSyntaxAPI(Document document, Location location,
