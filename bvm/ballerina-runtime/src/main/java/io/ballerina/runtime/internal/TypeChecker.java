@@ -3398,6 +3398,7 @@ public class TypeChecker {
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFillerValue((BFiniteType) type);
             case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.SERVICE_TAG:
                 return checkFillerValue((BObjectType) type);
             case TypeTags.RECORD_TYPE_TAG:
                 return checkFillerValue((BRecordType) type, unanalyzedTypes);
@@ -3557,20 +3558,17 @@ public class TypeChecker {
     }
 
     private static boolean checkFillerValue(BObjectType type) {
-        if (type.getTag() == TypeTags.SERVICE_TAG) {
+        MethodType generatedInitMethod = type.getGeneratedInitMethod();
+        if (generatedInitMethod == null) {
+            // abstract objects doesn't have a filler value.
             return false;
-        } else {
-            MethodType generatedInitMethod = type.getGeneratedInitMethod();
-            if (generatedInitMethod == null) {
-                // abstract objects doesn't have a filler value.
-                return false;
-            }
-            FunctionType initFuncType = generatedInitMethod.getType();
-            // Todo: check defaultable params of the init func as well
-            boolean noParams = initFuncType.getParameters().length == 0;
-            boolean nilReturn = getImpliedType(initFuncType.getReturnType()).getTag() == TypeTags.NULL_TAG;
-            return noParams && nilReturn;
         }
+        FunctionType initFuncType = generatedInitMethod.getType();
+        // Todo: check defaultable params of the init func as well
+        boolean noParams = initFuncType.getParameters().length == 0;
+        boolean nilReturn = getImpliedType(initFuncType.getReturnType()).getTag() == TypeTags.NULL_TAG;
+        return noParams && nilReturn;
+
     }
 
     private static boolean checkFillerValue(BFiniteType type) {
