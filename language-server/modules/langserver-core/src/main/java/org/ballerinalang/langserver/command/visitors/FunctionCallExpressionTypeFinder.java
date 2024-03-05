@@ -41,6 +41,7 @@ import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
@@ -136,6 +137,12 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
         assignmentStatementNode.varRef().accept(this);
         // We don't check the expression as it mostly is the original function call expression
+    }
+    
+    @Override
+    public void visit(CompoundAssignmentStatementNode compoundAssignmentNode) {
+        TypeSymbol typeSymbol = semanticModel.typeOf(compoundAssignmentNode.lhsExpression()).orElse(null);
+        checkAndSetTypeResult(typeSymbol);
     }
 
     @Override
