@@ -26,8 +26,9 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.TextDocument;
 import org.jline.jansi.Ansi;
-import org.jline.jansi.AnsiConsole;
+import org.jline.terminal.TerminalBuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,7 +68,11 @@ public class AnnotateDiagnostics {
     }
 
     public static int getTerminalWidth() {
-        return AnsiConsole.getTerminalWidth();
+        try {
+            return TerminalBuilder.builder().dumb(true).build().getWidth();
+        } catch (IOException e) {
+            return 999;
+        }
     }
 
     public static Ansi renderDiagnostic(Diagnostic diagnostic, boolean colorEnabled) {
