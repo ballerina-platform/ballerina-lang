@@ -94,10 +94,9 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         List<TypeSymbol> errorMemberTypes = CommonUtil.extractErrorTypesFromUnion(unionTypeDesc);
         Path path = Path.of(URI.create(uri));
         Optional<Module> module = context.workspace().module(path);
-        if (module.isPresent()) {
-            if (containsModuleLevelPrivateTypes(module.get().moduleName().toString(), errorMemberTypes)) {
-                return Collections.emptyList();
-            }
+        if (module.isPresent() &&
+                containsModuleLevelPrivateTypes(module.get().moduleName().toString(), errorMemberTypes)) {
+            return Collections.emptyList();
         }
         long nonErrorNonNilMemberCount = unionTypeDesc.memberTypeDescriptors().stream()
                 .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR
@@ -132,9 +131,8 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
             if (module.isEmpty() || currentModule.equals(module.get().id().moduleName())) {
                 continue;
             }
-            TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) errorMemType;
-            Symbol typeDef = typeRef.definition();
-            if (typeDef instanceof Qualifiable && !((Qualifiable) typeDef).qualifiers().contains(Qualifier.PUBLIC)) {
+            Symbol typeDef = ((TypeReferenceTypeSymbol) errorMemType).definition();
+            if (typeDef instanceof Qualifiable qualifiable && !qualifiable.qualifiers().contains(Qualifier.PUBLIC)) {
                 return true;
             }
         }

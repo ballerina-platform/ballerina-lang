@@ -360,11 +360,11 @@ public class CommonUtil {
         } else if (kind == TypeDescKind.TYPE_REFERENCE) {
             TypeSymbol rawType = getRawType(type);
             if (rawType.typeKind() == TypeDescKind.UNION) {
-                if (((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
-                        .allMatch(CommonUtil::isErrorOrUnionOfErrors)) { 
+                UnionTypeSymbol unionRawType = (UnionTypeSymbol) rawType;
+                if (unionRawType.memberTypeDescriptors().stream().allMatch(CommonUtil::isErrorOrUnionOfErrors)) { 
                     errorTypes.add(type);    
                 } else {
-                    for (TypeSymbol memberType : ((UnionTypeSymbol) rawType).userSpecifiedMemberTypes()) {
+                    for (TypeSymbol memberType : unionRawType.userSpecifiedMemberTypes()) {
                         getErrorTypes(memberType, memberType, errorTypes);
                     }
                 }
@@ -385,32 +385,7 @@ public class CommonUtil {
         for (TypeSymbol memType : unionType.userSpecifiedMemberTypes()) {
             getErrorTypes(memType, null, exactErrorTypes);
         }
-        List<TypeSymbol> errorMemberTypes = unionType.memberTypeDescriptors().stream()
-                .filter(member -> CommonUtil.getRawType(member).typeKind() == TypeDescKind.ERROR)
-                .collect(Collectors.toList());
-        List<TypeSymbol> missingErrorTypes = new ArrayList<>();
-        setMissingErrorTypes(exactErrorTypes, errorMemberTypes, missingErrorTypes);
-        errorMemberTypes.addAll(missingErrorTypes);
         return exactErrorTypes;
-    }
-    
-    private static void setMissingErrorTypes(List<TypeSymbol> types, List<TypeSymbol> rawErrors, 
-                                             List<TypeSymbol> missingErrors) {
-        for (TypeSymbol type : types) {
-            TypeDescKind kind = type.typeKind();
-            if (kind == TypeDescKind.ERROR) {
-                if (!rawErrors.contains(type)) {
-                    missingErrors.add(type);
-                }
-            } else if (kind == TypeDescKind.TYPE_REFERENCE) {
-                TypeSymbol rawType = getRawType(type);
-                if (rawType.typeKind() == TypeDescKind.UNION) {
-                    setMissingErrorTypes(((UnionTypeSymbol) rawType).memberTypeDescriptors(), rawErrors, missingErrors);
-                } else {
-                    setMissingErrorTypes(List.of(rawType), rawErrors, missingErrors);
-                }
-            }
-        }
     }
 
     /**

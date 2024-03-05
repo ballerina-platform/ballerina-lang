@@ -4,7 +4,6 @@
     "character": 19
   },
   "source": "testproject/modules/module3/module3.bal",
-  "description": "Parent function has no return type",
   "expected": [
     {
       "title": "Create variable and check error"
