@@ -19,6 +19,7 @@
 package build.tool.runner;
 
 import io.ballerina.projects.buildtools.CodeGeneratorTool;
+import io.ballerina.projects.buildtools.ToolConfig;
 import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -35,6 +36,7 @@ import java.nio.file.Path;
  *
  * @since 2201.9.0
  */
+@ToolConfig(name = "openapi")
 public class SampleToolRunner implements CodeGeneratorTool {
     @Override
     public void execute(ToolContext toolContext) {
@@ -46,11 +48,6 @@ public class SampleToolRunner implements CodeGeneratorTool {
         }
         System.out.println("Running sample build tool: " + toolContext.toolId());
         System.out.println("Cache created at: " + toolContext.cachePath());
-    }
-
-    @Override
-    public String[] toolName() {
-        return new String[]{"openapi"};
     }
 
     private static class NullLocation implements Location {

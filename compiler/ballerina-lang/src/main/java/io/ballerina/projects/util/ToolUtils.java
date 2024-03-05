@@ -23,6 +23,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.buildtools.ToolConfig;
 import io.ballerina.projects.buildtools.CodeGeneratorTool;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.BalaFiles;
@@ -114,24 +115,35 @@ public class ToolUtils {
      */
     public static Optional<CodeGeneratorTool> getTargetTool(
             String commandName, ServiceLoader<CodeGeneratorTool> buildRunners) {
-        for (CodeGeneratorTool buildRunner : buildRunners) {
-            if (ToolUtils.deriveSubcommandName(buildRunner.toolName()).equals(commandName)) {
-                return Optional.of(buildRunner);
+        String[] subcommandNames = commandName.split("\\.");
+        CodeGeneratorTool[] subcommands = buildRunners.stream()
+                .map(ServiceLoader.Provider::get)
+                .toArray(CodeGeneratorTool[]::new);
+        return getTargetToolRec(subcommandNames, 0, subcommands);
+    }
+
+    private static Optional<CodeGeneratorTool> getTargetToolRec(
+            String[] subcommandNames, int level, CodeGeneratorTool[] commands) {
+        for (CodeGeneratorTool buildRunner : commands) {
+            Class<?> codeGeneratorToolClass = buildRunner.getClass();
+            if (codeGeneratorToolClass.isAnnotationPresent(ToolConfig.class)) {
+                ToolConfig buildToolCommand = codeGeneratorToolClass.getAnnotation(ToolConfig.class);
+                if (buildToolCommand.name().equals(subcommandNames[level])) {
+                    if (level + 1 == subcommandNames.length) {
+                        return Optional.of(buildRunner);
+                    }
+                    CodeGeneratorTool[] subcommands = Arrays.stream(buildToolCommand.subcommands()).map(cmdClz -> {
+                        try {
+                            return cmdClz.getConstructor().newInstance();
+                        } catch (ReflectiveOperationException e) {
+                            throw new ProjectException("Error while fetching target tool: " + e);
+                        }
+                    }).toArray(CodeGeneratorTool[]::new);
+                    return getTargetToolRec(subcommandNames, level + 1, subcommands);
+                }
             }
         }
         return Optional.empty();
-    }
-
-
-    /**
-     * Derive the fully qualified tool id using the array of strings passed.
-     * Eg:- {"health", "fhir"} -> "health.fhir"
-     *
-     * @param toolName list of subcommands of a tool
-     * @return the full qualified name of the tool
-     */
-    public static String deriveSubcommandName(String[] toolName) {
-        return Arrays.stream(toolName).reduce((s1, s2) -> s1 + "." + s2).orElse("");
     }
 
     /**
@@ -156,7 +168,7 @@ public class ToolUtils {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
+            throw new ProjectException("Error while accessing Distribution cache: " + e.getMessage());
         }
         versions.removeAll(getIncompatibleVersion(versions, org, name));
         versions.stream().map(path -> Optional.ofNullable(path)
