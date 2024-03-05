@@ -56,13 +56,22 @@ func TestPrintGraphForBalProjectWithNoDependencies(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	cmd := exec.Command(bal_path, "graph")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to execute graph command: %v", err)
 	}
-	expectedOutputPath := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "command-outputs", "unix", "graph-for-bal-project-with-no-dependencies.txt")
+	var outputFileName string
+	if Os == "windows" {
+		outputFileName = "windows"
+	} else {
+		outputFileName = "unix"
+	}
+	expectedOutputPath := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "command-outputs", outputFileName, "graph-for-bal-project-with-no-dependencies.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputPath)
 	if err != nil {
 		t.Fatalf("Failed to read expected output file: %v", err)

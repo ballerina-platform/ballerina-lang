@@ -56,7 +56,10 @@ func TestBuildProjectByGivingTargertDir(t *testing.T) {
 	projectPath := filepath.Join(tmpDir)
 	testTargetDir := filepath.Join(tmpDir, "test_target")
 	err = os.Mkdir(testTargetDir, os.ModePerm)
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	cmd := exec.Command(bal_path, "build", "--target-dir", testTargetDir, projectPath)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -84,14 +87,21 @@ func TestBuildBalFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	cmd := exec.Command(bal_path, "build", validBalFilePath)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to build Ballerina file: %v\n%s", err, output)
 	}
 	fmt.Println(validBalFilePath)
-	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_build_test", "bal_build_outputs", "build-hello-world-bal.txt")
+	DirName := "unix"
+	if Os == "windows" {
+		DirName = "windows"
+	}
+	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_build_test", "bal_build_outputs", DirName, "build-hello-world-bal.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputPath)
 	if err != nil {
 		t.Fatalf("Failed to read expected output file: %v", err)
@@ -125,15 +135,22 @@ func TestBuildProjectWithDefaultBuildOptions(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	cmd := exec.Command(bal_path, "build")
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to build Ballerina project: %v\nOutput: %s", err, output)
 	}
-	expectedOutputPath := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "command-outputs", "unix", "build-project-default-build-options.txt")
-	expectedOutput, err := os.ReadFile(expectedOutputPath)
+	DirName := "unix"
+	if Os == "windows" {
+		DirName = "windows"
+	}
+	expectedOutputPath := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "command-outputs", DirName, "build-project-default-build-options.txt")
+	expectedOutput, _ := os.ReadFile(expectedOutputPath)
 	if removeWhitespace(string(output)) != removeWhitespace(string(expectedOutput)) {
 		t.Errorf("Build output does not match expected output:\nExpected: %s\nGot: %s", expectedOutput, output)
 	}
@@ -160,19 +177,32 @@ func TestBuildWithOffline(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	cmd := exec.Command(bal_path, "build", "--offline")
 	output, err := cmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("Not get expected behaviour: %v", err)
 	}
-
-	expectedOutput := fmt.Sprintf(`
+	var expectedOutput string
+	switch Os {
+	case "windows":
+		expectedOutput = fmt.Sprintf(`
+		Compiling source
+		%s\projectForTestOffline:0.1.0
+		ERROR [main.bal:(4:1,4:36)] cannot resolve module 'ballerinax\salesforce as sf'
+		error: compilation contains errors
+	`, currentUser.Username)
+	default:
+		expectedOutput = fmt.Sprintf(`
 		Compiling source
 		%s/projectForTestOffline:0.1.0
 		ERROR [main.bal:(4:1,4:36)] cannot resolve module 'ballerinax/salesforce as sf'
 		error: compilation contains errors
 	`, currentUser.Username)
+	}
 
 	if removeWhitespace(string(output)) != removeWhitespace(expectedOutput) {
 		t.Errorf("Actual log does not match expected log.\nExpected: %s\nActual: %s", expectedOutput, string(output))

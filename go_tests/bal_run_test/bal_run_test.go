@@ -58,7 +58,10 @@ func TestRunValidBalProjectFromProjectDir(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	cmd := exec.Command(bal_path, "run", "--", tempFile)
 	err = cmd.Run()
 	if err != nil {
@@ -84,7 +87,10 @@ func TestRunBalProjectWithConfigurables(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	cmd := exec.Command(bal_path, "run", "--", tempFile, "-Cint1=5", "-Cint2=8")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -93,7 +99,11 @@ func TestRunBalProjectWithConfigurables(t *testing.T) {
 	if _, err := os.Stat(tempFile); os.IsNotExist(err) {
 		t.Error("Expected temporary file 'temp.txt' does not exist")
 	}
-	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_run_test", "run_output", "run_output.txt")
+	DirName := "unix"
+	if Os == "windows" {
+		DirName = "windows"
+	}
+	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_run_test", "run_output", DirName, "run_output.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputPath)
 	if err != nil {
 		t.Fatalf("Failed to read expected output file: %v", err)
@@ -118,13 +128,20 @@ func TestRunBalProject(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	cmd := exec.Command(bal_path, "run")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to run Ballerina project: %v", err)
 	}
-	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_run_test", "run_output", "run_hello_output.txt")
+	DirName := "unix"
+	if Os == "windows" {
+		DirName = "windows"
+	}
+	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_run_test", "run_output", DirName, "run_hello_output.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputPath)
 	if err != nil {
 		t.Fatalf("Failed to read expected output file: %v", err)

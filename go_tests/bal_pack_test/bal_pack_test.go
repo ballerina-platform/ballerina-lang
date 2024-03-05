@@ -49,7 +49,10 @@ func rootDir() string {
 func TestPackCommand(t *testing.T) {
 	rootDir := rootDir()
 	testResourcesDir := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "validApplicationProject")
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	tmpDir, err := setup(testResourcesDir)
 	defer os.RemoveAll(tmpDir)
 	projectPath := filepath.Join(tmpDir)

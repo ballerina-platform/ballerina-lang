@@ -62,7 +62,10 @@ func TestDocCommandWithCustomTarget(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	cmd := exec.Command(bal_path, "doc", "-o", outputDir)
 	_, err = cmd.CombinedOutput()
 	if err != nil {

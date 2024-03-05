@@ -59,11 +59,18 @@ func TestBuildMultiModuleProject(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	testCmd := exec.Command(bal_path, "test")
 	testCmd.Dir = projectPath
 	output, err := testCmd.CombinedOutput()
-	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_test_test", "test_outputs", "test_multiProject.txt")
+	DirName := "unix"
+	if Os == "windows" {
+		DirName = "windows"
+	}
+	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_test_test", "test_outputs", DirName, "test_multiProject.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputPath)
 	if err != nil {
 		t.Fatalf("failed to execute test command: %v", err)
@@ -93,7 +100,12 @@ func TestModule1SingleTest(t *testing.T) {
 	firstString := "Compiling source"
 	endString := "Generating Test Report"
 	output = replaceVaryingString(firstString, endString, output)
-	expectedOutputPath := filepath.Join(rootDir, "tests", "testerina-integration-test", "src", "test", "resources", "command-outputs", "unix", "ModuleExecutionTest-test_Module1_SingleTest.txt")
+	DirName := "unix"
+	Os := runtime.GOOS
+	if Os == "windows" {
+		DirName = "windows"
+	}
+	expectedOutputPath := filepath.Join(rootDir, "tests", "testerina-integration-test", "src", "test", "resources", "command-outputs", DirName, "ModuleExecutionTest-test_Module1_SingleTest.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputPath)
 	expectedOutputStr := replaceVaryingString(firstString, endString, string(expectedOutput))
 	if err != nil {
@@ -121,7 +133,12 @@ func TestMultipleGroupExecution(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to execute test command: %v", err)
 	}
-	expectedOutputFile := filepath.Join(rootDir, "go_tests", "bal_test_test", "test_outputs", "test_groups.txt")
+	DirName := "unix"
+	Os := runtime.GOOS
+	if Os == "windows" {
+		DirName = "windows"
+	}
+	expectedOutputFile := filepath.Join(rootDir, "go_tests", "bal_test_test", "test_outputs", DirName, "test_groups.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputFile)
 	if err != nil {
 		t.Fatalf("failed to read expected output file: %v", err)
@@ -148,7 +165,12 @@ func TestTestWithReport(t *testing.T) {
 		t.Fatalf("failed to execute test command: %v", err)
 	}
 	reportDir := filepath.Join(projectPath, "target", "report")
-	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_test_test", "test_outputs", "test_report.txt")
+	DirName := "unix"
+	Os := runtime.GOOS
+	if Os == "windows" {
+		DirName = "windows"
+	}
+	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_test_test", "test_outputs", DirName, "test_report.txt")
 	expexted_output, err := os.ReadFile(expectedOutputPath)
 	assertFileExists(t, reportDir, "test_results.json")
 	startString1 := "Compiling source"
@@ -179,7 +201,10 @@ func TestMultipleModulePkgCoverageTest(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	cmd := exec.Command(bal_path, "test", "--code-coverage", "--coverage-format=xml")
 	_, err = cmd.CombinedOutput()
 
@@ -252,8 +277,11 @@ func removeWhitespace(input string) string {
 }
 
 func runBallerinaTest(args []string) (string, error) {
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
 	rootDir := rootDir()
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	cmd := exec.Command(bal_path, append([]string{"test"}, args...)...)
 	output, err := cmd.Output()
 	if err != nil {

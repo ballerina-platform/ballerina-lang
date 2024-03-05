@@ -49,7 +49,11 @@ func TestAddCommand(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
+
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	cmd := exec.Command(bal_path, "add", moduleName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -73,6 +77,9 @@ func TestAddCommand(t *testing.T) {
 }
 
 func setup(projectName string) (string, string, error) {
+	Os := runtime.GOOS
+	arch := runtime.GOARCH
+	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
 	rootDir := rootDir()
 	tmpDir, err := os.MkdirTemp("", "add_test")
 	if err != nil {
@@ -82,7 +89,7 @@ func setup(projectName string) (string, string, error) {
 	if err != nil {
 		fmt.Printf("Failed to change directory: %v", err)
 	}
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", "bal_linux_amd64")
+	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
 	cmd := exec.Command(bal_path, append([]string{"new"}, projectName)...)
 	cmd.Dir = tmpDir
 	if _, err := cmd.Output(); err != nil {
