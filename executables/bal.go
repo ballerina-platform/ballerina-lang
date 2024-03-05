@@ -106,75 +106,9 @@ func main() {
 	}
 
 	javaCmd = strings.TrimSpace(javaCmd)
-	var ballerinaCLIWidth string
-
-	// Check if tput is available
-	if !commandExists("tput") {
-		ballerinaCLIWidth = "80"
-	} else {
-		if cols, err := getTerminalColumns(); err != nil {
-			ballerinaCLIWidth = "80"
-		} else {
-			ballerinaCLIWidth = strconv.Itoa(cols)
-		}
-	}
-	os.Setenv("BALLERINA_CLI_WIDTH", ballerinaCLIWidth)
-
-	var balJavaDebug string
-	balJavaDebug, isSet := os.LookupEnv("BAL_JAVA_DEBUG")
-	javaOpts := ""
-	if isSet {
-		if balJavaDebug == "" {
-			fmt.Println("Please specify the debug port for the BAL_JAVA_DEBUG variable")
-			os.Exit(1)
-		} else {
-			javaOpts = os.Getenv("JAVA_OPTS")
-
-			if javaOpts != "" {
-				fmt.Println("Warning !!! User specified JAVA_OPTS may interfere with BAL_JAVA_DEBUG")
-			}
-
-			balDebugOpts := os.Getenv("BAL_DEBUG_OPTS")
-
-			if balDebugOpts != "" {
-				javaOpts = javaOpts + " " + balDebugOpts
-			} else {
-				javaOpts = javaOpts + " -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + balJavaDebug
-			}
-		}
-	}
-	jarPath := filepath.Join(ballerinaHome, "bre", "lib")
-	//Ballerina Classpath Setting
-	var ballerinaClasspath string
-	toolsJarPath := filepath.Join(ballerinaHome, "bre", "lib", "tools.jar")
-	if _, err := os.Stat(toolsJarPath); err == nil {
-		ballerinaClasspath = filepath.Join(javaHome, "lib", "tools.jar")
-	}
-
-	breFiles, err := filepath.Glob(filepath.Join(jarPath, "*.jar"))
-	if err == nil {
-		for _, f := range breFiles {
-			ballerinaClasspath += string(filepath.ListSeparator) + f
-		}
-	}
-
-	// Add JAR files from lib/tools/lang-server/lib
-	langServerPath := filepath.Join(ballerinaHome, "lib", "tools", "lang-server", "lib")
-	langServerFiles, err := filepath.Glob(filepath.Join(langServerPath, "*.jar"))
-	if err == nil {
-		for _, f := range langServerFiles {
-			ballerinaClasspath += string(filepath.ListSeparator) + f
-		}
-	}
-
-	// Add JAR files from lib/tools/debug-adapter/lib
-	debugAdapterPath := filepath.Join(ballerinaHome, "lib", "tools", "debug-adapter", "lib")
-	debugAdapterFiles, err := filepath.Glob(filepath.Join(debugAdapterPath, "*.jar"))
-	if err == nil {
-		for _, f := range debugAdapterFiles {
-			ballerinaClasspath += string(filepath.ListSeparator) + f
-		}
-	}
+	setBallerinaCLIWidth()
+	javaOpts := getJavaOpts()
+	ballerinaClasspath := setBallerinaClassPath(ballerinaHome, javaHome)
 
 	//Define Ballerina CLI Arguments
 	cmdLineArgs := []string{
@@ -308,6 +242,68 @@ func getTerminalColumns() (int, error) {
 	return cols, nil
 }
 
+func setBallerinaCLIWidth() {
+	if !commandExists("tput") {
+		os.Setenv("BALLERINA_CLI_WIDTH", "80")
+	} else {
+		if cols, err := getTerminalColumns(); err != nil {
+			os.Setenv("BALLERINA_CLI_WIDTH", "80")
+		} else {
+			os.Setenv("BALLERINA_CLI_WIDTH", strconv.Itoa(cols))
+		}
+	}
+}
+
 func validateDebugPort(port int) bool {
 	return port > 0
+}
+
+func setBallerinaClassPath(ballerinaHome string, javaHome string) string {
+	var ballerinaClasspath string
+	toolsJarPath := filepath.Join(ballerinaHome, "bre", "lib", "tools.jar")
+	if _, err := os.Stat(toolsJarPath); err == nil {
+		ballerinaClasspath += filepath.Join(javaHome, "lib", "tools.jar")
+	}
+	jarPaths := []string{
+		filepath.Join(ballerinaHome, "bre", "lib"),
+		filepath.Join(ballerinaHome, "lib", "tools", "lang-server", "lib"),
+		filepath.Join(ballerinaHome, "lib", "tools", "debug-adapter", "lib"),
+	}
+	for _, path := range jarPaths {
+		files, err := filepath.Glob(filepath.Join(path, "*.jar"))
+		if err != nil {
+			os.Exit(1)
+		}
+		for _, f := range files {
+			ballerinaClasspath += string(filepath.ListSeparator) + f
+		}
+	}
+
+	return ballerinaClasspath
+}
+func getJavaOpts() string {
+	var balJavaDebug string
+	balJavaDebug, isSet := os.LookupEnv("BAL_JAVA_DEBUG")
+	javaOpts := ""
+	if isSet {
+		if balJavaDebug == "" {
+			fmt.Println("Please specify the debug port for the BAL_JAVA_DEBUG variable")
+			os.Exit(1)
+		} else {
+			javaOpts = os.Getenv("JAVA_OPTS")
+
+			if javaOpts != "" {
+				fmt.Println("Warning !!! User specified JAVA_OPTS may interfere with BAL_JAVA_DEBUG")
+			}
+
+			balDebugOpts := os.Getenv("BAL_DEBUG_OPTS")
+
+			if balDebugOpts != "" {
+				javaOpts = javaOpts + " " + balDebugOpts
+			} else {
+				javaOpts = javaOpts + " -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + balJavaDebug
+			}
+		}
+	}
+	return javaOpts
 }
