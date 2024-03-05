@@ -77,7 +77,7 @@ public function main() {
     test:assertValueEqual(err.message(), "error message");
 
     err = error_utils:getNullDetailError("error message");
-    error? c = err.cause(); // crashes with NPE
+    error? c = err.cause();
     test:assertValueEqual(c is (), false);
     error cause = <error> c;
     test:assertValueEqual(cause.message(), "cause for the error");
