@@ -702,7 +702,8 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatSeparatedNodeList(serviceDeclarationNode.expressions(), 0, 0, 1, 0);
         Token openBrace = formatToken(serviceDeclarationNode.openBraceToken(), 0, 1);
         indent(); // increase the indentation of the following statements.
-        NodeList<Node> members = formatMemberDeclarations(serviceDeclarationNode.members(), n -> isMemberOfScope(n));
+        NodeList<Node> members =
+                formatMemberDeclarations(serviceDeclarationNode.members(), n -> isClassOrServiceMultiLineMember(n));
         unindent(); // reset the indentation.
         Optional<Token> optSemicolon = serviceDeclarationNode.semicolonToken();
         Token closeBrace = optSemicolon.isPresent() ?
@@ -3464,7 +3465,8 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBrace = formatToken(classDefinitionNode.openBrace(), 0, 1);
 
         indent();
-        NodeList<Node> members = formatMemberDeclarations(classDefinitionNode.members(), n -> isMemberOfScope(n));
+        NodeList<Node> members =
+                formatMemberDeclarations(classDefinitionNode.members(), n -> isClassOrServiceMultiLineMember(n));
         unindent();
         Optional<Token> optSemicolon = classDefinitionNode.semicolonToken();
         Token closeBrace = optSemicolon.isPresent() ?
@@ -3905,7 +3907,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
     }
 
-    private <T extends Node> boolean isMemberOfScope(T node) {
+    private boolean isClassOrServiceMultiLineMember(Node node) {
         if (node == null) {
             return false;
         }
