@@ -41,7 +41,6 @@ import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
-import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -58,6 +57,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
 
@@ -208,10 +208,10 @@ public class ValueConverter {
             Object newValue = convertRecordEntry(unresolvedValues, restFieldType, targetTypeField, entry);
             valueMap.put(entry.getKey().toString(), newValue);
         }
-        Optional<IntersectionType> intersectionType = ((BRecordType) TypeUtils.getImpliedType(recordRefType))
+        Optional<IntersectionType> intersectionType = ((BRecordType) unwrap(TypeUtils.getImpliedType(recordRefType)))
                 .getIntersectionType();
         if (recordRefType.isReadOnly() && intersectionType.isPresent() && !map.getType().isReadOnly()) {
-            Type mutableType = ReadOnlyUtils.getMutableType((BIntersectionType) intersectionType.get());
+            Type mutableType = ReadOnlyUtils.getMutableType(intersectionType.get());
             return ValueCreator.createReadonlyRecordValue(mutableType.getPackage(), mutableType.getName(), valueMap);
         }
         return ValueCreator.createRecordValue(recordRefType.getPackage(), recordRefType.getName(), valueMap);
@@ -265,10 +265,10 @@ public class ValueConverter {
 
     private static Object convertTable(BTable<?, ?> bTable, Type targetType,
                                        Type targetRefType, Set<TypeValuePair> unresolvedValues) {
-        TableType tableType = (TableType) targetType;
+        TableType tableType = unwrap(targetType);
         Optional<IntersectionType> intersectionType = tableType.getIntersectionType();
         if (targetRefType.isReadOnly() && intersectionType.isPresent() && !bTable.getType().isReadOnly()) {
-            tableType = (TableType) ReadOnlyUtils.getMutableType((BIntersectionType) intersectionType.get());
+            tableType = (TableType) ReadOnlyUtils.getMutableType(intersectionType.get());
             TableValueImpl<?, ?> tableValue = getTableValue(bTable, unresolvedValues, tableType, tableType);
             tableValue.freezeDirect();
             return tableValue;

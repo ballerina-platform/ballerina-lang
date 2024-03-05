@@ -18,11 +18,13 @@
 
 package org.ballerinalang.test.types.anydata;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeHelper;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -142,7 +144,7 @@ public class AnydataTest {
     @Test(description = "Test anydata array")
     public void testAnydataArray() {
         Object returns = BRunUtil.invoke(result, "testAnydataArray", new Object[]{});
-        assertEquals(TypeHelper.listRestType(getType(returns)).getTag(), TypeTags.ANYDATA_TAG);
+        TypeChecker.checkIsType(TypeHelper.listRestType(getType(returns)), PredefinedTypes.TYPE_ANYDATA);
         BArray adArr = (BArray) returns;
 
         assertEquals(adArr.getRefValue(0), 1234L);
@@ -239,7 +241,7 @@ public class AnydataTest {
         Object returns = BRunUtil.invoke(result, "testTypeCheckingOnAny");
 
         assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
-        assertEquals(TypeHelper.listRestType(getType(returns)).getTag(), TypeTags.ANYDATA_TAG);
+        TypeChecker.checkIsType(TypeHelper.listRestType(getType(returns)), PredefinedTypes.TYPE_ANYDATA);
 
         BArray rets = (BArray) returns;
         assertEquals(rets.getRefValue(0), 10L);

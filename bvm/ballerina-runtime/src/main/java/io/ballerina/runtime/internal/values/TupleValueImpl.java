@@ -597,7 +597,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
-        this.tupleType = (TupleType) TypeUtils.getImpliedType(type);
+        this.tupleType = TypeBuilder.unwrap(TypeUtils.getImpliedType(type));
         for (int i = 0; i < this.size; i++) {
             Object value = this.get(i);
             if (value instanceof BRefValue) {

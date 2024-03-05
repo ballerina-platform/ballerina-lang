@@ -23,20 +23,21 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
-import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -46,7 +47,6 @@ import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BFutureType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BNetworkObjectType;
 import io.ballerina.runtime.internal.types.BObjectType;
@@ -77,6 +77,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -92,19 +93,20 @@ import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.api.utils.TypeUtils.isValueType;
 import static io.ballerina.runtime.internal.TypeChecker.MAX_TYPECAST_ERROR_COUNT;
+import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_END;
+import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_SEPARATOR;
+import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_START;
 import static io.ballerina.runtime.internal.TypeHelper.arrayState;
 import static io.ballerina.runtime.internal.TypeHelper.effectiveType;
 import static io.ballerina.runtime.internal.TypeHelper.listMemberTypes;
 import static io.ballerina.runtime.internal.TypeHelper.listRestType;
-import static io.ballerina.runtime.internal.TypeHelper.paramValueType;
-import static io.ballerina.runtime.internal.TypeHelper.mappingRestFieldType;
 import static io.ballerina.runtime.internal.TypeHelper.mappingRequiredFields;
+import static io.ballerina.runtime.internal.TypeHelper.mappingRestFieldType;
 import static io.ballerina.runtime.internal.TypeHelper.mappingTypeSealed;
+import static io.ballerina.runtime.internal.TypeHelper.members;
+import static io.ballerina.runtime.internal.TypeHelper.paramValueType;
 import static io.ballerina.runtime.internal.TypeHelper.referredType;
 import static io.ballerina.runtime.internal.TypeHelper.typeConstraint;
-import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_END;
-import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_SEPARATOR;
-import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_START;
 
 public class SyntacticTypeEngine {
 
@@ -155,12 +157,13 @@ public class SyntacticTypeEngine {
         switch (sourceTypeTag) {
             case TypeTags.INTERSECTION_TAG:
                 return TypeChecker.checkIsType(effectiveType(sourceType),
-                        targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
-                                TypeHelper.effectiveType(targetType), unresolvedTypes);
+                        targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType : TypeHelper.effectiveType(targetType),
+                        unresolvedTypes);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return TypeChecker.checkIsType(referredType(sourceType),
-                        targetTypeTag != TypeTags.TYPE_REFERENCED_TYPE_TAG ? targetType :
-                                TypeHelper.referredType(targetType), unresolvedTypes);
+                        targetTypeTag != TypeTags.TYPE_REFERENCED_TYPE_TAG ? targetType
+                                : TypeHelper.referredType(targetType),
+                        unresolvedTypes);
             case TypeTags.PARAMETERIZED_TYPE_TAG:
                 Type paramValueType = paramValueType(sourceType);
                 if (targetTypeTag != TypeTags.PARAMETERIZED_TYPE_TAG) {
@@ -168,8 +171,8 @@ public class SyntacticTypeEngine {
                 }
                 return TypeChecker.checkIsType(paramValueType, paramValueType(targetType), unresolvedTypes);
             case TypeTags.READONLY_TAG:
-                return TypeChecker.checkIsType(PredefinedTypes.ANY_AND_READONLY_OR_ERROR_TYPE,
-                        targetType, unresolvedTypes);
+                return TypeChecker.checkIsType(PredefinedTypes.ANY_AND_READONLY_OR_ERROR_TYPE, targetType,
+                        unresolvedTypes);
             case TypeTags.UNION_TAG:
                 return TypeChecker.isUnionTypeMatch(sourceType, targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
@@ -243,9 +246,6 @@ public class SyntacticTypeEngine {
 
     static boolean isInherentlyImmutableType(BType sourceType) {
         sourceType = unwrap(getImpliedType(sourceType));
-        if (isSimpleBasicType(sourceType)) {
-            return true;
-        }
 
         switch (sourceType.getTag()) {
             case TypeTags.XML_TEXT_TAG:
@@ -330,7 +330,7 @@ public class SyntacticTypeEngine {
                 return TypeChecker.isInherentlyImmutableType(recordRestType) ||
                         TypeChecker.isSelectivelyImmutableType(recordRestType, unresolvedTypes);
             case TypeTags.OBJECT_TYPE_TAG:
-                BObjectType objectType = (BObjectType) type;
+                BObjectType objectType = TypeBuilder.unwrap(type);
 
                 if (SymbolFlags.isFlagOn(objectType.flags, SymbolFlags.CLASS) &&
                         !SymbolFlags.isFlagOn(objectType.flags, SymbolFlags.READONLY)) {
@@ -345,17 +345,13 @@ public class SyntacticTypeEngine {
                     }
                 }
                 return true;
-            case TypeTags.MAP_TAG:
-                Type constraintType = ((BMapType) type).getConstrainedType();
+            case TypeTags.MAP_TAG, TypeTags.TABLE_TAG:
+                Type constraintType = TypeHelper.typeConstraint(type);
                 return TypeChecker.isInherentlyImmutableType(constraintType) ||
                         TypeChecker.isSelectivelyImmutableType(constraintType, unresolvedTypes);
-            case TypeTags.TABLE_TAG:
-                Type tableConstraintType = ((BTableType) type).getConstrainedType();
-                return TypeChecker.isInherentlyImmutableType(tableConstraintType) ||
-                        TypeChecker.isSelectivelyImmutableType(tableConstraintType, unresolvedTypes);
             case TypeTags.UNION_TAG:
                 boolean readonlyIntersectionExists = false;
-                for (Type memberType : ((BUnionType) type).getMemberTypes()) {
+                for (Type memberType : members(type)) {
                     if (TypeChecker.isInherentlyImmutableType(memberType) ||
                             TypeChecker.isSelectivelyImmutableType(memberType, unresolvedTypes)) {
                         readonlyIntersectionExists = true;
@@ -364,36 +360,36 @@ public class SyntacticTypeEngine {
                 }
                 return readonlyIntersectionExists;
             case TypeTags.INTERSECTION_TAG:
-                return TypeChecker.isSelectivelyImmutableType(((BIntersectionType) type).getEffectiveType(),
-                        unresolvedTypes);
+                return TypeChecker.isSelectivelyImmutableType(TypeHelper.effectiveType(type), unresolvedTypes);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return TypeChecker.isSelectivelyImmutableType(((BTypeReferenceType) type).getReferredType(),
-                        unresolvedTypes);
+                return TypeChecker.isSelectivelyImmutableType(TypeHelper.referredType(type), unresolvedTypes);
             default:
                 return false;
         }
     }
 
     static boolean checkIsType(Object sourceVal, BType sourceType, BType targetType,
-                               List<TypeChecker.TypePair> unresolvedTypes) {
-        sourceType = unwrap(getImpliedType(sourceType));
-        targetType = unwrap(getImpliedType(targetType));
+            List<TypeChecker.TypePair> unresolvedTypes) {
+        // sourceType = unwrap(sourceType);
+        // targetType = unwrap(getImpliedType(targetType));
 
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
-        // If the source type is neither a record type nor an object type, check `is` type by looking only at the types.
-        // Else, since records and objects may have `readonly` or `final` fields, need to use the value also.
+        // If the source type is neither a record type nor an object type, check `is`
+        // type by looking only at the types.
+        // Else, since records and objects may have `readonly` or `final` fields, need
+        // to use the value also.
         // e.g.,
-        //      const HUNDRED = 100;
+        // const HUNDRED = 100;
         //
-        //      type Foo record {
-        //          HUNDRED i;
-        //      };
+        // type Foo record {
+        // HUNDRED i;
+        // };
         //
-        //      type Bar record {
-        //          readonly string|int i;
-        //      };
+        // type Bar record {
+        // readonly string|int i;
+        // };
         //
         // where `Bar b = {i: 100};`, `b is Foo` should evaluate to true.
         if (sourceTypeTag != TypeTags.RECORD_TYPE_TAG && sourceTypeTag != TypeTags.OBJECT_TYPE_TAG) {
@@ -420,31 +416,36 @@ public class SyntacticTypeEngine {
     }
 
     /**
-     * Check whether a given value confirms to a given type. First it checks if the type of the value, and if fails then
+     * Check whether a given value confirms to a given type. First it checks if the
+     * type of the value, and if fails then
      * falls back to checking the value.
      *
      * @param errors                 list to collect typecast errors
      * @param sourceValue            Value to check
      * @param targetType             Target type
      * @param unresolvedValues       Values that are unresolved so far
-     * @param allowNumericConversion Flag indicating whether to perform numeric conversions
-     * @param varName                variable name to identify the parent of a record field
+     * @param allowNumericConversion Flag indicating whether to perform numeric
+     *                               conversions
+     * @param varName                variable name to identify the parent of a
+     *                               record field
      * @return True if the value confirms to the provided type. False, otherwise.
      */
-    static boolean checkIsLikeType(List<String> errors, Object sourceValue, BType targetType,
-                                   List<TypeValuePair> unresolvedValues,
-                                   boolean allowNumericConversion, String varName) {
+    static boolean checkIsLikeType(List<String> errors, Object sourceValue, Type targetType,
+            List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
+            String varName) {
         Type sourceType = TypeChecker.getType(sourceValue);
         if (TypeChecker.checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
         }
 
+        // FIXME:
         return checkIsLikeOnValue(errors, sourceValue, sourceType, targetType, unresolvedValues, allowNumericConversion,
                 varName);
     }
 
     /**
-     * Check whether a given value confirms to a given type. Strictly checks the value only, and does not consider the
+     * Check whether a given value confirms to a given type. Strictly checks the
+     * value only, and does not consider the
      * type of the value for consideration.
      *
      * @param errors                 list to collect typecast errors
@@ -452,21 +453,23 @@ public class SyntacticTypeEngine {
      * @param sourceType             Type of the value
      * @param targetType             Target type
      * @param unresolvedValues       Values that are unresolved so far
-     * @param allowNumericConversion Flag indicating whether to perform numeric conversions
-     * @param varName                variable name to identify the parent of a record field
+     * @param allowNumericConversion Flag indicating whether to perform numeric
+     *                               conversions
+     * @param varName                variable name to identify the parent of a
+     *                               record field
      * @return True if the value confirms to the provided type. False, otherwise.
      */
     private static boolean checkIsLikeOnValue(List<String> errors, Object sourceValue, Type sourceType,
-                                              Type targetType, List<TypeValuePair> unresolvedValues,
-                                              boolean allowNumericConversion, String varName) {
+            Type targetType, List<TypeValuePair> unresolvedValues,
+            boolean allowNumericConversion, String varName) {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
         switch (sourceTypeTag) {
             case TypeTags.INTERSECTION_TAG:
                 return checkIsLikeOnValue(errors, sourceValue, TypeHelper.effectiveType(sourceType),
-                        targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
-                                TypeHelper.effectiveType(targetType), unresolvedValues,
+                        targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType : TypeHelper.effectiveType(targetType),
+                        unresolvedValues,
                         allowNumericConversion, varName);
             case TypeTags.PARAMETERIZED_TYPE_TAG:
                 if (targetTypeTag != TypeTags.PARAMETERIZED_TYPE_TAG) {
@@ -515,7 +518,7 @@ public class SyntacticTypeEngine {
             case TypeTags.ERROR_TAG:
                 return TypeChecker.checkIsLikeType(sourceValue, targetType, unresolvedValues, allowNumericConversion);
             case TypeTags.JSON_TAG:
-                return TypeChecker.checkIsLikeType(sourceValue, sourceType, targetType, unresolvedValues,
+                return MapTypeChecker.checkIsLikeJSONType(sourceValue, sourceType, targetType, unresolvedValues,
                         allowNumericConversion);
             case TypeTags.STREAM_TAG:
                 return TypeChecker.checkIsLikeType(sourceValue, targetType);
@@ -565,12 +568,12 @@ public class SyntacticTypeEngine {
     }
 
     static boolean checkIsLikeUnionType(List<String> errors, Object sourceValue, BUnionType targetType,
-                                                List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
-                                                String varName) {
+            List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
+            String varName) {
         if (allowNumericConversion) {
             List<Type> compatibleTypesWithNumConversion = new ArrayList<>();
             List<Type> compatibleTypesWithoutNumConversion = new ArrayList<>();
-            for (Type type : targetType.getMemberTypes()) {
+            for (Type type : members(targetType)) {
                 List<TypeValuePair> tempList = new ArrayList<>(unresolvedValues.size());
                 tempList.addAll(unresolvedValues);
 
@@ -591,9 +594,9 @@ public class SyntacticTypeEngine {
     }
 
     private static boolean checkIsLikeUnionType(List<String> errors, Object sourceValue, BUnionType targetType,
-                                                List<TypeValuePair> unresolvedValues, String varName) {
+            List<TypeValuePair> unresolvedValues, String varName) {
         if (errors == null) {
-            for (Type type : targetType.getMemberTypes()) {
+            for (Type type : members(targetType)) {
                 if (TypeChecker.checkIsLikeType(null, sourceValue, type, unresolvedValues, false, varName)) {
                     return true;
                 }
@@ -622,7 +625,7 @@ public class SyntacticTypeEngine {
     }
 
     private static boolean isLikeAnydataType(Object[] objects, List<TypeValuePair> unresolvedValues,
-                                             boolean allowNumericConversion) {
+            boolean allowNumericConversion) {
         for (Object value : objects) {
             if (!TypeChecker.checkIsLikeType(null, value, TYPE_ANYDATA, unresolvedValues, allowNumericConversion,
                     null)) {
@@ -633,8 +636,8 @@ public class SyntacticTypeEngine {
     }
 
     private static boolean checkIsLikeAnydataType(Object sourceValue, Type sourceType,
-                                                  List<TypeValuePair> unresolvedValues,
-                                                  boolean allowNumericConversion) {
+            List<TypeValuePair> unresolvedValues,
+            boolean allowNumericConversion) {
         sourceType = getImpliedType(sourceType);
         switch (sourceType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
@@ -646,7 +649,7 @@ public class SyntacticTypeEngine {
                         unresolvedValues, allowNumericConversion);
             case TypeTags.ARRAY_TAG:
                 ArrayValue arr = (ArrayValue) sourceValue;
-                BArrayType arrayType = (BArrayType) getImpliedType(arr.getType());
+                BArrayType arrayType = TypeBuilder.unwrap(getImpliedType(arr.getType()));
                 switch (getImpliedType(arrayType.getElementType()).getTag()) {
                     case TypeTags.INT_TAG:
                     case TypeTags.FLOAT_TAG:
@@ -667,8 +670,8 @@ public class SyntacticTypeEngine {
     }
 
     static boolean checkFiniteTypeAssignable(Object sourceValue, Type sourceType, BFiniteType targetType,
-                                                     List<TypeValuePair> unresolvedValues,
-                                                     boolean allowNumericConversion) {
+            List<TypeValuePair> unresolvedValues,
+            boolean allowNumericConversion) {
         if (targetType.valueSpace.size() == 1) {
             Type valueType = getImpliedType(TypeChecker.getType(targetType.valueSpace.iterator().next()));
             if (!TypeChecker.isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
@@ -687,7 +690,7 @@ public class SyntacticTypeEngine {
     }
 
     static boolean isFiniteTypeValue(Object sourceValue, Type sourceType, Object valueSpaceItem,
-                                     boolean allowNumericConversion) {
+            boolean allowNumericConversion) {
         Type valueSpaceItemType = TypeChecker.getType(valueSpaceItem);
         int sourceTypeTag = getImpliedType(sourceType).getTag();
         int valueSpaceItemTypeTag = getImpliedType(valueSpaceItemType).getTag();
@@ -745,34 +748,33 @@ public class SyntacticTypeEngine {
     }
 
     private static boolean checkIsRecursiveTypeOnValue(Object sourceVal, Type sourceType, Type targetType,
-                                                       int sourceTypeTag, int targetTypeTag,
-                                                       List<TypeChecker.TypePair> unresolvedTypes) {
-        // FIXME:
+            int sourceTypeTag, int targetTypeTag,
+            List<TypeChecker.TypePair> unresolvedTypes) {
         switch (targetTypeTag) {
             case TypeTags.ANYDATA_TAG:
                 if (sourceTypeTag == TypeTags.OBJECT_TYPE_TAG) {
                     return false;
                 }
-                return MapTypeChecker.checkRecordBelongsToAnydataType((MapValue) sourceVal, (BRecordType) sourceType,
-                        unresolvedTypes);
+                return MapTypeChecker.checkRecordBelongsToAnydataType((MapValue) sourceVal,
+                        TypeBuilder.unwrap(sourceType), unresolvedTypes);
             case TypeTags.MAP_TAG:
-                return MapTypeChecker.checkIsMapType(sourceVal, sourceType, (BMapType) targetType, unresolvedTypes);
+                return MapTypeChecker.checkIsMapType(sourceVal, sourceType, TypeBuilder.unwrap(targetType),
+                        unresolvedTypes);
             case TypeTags.JSON_TAG:
                 return MapTypeChecker.checkIsMapType(sourceVal, sourceType,
-                        new BMapType(targetType.isReadOnly() ? TYPE_READONLY_JSON :
-                                TYPE_JSON), unresolvedTypes);
+                        new BMapType(targetType.isReadOnly() ? TYPE_READONLY_JSON : TYPE_JSON), unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
-                return MapTypeChecker.checkIsRecordType(sourceVal, sourceType, (BRecordType) targetType,
+                return MapTypeChecker.checkIsRecordType(sourceVal, sourceType, TypeBuilder.unwrap(targetType),
                         unresolvedTypes);
             case TypeTags.UNION_TAG:
-                for (Type type : ((BUnionType) targetType).getMemberTypes()) {
+                for (Type type : TypeHelper.members(targetType)) {
                     if (TypeChecker.checkIsType(sourceVal, sourceType, type, unresolvedTypes)) {
                         return true;
                     }
                 }
                 return false;
             case TypeTags.OBJECT_TYPE_TAG:
-                return ObjectTypeChecker.checkObjectEquivalency(sourceVal, sourceType, (BObjectType) targetType,
+                return ObjectTypeChecker.checkObjectEquivalency(sourceVal, sourceType, TypeBuilder.unwrap(targetType),
                         unresolvedTypes);
             default:
                 return false;
@@ -789,8 +791,11 @@ public class SyntacticTypeEngine {
     }
 
     static boolean isUnionTypeMatch(BUnionType sourceType, Type targetType,
-                                    List<TypeChecker.TypePair> unresolvedTypes) {
-        for (Type type : sourceType.getMemberTypes()) {
+            List<TypeChecker.TypePair> unresolvedTypes) {
+        // if (targetType instanceof BUnionType targetUnionType) {
+        // return isUnionTypeMatch(sourceType, targetUnionType, unresolvedTypes);
+        // }
+        for (Type type : TypeHelper.members(sourceType)) {
             if (!TypeChecker.checkIsType(type, targetType, unresolvedTypes)) {
                 return false;
             }
@@ -798,8 +803,25 @@ public class SyntacticTypeEngine {
         return true;
     }
 
+    // static boolean isUnionTypeMatch(BUnionType sourceType, BUnionType targetType,
+    // List<TypeChecker.TypePair> unresolvedTypes) {
+    // for (Type sourceMember : TypeHelper.members(sourceType)) {
+    // boolean foundMatch = false;
+    // for (Type targetMember : TypeHelper.members(targetType)) {
+    // if (TypeChecker.checkIsType(sourceMember, targetMember, unresolvedTypes)) {
+    // foundMatch = true;
+    // break;
+    // }
+    // }
+    // if (!foundMatch) {
+    // return false;
+    // }
+    // }
+    // return true;
+    // }
+
     static boolean checkIsUnionType(Type sourceType, BUnionType targetType,
-                                    List<TypeChecker.TypePair> unresolvedTypes) {
+            List<TypeChecker.TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         sourceType = getImpliedType(sourceType);
@@ -813,11 +835,11 @@ public class SyntacticTypeEngine {
             case TypeTags.UNION_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.ANYDATA_TAG:
-                return isUnionTypeMatch((BUnionType) sourceType, targetType, unresolvedTypes);
+                return isUnionTypeMatch(TypeBuilder.unwrap(sourceType), targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
-                return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
+                return isFiniteTypeMatch(TypeBuilder.unwrap(sourceType), targetType);
             default:
-                for (Type type : targetType.getMemberTypes()) {
+                for (Type type : TypeHelper.members(targetType)) {
                     if (TypeChecker.checkIsType(sourceType, type, unresolvedTypes)) {
                         return true;
                     }
@@ -828,36 +850,38 @@ public class SyntacticTypeEngine {
     }
 
     private static boolean checkIsRecursiveType(Type sourceType, Type targetType,
-                                                List<TypeChecker.TypePair> unresolvedTypes) {
+            List<TypeChecker.TypePair> unresolvedTypes) {
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
-                return MapTypeChecker.checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
+                return MapTypeChecker.checkIsMapType(sourceType, TypeBuilder.unwrap(targetType), unresolvedTypes);
             case TypeTags.STREAM_TAG:
-                return StreamTypeChecker.checkIsStreamType(sourceType, (BStreamType) targetType, unresolvedTypes);
+                return StreamTypeChecker.checkIsStreamType(sourceType, TypeBuilder.unwrap(targetType), unresolvedTypes);
             case TypeTags.TABLE_TAG:
-                return TableTypeChecker.checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
+                return TableTypeChecker.checkIsTableType(sourceType, TypeBuilder.unwrap(targetType), unresolvedTypes);
             case TypeTags.JSON_TAG:
                 return MapTypeChecker.checkIsJSONType(sourceType, unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
-                return MapTypeChecker.checkIsRecordType(sourceType, (BRecordType) targetType, unresolvedTypes);
+                return MapTypeChecker.checkIsRecordType(sourceType, TypeBuilder.unwrap(targetType), unresolvedTypes);
             case TypeTags.FUNCTION_POINTER_TAG:
-                return FunctionTypeChecker.checkIsFunctionType(sourceType, (BFunctionType) targetType);
+                return FunctionTypeChecker.checkIsFunctionType(sourceType, TypeBuilder.unwrap(targetType));
             case TypeTags.ARRAY_TAG:
-                return ListTypeChecker.checkIsArrayType(sourceType, (BArrayType) targetType, unresolvedTypes);
+                return ListTypeChecker.checkIsArrayType(sourceType, TypeBuilder.unwrap(targetType), unresolvedTypes);
             case TypeTags.TUPLE_TAG:
-                return MapTypeChecker.checkIsTupleType(sourceType, (BTupleType) targetType, unresolvedTypes);
+                return MapTypeChecker.checkIsTupleType(sourceType, TypeBuilder.unwrap(targetType), unresolvedTypes);
             case TypeTags.UNION_TAG:
-                return checkIsUnionType(sourceType, (BUnionType) targetType, unresolvedTypes);
+                return checkIsUnionType(sourceType, TypeBuilder.unwrap(targetType), unresolvedTypes);
             case TypeTags.OBJECT_TYPE_TAG:
-                return ObjectTypeChecker.checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
+                return ObjectTypeChecker.checkObjectEquivalency(sourceType, TypeBuilder.unwrap(targetType),
+                        unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
-                return checkIsFiniteType(sourceType, (BFiniteType) targetType);
+                return checkIsFiniteType(sourceType, TypeBuilder.unwrap(targetType));
             case TypeTags.FUTURE_TAG:
-                return FutureTypeChecker.checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
+                return FutureTypeChecker.checkIsFutureType(sourceType, TypeBuilder.unwrap(targetType), unresolvedTypes);
             case TypeTags.ERROR_TAG:
-                return ErrorTypeChecker.checkIsErrorType(sourceType, (BErrorType) targetType, unresolvedTypes);
+                return ErrorTypeChecker.checkIsErrorType(sourceType, TypeBuilder.unwrap(targetType), unresolvedTypes);
             case TypeTags.TYPEDESC_TAG:
-                return TypeDescTypeChecker.checkTypeDescType(sourceType, (BTypedescType) targetType, unresolvedTypes);
+                return TypeDescTypeChecker.checkTypeDescType(sourceType, TypeBuilder.unwrap(targetType),
+                        unresolvedTypes);
             case TypeTags.XML_TAG:
                 return XmlTypeChecker.checkIsXMLType(sourceType, targetType, unresolvedTypes);
             default:
@@ -875,7 +899,7 @@ public class SyntacticTypeEngine {
             case TypeTags.UNION_TAG:
             case TypeTags.ANYDATA_TAG:
             case TypeTags.JSON_TAG:
-                for (Type memberType : ((BUnionType) sourceType).getMemberTypes()) {
+                for (Type memberType : TypeHelper.members(sourceType)) {
                     if (!checkIsAnyType(memberType)) {
                         return false;
                     }
@@ -892,7 +916,7 @@ public class SyntacticTypeEngine {
             return false;
         }
 
-        BFiniteType sourceFiniteType = (BFiniteType) sourceType;
+        BFiniteType sourceFiniteType = TypeBuilder.unwrap(sourceType);
         if (sourceFiniteType.valueSpace.size() != targetType.valueSpace.size()) {
             return false;
         }
@@ -900,15 +924,282 @@ public class SyntacticTypeEngine {
         return targetType.valueSpace.containsAll(sourceFiniteType.valueSpace);
     }
 
+    static boolean hasFillerValue(Type type, List<Type> unanalyzedTypes) {
+        if (type == null) {
+            return true;
+        }
+
+        int typeTag = type.getTag();
+        if (TypeTags.isXMLTypeTag(typeTag)) {
+            return typeTag == TypeTags.XML_TAG || typeTag == TypeTags.XML_TEXT_TAG;
+        }
+
+        if (typeTag < TypeTags.RECORD_TYPE_TAG &&
+                !(typeTag == TypeTags.CHAR_STRING_TAG || typeTag == TypeTags.NEVER_TAG)) {
+            return true;
+        }
+        switch (typeTag) {
+            case TypeTags.STREAM_TAG:
+            case TypeTags.MAP_TAG:
+            case TypeTags.ANY_TAG:
+                return true;
+            case TypeTags.ARRAY_TAG:
+                return checkFillerValue((BArrayType) unwrap(type), unanalyzedTypes);
+            case TypeTags.FINITE_TYPE_TAG:
+                return checkFillerValue((BFiniteType) unwrap(type));
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.SERVICE_TAG:
+                return checkFillerValue((BObjectType) unwrap(type));
+            case TypeTags.RECORD_TYPE_TAG:
+                return checkFillerValue((BRecordType) unwrap(type), unanalyzedTypes);
+            case TypeTags.TUPLE_TAG:
+                return checkFillerValue((BTupleType) unwrap(type), unanalyzedTypes);
+            case TypeTags.UNION_TAG:
+                return checkFillerValue((BUnionType) unwrap(type), unanalyzedTypes);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return hasFillerValue(((BTypeReferenceType) unwrap(type)).getReferredType(),
+                        unanalyzedTypes);
+            case TypeTags.INTERSECTION_TAG:
+                return hasFillerValue(((BIntersectionType) unwrap(type)).getEffectiveType(),
+                        unanalyzedTypes);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean checkFillerValue(BTupleType tupleType, List<Type> unAnalyzedTypes) {
+        if (unAnalyzedTypes.contains(tupleType)) {
+            return true;
+        }
+        unAnalyzedTypes.add(tupleType);
+
+        for (Type member : tupleType.getTupleTypes()) {
+            if (!hasFillerValue(member, unAnalyzedTypes)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkFillerValue(BUnionType type, List<Type> unAnalyzedTypes) {
+        if (unAnalyzedTypes.contains(type)) {
+            return true;
+        }
+        unAnalyzedTypes.add(type);
+
+        // NIL is a member.
+        if (type.isNullable()) {
+            return true;
+        }
+        return isSameBasicTypeWithFillerValue(TypeHelper.memberList(type));
+    }
+
+    private static boolean isSameBasicTypeWithFillerValue(List<Type> memberTypes) {
+        // here finite types and non finite types are separated
+        // for finite types only all their value space items are collected
+        List<Type> nonFiniteTypes = new ArrayList<>();
+        Set<Object> combinedValueSpace = new HashSet<>();
+        for (Type memberType : memberTypes) {
+            Type referredType = getImpliedType(memberType);
+            if (referredType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                combinedValueSpace.addAll(((BFiniteType) unwrap(referredType)).getValueSpace());
+            } else {
+                nonFiniteTypes.add(referredType);
+            }
+        }
+
+        if (nonFiniteTypes.isEmpty()) {
+            // only finite types are there, so the check narrows to one finite type like
+            // case
+            return hasFillerValueInValueSpace(combinedValueSpace);
+        } else {
+            // non finite types are available
+            Iterator<Type> iterator = nonFiniteTypes.iterator();
+            Type firstMember = iterator.next();
+
+            // non finite types are checked whether they are the same type
+            Type nextMember;
+            while (iterator.hasNext()) {
+                nextMember = iterator.next();
+                if (!isSameBasicType(firstMember, nextMember)) {
+                    return false;
+                }
+            }
+
+            // if no finite types the checking ends here
+            if (combinedValueSpace.isEmpty()) {
+                return TypeChecker.hasFillerValue(firstMember);
+            }
+
+            // both finite and non finite types are available
+            // finite types are checked whether they are the type of non finite types
+            if (!containsSameBasicType(firstMember, combinedValueSpace)) {
+                return false;
+            }
+
+            // all members are same basic types
+            // need to check filler value is there
+            if (TypeChecker.hasFillerValue(firstMember)) {
+                return true;
+            }
+            return combinedValueSpace.size() == 1
+                    ? isFillerValueOfFiniteTypeBasicType(combinedValueSpace.iterator().next())
+                    : hasFillerValueInValueSpace(combinedValueSpace);
+        }
+    }
+
+    private static boolean isFillerValueOfFiniteTypeBasicType(Object value) {
+        switch (value.toString()) {
+            case "0":
+            case "0.0":
+            case "false":
+            case "":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static boolean containsSameBasicType(Type nonFiniteType, Set<Object> finiteTypeValueSpace) {
+        for (Object value : finiteTypeValueSpace) {
+            if (!isSameBasicType(TypeChecker.getType(value), nonFiniteType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkFillerValue(BRecordType type, List<Type> unAnalyzedTypes) {
+        if (unAnalyzedTypes.contains(type)) {
+            return true;
+        }
+        unAnalyzedTypes.add(type);
+        for (Field field : type.getFields().values()) {
+            if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) {
+                continue;
+            }
+            if (!SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED)) {
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isSameBasicType(Type sourceType, Type targetType) {
+        if (TypeChecker.isSameType(sourceType, targetType)) {
+            return true;
+        }
+        int sourceTag = getImpliedType(sourceType).getTag();
+        int targetTag = getImpliedType(targetType).getTag();
+        if (TypeTags.isStringTypeTag(sourceTag) && TypeTags.isStringTypeTag(targetTag)) {
+            return true;
+        }
+        if (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) {
+            return true;
+        }
+        return isIntegerSubTypeTag(sourceTag) && isIntegerSubTypeTag(targetTag);
+    }
+
+    private static boolean isIntegerSubTypeTag(int typeTag) {
+        return TypeTags.isIntegerTypeTag(typeTag);
+    }
+
+    private static boolean checkFillerValue(BArrayType type, List<Type> unAnalyzedTypes) {
+        return type.getState() == ArrayType.ArrayState.OPEN || hasFillerValue(type.getElementType(), unAnalyzedTypes);
+    }
+
+    private static boolean checkFillerValue(BObjectType type) {
+        MethodType generatedInitMethod = type.getGeneratedInitMethod();
+        if (generatedInitMethod == null) {
+            // abstract objects doesn't have a filler value.
+            return false;
+        }
+        FunctionType initFuncType = generatedInitMethod.getType();
+        boolean noParams = initFuncType.getParameters().length == 0;
+        boolean nilReturn = getImpliedType(initFuncType.getReturnType()).getTag() == TypeTags.NULL_TAG;
+        return noParams && nilReturn;
+
+    }
+
+    private static boolean checkFillerValue(BFiniteType type) {
+        return hasFillerValueInValueSpace(type.getValueSpace());
+    }
+
+    private static boolean hasFillerValueInValueSpace(Set<Object> finiteTypeValueSpace) {
+        // For singleton types, that value is the implicit initial value
+        if (finiteTypeValueSpace.size() == 1) {
+            return true;
+        }
+
+        // Has NIL element as a member.
+        for (Object value : finiteTypeValueSpace) {
+            if (value == null) {
+                return true;
+            }
+        }
+
+        Object firstElement = finiteTypeValueSpace.iterator().next();
+        for (Object value : finiteTypeValueSpace) {
+            if (value.getClass() != firstElement.getClass()) {
+                return false;
+            }
+        }
+
+        if (firstElement instanceof BString) {
+            return containsElement(finiteTypeValueSpace, "");
+        } else if ((firstElement instanceof Integer) || (firstElement instanceof Long) ||
+                (firstElement instanceof BDecimal)) {
+            return containsElement(finiteTypeValueSpace, "0");
+        } else if (firstElement instanceof Double) {
+            return containsElement(finiteTypeValueSpace, "0.0");
+        } else if (firstElement instanceof Boolean) {
+            return containsElement(finiteTypeValueSpace, "false");
+        } else {
+            return false;
+        }
+    }
+
+    private static boolean containsElement(Set<Object> valueSpace, String e) {
+        for (Object value : valueSpace) {
+            if (value != null && value.toString().equals(e)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static Object handleAnydataValues(Object sourceVal, Type targetType) {
+        if (sourceVal != null && !(sourceVal instanceof Number) && !(sourceVal instanceof BString) &&
+                !(sourceVal instanceof Boolean) && !(sourceVal instanceof BValue)) {
+            throw ErrorUtils.createJToBTypeCastError(sourceVal.getClass(), targetType);
+        }
+        return sourceVal;
+    }
+
+    // FIXME: move this up
+    private static boolean checkConstraints(Type sourceConstraint, Type targetConstraint,
+            List<TypeChecker.TypePair> unresolvedTypes) {
+        if (sourceConstraint == null) {
+            sourceConstraint = TYPE_ANY;
+        }
+
+        if (targetConstraint == null) {
+            targetConstraint = TYPE_ANY;
+        }
+
+        return TypeChecker.checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
+    }
+
     private static final class FutureTypeChecker {
 
         private static boolean checkIsFutureType(Type sourceType, BFutureType targetType,
-                                                 List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             sourceType = getImpliedType(sourceType);
             if (sourceType.getTag() != TypeTags.FUTURE_TAG) {
                 return false;
             }
-            return TableTypeChecker.checkConstraints(((BFutureType) sourceType).getConstrainedType(),
+            return checkConstraints(TypeHelper.typeConstraint(sourceType),
                     targetType.getConstrainedType(),
                     unresolvedTypes);
         }
@@ -921,31 +1212,31 @@ public class SyntacticTypeEngine {
                 return false;
             }
 
-            BStreamType streamType = (BStreamType) ((StreamValue) sourceValue).getType();
+            BStreamType streamType = unwrap(((StreamValue) sourceValue).getType());
 
             return streamType.getConstrainedType() == targetType.getConstrainedType();
         }
 
         private static boolean checkIsStreamType(Type sourceType, BStreamType targetType,
-                                                 List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             sourceType = getImpliedType(sourceType);
             if (sourceType.getTag() != TypeTags.STREAM_TAG) {
                 return false;
             }
-            return TableTypeChecker.checkConstraints(((BStreamType) sourceType).getConstrainedType(),
+            return checkConstraints(TypeHelper.typeConstraint(sourceType),
                     targetType.getConstrainedType(),
                     unresolvedTypes)
-                    && TableTypeChecker.checkConstraints(((BStreamType) sourceType).getCompletionType(),
-                    targetType.getCompletionType(),
-                    unresolvedTypes);
+                    && checkConstraints(((BStreamType) unwrap(sourceType)).getCompletionType(),
+                            targetType.getCompletionType(),
+                            unresolvedTypes);
         }
     }
 
     static final class ErrorTypeChecker {
 
         static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
-                                            List<TypeValuePair> unresolvedValues,
-                                            boolean allowNumericConversion) {
+                List<TypeValuePair> unresolvedValues,
+                boolean allowNumericConversion) {
             Type sourceTypeReferredType = getImpliedType(TypeChecker.getType(sourceValue));
             if (sourceValue == null || sourceTypeReferredType.getTag() != TypeTags.ERROR_TAG) {
                 return false;
@@ -965,7 +1256,7 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkIsErrorType(Type sourceType, BErrorType targetType,
-                                                List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             if (sourceType.getTag() != TypeTags.ERROR_TAG) {
                 return false;
             }
@@ -975,7 +1266,7 @@ public class SyntacticTypeEngine {
                 return true;
             }
             unresolvedTypes.add(pair);
-            BErrorType bErrorType = (BErrorType) sourceType;
+            BErrorType bErrorType = unwrap(sourceType);
 
             if (!TypeChecker.checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes)) {
                 return false;
@@ -997,12 +1288,12 @@ public class SyntacticTypeEngine {
     private static final class TypeDescTypeChecker {
 
         private static boolean checkTypeDescType(Type sourceType, BTypedescType targetType,
-                                                 List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             if (sourceType.getTag() != TypeTags.TYPEDESC_TAG) {
                 return false;
             }
 
-            BTypedescType sourceTypedesc = (BTypedescType) sourceType;
+            BTypedescType sourceTypedesc = unwrap(sourceType);
             return TypeChecker.checkIsType(sourceTypedesc.getConstraint(), targetType.getConstraint(), unresolvedTypes);
         }
     }
@@ -1010,14 +1301,14 @@ public class SyntacticTypeEngine {
     private static final class XmlTypeChecker {
 
         private static boolean checkIsXMLType(Type sourceType, Type targetType,
-                                              List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             sourceType = getImpliedType(sourceType);
             int sourceTag = sourceType.getTag();
             if (sourceTag == TypeTags.FINITE_TYPE_TAG) {
-                return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
+                return isFiniteTypeMatch(unwrap(sourceType), targetType);
             }
 
-            BXmlType target = ((BXmlType) targetType);
+            BXmlType target = unwrap(targetType);
             if (sourceTag == TypeTags.XML_TAG) {
                 Type targetConstraint = getRecursiveTargetConstraintType(target);
                 Type constraint = typeConstraint(sourceType);
@@ -1102,12 +1393,12 @@ public class SyntacticTypeEngine {
             Type referredType = getImpliedType(targetType);
             switch (referredType.getTag()) {
                 case TypeTags.UNION_TAG:
-                    for (Type memberType : ((UnionType) referredType).getMemberTypes()) {
+                    for (Type memberType : members(referredType)) {
                         populateTargetXmlNodeTypes(nodeTypes, memberType);
                     }
                     break;
                 case TypeTags.INTERSECTION_TAG:
-                    populateTargetXmlNodeTypes(nodeTypes, ((IntersectionType) referredType).getEffectiveType());
+                    populateTargetXmlNodeTypes(nodeTypes, effectiveType(referredType));
                     break;
                 case TypeTags.XML_ELEMENT_TAG:
                     nodeTypes.add(XmlNodeType.ELEMENT);
@@ -1122,7 +1413,7 @@ public class SyntacticTypeEngine {
                     nodeTypes.add(XmlNodeType.TEXT);
                     break;
                 case TypeTags.XML_TAG:
-                    populateTargetXmlNodeTypes(nodeTypes, ((BXmlType) referredType).constraint);
+                    populateTargetXmlNodeTypes(nodeTypes, typeConstraint(referredType));
                     break;
                 default:
                     break;
@@ -1134,13 +1425,13 @@ public class SyntacticTypeEngine {
     static final class TableTypeChecker {
 
         private static boolean checkIsTableType(Type sourceType, BTableType targetType,
-                                                List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             sourceType = getImpliedType(sourceType);
             if (sourceType.getTag() != TypeTags.TABLE_TAG) {
                 return false;
             }
 
-            BTableType srcTableType = (BTableType) sourceType;
+            BTableType srcTableType = unwrap(sourceType);
 
             if (!checkConstraints(srcTableType.getConstrainedType(), targetType.getConstrainedType(),
                     unresolvedTypes)) {
@@ -1207,27 +1498,14 @@ public class SyntacticTypeEngine {
             }
         }
 
-        private static boolean checkConstraints(Type sourceConstraint, Type targetConstraint,
-                                                List<TypeChecker.TypePair> unresolvedTypes) {
-            if (sourceConstraint == null) {
-                sourceConstraint = TYPE_ANY;
-            }
-
-            if (targetConstraint == null) {
-                targetConstraint = TYPE_ANY;
-            }
-
-            return TypeChecker.checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
-        }
-
         static boolean checkIsLikeTableType(Object sourceValue, BTableType targetType,
-                                                    List<TypeValuePair> unresolvedValues,
-                                                    boolean allowNumericConversion) {
+                List<TypeValuePair> unresolvedValues,
+                boolean allowNumericConversion) {
             if (!(sourceValue instanceof TableValueImpl)) {
                 return false;
             }
             TableValueImpl tableValue = (TableValueImpl) sourceValue;
-            BTableType sourceType = (BTableType) getImpliedType(tableValue.getType());
+            BTableType sourceType = unwrap(getImpliedType(tableValue.getType()));
             if (targetType.getKeyType() != null && sourceType.getFieldNames().length == 0) {
                 return false;
             }
@@ -1260,7 +1538,7 @@ public class SyntacticTypeEngine {
                 return false;
             }
 
-            BFunctionType source = (BFunctionType) sourceType;
+            BFunctionType source = unwrap(sourceType);
             if (ObjectTypeChecker.hasIncompatibleIsolatedFlags(targetType, source) ||
                     hasIncompatibleTransactionalFlags(targetType, source)) {
                 return false;
@@ -1293,12 +1571,12 @@ public class SyntacticTypeEngine {
     private static final class ObjectTypeChecker {
 
         private static boolean checkObjectEquivalency(Type sourceType, BObjectType targetType,
-                                                      List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             return checkObjectEquivalency(null, sourceType, targetType, unresolvedTypes);
         }
 
         private static boolean checkObjectEquivalency(Object sourceVal, Type sourceType, BObjectType targetType,
-                                                      List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             sourceType = getImpliedType(sourceType);
             if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG && sourceType.getTag() != TypeTags.SERVICE_TAG) {
                 return false;
@@ -1311,7 +1589,7 @@ public class SyntacticTypeEngine {
             }
             unresolvedTypes.add(pair);
 
-            BObjectType sourceObjectType = (BObjectType) sourceType;
+            BObjectType sourceObjectType = unwrap(sourceType);
 
             if (SymbolFlags.isFlagOn(targetType.flags, SymbolFlags.ISOLATED) &&
                     !SymbolFlags.isFlagOn(sourceObjectType.flags, SymbolFlags.ISOLATED)) {
@@ -1326,7 +1604,7 @@ public class SyntacticTypeEngine {
             if (targetType.getFields().values().stream().anyMatch(field -> SymbolFlags
                     .isFlagOn(field.getFlags(), SymbolFlags.PRIVATE))
                     || targetFuncs.stream().anyMatch(func -> SymbolFlags.isFlagOn(func.getFlags(),
-                    SymbolFlags.PRIVATE))) {
+                            SymbolFlags.PRIVATE))) {
                 return false;
             }
 
@@ -1335,8 +1613,8 @@ public class SyntacticTypeEngine {
             }
 
             String targetTypeModule = Optional.ofNullable(targetType.getPackage()).map(Module::toString).orElse("");
-            String sourceTypeModule =
-                    Optional.ofNullable(sourceObjectType.getPackage()).map(Module::toString).orElse("");
+            String sourceTypeModule = Optional.ofNullable(sourceObjectType.getPackage()).map(Module::toString)
+                    .orElse("");
 
             if (sourceVal == null) {
                 if (!checkObjectSubTypeForFields(targetFields, sourceFields, targetTypeModule, sourceTypeModule,
@@ -1364,15 +1642,17 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkObjectSubTypeForFields(Map<String, Field> targetFields,
-                                                           Map<String, Field> sourceFields, String targetTypeModule,
-                                                           String sourceTypeModule,
-                                                           List<TypeChecker.TypePair> unresolvedTypes) {
+                Map<String, Field> sourceFields, String targetTypeModule,
+                String sourceTypeModule,
+                List<TypeChecker.TypePair> unresolvedTypes) {
             for (Field lhsField : targetFields.values()) {
                 Field rhsField = sourceFields.get(lhsField.getFieldName());
                 if (rhsField == null ||
                         !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsField.getFlags(),
-                                rhsField.getFlags()) || MapTypeChecker.hasIncompatibleReadOnlyFlags(lhsField,
-                        rhsField) ||
+                                rhsField.getFlags())
+                        || MapTypeChecker.hasIncompatibleReadOnlyFlags(lhsField,
+                                rhsField)
+                        ||
                         !TypeChecker.checkIsType(rhsField.getFieldType(), lhsField.getFieldType(), unresolvedTypes)) {
                     return false;
                 }
@@ -1381,17 +1661,18 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkObjectSubTypeForFieldsByValue(Map<String, Field> targetFields,
-                                                                  Map<String, Field> sourceFields,
-                                                                  String targetTypeModule,
-                                                                  String sourceTypeModule, BObject sourceObjVal,
-                                                                  List<TypeChecker.TypePair> unresolvedTypes) {
+                Map<String, Field> sourceFields,
+                String targetTypeModule,
+                String sourceTypeModule, BObject sourceObjVal,
+                List<TypeChecker.TypePair> unresolvedTypes) {
             for (Field lhsField : targetFields.values()) {
                 String name = lhsField.getFieldName();
                 Field rhsField = sourceFields.get(name);
                 if (rhsField == null ||
                         !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsField.getFlags(),
-                                rhsField.getFlags()) || MapTypeChecker.hasIncompatibleReadOnlyFlags(lhsField,
-                        rhsField)) {
+                                rhsField.getFlags())
+                        || MapTypeChecker.hasIncompatibleReadOnlyFlags(lhsField,
+                                rhsField)) {
                     return false;
                 }
 
@@ -1418,10 +1699,10 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkObjectSubTypeForMethods(List<TypeChecker.TypePair> unresolvedTypes,
-                                                            List<MethodType> targetFuncs,
-                                                            List<MethodType> sourceFuncs,
-                                                            String targetTypeModule, String sourceTypeModule,
-                                                            BObjectType sourceType, BObjectType targetType) {
+                List<MethodType> targetFuncs,
+                List<MethodType> sourceFuncs,
+                String targetTypeModule, String sourceTypeModule,
+                BObjectType sourceType, BObjectType targetType) {
             for (MethodType lhsFunc : targetFuncs) {
                 Optional<MethodType> rhsFunction = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
                 if (rhsFunction.isEmpty()) {
@@ -1455,7 +1736,7 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, long lhsFlags,
-                                                        long rhsFlags) {
+                long rhsFlags) {
             if (SymbolFlags.isFlagOn(lhsFlags, SymbolFlags.PRIVATE)) {
                 return lhsTypePkg.equals(rhsTypePkg);
             } else if (SymbolFlags.isFlagOn(lhsFlags, SymbolFlags.PUBLIC)) {
@@ -1467,8 +1748,8 @@ public class SyntacticTypeEngine {
         }
 
         private static Optional<MethodType> getMatchingInvokableType(List<MethodType> rhsFuncs,
-                                                                     MethodType lhsFunc,
-                                                                     List<TypeChecker.TypePair> unresolvedTypes) {
+                MethodType lhsFunc,
+                List<TypeChecker.TypePair> unresolvedTypes) {
             Optional<MethodType> matchingFunction = rhsFuncs.stream()
                     .filter(rhsFunc -> lhsFunc.getName().equals(rhsFunc.getName()))
                     .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.getType(), lhsFunc.getType(),
@@ -1478,7 +1759,8 @@ public class SyntacticTypeEngine {
             if (matchingFunction.isEmpty()) {
                 return matchingFunction;
             }
-            // For resource function match, we need to check whether lhs function resource path type belongs to
+            // For resource function match, we need to check whether lhs function resource
+            // path type belongs to
             // rhs function resource path type
             MethodType matchingFunc = matchingFunction.get();
             boolean lhsFuncIsResource = SymbolFlags.isFlagOn(lhsFunc.getFlags(), SymbolFlags.RESOURCE);
@@ -1492,8 +1774,8 @@ public class SyntacticTypeEngine {
                 return Optional.empty();
             }
 
-            Type[] lhsFuncResourcePathTypes = ((BResourceMethodType) lhsFunc).pathSegmentTypes;
-            Type[] rhsFuncResourcePathTypes = ((BResourceMethodType) matchingFunc).pathSegmentTypes;
+            Type[] lhsFuncResourcePathTypes = ((BResourceMethodType) unwrap(lhsFunc)).pathSegmentTypes;
+            Type[] rhsFuncResourcePathTypes = ((BResourceMethodType) unwrap(matchingFunc)).pathSegmentTypes;
 
             int lhsFuncResourcePathTypesSize = lhsFuncResourcePathTypes.length;
             if (lhsFuncResourcePathTypesSize != rhsFuncResourcePathTypes.length) {
@@ -1510,7 +1792,7 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkFunctionTypeEqualityForObjectType(FunctionType source, FunctionType target,
-                                                                      List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             if (hasIncompatibleIsolatedFlags(target, source)) {
                 return false;
             }
@@ -1541,14 +1823,14 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkIsServiceType(Type sourceType, Type targetType,
-                                                  List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             sourceType = getImpliedType(sourceType);
             if (sourceType.getTag() == TypeTags.SERVICE_TAG) {
                 return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
             }
 
             if (sourceType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-                var flags = ((BObjectType) sourceType).flags;
+                var flags = ((BObjectType) unwrap(sourceType)).flags;
                 return (flags & SymbolFlags.SERVICE) == SymbolFlags.SERVICE;
             }
 
@@ -1559,8 +1841,8 @@ public class SyntacticTypeEngine {
     static final class ListTypeChecker {
 
         static boolean checkIsLikeTupleType(Object sourceValue, BTupleType targetType,
-                                            List<TypeValuePair> unresolvedValues,
-                                            boolean allowNumericConversion) {
+                List<TypeValuePair> unresolvedValues,
+                boolean allowNumericConversion) {
             if (!(sourceValue instanceof ArrayValue)) {
                 return false;
             }
@@ -1594,8 +1876,8 @@ public class SyntacticTypeEngine {
         }
 
         static boolean checkIsLikeArrayType(Object sourceValue, BArrayType targetType,
-                                            List<TypeValuePair> unresolvedValues,
-                                            boolean allowNumericConversion) {
+                List<TypeValuePair> unresolvedValues,
+                boolean allowNumericConversion) {
             if (!(sourceValue instanceof ArrayValue)) {
                 return false;
             }
@@ -1603,9 +1885,8 @@ public class SyntacticTypeEngine {
             ArrayValue source = (ArrayValue) sourceValue;
             Type targetTypeElementType = targetType.getElementType();
             if (source.getType().getTag() == TypeTags.ARRAY_TAG) {
-                Type sourceElementType = ((BArrayType) source.getType()).getElementType();
+                Type sourceElementType = TypeHelper.listRestType(source.getType());
                 if (isValueType(sourceElementType)) {
-
                     if (TypeChecker.checkIsType(sourceElementType, targetTypeElementType, new ArrayList<>())) {
                         return true;
                     }
@@ -1620,7 +1901,7 @@ public class SyntacticTypeEngine {
                         }
 
                         List<Type> targetNumericTypes = new ArrayList<>();
-                        for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
+                        for (Type memType : members(targetTypeElementType)) {
                             if (TypeChecker.isNumericType(memType) && !targetNumericTypes.contains(memType)) {
                                 targetNumericTypes.add(memType);
                             }
@@ -1649,7 +1930,7 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkIsArrayType(BArrayType sourceType, BArrayType targetType,
-                                                List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             switch (sourceType.getState()) {
                 case OPEN:
                     if (targetType.getState() != ArrayType.ArrayState.OPEN) {
@@ -1669,7 +1950,7 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkIsArrayType(BTupleType sourceType, BArrayType targetType,
-                                                List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             List<Type> tupleTypes = sourceType.getTupleTypes();
             Type sourceRestType = sourceType.getRestType();
             Type targetElementType = targetType.getElementType();
@@ -1700,12 +1981,12 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkIsArrayType(Type sourceType, BArrayType targetType,
-                                                List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             sourceType = getImpliedType(sourceType);
             int sourceTypeTag = sourceType.getTag();
 
             if (sourceTypeTag == TypeTags.UNION_TAG) {
-                for (Type memberType : ((BUnionType) sourceType).getMemberTypes()) {
+                for (Type memberType : members(sourceType)) {
                     if (!checkIsArrayType(memberType, targetType, unresolvedTypes)) {
                         return false;
                     }
@@ -1718,13 +1999,13 @@ public class SyntacticTypeEngine {
             }
 
             if (sourceTypeTag == TypeTags.ARRAY_TAG) {
-                return checkIsArrayType((BArrayType) sourceType, targetType, unresolvedTypes);
+                return checkIsArrayType((BArrayType) unwrap(sourceType), targetType, unresolvedTypes);
             }
-            return checkIsArrayType((BTupleType) sourceType, targetType, unresolvedTypes);
+            return checkIsArrayType((BTupleType) unwrap(sourceType), targetType, unresolvedTypes);
         }
 
         private static boolean checkIsTupleType(BArrayType sourceType, BTupleType targetType,
-                                                List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             Type sourceElementType = sourceType.getElementType();
             List<Type> targetTypes = targetType.getTupleTypes();
             Type targetRestType = targetType.getRestType();
@@ -1767,7 +2048,7 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkIsTupleType(BTupleType sourceType, BTupleType targetType,
-                                                List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             List<Type> sourceTypes = sourceType.getTupleTypes();
             Type sourceRestType = sourceType.getRestType();
             List<Type> targetTypes = targetType.getTupleTypes();
@@ -1819,7 +2100,7 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type,
-                                                                                       Set<String> visitedTypeSet) {
+                Set<String> visitedTypeSet) {
             switch (type.getTag()) {
                 case TypeTags.NEVER_TAG:
                     return true;
@@ -1829,10 +2110,12 @@ public class SyntacticTypeEngine {
                         // skip check for fields with self referencing type and not required fields.
                         if ((SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED) ||
                                 !SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) &&
-                                !visitedTypeSet.contains(field.getFieldType()) &&
-                                checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(field.getFieldType(),
-                                        visitedTypeSet)) {
-                            return true;
+                                !visitedTypeSet.contains(field.getFieldType().toString())) {
+                            Type fieldType = field.getFieldType();
+                            visitedTypeSet.add(fieldType.toString());
+                            if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(fieldType, visitedTypeSet)) {
+                                return true;
+                            }
                         }
                     }
                     return false;
@@ -1857,22 +2140,24 @@ public class SyntacticTypeEngine {
                     return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(
                             TypeHelper.referredType(type), visitedTypeSet);
                 case TypeTags.INTERSECTION_TAG:
-                    return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(
-                            TypeHelper.effectiveType(type), visitedTypeSet);
+                    return !visitedTypeSet.contains(type.toString()) &&
+                            checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(
+                                    TypeHelper.effectiveType(type), visitedTypeSet);
                 default:
                     return false;
             }
         }
 
         private static boolean checkIsRecordType(MapValue sourceRecordValue, BRecordType sourceRecordType,
-                                                 BRecordType targetType, List<TypeChecker.TypePair> unresolvedTypes) {
+                BRecordType targetType, List<TypeChecker.TypePair> unresolvedTypes) {
             TypeChecker.TypePair pair = new TypeChecker.TypePair(sourceRecordType, targetType);
             if (unresolvedTypes.contains(pair)) {
                 return true;
             }
             unresolvedTypes.add(pair);
 
-            // Unsealed records are not equivalent to sealed records, unless their rest field type is 'never'. But
+            // Unsealed records are not equivalent to sealed records, unless their rest
+            // field type is 'never'. But
             // vice-versa is allowed.
             if (targetType.sealed && !sourceRecordType.sealed && (sourceRecordType.restFieldType == null ||
                     getImpliedType(sourceRecordType.restFieldType).getTag() != TypeTags.NEVER_TAG)) {
@@ -1980,34 +2265,33 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkIsMapType(Type sourceType, BMapType targetType,
-                                              List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             Type targetConstrainedType = targetType.getConstrainedType();
             sourceType = getImpliedType(sourceType);
             switch (sourceType.getTag()) {
                 case TypeTags.MAP_TAG:
-                    return TableTypeChecker.checkConstraints(((BMapType) sourceType).getConstrainedType(),
+                    return checkConstraints(TypeHelper.typeConstraint(sourceType),
                             targetConstrainedType,
                             unresolvedTypes);
                 case TypeTags.RECORD_TYPE_TAG:
-                    BRecordType recType = (BRecordType) sourceType;
+                    BRecordType recType = unwrap(sourceType);
                     BUnionType wideTypeUnion = new BUnionType(getWideTypeComponents(recType));
-                    return TableTypeChecker.checkConstraints(wideTypeUnion, targetConstrainedType, unresolvedTypes);
+                    return checkConstraints(wideTypeUnion, targetConstrainedType, unresolvedTypes);
                 default:
                     return false;
             }
         }
 
         private static boolean checkIsMapType(Object sourceVal, Type sourceType, BMapType targetType,
-                                              List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             Type targetConstrainedType = targetType.getConstrainedType();
             sourceType = getImpliedType(sourceType);
             switch (sourceType.getTag()) {
                 case TypeTags.MAP_TAG:
-                    return TableTypeChecker.checkConstraints(((BMapType) sourceType).getConstrainedType(),
-                            targetConstrainedType,
+                    return checkConstraints(TypeHelper.typeConstraint(sourceType), targetConstrainedType,
                             unresolvedTypes);
                 case TypeTags.RECORD_TYPE_TAG:
-                    return checkIsMapType((MapValue) sourceVal, (BRecordType) sourceType, unresolvedTypes,
+                    return checkIsMapType((MapValue) sourceVal, unwrap(sourceType), unresolvedTypes,
                             targetConstrainedType);
                 default:
                     return false;
@@ -2015,8 +2299,8 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkIsMapType(MapValue sourceVal, BRecordType sourceType,
-                                              List<TypeChecker.TypePair> unresolvedTypes,
-                                              Type targetConstrainedType) {
+                List<TypeChecker.TypePair> unresolvedTypes,
+                Type targetConstrainedType) {
             for (Field field : sourceType.getFields().values()) {
                 if (!SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY)) {
                     if (!TypeChecker.checkIsType(field.getFieldType(), targetConstrainedType, unresolvedTypes)) {
@@ -2055,20 +2339,20 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkIsRecordType(Type sourceType, BRecordType targetType,
-                                                 List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             sourceType = getImpliedType(sourceType);
             switch (sourceType.getTag()) {
                 case TypeTags.RECORD_TYPE_TAG:
-                    return checkIsRecordType((BRecordType) sourceType, targetType, unresolvedTypes);
+                    return checkIsRecordType((BRecordType) unwrap(sourceType), targetType, unresolvedTypes);
                 case TypeTags.MAP_TAG:
-                    return checkIsRecordType((BMapType) sourceType, targetType, unresolvedTypes);
+                    return checkIsRecordType((BMapType) unwrap(sourceType), targetType, unresolvedTypes);
                 default:
                     return false;
             }
         }
 
         private static boolean checkIsRecordType(BRecordType sourceRecordType, BRecordType targetType,
-                                                 List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             // If we encounter two types that we are still resolving, then skip it.
             // This is done to avoid recursive checking of the same type.
             TypeChecker.TypePair pair = new TypeChecker.TypePair(sourceRecordType, targetType);
@@ -2077,7 +2361,8 @@ public class SyntacticTypeEngine {
             }
             unresolvedTypes.add(pair);
 
-            // Unsealed records are not equivalent to sealed records, unless their rest field type is 'never'. But
+            // Unsealed records are not equivalent to sealed records, unless their rest
+            // field type is 'never'. But
             // vice-versa is allowed.
             if (targetType.sealed && !sourceRecordType.sealed && (sourceRecordType.restFieldType == null ||
                     getImpliedType(sourceRecordType.restFieldType).getTag() != TypeTags.NEVER_TAG)) {
@@ -2127,13 +2412,15 @@ public class SyntacticTypeEngine {
                 }
             }
 
-            // If there are fields remaining in the source record, first check if it's a closed record. Closed records
+            // If there are fields remaining in the source record, first check if it's a
+            // closed record. Closed records
             // should only have the fields specified by its type.
             if (targetType.sealed) {
                 return targetFieldNames.containsAll(sourceFields.keySet());
             }
 
-            // If it's an open record, check if they are compatible with the rest field of the target type.
+            // If it's an open record, check if they are compatible with the rest field of
+            // the target type.
             for (Map.Entry<String, Field> sourceFieldEntry : sourceFields.entrySet()) {
                 if (targetFieldNames.contains(sourceFieldEntry.getKey())) {
                     continue;
@@ -2148,7 +2435,7 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkIsRecordType(BMapType sourceType, BRecordType targetType,
-                                                 List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             // If we encounter two types that we are still resolving, then skip it.
             // This is done to avoid recursive checking of the same type.
             TypeChecker.TypePair pair = new TypeChecker.TypePair(sourceType, targetType);
@@ -2182,7 +2469,7 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkRecordBelongsToAnydataType(MapValue sourceVal, BRecordType recordType,
-                                                               List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             Type targetType = TYPE_ANYDATA;
             TypeChecker.TypePair pair = new TypeChecker.TypePair(recordType, targetType);
             if (unresolvedTypes.contains(pair)) {
@@ -2223,14 +2510,14 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkIsRecordType(Object sourceVal, Type sourceType, BRecordType targetType,
-                                                 List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             sourceType = getImpliedType(sourceType);
             switch (sourceType.getTag()) {
                 case TypeTags.RECORD_TYPE_TAG:
-                    return checkIsRecordType((MapValue) sourceVal, (BRecordType) sourceType, targetType,
+                    return checkIsRecordType((MapValue) sourceVal, unwrap(sourceType), targetType,
                             unresolvedTypes);
                 case TypeTags.MAP_TAG:
-                    return checkIsRecordType((BMapType) sourceType, targetType, unresolvedTypes);
+                    return checkIsRecordType((BMapType) unwrap(sourceType), targetType, unresolvedTypes);
                 default:
                     return false;
             }
@@ -2253,8 +2540,9 @@ public class SyntacticTypeEngine {
                 return true;
             }
             if (fieldTag == TypeTags.UNION_TAG) {
-                List<Type> memberTypes = ((BUnionType) unwrap(fieldType)).getOriginalMemberTypes();
-                for (Type member : memberTypes) {
+                // List<Type> memberTypes = ((BUnionType)
+                // unwrap(fieldType)).getOriginalMemberTypes();
+                for (Type member : TypeHelper.members(fieldType)) {
                     if (getImpliedType(member).getTag() == TypeTags.NEVER_TAG) {
                         return true;
                     }
@@ -2269,9 +2557,9 @@ public class SyntacticTypeEngine {
                             SymbolFlags.READONLY);
         }
 
-        static boolean checkIsLikeJSONType(Object sourceValue, Type sourceType, BJsonType targetType,
-                                                   List<TypeValuePair> unresolvedValues,
-                                                   boolean allowNumericConversion) {
+        static boolean checkIsLikeJSONType(Object sourceValue, Type sourceType, Type targetType,
+                List<TypeValuePair> unresolvedValues,
+                boolean allowNumericConversion) {
             Type referredSourceType = getImpliedType(sourceType);
             switch (referredSourceType.getTag()) {
                 case TypeTags.ARRAY_TAG:
@@ -2313,9 +2601,9 @@ public class SyntacticTypeEngine {
             }
         }
 
-        private static boolean checkIsMappingLikeJsonType(MapValueImpl sourceValue, BJsonType targetType,
-                                                          List<TypeValuePair> unresolvedValues,
-                                                          boolean allowNumericConversion) {
+        private static boolean checkIsMappingLikeJsonType(MapValueImpl sourceValue, Type targetType,
+                List<TypeValuePair> unresolvedValues,
+                boolean allowNumericConversion) {
             for (Object value : sourceValue.values()) {
                 if (!checkIsLikeType(null, value, targetType, unresolvedValues, allowNumericConversion,
                         null)) {
@@ -2326,9 +2614,9 @@ public class SyntacticTypeEngine {
         }
 
         static boolean checkIsLikeRecordType(Object sourceValue, BRecordType targetType,
-                                                     List<TypeValuePair> unresolvedValues,
-                                                     boolean allowNumericConversion,
-                                                     String varName, List<String> errors) {
+                List<TypeValuePair> unresolvedValues,
+                boolean allowNumericConversion,
+                String varName, List<String> errors) {
             if (!(sourceValue instanceof MapValueImpl)) {
                 return false;
             }
@@ -2379,7 +2667,8 @@ public class SyntacticTypeEngine {
                         TypeChecker.addErrorMessage(initialErrorCount,
                                 "field '" + fieldNameLong + "' in record '" + targetType +
                                         "' should be of type '" + targetFieldTypes.get(fieldName) + "', found '" +
-                                        TypeConverter.getShortSourceValue(valueEntry.getValue()) + "'", errors);
+                                        TypeConverter.getShortSourceValue(valueEntry.getValue()) + "'",
+                                errors);
                         returnVal = false;
                     }
                 } else {
@@ -2388,8 +2677,8 @@ public class SyntacticTypeEngine {
                                 unresolvedValues,
                                 allowNumericConversion, fieldNameLong)) {
                             TypeChecker.addErrorMessage(initialErrorCount, "value of field '" + valueEntry.getKey() +
-                                            "' adding to the record '" + targetType + "' should be of type '" + restFieldType +
-                                            "', found '" + TypeConverter.getShortSourceValue(valueEntry.getValue()) + "'",
+                                    "' adding to the record '" + targetType + "' should be of type '" + restFieldType +
+                                    "', found '" + TypeConverter.getShortSourceValue(valueEntry.getValue()) + "'",
                                     errors);
                             returnVal = false;
                         }
@@ -2407,12 +2696,12 @@ public class SyntacticTypeEngine {
         }
 
         private static boolean checkIsTupleType(Type sourceType, BTupleType targetType,
-                                                List<TypeChecker.TypePair> unresolvedTypes) {
+                List<TypeChecker.TypePair> unresolvedTypes) {
             sourceType = getImpliedType(sourceType);
             int sourceTypeTag = sourceType.getTag();
 
             if (sourceTypeTag == TypeTags.UNION_TAG) {
-                for (Type memberType : ((BUnionType) sourceType).getMemberTypes()) {
+                for (Type memberType : TypeHelper.members(sourceType)) {
                     if (!checkIsTupleType(memberType, targetType, unresolvedTypes)) {
                         return false;
                     }
@@ -2425,14 +2714,14 @@ public class SyntacticTypeEngine {
             }
 
             if (sourceTypeTag == TypeTags.ARRAY_TAG) {
-                return ListTypeChecker.checkIsTupleType((BArrayType) sourceType, targetType, unresolvedTypes);
+                return ListTypeChecker.checkIsTupleType((BArrayType) unwrap(sourceType), targetType, unresolvedTypes);
             }
-            return ListTypeChecker.checkIsTupleType((BTupleType) sourceType, targetType, unresolvedTypes);
+            return ListTypeChecker.checkIsTupleType((BTupleType) unwrap(sourceType), targetType, unresolvedTypes);
         }
 
         static boolean checkIsLikeMapType(Object sourceValue, BMapType targetType,
-                                          List<TypeValuePair> unresolvedValues,
-                                          boolean allowNumericConversion) {
+                List<TypeValuePair> unresolvedValues,
+                boolean allowNumericConversion) {
             if (!(sourceValue instanceof MapValueImpl)) {
                 return false;
             }

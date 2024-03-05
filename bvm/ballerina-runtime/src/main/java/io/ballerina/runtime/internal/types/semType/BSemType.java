@@ -22,15 +22,22 @@
 package io.ballerina.runtime.internal.types.semType;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.BAnyType;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.N_TYPES;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 
 public class BSemType implements Type {
 
@@ -43,10 +50,11 @@ public class BSemType implements Type {
     // creating type. We need the string representation only to create errors (?). Need to check if this don't create
     // any undesired gc pressure
     private Type[] orderedUnionMembers = null;
+    private int tag = -1;
 
     protected BSemType() {
-        this.all = new BitSet();
-        this.some = new BitSet();
+        this.all = new BitSet(N_TYPES);
+        this.some = new BitSet(N_TYPES);
         this.subTypeData = new ProperSubTypeData[N_TYPES];
     }
     protected BSemType(BitSet all, BitSet some, ProperSubTypeData[] subtypeData) {
@@ -56,7 +64,7 @@ public class BSemType implements Type {
     }
 
     private boolean onlyBType() {
-        return some.cardinality() <= 1 && some.get(SemTypeUtils.UniformTypeCodes.UT_BTYPE);
+        return some.cardinality() == 1 && some.get(SemTypeUtils.UniformTypeCodes.UT_BTYPE) && all.cardinality() == 0;
     }
 
     public void setIdentifiers(String name, Module module) {
@@ -64,15 +72,15 @@ public class BSemType implements Type {
         this.module = module;
     }
 
-    private BType getBType() {
+    @Deprecated
+    public BType getBType() {
         if (!onlyBType()) {
             throw new IllegalStateException("This semType does not contain only a BType");
         }
-        return getBTypeComponent();
+        return getBTypePart();
     }
 
-    @Deprecated
-    public BType getBTypeComponent() {
+    private BType getBTypePart() {
         BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
         if (this.name != null || this.module != null) {
             return bTypeComponent.getBTypeComponent(this.name, this.module);
@@ -80,57 +88,119 @@ public class BSemType implements Type {
         return bTypeComponent.getBTypeComponent();
     }
 
-    public BType getInnerType() {
-        return getBType();
-    }
-
     @Override
     public <V> V getZeroValue() {
-        return getBType().getZeroValue();
+        if (onlyBType()) {
+            return getBType().getZeroValue();
+        }
+        if (all.cardinality() == 1 && all.get(UT_NIL)) {
+            return null;
+        }
+        throw new RuntimeException("unimplemented");
     }
 
     @Override
     public <V> V getEmptyValue() {
-        return getBType().getEmptyValue();
+        if (onlyBType()) {
+            return getBType().getEmptyValue();
+        }
+        if (all.cardinality() == 1 && all.get(UT_NIL)) {
+            return null;
+        }
+        throw new RuntimeException("unimplemented");
     }
 
     @Override
     public int getTag() {
-        return getBType().getTag();
+        if (tag == -1) {
+            tag = calculateTag();
+        }
+        return tag;
+    }
+
+    private int calculateTag() {
+        if (some.get(UT_BTYPE)) {
+            BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
+            if (bTypeComponent instanceof BSubTypeData subTypeData) {
+                switch (subTypeData.getTypeClass()) {
+                    case BAnyData -> {
+                        return TypeTags.ANYDATA_TAG;
+                    }
+                    case BJson -> {
+                        return TypeTags.JSON_TAG;
+                    }
+                }
+            } else if (bTypeComponent instanceof BAnyType) {
+                return TypeTags.ANY_TAG;
+            } else if (bTypeComponent instanceof BIntersectionType) {
+                return TypeTags.INTERSECTION_TAG;
+            }
+        }
+        if (some.cardinality() + all.cardinality() > 1) {
+            return TypeTags.UNION_TAG;
+        }
+        if (some.cardinality() == 0) {
+            if (all.cardinality() == 1 && all.get(UT_NIL)) {
+                return TypeTags.NULL_TAG;
+            }
+            return TypeTags.NEVER_TAG;
+        }
+        return getBTypePart().getTag();
     }
 
     @Override
     public boolean isNilable() {
-        return getBType().isNilable();
+        // FIXME:
+        if (onlyBType()) {
+            return getBType().isNilable();
+        }
+        if (all.cardinality() == 1 && all.get(UT_NIL)) {
+            return true;
+        }
+        throw new RuntimeException("unimplemented");
     }
 
     @Override
     public String getName() {
-        return getBType().getName();
+        return name == null ? "" : name;
     }
 
     @Override
     public String getQualifiedName() {
-        return getBType().getQualifiedName();
+        if (name == null) {
+            return "";
+        }
+        return module == null ? name : module.toString() + ":" + name;
     }
 
     @Override
     public Module getPackage() {
-        return getBType().getPackage();
+        return module;
     }
 
     @Override
     public boolean isPublic() {
-        return getBType().isPublic();
+        // FIXME:
+        if (onlyBType()) {
+            return getBType().isPublic();
+        }
+        return false;
     }
 
     @Override
     public boolean isNative() {
-        return getBType().isNative();
+        if (onlyBType()) {
+            return getBType().isNative();
+        }
+        return false;
     }
 
     @Override
     public boolean isAnydata() {
+        // Error type is always a BType
+        if (!some.get(SemTypeUtils.UniformTypeCodes.UT_BTYPE)) {
+            return true;
+        }
         BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
         if (bTypeComponent instanceof BSubTypeData subTypeData) {
             // NOTE: this is because for cyclic types trying to get the BType going to put us to infinite loop
@@ -141,17 +211,33 @@ public class BSemType implements Type {
                         typeClass == BSubTypeData.BTypeClass.BJson;
             }
         }
-        return getBType().isAnydata();
+        return bTypeComponent.getBTypeComponent().isAnydata();
     }
 
     @Override
     public boolean isPureType() {
-        return getBType().isPureType();
+        if (onlyBType()) {
+            return getBType().isPureType();
+        }
+        if (all.cardinality() == 1 && all.get(UT_NIL)) {
+            return false;
+        }
+        throw new RuntimeException("unimplemented");
     }
 
     @Override
     public boolean isReadOnly() {
-        return getBType().isReadOnly();
+        if (onlyBType()) {
+            return getBType().isReadOnly();
+        }
+        // If we have only basic types for the subset we have implmented it is always readonly
+        if (all.cardinality() == 1 && all.get(UT_NIL) && some.cardinality() == 0) {
+            return true;
+        }
+        if (some.get(UT_BTYPE)) {
+            return getBTypePart().isReadOnly();
+        }
+        throw new RuntimeException("unimplemented");
     }
 
     @Override
@@ -203,7 +289,22 @@ public class BSemType implements Type {
             }
             return containsNull ? "(" + sb + ")?" : "(" + sb + ")";
         }
-        return getBType().toString();
+        if (TypeChecker.isSameType(this, PredefinedTypes.TYPE_NULL)) {
+            return "()";
+        }
+        if (TypeChecker.isSameType(this, PredefinedTypes.TYPE_ANY)) {
+            return "any";
+        }
+        if (TypeChecker.isSameType(this, PredefinedTypes.TYPE_JSON)) {
+            return "json";
+        }
+        if (TypeChecker.isSameType(this, PredefinedTypes.TYPE_READONLY)) {
+            return "readonly";
+        }
+        if (onlyBType()) {
+            return getBType().toString();
+        }
+        return some.get(UT_BTYPE) ? getBTypePart().toString() + "?" : "()";
     }
 
     public void addCyclicMembers(List<Type> members) {
@@ -217,11 +318,26 @@ public class BSemType implements Type {
     }
 
     public void setReadonly(boolean readonly) {
-        BSubTypeData bTypeComponent = (BSubTypeData) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
-        bTypeComponent.setReadonly(readonly);
+        ProperSubTypeData subTypeData = this.subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
+        if (subTypeData instanceof BSubTypeData bTypeComponent) {
+            bTypeComponent.setReadonly(readonly);
+        }
     }
 
     public void setOrderedUnionMembers(Type[] orderedUnionMembers) {
         this.orderedUnionMembers = orderedUnionMembers;
+    }
+
+    @Override
+    public int hashCode() {
+        return all.hashCode() + 31 * some.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BSemType other) {
+            return all.equals(other.all) && some.equals(other.some) && Arrays.equals(subTypeData, other.subTypeData);
+        }
+        return false;
     }
 }

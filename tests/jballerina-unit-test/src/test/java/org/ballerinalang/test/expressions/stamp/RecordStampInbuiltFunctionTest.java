@@ -17,15 +17,15 @@
  */
 package org.ballerinalang.test.expressions.stamp;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeHelper;
-import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BErrorType;
-import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStringType;
@@ -126,7 +126,8 @@ public class RecordStampInbuiltFunctionTest {
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results;
 
         BAssertUtil.assertTypeClass(mapValue0.getType(), BMapType.class);
-        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue0.getType()), BJsonType.class);
+        Assert.assertTrue(
+                TypeChecker.checkIsType(TypeHelper.typeConstraint(mapValue0.getType()), PredefinedTypes.TYPE_JSON));
 
         Assert.assertEquals((mapValue0).size(), 4);
         Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school")).toString(),
@@ -159,7 +160,7 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 5);
 
         BAssertUtil.assertTypeClass(mapValue.getType(), BMapType.class);
-        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue.getType()), BAnydataType.class);
+        TypeChecker.checkIsType(TypeHelper.typeConstraint(mapValue.getType()), PredefinedTypes.TYPE_ANYDATA);
     }
 
     @Test
@@ -229,8 +230,8 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
         BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("address"))), BMapType.class);
-        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(getType(mapValue.get(StringUtils.fromString("address")))),
-                BAnydataType.class);
+        TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(mapValue.get(StringUtils.fromString("address")))),
+                PredefinedTypes.TYPE_ANYDATA);
     }
 
     @Test
@@ -248,8 +249,8 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
         BAssertUtil.assertTypeClass(getType(mapValue.get(StringUtils.fromString("address"))), BMapType.class);
-        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(getType(mapValue.get(StringUtils.fromString("address")))),
-                BAnydataType.class);
+        TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(mapValue.get(StringUtils.fromString("address")))),
+                PredefinedTypes.TYPE_ANYDATA);
     }
 
     @Test

@@ -170,7 +170,11 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String getModuleNameToString() {
-        return type.getPackage().getName() == null ? "" : " " + type.getName() + " ";
+        Module pkg = type.getPkg();
+        if (pkg == null) {
+            return "";
+        }
+        return pkg.getName() == null ? "" : " " + type.getName() + " ";
     }
 
     private String getDetailsToBalString(BLink parent) {

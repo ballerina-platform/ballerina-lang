@@ -94,10 +94,12 @@ public abstract class BType implements Type, ProperSubTypeData, BTypeComponent {
             return true;
         }
 
-        if (obj instanceof BType) {
-            BType other = (BType) obj;
+        if (obj instanceof BType other) {
 
-            if (!this.typeName.equals(other.getName())) {
+            if (this.typeName == null) {
+                return other.typeName == null;
+            }
+            if (!this.typeName.equals(other.typeName)) {
                 return false;
             }
 

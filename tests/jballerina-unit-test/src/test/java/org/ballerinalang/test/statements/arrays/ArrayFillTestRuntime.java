@@ -41,7 +41,7 @@ public class ArrayFillTestRuntime {
 
     @Test
     public void runtimeArrayFillTest() {
-        BRunUtil.runMain(compileResult, new String[]{});
+        BRunUtil.runMain(compileResult);
     }
 
     @AfterClass

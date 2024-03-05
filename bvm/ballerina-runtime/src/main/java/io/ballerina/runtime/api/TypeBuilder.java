@@ -39,7 +39,6 @@ import io.ballerina.runtime.internal.types.BIntegerType;
 import io.ballerina.runtime.internal.types.BIteratorType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BNeverType;
-import io.ballerina.runtime.internal.types.BNullType;
 import io.ballerina.runtime.internal.types.BReadonlyType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BStreamType;
@@ -47,6 +46,7 @@ import io.ballerina.runtime.internal.types.BStringType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlAttributesType;
@@ -70,6 +70,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 
 public final class TypeBuilder {
 
+    public static final BSemType PURE_B_TYPE = SemTypeUtils.SemTypeBuilder.from(SemTypeUtils.UniformTypeCodes.UT_BTYPE);
     private TypeBuilder() {
     }
 
@@ -81,13 +82,27 @@ public final class TypeBuilder {
         if (type instanceof BSemType semType) {
             return semType;
         }
+        if (type instanceof BUnionType unionType) {
+            // TODO: not sure if this needs ordered members
+            BSemType semType = unionFrom(unionType.getName(), unionType.getPackage(), unionType.getMemberTypes());
+//            if (unionType.isCyclic()) {
+//                semType.addCyclicMembers(List.of());
+//            }
+            return semType;
+        }
+        if (type instanceof BTypeReferenceType referenceType) {
+            return wrap(referenceType.getReferredType());
+        }
+//        if (type instanceof BIntersectionType intersectionType) {
+//            return wrap(intersectionType.getEffectiveType());
+//        }
         return SemTypeUtils.SemTypeBuilder.from((BType) type);
     }
 
     public static <T extends Type> T unwrap(Type type) {
         Type innerType = type;
         while (innerType instanceof BSemType semType) {
-            innerType = semType.getInnerType();
+            innerType = semType.getBType();
         }
         return (T) innerType;
     }
@@ -172,9 +187,6 @@ public final class TypeBuilder {
 
     // Type operations
     public static Type intersect(Type type1, Type type2) {
-        if (type1 instanceof BSemType || type2 instanceof BSemType) {
-            return intersect(unwrap(type1), unwrap(type2));
-        }
         if (isReadonly(type1) || isReadonly(type2)) {
             Type other = isReadonly(type1) ? type2 : type1;
             return toReadonlyType(other);
@@ -204,7 +216,7 @@ public final class TypeBuilder {
             result.setOrderedUnionMembers(new Type[]{type1, type2});
             return result;
         }
-        throw new RuntimeException("unexpected union");
+        return union(wrap(type1), wrap(type2));
     }
 
     static Type unionFrom(Collection<Type> types) {
@@ -238,9 +250,12 @@ public final class TypeBuilder {
 
     static BSemType unionFrom(String name, Module module, Collection<Type> members) {
         Iterator<Type> it = members.iterator();
+        if (!it.hasNext()) {
+            return (BSemType) TypeCache.TYPE_NEVER;
+        }
         Type first = it.next();
         if (!it.hasNext()) {
-            return (BSemType) first;
+            return wrap(first);
         }
         Type second = it.next();
         List<Type> rest = new ArrayList<>();
@@ -550,7 +565,8 @@ public final class TypeBuilder {
         public static final Type TYPE_TYPEDESC = wrap(new BTypedescType(TypeConstants.TYPEDESC_TNAME, EMPTY_MODULE));
         public static final Type TYPE_MAP = wrap(new BMapType(TypeConstants.MAP_TNAME, TYPE_ANY, EMPTY_MODULE));
         public static final Type TYPE_FUTURE = wrap(new BFutureType(TypeConstants.FUTURE_TNAME, EMPTY_MODULE));
-        public static final Type TYPE_NULL = wrap(new BNullType(TypeConstants.NULL_TNAME, EMPTY_MODULE));
+        //        public static final Type TYPE_NULL = wrap(new BNullType(TypeConstants.NULL_TNAME, EMPTY_MODULE));
+        public static final Type TYPE_NULL = SemTypeUtils.SemTypeBuilder.from(SemTypeUtils.UniformTypeCodes.UT_NIL);
         public static final Type TYPE_NEVER = wrap(new BNeverType(EMPTY_MODULE));
         public static final Type TYPE_XML_ATTRIBUTES =
                 wrap(new BXmlAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, EMPTY_MODULE));
@@ -654,7 +670,9 @@ public final class TypeBuilder {
             TYPE_DETAIL = wrap(new BMapType(TypeConstants.MAP_TNAME, TYPE_CLONEABLE, EMPTY_MODULE));
             TYPE_ERROR_DETAIL = wrap(ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_DETAIL));
             TYPE_ERROR = wrap(new BErrorType(TypeConstants.ERROR, EMPTY_MODULE, TYPE_DETAIL));
-            ANY_AND_READONLY_OR_ERROR_TYPE = wrap(union(ANY_AND_READONLY_TYPE, TYPE_ERROR));
+            BSemType anyAndReadonlyType = wrap(union(ANY_AND_READONLY_TYPE, TYPE_ERROR));
+            anyAndReadonlyType.setReadonly(true);
+            ANY_AND_READONLY_OR_ERROR_TYPE = anyAndReadonlyType;
         }
 
         // public type JsonDecimal ()|boolean|string|decimal|JsonDecimal[]|map<JsonDecimal>;

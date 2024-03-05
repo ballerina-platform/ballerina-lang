@@ -1109,21 +1109,22 @@ public class JvmTypeGen {
 
         // Load the effective type of the intersection.
         loadType(mv, bType.effectiveType);
-        String expectedType =
-                bType.effectiveType instanceof SelectivelyImmutableReferenceType ? INTERSECTABLE_REFERENCE_TYPE : TYPE;
-        unwrapType(mv, expectedType);
+//        String expectedType =
+//                bType.effectiveType instanceof SelectivelyImmutableReferenceType ? INTERSECTABLE_REFERENCE_TYPE : TYPE;
+//        unwrapType(mv, expectedType);
 
         // Load type flags.
         mv.visitLdcInsn(typeFlag(bType));
 
         loadReadonlyFlag(mv, bType);
-        String effectiveTypeClass;
-        if (bType.effectiveType instanceof SelectivelyImmutableReferenceType) {
-            effectiveTypeClass = INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE;
-        } else {
-            effectiveTypeClass = INIT_INTERSECTION_TYPE_WITH_TYPE;
-        }
-        mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE_IMPL, JVM_INIT_METHOD, effectiveTypeClass, false);
+//        String effectiveTypeClass;
+//        if (bType.effectiveType instanceof SelectivelyImmutableReferenceType) {
+//            effectiveTypeClass = INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE;
+//        } else {
+//            effectiveTypeClass = INIT_INTERSECTION_TYPE_WITH_TYPE;
+//        }
+        mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE_IMPL, JVM_INIT_METHOD, INIT_INTERSECTION_TYPE_WITH_TYPE,
+                false);
         wrapType(mv);
     }
 

@@ -37,7 +37,8 @@ public class CreateImmutableType {
     public static BTable createTableWithKeySpecifier(BTable immutableTable, BTypedesc tableType) {
         TableType type = unwrap(TypeUtils.getImpliedType(tableType.getDescribingType()));
         BTable tbl = new TableValueImpl(type,
-                new ArrayValueImpl(((TableType) TypeUtils.getImpliedType(immutableTable.getType())).getFieldNames(),
+                new ArrayValueImpl(
+                        ((TableType) unwrap(TypeUtils.getImpliedType(immutableTable.getType()))).getFieldNames(),
                         false));
         return tbl;
     }

@@ -21,6 +21,7 @@
 
 package io.ballerina.runtime.internal;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
@@ -29,6 +30,7 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BFutureType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BParameterizedType;
@@ -36,19 +38,28 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
+import io.ballerina.runtime.internal.types.semType.BSemType;
+import io.ballerina.runtime.internal.types.semType.BTypeComponent;
+import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
 import io.ballerina.runtime.internal.values.MapValue;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 
 // TODO: type utils factor these to a separate protected class
 public class TypeHelper {
@@ -69,6 +80,8 @@ public class TypeHelper {
             return tableType.getConstrainedType();
         } else if (unwrappedType instanceof BStreamType streamType) {
             return streamType.getConstrainedType();
+        } else if (unwrappedType instanceof BFutureType futureType) {
+            return futureType.getConstrainedType();
         }
         throw new UnsupportedOperationException("Type constraint not supported for type: " + type);
     }
@@ -148,18 +161,85 @@ public class TypeHelper {
     }
 
     public static Type effectiveType(Type type) {
-        BIntersectionType intersectionType = unwrap(type);
+        if (type instanceof BIntersectionType intersectionType) {
+            return intersectionType.getEffectiveType();
+        }
+        // TODO: figure out a better workaround for this currently this is exploiting the fact that BType component is
+        // the original intersection type
+        BSemType semType = (BSemType) type;
+        BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[UT_BTYPE];
+        BIntersectionType intersectionType = (BIntersectionType) bTypeComponent.getBTypeComponent();
         return intersectionType.getEffectiveType();
+        // This causes an stack overflow (TODO: fix this)
+//        List<Type> members = new ArrayList<>(N_TYPES);
+//        for (int i = 0; i < N_TYPES; i++) {
+//            if (semType.all.get(i)) {
+//                members.add(fromUniformType(i));
+//            }
+//            if (semType.some.get(i)) {
+//                // FIXME: when we have proper subtypes we should handle it here
+//                // I think it is best to introduce an interface that convert type component to a Type
+//                BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[i];
+//                members.add(bTypeComponent.getBTypeComponent());
+//            }
+//        }
+//        Iterator<Type> it = members.iterator();
+//        if (!it.hasNext()) {
+//            return PredefinedTypes.TYPE_NEVER;
+//        }
+//        Type t1 = it.next();
+//        if (!it.hasNext()) {
+//            return t1;
+//        }
+//        Type t2 = it.next();
+//        Type[] rest = it.hasNext() ? members.subList(1, members.size()).toArray(new Type[0]) : new Type[0];
+//        return TypeBuilder.union(t1, t2, rest);
     }
 
     public static List<Type> constituentTypes(Type type) {
+        // SemType don't have a concept of "constituent types". For union types how ever this simply translate to
+        // all the positive subtypes (TODO: haven't think about negative). However we can't breakup BIntesection type
+        // the same way Instead we are going to simulate the same behaviour as BInterSection Type using fallowing
+        // invariants (enforced by how we create SemType in SemTypeUtils)
+        // 1. Any member that is implemented by the semtypes will be now properly represented as either a some or all
+        // 2. Whole intersection will be the BIntersection type (TODO: ideally we should create a new object with just
+        // the remining parts, so far haven't caused problems)
+        if (type instanceof BSemType semType) {
+            List<Type> members = new ArrayList<>();
+            for (int i = 0; i < SemTypeUtils.UniformTypeCodes.N_TYPES; i++) {
+                if (semType.all.get(i)) {
+                    // TODO: make this cleaner
+                    members.add(fromUniformType(i));
+                }
+            }
+            if (semType.some.get(UT_BTYPE)) {
+                BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[UT_BTYPE];
+                BType bType = bTypeComponent.getBTypeComponent();
+                if (bType instanceof BUnionType bUnionType) {
+                    members.addAll(bUnionType.getMemberTypes());
+                } else if (bType instanceof BIntersectionType intersectionType) {
+                    members.addAll(intersectionType.constituentTypes); // TODO: this is going to add duplicate types
+                } else {
+                    members.add(bType);
+                }
+            }
+            return members;
+        }
         Type unwrappedType = unwrap(type);
         if (unwrappedType instanceof BUnionType unionType) {
-            return unionType.getMemberTypes();
+            return memberList(unionType);
         } else if (unwrappedType instanceof BIntersectionType intersectionType) {
             return intersectionType.getConstituentTypes();
         }
         throw new UnsupportedOperationException("constituent types not supported for type: " + type);
+    }
+
+    private static Type fromUniformType(int typeCode) {
+        return switch (typeCode) {
+            case UT_NEVER -> PredefinedTypes.TYPE_NEVER;
+            case UT_NIL -> PredefinedTypes.TYPE_NULL;
+            default -> throw new UnsupportedOperationException("uniform type not supported for type code: " + typeCode);
+        };
     }
 
     public static Type referredType(Type type) {
@@ -186,8 +266,35 @@ public class TypeHelper {
         private int index = 0;
 
         private MemberTypeIterable(Type type) {
-            BUnionType unionType = unwrap(type);
-            this.memberTypes = unionType.getMemberTypes();
+            memberTypes = new ArrayList<>();
+            Queue<Type> remainingMembers;
+            if (type instanceof BUnionType unionType) {
+                remainingMembers = new LinkedList<>(unionType.getMemberTypes());
+            } else if (type instanceof BSemType semType) {
+                remainingMembers = new LinkedList<>();
+                if (semType.all.get(UT_NIL)) {
+                    remainingMembers.add(PredefinedTypes.TYPE_NULL);
+                }
+                if (semType.some.get(UT_BTYPE)) {
+                    BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[UT_BTYPE];
+                    BType bType = bTypeComponent.getBTypeComponent();
+                    if (bType instanceof BUnionType bUnionType) {
+                        remainingMembers.addAll(bUnionType.getMemberTypes());
+                    } else {
+                        remainingMembers.add(bType);
+                    }
+                }
+            } else {
+                throw new UnsupportedOperationException("member types not supported for type: " + type);
+            }
+            while (!remainingMembers.isEmpty()) {
+                Type member = remainingMembers.poll();
+                if (member instanceof BUnionType uType) {
+                    remainingMembers.addAll(uType.getMemberTypes());
+                } else {
+                    memberTypes.add(member);
+                }
+            }
         }
 
         @Override

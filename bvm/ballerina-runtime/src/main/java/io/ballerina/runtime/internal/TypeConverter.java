@@ -44,7 +44,6 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
-import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -273,7 +272,7 @@ public class TypeConverter {
         int targetTypeTag = targetType.getTag();
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
-                return getConvertibleTypeInTargetUnionType(inputValue, unwrap(targetType), varName,
+                return getConvertibleTypeInTargetUnionType(inputValue, targetType, varName,
                         errors, unresolvedValues, allowNumericConversion);
             case TypeTags.ARRAY_TAG:
                 if (isConvertibleToArrayType(inputValue, unwrap(targetType), unresolvedValues, varName, errors,
@@ -355,11 +354,11 @@ public class TypeConverter {
         return TypeChecker.checkIsLikeType(xmlValue, targetType);
     }
 
-    public static Type getConvertibleTypeInTargetUnionType(Object inputValue, BUnionType targetUnionType,
+    public static Type getConvertibleTypeInTargetUnionType(Object inputValue, Type targetUnionType,
                                                            String varName, List<String> errors,
                                                            Set<TypeValuePair> unresolvedValues,
                                                            boolean allowNumericConversion) {
-        List<Type> memberTypes = targetUnionType.getMemberTypes();
+        List<Type> memberTypes = TypeHelper.constituentTypes(targetUnionType);
         if (TypeChecker.isStructuredType(getType(inputValue))) {
             return getConvertibleStructuredTypeInUnion(inputValue, varName, errors,
                     unresolvedValues, allowNumericConversion, memberTypes);

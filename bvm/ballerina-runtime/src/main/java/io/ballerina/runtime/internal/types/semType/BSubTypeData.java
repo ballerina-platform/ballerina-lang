@@ -132,7 +132,8 @@ public class BSubTypeData implements ProperSubTypeData, BTypeComponent {
     @Override
     public BType getBTypeComponent() {
         if (bType == null) {
-            boolean isReadonly = readonly != null ? readonly : members.stream().allMatch(Type::isReadOnly);
+            // TODO: this is common code factor it
+            boolean isReadonly = readonly != null ? readonly : false;
             List<Type> memberList = new ArrayList<>(members);
             BUnionType unionType = switch (typeClass) {
                 case BUnionType -> new BUnionType(memberList, isReadonly);
@@ -153,7 +154,7 @@ public class BSubTypeData implements ProperSubTypeData, BTypeComponent {
     @Override
     public BType getBTypeComponent(String name, Module module) {
         if (bType == null) {
-            boolean isReadonly = readonly != null ? readonly : members.stream().allMatch(Type::isReadOnly);
+            boolean isReadonly = readonly != null ? readonly : false;
             List<Type> memberList = new ArrayList<>(members);
             BUnionType unionType = switch (typeClass) {
                 case BUnionType -> new BUnionType(name, module, memberList, isReadonly);

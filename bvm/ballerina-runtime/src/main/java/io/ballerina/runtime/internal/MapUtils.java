@@ -74,7 +74,6 @@ public class MapUtils {
             // `initialValue` is only true if this is an update for a field provided in the mapping constructor
             // expression.
             if (!initialValue && SymbolFlags.isFlagOn(recField.getFlags(), SymbolFlags.READONLY)) {
-
                 throw ErrorCreator.createError(
                         getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                         ErrorHelper.getErrorDetails(ErrorCodes.RECORD_INVALID_READONLY_FIELD_UPDATE,

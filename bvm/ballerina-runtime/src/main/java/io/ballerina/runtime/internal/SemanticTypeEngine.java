@@ -18,13 +18,18 @@
 
 package io.ballerina.runtime.internal;
 
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
+import io.ballerina.runtime.internal.types.BType;
+import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.semType.BSemType;
+import io.ballerina.runtime.internal.types.semType.BSubTypeData;
 import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
 
 import java.util.ArrayList;
@@ -39,6 +44,8 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.wrap;
+import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 
 // TODO: once we have properly implemented semtypes we can inline this again in to TypeChecker
 class SemanticTypeEngine {
@@ -47,32 +54,31 @@ class SemanticTypeEngine {
         return checkIsType(null, sourceVal, getType(sourceVal), targetType);
     }
 
+    static <T extends BType> T getBTypePart(BSemType semType) {
+        return unwrap(SemTypeUtils.TypeOperation.intersection(semType, TypeBuilder.PURE_B_TYPE));
+    }
+
     static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
-        if (sourceType instanceof BSemType sourceSemType && targetType instanceof BSemType targetSemType) {
-            return switch (isSubType(sourceSemType, targetSemType)) {
-                case TRUE -> true;
-                case FALSE -> false;
-                case UNDEFINED -> SyntacticTypeEngine.checkIsType(errors, sourceVal,
-                        sourceSemType.getBTypeComponent(),
-                        targetSemType.getBTypeComponent());
-            };
-        }
-//        throw new RuntimeException("unwrapped type");
-        return SyntacticTypeEngine.checkIsType(errors, sourceVal, unwrap(sourceType), unwrap(targetType));
+        BSemType sourceSemType = wrap(sourceType);
+        BSemType targetSemType = wrap(targetType);
+        return switch (isSubType(sourceSemType, targetSemType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            case UNDEFINED -> SyntacticTypeEngine.checkIsType(errors, sourceVal, getBTypePart(sourceSemType),
+                    getBTypePart(targetSemType));
+        };
     }
 
     static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,
                                List<TypeChecker.TypePair> unresolvedTypes) {
-        if (sourceType instanceof BSemType sourceSemType && targetType instanceof BSemType targetSemType) {
-            return switch (isSubType(sourceSemType, targetSemType)) {
-                case TRUE -> true;
-                case FALSE -> false;
-                case UNDEFINED -> SyntacticTypeEngine.checkIsType(sourceVal,
-                        sourceSemType.getBTypeComponent(),
-                        targetSemType.getBTypeComponent(), unresolvedTypes);
-            };
-        }
-        return SyntacticTypeEngine.checkIsType(sourceVal, unwrap(sourceType), unwrap(targetType), unresolvedTypes);
+        BSemType sourceSemType = wrap(getImpliedType(sourceType));
+        BSemType targetSemType = wrap(getImpliedType(targetType));
+        return switch (isSubType(sourceSemType, targetSemType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            case UNDEFINED -> SyntacticTypeEngine.checkIsType(sourceVal,
+                    getBTypePart(sourceSemType), getBTypePart(targetSemType), unresolvedTypes);
+        };
     }
 
     static boolean checkIsType(Type sourceType, Type targetType) {
@@ -80,28 +86,25 @@ class SemanticTypeEngine {
     }
 
     static boolean checkIsType(Type sourceType, Type targetType, List<TypeChecker.TypePair> unresolvedTypes) {
-        if (sourceType instanceof BSemType sourceSemType && targetType instanceof BSemType targetSemType) {
-            return switch (isSubType(sourceSemType, targetSemType)) {
-                case TRUE -> true;
-                case FALSE -> false;
-                case UNDEFINED -> SyntacticTypeEngine.checkIsType(sourceSemType.getBTypeComponent(),
-                        targetSemType.getBTypeComponent(), unresolvedTypes);
-            };
-        }
-        return SyntacticTypeEngine.checkIsType(unwrap(sourceType), unwrap(targetType), unresolvedTypes);
+        BSemType sourceSemType = wrap(sourceType);
+        BSemType targetSemType = wrap(targetType);
+        return switch (isSubType(sourceSemType, targetSemType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            case UNDEFINED -> SyntacticTypeEngine.checkIsType(getBTypePart(sourceSemType), getBTypePart(targetSemType),
+                    unresolvedTypes);
+        };
     }
 
     static boolean isSameType(Type sourceType, Type targetType) {
-        if (sourceType instanceof BSemType sourceSemType && targetType instanceof BSemType targetSemType) {
-            return switch (isSubType(sourceSemType, targetSemType)) {
-                // if we got a boolean once we can't get undefined other way round
-                case TRUE -> isSubType(targetSemType, sourceSemType) == SubTypeCheckResult.TRUE;
-                case FALSE -> false;
-                case UNDEFINED -> SyntacticTypeEngine.isSameType(sourceSemType.getBTypeComponent(),
-                        targetSemType.getBTypeComponent());
-            };
-        }
-        return SyntacticTypeEngine.isSameType(unwrap(sourceType), unwrap(targetType));
+        BSemType sourceSemType = wrap(sourceType);
+        BSemType targetSemType = wrap(targetType);
+        return switch (isSubType(sourceSemType, targetSemType)) {
+            // if we got a boolean once we can't get undefined other way round
+            case TRUE -> isSubType(targetSemType, sourceSemType) == SubTypeCheckResult.TRUE;
+            case FALSE -> false;
+            case UNDEFINED -> SyntacticTypeEngine.isSameType(getBTypePart(sourceSemType), getBTypePart(targetSemType));
+        };
     }
 
     enum SubTypeCheckResult {
@@ -165,6 +168,11 @@ class SemanticTypeEngine {
         return ((BValue) value).getType();
     }
 
+    static SubTypeCheckResult checkIsLikeTypeInner(Object sourceValue, BSemType targetType) {
+        BSemType sourceType = wrap(getType(sourceValue));
+        return isSubType(sourceType, targetType);
+    }
+
     static boolean checkIsLikeType(Object sourceValue, Type targetType, boolean allowNumericConversion) {
         return checkIsLikeType(null, sourceValue, targetType, new ArrayList<>(), allowNumericConversion,
                 null);
@@ -173,54 +181,93 @@ class SemanticTypeEngine {
     static boolean checkIsLikeType(List<String> errors, Object sourceValue, Type targetType,
                                    List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
                                    String varName) {
-        return switch (targetType.getTag()) {
-            case TypeTags.UNION_TAG -> SyntacticTypeEngine.checkIsLikeUnionType(
-                    errors, sourceValue, unwrap(targetType), unresolvedValues, allowNumericConversion, varName);
-            default -> SyntacticTypeEngine.checkIsLikeType(errors, sourceValue, unwrap(targetType), unresolvedValues,
-                    allowNumericConversion, varName);
+        BSemType targetSemType = wrap(targetType);
+        return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            default -> {
+                BType bTypePart = getBTypePart(targetSemType);
+                if (bTypePart.getTag() == TypeTags.UNION_TAG) {
+                    yield SyntacticTypeEngine.checkIsLikeUnionType(
+                            errors, sourceValue, (BUnionType) bTypePart, unresolvedValues,
+                            allowNumericConversion, varName);
+                } else {
+                    // TODO: we need to pass in the target type itself since this try to type check against the value
+                    // type. Decided to keep this in semantic type check for the time will revisit this when doing
+                    // records
+                    yield SyntacticTypeEngine.checkIsLikeType(errors, sourceValue, targetType, unresolvedValues,
+                            allowNumericConversion, varName);
+                }
+            }
         };
     }
 
     static boolean checkIsLikeType(Object sourceValue, Type targetType, List<TypeValuePair> unresolvedValues,
                                    boolean allowNumericConversion) {
-        return switch (targetType.getTag()) {
-            case TypeTags.TABLE_TAG -> SyntacticTypeEngine.TableTypeChecker.checkIsLikeTableType(
-                    sourceValue, unwrap(targetType), unresolvedValues, allowNumericConversion);
-            case TypeTags.MAP_TAG -> SyntacticTypeEngine.MapTypeChecker.checkIsLikeMapType(
-                    sourceValue, unwrap(targetType), unresolvedValues, allowNumericConversion);
-            case TypeTags.ARRAY_TAG -> SyntacticTypeEngine.ListTypeChecker.checkIsLikeArrayType(
-                    sourceValue, unwrap(targetType), unresolvedValues, allowNumericConversion);
-            case TypeTags.TUPLE_TAG -> SyntacticTypeEngine.ListTypeChecker.checkIsLikeTupleType(
-                    sourceValue, unwrap(targetType), unresolvedValues, allowNumericConversion);
-            case TypeTags.ERROR_TAG -> SyntacticTypeEngine.ErrorTypeChecker.checkIsLikeErrorType(
-                    sourceValue, unwrap(targetType), unresolvedValues, allowNumericConversion);
-            default -> throw new UnsupportedOperationException("Type is not supported: " + targetType);
+        BSemType targetSemType = wrap(targetType);
+        return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            default -> switch (targetType.getTag()) {
+                case TypeTags.TABLE_TAG -> SyntacticTypeEngine.TableTypeChecker.checkIsLikeTableType(
+                        sourceValue, getBTypePart(targetSemType), unresolvedValues, allowNumericConversion);
+                case TypeTags.MAP_TAG -> SyntacticTypeEngine.MapTypeChecker.checkIsLikeMapType(
+                        sourceValue, getBTypePart(targetSemType), unresolvedValues, allowNumericConversion);
+                case TypeTags.ARRAY_TAG -> SyntacticTypeEngine.ListTypeChecker.checkIsLikeArrayType(
+                        sourceValue, getBTypePart(targetSemType), unresolvedValues, allowNumericConversion);
+                case TypeTags.TUPLE_TAG -> SyntacticTypeEngine.ListTypeChecker.checkIsLikeTupleType(
+                        sourceValue, getBTypePart(targetSemType), unresolvedValues, allowNumericConversion);
+                case TypeTags.ERROR_TAG -> SyntacticTypeEngine.ErrorTypeChecker.checkIsLikeErrorType(
+                        sourceValue, getBTypePart(targetSemType), unresolvedValues, allowNumericConversion);
+                default -> throw new UnsupportedOperationException("Type is not supported: " + targetType);
+            };
         };
     }
 
     static boolean checkIsLikeType(Object sourceValue, Type targetType, List<TypeValuePair> unresolvedValues,
                                    boolean allowNumericConversion, String varName, List<String> errors) {
-        return switch (targetType.getTag()) {
-            case TypeTags.RECORD_TYPE_TAG -> SyntacticTypeEngine.MapTypeChecker.checkIsLikeRecordType(
-                    sourceValue, unwrap(targetType), unresolvedValues, allowNumericConversion, varName, errors);
-            default -> throw new UnsupportedOperationException("Type is not supported: " + targetType);
+        BSemType targetSemType = wrap(targetType);
+        return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            default -> switch (targetType.getTag()) {
+                case TypeTags.RECORD_TYPE_TAG -> SyntacticTypeEngine.MapTypeChecker.checkIsLikeRecordType(
+                        sourceValue, getBTypePart(targetSemType), unresolvedValues, allowNumericConversion, varName,
+                        errors);
+                default -> throw new UnsupportedOperationException("Type is not supported: " + targetType);
+            };
         };
     }
 
     static boolean checkIsLikeType(Object sourceValue, Type sourceType, Type targetType,
                                    List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        return switch (targetType.getTag()) {
-            case TypeTags.JSON_TAG -> SyntacticTypeEngine.MapTypeChecker.checkIsLikeJSONType(
-                    sourceValue, unwrap(sourceType), unwrap(targetType), unresolvedValues, allowNumericConversion);
-            default -> throw new UnsupportedOperationException("Type is not supported: " + targetType);
+        BSemType targetSemType = wrap(targetType);
+        if (targetType.getTag() == TypeTags.JSON_TAG) {
+            targetSemType.setBTypeClass(BSubTypeData.BTypeClass.BJson);
+        }
+        BSemType sourceSemType = wrap(getType(sourceValue));
+        return switch (isSubType(sourceSemType, targetSemType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            default -> switch (targetType.getTag()) {
+                case TypeTags.JSON_TAG -> SyntacticTypeEngine.MapTypeChecker.checkIsLikeJSONType(
+                        sourceValue, getBTypePart(sourceSemType), getBTypePart(targetSemType), unresolvedValues,
+                        allowNumericConversion);
+                default -> throw new UnsupportedOperationException("Type is not supported: " + targetType);
+            };
         };
     }
 
     static boolean checkIsLikeType(Object sourceValue, Type targetType) {
-        return switch (targetType.getTag()) {
-            case TypeTags.STREAM_TAG -> SyntacticTypeEngine.StreamTypeChecker.checkIsLikeStreamType(
-                    sourceValue, unwrap(targetType));
-            default -> checkIsLikeType(sourceValue, targetType, false);
+        BSemType targetSemType = wrap(targetType);
+        return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            default -> switch (targetType.getTag()) {
+                case TypeTags.STREAM_TAG -> SyntacticTypeEngine.StreamTypeChecker.checkIsLikeStreamType(
+                        sourceValue, getBTypePart(targetSemType));
+                default -> checkIsLikeType(sourceValue, targetType, false);
+            };
         };
     }
 
@@ -230,11 +277,22 @@ class SemanticTypeEngine {
                 unresolvedValues, allowNumericConversion);
     }
 
-    public static boolean isInherentlyImmutableType(Type sourceType) {
-        return SyntacticTypeEngine.isInherentlyImmutableType(unwrap(sourceType));
+    public static boolean isInherentlyImmutableType(Type type) {
+        if (isSimpleBasicType(type)) {
+            return true;
+        }
+        return !(type instanceof BSemType) && SyntacticTypeEngine.isInherentlyImmutableType(unwrap(type));
     }
 
     protected static boolean isSimpleBasicType(Type type) {
+        if (type instanceof BSemType semType) {
+            if (semType.some.isEmpty()) {
+                return semType.all.isEmpty();
+            } else {
+                return semType.all.isEmpty() && SyntacticTypeEngine.isSimpleBasicType(getBTypePart(semType));
+            }
+            // NOTE: null is not a simple basic type
+        }
         return SyntacticTypeEngine.isSimpleBasicType(unwrap(type));
     }
 
@@ -244,10 +302,34 @@ class SemanticTypeEngine {
     }
 
     protected static boolean isNumericType(Type type) {
-        return SyntacticTypeEngine.isNumericType(unwrap(type));
+        BSemType semType = wrap(type);
+        if (!semType.some.get(SemTypeUtils.UniformTypeCodes.UT_BTYPE)) {
+            return false;
+        }
+        return SyntacticTypeEngine.isNumericType(getBTypePart(semType));
     }
 
     public static boolean isSelectivelyImmutableType(Type type, Set<Type> unresolvedTypes) {
+        if (type instanceof BSemType semType) {
+            if (semType.some.isEmpty()) {
+                return false;
+            } else {
+                return SyntacticTypeEngine.isSelectivelyImmutableType(getBTypePart(semType), unresolvedTypes);
+            }
+        }
+        // TODO: can't do this since we are calling this while creating the type builder itself
+//        if (isSameType(type, PredefinedTypes.TYPE_ANY)) {
+//            return true;
+//        }
+//        if (isSameType(type, PredefinedTypes.TYPE_ANYDATA)) {
+//            return true;
+//        }
+//        if (isSameType(type, PredefinedTypes.TYPE_JSON)) {
+//            return true;
+//        }
+//        if (isSameType(type, PredefinedTypes.TYPE_XML)) {
+//            return true;
+//        }
         return SyntacticTypeEngine.isSelectivelyImmutableType(unwrap(type), unresolvedTypes);
     }
 
@@ -262,10 +344,36 @@ class SemanticTypeEngine {
     }
 
     static boolean checkIsJSONType(Type sourceType, List<TypeChecker.TypePair> unresolvedTypes) {
-        return SyntacticTypeEngine.MapTypeChecker.checkIsJSONType(unwrap(sourceType), unresolvedTypes);
+        BSemType sourceSemType = wrap(sourceType);
+        BSemType targetSemType = (BSemType) PredefinedTypes.TYPE_JSON;
+        return switch (isSubType(sourceSemType, targetSemType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            case UNDEFINED ->
+                    SyntacticTypeEngine.MapTypeChecker.checkIsJSONType(getBTypePart(sourceSemType), unresolvedTypes);
+        };
     }
 
     static boolean isFiniteTypeMatch(Type sourceType, Type targetType) {
-        return SyntacticTypeEngine.isFiniteTypeMatch(unwrap(sourceType), unwrap(targetType));
+        BSemType sourceSemType = wrap(sourceType);
+        BSemType targetSemType = wrap(targetType);
+        return switch (isSubType(sourceSemType, targetSemType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            case UNDEFINED ->
+                    SyntacticTypeEngine.isFiniteTypeMatch(getBTypePart(sourceSemType), getBTypePart(targetSemType));
+        };
+    }
+
+    static boolean hasFillerValue(Type type) {
+        BSemType semType = wrap(type);
+        if (semType.all.cardinality() > 0) {
+            return true;
+        }
+        return SyntacticTypeEngine.hasFillerValue(type, new ArrayList<>());
+    }
+
+    static Object handleAnydataValues(Object sourceVal, Type targetType) {
+        return SyntacticTypeEngine.handleAnydataValues(sourceVal, targetType);
     }
 }

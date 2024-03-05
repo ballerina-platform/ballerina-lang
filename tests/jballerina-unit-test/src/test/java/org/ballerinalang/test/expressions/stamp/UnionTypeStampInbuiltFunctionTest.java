@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.expressions.stamp;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
@@ -24,8 +25,8 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeHelper;
-import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStringType;
@@ -82,7 +83,8 @@ public class UnionTypeStampInbuiltFunctionTest {
 
         Assert.assertEquals(employee0.size(), 4);
         Assert.assertEquals(getType(employee0).getClass(), BMapType.class);
-        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(employee0.getType()), BJsonType.class);
+        Assert.assertTrue(
+                TypeChecker.checkIsType(TypeHelper.typeConstraint(employee0.getType()), PredefinedTypes.TYPE_JSON));
 
         Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
         BAssertUtil.assertTypeClass(getType(employee0.get(StringUtils.fromString("batch"))), BStringType.class);

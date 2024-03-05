@@ -21,31 +21,18 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.flags.SymbolFlags;
-import io.ballerina.runtime.api.types.ArrayType.ArrayState;
-import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.FunctionType;
-import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.TypeUtils;
-import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
-import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
-import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.types.BObjectType;
-import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
-import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
@@ -63,7 +50,6 @@ import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +66,6 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_SIGNED_8;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_16;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_32;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_8;
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALUE;
@@ -1032,262 +1017,9 @@ public class TypeChecker {
      * @return whether there's an implicit initial value or not.
      */
     public static boolean hasFillerValue(Type type) {
-        return hasFillerValue(type, new ArrayList<>());
+        return SemanticTypeEngine.hasFillerValue(type);
     }
 
-    private static boolean hasFillerValue(Type type, List<Type> unanalyzedTypes) {
-        if (type == null) {
-            return true;
-        }
-
-        int typeTag = type.getTag();
-        if (TypeTags.isXMLTypeTag(typeTag)) {
-            return typeTag == TypeTags.XML_TAG || typeTag == TypeTags.XML_TEXT_TAG;
-        }
-
-        if (typeTag < TypeTags.RECORD_TYPE_TAG &&
-                !(typeTag == TypeTags.CHAR_STRING_TAG || typeTag == TypeTags.NEVER_TAG)) {
-            return true;
-        }
-        switch (typeTag) {
-            case TypeTags.STREAM_TAG:
-            case TypeTags.MAP_TAG:
-            case TypeTags.ANY_TAG:
-                return true;
-            case TypeTags.ARRAY_TAG:
-                return checkFillerValue((BArrayType) unwrap(type), unanalyzedTypes);
-            case TypeTags.FINITE_TYPE_TAG:
-                return checkFillerValue((BFiniteType) unwrap(type));
-            case TypeTags.OBJECT_TYPE_TAG:
-            case TypeTags.SERVICE_TAG:
-                return checkFillerValue((BObjectType) unwrap(type));
-            case TypeTags.RECORD_TYPE_TAG:
-                return checkFillerValue((BRecordType) unwrap(type), unanalyzedTypes);
-            case TypeTags.TUPLE_TAG:
-                return checkFillerValue((BTupleType) unwrap(type), unanalyzedTypes);
-            case TypeTags.UNION_TAG:
-                return checkFillerValue((BUnionType) unwrap(type), unanalyzedTypes);
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return hasFillerValue(((BTypeReferenceType) unwrap(type)).getReferredType(),
-                        unanalyzedTypes);
-            case TypeTags.INTERSECTION_TAG:
-                return hasFillerValue(((BIntersectionType) unwrap(type)).getEffectiveType(),
-                        unanalyzedTypes);
-            default:
-                return false;
-        }
-    }
-
-    private static boolean checkFillerValue(BTupleType tupleType, List<Type> unAnalyzedTypes) {
-        if (unAnalyzedTypes.contains(tupleType)) {
-            return true;
-        }
-        unAnalyzedTypes.add(tupleType);
-
-        for (Type member : tupleType.getTupleTypes()) {
-            if (!hasFillerValue(member, unAnalyzedTypes)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean checkFillerValue(BUnionType type, List<Type> unAnalyzedTypes) {
-        if (unAnalyzedTypes.contains(type)) {
-            return true;
-        }
-        unAnalyzedTypes.add(type);
-
-        // NIL is a member.
-        if (type.isNullable()) {
-            return true;
-        }
-        return isSameBasicTypeWithFillerValue(type.getMemberTypes());
-    }
-
-    private static boolean isSameBasicTypeWithFillerValue(List<Type> memberTypes) {
-
-        // here finite types and non finite types are separated
-        // for finite types only all their value space items are collected
-        List<Type> nonFiniteTypes = new ArrayList<>();
-        Set<Object> combinedValueSpace = new HashSet<>();
-        for (Type memberType : memberTypes) {
-            Type referredType = getImpliedType(memberType);
-            if (referredType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-                combinedValueSpace.addAll(((BFiniteType) referredType).getValueSpace());
-            } else {
-                nonFiniteTypes.add(referredType);
-            }
-        }
-
-        if (nonFiniteTypes.isEmpty()) {
-            // only finite types are there, so the check narrows to one finite type like
-            // case
-            return hasFillerValueInValueSpace(combinedValueSpace);
-        } else {
-            // non finite types are available
-            Iterator<Type> iterator = nonFiniteTypes.iterator();
-            Type firstMember = iterator.next();
-
-            // non finite types are checked whether they are the same type
-            Type nextMember;
-            while (iterator.hasNext()) {
-                nextMember = iterator.next();
-                if (!isSameBasicType(firstMember, nextMember)) {
-                    return false;
-                }
-            }
-
-            // if no finite types the checking ends here
-            if (combinedValueSpace.isEmpty()) {
-                return hasFillerValue(firstMember);
-            }
-
-            // both finite and non finite types are available
-            // finite types are checked whether they are the type of non finite types
-            if (!containsSameBasicType(firstMember, combinedValueSpace)) {
-                return false;
-            }
-
-            // all members are same basic types
-            // need to check filler value is there
-            if (hasFillerValue(firstMember)) {
-                return true;
-            }
-            return combinedValueSpace.size() == 1
-                    ? isFillerValueOfFiniteTypeBasicType(combinedValueSpace.iterator().next())
-                    : hasFillerValueInValueSpace(combinedValueSpace);
-        }
-    }
-
-    private static boolean isSameBasicType(Type sourceType, Type targetType) {
-        if (isSameType(sourceType, targetType)) {
-            return true;
-        }
-        int sourceTag = getImpliedType(sourceType).getTag();
-        int targetTag = getImpliedType(targetType).getTag();
-        if (TypeTags.isStringTypeTag(sourceTag) && TypeTags.isStringTypeTag(targetTag)) {
-            return true;
-        }
-        if (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) {
-            return true;
-        }
-        return isIntegerSubTypeTag(sourceTag) && isIntegerSubTypeTag(targetTag);
-    }
-
-    private static boolean isIntegerSubTypeTag(int typeTag) {
-        return TypeTags.isIntegerTypeTag(typeTag);
-    }
-
-    private static boolean isFillerValueOfFiniteTypeBasicType(Object value) {
-        switch (value.toString()) {
-            case "0":
-            case "0.0":
-            case "false":
-            case "":
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    private static boolean containsSameBasicType(Type nonFiniteType, Set<Object> finiteTypeValueSpace) {
-        for (Object value : finiteTypeValueSpace) {
-            if (!isSameBasicType(getType(value), nonFiniteType)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean checkFillerValue(BRecordType type, List<Type> unAnalyzedTypes) {
-        if (unAnalyzedTypes.contains(type)) {
-            return true;
-        }
-        unAnalyzedTypes.add(type);
-        for (Field field : type.getFields().values()) {
-            if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) {
-                continue;
-            }
-            if (!SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED)) {
-                continue;
-            }
-            return false;
-        }
-        return true;
-    }
-
-    private static boolean checkFillerValue(BArrayType type, List<Type> unAnalyzedTypes) {
-        return type.getState() == ArrayState.OPEN || hasFillerValue(type.getElementType(), unAnalyzedTypes);
-    }
-
-    private static boolean checkFillerValue(BObjectType type) {
-        MethodType generatedInitMethod = type.getGeneratedInitMethod();
-        if (generatedInitMethod == null) {
-            // abstract objects doesn't have a filler value.
-            return false;
-        }
-        FunctionType initFuncType = generatedInitMethod.getType();
-        boolean noParams = initFuncType.getParameters().length == 0;
-        boolean nilReturn = getImpliedType(initFuncType.getReturnType()).getTag() == TypeTags.NULL_TAG;
-        return noParams && nilReturn;
-
-    }
-
-    private static boolean checkFillerValue(BFiniteType type) {
-        return hasFillerValueInValueSpace(type.getValueSpace());
-    }
-
-    private static boolean hasFillerValueInValueSpace(Set<Object> finiteTypeValueSpace) {
-        // For singleton types, that value is the implicit initial value
-        if (finiteTypeValueSpace.size() == 1) {
-            return true;
-        }
-
-        // Has NIL element as a member.
-        for (Object value : finiteTypeValueSpace) {
-            if (value == null) {
-                return true;
-            }
-        }
-
-        Object firstElement = finiteTypeValueSpace.iterator().next();
-        for (Object value : finiteTypeValueSpace) {
-            if (value.getClass() != firstElement.getClass()) {
-                return false;
-            }
-        }
-
-        if (firstElement instanceof BString) {
-            return containsElement(finiteTypeValueSpace, "");
-        } else if ((firstElement instanceof Integer) || (firstElement instanceof Long) ||
-                (firstElement instanceof BDecimal)) {
-            return containsElement(finiteTypeValueSpace, "0");
-        } else if (firstElement instanceof Double) {
-            return containsElement(finiteTypeValueSpace, "0.0");
-        } else if (firstElement instanceof Boolean) {
-            return containsElement(finiteTypeValueSpace, "false");
-        } else {
-            return false;
-        }
-    }
-
-    private static boolean containsElement(Set<Object> valueSpace, String e) {
-        for (Object value : valueSpace) {
-            if (value != null && value.toString().equals(e)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static Object handleAnydataValues(Object sourceVal, Type targetType) {
-        if (sourceVal != null && !(sourceVal instanceof Number) && !(sourceVal instanceof BString) &&
-                !(sourceVal instanceof Boolean) && !(sourceVal instanceof BValue)) {
-            throw ErrorUtils.createJToBTypeCastError(sourceVal.getClass(), targetType);
-        }
-        return sourceVal;
-    }
 
     private static BError createTypeCastError(Object value, Type targetType, List<String> errors) {
         if ((errors == null) || (errors.isEmpty())) {
@@ -1347,5 +1079,9 @@ public class TypeChecker {
             List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
         return SemanticTypeEngine.checkFiniteTypeAssignable(sourceValue, sourceType, targetType, unresolvedValues,
                 allowNumericConversion);
+    }
+
+    public static Object handleAnydataValues(Object sourceVal, Type targetType) {
+        return SemanticTypeEngine.handleAnydataValues(sourceVal, targetType);
     }
 }

@@ -17,13 +17,14 @@
  */
 package org.ballerinalang.test.expressions.stamp;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeHelper;
-import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -93,7 +94,8 @@ public class AnydataStampInbuiltFunctionTest {
         BMap<String, Object> mapValue0 = (BMap<String, Object>) results;
 
         Assert.assertTrue(TypeBuilder.unwrap(getType(mapValue0)) instanceof BMapType);
-        Assert.assertTrue(TypeBuilder.unwrap(TypeHelper.typeConstraint(getType(mapValue0))) instanceof BJsonType);
+        Assert.assertTrue(
+                TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(mapValue0)), PredefinedTypes.TYPE_JSON));
 
         Assert.assertEquals((mapValue0).size(), 5);
         Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school")).toString(),
@@ -194,7 +196,8 @@ public class AnydataStampInbuiltFunctionTest {
         BMap<String, Object> mapValue = (BMap<String, Object>) results;
 
         Assert.assertTrue(TypeBuilder.unwrap(getType(mapValue)) instanceof BMapType);
-        Assert.assertTrue(TypeBuilder.unwrap(TypeHelper.typeConstraint(getType(mapValue))) instanceof BAnydataType);
+        Assert.assertTrue(
+                TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(mapValue)), PredefinedTypes.TYPE_ANYDATA));
     }
 
     @Test

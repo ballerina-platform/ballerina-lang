@@ -27,6 +27,8 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeHelper;
+import io.ballerina.runtime.internal.types.semType.BSemType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.ArrayList;
@@ -436,11 +438,11 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
 
     public void mergeUnionType(BUnionType unionType) {
         if (!unionType.isCyclic) {
-            this.addMembers(unionType.getMemberTypes().toArray(new Type[0]));
+            this.addMembers(TypeHelper.memberList(unionType).toArray(new Type[0]));
             return;
         }
         this.isCyclic = true;
-        for (Type member : unionType.getMemberTypes()) {
+        for (Type member : TypeHelper.members(unionType)) {
             if (member instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) member;
                 if (TypeUtils.getImpliedType(arrayType.getElementType()) == unionType) {
@@ -487,7 +489,11 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
                 uniqueTypes.add(type);
                 continue;
             }
-
+            if (type instanceof BSemType) {
+                uniqueTypes.add(type);
+                continue;
+            }
+            // FIXME: this should never happen
             BUnionType unionMemType = unwrap(type);
             String typeName = unionMemType.typeName;
             if (typeName != null && !typeName.isEmpty()) {

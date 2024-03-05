@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
@@ -48,6 +49,8 @@ import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
+import io.ballerina.runtime.internal.types.semType.BSemType;
+import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +58,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
@@ -82,27 +86,64 @@ public class ReadOnlyUtils {
     }
 
     public static Type getReadOnlyType(Type type) {
+        if (type instanceof BSemType semType) {
+            return bTypeReadonlyUtilDriver(semType, BTypeReadOnlyUtils::getReadOnlyType);
+        }
         return BTypeReadOnlyUtils.getReadOnlyType(unwrap(type));
     }
 
+    // TODO: these needs to be fixed when we can have non readonly semtypes
+    // TODO: need better names for these
+    private static Type bTypeReadonlyUtilDriver(BSemType semType, Function<BType, Type> fn) {
+        BSemType semTypePart = SemTypeUtils.TypeOperation.diff(semType, TypeBuilder.PURE_B_TYPE);
+        BSemType bTypePart = SemTypeUtils.TypeOperation.intersection(semType, TypeBuilder.PURE_B_TYPE);
+        if (SemTypeUtils.TypeOperation.isEmpty(bTypePart)) {
+            return semTypePart;
+        }
+        Type readonlyBTypePart = fn.apply(unwrap(bTypePart));
+        if (readonlyBTypePart == null) {
+            return SemTypeUtils.TypeOperation.isEmpty(semType) ? PredefinedTypes.TYPE_NEVER : semTypePart;
+        }
+        BSemType lhs = TypeBuilder.wrap(readonlyBTypePart);
+        return SemTypeUtils.TypeOperation.union(lhs, semTypePart);
+    }
+
     public static Type getReadOnlyType(Type type, Set<Type> unresolvedTypes) {
+        if (type instanceof BSemType semType) {
+            return bTypeReadonlyUtilDriver(semType,
+                    bType -> BTypeReadOnlyUtils.getReadOnlyType(bType, unresolvedTypes));
+        }
         return BTypeReadOnlyUtils.getReadOnlyType(unwrap(type), unresolvedTypes);
     }
 
     public static Type setImmutableTypeAndGetEffectiveType(Type type) {
+        if (type instanceof BSemType semType) {
+            return bTypeReadonlyUtilDriver(semType, BTypeReadOnlyUtils::setImmutableTypeAndGetEffectiveType);
+        }
         return BTypeReadOnlyUtils.setImmutableTypeAndGetEffectiveType(unwrap(type));
     }
 
     public static Type setImmutableTypeAndGetEffectiveType(Type type, Set<Type> unresolvedTypes) {
+        if (type instanceof BSemType semType) {
+            return bTypeReadonlyUtilDriver(semType,
+                    bType -> BTypeReadOnlyUtils.setImmutableTypeAndGetEffectiveType(bType, unresolvedTypes));
+        }
         return BTypeReadOnlyUtils.setImmutableTypeAndGetEffectiveType(unwrap(type), unresolvedTypes);
     }
 
     private static Type getAvailableImmutableType(Type type) {
+        if (type instanceof BSemType semType) {
+            return bTypeReadonlyUtilDriver(semType, BTypeReadOnlyUtils::getAvailableImmutableType);
+        }
         return BTypeReadOnlyUtils.getAvailableImmutableType(unwrap(type));
     }
 
 
     private static Type getImmutableType(Type type, Set<Type> unresolvedTypes) {
+        if (type instanceof BSemType semType) {
+            return bTypeReadonlyUtilDriver(semType,
+                    bType -> BTypeReadOnlyUtils.getImmutableType(bType, unresolvedTypes));
+        }
         return BTypeReadOnlyUtils.getImmutableType(unwrap(type), unresolvedTypes);
     }
 
@@ -374,7 +415,7 @@ public class ReadOnlyUtils {
 
                     List<Type> readOnlyMemTypes = new ArrayList<>();
 
-                    for (Type memberType : origUnionType.getMemberTypes()) {
+                    for (Type memberType : TypeHelper.members(origUnionType)) {
                         if (TypeChecker.isInherentlyImmutableType(memberType)) {
                             readOnlyMemTypes.add(memberType);
                             continue;

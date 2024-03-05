@@ -17,12 +17,13 @@
  */
 package org.ballerinalang.test.expressions.stamp;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeHelper;
-import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStringType;
@@ -147,7 +148,7 @@ public class TupleTypeStampInbuiltFunctionTest {
         BAssertUtil.assertTypeClass(getType(tupleValue1), BStringType.class);
 
         BAssertUtil.assertTypeClass(getType(tupleValue2), BMapType.class);
-        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(getType(tupleValue2)), BAnydataType.class);
+        TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(tupleValue2)), PredefinedTypes.TYPE_ANYDATA);
     }
 
     @Test

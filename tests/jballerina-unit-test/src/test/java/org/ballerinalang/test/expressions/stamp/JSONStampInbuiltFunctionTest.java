@@ -17,16 +17,16 @@
  */
 package org.ballerinalang.test.expressions.stamp;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeHelper;
-import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BErrorType;
-import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStringType;
@@ -110,7 +110,8 @@ public class JSONStampInbuiltFunctionTest {
         BMap<String, Object> mapValue0 = (BMap<String, Object>) results;
 
         BAssertUtil.assertTypeClass(mapValue0.getType(), BMapType.class);
-        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(mapValue0.getType()), BJsonType.class);
+        Assert.assertTrue(
+                TypeChecker.checkIsType(TypeHelper.typeConstraint(mapValue0.getType()), PredefinedTypes.TYPE_JSON));
 
         Assert.assertEquals((mapValue0).size(), 4);
     }
@@ -166,7 +167,7 @@ public class JSONStampInbuiltFunctionTest {
         BAssertUtil.assertTypeClass(getType(results.get(2)), BStringType.class);
         Assert.assertEquals((((BMap) results.get(3))).size(), 2);
         BAssertUtil.assertTypeClass(getType(results.get(3)), BMapType.class);
-        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(getType(results.get(3))), BAnydataType.class);
+        TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(results.get(3))), PredefinedTypes.TYPE_ANYDATA);
     }
 
     @Test
@@ -181,7 +182,7 @@ public class JSONStampInbuiltFunctionTest {
 
         Object results = BRunUtil.invoke(compileResult, "stampJSONToAnydataV3");
         BAssertUtil.assertTypeClass(getType(results), BMapType.class);
-        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(getType(results)), BAnydataType.class);
+        TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(results)), PredefinedTypes.TYPE_ANYDATA);
     }
 
     @Test
@@ -200,7 +201,7 @@ public class JSONStampInbuiltFunctionTest {
         Assert.assertEquals((((BMap) results.get(4))).size(), 2);
 
         BAssertUtil.assertTypeClass(getType(results.get(4)), BMapType.class);
-        BAssertUtil.assertTypeClass(TypeHelper.typeConstraint(getType(results.get(4))), BAnydataType.class);
+        TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(results.get(4))), PredefinedTypes.TYPE_ANYDATA);
     }
 
     @Test
