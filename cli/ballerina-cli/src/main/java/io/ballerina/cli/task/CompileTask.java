@@ -218,6 +218,8 @@ public class CompileTask implements Task {
                     err.println(d);
                 }
             });
+            // Add tool resolution diagnostics to diagnostics
+            diagnostics.addAll(project.currentPackage().getToolResolution().getDiagnosticList());
             // Report build tool execution diagnostics
             if (project.getToolContextMap() != null) {
                 for (ToolContext tool : project.getToolContextMap().values()) {

@@ -59,6 +59,7 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
  * @since 2201.9.0
  */
 public class ToolResolution {
+    private static final String PACKAGE_NAME_PREFIX  = "tool_";
     private final PackageContext packageContext;
     private final List<BuildTool> resolvedTools = new ArrayList<>();
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
@@ -108,6 +109,8 @@ public class ToolResolution {
             } else {
                 // If platform-provided, add to resolved tools with 0.0.0 version
                 tool.setVersion(PackageVersion.from(DEFAULT_VERSION));
+                tool.setOrg(PackageOrg.BALLERINA_ORG);
+                tool.setName(PackageName.from(PACKAGE_NAME_PREFIX + tool.id()));
                 resolvedTools.add(tool);
             }
         }
@@ -116,8 +119,11 @@ public class ToolResolution {
 
     private List<BuildTool> resolveToolVersions(Project project, List<BuildTool> unresolvedTools) {
         PackageLockingMode packageLockingMode = getPackageLockingMode(project);
-        Set<ToolResolutionRequest> resolutionRequests = getToolResolutionRequests(unresolvedTools, project,
-                packageLockingMode);
+        updateLockedToolDependencyVersions(unresolvedTools, project);
+        if (project.buildOptions().offlineBuild()) {
+            return getToolResolutionResponseOffline(unresolvedTools, project, packageLockingMode);
+        }
+        Set<ToolResolutionRequest> resolutionRequests = getToolResolutionRequests(unresolvedTools, packageLockingMode);
         ToolResolutionCentralRequest toolResolutionRequest = createToolResolutionRequests(resolutionRequests);
         // TODO: Remove mock
 //        return getToolResolutionResponse(toolResolutionRequest);
@@ -149,10 +155,37 @@ public class ToolResolution {
         return PackageLockingMode.MEDIUM;
     }
 
-    private Set<ToolResolutionRequest> getToolResolutionRequests(List<BuildTool> unresolvedTools, Project project,
+    private List<BuildTool> getToolResolutionResponseOffline(List<BuildTool> unresolvedTools, Project project,
+                                                             PackageLockingMode packageLockingMode) {
+        List<BuildTool> resolvedTools = new ArrayList<>();
+        for (BuildTool tool: unresolvedTools) {
+            BuildToolId id = tool.id();
+            PackageOrg org = tool.org();
+            PackageName name = tool.name();
+            PackageVersion version = tool.version();
+            if (tool.org() == null || tool.name() == null) {
+                PackageDiagnostic diagnostic = ToolUtils.getBuildToolOfflineResolveDiagnostic(tool.id().value());
+                diagnosticList.add(diagnostic);
+                continue;
+            }
+            List<SemanticVersion> versions = ToolUtils.getCompatibleToolVersionsInLocalCache(org, name);
+            Optional<SemanticVersion> latestCompVersion =
+                    ToolUtils.getLatestCompatibleVersion(version.value(), versions, packageLockingMode);
+            if (latestCompVersion.isEmpty()) {
+                String toolIdAndVersionOpt = tool.id().value()
+                        + (tool.version() == null? "": ":" + tool.version().toString());
+                PackageDiagnostic diagnostic = ToolUtils.getBuildToolOfflineResolveDiagnostic(toolIdAndVersionOpt);
+                diagnosticList.add(diagnostic);
+                continue;
+            }
+            resolvedTools.add(BuildTool.from(id, org, name, PackageVersion.from(latestCompVersion.get())));
+        }
+        return resolvedTools;
+    }
+
+    private Set<ToolResolutionRequest> getToolResolutionRequests(List<BuildTool> unresolvedTools,
                                                                  PackageLockingMode packageLockingMode) {
         Set<ToolResolutionRequest> resolutionRequests = new HashSet<>();
-        updateLockedToolDependencyVersions(unresolvedTools, project);
         for (BuildTool tool : unresolvedTools) {
             resolutionRequests.add(ToolResolutionRequest.from(tool, packageLockingMode));
         }
@@ -198,41 +231,47 @@ public class ToolResolution {
         List<ToolResolutionCentralResponse.UnresolvedTool> unresolved = packageResolutionResponse.unresolved();
         for (ToolResolutionCentralResponse.UnresolvedTool tool : unresolved) {
             PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(tool.id());
-            toolContextMap.get(tool.id()).reportDiagnostic(diagnostic);
+            diagnosticList.add(diagnostic);
         }
         List<BuildTool> resolvedTools = new ArrayList<>();
         for (ToolResolutionCentralResponse.ResolvedTool tool : resolved) {
             if (tool.id() == null || tool.version() == null || tool.name() == null || tool.org() == null) {
                 PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(tool.id());
-                toolContextMap.get(tool.id()).reportDiagnostic(diagnostic);
+                diagnosticList.add(diagnostic);
                 continue;
             }
             try {
                 PackageVersion.from(tool.version());
             } catch (ProjectException ignore) {
                 PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(tool.id());
-                toolContextMap.get(tool.id()).reportDiagnostic(diagnostic);
+                diagnosticList.add(diagnostic);
                 continue;
             }
             resolvedTools.add(BuildTool.from(
                     BuildToolId.from(tool.id()),
-                    PackageVersion.from(tool.version()),
+                    PackageOrg.from(tool.org()),
                     PackageName.from(tool.name()),
-                    PackageOrg.from(tool.org())
+                    PackageVersion.from(tool.version())
             ));
         }
         return resolvedTools;
     }
 
     private List<BuildTool> getMockToolResolutionResponse(ToolResolutionCentralRequest toolResolutionRequest) {
-        return toolResolutionRequest.tools().stream().map(tool1 -> {
+        List<BuildTool> resolvedTools = new ArrayList<>();
+        toolResolutionRequest.tools().forEach(tool1 -> {
             switch (tool1.getId()) {
-                default -> {
-                    return BuildTool.from(BuildToolId.from("dummy_tool"), PackageVersion.from("0.2.0"),
-                            PackageName.from("dummypkg"), PackageOrg.from("gayaldassanayake"));
+                case "copybook" -> {
+                    PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(tool1.getId());
+                    diagnosticList.add(diagnostic);
                 }
+                default -> resolvedTools.add(BuildTool.from(BuildToolId.from("dummy_tool"),
+                        PackageOrg.from("gayaldassanayake"),
+                        PackageName.from("dummypkg"),
+                        PackageVersion.from("0.2.0")));
             }
-        }).toList();
+        });
+        return resolvedTools;
     }
 
     private boolean getSticky(Project project) {

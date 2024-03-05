@@ -31,11 +31,11 @@ public class BuildTool {
     private PackageName name;
     private PackageOrg org;
 
-    private BuildTool(BuildToolId id, PackageVersion version, PackageName name, PackageOrg org) {
+    private BuildTool(BuildToolId id, PackageOrg org, PackageName name, PackageVersion version) {
         this.id = id;
-        this.version = version;
-        this.name = name;
         this.org = org;
+        this.name = name;
+        this.version = version;
     }
 
     /**
@@ -45,8 +45,8 @@ public class BuildTool {
      * @param version build tool version
      * @return build tool instance
      */
-    public static BuildTool from(BuildToolId id, PackageVersion version, PackageName name, PackageOrg org) {
-        return new BuildTool(id, version, name, org);
+    public static BuildTool from(BuildToolId id, PackageOrg org, PackageName name, PackageVersion version) {
+        return new BuildTool(id, org, name, version);
     }
 
     /**

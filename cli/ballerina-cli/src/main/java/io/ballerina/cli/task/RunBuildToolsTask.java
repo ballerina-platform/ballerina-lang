@@ -120,7 +120,9 @@ public class RunBuildToolsTask implements Task {
         List<BuildTool> centralDeliveredResolvedTools = resolvedTools.stream().filter(tool -> !DEFAULT_VERSION
                 .equals(tool.version().toString())).toList();
         if (!centralDeliveredResolvedTools.isEmpty()) {
-            pullLocallyUnavailableTools(centralDeliveredResolvedTools);
+            if (!project.buildOptions().offlineBuild()) {
+                pullLocallyUnavailableTools(centralDeliveredResolvedTools);
+            }
             toolClassLoader = createToolClassLoader(centralDeliveredResolvedTools);
             toolServiceLoader = ServiceLoader.load(CodeGeneratorTool.class, toolClassLoader);
         }
@@ -130,9 +132,8 @@ public class RunBuildToolsTask implements Task {
             ToolContext toolContext = toolContextMap.get(toolEntry.id());
             Optional<CodeGeneratorTool> targetTool = ToolUtils.getTargetTool(commandName, toolServiceLoader);
             if (targetTool.isEmpty()) {
-                PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(toolEntry.id());
-                toolContextMap.get(toolEntry.id()).reportDiagnostic(diagnostic);
-                this.outStream.println(diagnostic);
+                // diagnostics have been added at the package resolution time and printed already.
+                // Hence, skipping execution
                 continue;
             }
             boolean hasOptionErrors = false;
