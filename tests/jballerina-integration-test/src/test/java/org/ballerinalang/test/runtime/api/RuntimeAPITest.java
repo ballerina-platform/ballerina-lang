@@ -34,7 +34,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.test.runtime.util.CodeCoverageUtils.deleteDirectory;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_HOME;
+import static org.ballerinalang.test.util.SQLDBUtils.deleteDirectory;
 
 /**
  * Test class to test the functionality of Ballerina runtime APIs for invoking functions.
@@ -114,6 +116,10 @@ public class RuntimeAPITest extends BaseTest {
         runCmdSet.add("-jar");
         runCmdSet.add(execJarPath.toString());
         ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
+        String jacocoArgLine = "-javaagent:" + Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
+                "jacocoagent.jar") + "=destfile=" + Paths.get(System.getProperty(USER_DIR))
+                .resolve("build").resolve("jacoco").resolve("test.exec") + " ";
+        runProcessBuilder.environment().put("JAVA_OPTS", jacocoArgLine);
         runProcessBuilder.redirectErrorStream(true);
         Path outputFileDir = Paths.get(javaSrcLocation.toString(), "targetDir", "output.txt");
         runProcessBuilder.redirectOutput(new File(outputFileDir.toAbsolutePath().toString()));
@@ -130,10 +136,6 @@ public class RuntimeAPITest extends BaseTest {
     @AfterClass
     public void tearDown() {
         bMainInstance = null;
-        try {
-            deleteDirectory(Paths.get(javaSrcLocation.toString(), "targetDir").toFile());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        deleteDirectory(Paths.get(javaSrcLocation.toString(), "targetDir").toFile());
     }
 }
