@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -101,7 +102,14 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             if (pkgNode.hasTestablePackage()) {
                 // since the testablePkg can access the nodes of parent package, we can merge the invocationData of both
                 // testable and parent packages
-                currentInvocationData.registerNodes(usedTypeDefAnalyzer, pkgNode.getTestablePkg().symbol.bir);
+                BPackageSymbol testableSymbol = pkgNode.getTestablePkg().symbol;
+                currentInvocationData.testablePkgInvocationData = testableSymbol.invocationData;
+
+                testableSymbol.invocationData.registerNodes(usedTypeDefAnalyzer, testableSymbol.bir);
+                // Analyzing testablePkg should be done first because it is the root of the dependency graph
+                for (BIRNode.BIRDocumentableNode node : testableSymbol.invocationData.startPointNodes) {
+                    visitNode(node);
+                }
             }
         }
 
@@ -361,9 +369,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     public InvocationData getInvocationData(PackageID pkgId) {
         if (currentPkgID.equals(pkgId)) {
-            return currentInvocationData;
+            return pkgId.isTestPkg ? currentInvocationData.testablePkgInvocationData : currentInvocationData;
         }
-
         return pkgCache.getInvocationData(pkgId);
     }
 
@@ -438,6 +445,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         protected HashSet<String> usedNativeClassPaths = new HashSet<>();
         protected boolean moduleIsUsed = false;
         private HashSet<String> interopDependencies = new HashSet<>();
+        private InvocationData testablePkgInvocationData;
 
         private static boolean isResourceFunction(BIRNode.BIRFunction birFunction) {
             return (birFunction.flags & Flags.RESOURCE) == Flags.RESOURCE;
