@@ -381,7 +381,7 @@ public class Package {
         boolean sticky = resolutionOptions.sticky();
         CompilationOptions newCompOptions = CompilationOptions.builder().setOffline(offline).setSticky(sticky).build();
         newCompOptions = newCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
-        return getResolution(newCompOptions);
+        return this.packageContext.getResolution(newCompOptions, true);
     }
 
     private static class ModuleIterable implements Iterable {
@@ -633,8 +633,8 @@ public class Package {
 
             CompilationOptions offlineCompOptions = CompilationOptions.builder().setOffline(true).build();
             offlineCompOptions = offlineCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
-            DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage()
-                    .getResolution(offlineCompOptions).dependencyGraph();
+            DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().packageContext()
+                    .getResolution(offlineCompOptions, true).dependencyGraph();
             cleanPackageCache(this.dependencyGraph, newDepGraph);
             return this.project.currentPackage();
         }
