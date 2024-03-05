@@ -18,9 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
-import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -71,6 +69,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -126,14 +125,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Stack;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.semTypeSupported;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.singleShapeBroadType;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper.singleShapeBroadType;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
 
@@ -1383,7 +1380,7 @@ public class TypeResolver {
         type.setOriginalMemberTypes(memberTypes);
         memberTypes.clear();
         memberTypes.addAll(flattenMemberTypes);
-        SemTypeResolver.resolveBUnionSemTypeComponent(type);
+        type.populateMemberSemTypesAndNonSemTypes();
     }
 
     private BType resolveTypeDesc(BLangIntersectionTypeNode td, ResolverData data, boolean anonymous) {
@@ -1652,12 +1649,10 @@ public class TypeResolver {
                 (Flags.asMask(EnumSet.of(Flag.PUBLIC))), Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
 
-        SemType semType = PredefinedType.NEVER;
-        StringJoiner stringJoiner = new StringJoiner("|");
-        List<BLangExpression> valueSpace = td.valueSpace;
-        SemType[] vs = new SemType[valueSpace.size()];
-        for (int i = 0; i < valueSpace.size(); i++) {
-            BLangExpression exprOrLiteral = valueSpace.get(i);
+        List<BLangExpression> vs = td.valueSpace;
+        SemNamedType[] valueSpace = new SemNamedType[vs.size()];
+        for (int i = 0; i < vs.size(); i++) {
+            BLangExpression exprOrLiteral = vs.get(i);
             BType type = blangTypeUpdate(exprOrLiteral);
             if (type != null && type.tag == TypeTags.SEMANTIC_ERROR) {
                 return type;
@@ -1666,35 +1661,24 @@ public class TypeResolver {
                 exprOrLiteral.setBType(symTable.getTypeFromTag(type.tag));
             }
 
-            if (semTypeSupported(exprOrLiteral.getBType().getKind())) {
+            if (SemTypeHelper.isFullSemType(exprOrLiteral.getBType().getKind())) {
                 if (exprOrLiteral.getKind() == NodeKind.UNARY_EXPR) {
                     exprOrLiteral = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) exprOrLiteral);
                     // Replacing here as Semantic Analyzer BLangFiniteTypeNode visit may not invoke for all finite nodes
                     td.valueSpace.set(i, exprOrLiteral);
                 }
 
-                stringJoiner.add(getToString(exprOrLiteral));
-                SemType s = SemTypeResolver.resolveSingletonType((BLangLiteral) exprOrLiteral);
-                vs[i] = s;
-                semType = SemTypes.union(semType, s);
+                SemType s = SemTypeHelper.resolveSingletonType((BLangLiteral) exprOrLiteral);
+                valueSpace[i] = new SemNamedType(s, Optional.ofNullable(exprOrLiteral.toString()));
             } else {
-                throw new IllegalStateException("non-sem value found!");
+                throw new IllegalStateException("non-sem value found in BLangFiniteType!");
             }
         }
 
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, semType, stringJoiner.toString(), vs);
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, valueSpace);
         finiteTypeSymbol.type = finiteType;
         td.setBType(finiteType);
         return finiteType;
-    }
-
-    String getToString(BLangExpression value) {
-        return switch (value.getBType().tag) {
-            case TypeTags.FLOAT -> value + "f";
-            case TypeTags.DECIMAL -> value + "d";
-            case TypeTags.STRING, TypeTags.CHAR_STRING -> "\"" + value + "\"";
-            default -> value.toString();
-        };
     }
 
     private BType blangTypeUpdate(BLangExpression expression) {
@@ -2066,7 +2050,7 @@ public class TypeResolver {
         // Update the final type in necessary fields.
         constantSymbol.type = intersectionType;
         if (intersectionType.tag == TypeTags.FINITE) {
-            constantSymbol.literalType = singleShapeBroadType(intersectionType.getSemType(), symTable).get();
+            constantSymbol.literalType = singleShapeBroadType(intersectionType.semType(), symTable).get();
         } else {
             constantSymbol.literalType = intersectionType;
         }

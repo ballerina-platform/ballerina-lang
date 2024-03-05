@@ -259,12 +259,12 @@ public class ImmutableTypeCloner {
                 BAnyType immutableAnyType;
                 if (immutableAnyTSymbol != null) {
                     immutableAnyType = new BAnyType(immutableAnyTSymbol, immutableAnyTSymbol.name,
-                                                    origAnyType.flags | Flags.READONLY, origAnyType.isNullable());
+                                                    origAnyType.flags | Flags.READONLY, origAnyType.semType());
                     immutableAnyTSymbol.type = immutableAnyType;
                 } else {
                     immutableAnyType = new BAnyType(immutableAnyTSymbol,
                                                     getImmutableTypeName(names, TypeKind.ANY.typeName()),
-                                                    origAnyType.flags | Flags.READONLY, origAnyType.isNullable());
+                                                    origAnyType.flags | Flags.READONLY, origAnyType.semType());
                 }
 
                 BIntersectionType immutableAnyIntersectionType = createImmutableIntersectionType(pkgId, owner,

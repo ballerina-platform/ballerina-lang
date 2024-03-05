@@ -22,11 +22,10 @@ import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
@@ -58,10 +57,8 @@ public class BType implements ValueType {
     public long flags;
 
     // SemType related properties
-    private SemType semType;
+    protected SemType semType;
     public boolean isBTypeComponent = false; // TODO: This is temporary workaround until we migrate all types
-
-    public String userStrRep;
 
     public BType(int tag, BTypeSymbol tsymbol) {
         this(tag, tsymbol, Names.EMPTY, 0, null);
@@ -69,11 +66,6 @@ public class BType implements ValueType {
 
     public BType(int tag, BTypeSymbol tsymbol, SemType semType) {
         this(tag, tsymbol, Names.EMPTY, 0, semType);
-    }
-
-    // TODO: only used by finite type atm
-    public BType(int tag, BTypeSymbol tsymbol, SemType semType, String userStrRep) {
-        this(tag, tsymbol, Names.EMPTY, 0, semType, userStrRep);
     }
 
     public BType(int tag, BTypeSymbol tsymbol, long flags) {
@@ -89,20 +81,11 @@ public class BType implements ValueType {
     }
 
     public BType(int tag, BTypeSymbol tsymbol, Name name, long flags, SemType semType) {
-        this(tag, tsymbol, name, flags, semType, null);
-    }
-
-    public BType(int tag, BTypeSymbol tsymbol, Name name, long flags, SemType semType, String userStrRep) {
         this.tag = tag;
         this.tsymbol = tsymbol;
         this.name = name;
         this.flags = flags;
         this.semType = semType;
-        if (tag == TypeTags.FINITE) {
-            this.userStrRep = userStrRep;
-        } else {
-            this.userStrRep = userStrRep == null ? getKind().typeName() : userStrRep;
-        }
     }
 
     public static BType createNilType() {
@@ -113,11 +96,11 @@ public class BType implements ValueType {
         return new BNeverType();
     }
 
-    public SemType getSemType() {
+    public SemType semType() {
         return semType;
     }
 
-    public void setSemType(SemType semtype) {
+    public void semType(SemType semtype) {
         this.semType = semtype;
     }
 
@@ -126,7 +109,7 @@ public class BType implements ValueType {
     }
 
     public boolean isNullable() {
-        return Core.containsNil(SemTypeResolver.getSemTypeComponent(this));
+        return Core.containsNil(SemTypeHelper.semTypeComponent(this));
     }
 
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
@@ -172,7 +155,7 @@ public class BType implements ValueType {
 
     @Override
     public String toString() {
-        return userStrRep;
+        return getKind().typeName();
     }
 
     public String getQualifiedTypeName() {

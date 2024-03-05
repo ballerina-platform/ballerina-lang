@@ -598,7 +598,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue constructBLangConstantValue(BLangExpression node) {
-        if (!node.typeChecked && !SemTypeResolver.SEMTYPE_ENABLED && !SemTypeResolver.SEMTYPE_TEST_SUITE) {
+        if (!node.typeChecked) {
             return null;
         }
         switch (node.getKind()) {
@@ -708,7 +708,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, constantSymbol.flags, Names.EMPTY,
                                                                 constantSymbol.pkgID, null, constantSymbol.owner,
                                                                 constantSymbol.pos, VIRTUAL);
-        return new BFiniteType(finiteTypeSymbol, SemTypeResolver.resolveSingletonType(literal));
+        return BFiniteType.newSingletonBFiniteType(finiteTypeSymbol, SemTypeHelper.resolveSingletonType(literal));
     }
 
     private BType checkType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, BType type,

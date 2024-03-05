@@ -80,12 +80,20 @@ public class SemTypes {
         return Core.union(t1, t2);
     }
 
+    public static SemType intersect(SemType t1, SemType t2) {
+        return Core.intersect(t1, t2);
+    }
+
     public static SemType tuple(Env env, SemType[] members) {
         return ListDefinition.tuple(env, members);
     }
 
     public static boolean isSubtype(Context context, SemType t1, SemType t2) {
         return Core.isSubtype(context, t1, t2);
+    }
+
+    public static boolean isSubtypeSimple(SemType t1, UniformTypeBitSet t2) {
+        return Core.isSubtypeSimple(t1, t2);
     }
 
     public static boolean isSameType(Context context, SemType t1, SemType t2) {
@@ -98,14 +106,6 @@ public class SemTypes {
 
     public static SemType tableContaining(SemType memberType) {
         return TableSubtype.tableContaining(memberType);
-    }
-
-    public static SemType intersection(SemType t1, SemType t2) {
-        return Core.intersect(t1, t2);
-    }
-
-    public static boolean isSubtypeSimple(SemType t1, UniformTypeBitSet t2) {
-        return Core.isSubtypeSimple(t1, t2);
     }
 
     public static SemType mappingMemberType(Context context, SemType t, SemType m) {

@@ -51,9 +51,11 @@ public class ConditionResolver {
                 if (value instanceof Boolean) {
                     return value == Boolean.TRUE ? symTable.trueType : symTable.falseType;
                 }
-                return new BFiniteType(null, SemTypeResolver.resolveSingletonType((BLangLiteral) condition));
+                return BFiniteType.newSingletonBFiniteType(null,
+                        SemTypeHelper.resolveSingletonType((BLangLiteral) condition));
             case NUMERIC_LITERAL:
-                return new BFiniteType(null, SemTypeResolver.resolveSingletonType((BLangLiteral) condition));
+                return BFiniteType.newSingletonBFiniteType(null,
+                        SemTypeHelper.resolveSingletonType((BLangLiteral) condition));
             case TYPE_TEST_EXPR:
                 BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) condition;
                 BType exprType = typeTestExpr.expr.getBType();
@@ -125,7 +127,7 @@ public class ConditionResolver {
                     return symTable.semanticError;
                 }
 
-                Optional<Value> val = Core.singleShape(baseType.getSemType());
+                Optional<Value> val = Core.singleShape(baseType.semType());
                 if (val.isEmpty()) {
                     return symTable.semanticError;
                 }

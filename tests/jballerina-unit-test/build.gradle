@@ -67,34 +67,6 @@ test {
     }
 }
 
-// Define a new task for executing semtype_testng.xml separately
-task semtypesUnitTest(type: Test) {
-    dependsOn loadDistributionCache
-
-    // Copy system properties from the test task
-    systemProperties = tasks.test.systemProperties
-
-    // Add additional system property to enable semtypes
-    systemProperty "ballerina.experimental.semtype.enabled", "true"
-
-    jvmArgs = ['-Xms512m', '-Xmx3g']
-
-    useTestNG() {
-        suites("src/test/resources/semtype_testng.xml")
-    }
-
-    afterSuite { suite, result ->
-        result.exception?.printStackTrace()
-    }
-
-    testLogging {
-        warn {
-            events = ["failed", "skipped"]
-            exceptionFormat "full"
-        }
-    }
-}
-
 configurations {
     testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'

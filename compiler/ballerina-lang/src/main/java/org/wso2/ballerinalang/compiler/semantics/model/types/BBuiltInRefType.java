@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.types.ReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -38,6 +39,10 @@ public class BBuiltInRefType extends BType implements ReferenceType {
 
     public BBuiltInRefType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
+    }
+
+    public BBuiltInRefType(int tag, BTypeSymbol tsymbol, SemType semType) {
+        super(tag, tsymbol, semType);
     }
 
     public BBuiltInRefType(int tag, BTypeSymbol tsymbol, long flags) {

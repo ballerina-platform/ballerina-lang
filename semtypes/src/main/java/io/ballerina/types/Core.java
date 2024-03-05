@@ -60,7 +60,7 @@ import static io.ballerina.types.typeops.MappingCommonOps.bddMappingMemberType;
  *
  * @since 2201.8.0
  */
-public class Core {
+public final class Core {
     // subtypeList must be ordered
 
     public static List<UniformSubtype> unpackComplexSemType(ComplexSemType t) {

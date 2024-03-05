@@ -17,10 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -47,10 +49,13 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
 public class BUnionType extends BType implements UnionType {
     public boolean resolvingToString = false;
     private String cachedToString;
-    private SemType semTypeComponent;
 
     protected LinkedHashSet<BType> memberTypes;
-    public LinkedHashSet<BType> nonSemMemberTypes;
+
+    // Sem and Non-Sem Member Breakdown
+    public LinkedHashSet<SemType> memberSemTypes;
+    public LinkedHashSet<BType> memberNonSemTypes;
+
     public Boolean isAnyData = null;
     public Boolean isPureType = null;
     public boolean isCyclic = false;
@@ -92,7 +97,7 @@ public class BUnionType extends BType implements UnionType {
         this.originalMemberTypes = originalMemberTypes;
         this.memberTypes = memberTypes;
         this.isCyclic = isCyclic;
-        SemTypeResolver.resolveBUnionSemTypeComponent(this);
+        populateMemberSemTypesAndNonSemTypes();
     }
 
     @Override
@@ -109,7 +114,7 @@ public class BUnionType extends BType implements UnionType {
         assert memberTypes.size() == 0;
         this.memberTypes = memberTypes;
         this.originalMemberTypes = new LinkedHashSet<>(memberTypes);
-        SemTypeResolver.resolveBUnionSemTypeComponent(this);
+        populateMemberSemTypesAndNonSemTypes();
     }
 
     public void setOriginalMemberTypes(LinkedHashSet<BType> memberTypes) {
@@ -255,7 +260,8 @@ public class BUnionType extends BType implements UnionType {
         }
 
         setCyclicFlag(type);
-        SemTypeResolver.resolveBUnionSemTypeComponent(this); // TODO: Optimize
+        populateMemberSemTypesAndNonSemTypes(type, this.memberSemTypes, this.memberNonSemTypes);
+        this.semType = null; // reset cached sem-type if exists
     }
 
     private void setCyclicFlag(BType type) {
@@ -325,7 +331,7 @@ public class BUnionType extends BType implements UnionType {
         if (isImmutable) {
             this.flags |= Flags.READONLY;
         }
-        SemTypeResolver.resolveBUnionSemTypeComponent(this); // TODO: Optimize
+        populateMemberSemTypesAndNonSemTypes();
     }
 
     public void mergeUnionType(BUnionType unionType) {
@@ -508,11 +514,55 @@ public class BUnionType extends BType implements UnionType {
         return false;
     }
 
-    public SemType getSemTypeComponent() {
-        return semTypeComponent;
+    public void populateMemberSemTypesAndNonSemTypes() {
+        LinkedHashSet<BType> memberNonSemTypes = new LinkedHashSet<>();
+        LinkedHashSet<SemType> memberSemTypes = new LinkedHashSet<>();
+
+        for (BType memberType : this.memberTypes) {
+            populateMemberSemTypesAndNonSemTypes(memberType, memberSemTypes, memberNonSemTypes);
+        }
+
+        this.memberNonSemTypes = memberNonSemTypes;
+        this.memberSemTypes = memberSemTypes;
+        this.semType = null; // reset cached sem-type if exists
     }
 
-    public void setSemTypeComponent(SemType semTypeComponent) {
-        this.semTypeComponent = semTypeComponent;
+    private void populateMemberSemTypesAndNonSemTypes(BType memberType, LinkedHashSet<SemType> memberSemTypes,
+                                                      LinkedHashSet<BType> memberNonSemTypes) {
+        memberType = getReferredType(memberType);
+        if (memberType == null) { // TODO: handle cyclic types via BIR
+            return;
+        }
+
+        if (memberType.tag == TypeTags.UNION) {
+            memberSemTypes.addAll(((BUnionType) memberType).memberSemTypes);
+            memberNonSemTypes.addAll(((BUnionType) memberType).memberNonSemTypes);
+            return;
+        }
+
+        SemType s = SemTypeHelper.semTypeComponent(memberType);
+        if (!PredefinedType.NEVER.equals(s)) {
+            memberSemTypes.add(s);
+        }
+
+        if (TypeTags.NEVER != SemTypeHelper.bTypeComponent(memberType).tag) {
+            memberNonSemTypes.add(memberType);
+        }
+    }
+
+    @Override
+    public SemType semType() {
+        if (this.semType == null) {
+            this.semType = computeResultantUnion(memberSemTypes);
+        }
+        return this.semType;
+    }
+
+    private SemType computeResultantUnion(LinkedHashSet<SemType> memberSemTypes) {
+        SemType t = PredefinedType.NEVER;
+        for (SemType s : memberSemTypes) {
+            t = SemTypes.union(t, s);
+        }
+        return t;
     }
 }

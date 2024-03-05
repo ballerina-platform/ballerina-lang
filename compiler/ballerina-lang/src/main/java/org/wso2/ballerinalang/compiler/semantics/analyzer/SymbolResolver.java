@@ -157,7 +157,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     private final SymbolEnter symbolEnter;
     private final TypeResolver typeResolver;
-    private final SemTypeResolver semTypeResolver;
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private final BLangMissingNodesHelper missingNodesHelper;
     private final Unifier unifier;
@@ -183,7 +182,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.typeResolver = TypeResolver.getInstance(context);
-        this.semTypeResolver = SemTypeResolver.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.unifier = new Unifier();
@@ -558,7 +556,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         validateDistinctType(typeNode, resultType);
-        semTypeResolver.resolveSemTypeIfEnabled(typeNode, env, resultType);
 
         typeNode.setBType(resultType);
         return resultType;

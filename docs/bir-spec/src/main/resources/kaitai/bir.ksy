@@ -91,8 +91,6 @@ types:
     seq:
       - id: semtype
         type: semtype_info
-      - id: user_str_representation
-        type: user_str_info
       - id: type_tag
         type: s1
         enum: type_tag_enum
@@ -124,6 +122,19 @@ types:
     instances:
       name_as_str:
         value: _root.constant_pool.constant_pool_entries[name_index].cp_info.as<string_cp_info>.value
+  sem_named_type:
+    seq:
+      - id: semtype
+        type: semtype_info
+      - id: optional_name
+        type: nullable_str_info
+  nullable_str_info:
+    seq:
+      - id: has_non_null_string
+        type: u1
+      - id: str_cp_index
+        type: s4
+        if: has_non_null_string == 1
   semtype_info:
     seq:
       - id: has_semtype
@@ -336,13 +347,6 @@ types:
         type: s4
       - id: sequence
         type: semtype_bdd
-  user_str_info:
-    seq:
-      - id: has_user_string
-        type: u1
-      - id: user_str_cp_index
-        type: s4
-        if: has_user_string == 1
   type_array:
     seq:
       - id: state
@@ -391,8 +395,8 @@ types:
         type: s8
       - id: value_space_size
         type: s4
-      - id: values_as_semtypes
-        type: semtype_info
+      - id: value_space
+        type: sem_named_type
         repeat: expr
         repeat-expr: value_space_size
   closure_symbol_body:

@@ -506,7 +506,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         // !(symbol.kind == SymbolKind.TYPE_DEF) is checked to exclude type defs
         BType type = org.wso2.ballerinalang.compiler.semantics.analyzer.Types.getImpliedType(symbol.type);
         return !(symbol.kind == SymbolKind.TYPE_DEF) && type.tag == TypeTags.FINITE &&
-                Core.singleShape((symbol.type).getSemType()).isPresent();
+                Core.singleShape((symbol.type).semType()).isPresent();
     }
 
     private boolean isInlineErrorType(BSymbol symbol) {

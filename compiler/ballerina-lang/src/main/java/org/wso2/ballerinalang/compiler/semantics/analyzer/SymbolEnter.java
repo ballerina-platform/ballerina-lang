@@ -227,7 +227,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final Types types;
     private final SourceDirectory sourceDirectory;
     private final TypeResolver typeResolver;
-    private final SemTypeResolver semTypeResolver;
     private final ConstantValueResolver constResolver;
     private List<BLangNode> unresolvedTypes;
     private Set<BLangNode> unresolvedRecordDueToFields;
@@ -269,7 +268,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.typeResolver = TypeResolver.getInstance(context);
-        this.semTypeResolver = SemTypeResolver.getInstance(context);
         this.sourceDirectory = context.get(SourceDirectory.class);
         this.importedPackages = new ArrayList<>();
         this.unknownTypeRefs = new HashSet<>();
@@ -432,7 +430,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         this.env = pkgEnv;
         typeResolver.defineBTypes(typeAndClassDefs, pkgEnv);
-        semTypeResolver.defineSemTypesIfEnabled(typeAndClassDefs, pkgEnv);
 
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way

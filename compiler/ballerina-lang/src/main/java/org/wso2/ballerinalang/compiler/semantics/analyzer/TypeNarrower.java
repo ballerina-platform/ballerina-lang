@@ -75,7 +75,6 @@ public class TypeNarrower extends BLangNodeVisitor {
     private Types types;
     private SymbolEnter symbolEnter;
     private TypeChecker typeChecker;
-    private SemTypeResolver semTypeResolver;
     private static final CompilerContext.Key<TypeNarrower> TYPE_NARROWER_KEY = new CompilerContext.Key<>();
 
     private TypeNarrower(CompilerContext context) {
@@ -84,7 +83,6 @@ public class TypeNarrower extends BLangNodeVisitor {
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
-        this.semTypeResolver = SemTypeResolver.getInstance(context);
     }
 
     public static TypeNarrower getInstance(CompilerContext context) {
@@ -425,14 +423,14 @@ public class TypeNarrower extends BLangNodeVisitor {
 
         SemType semType;
         if (expr.getKind() == NodeKind.UNARY_EXPR) {
-            semType = SemTypeResolver.resolveSingletonType(Types.constructNumericLiteralFromUnaryExpr(
+            semType = SemTypeHelper.resolveSingletonType(Types.constructNumericLiteralFromUnaryExpr(
                     (BLangUnaryExpr) expr));
         } else {
             expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
-            semType = SemTypeResolver.resolveSingletonType((BLangLiteral) expr);
+            semType = SemTypeHelper.resolveSingletonType((BLangLiteral) expr);
         }
 
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, semType);
+        BFiniteType finiteType = BFiniteType.newSingletonBFiniteType(finiteTypeSymbol, semType);
         finiteTypeSymbol.type = finiteType;
         return finiteType;
     }

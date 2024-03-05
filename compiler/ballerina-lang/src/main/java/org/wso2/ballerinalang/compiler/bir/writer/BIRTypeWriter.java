@@ -95,6 +95,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.math.BigDecimal;
@@ -122,20 +123,11 @@ public class BIRTypeWriter extends TypeVisitor {
     }
 
     public void visitType(BType type) {
-        writeSemType(type.getSemType());
-        writeUserStrRep(type);
+        writeSemType(type.semType());
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
         buff.writeLong(type.flags);
         type.accept(this);
-    }
-
-    private void writeUserStrRep(BType type) {
-        boolean hasUserStrRep = type.userStrRep != null;
-        buff.writeBoolean(hasUserStrRep);
-        if (hasUserStrRep) {
-            buff.writeInt(addStringCPEntry(type.userStrRep));
-        }
     }
 
     private void writeTypeCpIndex(BType type) {
@@ -198,8 +190,8 @@ public class BIRTypeWriter extends TypeVisitor {
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeLong(tsymbol.flags);
         buff.writeInt(bFiniteType.valueSpace.length);
-        for (SemType s:bFiniteType.valueSpace) {
-            writeSemType(s);
+        for (SemNamedType semNamedType:bFiniteType.valueSpace) {
+            writeSemNamedType(semNamedType);
         }
     }
 
@@ -580,6 +572,19 @@ public class BIRTypeWriter extends TypeVisitor {
         for (BType inclusion : inclusions) {
             writeTypeCpIndex(inclusion);
         }
+    }
+
+    private void writeNullableString(String nullableString) {
+        boolean hasNonNullString = nullableString != null;
+        buff.writeBoolean(hasNonNullString);
+        if (hasNonNullString) {
+            buff.writeInt(addStringCPEntry(nullableString));
+        }
+    }
+
+    private void writeSemNamedType(SemNamedType semNamedType) {
+        writeSemType(semNamedType.semType());
+        writeNullableString(semNamedType.optName().orElse(null));
     }
 
     // --------------------------------------- Writing SemType ----------------------------------------------
