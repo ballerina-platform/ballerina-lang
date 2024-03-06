@@ -138,7 +138,7 @@ public class StreamParser {
      * @return value of the given target type
      * @throws BError for any parsing error
      */
-    private static Object parse(Reader reader, Type targetType) throws BError {
+    public static Object parse(Reader reader, Type targetType) throws BError {
         StreamStateMachine sm = tlStateMachine.get();
         try {
             sm.addTargetType(targetType);
