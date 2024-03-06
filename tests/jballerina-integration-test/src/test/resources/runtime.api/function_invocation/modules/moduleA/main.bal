@@ -14,6 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function add(int a, int b) returns int {
-    return a + b;
+type Person record {
+    int id;
+    string name;
+    SportsActivity sportsActivity;
+};
+
+type SportsActivity record {|
+    string event;
+    int year = 2020;
+|};
+
+public function getPerson(int id, string name, string event) returns Person {
+    Person p = {id: id, name: name, sportsActivity: {event: event}};
+    return p;
 }

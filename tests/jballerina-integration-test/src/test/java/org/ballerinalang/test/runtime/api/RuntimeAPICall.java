@@ -38,7 +38,39 @@ public class RuntimeAPICall {
         Runtime balRuntime = Runtime.from(module);
         balRuntime.init();
         balRuntime.start();
-        balRuntime.invokeMethodAsync("calculate", new Object[]{5L, 7L, StringUtils.fromString("mul")},
+        balRuntime.invokeMethodAsync("add", new Object[]{5L, 7L},
+                new Callback() {
+                    @Override
+                    public void notifySuccess(Object result) {
+                        out.println(result);
+                    }
+
+                    @Override
+                    public void notifyFailure(BError error) {
+                        out.println("Error: " + error);
+                    }
+                });
+
+        balRuntime.invokeMethodAsync("concat", new Object[]{StringUtils.fromString("Hello "),
+                        StringUtils.fromString("World")},
+                new Callback() {
+                    @Override
+                    public void notifySuccess(Object result) {
+                        out.println(result);
+                    }
+
+                    @Override
+                    public void notifyFailure(BError error) {
+                        out.println("Error: " + error);
+                    }
+                });
+        balRuntime.stop();
+
+        balRuntime = Runtime.from(new Module("testorg", "function_invocation.moduleA", "1"));
+        balRuntime.init();
+        balRuntime.start();
+        balRuntime.invokeMethodAsync("getPerson", new Object[]{1001L, StringUtils.fromString("John"),
+                        StringUtils.fromString("100m")},
                 new Callback() {
                     @Override
                     public void notifySuccess(Object result) {

@@ -14,6 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function add(int a, int b) returns int {
+public function concat(string a, string b) returns string {
     return a + b;
 }
