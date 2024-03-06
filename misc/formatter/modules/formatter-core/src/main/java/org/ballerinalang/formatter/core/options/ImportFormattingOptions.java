@@ -18,7 +18,6 @@ package org.ballerinalang.formatter.core.options;
 import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
-import static org.ballerinalang.formatter.core.FormatterUtils.warning;
 
 /**
  * A model for formatting and optimizing imports by the API user, that could be passed onto the formatter.
@@ -91,7 +90,9 @@ public class ImportFormattingOptions {
                 switch (importKey) {
                     case SORT_IMPORTS -> setSortImports((Boolean) importEntry.getValue());
                     case GROUP_IMPORTS -> setGroupImports((Boolean) importEntry.getValue());
-                    default -> warning("Invalid import formatting option: " + importKey);
+                    default -> {
+                        assert false : "Include the import formatting option " + importKey + " in the validator";
+                    }
                 }
             }
             return build();

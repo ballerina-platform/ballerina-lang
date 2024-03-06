@@ -19,8 +19,6 @@ import org.ballerinalang.formatter.core.FormatterUtils;
 
 import java.util.Map;
 
-import static org.ballerinalang.formatter.core.FormatterUtils.warning;
-
 /**
  * A model for formatting of wrapping settings by the API user, that could be passed onto the formatter.
  *
@@ -109,7 +107,9 @@ public class WrappingFormattingOptions {
                     }
                     case SIMPLE_BLOCKS_IN_ONE_LINE -> setSimpleBlocksInOneLine((Boolean) wrappingEntry.getValue());
                     case SIMPLE_METHODS_IN_ONE_LINE -> setSimpleMethodsInOneLine((Boolean) wrappingEntry.getValue());
-                    default -> warning("Invalid wrapping formatting option: " + wrappingKey);
+                    default -> {
+                        assert false : "Include the wrapping formatting option " + wrappingKey + " in the validator";
+                    }
                 }
             }
             return build();

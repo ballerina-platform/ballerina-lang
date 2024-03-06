@@ -18,7 +18,6 @@ package org.ballerinalang.formatter.core.options;
 import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
-import static org.ballerinalang.formatter.core.FormatterUtils.warning;
 
 /**
  * A model for formatting of indent settings by the API user, that could be passed onto the formatter.
@@ -61,7 +60,7 @@ public class IfStatementFormattingOptions {
                 if (ifStatementKey.equals(ELSE_ON_NEW_LINE)) {
                     setElseOnNewLine((Boolean) ifStatementEntry.getValue());
                 } else {
-                    warning("Invalid if statement formatting option: " + ifStatementKey);
+                    assert false : "Include the if statement formatting option " + ifStatementKey + " in the validator";
                 }
             }
             return build();

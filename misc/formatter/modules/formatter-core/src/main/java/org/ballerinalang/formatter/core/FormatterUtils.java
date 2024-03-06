@@ -91,10 +91,6 @@ public class FormatterUtils {
         return manifest.getValue(FORMAT);
     }
 
-    public static void warning(String message) {
-        errStream.println(message);
-    }
-
     public static String getFormattingFilePath(Object formatSection, String root) {
         if (formatSection != null) {
             Object path = ((Map<String, Object>) formatSection).get(FORMAT_FILE_FIELD);
@@ -126,7 +122,7 @@ public class FormatterUtils {
         return parseConfigurationToml(TomlDocument.from(path, content));
     }
 
-    public static boolean isLocalFile(String path) {
+    private static boolean isLocalFile(String path) {
         return new File(path).exists();
     }
 
