@@ -50,8 +50,6 @@ public class JsonParser {
     private JsonParser() {
     }
 
-    private static final ThreadLocal<StateMachine> tlStateMachine = ThreadLocal.withInitial(JsonStateMachine::new);
-
     /**
      * Parses the contents in the given {@link InputStream} and returns a json.
      *
@@ -107,15 +105,19 @@ public class JsonParser {
      * @throws BError for any parsing error
      */
     public static Object parse(Reader reader, JsonUtils.NonStringValueProcessingMode mode) throws BError {
-        JsonStateMachine sm = (JsonStateMachine) tlStateMachine.get();
-        try {
-            sm.setMode(mode);
-            return sm.execute(reader);
-        } finally {
-            // Need to reset the state machine before leaving. Otherwise, references to the created
-            // JSON values will be maintained and the java GC will not happen properly.
-            sm.reset();
+        return StreamParser.parse(reader, getTargetType(mode));
+    }
+
+    private static Type getTargetType(JsonUtils.NonStringValueProcessingMode mode) {
+        Type targetType;
+        if (mode == FROM_JSON_DECIMAL_STRING) {
+            targetType = PredefinedTypes.TYPE_JSON_DECIMAL;
+        } else if (mode == FROM_JSON_FLOAT_STRING) {
+            targetType = PredefinedTypes.TYPE_JSON_FLOAT;
+        } else {
+            targetType = PredefinedTypes.TYPE_JSON;
         }
+        return targetType;
     }
 
     /**
