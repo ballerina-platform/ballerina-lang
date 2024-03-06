@@ -55,7 +55,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     private static final CompilerContext.Key<UsedBIRNodeAnalyzer> USED_BIR_NODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
     private static final HashSet<String> USED_FUNCTION_NAMES =
-            new HashSet<>(Arrays.asList("main", ".<init>", ".<start>", ".<stop>", "executeTestRegistrar0", "__execute__"));
+            new HashSet<>(Arrays.asList("main", ".<init>", ".<start>", ".<stop>", "__execute__"));
     private static final HashMap<String, HashSet<String>> INTEROP_DEPENDENCIES = new HashMap<>();
     private static final HashSet<InstructionKind> ANALYZED_INSTRUCTION_KINDS = new HashSet<>(
             Arrays.asList(InstructionKind.NEW_TYPEDESC, InstructionKind.NEW_INSTANCE, InstructionKind.TYPE_CAST,
@@ -164,9 +164,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         currentInvocationData.addToUsedPool(typeDef);
         usedTypeDefAnalyzer.analyzeTypeDef(typeDef);
 
-        typeDef.attachedFuncs.forEach(attachedFunc -> {
-            addDependentFunctionAndVisit(typeDef, attachedFunc, typeDef.type.tsymbol.pkgID);
-        });
+        typeDef.attachedFuncs.forEach(
+                attachedFunc -> addDependentFunctionAndVisit(typeDef, attachedFunc, typeDef.type.tsymbol.pkgID));
     }
 
     @Override
@@ -281,8 +280,11 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
         FunctionPointerData fpData = new FunctionPointerData(fpLoadInstruction, currentInstructionArr, pointedFunction);
 
-        // Used to detect record default fields containing function pointers
-        if (currentParentFunction.name.value.contains(RECORD_DELIMITER) || currentParentFunction.name.value.startsWith("executeTestRegistrar")) {
+        // Used to detect,
+        // 1. Record default fields containing function pointers
+        // 2. Testerina related TestRegistrars (These global function pointers are called from testerina side)
+        if (currentParentFunction.name.value.contains(RECORD_DELIMITER) ||
+                currentParentFunction.name.value.startsWith("executeTestRegistrar")) {
             fpData.lambdaPointerVar.markAsUsed();
         }
 
@@ -363,7 +365,6 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         if (!invocationData.moduleIsUsed) {
             invocationData.registerNodes(usedTypeDefAnalyzer, pkgCache.getBirPkg(pkgId));
         }
-
         return invocationData.functionPool.get(funcName);
     }
 
@@ -431,6 +432,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         private static final HashSet<String> PKGS_WITH_WHITELSITED_FILES = new HashSet<>(
                 Arrays.asList("ballerinax/mysql:1.11.0", "ballerina/sql:1.11.1", "ballerinax/persist.sql:1.2.1"));
         private static final String BALLERINA_TEST_PKG_NAME = "ballerina/test:0.0.0";
+        private static final String MOCK_FUNCTION_PREFIX = "$MOCK_";
         protected final HashSet<BIRNode.BIRFunction> usedFunctions = new HashSet<>();
         protected final HashSet<BIRNode.BIRFunction> unusedFunctions = new HashSet<>();
         protected final HashSet<BIRNode.BIRTypeDefinition> usedTypeDefs = new HashSet<>();
@@ -457,6 +459,10 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             }
             return birFunction.annotAttachments.stream()
                     .anyMatch(annAttach -> annAttach.annotPkgId.toString().equals(BALLERINA_TEST_PKG_NAME));
+        }
+
+        private static boolean isGeneratedMockFunction(BIRNode.BIRFunction birFunction) {
+            return birFunction.name.value.startsWith(MOCK_FUNCTION_PREFIX);
         }
 
         protected void registerNodes(UsedTypeDefAnalyzer typeDefAnalyzer, BIRNode.BIRPackage birPackage) {
@@ -493,7 +499,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             functionPool.putIfAbsent(birFunction.originalName.value, birFunction);
 
             if (USED_FUNCTION_NAMES.contains(birFunction.name.value) || isResourceFunction(birFunction) ||
-                    isTestFunction(birFunction)) {
+                    isTestFunction(birFunction) || isGeneratedMockFunction(birFunction)) {
                 this.startPointNodes.add(birFunction);
             }
         }
@@ -501,17 +507,26 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         private void initializeAttachedFunction(BIRNode.BIRTypeDefinition parentTypeDef,
                                                 BIRNode.BIRFunction attachedFunc) {
             attachedFunc.markSelfAsUnused();
+            this.unusedFunctions.add(attachedFunc);
             functionPool.putIfAbsent(parentTypeDef.internalName.value + "." + attachedFunc.name.value, attachedFunc);
         }
 
         protected void addToUsedPool(BIRNode.BIRFunction birFunction) {
-            this.unusedFunctions.remove(birFunction);
-            this.usedFunctions.add(birFunction);
+            if (this.unusedFunctions.remove(birFunction)) {
+                this.usedFunctions.add(birFunction);
+            } else {
+                this.testablePkgInvocationData.unusedFunctions.remove(birFunction);
+                this.testablePkgInvocationData.usedFunctions.add(birFunction);
+            }
         }
 
         protected void addToUsedPool(BIRNode.BIRTypeDefinition birTypeDef) {
-            this.unusedTypeDefs.remove(birTypeDef);
-            this.usedTypeDefs.add(birTypeDef);
+            if (this.unusedTypeDefs.remove(birTypeDef)) {
+                this.usedTypeDefs.add(birTypeDef);
+            } else if (this.testablePkgInvocationData != null) {
+                this.testablePkgInvocationData.unusedTypeDefs.remove(birTypeDef);
+                this.testablePkgInvocationData.usedTypeDefs.add(birTypeDef);
+            }
         }
 
         private FunctionPointerData getFPData(BIRNode.BIRVariableDcl variableDcl) {
@@ -534,8 +549,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         // Can be deleted from the localVar or global var list
         protected BIRNode.BIRVariableDcl lambdaPointerVar;
         // Can be deleted from the instruction array of either the parent function or init<> function
-        private BIRNonTerminator.FPLoad fpLoadInstruction;
-        private List<BIRNonTerminator> instructionArray;
+        private final BIRNonTerminator.FPLoad fpLoadInstruction;
+        private final List<BIRNonTerminator> instructionArray;
         // Holds a recordDefaultFPLoad instruction if the respective fpLoadInstruction has one
         private BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad;
 
