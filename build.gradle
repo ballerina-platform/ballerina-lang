@@ -19,8 +19,7 @@ allprojects {
         doLast{
             println projectDir
         }
-    }
-    
+    }   
 }
 
 subprojects {

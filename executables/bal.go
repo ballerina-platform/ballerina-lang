@@ -1,19 +1,18 @@
-/*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+// Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
 package main
 
@@ -68,7 +67,6 @@ func main() {
 		fmt.Println("Error getting executable path:", err)
 		os.Exit(1)
 	}
-
 	for {
 		link, err := filepath.EvalSymlinks(prg)
 		if err != nil {
@@ -136,7 +134,6 @@ func main() {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		cmd.Stdin = os.Stdin
-
 		err := cmd.Run()
 		if err != nil {
 			os.Exit(1)
@@ -148,7 +145,6 @@ func main() {
 			os.Exit(1)
 		}
 		if validateDebugPort(debugPort) {
-
 			cmdArgs := append(cmdLineArgs,
 				"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address="+strconv.Itoa(debugPort),
 				"-jar",
@@ -175,7 +171,6 @@ func main() {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
-
 		if validateDebugPort(debugPort) {
 			cmdArgs := append(cmdLineArgs,
 				"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address="+strconv.Itoa(debugPort),

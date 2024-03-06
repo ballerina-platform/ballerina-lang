@@ -124,7 +124,6 @@ CopySpec copyResourceSpec = copySpec {
     into(basePath + '/bre')
 }
 
-
 tasks.register('setBallerinaVersion', Exec) {
     doFirst {
         environment 'BALLERINA_VERSION', project.version

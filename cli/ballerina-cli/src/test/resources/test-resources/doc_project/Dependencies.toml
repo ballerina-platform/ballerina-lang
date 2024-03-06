@@ -15,4 +15,3 @@ modules = [
 	{org = "foo", packageName = "winery", moduleName = "winery"},
 	{org = "foo", packageName = "winery", moduleName = "winery.world"}
 ]
-

@@ -226,14 +226,11 @@ dependencies {
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
 }
 
-
 task configured {
     configurations.distBal.allDependencies.withType(ProjectDependency) {
         def path = it.getDependencyProject().path
     }
-
 }
-
 
 def copyJarSpec = {
     base -> copySpec {
@@ -312,6 +309,7 @@ def copyBinSpec = { path ->
         }
     }
 }
+
 def copyAndRenameJaCoCoAgent = {
     path -> copySpec {
         from configurations.jacocoAgentLib
