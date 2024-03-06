@@ -508,10 +508,12 @@ public class CommandUtil {
         Files.writeString(balTomlPath, "\n[[platform." + platform + ".dependency]]", StandardOpenOption.APPEND);
         for (Object dependencies : platformLibraries) {
             JsonObject dependenciesObj = (JsonObject) dependencies;
-            String libPath = dependenciesObj.get("path").getAsString();
-            Path libName = Optional.of(Paths.get(libPath).getFileName()).get();
-            Path libRelPath = Paths.get("libs", libName.toString());
-            Files.writeString(balTomlPath, "\npath = \"" + libRelPath + "\"", StandardOpenOption.APPEND);
+            if (null == dependenciesObj.get("scope")) {
+                String libPath = dependenciesObj.get("path").getAsString();
+                Path libName = Optional.of(Paths.get(libPath).getFileName()).get();
+                Path libRelPath = Paths.get("libs", libName.toString());
+                Files.writeString(balTomlPath, "\npath = \"" + libRelPath + "\"", StandardOpenOption.APPEND);
+            }
 
             if (dependenciesObj.get("artifactId") != null) {
                 String artifactId = dependenciesObj.get("artifactId").getAsString();
@@ -526,6 +528,17 @@ public class CommandUtil {
                 String dependencyVersion = dependenciesObj.get("version").getAsString();
                 Files.writeString(balTomlPath, "\nversion = \"" + dependencyVersion + "\"\n",
                         StandardOpenOption.APPEND);
+            }
+            if (null != dependenciesObj.get("scope") && dependenciesObj.get("scope").getAsString().equals("provided")) {
+                String scope = dependenciesObj.get("scope").getAsString();
+                Files.writeString(balTomlPath, "scope = \"" + scope + "\"\n",
+                        StandardOpenOption.APPEND);
+                String artifactId = dependenciesObj.get("artifactId").getAsString();
+                printError(errStream,
+                        "WARNING: path for the platform dependency " + artifactId + " with provided scope " +
+                                "should be specified in the Ballerina.toml",
+                        null,
+                        false);
             }
         }
     }
