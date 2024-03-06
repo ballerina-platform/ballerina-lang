@@ -18,6 +18,8 @@
 
 package io.ballerina.projects;
 
+import java.util.Objects;
+
 /**
  * Represents an id of a tool integrated with package build.
  *
@@ -54,6 +56,7 @@ public class BuildToolId {
      *
      * @return build tool id
      */
+    @Override
     public String toString() {
         return idStr;
     }
@@ -63,6 +66,7 @@ public class BuildToolId {
      *
      * @return true if the tool id is equal to the current tool id
      */
+    @Override
     public boolean equals(Object other) {
         if (this == other) {
             return true;
@@ -72,5 +76,10 @@ public class BuildToolId {
         }
         BuildToolId that = (BuildToolId) other;
         return idStr.equals(that.idStr);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idStr);
     }
 }

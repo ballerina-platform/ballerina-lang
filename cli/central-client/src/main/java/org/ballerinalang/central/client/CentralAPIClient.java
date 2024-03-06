@@ -50,7 +50,6 @@ import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
 import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.ballerinalang.central.client.model.ToolSearchResult;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Proxy;
@@ -63,6 +62,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import static java.net.HttpURLConnection.HTTP_BAD_GATEWAY;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;

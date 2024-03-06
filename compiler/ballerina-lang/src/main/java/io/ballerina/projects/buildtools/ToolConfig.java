@@ -19,7 +19,7 @@ public @interface ToolConfig {
     String name();
 
     /**
-     * Set the subcommands belonging to the command
+     * Set the subcommands belonging to the command.
      * @return Array of subcommands
      */
     Class<? extends CodeGeneratorTool>[] subcommands() default {};

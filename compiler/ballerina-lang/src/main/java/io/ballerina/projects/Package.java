@@ -693,7 +693,8 @@ public class Package {
 
         private void updatePackageManifest() {
             ManifestBuilder manifestBuilder = ManifestBuilder.from(this.ballerinaTomlContext.tomlDocument(),
-                    Optional.ofNullable(this.compilerPluginTomlContext).map(TomlDocumentContext::tomlDocument).orElse(null),
+                    Optional.ofNullable(this.compilerPluginTomlContext)
+                            .map(TomlDocumentContext::tomlDocument).orElse(null),
                     this.project.sourceRoot());
             this.packageManifest = manifestBuilder.packageManifest();
             BuildOptions newBuildOptions;
@@ -708,7 +709,8 @@ public class Package {
 
         private void updateDependencyManifest() {
             DependencyManifestBuilder manifestBuilder = DependencyManifestBuilder.from(
-                     Optional.ofNullable(this.dependenciesTomlContext).map(TomlDocumentContext::tomlDocument).orElse(null),
+                     Optional.ofNullable(this.dependenciesTomlContext)
+                             .map(TomlDocumentContext::tomlDocument).orElse(null),
                      project.currentPackage().descriptor());
             this.dependencyManifest = manifestBuilder.dependencyManifest();
         }

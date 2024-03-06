@@ -66,7 +66,7 @@ public class ToolResolution {
 
     private ToolResolution(PackageContext packageContext) {
         this.packageContext = packageContext;
-        resolveToolDependencies(packageContext);
+        resolveToolDependencies();
     }
 
     static ToolResolution from(PackageContext packageContext) {
@@ -81,7 +81,7 @@ public class ToolResolution {
         return resolvedTools;
     }
 
-    private void resolveToolDependencies(PackageContext packageContext) {
+    private void resolveToolDependencies() {
         Project currentProject = packageContext.project();
         Map<String, ToolContext> toolContextMap = currentProject.getToolContextMap();
         if (toolContextMap == null || toolContextMap.isEmpty()) {
@@ -173,7 +173,7 @@ public class ToolResolution {
                     ToolUtils.getLatestCompatibleVersion(version.value(), versions, packageLockingMode);
             if (latestCompVersion.isEmpty()) {
                 String toolIdAndVersionOpt = tool.id().value()
-                        + (tool.version() == null? "": ":" + tool.version().toString());
+                        + (tool.version() == null ? "" : ":" + tool.version().toString());
                 PackageDiagnostic diagnostic = ToolUtils.getBuildToolOfflineResolveDiagnostic(toolIdAndVersionOpt);
                 diagnosticList.add(diagnostic);
                 continue;
@@ -208,7 +208,6 @@ public class ToolResolution {
 
     private List<BuildTool> getToolResolutionResponse(ToolResolutionCentralRequest toolResolutionRequest)
             throws CentralClientException {
-        Map<String, ToolContext> toolContextMap = packageContext.project().getToolContextMap();
         Settings settings;
         try {
             settings = RepoUtils.readSettings();

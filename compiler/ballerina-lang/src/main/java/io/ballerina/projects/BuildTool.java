@@ -27,9 +27,9 @@ import java.util.Objects;
  */
 public class BuildTool {
     private final BuildToolId id;
-    private PackageVersion version;
-    private PackageName name;
     private PackageOrg org;
+    private PackageName name;
+    private PackageVersion version;
 
     private BuildTool(BuildToolId id, PackageOrg org, PackageName name, PackageVersion version) {
         this.id = id;
@@ -117,6 +117,7 @@ public class BuildTool {
      *
      * @return string representation of a tool
      */
+    @Override
     public String toString() {
         return id.toString() + (version != null ? ":" + version : "");
     }
@@ -126,6 +127,7 @@ public class BuildTool {
      *
      * @return true if the tool instances are equal, false otherwise
      */
+    @Override
     public boolean equals(Object other) {
         if (this == other) {
             return true;
@@ -135,5 +137,14 @@ public class BuildTool {
         }
         BuildTool that = (BuildTool) other;
         return id.equals(that.id) && Objects.equals(version, that.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                Objects.hashCode(id),
+                Objects.hashCode(org),
+                Objects.hashCode(name),
+                Objects.hashCode(version));
     }
 }

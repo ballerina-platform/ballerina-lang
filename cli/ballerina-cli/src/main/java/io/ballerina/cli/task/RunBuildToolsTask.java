@@ -236,7 +236,9 @@ public class RunBuildToolsTask implements Task {
                 .resolve(ProjectConstants.BALA_DIR_NAME).resolve(org).resolve(name);
         if (toolCacheDir.toFile().isDirectory()) {
             try (Stream<Path> versions = Files.list(toolCacheDir)) {
-                return versions.anyMatch(path -> path.getFileName().toString().equals(version));
+                return versions.anyMatch(path ->
+                        path != null && path.getFileName() != null && version != null
+                                && version.equals(path.getFileName().toString()));
             } catch (IOException e) {
                 throw new ProjectException("Error while looking for locally available tools: " + e);
             }
