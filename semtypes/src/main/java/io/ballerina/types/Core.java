@@ -367,6 +367,10 @@ public final class Core {
         return (bits & ~t2.bitset) == 0;
     }
 
+    public static boolean isSameType(Context context, SemType t1, SemType t2) {
+        return isSubtype(context, t1, t2) && isSubtype(context, t2, t1);
+    }
+
     public static UniformTypeBitSet widenToBasicTypes(SemType t) {
         if (t instanceof UniformTypeBitSet uniformTypeBitSet) {
             return uniformTypeBitSet;

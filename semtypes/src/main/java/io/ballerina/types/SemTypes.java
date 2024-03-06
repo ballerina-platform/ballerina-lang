@@ -97,7 +97,7 @@ public class SemTypes {
     }
 
     public static boolean isSameType(Context context, SemType t1, SemType t2) {
-        return isSubtype(context, t1, t2) && isSubtype(context, t2, t1);
+        return Core.isSameType(context, t1, t2);
     }
 
     public static SemType errorDetail(SemType detail) {

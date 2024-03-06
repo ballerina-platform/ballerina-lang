@@ -29,6 +29,10 @@ import java.util.List;
 import static io.ballerina.types.Conjunction.and;
 import static io.ballerina.types.UniformTypeCode.UT_LIST_RO;
 import static io.ballerina.types.UniformTypeCode.UT_LIST_RW;
+import static io.ballerina.types.typeops.BddCommonOps.bddDiff;
+import static io.ballerina.types.typeops.BddCommonOps.bddIntersect;
+import static io.ballerina.types.typeops.BddCommonOps.bddNodeComplement;
+import static io.ballerina.types.typeops.BddCommonOps.bddUnion;
 
 /**
  * Code common to implementation of multiple basic types.
@@ -125,7 +129,7 @@ public class Common {
     Instead, we transform the BDD to avoid cases that would give the wrong answer.
     Atom index 0 is LIST_SUBTYPE_RO and MAPPING_SUBTYPE_RO */
     public static Bdd bddFixReadOnly(Bdd b) {
-        return bddPosMaybeEmpty(b) ? BddCommonOps.bddIntersect(b, BddCommonOps.bddAtom(RecAtom.createRecAtom(0))) : b;
+        return bddPosMaybeEmpty(b) ? bddIntersect(b, BddCommonOps.bddAtom(RecAtom.createRecAtom(0))) : b;
     }
 
     public static boolean bddPosMaybeEmpty(Bdd b) {
@@ -142,6 +146,22 @@ public class Common {
             return next;
         }
         return and(atom, next);
+    }
+
+    public static SubtypeData bddSubtypeUnion(ProperSubtypeData t1, ProperSubtypeData t2) {
+        return bddUnion((BddNode) t1, (BddNode) t2);
+    }
+
+    public static SubtypeData bddSubtypeIntersect(ProperSubtypeData t1, ProperSubtypeData t2) {
+        return bddIntersect((BddNode) t1, (BddNode) t2);
+    }
+
+    public static SubtypeData bddSubtypeDiff(ProperSubtypeData t1, ProperSubtypeData t2) {
+        return bddDiff((BddNode) t1, (BddNode) t2);
+    }
+
+    public static SubtypeData bddSubtypeComplement(ProperSubtypeData t) {
+        return bddNodeComplement((BddNode) t);
     }
 
     public static SemType[] shallowCopyTypes(SemType[] v) {
