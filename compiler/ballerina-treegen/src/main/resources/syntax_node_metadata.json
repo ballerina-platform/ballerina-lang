@@ -1,12 +1,4 @@
 {
-    "SingleReceiveNode": {
-        "createdYear": "2024",
-        "since": "2201.9.0"
-    },
-    "StreamReceiveNode": {
-        "createdYear": "2024",
-        "since": "2201.9.0"
-    },
     "AlternateReceiveNode": {
         "createdYear": "2024",
         "since": "2201.9.0"

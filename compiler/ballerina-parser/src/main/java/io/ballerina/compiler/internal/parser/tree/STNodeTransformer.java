@@ -945,14 +945,6 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(receiveFieldNode);
     }
 
-    public T transform(STStreamReceiveNode streamReceiveNode) {
-        return transformSyntaxNode(streamReceiveNode);
-    }
-
-    public T transform(STSingleReceiveNode singleReceiveNode) {
-        return transformSyntaxNode(singleReceiveNode);
-    }
-
     // Tokens
 
     public T transform(STToken token) {

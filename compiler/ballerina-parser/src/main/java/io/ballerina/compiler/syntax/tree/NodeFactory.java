@@ -3637,31 +3637,5 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 peerWorker.internalNode());
         return stReceiveFieldNode.createUnlinkedFacade();
     }
-
-    public static StreamReceiveNode createStreamReceiveNode(
-            Token streamKeyword,
-            Token openParenthesis,
-            SeparatedNodeList<SimpleNameReferenceNode> workers,
-            Token closeParenthesis) {
-        Objects.requireNonNull(streamKeyword, "streamKeyword must not be null");
-        Objects.requireNonNull(openParenthesis, "openParenthesis must not be null");
-        Objects.requireNonNull(workers, "workers must not be null");
-        Objects.requireNonNull(closeParenthesis, "closeParenthesis must not be null");
-
-        STNode stStreamReceiveNode = STNodeFactory.createStreamReceiveNode(
-                streamKeyword.internalNode(),
-                openParenthesis.internalNode(),
-                workers.underlyingListNode().internalNode(),
-                closeParenthesis.internalNode());
-        return stStreamReceiveNode.createUnlinkedFacade();
-    }
-
-    public static SingleReceiveNode createSingleReceiveNode(
-            SimpleNameReferenceNode worker) {
-        Objects.requireNonNull(worker, "worker must not be null");
-
-        STNode stSingleReceiveNode = STNodeFactory.createSingleReceiveNode(
-                worker.internalNode());
-        return stSingleReceiveNode.createUnlinkedFacade();
-    }
 }
+
