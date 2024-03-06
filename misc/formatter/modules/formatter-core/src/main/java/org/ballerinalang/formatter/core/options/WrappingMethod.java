@@ -31,7 +31,8 @@ public enum WrappingMethod {
         try {
             return WrappingMethod.valueOf(value);
         } catch (IllegalArgumentException e) {
-            throw new FormatterException("Invalid wrapping method: " + value);
+            assert false : "Include the wrapping method " + value + " in the validator";
+            return NoWrap;
         }
     }
 

@@ -18,7 +18,6 @@ package org.ballerinalang.formatter.core.options;
 import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
-import static org.ballerinalang.formatter.core.FormatterUtils.warning;
 
 /**
  * A model for formatting of the queries by the API user, that could be passed onto the formatter.
@@ -61,7 +60,7 @@ public class QueryFormattingOptions {
                 if (queryStatementKey.equals(ALIGN_MULTILINE_QUERIES)) {
                     setAlignMultiLineQueries((Boolean) queryStatementEntry.getValue());
                 } else {
-                    warning("Invalid query formatting option: " + queryStatementKey);
+                    assert false : "Include the query formatting option " + queryStatementKey + " in the validator";
                 }
             }
             return build();

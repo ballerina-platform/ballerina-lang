@@ -20,7 +20,6 @@ import org.ballerinalang.formatter.core.FormatterException;
 import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultString;
-import static org.ballerinalang.formatter.core.FormatterUtils.warning;
 
 /**
  * A model for formatting of brace settings by the API user, that could be passed onto the formatter.
@@ -79,7 +78,9 @@ public class BraceFormattingOptions {
                 switch (bracesKey) {
                     case CLASS_BRACE_STYLE -> setClassBraceStyle(style);
                     case METHOD_BRACE_STYLE -> setMethodBraceStyle(style);
-                    default -> warning("Invalid Brace Option: " + bracesKey);
+                    default -> {
+                        assert false : "Include the brace formatting option " + bracesKey + " in the validator";
+                    }
                 }
             }
             return build();

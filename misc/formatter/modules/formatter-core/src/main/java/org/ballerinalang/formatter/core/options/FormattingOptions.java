@@ -22,7 +22,6 @@ import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getFormattingConfigurations;
 import static org.ballerinalang.formatter.core.FormatterUtils.getFormattingFilePath;
-import static org.ballerinalang.formatter.core.FormatterUtils.warning;
 
 /**
  * A model for formatting options that could be passed onto the formatter.
@@ -204,7 +203,10 @@ public class FormattingOptions {
                     case QUERY -> queryFormattingOptions = QueryFormattingOptions.builder().build(configs);
                     case SPACING -> spacingFormattingOptions = SpacingFormattingOptions.builder().build(configs);
                     case IMPORT -> importFormattingOptions = ImportFormattingOptions.builder().build(configs);
-                    default -> warning("Invalid formatting option section : " + section);
+                    default -> {
+                        assert false :
+                                "Include the formatting section " + section + " in the validator";
+                    }
                 }
             }
             return build();

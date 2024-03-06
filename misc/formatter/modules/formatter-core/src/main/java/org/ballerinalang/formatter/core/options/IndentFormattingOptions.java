@@ -18,7 +18,6 @@ package org.ballerinalang.formatter.core.options;
 import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultInt;
-import static org.ballerinalang.formatter.core.FormatterUtils.warning;
 
 /**
  * A model for formatting of indent settings by the API user, that could be passed onto the formatter.
@@ -85,7 +84,9 @@ public class IndentFormattingOptions {
                     case INDENT_SIZE -> setIndentSize(((Number) indentEntry.getValue()).intValue());
                     case CONTINUATION_INDENT_SIZE ->
                             setContinuationIndentSize(((Number) indentEntry.getValue()).intValue());
-                    default -> warning("Invalid indent formatting option: " + indentKey);
+                    default -> {
+                        assert false : "Include the import formatting option " + indentKey + " in the validator";
+                    }
                 }
             }
             return build();

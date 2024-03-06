@@ -21,7 +21,6 @@ import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultString;
-import static org.ballerinalang.formatter.core.FormatterUtils.warning;
 
 /**
  * A model for formatting of if statement by the API user, that could be passed onto the formatter.
@@ -118,7 +117,10 @@ public class FunctionCallFormattingOptions {
                     case ALIGN_MULTILINE_PARAMETERS -> setAlignMultilineParameters((Boolean) funcCallEntry.getValue());
                     case NEWLINE_AFTER_LEFT_PAREN -> setNewLineAfterLeftParen((Boolean) funcCallEntry.getValue());
                     case RIGHT_PAREN_ON_NEWLINE -> setRightParenOnNewLine((Boolean) funcCallEntry.getValue());
-                    default -> warning("Invalid function call formatting option: " + funcCallKey);
+                    default -> {
+                        assert false :
+                                "Include the function call formatting option " + funcCallKey + " in the validator";
+                    }
                 }
             }
             return build();

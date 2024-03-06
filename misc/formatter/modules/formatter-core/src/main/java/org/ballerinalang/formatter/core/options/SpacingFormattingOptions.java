@@ -18,7 +18,6 @@ package org.ballerinalang.formatter.core.options;
 import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
-import static org.ballerinalang.formatter.core.FormatterUtils.warning;
 
 /**
  * A model for formatting of spacing by the API user, that could be passed onto the formatter.
@@ -91,7 +90,9 @@ public class SpacingFormattingOptions {
                     case AROUND_RECORD_BRACES -> setAroundRecordBraces((Boolean) spacingEntry.getValue());
                     case ALIGN_CONSECUTIVE_DEFINITIONS ->
                             setAlignConsecutiveDefinitions((Boolean) spacingEntry.getValue());
-                    default -> warning("Invalid spacing formatting option: " + spacingKey);
+                    default -> {
+                        assert false : "Include the spacing formatting option " + spacingKey + " in the validator";
+                    }
                 }
             }
             return build();

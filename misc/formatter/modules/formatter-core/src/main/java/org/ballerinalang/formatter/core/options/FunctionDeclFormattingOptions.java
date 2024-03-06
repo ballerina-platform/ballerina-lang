@@ -21,7 +21,6 @@ import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultString;
-import static org.ballerinalang.formatter.core.FormatterUtils.warning;
 
 /**
  * A model for formatting of function declarations by the API user, that could be passed onto the formatter.
@@ -114,7 +113,10 @@ public class FunctionDeclFormattingOptions {
                     case NEWLINE_AFTER_LEFT_PAREN ->
                             setNewLineAfterLeftParen((Boolean) methodDeclarationEntry.getValue());
                     case RIGHT_PAREN_ON_NEWLINE -> setRightParenOnNewLine((Boolean) methodDeclarationEntry.getValue());
-                    default -> warning("Invalid function declaration formatting option: " + methodDeclarationKey);
+                    default -> {
+                        assert false : "Include the function declaration formatting option " + methodDeclarationKey +
+                                " in the validator";
+                    }
                 }
             }
             return build();
