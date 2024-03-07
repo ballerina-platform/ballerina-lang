@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.StreamParser;
+import io.ballerina.runtime.internal.JsonParser;
 
 import java.io.StringReader;
 
@@ -41,7 +41,7 @@ public class FromJsonDecimalString {
             return null;
         }
         try {
-            return StreamParser.parse(new StringReader(str),
+            return JsonParser.parse(new StringReader(str),
                     JsonUtils.NonStringValueProcessingMode.FROM_JSON_DECIMAL_STRING);
         } catch (BError e) {
             return ErrorCreator

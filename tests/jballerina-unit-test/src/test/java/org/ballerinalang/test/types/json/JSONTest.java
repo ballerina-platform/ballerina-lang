@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.JsonDataSource;
-import io.ballerina.runtime.internal.StreamParser;
+import io.ballerina.runtime.internal.JsonParser;
 import io.ballerina.runtime.internal.values.StreamingJsonValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -66,7 +66,7 @@ public class JSONTest {
     // Test toString-Function.
     @Test(description = "Get string representation of json")
     public void testToString() {
-        Object[] args = {StreamParser.parse(json1)};
+        Object[] args = {JsonParser.parse(json1)};
         Object returns = BRunUtil.invoke(compileResult, "toString", args);
 
         final String expected = "{\"name\":{\"fname\":\"Jack\", \"lname\":\"Taylor\"}, \"state\":\"CA\", \"age\":20}";

@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.StreamParser;
+import io.ballerina.runtime.internal.JsonParser;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -120,7 +120,7 @@ public class StringTest {
 
     @Test
     public void testJsonValueOf() {
-        Object[] args = {StreamParser.parse("{\"name\":\"chanaka\"}")};
+        Object[] args = {JsonParser.parse("{\"name\":\"chanaka\"}")};
         Object returns = BRunUtil.invoke(result, "jsonValueOf", args);
         Assert.assertTrue(returns instanceof BString);
         final String expected = "{\"name\":\"chanaka\"}";
