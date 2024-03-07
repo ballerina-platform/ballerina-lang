@@ -4,9 +4,6 @@ Compiling source
 Running Tests with Coverage
 
 	sourcelessProjectTest
-
-		Test execution time :*****ms
-
 		[pass] test7
 
 
@@ -14,10 +11,9 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
-	sourcelessProjectTest.module1
-
 		Test execution time :*****ms
 
+	sourcelessProjectTest.module1
 		[pass] test5
 
 
@@ -25,16 +21,17 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
-	sourcelessProjectTest.module2
-
 		Test execution time :*****ms
 
+	sourcelessProjectTest.module2
 		[pass] test6
 
 
 		1 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****ms
 
 Generating Test Report
 	sourceless-project-test/target/report/test_results.json

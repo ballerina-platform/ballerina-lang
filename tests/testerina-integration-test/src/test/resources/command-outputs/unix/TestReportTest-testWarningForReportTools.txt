@@ -6,10 +6,7 @@ Running Tests with Coverage
 
 	foo
 
-testMain: has failed.
-
-
-		Test execution time :*****ms
+	testMain: has failed.
 
 		[pass] testFunc
 
@@ -27,10 +24,9 @@ testMain: has failed.
 		1 failing
 		1 skipped
 
-	foo.bar.tests
-
 		Test execution time :*****ms
 
+	foo.bar.tests
 		[pass] testBarAdd
 
 
@@ -38,10 +34,9 @@ testMain: has failed.
 		0 failing
 		0 skipped
 
-	foo.math
-
 		Test execution time :*****ms
 
+	foo.math
 		[pass] testFunction1
 		[pass] testFunction2
 
@@ -49,6 +44,8 @@ testMain: has failed.
 		2 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****ms
 
 Generating Test Report*****project-based-tests/test-report-tests/target/report/test_results.json
 

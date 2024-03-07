@@ -4,9 +4,6 @@ Compiling source
 Running Tests with Coverage
 
 	before_after
-
-		Test execution time :*****ms
-
 		[pass] testFunc
 		[pass] testFunc2
 
@@ -14,6 +11,8 @@ Running Tests with Coverage
 		2 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****ms
 
 Generating Test Report
 	before-after/target/report/test_results.json

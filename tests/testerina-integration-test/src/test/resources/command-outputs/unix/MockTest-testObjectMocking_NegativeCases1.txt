@@ -7,10 +7,7 @@ Running Tests with Coverage
 
 	object_mocking
 
-testDefaultIncompatibleArgs has failed.
-
-
-		Test execution time :*****ms
+	testDefaultIncompatibleArgs has failed.
 
 
 		[fail] testDefaultIncompatibleArgs:
@@ -26,6 +23,8 @@ testDefaultIncompatibleArgs has failed.
 		0 passing
 		1 failing
 		0 skipped
+
+		Test execution time :*****ms
 
 Generating Test Report*****project-based-tests/object-mocking-tests/target/report/test_results.json
 

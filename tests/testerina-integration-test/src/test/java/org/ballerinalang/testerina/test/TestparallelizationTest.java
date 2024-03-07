@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
@@ -258,7 +257,7 @@ public class TestparallelizationTest extends BaseTestCase {
     @Test
     public void testNonIsolatedAfterGroup() throws BallerinaTestException, IOException {
         String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
-                "non-isolated after-group function";
+                "non-isolated after-groups function";
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "non-isolated-after-grp"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -277,7 +276,7 @@ public class TestparallelizationTest extends BaseTestCase {
     @Test
     public void testNonIsolatedBeforeGroup() throws BallerinaTestException, IOException {
         String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
-                "non-isolated before-group function";
+                "non-isolated before-groups function";
         String[] args = mergeCoverageArgs(new String[]{PARALLEL_FLAG, "non-isolated-before-grp"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);

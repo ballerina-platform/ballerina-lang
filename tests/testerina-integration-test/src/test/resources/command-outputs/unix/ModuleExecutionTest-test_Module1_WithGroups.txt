@@ -4,9 +4,6 @@ Compiling source
 Running Tests with Coverage
 
 	moduleExecution.Module1
-
-		Test execution time :*****ms
-
 		[pass] module1_test2
 
 
@@ -14,12 +11,13 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
-	moduleExecution
-
 		Test execution time :*****ms
 
+	moduleExecution
 
 
 		No tests found
+
+		Test execution time :*****ms
 
 Generating Test Report*****project-based-tests/module-execution-tests/target/report/test_results.json

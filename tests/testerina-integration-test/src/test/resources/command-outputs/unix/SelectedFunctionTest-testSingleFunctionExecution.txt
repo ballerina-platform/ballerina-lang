@@ -6,12 +6,11 @@ Compiling source
 Running Tests
 
 	single-test-execution.bal
-
-		Test execution time :*****ms
-
 		[pass] testFunc
 
 
 		1 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****ms

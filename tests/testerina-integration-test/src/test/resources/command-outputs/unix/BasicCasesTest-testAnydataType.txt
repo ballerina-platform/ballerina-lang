@@ -4,9 +4,6 @@ Compiling source
 Running Tests with Coverage
 
 	anydata_type
-
-		Test execution time :*****ms
-
 		[pass] testFn
 		[pass] testFoo
 
@@ -14,6 +11,8 @@ Running Tests with Coverage
 		2 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****ms
 
 Generating Test Report
 	anydata-type-test/target/report/test_results.json

@@ -133,7 +133,7 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "start in remote debugging mode")
     private String debugPort;
 
-    @CommandLine.Option(names = "--parallel", description = "enable parallel execution", defaultValue = "false")
+    @CommandLine.Option(names = "--parallel", description = "enable parallel execution of tests", defaultValue = "false")
     private boolean isParallelExecution;
 
     @CommandLine.Option(names = "--list-groups", description = "list the groups available in the tests")

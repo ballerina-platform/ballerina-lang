@@ -4,15 +4,14 @@ Compiling source
 Running Tests
 
 	testExecutionWithModuleInitFailure.moduleD
-
-		Test execution time :*****ms
-
 		[pass] testFunc
 
 
 		1 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****ms
 
 	testExecutionWithModuleInitFailure
 error: {ballerina}DivisionByZero {"message":" / by zero"}
@@ -21,15 +20,14 @@ error: {ballerina}DivisionByZero {"message":" / by zero"}
 error: {ballerina}DivisionByZero {"message":" / by zero"}
 
 	testExecutionWithModuleInitFailure.moduleC
-
-		Test execution time :*****ms
-
 		[pass] testFunc
 
 
 		1 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****ms
 
 	testExecutionWithModuleInitFailure.moduleB
 error: {ballerina}DivisionByZero {"message":" / by zero"}

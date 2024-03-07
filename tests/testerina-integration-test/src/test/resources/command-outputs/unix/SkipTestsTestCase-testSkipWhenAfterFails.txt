@@ -12,9 +12,6 @@ Running Tests
 			callableName: afterFunc  fileName: skip-when-after-fails.bal lineNumber: 30
 			callableName: afterFunc$lambda6$  fileName: skip-when-after-fails.bal lineNumber: 35
 		
-
-		Test execution time :*****ms
-
 	[fail] afterSuite[after test suite function]:
 	    error {ballerina/test:0}TestError ("Assertion Failed!
 		 
@@ -43,4 +40,6 @@ Running Tests
 		2 passing
 		0 failing
 		1 skipped
+
+		Test execution time :*****ms
 error: there are test failures

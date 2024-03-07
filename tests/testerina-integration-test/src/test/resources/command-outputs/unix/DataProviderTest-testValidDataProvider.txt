@@ -6,9 +6,6 @@ WARNING [tests/new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
 Running Tests with Coverage
 
 	dataproviders
-
-		Test execution time :*****ms
-
 		[pass] jsonDataProviderTest#json1
 		[pass] jsonDataProviderTest#json2
 
@@ -17,13 +14,14 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
-	dataproviders.module1
-
 		Test execution time :*****ms
 
+	dataproviders.module1
 
 
 		No tests found
+
+		Test execution time :*****ms
 
 Generating Test Report
 	data-providers/target/report/test_results.json

@@ -18,8 +18,9 @@ import ballerina/lang.'error as langError;
 isolated boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
 isolated int exitCode = 0;
-final ConcurrentExecutionManager conMgr = new;
+final ExecutionManager executionManager = new;
 map<DataProviderReturnType?> dataDrivenTestParams = {};
+decimal executionTime = 0;
 
 public function startSuite() returns int {
     // exit if setTestOptions has failed
@@ -56,6 +57,7 @@ public function startSuite() returns int {
             }
             executeAfterSuiteFunctions();
             reportGenerators.forEach(reportGen => reportGen(reportData));
+            println(string `${"\n"}${"\t"}${"\t"}Test execution time : ${executionTime}ms`);
         }
     }
     lock {
@@ -67,25 +69,25 @@ function executeTests() returns error? {
     decimal startTime = currentTimeInMillis();
     foreach TestFunction testFunction in testRegistry.getFunctions() {
         if !testFunction.serialExecution {
-            conMgr.addInitialParallelTest(testFunction);
+            executionManager.addInitialParallelTest(testFunction);
             continue;
         }
-        conMgr.addInitialSerialTest(testFunction);
+        executionManager.addInitialSerialTest(testFunction);
     }
-    while !conMgr.isExecutionDone() {
-        if conMgr.getSerialQueueLength() != 0 && conMgr.countTestInExecution() == 0 {
-            TestFunction testFunction = conMgr.getSerialTest();
-            conMgr.addTestInExecution(testFunction);
+    while !executionManager.isExecutionDone() {
+        if executionManager.getSerialQueueLength() != 0 && executionManager.countTestInExecution() == 0 {
+            TestFunction testFunction = executionManager.getSerialTest();
+            executionManager.addTestInExecution(testFunction);
             executeTest(testFunction);
-        } else if conMgr.getParallelQueueLength() != 0 {
-            TestFunction testFunction = conMgr.getParallelTest();
-            conMgr.addTestInExecution(testFunction);
+        } else if executionManager.getParallelQueueLength() != 0 {
+            TestFunction testFunction = executionManager.getParallelTest();
+            executionManager.addTestInExecution(testFunction);
             DataProviderReturnType? testFunctionArgs = dataDrivenTestParams[testFunction.name];
             _ = start executeTestIsolated(testFunction, testFunctionArgs);
         }
-        conMgr.populateExecutionQueues();
+        executionManager.populateExecutionQueues();
     }
-    println(string `${"\n"}${"\t"}${"\t"}Test execution time : ${currentTimeInMillis() - startTime}ms${"\n"}`);
+    executionTime = currentTimeInMillis() - startTime;
 }
 
 function executeBeforeSuiteFunctions() {
@@ -109,7 +111,7 @@ function executeAfterSuiteFunctions() {
 function orderTests() returns error? {
     string[] descendants = [];
     from TestFunction testFunction in testRegistry.getDependentFunctions()
-    where !conMgr.isVisited(testFunction.name) && conMgr.isEnabled(testFunction.name)
+    where !executionManager.isVisited(testFunction.name) && executionManager.isEnabled(testFunction.name)
     do {
         check restructureTest(testFunction, descendants);
     };
@@ -125,11 +127,11 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
         // the user has deliberately passed enable=false
         boolean? dependentEnabled = dependsOnTestFunction.config?.enable;
         if dependentEnabled == false {
-            string errMsg = string `error: Test [${testFunction.name}] depends on function [${dependsOnTestFunction.name}], `
-            + string `but it is either disabled or not included.`;
+            string errMsg = string `error: Test [${testFunction.name}] depends on function` +
+            string ` [${dependsOnTestFunction.name}], but it is either disabled or not included.`;
             return error(errMsg);
         }
-        conMgr.addDependent(dependsOnTestFunction.name, testFunction);
+        executionManager.addDependent(dependsOnTestFunction.name, testFunction);
 
         // Contains cyclic dependencies
         int? startIndex = descendants.indexOf(dependsOnTestFunction.name);
@@ -137,17 +139,18 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
             string[] newCycle = descendants.slice(startIndex);
             newCycle.push(dependsOnTestFunction.name);
             return error("Cyclic test dependencies detected: " + string:'join(" -> ", ...newCycle));
-        } else if !conMgr.isVisited(dependsOnTestFunction.name) {
+        } else if !executionManager.isVisited(dependsOnTestFunction.name) {
             check restructureTest(dependsOnTestFunction, descendants);
         }
     }
-    conMgr.setEnabled(testFunction.name);
-    conMgr.setVisited(testFunction.name);
+    executionManager.setEnabled(testFunction.name);
+    executionManager.setVisited(testFunction.name);
     _ = descendants.pop();
 }
 
 isolated function printExecutionError(ExecutionError err, string functionSuffix) {
-    println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " + formatFailedError(err.message(), 2));
+    println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " +
+    formatFailedError(err.message(), 2));
 }
 
 isolated function getErrorMessage(error err) returns string {
@@ -176,10 +179,10 @@ isolated function nestedEnabledDependentsAvailable(TestFunction[] dependents) re
     }
     TestFunction[] queue = [];
     foreach TestFunction dependent in dependents {
-        if conMgr.isEnabled(dependent.name) {
+        if executionManager.isEnabled(dependent.name) {
             return true;
         }
-        foreach TestFunction superDependent in conMgr.getDependents(dependent.name) {
+        foreach TestFunction superDependent in executionManager.getDependents(dependent.name) {
             queue.push(superDependent);
         }
     }
@@ -208,16 +211,17 @@ isolated function enableExit() {
 }
 
 isolated function isTestReadyToExecute(TestFunction testFunction, DataProviderReturnType? testFunctionArgs) returns boolean {
-    if !conMgr.isEnabled(testFunction.name) {
-        conMgr.setExecutionSuspended(testFunction.name);
+    if !executionManager.isEnabled(testFunction.name) {
+        executionManager.setExecutionSuspended(testFunction.name);
         return false;
     }
     error? diagnoseError = testFunction.diagnostics;
     if diagnoseError is error {
-        reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunctionArgs));
-        println(string `${"\n"}${testFunction.name} has failed.${"\n"}`);
+        reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType =
+        getTestType(testFunctionArgs));
+        println(string `${"\n\t"}${testFunction.name} has failed.${"\n"}`);
         enableExit();
-        conMgr.setExecutionSuspended(testFunction.name);
+        executionManager.setExecutionSuspended(testFunction.name);
         return false;
     }
     return true;
@@ -225,19 +229,19 @@ isolated function isTestReadyToExecute(TestFunction testFunction, DataProviderRe
 
 isolated function finishTestExecution(TestFunction testFunction, boolean shouldSkipDependents) {
     if shouldSkipDependents {
-        conMgr.getDependents(testFunction.name).forEach(isolated function(TestFunction dependent) {
-            conMgr.setSkip(dependent.name);
+        executionManager.getDependents(testFunction.name).forEach(isolated function(TestFunction dependent) {
+            executionManager.setSkip(dependent.name);
         });
     }
-    conMgr.setExecutionCompleted(testFunction.name);
+    executionManager.setExecutionCompleted(testFunction.name);
 }
 
 isolated function handleBeforeGroupOutput(TestFunction testFunction, string 'group, ExecutionError? err) {
     if err is ExecutionError {
-        conMgr.setSkip(testFunction.name);
+        executionManager.setSkip(testFunction.name);
         groupStatusRegistry.setSkipAfterGroup('group);
         enableExit();
-        printExecutionError(err, "before test group function for the test");
+        printExecutionError(err, "before groups function for the test");
     }
 }
 
@@ -245,7 +249,7 @@ isolated function handleBeforeEachOutput(ExecutionError? err) {
     if err is ExecutionError {
         enableShouldSkip();
         enableExit();
-        printExecutionError(err, "before each test function for the test");
+        printExecutionError(err, "before each function for the test");
     }
 }
 
@@ -254,7 +258,7 @@ isolated function handleNonDataDrivenTestOutput(TestFunction testFunction, Execu
     if output is ExecutionError {
         failed = true;
         reportData.onFailed(name = testFunction.name, message = output.message(), testType = GENERAL_TEST);
-        println(string `${"\n"}${testFunction.name} has failed.${"\n"}`);
+        println(string `${"\n\t"}${testFunction.name} has failed.${"\n"}`);
     } else if output {
         failed = true;
     }
@@ -279,8 +283,10 @@ isolated function handleAfterGroupOutput(ExecutionError? err) {
 isolated function handleDataDrivenTestOutput(ExecutionError|boolean err, TestFunction testFunction, string suffix,
         TestType testType) {
     if err is ExecutionError {
-        reportData.onFailed(name = testFunction.name, suffix = suffix, message = string `[fail data provider for the function ${testFunction.name}]${"\n"} ${getErrorMessage(err)}`, testType = testType);
-        println(string `${"\n"}${testFunction.name}:${suffix} has failed.${"\n"}`);
+        reportData.onFailed(name = testFunction.name, suffix = suffix, message =
+        string `[fail data provider for the function ${testFunction.name}]${"\n"} ${getErrorMessage(err)}`,
+        testType = testType);
+        println(string `${"\n\t"}${testFunction.name}:${suffix} has failed.${"\n"}`);
         enableExit();
     }
 }
@@ -303,11 +309,13 @@ isolated function handleAfterFunctionOutput(ExecutionError? err) returns boolean
     return false;
 }
 
-isolated function handleTestFuncOutput(any|error output, TestFunction testFunction, string suffix, TestType testType) returns ExecutionError|boolean {
+isolated function handleTestFuncOutput(any|error output, TestFunction testFunction, string suffix, TestType testType)
+returns ExecutionError|boolean {
     if output is TestError {
         enableExit();
-        reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
-        println(string `${"\n"}${testFunction.name}:${suffix} has failed.${"\n"}`);
+        reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output),
+        testType = testType);
+        println(string `${"\n\t"}${testFunction.name}:${suffix} has failed.${"\n"}`);
         return true;
     }
     if output is any {
@@ -341,7 +349,7 @@ isolated function skipDataDrivenTest(TestFunction testFunction, string suffix, T
     if !testOptions.getHasFilteredTests() {
         return false;
     }
-    TestFunction[] dependents = conMgr.getDependents(functionName);
+    TestFunction[] dependents = executionManager.getDependents(functionName);
 
     // if a dependent in a below level is enabled, this test should run
     if dependents.length() > 0 && nestedEnabledDependentsAvailable(dependents) {
@@ -403,10 +411,10 @@ isolated function skipDataDrivenTest(TestFunction testFunction, string suffix, T
 }
 
 isolated function isBeforeFuncConditionMet(TestFunction testFunction) returns boolean =>
-                testFunction.before is function && !getShouldSkip() && !conMgr.isSkip(testFunction.name);
+                testFunction.before is function && !getShouldSkip() && !executionManager.isSkip(testFunction.name);
 
 isolated function isAfterFuncConditionMet(TestFunction testFunction) returns boolean =>
-                testFunction.after is function && !getShouldSkip() && !conMgr.isSkip(testFunction.name);
+                testFunction.after is function && !getShouldSkip() && !executionManager.isSkip(testFunction.name);
 
 isolated function isSkipFunction(TestFunction testFunction) returns boolean =>
-                conMgr.isSkip(testFunction.name) || getShouldSkip();
+                executionManager.isSkip(testFunction.name) || getShouldSkip();

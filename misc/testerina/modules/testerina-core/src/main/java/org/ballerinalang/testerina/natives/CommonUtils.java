@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 package org.ballerinalang.testerina.natives;
 
 import io.ballerina.runtime.api.types.FunctionType;
@@ -24,17 +23,26 @@ import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 
-
 /**
  * Common utility functions for the Testerina module.
  *
  * @since 2201.9.0
  */
 public class CommonUtils {
+
+    /**
+     * Get the current time in milliseconds.
+     * @return The current time in milliseconds
+     */
     public static BDecimal currentTimeInMillis() {
         return BDecimal.valueOf(System.currentTimeMillis());
     }
 
+    /**
+     * Check whether the parameters of a function are concurrency safe.
+     * @param func The function pointer
+     * @return Whether the parameters are concurrency safe
+     */
     public static Object isFunctionParamConcurrencySafe(BFunctionPointer func) {
         FunctionType functionType = (FunctionType) func.getType();
         Parameter[] functionParameters = functionType.getParameters();
