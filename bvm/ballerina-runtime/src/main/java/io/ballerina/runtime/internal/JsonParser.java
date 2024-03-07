@@ -714,9 +714,10 @@ public class JsonParser {
                     if (ch == sm.currentQuoteChar) {
                         Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
                         BString bString = StringUtils.fromString(sm.value());
-                        int listIndex = ssm.listIndices.get(ssm.listIndices.size() - 1);
+                        int listIndex;
                         switch (targetType.getTag()) {
                             case TypeTags.ARRAY_TAG:
+                                listIndex = ssm.listIndices.get(ssm.listIndices.size() - 1);
                                 try {
                                     ((ArrayValueImpl) sm.currentJsonNode)
                                             .convertStringAndAddRefValue(listIndex, bString);
