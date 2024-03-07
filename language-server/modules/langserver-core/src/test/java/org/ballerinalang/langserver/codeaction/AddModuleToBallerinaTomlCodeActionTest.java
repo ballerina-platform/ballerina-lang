@@ -63,7 +63,7 @@ public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTe
             List<LSPackageLoader.ModuleInfo> localPackages = getLocalPackages(localProjects,
                     languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
                     .collect(Collectors.toList());
-            Mockito.when(getLSPackageLoader().getLocalRepoPackages(Mockito.any())).thenReturn(localPackages);
+            Mockito.when(getLSPackageLoader().getLocalRepoModules()).thenReturn(localPackages);
         } catch (Exception e) {
             //ignore
         } finally {
