@@ -127,12 +127,12 @@ public class ToolUtils {
         for (CodeGeneratorTool buildRunner : commands) {
             Class<?> codeGeneratorToolClass = buildRunner.getClass();
             if (codeGeneratorToolClass.isAnnotationPresent(ToolConfig.class)) {
-                ToolConfig buildToolCommand = codeGeneratorToolClass.getAnnotation(ToolConfig.class);
-                if (buildToolCommand.name().equals(subcommandNames[level])) {
+                ToolConfig toolConfig = codeGeneratorToolClass.getAnnotation(ToolConfig.class);
+                if (toolConfig.name().equals(subcommandNames[level])) {
                     if (level + 1 == subcommandNames.length) {
                         return Optional.of(buildRunner);
                     }
-                    CodeGeneratorTool[] subcommands = Arrays.stream(buildToolCommand.subcommands()).map(cmdClz -> {
+                    CodeGeneratorTool[] subcommands = Arrays.stream(toolConfig.subcommands()).map(cmdClz -> {
                         try {
                             return cmdClz.getConstructor().newInstance();
                         } catch (ReflectiveOperationException e) {
