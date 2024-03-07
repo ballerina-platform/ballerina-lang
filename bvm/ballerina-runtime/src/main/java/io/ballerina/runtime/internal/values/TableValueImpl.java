@@ -616,7 +616,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             }
 
             if (entries.containsKey(hash)) {
-                return handleHashCollisionForPut(key, data, entry, hash);
+                return updateExistingEntry(key, data, entry, hash);
             }
 
             return putData(key, data, newData, entry, hash);
@@ -639,7 +639,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Long hash = TableUtils.hash(key, null);
 
             if (entries.containsKey(hash)) {
-                return handleHashCollisionForPut(key, data, entry, hash);
+                return updateExistingEntry(key, data, entry, hash);
             }
 
             ArrayList<V> newData = new ArrayList<>();
@@ -648,10 +648,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return putData((K) key, data, newData, entry, hash);
         }
 
-        private V handleHashCollisionForPut(K key, V data, Map.Entry<K, V> entry, Long hash) {
+        private V updateExistingEntry(K key, V data, Map.Entry<K, V> entry, Long hash) {
             updateIndexKeyMappings(hash, key, data);
             List<Map.Entry<K, V>> entryList = entries.get(hash);
             for (Map.Entry<K, V> extEntry: entryList) {
+                // Handle hash-collided entries
                 if (TypeChecker.isEqual(key, extEntry.getKey())) {
                     entryList.remove(extEntry);
                     entryList.add(entry);

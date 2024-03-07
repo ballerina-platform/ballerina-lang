@@ -384,17 +384,19 @@ function testHashCollisionInQueryWithAdd() {
 }
 
 function testHashCollisionInQueryWithPut() {
-    table<record {readonly int|string|float? k;}> key(k) tbl1 = table [{k: "10"}];
-    table<record {readonly int|string|float? k;}> tbl2 = table [{k: 0}];
-    table<record {readonly int|string|float? k;}> key(k) tbl3 = table [
-        {k: "10"}, {k: 5}, {k: ()}, {k: -31}, {k: 0}, {k: 100.05}, {k: 30}];
+    table<record {readonly int|string|float? k; int v;}> key(k) tbl1 = table [{k: "10", v: 1}];
+    table<record {readonly int|string|float? k; int v;}> tbl2 = table [{k: 0, v: 2}];
+    table<record {readonly int|string|float? k; int v;}> key(k) tbl3 = table [
+        {k: "10", v: 1}, {k: 5, v: 2}, {k: 0, v: 2}, {k: (), v: 3}, {k: -31, v: 4}, {k: 100.05, v: 1}, {k: 30, v: 2}];
 
-    tbl1.put({k: 5});
-    tbl1.put({k: ()});
-    tbl1.put({k: -31});
-    tbl1.put({k: 0});
-    tbl1.put({k: 100.05});
-    tbl1.put({k: 30});
+    tbl1.put({k: 5, v: 1});
+    tbl1.put({k: (), v: 1});
+    tbl1.put({k: -31, v: 4});
+    tbl1.put({k: 0, v: 2});
+    tbl1.put({k: 5, v: 2});
+    tbl1.put({k: 100.05, v: 1});
+    tbl1.put({k: 30, v: 2});
+    tbl1.put({k: (), v: 3});
     assertEquals(tbl3, tbl1);
 
     table<record {|readonly int|string|float? k; anydata...;|}> tbl4 =
@@ -433,6 +435,18 @@ public function testGetKeysOfHashCollidedKeys() {
     ];
 
     assertEquals(tbl1.keys(), [5, 0, (), 2]);
+
+    table<record {readonly int? k;}> key(k) tbl2 = table [
+        {k: 5}, {k: 0}, {k: 2}
+    ];
+    tbl2.add({k: ()});
+    assertEquals(tbl2.keys(), [5, 0, 2, ()]);
+
+    table<record {readonly int? k;}> key(k) tbl3 = table [
+        {k: 5}, {k: 0}, {k: 2}
+    ];
+    tbl3.put({k: ()});
+    assertEquals(tbl3.keys(), [5, 0, 2, ()]);
 }
 
 function testGetKeyList() returns any[] {
