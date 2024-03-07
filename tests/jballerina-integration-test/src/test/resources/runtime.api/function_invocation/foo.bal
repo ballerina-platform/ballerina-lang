@@ -14,6 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function concat(string a, string b) returns string {
-    return a + b;
+public class Person {
+
+    private int id;
+    private string name;
+
+    public function init(int id, string name) {
+        self.id = id;
+        self.name = name;
+    }
+
+    public function getNameWithTitle(string title) returns string {
+        return title + self.name;
+    }
 }

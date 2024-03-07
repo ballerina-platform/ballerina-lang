@@ -17,10 +17,13 @@
 package org.ballerinalang.test.runtime.api;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
 
 import java.io.PrintStream;
 
@@ -51,19 +54,20 @@ public class RuntimeAPICall {
                     }
                 });
 
-        balRuntime.invokeMethodAsync("concat", new Object[]{StringUtils.fromString("Hello "),
-                        StringUtils.fromString("World")},
-                new Callback() {
-                    @Override
-                    public void notifySuccess(Object result) {
-                        out.println(result);
-                    }
+        BObject person = ValueCreator.createObjectValue(module, "Person", 1001,
+                StringUtils.fromString("John Doe"));
+        balRuntime.invokeMethodAsyncSequentially(person, "getNameWithTitle", null, null, new Callback() {
+            @Override
+            public void notifySuccess(Object result) {
+                out.println(result);
+            }
 
-                    @Override
-                    public void notifyFailure(BError error) {
-                        out.println("Error: " + error);
-                    }
-                });
+            @Override
+            public void notifyFailure(BError error) {
+                out.println("Error: " + error);
+            }
+        }, null, PredefinedTypes.TYPE_STRING, StringUtils.fromString("Dr. "), false);
+
         balRuntime.stop();
 
         balRuntime = Runtime.from(new Module("testorg", "function_invocation.moduleA", "1"));

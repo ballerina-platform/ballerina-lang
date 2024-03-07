@@ -81,7 +81,7 @@ public class RuntimeAPITest extends BaseTest {
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
             List<LogLeecher> leechers = new ArrayList<>();
             leechers.add(new LogLeecher("12"));
-            leechers.add(new LogLeecher("Hello World"));
+            leechers.add(new LogLeecher("Dr. John Doe"));
             leechers.add(new LogLeecher("{\"id\":1001,\"name\":\"John\"," +
                     "\"sportsActivity\":{\"event\":\"100m\",\"year\":2020}}"));
             addToServerInfoLogReader(serverInfoLogReader, leechers);
