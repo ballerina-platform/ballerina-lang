@@ -132,8 +132,10 @@ public class RunBuildToolsTask implements Task {
             ToolContext toolContext = toolContextMap.get(toolEntry.id());
             Optional<CodeGeneratorTool> targetTool = ToolUtils.getTargetTool(commandName, toolServiceLoader);
             if (targetTool.isEmpty()) {
-                // diagnostics have been added at the package resolution time and printed already.
-                // Hence, skipping execution
+                // If the tool is not found, we skip the execution and report a diagnostic
+                PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(commandName);
+                toolContext.reportDiagnostic(diagnostic);
+                this.outStream.println(diagnostic);
                 continue;
             }
             boolean hasOptionErrors = false;
