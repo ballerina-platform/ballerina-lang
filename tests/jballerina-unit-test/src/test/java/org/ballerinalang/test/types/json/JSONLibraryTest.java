@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.JsonGenerator;
-import io.ballerina.runtime.internal.JsonParser;
+import io.ballerina.runtime.internal.StreamParser;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -42,7 +42,7 @@ public class JSONLibraryTest {
     public void testBasicJsonObjectParseCheckTypes() {
         String json = "{\"a\":\"abc\",\"b\":1,\"c\":3.14,\"d\":true,\"e\":false,\"f\":null,\"g\":"
                 + "{\"1\":\"a\",\"2\":\"b\"},\"h\":[\"A\",\"B\",\"C\",\"D\"]}";
-        Object node = JsonParser.parse(json);
+        Object node = StreamParser.parse(json);
         Assert.assertFalse(node instanceof BArray);
         Assert.assertFalse(node instanceof Boolean);
         Assert.assertFalse(node instanceof Double);
@@ -68,7 +68,7 @@ public class JSONLibraryTest {
     public void testBasicJsonObjectParseValues() {
         String json = "{\"a\":\"abc\",\"b\":1,\"c\":3.14,\"d\":true,\"e\":false,\"f\":null,"
                 + "\"g\":{\"1\":\"a\",\"2\":\"b\"},\"h\":[\"A\",20,30,\"D\"]}";
-        BMap<String, Object> node = (BMap<String, Object>) JsonParser.parse(json);
+        BMap<String, Object> node = (BMap<String, Object>) StreamParser.parse(json);
         Assert.assertEquals(node.get(StringUtils.fromString("a")).toString(), "abc");
         Assert.assertEquals(node.get(StringUtils.fromString("b")), 1L);
         Assert.assertEquals(node.get(StringUtils.fromString("c")), ValueCreator.createDecimalValue("3.14"));
@@ -94,7 +94,7 @@ public class JSONLibraryTest {
     public void testBasicJsonObjectGenValues() {
         String json = "{\"a\":\"abc\", \"b\":1, \"c\":3.14, \"d\":true, \"e\":false, \"f\":null, "
                 + "\"g\":{\"1\":\"a\", \"2\":\"b\"}, \"h\":[\"A\", 20, 30, \"D\"]}";
-        Object node = JsonParser.parse(json);
+        Object node = StreamParser.parse(json);
         try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
              JsonGenerator gen = new JsonGenerator(byteOut)) {
             gen.serialize(node);
@@ -112,7 +112,7 @@ public class JSONLibraryTest {
         String expected =
                 "[{\"a\":\"abc\"\",\"x\":\"1\b\f\",\"c\":3.14,\"d\":true,\"e\":false,\"f\":null,\"g\":{\"1\n" +
                         "2\":\"a\r\",\"2\":\"b\"},\"h\":[\"A\tB\",20,30,\"D\\\"]}]";
-        Object node = JsonParser.parse(json);
+        Object node = StreamParser.parse(json);
         String result = node.toString();
         Assert.assertEquals(result, expected);
     }
@@ -123,7 +123,7 @@ public class JSONLibraryTest {
                 + "\"info2\":\"A\\u2655\\u2665\\u266A\\u266aB\"}";
         String json2 = "{\"firstName\":\"Will\",\"lastName\":\"Smith\",\"info\":\"\u2600\","
                 + "\"info2\":\"A\u2655\u2665\u266A\u266aB\"}";
-        BMap<String, Object> node = (BMap<String, Object>) JsonParser.parse(json);
+        BMap<String, Object> node = (BMap<String, Object>) StreamParser.parse(json);
         Assert.assertEquals(node.get(StringUtils.fromString("info")).toString(), "☀");
         Assert.assertEquals(node.get(StringUtils.fromString("info2")).toString(), "A♕♥♪♪B");
         Assert.assertEquals(node.stringValue(null), json2);
@@ -133,7 +133,7 @@ public class JSONLibraryTest {
     public void testJsonDeepLevels() {
         String json = "{\"A\":{\"B\":{\"C\":{\"D\":{\"E\":{\"F\":{\"G\":{\"H\":{\"I\":{\"J\":"
                 + "{\"K\":{\"L\":{\"M\":{\"N\":5}}}}}}}}}}}}}}";
-        Object node = JsonParser.parse(json);
+        Object node = StreamParser.parse(json);
         Assert.assertEquals(node.toString(), json);
     }
 
@@ -322,14 +322,14 @@ public class JSONLibraryTest {
                 "    \"favoriteFruit\": \"banana\"\n" +
                 "  }\n" +
                 "]";
-        Object node = JsonParser.parse(json);
+        Object node = StreamParser.parse(json);
         Assert.assertEquals(node.toString().length(), 7585);
     }
 
     @Test
     public void testQuoteInArrayElements() {
         String json = "{\"fruits\":[\"apple\", \"orange\", \"grapes\"]}";
-        Object node = JsonParser.parse(json);
+        Object node = StreamParser.parse(json);
         Assert.assertEquals(node.toString(), "{\"fruits\":[\"apple\",\"orange\",\"grapes\"]}");
     }
 
@@ -337,6 +337,6 @@ public class JSONLibraryTest {
             expectedExceptionsMessageRegExp = "expected '\"' or '}' at line: 1 column: 2")
     public void testMismatchQuotes() {
         String json = "{'fruits':[\"apple', 'orange', \"grapes\"]}";
-        Object node = JsonParser.parse(json);
+        Object node = StreamParser.parse(json);
     }
 }

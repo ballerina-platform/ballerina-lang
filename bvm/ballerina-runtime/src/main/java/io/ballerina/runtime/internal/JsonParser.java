@@ -105,19 +105,7 @@ public class JsonParser {
      * @throws BError for any parsing error
      */
     public static Object parse(Reader reader, JsonUtils.NonStringValueProcessingMode mode) throws BError {
-        return StreamParser.parse(reader, getTargetType(mode));
-    }
-
-    private static Type getTargetType(JsonUtils.NonStringValueProcessingMode mode) {
-        Type targetType;
-        if (mode == FROM_JSON_DECIMAL_STRING) {
-            targetType = PredefinedTypes.TYPE_JSON_DECIMAL;
-        } else if (mode == FROM_JSON_FLOAT_STRING) {
-            targetType = PredefinedTypes.TYPE_JSON_FLOAT;
-        } else {
-            targetType = PredefinedTypes.TYPE_JSON;
-        }
-        return targetType;
+        return StreamParser.parse(reader, mode);
     }
 
     /**

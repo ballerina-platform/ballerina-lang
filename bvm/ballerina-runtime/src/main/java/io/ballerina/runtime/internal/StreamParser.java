@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -73,6 +74,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
+import static io.ballerina.runtime.api.utils.JsonUtils.NonStringValueProcessingMode.FROM_JSON_DECIMAL_STRING;
+import static io.ballerina.runtime.api.utils.JsonUtils.NonStringValueProcessingMode.FROM_JSON_FLOAT_STRING;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
 import static io.ballerina.runtime.internal.ValueUtils.createRecordValueWithDefaultValues;
 
@@ -121,6 +124,17 @@ public class StreamParser {
     }
 
     /**
+     * Parses the contents in the given string and returns a json.
+     *
+     * @param jsonStr the string which contains the JSON content
+     * @return JSON structure
+     * @throws BError for any parsing error
+     */
+    public static Object parse(String jsonStr) throws BError {
+        return StreamParser.parse(jsonStr, PredefinedTypes.TYPE_JSON);
+    }
+
+    /**
      * Parses the contents in the given string and returns a value of the given target type.
      *
      * @param str the string which contains the content
@@ -135,19 +149,57 @@ public class StreamParser {
      * Parses the contents in the given {@link Reader} and a value of the given target type.
      *
      * @param reader reader which contains the content
+     * @param mode    the mode to use when processing numeric values
      * @return value of the given target type
      * @throws BError for any parsing error
      */
-    public static Object parse(Reader reader, Type targetType) throws BError {
+    public static Object parse(Reader reader, Type targetType, JsonUtils.NonStringValueProcessingMode mode)
+            throws BError {
         StreamStateMachine sm = tlStateMachine.get();
         try {
             sm.addTargetType(targetType);
+            StreamStateMachine.mode = mode;
             return sm.execute(reader);
         } finally {
             // Need to reset the state machine before leaving. Otherwise, references to the created
             // values will be maintained and the java GC will not happen properly.
             sm.reset();
         }
+    }
+
+    /**
+     * Parses the contents in the given {@link Reader} into a value of JSON type.
+     *
+     * @param reader reader which contains the content
+     * @param mode   the mode to use when processing numeric values
+     * @return value of the JSON type
+     * @throws BError for any parsing error
+     */
+    public static Object parse(Reader reader, JsonUtils.NonStringValueProcessingMode mode) {
+        return parse(reader, getTargetType(mode), mode);
+    }
+
+    /**
+     * Parses the contents in the given {@link Reader} and a value of the given target type.
+     *
+     * @param reader reader which contains the content
+     * @return value of the given target type
+     * @throws BError for any parsing error
+     */
+    public static Object parse(Reader reader, Type targetType) throws BError {
+        return parse(reader, targetType, JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
+    }
+
+    private static Type getTargetType(JsonUtils.NonStringValueProcessingMode mode) {
+        Type targetType;
+        if (mode == FROM_JSON_DECIMAL_STRING) {
+            targetType = PredefinedTypes.TYPE_JSON_DECIMAL;
+        } else if (mode == FROM_JSON_FLOAT_STRING) {
+            targetType = PredefinedTypes.TYPE_JSON_FLOAT;
+        } else {
+            targetType = PredefinedTypes.TYPE_JSON;
+        }
+        return targetType;
     }
 
     /**
@@ -162,6 +214,8 @@ public class StreamParser {
         List<Type> targetTypes = new ArrayList<>();
         List<Integer> listIndices = new ArrayList<>(); // we keep only the current indices of arrays and tuples
         private int nodesStackSizeWhenUnionStarts = -1; // when we come across a union target type we set this value
+        private static JsonUtils.NonStringValueProcessingMode mode =
+                JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING;
 
         StreamStateMachine() {
             super("input stream", new FieldNameState(), new StringValueState(), new StringFieldValueState(),
@@ -749,7 +803,7 @@ public class StreamParser {
         private static Object getNonStringValueAsJson(String str) throws ParserException {
             if (str.indexOf('.') >= 0) {
                 try {
-                    if (isNegativeZero(str)) {
+                    if (isNegativeZero(str) || mode == FROM_JSON_FLOAT_STRING) {
                         return Double.parseDouble(str);
                     } else {
                         return new DecimalValue(str);
@@ -767,9 +821,9 @@ public class StreamParser {
                     return null;
                 } else {
                     try {
-                        if (isNegativeZero(str)) {
+                        if (isNegativeZero(str) || mode == FROM_JSON_FLOAT_STRING) {
                             return Double.parseDouble(str);
-                        } else if (isExponential(str)) {
+                        } else if (isExponential(str) || mode == FROM_JSON_DECIMAL_STRING) {
                             return new DecimalValue(str);
                         } else {
                             return Long.parseLong(str);
