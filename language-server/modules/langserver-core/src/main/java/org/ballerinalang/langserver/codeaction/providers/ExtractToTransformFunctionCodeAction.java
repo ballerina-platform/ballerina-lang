@@ -99,11 +99,10 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
             TypeSymbol matchedTypeSymbol = posDetails.matchedTopLevelTypeSymbol();
             Symbol inputSymbol = matchedTypeSymbol == null ?
                     semanticModel.symbol(context.nodeAtRange()).orElseThrow() : matchedTypeSymbol;
-            inputType = getInputRecord(context, getTypeSymbol(inputSymbol).orElseThrow()).orElseThrow();
+            inputType = getInputRecord(context, inputSymbol).orElseThrow();
 
             Symbol outputRecordSymbol = semanticModel.symbol(specificFieldNode.fieldName()).orElseThrow();
-            outputRecord = getOutputRecord(context,
-                    getTypeSymbol(outputRecordSymbol).orElseThrow()).orElseThrow();
+            outputRecord = getOutputRecord(context, outputRecordSymbol).orElseThrow();
 
             enclosingNode = CommonUtil.getMatchingNode(specificFieldNode,
                     node -> node.parent().kind() == SyntaxKind.MODULE_PART).orElseThrow();
@@ -158,8 +157,9 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
     }
 
     private static Optional<OutputRecord> getOutputRecord(CodeActionContext context,
-                                                          TypeSymbol typeSymbol) {
+                                                          Symbol outputRecordSymbol) {
         try {
+            TypeSymbol typeSymbol = getTypeSymbol(outputRecordSymbol).orElseThrow();
             TypeReferenceTypeSymbol typeRefTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
             String name = CodeActionUtil.getPossibleType(typeRefTypeSymbol, context).orElseThrow();
             return Optional.of(new OutputRecord((RecordTypeSymbol) typeRefTypeSymbol.typeDescriptor(), name));
@@ -168,8 +168,9 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
         }
     }
 
-    private static Optional<InputType> getInputRecord(CodeActionContext context, TypeSymbol typeSymbol) {
+    private static Optional<InputType> getInputRecord(CodeActionContext context, Symbol inputSymbol) {
         try {
+            TypeSymbol typeSymbol = getTypeSymbol(inputSymbol).orElseThrow();
             String name = CodeActionUtil.getPossibleType(typeSymbol, context).orElseThrow();
             return Optional.of(new InputType(getTypeSymbol(typeSymbol).orElseThrow(), name));
         } catch (RuntimeException e) {
