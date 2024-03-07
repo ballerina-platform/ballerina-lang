@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.JsonParser;
+import io.ballerina.runtime.internal.StreamParser;
 
 /**
  * Parse a string in JSON format and return the value that it represents.
@@ -38,7 +38,7 @@ public class FromJsonString {
             return null;
         }
         try {
-            return JsonParser.parse(str);
+            return StreamParser.parse(str);
         } catch (BError e) {
             return ErrorCreator.createError(StringUtils.fromString("{ballerina/lang.value}FromJsonStringError"),
                                             StringUtils.fromString(e.getMessage()));

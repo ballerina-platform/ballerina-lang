@@ -19,7 +19,7 @@ package org.ballerinalang.test.expressions.binaryoperations;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.JsonParser;
+import io.ballerina.runtime.internal.StreamParser;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -160,18 +160,18 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equals/unequals operation with two json objects")
     public void testJsonObjectEqualityPositive() {
-        Object jsonVal = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
-        Object jsonValTwo = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
+        Object jsonVal = StreamParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
+        Object jsonValTwo = StreamParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
         BRunUtil.invoke(result, "checkJsonEqualityPositive", new Object[]{jsonVal, jsonValTwo});
 
-        jsonValTwo = JsonParser.parse("{\"helloTwo\": \"worldTwo\", \"hello\": \"world\"}");
+        jsonValTwo = StreamParser.parse("{\"helloTwo\": \"worldTwo\", \"hello\": \"world\"}");
         BRunUtil.invoke(result, "checkJsonEqualityPositive", new Object[]{jsonVal, jsonValTwo});
 
-        jsonValTwo = JsonParser.parse("{\"hello\": \"world\"}");
+        jsonValTwo = StreamParser.parse("{\"hello\": \"world\"}");
         BRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
 
-        jsonValTwo = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\", \"helloThree\": " +
-                "\"worldThree\"}");
+        jsonValTwo = StreamParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\", \"helloThree\": " +
+                                        "\"worldThree\"}");
         BRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
     }
 
