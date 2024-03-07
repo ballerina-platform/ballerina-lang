@@ -21,6 +21,7 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerLogReader;
+import org.ballerinalang.test.util.BFileUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -32,10 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_HOME;
-import static org.ballerinalang.test.util.SQLDBUtils.deleteDirectory;
 
 /**
  * Test class to test the functionality of Ballerina runtime APIs for invoking functions.
@@ -75,10 +72,10 @@ public class RuntimeAPITest extends BaseTest {
         runCmdSet.add("-jar");
         runCmdSet.add(execJarPath.toString());
         ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
-        String jacocoArgLine = "-javaagent:" + Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
-                "jacocoagent.jar") + "=destfile=" + Paths.get(System.getProperty(USER_DIR))
-                .resolve("build").resolve("jacoco").resolve("test.exec") + " ";
-        runProcessBuilder.environment().put("JAVA_OPTS", jacocoArgLine);
+        Map<String, String> envProperties = new HashMap<>();
+        bMainInstance.addJavaAgents(envProperties);
+        Map<String, String> env = runProcessBuilder.environment();
+        env.putAll(envProperties);
         try {
             Process runProcess = runProcessBuilder.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
@@ -101,7 +98,7 @@ public class RuntimeAPITest extends BaseTest {
     @AfterClass
     public void tearDown() {
         bMainInstance = null;
-        deleteDirectory(Paths.get(javaSrcLocation.toString(), "targetDir").toFile());
+        BFileUtil.deleteDirectory(Paths.get(javaSrcLocation.toString(), "targetDir").toFile());
     }
 
     private static void compileJavaSource(Path jarPath) throws BallerinaTestException {
