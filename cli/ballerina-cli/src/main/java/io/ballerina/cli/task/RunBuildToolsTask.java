@@ -83,12 +83,14 @@ import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 public class RunBuildToolsTask implements Task {
     public static final String DEFAULT_VERSION = "0.0.0";
     private final PrintStream outStream;
+    private final boolean exitWhenFinish;
     private ClassLoader toolClassLoader = this.getClass().getClassLoader();
     ServiceLoader<CodeGeneratorTool> toolServiceLoader = ServiceLoader.load(CodeGeneratorTool.class, toolClassLoader);
     private final Map<String, ToolContext> toolContextMap = new HashMap<>();
 
     public RunBuildToolsTask(PrintStream out) {
         this.outStream = out;
+        this.exitWhenFinish = true;
     }
 
     @Override
@@ -114,7 +116,14 @@ public class RunBuildToolsTask implements Task {
             ToolContext toolContext = ToolContext.from(toolEntry, project.currentPackage(), outStream);
             toolContextMap.put(toolEntry.id(), toolContext);
         }
-        ToolResolution toolResolution = project.currentPackage().getToolResolution();
+        ToolResolution toolResolution;
+        try {
+            toolResolution = project.currentPackage().getToolResolution();
+        } catch (ProjectException e) {
+            CommandUtil.printError(this.outStream, e.getMessage(), null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
         toolResolution.getDiagnosticList().forEach(outStream::println);
         List<BuildTool> resolvedTools = toolResolution.getResolvedTools();
         List<BuildTool> centralDeliveredResolvedTools = resolvedTools.stream().filter(tool -> !DEFAULT_VERSION

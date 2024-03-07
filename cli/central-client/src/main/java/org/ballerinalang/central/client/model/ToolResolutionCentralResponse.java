@@ -77,13 +77,13 @@ public class ToolResolutionCentralResponse {
         private String id;
         private String version;
         private String name;
-        private String org;
+        private String orgName;
 
-        public ResolvedTool(String id, String version, String name, String org) {
+        public ResolvedTool(String id, String version, String name, String orgName) {
             this.id = id;
             this.version = version;
             this.name = name;
-            this.org = org;
+            this.orgName = orgName;
         }
 
         public String id() {
@@ -111,11 +111,11 @@ public class ToolResolutionCentralResponse {
         }
 
         public String org() {
-            return org;
+            return orgName;
         }
 
-        public void setOrg(String org) {
-            this.org = org;
+        public void setOrg(String orgName) {
+            this.orgName = orgName;
         }
     }
 

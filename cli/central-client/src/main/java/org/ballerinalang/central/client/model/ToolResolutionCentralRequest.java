@@ -43,16 +43,10 @@ public class ToolResolutionCentralRequest {
 
     List<Tool> tools;
 
-    // TODO: remove this when mocking is finalized
-    public List<Tool> tools() {
-        return tools;
-    }
-
-    // TODO: Remove public qualifier in the Tool class after removing the mock
     /**
      * Tool resolution request tool model.
      */
-    public static class Tool {
+    static class Tool {
         private String id;
 
         @JsonAdapter(EmptyStringTypeAdapter.class)

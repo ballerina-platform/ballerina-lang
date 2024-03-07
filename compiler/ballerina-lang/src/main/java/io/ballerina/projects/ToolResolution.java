@@ -114,10 +114,15 @@ public class ToolResolution {
                 resolvedTools.add(tool);
             }
         }
-        resolvedTools.addAll(resolveToolVersions(currentProject, resolutionRequiredTools));
+        try {
+            resolvedTools.addAll(resolveToolVersions(currentProject, resolutionRequiredTools));
+        } catch (CentralClientException e) {
+            throw new ProjectException("Failed to resolve tool dependencies: " + e.getMessage());
+        }
     }
 
-    private List<BuildTool> resolveToolVersions(Project project, List<BuildTool> unresolvedTools) {
+    private List<BuildTool> resolveToolVersions(Project project, List<BuildTool> unresolvedTools)
+            throws CentralClientException {
         PackageLockingMode packageLockingMode = getPackageLockingMode(project);
         updateLockedToolDependencyVersions(unresolvedTools, project);
         if (project.buildOptions().offlineBuild()) {
@@ -125,9 +130,7 @@ public class ToolResolution {
         }
         Set<ToolResolutionRequest> resolutionRequests = getToolResolutionRequests(unresolvedTools, packageLockingMode);
         ToolResolutionCentralRequest toolResolutionRequest = createToolResolutionRequests(resolutionRequests);
-        // TODO: Remove mock
-//        return getToolResolutionResponse(toolResolutionRequest);
-        return getMockToolResolutionResponse(toolResolutionRequest);
+        return getToolResolutionResponse(toolResolutionRequest);
     }
 
     private PackageLockingMode getPackageLockingMode(Project project) {
@@ -253,23 +256,6 @@ public class ToolResolution {
                     PackageVersion.from(tool.version())
             ));
         }
-        return resolvedTools;
-    }
-
-    private List<BuildTool> getMockToolResolutionResponse(ToolResolutionCentralRequest toolResolutionRequest) {
-        List<BuildTool> resolvedTools = new ArrayList<>();
-        toolResolutionRequest.tools().forEach(tool1 -> {
-            switch (tool1.getId()) {
-                case "copybook" -> {
-                    PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(tool1.getId());
-                    diagnosticList.add(diagnostic);
-                }
-                default -> resolvedTools.add(BuildTool.from(BuildToolId.from("dummy_tool"),
-                        PackageOrg.from("gayaldassanayake"),
-                        PackageName.from("dummypkg"),
-                        PackageVersion.from("0.2.0")));
-            }
-        });
         return resolvedTools;
     }
 
