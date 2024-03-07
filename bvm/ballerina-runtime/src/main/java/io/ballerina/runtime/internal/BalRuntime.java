@@ -77,18 +77,7 @@ public class BalRuntime extends Runtime {
 
     public void init() {
         // Invoke Config init
-        String configClassName = getConfigClassName(module.getOrg(), module.getName(), module.getMajorVersion());
-        Class<?> configClazz;
-        try {
-            configClazz = Class.forName(configClassName);
-        } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" +
-                    configClassName));
-        }
-        TomlDetails configDetails = LaunchUtils.getConfigurationDetails();
-        Object response = directInvoke(configClazz,
-                new Class[]{String[].class, Path[].class, String.class},
-                new Object[]{new String[]{}, configDetails.paths, configDetails.configContent});
+        Object response = invokeConfigInit();
         if (response instanceof Throwable) {
             throw ErrorCreator.createError(StringUtils.fromString("configurable initialization failed due to " +
                     RuntimeUtils.formatErrorMessage((Throwable) response)), (Throwable) response);
@@ -100,7 +89,8 @@ public class BalRuntime extends Runtime {
 
     public void start() {
         if (!moduleInitialized) {
-            throw ErrorCreator.createError(StringUtils.fromString("failed to complete module initialization"));
+            throw ErrorCreator.createError(StringUtils.fromString("'start' method is called before the " +
+                    "module initialization"));
         }
         invokeMethodAsync("$moduleStart", new Object[1], null, PredefinedTypes.TYPE_NULL, "start");
     }
@@ -335,11 +325,21 @@ public class BalRuntime extends Runtime {
         return func;
     }
 
-    private static Object directInvoke(Class<?> clazz, Class<?>[] paramTypes, Object[] args) {
+    private Object invokeConfigInit() {
+        String configClassName = getConfigClassName(this.module);
+        Class<?> configClazz;
+        try {
+            configClazz = Class.forName(configClassName);
+        } catch (Throwable e) {
+            throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" +
+                    configClassName));
+        }
+        TomlDetails configDetails = LaunchUtils.getConfigurationDetails();
+
         String funcName = Utils.encodeFunctionIdentifier("$configureInit");;
         try {
-            final Method method = clazz.getDeclaredMethod(funcName, paramTypes);
-            return method.invoke(null, args);
+            final Method method = configClazz.getDeclaredMethod(funcName, String[].class, Path[].class, String.class);
+            return method.invoke(null, new String[]{}, configDetails.paths, configDetails.configContent);
         } catch (InvocationTargetException e) {
             throw ErrorCreator.createError(StringUtils.fromString(e.getTargetException().getMessage()));
         } catch (NoSuchMethodException | IllegalAccessException e) {
@@ -347,10 +347,13 @@ public class BalRuntime extends Runtime {
         }
     }
 
-    private static String getConfigClassName(String orgName, String packageName, String version) {
+    private static String getConfigClassName(Module module) {
         String configClassName = CONFIGURATION_CLASS_NAME;
+        String orgName = module.getOrg();
+        String packageName = module.getName();
         if (!DOT.equals(packageName)) {
-            configClassName = encodeNonFunctionIdentifier(packageName) + "." + version + "." + configClassName;
+            configClassName = encodeNonFunctionIdentifier(packageName) + "." + module.getMajorVersion() + "." +
+                    configClassName;
         }
         if (!ANON_ORG.equals(orgName)) {
             configClassName = encodeNonFunctionIdentifier(orgName) + "." +  configClassName;
