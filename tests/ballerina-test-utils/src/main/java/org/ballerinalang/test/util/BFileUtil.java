@@ -19,7 +19,12 @@ package org.ballerinalang.test.util;
 
 import org.ballerinalang.test.exceptions.BLangTestException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.CopyOption;
 import java.nio.file.FileVisitResult;
