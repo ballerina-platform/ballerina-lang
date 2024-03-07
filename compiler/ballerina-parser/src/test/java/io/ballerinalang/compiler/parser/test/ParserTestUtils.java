@@ -635,10 +635,6 @@ public class ParserTestUtils {
                 return SyntaxKind.RESOURCE_ACCESS_REST_SEGMENT;
             case "ALTERNATE_RECEIVE":
                 return SyntaxKind.ALTERNATE_RECEIVE;
-            case "STREAM_RECEIVE":
-                return SyntaxKind.STREAM_RECEIVE;
-            case "SINGLE_RECEIVE":
-                return SyntaxKind.SINGLE_RECEIVE;
             case "RECEIVE_FIELD":
                 return SyntaxKind.RECEIVE_FIELD;
 

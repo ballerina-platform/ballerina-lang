@@ -4976,41 +4976,6 @@
                     "type": "SimpleNameReferenceNode"
                 }
             ]
-        },
-        {
-            "name": "StreamReceiveNode",
-            "base": "Node",
-            "kind": "STREAM_RECEIVE",
-            "attributes": [
-                {
-                    "name": "streamKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "openParenthesis",
-                    "type": "Token"
-                },
-                {
-                    "name": "workers",
-                    "type": "SimpleNameReferenceNode",
-                    "occurrences": "MULTIPLE_SEPARATED"
-                },
-                {
-                    "name": "closeParenthesis",
-                    "type": "Token"
-                }
-            ]
-        },
-        {
-            "name": "SingleReceiveNode",
-            "base": "Node",
-            "kind": "SINGLE_RECEIVE",
-            "attributes": [
-                {
-                    "name": "worker",
-                    "type": "SimpleNameReferenceNode"
-                }
-            ]
         }
     ]
 }

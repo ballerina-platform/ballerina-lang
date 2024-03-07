@@ -2730,25 +2730,5 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 colon,
                 peerWorker);
     }
-
-    public static STNode createStreamReceiveNode(
-            STNode streamKeyword,
-            STNode openParenthesis,
-            STNode workers,
-            STNode closeParenthesis) {
-
-        return new STStreamReceiveNode(
-                streamKeyword,
-                openParenthesis,
-                workers,
-                closeParenthesis);
-    }
-
-    public static STNode createSingleReceiveNode(
-            STNode worker) {
-
-        return new STSingleReceiveNode(
-                worker);
-    }
 }
 

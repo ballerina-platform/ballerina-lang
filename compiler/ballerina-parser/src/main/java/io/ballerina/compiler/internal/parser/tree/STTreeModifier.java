@@ -2937,28 +2937,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 peerWorker);
     }
 
-    @Override
-    public STStreamReceiveNode transform(
-            STStreamReceiveNode streamReceiveNode) {
-        STNode streamKeyword = modifyNode(streamReceiveNode.streamKeyword);
-        STNode openParenthesis = modifyNode(streamReceiveNode.openParenthesis);
-        STNode workers = modifyNode(streamReceiveNode.workers);
-        STNode closeParenthesis = modifyNode(streamReceiveNode.closeParenthesis);
-        return streamReceiveNode.modify(
-                streamKeyword,
-                openParenthesis,
-                workers,
-                closeParenthesis);
-    }
-
-    @Override
-    public STSingleReceiveNode transform(
-            STSingleReceiveNode singleReceiveNode) {
-        STNode worker = modifyNode(singleReceiveNode.worker);
-        return singleReceiveNode.modify(
-                worker);
-    }
-
     // Tokens
 
     public STToken transform(STToken token) {

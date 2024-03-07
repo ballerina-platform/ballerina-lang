@@ -955,14 +955,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(receiveFieldNode);
     }
 
-    public void visit(StreamReceiveNode streamReceiveNode) {
-        visitSyntaxNode(streamReceiveNode);
-    }
-
-    public void visit(SingleReceiveNode singleReceiveNode) {
-        visitSyntaxNode(singleReceiveNode);
-    }
-
     // Tokens
 
     public void visit(Token token) {

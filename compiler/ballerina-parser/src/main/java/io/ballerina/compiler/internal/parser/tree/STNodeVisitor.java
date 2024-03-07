@@ -945,14 +945,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(receiveFieldNode);
     }
 
-    public void visit(STStreamReceiveNode streamReceiveNode) {
-        visitSyntaxNode(streamReceiveNode);
-    }
-
-    public void visit(STSingleReceiveNode singleReceiveNode) {
-        visitSyntaxNode(singleReceiveNode);
-    }
-
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);
