@@ -583,9 +583,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 return;
             }
 
-            ArrayList<V> newData = new ArrayList<>();
-            newData.add(data);
-            putData(key, data, newData, entry, hash);
+            putNewData(key, data, entry, hash);
         }
 
         public V getData(K key) {
@@ -602,9 +600,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V putData(K key, V data) {
-            ArrayList<V> newData = new ArrayList<>();
-            newData.add(data);
-
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
             Object actualKey = this.keyWrapper.wrapKey((MapValue) data);
             Long actualHash = TableUtils.hash(actualKey, null);
@@ -619,10 +614,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 return updateExistingEntry(key, data, entry, hash);
             }
 
-            return putData(key, data, newData, entry, hash);
+            return putNewData(key, data, entry, hash);
         }
 
-        private V putData(K key, V value, List<V> data, Map.Entry<K, V> entry, Long hash) {
+        private V putNewData(K key, V value, Map.Entry<K, V> entry, Long hash) {
+            List<V> data = new ArrayList<>();
+            data.add(value);
             updateIndexKeyMappings(hash, key, value);
             List<Map.Entry<K, V>> entryList = new ArrayList<>();
             entryList.add(entry);
@@ -642,10 +639,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 return updateExistingEntry(key, data, entry, hash);
             }
 
-            ArrayList<V> newData = new ArrayList<>();
-            newData.add(data);
-
-            return putData((K) key, data, newData, entry, hash);
+            return putNewData((K) key, data, entry, hash);
         }
 
         private V updateExistingEntry(K key, V data, Map.Entry<K, V> entry, Long hash) {
