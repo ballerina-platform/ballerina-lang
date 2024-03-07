@@ -82,31 +82,6 @@ public class ToolUtils {
     }
 
     /**
-     * Validate the id field of a BalTool.toml.
-     *
-     * @param toolId id of a bal tool
-     * @throws ProjectException an exception based on the validation violation
-     */
-    public static void validateBalToolId(String toolId) {
-        StringBuilder errorMessage = new StringBuilder("Tool id should ");
-        if (toolId == null || toolId.isEmpty()) {
-            errorMessage.append("not be empty");
-        } else if (!toolId.matches("^[a-zA-Z0-9_]+$")) {
-            errorMessage.append("only contain alphanumeric characters and underscores");
-        } else if (toolId.startsWith("_")) {
-            errorMessage.append("not start with an underscore");
-        } else if (toolId.endsWith("_")) {
-            errorMessage.append("not end with an underscore");
-        } else if (toolId.contains("__")) {
-            errorMessage.append("not contain consecutive underscores");
-        } else {
-            return;
-        }
-        errorMessage.append(" in BalTool.toml file");
-        throw new ProjectException(errorMessage.toString());
-    }
-
-    /**
      * Selects the class matching the name from the ServiceLoader.
      *
      * @param commandName name of the tool (tool type)
@@ -120,6 +95,30 @@ public class ToolUtils {
                 .map(ServiceLoader.Provider::get)
                 .toArray(CodeGeneratorTool[]::new);
         return getTargetToolRec(subcommandNames, 0, subcommands);
+    }
+
+    /**
+     * Return a diagnostic if the command name is invalid.
+     *
+     * @param fullCommandName the full name of the command. eg: health.fhir
+     * @return diagnostic wrapped in Optional
+     */
+    public static Optional<PackageDiagnostic> getDiagnosticIfInvalidCommandName(String fullCommandName) {
+        String[] subcommandNames = fullCommandName.split("\\.");
+        for (String subcommandName : subcommandNames) {
+            ValidationStatus validationStatus = validateCommandName(subcommandName);
+            if (validationStatus != ValidationStatus.VALID) {
+                return Optional.of(getInvalidCommandNameDiagnostic(fullCommandName, validationStatus.message()));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static PackageDiagnostic getInvalidCommandNameDiagnostic(String cmdName, String reason) {
+        String message = "Command name '" + cmdName + "' is invalid because " + reason;
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(), message, DiagnosticSeverity.ERROR);
+        return new PackageDiagnostic(diagnosticInfo, cmdName);
     }
 
     private static Optional<CodeGeneratorTool> getTargetToolRec(
@@ -200,6 +199,28 @@ public class ToolUtils {
         List<SemanticVersion> versionsInCompatibleRange = getVersionsInCompatibleRange(
                 version, versions, compatibleRange);
         return getLatestVersion(versionsInCompatibleRange);
+    }
+
+    /**
+     * Validate the name field of the ToolConfigAnnotation.
+     *
+     * @param cmdName name of the (sub)command
+     * @return validation status
+     */
+    private static ValidationStatus validateCommandName(String cmdName) {
+        ValidationStatus status = ValidationStatus.VALID;
+        if (cmdName == null || cmdName.isEmpty()) {
+            status = ValidationStatus.EMPTY;
+        } else if (!cmdName.matches("^\\w+$")) {
+            status = ValidationStatus.NON_ALPHANUMERIC;
+        } else if (cmdName.startsWith("_")) {
+            status = ValidationStatus.LEADING_UNDERSCORE;
+        } else if (cmdName.endsWith("_")) {
+            status = ValidationStatus.TRAILING_UNDERSCORE;
+        } else if (cmdName.contains("__")) {
+            status = ValidationStatus.CONSECUTIVE_UNDERSCORES;
+        }
+        return status;
     }
 
     private static List<Path> getIncompatibleVersion(List<Path> versions, PackageOrg org, PackageName name) {
@@ -308,6 +329,29 @@ public class ToolUtils {
             }
         }
         return Optional.of(latestVersion);
+    }
+
+
+    /**
+     * Denote all possible validation failures of a command name plus a valid status.
+     */
+    private enum ValidationStatus {
+        EMPTY("command name should not be empty."),
+        NON_ALPHANUMERIC("command name should only contain alphanumeric characters and underscores."),
+        LEADING_UNDERSCORE("command name should not start with an underscore."),
+        TRAILING_UNDERSCORE("command name should not end with an underscore."),
+        CONSECUTIVE_UNDERSCORES("command name should not contain consecutive underscores."),
+        VALID("Valid command name.");
+
+        private final String message;
+
+        ValidationStatus(String message) {
+            this.message = message;
+        }
+
+        public String message() {
+            return message;
+        }
     }
 
     /**

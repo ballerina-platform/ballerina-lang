@@ -147,6 +147,15 @@ public class RunBuildToolsTask implements Task {
                 this.outStream.println(diagnostic);
                 continue;
             }
+            // Here, we can safely pass the tool type value given in Ballerina.toml instead of
+            // the aggregation of the ToolConfig annotation name fields of a command/ subcommand field
+            // since we have verified that those two are identical in the ToolUtils.getTargetTool method
+            Optional<PackageDiagnostic> cmdNameDiagnostic = ToolUtils.getDiagnosticIfInvalidCommandName(commandName);
+            if (cmdNameDiagnostic.isPresent()) {
+                toolContext.reportDiagnostic(cmdNameDiagnostic.get());
+                this.outStream.println(cmdNameDiagnostic.get());
+                continue;
+            }
             boolean hasOptionErrors = false;
             try {
                 // validate the options toml and report diagnostics
