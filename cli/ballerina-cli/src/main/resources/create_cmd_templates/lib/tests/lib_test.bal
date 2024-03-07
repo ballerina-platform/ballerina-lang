@@ -14,7 +14,7 @@ function beforeSuiteFunc() {
 function testFunction() {
     string name = "John";
     string welcomeMsg = hello(name);
-    test:assertEquals("Hello, John", welcomeMsg);
+    test:assertEquals(welcomeMsg, "Hello, John");
 }
 
 // Negative Test function
@@ -23,7 +23,7 @@ function testFunction() {
 function negativeTestFunction() {
     string name = "";
     string welcomeMsg = hello(name);
-    test:assertEquals("Hello, World!", welcomeMsg);
+    test:assertEquals(welcomeMsg, "Hello, World!");
 }
 
 // After Suite Function
