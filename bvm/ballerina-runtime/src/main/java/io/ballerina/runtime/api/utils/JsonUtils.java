@@ -36,7 +36,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.JsonInternalUtils;
-import io.ballerina.runtime.internal.StreamParser;
+import io.ballerina.runtime.internal.JsonParser;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
@@ -74,7 +74,7 @@ public class JsonUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(InputStream in) throws BError {
-        return StreamParser.parse(in, PredefinedTypes.TYPE_JSON);
+        return JsonParser.parse(in, PredefinedTypes.TYPE_JSON);
     }
 
     /**
@@ -86,7 +86,7 @@ public class JsonUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(InputStream in, String charsetName) throws BError {
-        return StreamParser.parse(in, charsetName, PredefinedTypes.TYPE_JSON);
+        return JsonParser.parse(in, charsetName, PredefinedTypes.TYPE_JSON);
     }
 
     /**
@@ -97,7 +97,7 @@ public class JsonUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(BString jsonStr) throws BError {
-        return StreamParser.parse(jsonStr.getValue());
+        return JsonParser.parse(jsonStr.getValue());
     }
 
     /**
@@ -109,7 +109,7 @@ public class JsonUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(BString jsonStr, NonStringValueProcessingMode mode) throws BError {
-        return StreamParser.parse(new StringReader(jsonStr.getValue()), mode);
+        return JsonParser.parse(new StringReader(jsonStr.getValue()), mode);
     }
 
     /**
@@ -120,7 +120,7 @@ public class JsonUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(String jsonStr) throws BError {
-        return StreamParser.parse(jsonStr);
+        return JsonParser.parse(jsonStr);
     }
 
     /**
@@ -132,7 +132,7 @@ public class JsonUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(String jsonStr, NonStringValueProcessingMode mode) throws BError {
-        return StreamParser.parse(new StringReader(jsonStr), mode);
+        return JsonParser.parse(new StringReader(jsonStr), mode);
     }
 
     /**
@@ -144,7 +144,7 @@ public class JsonUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(Reader reader, NonStringValueProcessingMode mode) throws BError {
-        return StreamParser.parse(reader, mode);
+        return JsonParser.parse(reader, mode);
     }
 
     /**

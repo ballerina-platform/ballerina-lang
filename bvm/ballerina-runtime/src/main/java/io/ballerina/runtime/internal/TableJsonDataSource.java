@@ -147,7 +147,7 @@ public class TableJsonDataSource implements JsonDataSource {
                 break;
             case TypeTags.JSON_TAG:
                 jsonObject.put(key, record.getStringValue(key) == null ? null :
-                        StreamParser.parse(record.getStringValue(key).toString()));
+                        JsonParser.parse(record.getStringValue(key).toString()));
                 break;
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:

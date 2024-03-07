@@ -87,12 +87,12 @@ import static io.ballerina.runtime.internal.ValueUtils.createRecordValueWithDefa
  *
  * @since 2201.9.0
  */
-public class StreamParser {
+public class JsonParser {
 
     private static final ThreadLocal<StreamStateMachine> tlStateMachine =
             ThreadLocal.withInitial(StreamStateMachine::new);
 
-    private StreamParser() {
+    private JsonParser() {
     }
 
     /**
@@ -131,7 +131,7 @@ public class StreamParser {
      * @throws BError for any parsing error
      */
     public static Object parse(String jsonStr) throws BError {
-        return StreamParser.parse(jsonStr, PredefinedTypes.TYPE_JSON);
+        return JsonParser.parse(jsonStr, PredefinedTypes.TYPE_JSON);
     }
 
     /**
