@@ -10,7 +10,7 @@
     }
   },
   "source": "extract_to_transform_function21.bal",
-  "description": "Extract to transform function for a union type with error",
+  "description": "Extract to transform function for a type cast expression with matching types",
   "expected": [
     {
       "title": "Extract to transform function",

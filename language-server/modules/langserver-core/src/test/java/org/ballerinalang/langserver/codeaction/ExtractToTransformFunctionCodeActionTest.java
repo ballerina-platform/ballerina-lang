@@ -71,6 +71,21 @@ public class ExtractToTransformFunctionCodeActionTest extends AbstractCodeAction
     }
 
     @Override
+    @Test(dataProvider = "negative-test-data-provider")
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"extract_to_transform_function_negative1.json"},
+                {"extract_to_transform_function_negative2.json"},
+                {"extract_to_transform_function_negative3.json"},
+        };
+    }
+
+    @Override
     public String getResourceDir() {
         return "extract-to-transform-function";
     }
