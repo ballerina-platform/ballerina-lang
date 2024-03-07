@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -206,7 +207,7 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
         try {
             generatedFunction = Formatter.format(generatedFunction);
         } catch (FormatterException e) {
-            // Ignore the formatter exception
+            assert false : "FormatterException should not be thrown";
         }
         return CommonUtil.LINE_SEPARATOR + CommonUtil.LINE_SEPARATOR + generatedFunction;
     }
@@ -219,10 +220,11 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
             case VARIABLE -> typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
             case TYPE -> typeSymbol = (TypeSymbol) symbol;
             default -> {
+                assert false : "Unconsidered symbol type found: " + symbol.kind();
                 return Optional.empty();
             }
         }
-        return Optional.of(typeSymbol);
+        return typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR ? Optional.empty() : Optional.of(typeSymbol);
     }
 
     @Override
