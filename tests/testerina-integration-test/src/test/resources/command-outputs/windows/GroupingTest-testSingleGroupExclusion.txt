@@ -7,10 +7,7 @@ Running Tests
 
 	groups-test.bal
 
-testFunc5: has failed.
-
-
-		Test execution time :*****ms
+	testFunc5: has failed.
 
 		[pass] testFunc1
 		[pass] testFunc2
@@ -30,4 +27,6 @@ testFunc5: has failed.
 		4 passing
 		1 failing
 		0 skipped
-error: there are test failures
+
+		Test execution time :*****ms
+error: there are test failures

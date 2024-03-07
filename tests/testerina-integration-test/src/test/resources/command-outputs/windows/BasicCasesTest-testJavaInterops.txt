@@ -4,15 +4,14 @@ Compiling source
 Running Tests with Coverage
 
 	interops
-
-		Test execution time :*****ms
-
 		[pass] testInteropWithRestArgs
 
 
 		1 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****ms
 
 Generating Test Report
 	interops\target\report\test_results.json

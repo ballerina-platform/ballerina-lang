@@ -5,10 +5,7 @@ Running Tests with Coverage
 
 	non_public_field_mock
 
-testNonPublicMemberFieldMock has failed.
-
-
-		Test execution time :*****ms
+	testNonPublicMemberFieldMock has failed.
 
 
 		[fail] testNonPublicMemberFieldMock:
@@ -24,6 +21,8 @@ testNonPublicMemberFieldMock has failed.
 		0 passing
 		1 failing
 		0 skipped
+
+		Test execution time :*****ms
 
 Generating Test Report*****project-based-tests\non-public-field-mock\target\report\test_results.json
 

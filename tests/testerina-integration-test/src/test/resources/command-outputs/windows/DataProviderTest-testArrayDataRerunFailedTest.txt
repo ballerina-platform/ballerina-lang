@@ -7,13 +7,10 @@ Running Tests with Coverage
 
 	dataproviders
 
-intArrayDataProviderTest:0 has failed.
+	intArrayDataProviderTest:0 has failed.
 
 
-intArrayDataProviderTest:1 has failed.
-
-
-		Test execution time :*****ms
+	intArrayDataProviderTest:1 has failed.
 
 
 		[fail] intArrayDataProviderTest#0:
@@ -45,15 +42,16 @@ intArrayDataProviderTest:1 has failed.
 		2 failing
 		0 skipped
 
-	dataproviders.module1
-
 		Test execution time :*****ms
 
+	dataproviders.module1
 
 
 		No tests found
 
+		Test execution time :*****ms
+
 Generating Test Report
 	data-providers\target\report\test_results.json
 
-error: there are test failures
+error: there are test failures

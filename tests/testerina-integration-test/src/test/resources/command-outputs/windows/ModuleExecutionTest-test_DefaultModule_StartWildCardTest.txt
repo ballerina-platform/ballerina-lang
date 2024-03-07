@@ -5,22 +5,20 @@ Running Tests with Coverage
 
 	moduleExecution.Module1
 
-		Test execution time :*****ms
-
-
 
 		No tests found
 
-	moduleExecution
-
 		Test execution time :*****ms
 
+	moduleExecution
 		[pass] commonTest
 
 
 		1 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****ms
 
 Generating Test Report*****project-based-tests\module-execution-tests\target\report\test_results.json
 

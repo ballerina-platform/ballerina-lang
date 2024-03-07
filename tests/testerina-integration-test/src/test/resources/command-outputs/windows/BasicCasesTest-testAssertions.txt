@@ -4,9 +4,6 @@ Compiling source
 Running Tests with Coverage
 
 	assertions
-
-		Test execution time :*****ms
-
 		[pass] testAssertBooleanEquals
 		[pass] testAssertBooleanEqualsNegative
 		[pass] testAssertBooleanNotEquals
@@ -48,6 +45,8 @@ Running Tests with Coverage
 		36 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****ms
 
 Generating Test Report
 	assertions\target\report\test_results.json

@@ -4,15 +4,14 @@ Compiling source
 Running Tests with Coverage
 
 	runtime_api
-
-		Test execution time :*****ms
-
 		[pass] testRuntimeApi
 
 
 		1 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****ms
 
 Generating Test Report
 	runtime-api-tests\target\report\test_results.json
