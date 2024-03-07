@@ -64,7 +64,9 @@ public class ExtractToTransformFunctionCodeActionTest extends AbstractCodeAction
                 {"extract_to_transform_function16.json"},
                 {"extract_to_transform_function17.json"},
                 {"extract_to_transform_function18.json"},
-                {"extract_to_transform_function19.json"}
+                {"extract_to_transform_function19.json"},
+                {"extract_to_transform_function20.json"},
+                {"extract_to_transform_function21.json"}
         };
     }
 

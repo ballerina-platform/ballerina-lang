@@ -143,7 +143,8 @@ public class ExtractToTransformFunctionCodeAction implements RangeBasedCodeActio
                 SyntaxKind.INDEXED_EXPRESSION,
                 SyntaxKind.FUNCTION_CALL,
                 SyntaxKind.METHOD_CALL,
-                SyntaxKind.CHECK_EXPRESSION
+                SyntaxKind.CHECK_EXPRESSION,
+                SyntaxKind.TYPE_CAST_EXPRESSION
         );
     }
 
