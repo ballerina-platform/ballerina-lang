@@ -160,10 +160,43 @@ function testXMLIndexedOptionalAttributeAccess() {
     assertNonErrorValue((x6/**/<ns2:c>)[1][0]?.g, ());
 }
 
+function testErrorsOnXMLIndexedOptionalAttributeAccess() {
+    string errorMessage = "{ballerina/lang.xml}XMLOperationError";
+
+    xml x1 = xml `<!--Comment1--><a id="0"><b><!--Comment2-->></b><!--Comment3--></a>`;
+    string expCommentDetailMessage = "invalid xml attribute access on xml comment";
+    assertError(x1[0]?.id, errorMessage, expCommentDetailMessage);
+    assertError(x1[0][0]?.id, errorMessage, expCommentDetailMessage);
+    assertError((x1[1]/*)[1]?.id, errorMessage, expCommentDetailMessage);
+    assertError((x1.<a>/*)[1]?.id, errorMessage, expCommentDetailMessage);
+    assertError((x1/*)[1]?.id, errorMessage, expCommentDetailMessage);
+    assertError((x1/<b>/*)[0]?.id, errorMessage, expCommentDetailMessage);
+    assertError((x1/**/<b>/*)[0]?.id, errorMessage, expCommentDetailMessage);
+
+    xml x2 = xml `<?data?><c id="1"><d><?data2?></d><?target?></c>`;
+    string expPiDetailMessage = "invalid xml attribute access on xml pi";
+    assertError(x2[0]?.id, errorMessage, expPiDetailMessage);
+    assertError(x2[0][0]?.id, errorMessage, expPiDetailMessage);
+    assertError((x2[1]/*)[1]?.id, errorMessage, expPiDetailMessage);
+    assertError((x2.<c>/*)[1]?.id, errorMessage, expPiDetailMessage);
+    assertError((x2/*)[1]?.id, errorMessage, expPiDetailMessage);
+    assertError((x2/<d>/*)[0]?.id, errorMessage, expPiDetailMessage);
+    assertError((x2/**/<d>/*)[0]?.id, errorMessage, expPiDetailMessage);
+
+    xml x3 = xml `Text<e id="2"><f>f</f>Another Text</e>`;
+    string expTextDetailMessage = "invalid xml attribute access on xml text";
+    assertError(x3[0]?.id, errorMessage, expTextDetailMessage);
+    assertError(x3[0][0]?.id, errorMessage, expTextDetailMessage);
+    assertError((x3[1]/*)[1]?.id, errorMessage, expTextDetailMessage);
+    assertError((x3.<e>/*)[1]?.id, errorMessage, expTextDetailMessage);
+    assertError((x3/*)[1]?.id, errorMessage, expTextDetailMessage);
+    assertError((x3/<f>/*)[0]?.id, errorMessage, expTextDetailMessage);
+    assertError((x3/**/<f>/*)[0]?.id, errorMessage, expTextDetailMessage);
+}
+
 function assertNonErrorValue(anydata|error actual, anydata expected) {
     if actual is error {
-        string reason = "expected [" + expected.toString() + "] " + ", but got error with message " + actual.message();
-        panic error(reason);
+        panic error("expected [" + expected.toString() + "] " + ", but got error with message " + actual.message());
     }
     assert(actual, expected);
 }
