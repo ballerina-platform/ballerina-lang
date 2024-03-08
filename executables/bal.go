@@ -28,11 +28,11 @@ import (
 )
 
 func main() {
-	ballerinaHome := "@VERSION@"
+	ballerinaHome := os.Getenv(BALLERINA_HOME)
 	javaPath := filepath.Join(ballerinaHome, "..", "..", "dependencies", "jdk-17.0.7+7-jre")
 	javaCmd := os.Getenv("JAVACMD")
 	javaHome := os.Getenv("JAVA_HOME")
-	ballerinaVersion := os.Getenv("BALLERINA_VERSION")
+	ballerinaVersion := "@VERSION@"
 	if stat, err := os.Stat(javaPath); err == nil && stat.IsDir() {
 		javaHome := javaPath
 		os.Setenv("JAVA_HOME", javaHome)
