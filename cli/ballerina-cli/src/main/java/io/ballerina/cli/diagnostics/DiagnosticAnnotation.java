@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.cli.utils;
+package io.ballerina.cli.diagnostics;
 
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
