@@ -44,18 +44,14 @@ import javax.transaction.xa.Xid;
 public class RecoveryManager {
 
     private static final Logger log = LoggerFactory.getLogger(RecoveryManager.class);
-    private Map<String, TransactionLogRecord> failedTransactions;
-    private Collection<XAResource> failedToRecoverResources;
-    private Collection<XAResource> xaResources;
-
-    private final RuntimeDiagnosticLog diagnosticLog;
+    private final Map<String, TransactionLogRecord> failedTransactions;
+    private final Collection<XAResource> xaResources;
+    private final RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
     private static final PrintStream stderr = System.err;
 
     public RecoveryManager() {
         this.failedTransactions = new HashMap<>();
-        this.failedToRecoverResources = new ArrayList<>();
         this.xaResources = new ArrayList<>();
-        this.diagnosticLog = new RuntimeDiagnosticLog();
     }
 
     /**
@@ -77,10 +73,11 @@ public class RecoveryManager {
     }
 
     /**
-     * Add a xa resource to the list of resources to recover. XAResources should be added from the relavent library side
-     * during their initialization.
+     * Add a xa resource to the list of resources to recover. XAResources should be added from the relevant library side
+     * during their initialization. Resources should be defined outside transaction-block for recovery to work
+     * properly.
      *
-     * @param xaResource the resource to add
+     * @param xaResource the resource to be recovered
      */
     public void addXAResourceToRecover(XAResource xaResource) {
         try {
@@ -96,42 +93,42 @@ public class RecoveryManager {
     }
 
     public boolean performRecoveryPass() {
-        boolean recoverSuccess = true;
+        boolean recoverSuccess = true; // assume success, until it is not
 
         // Get all the transaction records without terminated logs;
         putFailedTransactionRecords(
                 TransactionResourceManager.getInstance().getLogManager().getFailedTransactionLogs());
 
-        // Warn user of hazards and mixed outcomes
-        for (TransactionLogRecord logRecord : failedTransactions.values()) {
-            String combinedId = logRecord.getCombinedId();
+        Iterator<Map.Entry<String, TransactionLogRecord>> iterator = failedTransactions.entrySet().iterator();
+        while (iterator.hasNext()) {
+            TransactionLogRecord logRecord = iterator.next().getValue();
             switch (logRecord.getTransactionState()) {
-                case MIXED -> diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_MIXED_STATE, null, combinedId);
-                case HAZARD -> diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HAZARD_STATE, null, combinedId);
-                default -> {
+                case PREPARING, COMMITTING, ABORTING, COMMITTED, ABORTED -> {
+                    // if the transaction was in any of the terminating states, it means that the 2pc has initiated
+                    // and, it has impacted the resources. Therefore, we need to recover the transaction accordingly.
+                    Xid xid = XIDGenerator.createXID(logRecord.getCombinedId());
+                    boolean singleTrxRecoverSuccess =
+                            recoverFailedTrxInAllResources(xid, logRecord.getTransactionState());
+                    if (singleTrxRecoverSuccess) {
+                        // put a terminated log record to indicate that the transaction was recovered successfully
+                        TransactionLogRecord terminatedRecord = new TransactionLogRecord(
+                                logRecord.getTransactionId(), logRecord.getTransactionBlockId(),
+                                RecoveryState.TERMINATED);
+                        TransactionResourceManager.getInstance().getLogManager().put(terminatedRecord);
+                        iterator.remove();
+                    }
+                    recoverSuccess = recoverSuccess && singleTrxRecoverSuccess;
                 }
-            }
-        }
-
-        // Recover all the recoverable XA Resources
-        if (!xaResources.isEmpty()) {
-            // Get prepared Xids from all the resources
-            Map<XAResource, Map<String, Xid>> preparedXids = new HashMap<>();
-            for (XAResource xaResource : xaResources) {
-                Map<String, Xid> recoveredXids;
-                try {
-                    recoveredXids = retrievePreparedXids(xaResource);
-                } catch (XAException e) {
-                    diagnosticLog.warn(ErrorCodes.TRANSACTION_CANNOT_COLLECT_XIDS_IN_RESOURCE, null, xaResource);
-                    failedToRecoverResources.add(xaResource);
-                    continue;
+                case MIXED, HAZARD -> {
+                    // if the transaction was in any of the mixed or hazard states, it means that the transaction is
+                    // not in a state we can handle and should be recovered manually, so we inform the user.
+                    String combinedId = logRecord.getCombinedId();
+                    switch (logRecord.getTransactionState()) {
+                        case MIXED -> diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_MIXED_STATE, null, combinedId);
+                        case HAZARD -> diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HAZARD_STATE, null, combinedId);
+                    }
+                    iterator.remove(); // consider it handled, as we have warned the user
                 }
-                preparedXids.put(xaResource, recoveredXids);
-            }
-
-            // Check if all the prepared xids are in the pending logs and recover them
-            for (Map.Entry<XAResource, Map<String, Xid>> entry : preparedXids.entrySet()) {
-                recoverSuccess = recoverSuccess && recoverXAResource(entry.getKey(), entry.getValue());
             }
         }
 
@@ -147,34 +144,22 @@ public class RecoveryManager {
     }
 
     /**
-     * Recovers all the XAResources
+     * Recovers a failed transactions in all XAResources.
+     *
+     * @param xid   the xid of the transaction
+     * @param state the state of the transaction
+     * @return true if all transactions are recovered successfully from all resources, false otherwise
      */
-    public boolean recoverXAResource(XAResource xaResource, Map<String, Xid> recoveredXids) {
-        boolean allXidsRecovered = true;
-        for (Xid xid : recoveredXids.values()) {
-            String globalTransactionIdStr = new String(xid.getGlobalTransactionId());
-            String branchQualifierStr = new String(xid.getBranchQualifier());
-            String combinedIdStr = globalTransactionIdStr + ":" + branchQualifierStr; // combined id
-            if (failedTransactions.containsKey(combinedIdStr)) {
-                RecoveryState state = failedTransactions.get(combinedIdStr).getTransactionState();
-                boolean recovered = recoverFailedTrxInXAResource(xaResource, xid, state);
-                if (recovered) {
-                    // put a terminated log record to indicate that the transaction is recovered successfully
-                    TransactionLogRecord terminatedRecord = new TransactionLogRecord(
-                            globalTransactionIdStr, branchQualifierStr, RecoveryState.TERMINATED);
-                    TransactionResourceManager.getInstance().getLogManager().put(terminatedRecord);
-                    failedTransactions.remove(combinedIdStr);
-                } else {
-                    allXidsRecovered = false;
-                    failedToRecoverResources.add(xaResource);
-                }
-            }
+    private boolean recoverFailedTrxInAllResources(Xid xid, RecoveryState state) {
+        boolean allResourcesRecovered = true;
+        for (XAResource xaResource : xaResources) {
+            allResourcesRecovered = allResourcesRecovered && recoverFailedTrxInXAResource(xaResource, xid, state);
         }
-        return allXidsRecovered;
+        return allResourcesRecovered;
     }
 
     private boolean recoverFailedTrxInXAResource(XAResource xaResource, Xid xid, RecoveryState state) {
-        return switch (state) { // failed during prepare, no decision record found
+        return switch (state) {
             case PREPARING, ABORTING -> handleAbort(xaResource, xid);
             case COMMITTING -> replayCommit(xaResource, xid);
             case COMMITTED, ABORTED -> {
@@ -186,46 +171,7 @@ public class RecoveryManager {
     }
 
     /**
-     * Retrieve all prepared xids from a xa resource.
-     *
-     * @param xaResource the resource to retrieve the xids from
-     * @return a map of all xids that are prepared in the resource
-     * @throws XAException if an error occurs while retrieving the xids
-     */
-    private Map<String, Xid> retrievePreparedXids(XAResource xaResource) throws XAException {
-        Map<String, Xid> retrievedXids = new HashMap<>();
-        ArrayList<Xid> recoverdXidsFromScan = new ArrayList<>();
-
-        Xid[] xidsFromScan = xaResource.recover(XAResource.TMSTARTRSCAN);
-        while (xidsFromScan != null && xidsFromScan.length > 0) {
-            recoverdXidsFromScan.addAll(List.of(xidsFromScan));
-            xidsFromScan = (xaResource.recover(XAResource.TMNOFLAGS));
-        }
-        xidsFromScan = xaResource.recover(XAResource.TMENDRSCAN);
-        if (xidsFromScan != null && xidsFromScan.length > 0) {
-            recoverdXidsFromScan.addAll(List.of(xidsFromScan));
-        }
-
-        if (recoverdXidsFromScan.isEmpty()) {
-            return retrievedXids;
-        }
-        for (Xid xid : recoverdXidsFromScan) {
-            if (xid == null || xid.getFormatId() != (XIDGenerator.getDefaultFormat())) {
-                continue;
-            }
-            String globalTransactionIdStr = new String(xid.getGlobalTransactionId());
-            String branchQualifierStr = new String(xid.getBranchQualifier());
-            String combinedIdStr = globalTransactionIdStr + ":" + branchQualifierStr;
-            if (retrievedXids.containsKey(combinedIdStr)) {
-                continue;
-            }
-            retrievedXids.put(combinedIdStr, xid);
-        }
-        return retrievedXids;
-    }
-
-    /**
-     * Handle commit of a transaction in transaction recovery
+     * Handle commit of a transaction in transaction recovery.
      *
      * @param xaResource the resource that the transaction is associated with
      * @param xid        the xid of the transaction
@@ -251,7 +197,7 @@ public class RecoveryManager {
     }
 
     /**
-     * Handle abort of a transaction in transaction recovery
+     * Handle abort of a transaction in transaction recovery.
      *
      * @param xaResource the resource that the transaction is associated with
      * @param xid        the xid of the transaction
@@ -317,8 +263,6 @@ public class RecoveryManager {
                 reportUserOfHueristics(e, xid, decisionCommit);
                 return false;
             }
-            default -> {
-            }
         }
         return true;
     }
@@ -337,8 +281,6 @@ public class RecoveryManager {
                     combinedId, "heuristic mixed", decision);
             case XAException.XA_HEURHAZ -> diagnosticLog.warn(ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE, null,
                     combinedId, "heuristic hazard", decision);
-            default -> {
-            }
         }
     }
 

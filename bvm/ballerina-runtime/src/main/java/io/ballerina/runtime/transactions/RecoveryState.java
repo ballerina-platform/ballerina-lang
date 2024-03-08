@@ -24,8 +24,6 @@ package io.ballerina.runtime.transactions;
  * @since 2201.9.0
  */
 public enum RecoveryState {
-    // start record
-    STARTING("STARTING"),
     // prepare record
     PREPARING("PREPARING"),
     // decision records
@@ -39,7 +37,6 @@ public enum RecoveryState {
     IN_DOUBT("IN_DOUBT"),
     // done record
     TERMINATED("TERMINATED");
-    // TODO: add heuristic states, if needed
 
     private final String state;
 

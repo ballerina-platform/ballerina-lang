@@ -53,7 +53,7 @@ public class InMemoryRecoveryLog implements RecoveryLog {
     /**
      * Write a checkpoint to the in-memory log (not needed if you don't need checkpoints).
      */
-    public void writeCheckpointIfNeeded() {
+    private void writeCheckpointIfNeeded() {
         if (numOfPutsSinceLastCheckpoint >= IN_MEMORY_CHECKPOINT_INTERVAL) {
             Map<String, TransactionLogRecord> pendingTransactions = getFailedTransactions();
             transactionLogs.clear();
