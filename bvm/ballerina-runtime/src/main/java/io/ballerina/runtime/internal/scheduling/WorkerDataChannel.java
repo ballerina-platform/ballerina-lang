@@ -45,12 +45,14 @@ public class WorkerDataChannel {
     private int receiverCounter;
     private boolean reschedule;
 
-    private Lock channelLock;
+    private final Lock channelLock;
 
-    public String chnlName;
+    protected String chnlName;
+    protected int callCount = 0;
+    protected boolean isRemovable;
 
     @SuppressWarnings("rawtypes")
-    private Queue<WorkerResult> channel = new LinkedList<>();
+    private final Queue<WorkerResult> channel = new LinkedList<>();
     private State state;
 
     public WorkerDataChannel() {
@@ -94,6 +96,10 @@ public class WorkerDataChannel {
         return this.state;
     }
 
+    public void setRemovable() {
+        this.isRemovable = true;
+    }
+
     public enum State {
         OPEN, AUTO_CLOSED, CLOSED
     }
@@ -101,6 +107,7 @@ public class WorkerDataChannel {
     @SuppressWarnings("rawtypes")
     public void sendData(Object data, Strand sender) {
         if (isClosed()) {
+            callCount++;
             return;
         }
         try {
@@ -111,6 +118,7 @@ public class WorkerDataChannel {
                 this.receiver.scheduler.unblockStrand(this.receiver);
                 this.receiver = null;
             }
+            callCount++;
         } finally {
             releaseChannelLock();
         }
@@ -163,14 +171,17 @@ public class WorkerDataChannel {
             reschedule = false;
             if (this.panic != null && this.channel.peek() != null) {
                 Throwable e = this.panic;
+                callCount++;
                 throw e;
             } else if (this.error != null && this.channel.peek() != null) {
                 ErrorValue ret = this.error;
                 this.waitingSender = null;
+                callCount++;
                 return ret;
             }
 
             // sync send done
+            callCount++;
             return null;
         } finally {
             releaseChannelLock();
@@ -186,7 +197,7 @@ public class WorkerDataChannel {
         try {
             acquireChannelLock();
             if (isClosed()) {
-                throw ErrorUtils.createNoMessageError(chnlName);
+                return ErrorUtils.createNoMessageError(chnlName);
             }
             WorkerResult result = this.channel.peek();
             if (result != null) {
@@ -213,12 +224,15 @@ public class WorkerDataChannel {
                     this.flushSender.waitingStrand.flushDetail.flushLock.unlock();
                     this.flushSender = null;
                 }
-                return result.value;
+                callCount++;
+                return isMultiple ? result : result.value;
             } else if (this.panic != null && this.senderCounter == this.receiverCounter + 1) {
                 this.receiverCounter++;
+                callCount++;
                 throw this.panic;
             } else if (this.error != null && this.senderCounter == this.receiverCounter + 1) {
                 this.receiverCounter++;
+                callCount++;
                 return error;
             } else {
                 this.receiver = strand;

@@ -20,6 +20,6 @@ import ballerina/jballerina.java;
 #
 # + channelIds - channel IDs of the channels to be closed
 public function autoClose(string ... channelIds) = @java:Method {
-    'class: "org.ballerinalang.langlib.internal.AutoCloseChannels",
+    'class: "org.ballerinalang.langlib.internal.WorkerChannels",
     name: "autoClose"
 } external;

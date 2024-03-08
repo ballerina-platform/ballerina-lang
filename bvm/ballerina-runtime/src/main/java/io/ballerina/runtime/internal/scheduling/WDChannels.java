@@ -17,7 +17,13 @@
 */
 package io.ballerina.runtime.internal.scheduling;
 
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.ArrayList;
@@ -37,6 +43,10 @@ public class WDChannels {
     private Map<String, WorkerDataChannel> wDChannels;
     private final List<ErrorValue> errors = new ArrayList<>();
 
+    // A worker receive field for multiple receive action.
+    public record ReceiveField(String fieldName, String channelName) {
+    }
+
     //TODO try to generalize this to a normal data channel, in that case we won't need these classes.
 
     public synchronized WorkerDataChannel getWorkerDataChannel(String name) {
@@ -51,46 +61,115 @@ public class WDChannels {
         return channel;
     }
 
-    public Object tryTakeData(Strand strand, List<String> channels) throws Throwable {
+    public Object receiveDataMultipleChannels(Strand strand, ReceiveField[] receiveFields, Type targetType)
+            throws Throwable {
+        if (strand.workerReceiveMap == null) {
+            strand.workerReceiveMap = ValueCreator.createMapValue(targetType);
+        }
+        for (ReceiveField field : receiveFields) {
+            WorkerDataChannel channel = getWorkerDataChannel(field.channelName());
+            if (!channel.isClosed()) {
+                Object result = channel.tryTakeData(strand, true);
+                checkAndPopulateResult(strand, field, result, channel);
+            } else {
+                if (channel.getState() == WorkerDataChannel.State.AUTO_CLOSED) {
+                    checkAndPopulateResult(strand, field, ErrorUtils.createNoMessageError(field.channelName()),
+                            channel);
+                }
+            }
+        }
+        return clearResultCache(strand, receiveFields);
+    }
+
+    private void checkAndPopulateResult(Strand strand, ReceiveField field, Object result, WorkerDataChannel channel) {
+        if (result != null) {
+            result = getResultValue(result);
+            strand.workerReceiveMap.populateInitialValue(StringUtils.fromString(field.fieldName()), result);
+            channel.close();
+            ++strand.channelCount;
+        } else {
+            strand.setState(BLOCK_AND_YIELD);
+        }
+    }
+
+    private Object clearResultCache(Strand strand, ReceiveField[] receiveFields) {
+        if (strand.channelCount == receiveFields.length) {
+            BMap<BString, Object> map = strand.workerReceiveMap;
+            strand.workerReceiveMap = null;
+            strand.channelCount = 0;
+            strand.setState(State.RUNNABLE);
+            return map;
+        }
+        return null;
+    }
+
+    public Object receiveDataAlternateChannels(Strand strand, String[] channels) throws Throwable {
         Object result = null;
         boolean allChannelsClosed = true;
         for (String channelName : channels) {
             WorkerDataChannel channel = getWorkerDataChannel(channelName);
-            if (channel.isClosed()) {
+            if (!channel.isClosed()) {
+                allChannelsClosed = false;
+                result = channel.tryTakeData(strand, true);
+                if (result != null) {
+                    result = handleNonNullResult(channels, result, channel);
+                }
+            } else {
                 if (channel.getState() == WorkerDataChannel.State.AUTO_CLOSED) {
                     errors.add((ErrorValue) ErrorUtils.createNoMessageError(channelName));
                 }
-                continue;
             }
-            allChannelsClosed = false;
-            result = channel.tryTakeData(strand, true);
-            if (result != null) {
-                if (result instanceof ErrorValue) {
-                    errors.add((ErrorValue) result);
-                    channel.close();
-                    result = null;
-                    continue;
-                } else {
-                    closeChannels(channels);
-                }
-                break;
-            }
-
         }
-        if (result == null) {
-            if (errors.size() == channels.size()) {
-                result = errors.get(errors.size() - 1);
-            } else if (!allChannelsClosed) {
-                strand.setState(BLOCK_AND_YIELD);
-            }
+        return processResulAndError(strand, channels, result, allChannelsClosed);
+    }
+
+    private Object handleNonNullResult(String[] channels, Object result, WorkerDataChannel channel) {
+        Object resultValue = getResultValue(result);
+        if (resultValue instanceof ErrorValue errorValue) {
+            errors.add(errorValue);
+            channel.close();
+            result = null;
+        } else {
+            closeChannels(channels);
         }
         return result;
     }
 
-    private void closeChannels(List<String> channels) {
+    private static Object getResultValue(Object result) {
+        if (result instanceof WorkerDataChannel.WorkerResult workerResult) {
+            return workerResult.value;
+        }
+        return result;
+    }
+
+    private Object processResulAndError(Strand strand, String[] channels, Object result, boolean allChannelsClosed) {
+        if (result == null) {
+            if (errors.size() == channels.length) {
+                result = errors.get(errors.size() - 1);
+            } else if (!allChannelsClosed) {
+                strand.setState(BLOCK_AND_YIELD);
+            }
+        } else {
+            strand.setState(State.RUNNABLE);
+        }
+        return getResultValue(result);
+    }
+
+    private void closeChannels(String[] channels) {
         for (String channelName : channels) {
             WorkerDataChannel channel = getWorkerDataChannel(channelName);
             channel.close();
+            channel.setRemovable();
+        }
+    }
+
+    public synchronized void removeCompletedChannels(Strand strand, String channelName) {
+        if (this.wDChannels != null) {
+            WorkerDataChannel channel = this.wDChannels.get(channelName);
+            if (channel != null && (channel.callCount == 2 || channel.isRemovable)) {
+                this.wDChannels.remove(channelName);
+                strand.channelDetails.remove(new ChannelDetails(channelName, true, false));
+            }
         }
     }
 

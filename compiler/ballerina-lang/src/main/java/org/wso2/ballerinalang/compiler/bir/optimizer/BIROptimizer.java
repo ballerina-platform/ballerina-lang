@@ -473,6 +473,11 @@ public class BIROptimizer {
             this.optimizeNode(workerReceive.lhsOp, this.env);
         }
 
+        @Override
+        public void visit(BIRTerminator.WorkerMultipleReceive workerReceive) {
+            this.optimizeNode(workerReceive.lhsOp, this.env);
+        }
+
         // Non-terminating instructions
 
         @Override

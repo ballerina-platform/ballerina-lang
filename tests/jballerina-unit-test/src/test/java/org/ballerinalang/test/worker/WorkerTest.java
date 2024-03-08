@@ -342,12 +342,12 @@ public class WorkerTest {
         BAssertUtil.validateError(result, index++, "cannot use a named worker inside a lock statement", 42, 20);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testMultipleReceiveAction() {
         // Multiple receive action is not yet supported. This is to test the error message.
         CompileResult result = BCompileUtil.compile("test-src/workers/multiple-receive-action.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "multiple receive action not yet supported", 23, 25);
+        Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "testMultipleReceiveAction");
     }
 
     @Test(description = "Test multiple receive type checking")

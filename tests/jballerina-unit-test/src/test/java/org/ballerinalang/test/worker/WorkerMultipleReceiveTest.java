@@ -28,44 +28,37 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * worker conditional send related tests.
+ * worker alternative receive related tests.
  */
-public class WorkerConditionalSendTest {
+public class WorkerMultipleReceiveTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        this.result = BCompileUtil.compile("test-src/workers/workers_conditional_send.bal");
+        this.result = BCompileUtil.compile("test-src/workers/workers_multiple_receive.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 
     @Test(dataProvider = "functionProvider")
-    public void workerConditionalSendTest(String funcName) {
+    public void workerMultipleReceiveTest(String funcName) {
         BRunUtil.invoke(result, funcName, new Object[0]);
     }
 
     @DataProvider
     public static String[] functionProvider() {
         return new String[] {
-                "workerConditionalSendTest",
-                "sameWorkerSendTest",
-                "sameWorkerSendEitherOnePath",
-                "sameWorkerSendAltReceiveSendError",
-                "sameWorkerSendAltReceiveReceiverError",
-                "sameWorkerSendElse",
-                "sameWorkerSendSenderPanic",
-                "sameWorkerSendReceiverPanic",
-                "sameWorkerSendMultiplePath1",
-                "sameWorkerSendMultiplePath2",
-                "sameWorkerSendMultiplePathError1",
-                "sameWorkerSendMultiplePathError2",
-                "sameWorkerSendMultiplePathError3",
-                "sameWorkerSendMultiplePathError4",
-                "multipleReceiveConditional",
-                "multipleReceiveWithNonConditionalSend",
-                "testNonTopLevelSend",
-                "testSendWithEarlyReturnError"
+                "workerMultipleReceiveTest1",
+                "workerMultipleReceiveTest2",
+                "workerMultipleReceiveTest3",
+                "workerMultipleReceiveWithUserDefinedRecord",
+                "workerMultipleReceiveWithErrorReturn",
+                "workerMultipleReceiveWithAllErrorReturn",
+                "workerMultipleReceiveWithPanic",
+                "workerMultipleReceiveWithAllPanic",
+                "workerMultipleReceiveWithErrorReturnRec",
+                "workerMultipleReceiveWithConditionalSend1",
+                "workerMultipleReceiveWithConditionalSend2",
         };
     }
 

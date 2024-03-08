@@ -33,7 +33,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -1172,10 +1171,31 @@ public class BIRGen extends BLangNodeVisitor {
         return channels;
     }
 
+    private List<BIRTerminator.WorkerMultipleReceive.ReceiveField> getChannelList(
+            BLangMultipleWorkerReceive multipleWorkerReceive) {
+        List<BIRTerminator.WorkerMultipleReceive.ReceiveField> channels = new ArrayList<>();
+        for (BLangMultipleWorkerReceive.BLangReceiveField workerReceive : multipleWorkerReceive.getReceiveFields()) {
+            channels.add(new BIRTerminator.WorkerMultipleReceive.ReceiveField(workerReceive.getKey().value,
+                    workerReceive.getWorkerReceive().getChannel().channelId()));
+        }
+        return channels;
+    }
+
     @Override
     public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
-        // TODO: 24/11/23 implement
-        throw new AssertionError(DiagnosticErrorCode.MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED);
+        BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId());
+        addToTrapStack(thenBB);
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(multipleWorkerReceive.getBType(), this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand lhsOp = new BIROperand(tempVarDcl);
+        this.env.targetOperand = lhsOp;
+        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
+
+        this.env.enclBB.terminator = new BIRTerminator.WorkerMultipleReceive(multipleWorkerReceive.pos,
+                getChannelList(multipleWorkerReceive), lhsOp, isOnSameStrand, thenBB, this.currentScope);
+        this.env.enclBasicBlocks.add(thenBB);
+        this.env.enclBB = thenBB;
     }
 
     @Override
