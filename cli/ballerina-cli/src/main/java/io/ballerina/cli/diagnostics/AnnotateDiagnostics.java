@@ -16,10 +16,12 @@
  * under the License.
  */
 
-package io.ballerina.cli.utils;
+package io.ballerina.cli.diagnostics;
 
 import io.ballerina.compiler.internal.diagnostics.StringDiagnosticProperty;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -29,12 +31,15 @@ import org.jline.jansi.Ansi;
 import org.jline.terminal.TerminalBuilder;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static io.ballerina.cli.utils.DiagnosticAnnotation.NEW_LINE;
-import static io.ballerina.cli.utils.DiagnosticAnnotation.SEVERITY_COLORS;
-import static io.ballerina.cli.utils.DiagnosticAnnotation.getColoredString;
+import static io.ballerina.cli.diagnostics.DiagnosticAnnotation.NEW_LINE;
+import static io.ballerina.cli.diagnostics.DiagnosticAnnotation.SEVERITY_COLORS;
+import static io.ballerina.cli.diagnostics.DiagnosticAnnotation.getColoredString;
 
 /**
  * This class is used to generate diagnostic annotations from diagnostics.
@@ -78,6 +83,29 @@ public class AnnotateDiagnostics {
 
     public static Ansi renderDiagnostic(Diagnostic diagnostic, boolean colorEnabled) {
         return Ansi.ansi().render(diagnosticToString(diagnostic, colorEnabled));
+    }
+
+    public static Map<String, Document> getDocumentMap(Package currentPackage) {
+        Map<String, Document> documentMap = new HashMap<>();
+        currentPackage.moduleIds().forEach(moduleId -> {
+            currentPackage.module(moduleId).documentIds().forEach(documentId -> {
+                Document document = currentPackage.module(moduleId).document(documentId);
+                documentMap.put(getDocumentPath(document.module().moduleName(), document.name()), document);
+            });
+            currentPackage.module(moduleId).testDocumentIds().forEach(documentId -> {
+                Document document = currentPackage.module(moduleId).document(documentId);
+                documentMap.put(getDocumentPath(document.module().moduleName(), document.name()), document);
+            });
+        });
+
+        return documentMap;
+    }
+
+    private static String getDocumentPath(ModuleName moduleName, String documentName) {
+        if (moduleName.isDefaultModuleName()) {
+            return documentName;
+        }
+        return Paths.get("modules", moduleName.moduleNamePart(), documentName).toString();
     }
 
     private static String diagnosticToString(Diagnostic diagnostic, boolean colorEnabled) {

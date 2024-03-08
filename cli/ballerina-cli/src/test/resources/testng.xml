@@ -47,4 +47,9 @@ under the License.
             <class name="io.ballerina.cli.cmd.RunBuildToolsTaskTest"/>
         </classes>
     </test>
+    <test name="diagnostics-tests" preserve-order="true">
+        <classes>
+            <class name="io.ballerina.cli.diagnostics.AnnotateDiagnosticsTest" />
+        </classes>
+    </test>
 </suite>

@@ -1,0 +1,275 @@
+ERROR [multi-line.bal:(63:38,63:45)] incompatible types: expected 'Person', found 'Teacher' (BCE2066)
+   |
+63 |     Person[] outputPersonList = from Teacher person in personList
+   |                                      ^^^^^^^
+
+ERROR [multi-line.bal:(66:30,66:45)] undeclared field 'lastName' in record 'Teacher' (BCE2119)
+   |
+66 |                    lastName: person.lastName,
+   |                              ^^^^^^^^^^^^^^^
+
+ERROR [multi-line.bal:(67:25,67:35)] undeclared field 'age' in record 'Teacher' (BCE2119)
+   |
+67 |                    age: person.age
+   |                         ^^^^^^^^^^
+
+ERROR [multi-line.bal:(82:18,82:21)] unknown type 'XYZ' (BCE2069)
+   |
+82 |             from XYZ person in personList
+   |                  ^^^
+
+ERROR [multi-line.bal:(102:20,102:28)] undefined field 'lastName' in record 'Teacher' (BCE2023)
+    |
+102 |                    lastName: person.lastName
+    |                    ^^^^^^^^
+
+ERROR [multi-line.bal:(115:32,115:34)] incompatible types: 'int' is not an iterable collection (BCE2800)
+    |
+115 |             from var person in 10
+    |                                ^^
+
+ERROR [multi-line.bal:(116:19,116:21)] incompatible types: expected 'boolean', found 'int' (BCE2066)
+    |
+116 |             where 20
+    |                   ^^
+
+ERROR [multi-line.bal:(117:20,117:22)] incompatible types: expected 'Person', found 'int' (BCE2066)
+    |
+117 |             select 30;
+    |                    ^^
+
+ERROR [multi-line.bal:(131:10,134:4)] missing non-defaultable required record field 'lastName' (BCE2520)
+    |
+131 |         select {
+ :  |                ^
+ :  |         :
+ :  |         :
+134 |         };
+    | ^^^^^^^^^
+    |
+
+ERROR [multi-line.bal:(152:13,152:25)] incompatible types: expected 'float', found 'int' (BCE2066)
+    |
+152 |             score:invalidScore
+    |                   ^^^^^^^^^^^^
+
+ERROR [multi-line.bal:(167:22,167:38)] undefined function 'calculateScore' (BCE2011)
+    |
+167 |         let float avgScore=calculateScore()
+    |                            ^^^^^^^^^^^^^^^^
+
+ERROR [multi-line.bal:(204:8,204:34)] invalid record binding pattern; unknown field 'fname' in record type 'Student' (BCE2576)
+    |
+204 |         from var {fname,lastName,score} in studentList
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ERROR [multi-line.bal:(206:15,206:20)] undefined symbol 'fname' (BCE2010)
+    |
+206 |             firstName: fname,
+    |                        ^^^^^
+
+ERROR [multi-line.bal:(221:10,221:17)] incompatible types: expected 'Student', found '(string|float)' (BCE2066)
+    |
+221 |         select student;
+    |                ^^^^^^^
+
+ERROR [multi-line.bal:(240:13,240:18)] incompatible types: expected 'Address', found 'map<string>' (BCE2066)
+    |
+240 |             address: addr1
+    |                      ^^^^^
+
+ERROR [multi-line.bal:(265:13,265:27)] incompatible types: expected 'FullName[]', found '()' (BCE2066)
+    |
+265 |     return  outputNameList;
+    |             ^^^^^^^^^^^^^^
+
+ERROR [multi-line.bal:(277:24,277:34)] incompatible types: expected 'string', found 'int' (BCE2066)
+    |
+277 |                 select person.age;
+    |                        ^^^^^^^^^^
+
+ERROR [multi-line.bal:(291:24,294:18)] a type compatible with mapping constructor expressions not found in type 'string' (BCE2508)
+    |
+291 |                 select {
+ :  |                        ^
+ :  |             :
+ :  |             :
+294 |                 };
+    | ^^^^^^^^^^^^^^^^^
+    |
+
+ERROR [multi-line.bal:(350:36,350:41)] redeclared symbol 'fname' (BCE2008)
+    |
+350 |     Employee[] records = from var {fname, lname, age} in entities select {fname, lname, age};
+    |                                    ^^^^^
+
+ERROR [multi-line.bal:(363:21,363:24)] redeclared symbol 'age' (BCE2008)
+    |
+363 |             let int age = 35
+    |                     ^^^
+
+ERROR [multi-line.bal:(380:44,380:47)] redeclared symbol 'age' (BCE2008)
+    |
+380 |             from var {firstName, lastName, age} in personList
+    |                                            ^^^
+
+ERROR [multi-line.bal:(400:11,400:14)] invalid constraint type. expected subtype of 'map<any|error>' but found 'int' (BCE3300)
+    |
+400 |     table<int> ids = from var x in t select x.id;
+    |           ^^^
+
+ERROR [multi-line.bal:(400:22,400:49)] invalid constraint type. expected subtype of 'map<any|error>' but found 'int' (BCE3300)
+    |
+400 |     table<int> ids = from var x in t select x.id;
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ERROR [multi-line.bal:(410:11,410:14)] invalid constraint type. expected subtype of 'map<any|error>' but found 'int' (BCE3300)
+    |
+410 |     table<int> ids = from var {id} in t select id;
+    |           ^^^
+
+ERROR [multi-line.bal:(410:22,410:50)] invalid constraint type. expected subtype of 'map<any|error>' but found 'int' (BCE3300)
+    |
+410 |     table<int> ids = from var {id} in t select id;
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ERROR [multi-line.bal:(415:29,415:30)] incompatible types: 'int' is not an iterable collection (BCE2800)
+    |
+415 |     int[] w = from var a in x
+    |                             ^
+
+ERROR [multi-line.bal:(420:12,420:64)] incompatible types: expected 'error?', found 'stream<record {| int a; |},error?>' (BCE2066)
+    |
+420 |     return stream from string num in clientStream select {a: 1};
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ERROR [multi-line.bal:(425:22,425:29)] invalid record binding pattern with type 'anydata' (BCE2607)
+    |
+425 |     var x = map from var {k} in keyValsMap
+    |                      ^^^^^^^
+
+ERROR [multi-line.bal:(426:25,426:26)] undefined symbol 'k' (BCE2010)
+    |
+426 |                  select k;
+    |                         ^
+
+ERROR [multi-line.bal:(431:22,431:29)] invalid record binding pattern with type 'any' (BCE2607)
+    |
+431 |     var x = map from var {k} in keyValsMap
+    |                      ^^^^^^^
+
+ERROR [multi-line.bal:(432:25,432:26)] undefined symbol 'k' (BCE2010)
+    |
+432 |                  select k;
+    |                         ^
+
+ERROR [multi-line.bal:(450:28,450:30)] field name 'id' used in key specifier is not found in table constraint type 'record {| User user; |}' (BCE3306)
+    |
+450 |     var result = table key(id) from var user in users
+    |                            ^^
+
+ERROR [multi-line.bal:(455:24,455:26)] field name 'id' used in key specifier is not found in table constraint type 'record {| User user; |}' (BCE3306)
+    |
+455 |     result = table key(id) from var user in userList
+    |                        ^^
+
+ERROR [multi-line.bal:(468:28,468:30)] field name 'id' used in key specifier is not found in table constraint type 'record {| User user; |}' (BCE3306)
+    |
+468 |     var result = table key(id, firstName) from var user in users
+    |                            ^^
+
+ERROR [multi-line.bal:(468:32,468:41)] field name 'firstName' used in key specifier is not found in table constraint type 'record {| User user; |}' (BCE3306)
+    |
+468 |     var result = table key(id, firstName) from var user in users
+    |                                ^^^^^^^^^
+
+ERROR [multi-line.bal:(473:24,473:26)] field name 'id' used in key specifier is not found in table constraint type 'record {| User user; |}' (BCE3306)
+    |
+473 |     result = table key(id, firstName) from var user in userList
+    |                        ^^
+
+ERROR [multi-line.bal:(473:28,473:37)] field name 'firstName' used in key specifier is not found in table constraint type 'record {| User user; |}' (BCE3306)
+    |
+473 |     result = table key(id, firstName) from var user in userList
+    |                            ^^^^^^^^^
+
+ERROR [multi-line.bal:(489:14,489:17)] incompatible types: expected 'ScoreEventType', found 'int' (BCE2066)
+    |
+489 |     _ = from int ev in events
+    |              ^^^
+
+ERROR [multi-line.bal:(493:1,493:14)] unknown type 'UndefinedType' (BCE2069)
+    |
+493 | UndefinedType[] undefinedTypeList = [];
+    | ^^^^^^^^^^^^^
+
+ERROR [multi-line.bal:(504:14,504:27)] unknown type 'UndefinedType' (BCE2069)
+    |
+504 |         join UndefinedType item in undefinedTypeList
+    |              ^^^^^^^^^^^^^
+
+ERROR [multi-line.bal:(513:29,513:31)] field name 'id' used in key specifier is not found in table constraint type 'record {| User user; |}' (BCE3306)
+    |
+513 |     var result1 = table key(id) from var user in users
+    |                             ^^
+
+ERROR [multi-line.bal:(515:47,515:48)] incompatible types: expected 'error?', found 'int' (BCE2066)
+    |
+515 |                     select {user} on conflict 1;
+    |                                               ^
+
+ERROR [multi-line.bal:(517:29,517:31)] field name 'id' used in key specifier is not found in table constraint type 'record {| User user; |}' (BCE3306)
+    |
+517 |     var result2 = table key(id) from var user in users
+    |                             ^^
+
+ERROR [multi-line.bal:(519:47,519:50)] incompatible types: expected 'error?', found '(error|int)' (BCE2066)
+    |
+519 |                     select {user} on conflict msg;
+    |                                               ^^^
+
+ERROR [multi-line.bal:(524:16,524:17)] incompatible types: expected 'int', found 'string' (BCE2066)
+    |
+524 |         select s);
+    |                ^
+
+ERROR [multi-line.bal:(529:20,529:28)] incompatible types: expected 'int', found 'string' (BCE2066)
+    |
+529 |             select s.trim());
+    |                    ^^^^^^^^
+
+WARNING [multi-line.bal:(543:15,543:26)] invalid usage of the 'check' expression operator: no expression type is equivalent to error type (BCE20404)
+    |
+543 |         check returnNil();
+    |               ^^^^^^^^^^^
+
+WARNING [multi-line.bal:(552:15,552:26)] invalid usage of the 'check' expression operator: no expression type is equivalent to error type (BCE20404)
+    |
+552 |         check returnNil();
+    |               ^^^^^^^^^^^
+
+ERROR [multi-line.bal:(573:13,577:28)] incompatible types: expected 'int', found 'string[]' (BCE2066)
+    |
+573 |             from var person in
+ :  |             ^^^^^^^^^^^^^^^^^^
+ :  |                :
+ :  |                :
+577 |     select person.firstName;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+
+ERROR [multi-line.bal:(583:12,583:28)] incompatible types: expected 'PersonA', found 'string' (BCE2066)
+    |
+583 |     select person.firstName;
+    |            ^^^^^^^^^^^^^^^^
+
+ERROR [multi-line.bal:(585:28,588:28)] incompatible types: expected 'PersonA', found 'string[]' (BCE2066)
+    |
+585 |     PersonA outputPerson = from var person in personList
+ :  |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ :  |                             :
+ :  |                             :
+588 |     select person.firstName;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+
