@@ -36,6 +36,11 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+/**
+ * {@code RecoveryManager} is responsible for recovering failed transactions and resources.
+ *
+ * @since 2201.9.0
+ */
 public class RecoveryManager {
 
     private static final Logger log = LoggerFactory.getLogger(RecoveryManager.class);

@@ -18,6 +18,11 @@
 
 package io.ballerina.runtime.transactions;
 
+/**
+ * {@code TransactionLogRecord} represents a transaction log record.
+ *
+ * @since 2201.9.0
+ */
 public class TransactionLogRecord {
 
     private final static String LINE_SEPARATOR = System.getProperty("line.separator");

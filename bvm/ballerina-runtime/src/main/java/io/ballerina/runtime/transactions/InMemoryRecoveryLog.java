@@ -28,6 +28,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.transactions.TransactionConstants.IN_MEMORY_CHECKPOINT_INTERVAL;
 
+/**
+ * {@code InMemoryRecoveryLog} the in-memory recovery log for transaction recovery.
+ *
+ * @since 2201.9.0
+ */
 public class InMemoryRecoveryLog implements RecoveryLog {
 
     private static final Logger log = LoggerFactory.getLogger(InMemoryRecoveryLog.class);

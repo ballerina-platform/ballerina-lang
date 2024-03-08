@@ -41,6 +41,11 @@ import java.util.Map;
 import static io.ballerina.runtime.transactions.TransactionConstants.ERROR_MESSAGE_PREFIX;
 import static io.ballerina.runtime.transactions.TransactionConstants.NO_CHECKPOINT_INTERVAL;
 
+/**
+ * {@code FileRecoveryLog} the file recovery log for transaction recovery.
+ *
+ * @since 2201.9.0
+ */
 public class FileRecoveryLog implements RecoveryLog {
 
     private static final Logger log = LoggerFactory.getLogger(FileRecoveryLog.class);

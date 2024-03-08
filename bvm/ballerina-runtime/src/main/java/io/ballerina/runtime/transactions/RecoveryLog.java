@@ -18,6 +18,11 @@
 
 package io.ballerina.runtime.transactions;
 
+/**
+ * The RecoveryLog interface for the recovery logs.
+ *
+ * @since 2201.9.0
+ */
 public interface RecoveryLog {
 
     /**

@@ -18,6 +18,11 @@
 
 package io.ballerina.runtime.transactions;
 
+/**
+ * {@code RecoveryState} Defines the recovery states of a transaction.
+ *
+ * @since 2201.9.0
+ */
 public enum RecoveryState {
     // start record
     STARTING("STARTING"),
