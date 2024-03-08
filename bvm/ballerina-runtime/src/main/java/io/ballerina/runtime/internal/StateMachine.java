@@ -637,7 +637,7 @@ public abstract class StateMachine {
 
     /**
      * Represents the state where an escaped unicode character in hex format is processed
-     * from a object string field.
+     * from an object string field.
      */
     private static class StringFieldUnicodeHexProcessingState extends UnicodeHexProcessingState {
 
@@ -730,7 +730,7 @@ public abstract class StateMachine {
     }
 
     /**
-     * Represents the state where an escaped character is processed in a object string field.
+     * Represents the state where an escaped character is processed in an object string field.
      */
     private static class StringFieldEscapedCharacterProcessingState extends EscapedCharacterProcessingState {
 
