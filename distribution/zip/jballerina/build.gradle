@@ -124,15 +124,15 @@ CopySpec copyResourceSpec = copySpec {
     into(basePath + '/bre')
 }
 
-tasks.register('setBallerinaVersion', Exec) {
-    doFirst {
-        environment 'BALLERINA_VERSION', project.version
-    }
-    commandLine 'echo', "Ballerina Version: ${project.version}"
-}
-tasks.named('go_build').configure {
-    dependsOn setBallerinaVersion
-}
+// tasks.register('setBallerinaVersion', Exec) {
+//     doFirst {
+//         environment 'BALLERINA_VERSION', project.version
+//     }
+//     commandLine 'echo', "Ballerina Version: ${project.version}"
+// }
+// tasks.named('go_build').configure {
+//     dependsOn setBallerinaVersion
+// }
 
 
 task createZip(type: Zip) {

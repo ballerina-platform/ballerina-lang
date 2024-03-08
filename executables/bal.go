@@ -28,7 +28,7 @@ import (
 )
 
 func main() {
-	ballerinaHome := os.Getenv("BALLERINA_HOME")
+	ballerinaHome := "@VERSION@"
 	javaPath := filepath.Join(ballerinaHome, "..", "..", "dependencies", "jdk-17.0.7+7-jre")
 	javaCmd := os.Getenv("JAVACMD")
 	javaHome := os.Getenv("JAVA_HOME")
@@ -276,6 +276,7 @@ func setBallerinaClassPath(ballerinaHome string, javaHome string) string {
 
 	return ballerinaClasspath
 }
+
 func getJavaOpts() string {
 	var balJavaDebug string
 	balJavaDebug, isSet := os.LookupEnv("BAL_JAVA_DEBUG")

@@ -40,41 +40,62 @@ tasks.register('go_tidy', Exec) {
     commandLine 'go', 'mod', 'tidy'
 }
 
+task updateGoScript {
+    doFirst {
+        def goScriptFile = file("$rootDir/executables/bal.go")
+        def goScriptContent = goScriptFile.text
+        def version = project.version
+        def updatedGoScriptContent = goScriptContent.replace('@VERSION@', version)
+        def updatedExecutablesDir = file("$rootDir/build/updated_executables")
+        updatedExecutablesDir.mkdirs()
+        def updatedGoScriptFile = file("$rootDir/build/updated_executables/bal.go")
+        updatedGoScriptFile.text = updatedGoScriptContent
+    }
+}
+
 tasks.register('go_build') {
     group 'go'
     description 'Compiles the packages named by the import paths, along with their dependencies. AMD64 and ARM64 Archtecture'
+    dependsOn go_tidy
     dependsOn go_darwin_amd64_build
     dependsOn go_linux_amd64_build
     dependsOn go_darwin_arm64_build
     dependsOn go_windows_build_arm64
+    dependsOn go_build_default
 }
 tasks.register('go_darwin_amd64_build', Exec) {
     group 'go'
     description 'Compiles the packages named by the import paths, along with their dependencies. AMD64 Archtecture'
-
-    commandLine 'env', 'GOOS=darwin', 'GOARCH=amd64','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_darwin_amd64", "$rootDir/executables/bal.go"
+    dependsOn updateGoScript
+    commandLine 'env', 'GOOS=darwin', 'GOARCH=amd64','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_darwin_amd64", "$rootDir/build/updated_executables/bal.go"
 }
 tasks.register('go_linux_amd64_build', Exec) {
     group 'go'
     description 'Compiles the packages named by the import paths, along with their dependencies. AMD64 Architecture'
-    
+    dependsOn updateGoScript
     // Provide the path to the main Go file directly in the commandLine configuration
-    commandLine 'env', 'GOOS=linux', 'GOARCH=amd64','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_linux_amd64", "$rootDir/executables/bal.go"
+    commandLine 'env', 'GOOS=linux', 'GOARCH=amd64','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_linux_amd64", "$rootDir/build/updated_executables/bal.go"
 }
 tasks.register('go_darwin_arm64_build', Exec) {
     group 'go'
     description 'Compiles the packages named by the import paths, along with their dependencies. ARM64 Architecture'
-    
+    dependsOn updateGoScript
     // Provide the path to the main Go file directly in the commandLine configuration
-    commandLine 'env', 'GOOS=darwin', 'GOARCH=arm64','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_darwin_arm64", "$rootDir/executables/bal.go"
+    commandLine 'env', 'GOOS=darwin', 'GOARCH=arm64','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_darwin_arm64", "$rootDir/build/updated_executables/bal.go"
 }
 tasks.register('go_windows_build_arm64', Exec) {
     group 'go'
     description 'Compiles the packages named by the import paths, along with their dependencies. ARM64 Architecture'
-    
+    dependsOn updateGoScript
     // Provide the path to the main Go file directly in the commandLine configuration
-    commandLine 'env', 'GOOS=windows', 'GOARCH=arm64','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_windows_arm64", "$rootDir/executables/bal.go"
+    commandLine 'env', 'GOOS=windows', 'GOARCH=arm64','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal_windows_arm64", "$rootDir/build/updated_executables/bal.go"
 }
 
+tasks.register('go_build_default', Exec) {
+    group 'go'
+    description 'Compiles the packages named by the import paths, along with their dependencies. according to current code running architecture'
+    dependsOn updateGoScript
+    commandLine 'env','CGO_ENABLED=0', 'go', 'build', '-o',"$rootDir/distribution/zip/jballerina/bin/bal", "$rootDir/build/updated_executables/bal.go"
+}
 
 
