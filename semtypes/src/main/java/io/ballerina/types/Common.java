@@ -29,9 +29,9 @@ import java.util.List;
 import static io.ballerina.types.Conjunction.and;
 import static io.ballerina.types.UniformTypeCode.UT_LIST_RO;
 import static io.ballerina.types.UniformTypeCode.UT_LIST_RW;
+import static io.ballerina.types.typeops.BddCommonOps.bddComplement;
 import static io.ballerina.types.typeops.BddCommonOps.bddDiff;
 import static io.ballerina.types.typeops.BddCommonOps.bddIntersect;
-import static io.ballerina.types.typeops.BddCommonOps.bddNodeComplement;
 import static io.ballerina.types.typeops.BddCommonOps.bddUnion;
 
 /**
@@ -148,20 +148,20 @@ public class Common {
         return and(atom, next);
     }
 
-    public static SubtypeData bddSubtypeUnion(ProperSubtypeData t1, ProperSubtypeData t2) {
-        return bddUnion((BddNode) t1, (BddNode) t2);
+    public static SubtypeData bddSubtypeUnion(SubtypeData t1, SubtypeData t2) {
+        return bddUnion((Bdd) t1, (Bdd) t2);
     }
 
-    public static SubtypeData bddSubtypeIntersect(ProperSubtypeData t1, ProperSubtypeData t2) {
-        return bddIntersect((BddNode) t1, (BddNode) t2);
+    public static SubtypeData bddSubtypeIntersect(SubtypeData t1, SubtypeData t2) {
+        return bddIntersect((Bdd) t1, (Bdd) t2);
     }
 
-    public static SubtypeData bddSubtypeDiff(ProperSubtypeData t1, ProperSubtypeData t2) {
-        return bddDiff((BddNode) t1, (BddNode) t2);
+    public static SubtypeData bddSubtypeDiff(SubtypeData t1, SubtypeData t2) {
+        return bddDiff((Bdd) t1, (Bdd) t2);
     }
 
-    public static SubtypeData bddSubtypeComplement(ProperSubtypeData t) {
-        return bddNodeComplement((BddNode) t);
+    public static SubtypeData bddSubtypeComplement(SubtypeData t) {
+        return bddComplement((Bdd) t);
     }
 
     public static SemType[] shallowCopyTypes(SemType[] v) {

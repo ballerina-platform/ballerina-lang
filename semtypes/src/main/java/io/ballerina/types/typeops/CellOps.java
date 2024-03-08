@@ -148,19 +148,19 @@ public class CellOps extends CommonOps implements UniformTypeOps {
         return CellAtomicType.from(ty, mut);
     }
 
-    private static ProperSubtypeData cellSubtypeUnion(ProperSubtypeData t1, ProperSubtypeData t2) {
+    private static ProperSubtypeData cellSubtypeUnion(SubtypeData t1, SubtypeData t2) {
         return cellSubtypeDataEnsureProper(bddSubtypeUnion(t1, t2));
     }
 
-    private static ProperSubtypeData cellSubtypeIntersect(ProperSubtypeData t1, ProperSubtypeData t2) {
+    private static ProperSubtypeData cellSubtypeIntersect(SubtypeData t1, SubtypeData t2) {
         return cellSubtypeDataEnsureProper(bddSubtypeIntersect(t1, t2));
     }
 
-    private static ProperSubtypeData cellSubtypeDiff(ProperSubtypeData t1, ProperSubtypeData t2) {
+    private static ProperSubtypeData cellSubtypeDiff(SubtypeData t1, SubtypeData t2) {
         return cellSubtypeDataEnsureProper(bddSubtypeDiff(t1, t2));
     }
 
-    private static ProperSubtypeData cellSubtypeComplement(ProperSubtypeData t) {
+    private static ProperSubtypeData cellSubtypeComplement(SubtypeData t) {
         return cellSubtypeDataEnsureProper(bddSubtypeComplement(t));
     }
 
@@ -184,23 +184,22 @@ public class CellOps extends CommonOps implements UniformTypeOps {
 
     @Override
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {
-        // TODO: Need to port ballerina-platform/nBallerina#1125 to avoid casting
-        return cellSubtypeUnion((ProperSubtypeData) t1, (ProperSubtypeData) t2);
+        return cellSubtypeUnion(t1, t2);
     }
 
     @Override
     public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
-        return cellSubtypeIntersect((ProperSubtypeData) t1, (ProperSubtypeData) t2);
+        return cellSubtypeIntersect(t1, t2);
     }
 
     @Override
     public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
-        return cellSubtypeDiff((ProperSubtypeData) t1, (ProperSubtypeData) t2);
+        return cellSubtypeDiff(t1, t2);
     }
 
     @Override
     public SubtypeData complement(SubtypeData t) {
-        return cellSubtypeComplement((ProperSubtypeData) t);
+        return cellSubtypeComplement(t);
     }
 
     @Override
