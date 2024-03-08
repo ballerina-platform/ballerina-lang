@@ -50,6 +50,9 @@ public class UniformTypeCode {
     public static final UniformTypeCode UT_TYPEDESC = from(0x0D);
     public static final UniformTypeCode UT_HANDLE = from(0x0E);
 
+    // Non-val
+    public static final UniformTypeCode BT_CELL = from(0x0F);
+
     // Inherently mutable
     public static final UniformTypeCode UT_FUTURE = from(0x10);
     public static final UniformTypeCode UT_STREAM = from(0x11);
@@ -60,9 +63,6 @@ public class UniformTypeCode {
     public static final UniformTypeCode UT_TABLE_RW = from(0x14);
     public static final UniformTypeCode UT_XML_RW = from(0x15);
     public static final UniformTypeCode UT_OBJECT_RW = from(0x16);
-
-    // Non-val
-    public static final UniformTypeCode BT_CELL = from(0x11);
 
     // Helper bit fields (does not represent uniform type tag)
     static final int UT_COUNT = UT_OBJECT_RW.code + 1;

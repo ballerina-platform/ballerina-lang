@@ -18,6 +18,7 @@
 package io.ballerina.types;
 
 import io.ballerina.types.typeops.BooleanOps;
+import io.ballerina.types.typeops.CellOps;
 import io.ballerina.types.typeops.DecimalOps;
 import io.ballerina.types.typeops.ErrorOps;
 import io.ballerina.types.typeops.FloatOps;
@@ -60,7 +61,7 @@ public class OpsTable {
         OPS[i++] = new FunctionOps();   // function
         OPS[i++] = PANIC_IMPL;          // typedesc
         OPS[i++] = PANIC_IMPL;          // handle
-        OPS[i++] = PANIC_IMPL;          // unused
+        OPS[i++] = new CellOps();;      // cell
         OPS[i++] = PANIC_IMPL;          // RW future
         OPS[i++] = PANIC_IMPL;          // RW stream
         OPS[i++] = new ListTypeRwOps(); // RW list

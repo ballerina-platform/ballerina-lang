@@ -23,7 +23,7 @@
 <suite name="ballerina-parser-test-suite">
     <test name="ballerina-semtype-test" preserve-order="true">
         <packages>
-            <package name="io.ballerina.semtype.*" />
+            <package name="io.ballerina.types.*" />
         </packages>
     </test>
 </suite>

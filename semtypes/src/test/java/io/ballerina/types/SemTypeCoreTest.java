@@ -350,7 +350,7 @@ public class SemTypeCoreTest {
         Assert.assertEquals(st.subtypeDataList.length, 1);
         StringSubtype subType = (StringSubtype) st.subtypeDataList[0];
         Assert.assertEquals(subType.getChar().values.length, 1);
-        Assert.assertEquals(subType.getChar().values[0].value, "a".charAt(0));
+        Assert.assertEquals(subType.getChar().values[0].value, "a");
         Assert.assertEquals(subType.getChar().allowed, true);
         Assert.assertEquals(subType.getNonChar().values.length, 0);
         Assert.assertEquals(subType.getNonChar().allowed, true);

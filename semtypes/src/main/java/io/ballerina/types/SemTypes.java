@@ -80,8 +80,24 @@ public class SemTypes {
         return Core.union(t1, t2);
     }
 
+    public static SemType union(SemType... t) {
+        SemType u = PredefinedType.NEVER;
+        for (SemType s : t) {
+            u = Core.union(u, s);
+        }
+        return u;
+    }
+
     public static SemType intersect(SemType t1, SemType t2) {
         return Core.intersect(t1, t2);
+    }
+
+    public static SemType intersect(SemType... t) {
+        SemType i = PredefinedType.TOP;
+        for (SemType s : t) {
+            i = Core.intersect(i, s);
+        }
+        return i;
     }
 
     public static SemType tuple(Env env, SemType[] members) {
