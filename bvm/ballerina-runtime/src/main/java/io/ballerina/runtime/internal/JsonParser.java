@@ -638,19 +638,7 @@ public class JsonParser {
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
                         sm.processFieldName();
-                        Type parentTargetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
-                        // maps can have any field name
-                        // for unions, json, anydata also we do nothing
-                        if (parentTargetType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                            BRecordType recordType = (BRecordType) parentTargetType;
-                            String fieldName = sm.fieldNames.getFirst();
-                            Map<String, Field> fields = recordType.getFields();
-                            Field field = fields.get(fieldName);
-                            if (field == null && recordType.sealed) {
-                                throw new ParserException("field '" + fieldName + "' cannot be added to" +
-                                                          " the closed record '" + recordType + "'");
-                            }
-                        }
+                        processFieldNameValue(sm, ssm);
                         state = END_FIELD_NAME_STATE;
                     } else if (ch == REV_SOL) {
                         state = FIELD_NAME_ESC_CHAR_PROCESSING_STATE;
@@ -659,12 +647,29 @@ public class JsonParser {
                     } else {
                         sm.append(ch);
                         state = this;
-                        continue;
                     }
-                    break;
+                    if (ch == sm.currentQuoteChar || ch == REV_SOL) {
+                        break;
+                    }
                 }
                 sm.index = i + 1;
                 return state;
+            }
+
+            private static void processFieldNameValue(StateMachine sm, StreamStateMachine ssm) throws ParserException {
+                Type parentTargetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
+                // maps can have any field name
+                // for unions, json, anydata also we do nothing
+                if (parentTargetType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                    BRecordType recordType = (BRecordType) parentTargetType;
+                    String fieldName = sm.fieldNames.getFirst();
+                    Map<String, Field> fields = recordType.getFields();
+                    Field field = fields.get(fieldName);
+                    if (field == null && recordType.sealed) {
+                        throw new ParserException("field '" + fieldName + "' cannot be added to" +
+                                                  " the closed record '" + recordType + "'");
+                    }
+                }
             }
 
         }
@@ -692,9 +697,10 @@ public class JsonParser {
                     } else {
                         sm.append(ch);
                         state = this;
-                        continue;
                     }
-                    break;
+                    if (ch == sm.currentQuoteChar || ch == REV_SOL) {
+                        break;
+                    }
                 }
                 sm.index = i + 1;
                 return state;
@@ -754,7 +760,7 @@ public class JsonParser {
                     sm.processLocation(ch);
                     StreamStateMachine ssm = (StreamStateMachine) sm;
                     if (ch == sm.currentQuoteChar) {
-                        processQuoteCharater(sm, ssm);
+                        processQuoteCharacter(sm, ssm);
                         state = ARRAY_ELEMENT_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_AE_ESC_CHAR_PROCESSING_STATE;
@@ -763,15 +769,16 @@ public class JsonParser {
                     } else {
                         sm.append(ch);
                         state = this;
-                        continue;
                     }
-                    break;
+                    if (ch == sm.currentQuoteChar || ch == REV_SOL) {
+                        break;
+                    }
                 }
                 sm.index = i + 1;
                 return state;
             }
 
-            private static void processQuoteCharater(StateMachine sm, StreamStateMachine ssm) throws ParserException {
+            private static void processQuoteCharacter(StateMachine sm, StreamStateMachine ssm) throws ParserException {
                 Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
                 BString bString = StringUtils.fromString(sm.value());
                 int listIndex;
@@ -821,17 +828,7 @@ public class JsonParser {
                     sm.processLocation(ch);
                     StreamStateMachine ssm = (StreamStateMachine) sm;
                     if (ch == sm.currentQuoteChar) {
-                        Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
-                        BString bString = StringUtils.fromString(sm.value());
-                        if (ssm.nodesStackSizeWhenUnionStarts == -1) {
-                            try {
-                                sm.currentJsonNode = ValueConverter.getConvertedStringValue(bString, targetType);
-                            } catch (BError e) {
-                                throw new ParserException(e.getMessage());
-                            }
-                        } else {
-                            sm.currentJsonNode = bString;
-                        }
+                        processStringValue(sm, ssm);
                         state = DOC_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_VAL_ESC_CHAR_PROCESSING_STATE;
@@ -840,12 +837,27 @@ public class JsonParser {
                     } else {
                         sm.append(ch);
                         state = this;
-                        continue;
                     }
-                    break;
+                    if (ch == sm.currentQuoteChar || ch == REV_SOL) {
+                        break;
+                    }
                 }
                 sm.index = i + 1;
                 return state;
+            }
+
+            private static void processStringValue(StateMachine sm, StreamStateMachine ssm) throws ParserException {
+                Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
+                BString bString = StringUtils.fromString(sm.value());
+                if (ssm.nodesStackSizeWhenUnionStarts == -1) {
+                    try {
+                        sm.currentJsonNode = ValueConverter.getConvertedStringValue(bString, targetType);
+                    } catch (BError e) {
+                        throw new ParserException(e.getMessage());
+                    }
+                } else {
+                    sm.currentJsonNode = bString;
+                }
             }
 
         }
