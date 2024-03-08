@@ -229,6 +229,7 @@ public class JsonParser {
                     new StringArrayElementState());
         }
 
+        @Override
         public void reset() {
             super.reset();
             this.targetTypes.clear();
@@ -245,136 +246,94 @@ public class JsonParser {
         }
 
         private static Object convertValues(Type targetType, String inputValue) throws ParserException {
-            switch (targetType.getTag()) {
-                case TypeTags.INT_TAG, TypeTags.SIGNED32_INT_TAG, TypeTags.SIGNED16_INT_TAG, TypeTags.SIGNED8_INT_TAG,
-                        TypeTags.UNSIGNED32_INT_TAG, TypeTags.UNSIGNED16_INT_TAG, TypeTags.UNSIGNED8_INT_TAG -> {
-                    try {
-                        return Long.parseLong(inputValue);
-                    } catch (NumberFormatException e) {
-                        throw getConversionError(targetType, inputValue);
-                    }
-                }
-                case TypeTags.DECIMAL_TAG -> {
-                    try {
-                        return new DecimalValue(inputValue);
-                    } catch (NumberFormatException e) {
-                        throw getConversionError(targetType, inputValue);
-                    }
-                }
-                case TypeTags.FLOAT_TAG -> {
-                    try {
-                        return Double.parseDouble(inputValue);
-                    } catch (NumberFormatException e) {
-                        throw getConversionError(targetType, inputValue);
-                    }
-                }
-                case TypeTags.BOOLEAN_TAG -> {
-                    char ch = inputValue.charAt(0);
-                    if (ch == 't' && StreamStateMachine.TRUE.equals(inputValue)) {
-                        return Boolean.TRUE;
-                    } else if (ch == 'f' && StreamStateMachine.FALSE.equals(inputValue)) {
-                        return Boolean.FALSE;
-                    } else {
-                        throw getConversionError(targetType, inputValue);
-                    }
-                }
-                case TypeTags.NULL_TAG -> {
-                    if (inputValue.charAt(0) == 'n' && StreamStateMachine.NULL.equals(inputValue)) {
-                        return null;
-                    } else {
-                        throw getConversionError(targetType, inputValue);
-                    }
-                }
-                case TypeTags.BYTE_TAG -> {
-                    try {
-                        return Integer.parseInt(inputValue);
-                    } catch (NumberFormatException e) {
-                        throw getConversionError(targetType, inputValue);
-                    }
-                }
+            return switch (targetType.getTag()) {
+                case TypeTags.INT_TAG, TypeTags.SIGNED32_INT_TAG, TypeTags.SIGNED16_INT_TAG,
+                        TypeTags.SIGNED8_INT_TAG, TypeTags.UNSIGNED32_INT_TAG, TypeTags.UNSIGNED16_INT_TAG,
+                        TypeTags.UNSIGNED8_INT_TAG ->
+                        convertToInt(targetType, inputValue);
+                case TypeTags.DECIMAL_TAG -> convertToDecimal(targetType, inputValue);
+                case TypeTags.FLOAT_TAG -> convertToFloat(targetType, inputValue);
+                case TypeTags.BOOLEAN_TAG -> convertToBoolean(targetType, inputValue);
+                case TypeTags.NULL_TAG -> convertToNull(targetType, inputValue);
+                case TypeTags.BYTE_TAG -> convertToByte(targetType, inputValue);
                 case TypeTags.UNION_TAG, TypeTags.FINITE_TYPE_TAG -> {
                     Object jsonVal = getNonStringValueAsJson(inputValue);
-                    return convert(jsonVal, targetType);
+                    yield convert(jsonVal, targetType);
                 }
-                case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG -> {
-                    return getNonStringValueAsJson(inputValue);
-                }
-                default ->
-                    // case TypeTags.STRING_TAG cannot come inside this method, an error needs to be thrown.
-                        throw getConversionError(targetType, inputValue);
+                case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG -> getNonStringValueAsJson(inputValue);
+                // case TypeTags.STRING_TAG cannot come inside this method, an error needs to be thrown.
+                default -> throw getConversionError(targetType, inputValue);
+            };
+        }
+
+        private static int convertToByte(Type targetType, String inputValue) throws ParserException {
+            try {
+                return Integer.parseInt(inputValue);
+            } catch (NumberFormatException e) {
+                throw getConversionError(targetType, inputValue);
+            }
+        }
+
+        private static Object convertToNull(Type targetType, String inputValue) throws ParserException {
+            if (inputValue.charAt(0) == 'n' && StateMachine.NULL.equals(inputValue)) {
+                return null;
+            } else {
+                throw getConversionError(targetType, inputValue);
+            }
+        }
+
+        private static Boolean convertToBoolean(Type targetType, String inputValue) throws ParserException {
+            char ch = inputValue.charAt(0);
+            if (ch == 't' && StateMachine.TRUE.equals(inputValue)) {
+                return Boolean.TRUE;
+            } else if (ch == 'f' && StateMachine.FALSE.equals(inputValue)) {
+                return Boolean.FALSE;
+            } else {
+                throw getConversionError(targetType, inputValue);
+            }
+        }
+
+        private static double convertToFloat(Type targetType, String inputValue) throws ParserException {
+            try {
+                return Double.parseDouble(inputValue);
+            } catch (NumberFormatException e) {
+                throw getConversionError(targetType, inputValue);
+            }
+        }
+
+        private static DecimalValue convertToDecimal(Type targetType, String inputValue) throws ParserException {
+            try {
+                return new DecimalValue(inputValue);
+            } catch (NumberFormatException e) {
+                throw getConversionError(targetType, inputValue);
+            }
+        }
+
+        private static long convertToInt(Type targetType, String inputValue) throws ParserException {
+            try {
+                return Long.parseLong(inputValue);
+            } catch (NumberFormatException e) {
+                throw getConversionError(targetType, inputValue);
             }
         }
 
         protected State finalizeObject() throws ParserException {
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
             switch (targetType.getTag()) {
-                case TypeTags.UNION_TAG, TypeTags.TABLE_TAG, TypeTags.FINITE_TYPE_TAG:
-                    if (this.nodesStackSizeWhenUnionStarts == this.nodesStack.size()) {
-                        this.targetTypes.remove(this.targetTypes.size() - 1);
-                        this.currentJsonNode = convert(this.currentJsonNode, targetType);
-                    }
-                    break;
-                case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG:
-                    if (this.nodesStackSizeWhenUnionStarts == this.nodesStack.size()) {
-                        this.targetTypes.remove(this.targetTypes.size() - 1);
-                    }
-                    break;
-                case TypeTags.MAP_TAG:
+                case TypeTags.UNION_TAG, TypeTags.TABLE_TAG, TypeTags.FINITE_TYPE_TAG ->
+                        processUnionTableFiniteType(targetType);
+                case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG -> processJsonAnydataType();
+                case TypeTags.MAP_TAG -> this.targetTypes.remove(this.targetTypes.size() - 1);
+                case TypeTags.RECORD_TYPE_TAG -> {
                     this.targetTypes.remove(this.targetTypes.size() - 1);
-                    break;
-                case TypeTags.RECORD_TYPE_TAG:
+                    processRecordType(targetType);
+                }
+                case TypeTags.ARRAY_TAG -> {
                     this.targetTypes.remove(this.targetTypes.size() - 1);
-                    BRecordType recordType = (BRecordType) targetType;
-                    BMap<BString, Object> constructedMap = (BMap<BString, Object>) this.currentJsonNode;
-                    List<String> notProvidedFields = new ArrayList<>();
-                    for (Map.Entry<String, Field> stringFieldEntry : recordType.getFields().entrySet()) {
-                        String fieldName = stringFieldEntry.getKey();
-                        BString bFieldName = StringUtils.fromString(fieldName);
-                        if (constructedMap.containsKey(bFieldName)) {
-                            continue;
-                        }
-                        long fieldFlags = stringFieldEntry.getValue().getFlags();
-                        if (SymbolFlags.isFlagOn(fieldFlags, SymbolFlags.REQUIRED)) {
-                            throw new ParserException("missing required field '" + fieldName + "' of type '"
-                                                      + stringFieldEntry.getValue().getFieldType().toString() +
-                                                      "' in record '" + targetType + "'");
-                        } else if (!SymbolFlags.isFlagOn(fieldFlags, SymbolFlags.OPTIONAL)) {
-                            notProvidedFields.add(fieldName);
-                        }
-                    }
-                    BMap<BString, Object> recordValue = createRecordValueWithDefaultValues(recordType.getPackage(),
-                            recordType.getName(), notProvidedFields);
-                    for (Map.Entry<BString, Object> fieldEntry : constructedMap.entrySet()) {
-                        recordValue.populateInitialValue(fieldEntry.getKey(), fieldEntry.getValue());
-                    }
-                    if (recordType.isReadOnly()) {
-                        recordValue.freezeDirect();
-                    }
-                    this.currentJsonNode = recordValue;
-                    break;
-                case TypeTags.ARRAY_TAG:
-                    this.targetTypes.remove(this.targetTypes.size() - 1);
-                    int listIndex = this.listIndices.remove(this.listIndices.size() - 1);
-                    ArrayType arrayType = (ArrayType) targetType;
-                    int targetSize = arrayType.getSize();
-                    if (arrayType.getState() == ArrayType.ArrayState.CLOSED && targetSize > listIndex &&
-                        !arrayType.hasFillerValue()) {
-                        throw new ParserException("missing required number of values for the '" + arrayType +
-                                                  "' array which does not have a filler value");
-                    }
-                    break;
-                case TypeTags.TUPLE_TAG:
-                    this.targetTypes.remove(this.targetTypes.size() - 1);
-                    int tupleListIndex = this.listIndices.remove(this.listIndices.size() - 1);
-                    TupleType tupleType = (TupleType) targetType;
-                    int targetTupleSize = tupleType.getTupleTypes().size();
-                    if (targetTupleSize > tupleListIndex) {
-                        throw new ParserException("missing required number of values for the '" + tupleType
-                                                  + "' tuple");
-                    }
-                    break;
-                default:
-                    throw new ParserException("unsupported type: '" + targetType + "'");
+                    processArrayType((ArrayType) targetType);
+                }
+                case TypeTags.TUPLE_TAG -> processTupleType((TupleType) targetType);
+                default -> throw new ParserException("unsupported type: '" + targetType + "'");
             }
 
             if (this.nodesStack.isEmpty()) {
@@ -421,62 +380,79 @@ public class JsonParser {
             };
         }
 
-        protected State initNewObject() throws ParserException {
-            if (this.currentJsonNode != null) {
-                this.nodesStack.push(currentJsonNode);
-                Type lastTargetType = this.targetTypes.get(this.targetTypes.size() - 1);
-                switch (lastTargetType.getTag()) {
-                    case TypeTags.ARRAY_TAG:
-                        int listIndex = this.listIndices.get(this.listIndices.size() - 1);
-                        ArrayType arrayType = (ArrayType) lastTargetType;
-                        int targetSize = arrayType.getSize();
-                        if (arrayType.getState() == ArrayType.ArrayState.CLOSED && targetSize <= listIndex) {
-                            throw new ParserException("'" + arrayType + "' " + ARRAY_SIZE_MISMATCH);
-                        }
-                        Type elementType = TypeUtils.getImpliedType(arrayType.getElementType());
-                        this.addTargetType(elementType);
-                        break;
-                    case TypeTags.TUPLE_TAG:
-                        int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
-                        TupleType tupleType = (TupleType) lastTargetType;
-                        List<Type> tupleTypes = tupleType.getTupleTypes();
-                        int targetTupleSize = tupleTypes.size();
-                        Type tupleRestType = tupleType.getRestType();
-                        boolean noRestType = tupleRestType == null;
-                        Type tupleElementType;
-                        if (targetTupleSize <= tupleListIndex) {
-                            if (noRestType) {
-                                throw new ParserException("'" + tupleType + "' tuple " + TUPLE_SIZE_MISMATCH);
-                            } else {
-                                tupleElementType = TypeUtils.getImpliedType(tupleRestType);
-                            }
-                        } else {
-                            tupleElementType = TypeUtils.getImpliedType(tupleTypes.get(tupleListIndex));
-                        }
-                        this.addTargetType(tupleElementType);
-                        break;
-                    case TypeTags.MAP_TAG:
-                        this.addTargetType(((MapType) lastTargetType).getConstrainedType());
-                        break;
-                    case TypeTags.RECORD_TYPE_TAG:
-                        BRecordType recordType = (BRecordType) lastTargetType;
-                        String fieldName = this.fieldNames.getFirst();
-                        Map<String, Field> fields = recordType.getFields();
-                        Field field = fields.get(fieldName);
-                        if (field == null) {
-                            this.addTargetType(recordType.restFieldType);
-                        } else {
-                            this.addTargetType(field.getFieldType());
-                        }
-                        break;
-                    case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
-                            TypeTags.FINITE_TYPE_TAG:
-                        break;
-                    default:
-                        throw new ParserException(UNSUPPORTED_TYPE + lastTargetType + "'");
+        private void processTupleType(TupleType targetType) throws ParserException {
+            this.targetTypes.remove(this.targetTypes.size() - 1);
+            int tupleListIndex = this.listIndices.remove(this.listIndices.size() - 1);
+            int targetTupleSize = targetType.getTupleTypes().size();
+            if (targetTupleSize > tupleListIndex) {
+                throw new ParserException("missing required number of values for the '" + targetType
+                                          + "' tuple");
+            }
+        }
+
+        private void processArrayType(ArrayType targetType) throws ParserException {
+            int listIndex = this.listIndices.remove(this.listIndices.size() - 1);
+            int targetSize = targetType.getSize();
+            if (targetType.getState() == ArrayType.ArrayState.CLOSED && targetSize > listIndex &&
+                !targetType.hasFillerValue()) {
+                throw new ParserException("missing required number of values for the '" + targetType +
+                                          "' array which does not have a filler value");
+            }
+        }
+
+        private void processRecordType(Type targetType) throws ParserException {
+            BRecordType recordType = (BRecordType) targetType;
+            BMap<BString, Object> constructedMap = (BMap<BString, Object>) this.currentJsonNode;
+            List<String> notProvidedFields = new ArrayList<>();
+            for (Map.Entry<String, Field> stringFieldEntry : recordType.getFields().entrySet()) {
+                String fieldName = stringFieldEntry.getKey();
+                BString bFieldName = StringUtils.fromString(fieldName);
+                if (constructedMap.containsKey(bFieldName)) {
+                    continue;
+                }
+                long fieldFlags = stringFieldEntry.getValue().getFlags();
+                if (SymbolFlags.isFlagOn(fieldFlags, SymbolFlags.REQUIRED)) {
+                    throw new ParserException("missing required field '" + fieldName + "' of type '"
+                                              + stringFieldEntry.getValue().getFieldType().toString() +
+                                              "' in record '" + targetType + "'");
+                } else if (!SymbolFlags.isFlagOn(fieldFlags, SymbolFlags.OPTIONAL)) {
+                    notProvidedFields.add(fieldName);
                 }
             }
+            BMap<BString, Object> recordValue = createRecordValueWithDefaultValues(recordType.getPackage(),
+                    recordType.getName(), notProvidedFields);
+            for (Map.Entry<BString, Object> fieldEntry : constructedMap.entrySet()) {
+                recordValue.populateInitialValue(fieldEntry.getKey(), fieldEntry.getValue());
+            }
+            if (recordType.isReadOnly()) {
+                recordValue.freezeDirect();
+            }
+            this.currentJsonNode = recordValue;
+        }
+
+        private void processJsonAnydataType() {
+            if (this.nodesStackSizeWhenUnionStarts == this.nodesStack.size()) {
+                this.targetTypes.remove(this.targetTypes.size() - 1);
+            }
+        }
+
+        private void processUnionTableFiniteType(Type targetType) {
+            if (this.nodesStackSizeWhenUnionStarts == this.nodesStack.size()) {
+                this.targetTypes.remove(this.targetTypes.size() - 1);
+                this.currentJsonNode = convert(this.currentJsonNode, targetType);
+            }
+        }
+
+        protected State initNewObject() throws ParserException {
+            if (this.currentJsonNode != null) {
+                handleCurrentJsonNodeForObject();
+            }
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
+            initializeCurrentJsonNodeForObject(targetType);
+            return FIRST_FIELD_READY_STATE;
+        }
+
+        private void initializeCurrentJsonNodeForObject(Type targetType) throws ParserException {
             int targetTypeTag = targetType.getTag();
             switch (targetTypeTag) {
                 case TypeTags.MAP_TAG, TypeTags.RECORD_TYPE_TAG ->
@@ -496,65 +472,73 @@ public class JsonParser {
                 }
                 default -> throw new ParserException(UNSUPPORTED_TYPE + targetType + "'");
             }
-            return FIRST_FIELD_READY_STATE;
+        }
+
+        private void handleCurrentJsonNodeForObject() throws ParserException {
+            this.nodesStack.push(currentJsonNode);
+            Type lastTargetType = this.targetTypes.get(this.targetTypes.size() - 1);
+            switch (lastTargetType.getTag()) {
+                case TypeTags.ARRAY_TAG:
+                    int listIndex = this.listIndices.get(this.listIndices.size() - 1);
+                    ArrayType arrayType = (ArrayType) lastTargetType;
+                    int targetSize = arrayType.getSize();
+                    if (arrayType.getState() == ArrayType.ArrayState.CLOSED && targetSize <= listIndex) {
+                        throw new ParserException("'" + arrayType + "' " + ARRAY_SIZE_MISMATCH);
+                    }
+                    Type elementType = TypeUtils.getImpliedType(arrayType.getElementType());
+                    this.addTargetType(elementType);
+                    break;
+                case TypeTags.TUPLE_TAG:
+                    int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
+                    TupleType tupleType = (TupleType) lastTargetType;
+                    List<Type> tupleTypes = tupleType.getTupleTypes();
+                    int targetTupleSize = tupleTypes.size();
+                    Type tupleRestType = tupleType.getRestType();
+                    boolean noRestType = tupleRestType == null;
+                    Type tupleElementType;
+                    if (targetTupleSize <= tupleListIndex) {
+                        if (noRestType) {
+                            throw new ParserException("'" + tupleType + "' tuple " + TUPLE_SIZE_MISMATCH);
+                        } else {
+                            tupleElementType = TypeUtils.getImpliedType(tupleRestType);
+                        }
+                    } else {
+                        tupleElementType = TypeUtils.getImpliedType(tupleTypes.get(tupleListIndex));
+                    }
+                    this.addTargetType(tupleElementType);
+                    break;
+                case TypeTags.MAP_TAG:
+                    this.addTargetType(((MapType) lastTargetType).getConstrainedType());
+                    break;
+                case TypeTags.RECORD_TYPE_TAG:
+                    BRecordType recordType = (BRecordType) lastTargetType;
+                    String fieldName = this.fieldNames.getFirst();
+                    Map<String, Field> fields = recordType.getFields();
+                    Field field = fields.get(fieldName);
+                    if (field == null) {
+                        this.addTargetType(recordType.restFieldType);
+                    } else {
+                        this.addTargetType(field.getFieldType());
+                    }
+                    break;
+                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
+                        TypeTags.FINITE_TYPE_TAG:
+                    break;
+                default:
+                    throw new ParserException(UNSUPPORTED_TYPE + lastTargetType + "'");
+            }
         }
 
         protected State initNewArray() throws ParserException {
             if (this.currentJsonNode != null) {
-                this.nodesStack.push(currentJsonNode);
-                Type lastTargetType = this.targetTypes.get(this.targetTypes.size() - 1);
-                switch (lastTargetType.getTag()) {
-                    case TypeTags.ARRAY_TAG:
-                        int listIndex = this.listIndices.get(this.listIndices.size() - 1);
-                        ArrayType arrayType = (ArrayType) lastTargetType;
-                        int targetSize = arrayType.getSize();
-                        if (arrayType.getState() == ArrayType.ArrayState.CLOSED && targetSize <= listIndex) {
-                            throw new ParserException("'" + arrayType + "' " + ARRAY_SIZE_MISMATCH);
-                        }
-                        Type elementType = TypeUtils.getImpliedType(arrayType.getElementType());
-                        this.addTargetType(elementType);
-                        break;
-                    case TypeTags.TUPLE_TAG:
-                        int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
-                        TupleType tupleType = (TupleType) lastTargetType;
-                        List<Type> tupleTypes = tupleType.getTupleTypes();
-                        int targetTupleSize = tupleTypes.size();
-                        Type tupleRestType = tupleType.getRestType();
-                        boolean noRestType = tupleRestType == null;
-                        Type tupleElementType;
-                        if (targetTupleSize <= tupleListIndex) {
-                            if (noRestType) {
-                                throw new ParserException("'" + tupleType + "' " + TUPLE_SIZE_MISMATCH);
-                            } else {
-                                tupleElementType = TypeUtils.getImpliedType(tupleRestType);
-                            }
-                        } else {
-                            tupleElementType = TypeUtils.getImpliedType(tupleTypes.get(tupleListIndex));
-                        }
-                        this.addTargetType(tupleElementType);
-                        break;
-                    case TypeTags.MAP_TAG:
-                        this.addTargetType(((MapType) lastTargetType).getConstrainedType());
-                        break;
-                    case TypeTags.RECORD_TYPE_TAG:
-                        BRecordType recordType = (BRecordType) lastTargetType;
-                        String fieldName = this.fieldNames.getFirst();
-                        Map<String, Field> fields = recordType.getFields();
-                        Field field = fields.get(fieldName);
-                        if (field == null) {
-                            this.addTargetType(recordType.restFieldType);
-                        } else {
-                            this.addTargetType(field.getFieldType());
-                        }
-                        break;
-                    case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
-                            TypeTags.FINITE_TYPE_TAG:
-                        break;
-                    default:
-                        throw new ParserException(UNSUPPORTED_TYPE + lastTargetType + "'");
-                }
+                handleCurrentJsonNodeForArray();
             }
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
+            initializeCurrentJsonNodeForArray(targetType);
+            return FIRST_ARRAY_ELEMENT_READY_STATE;
+        }
+
+        private void initializeCurrentJsonNodeForArray(Type targetType) throws ParserException {
             int targetTypeTag = targetType.getTag();
             switch (targetTypeTag) {
                 case TypeTags.ARRAY_TAG:
@@ -582,7 +566,61 @@ public class JsonParser {
                     throw new ParserException("target type is not array type");
 
             }
-            return FIRST_ARRAY_ELEMENT_READY_STATE;
+        }
+
+        private void handleCurrentJsonNodeForArray() throws ParserException {
+            this.nodesStack.push(currentJsonNode);
+            Type lastTargetType = this.targetTypes.get(this.targetTypes.size() - 1);
+            switch (lastTargetType.getTag()) {
+                case TypeTags.ARRAY_TAG:
+                    int listIndex = this.listIndices.get(this.listIndices.size() - 1);
+                    ArrayType arrayType = (ArrayType) lastTargetType;
+                    int targetSize = arrayType.getSize();
+                    if (arrayType.getState() == ArrayType.ArrayState.CLOSED && targetSize <= listIndex) {
+                        throw new ParserException("'" + arrayType + "' " + ARRAY_SIZE_MISMATCH);
+                    }
+                    Type elementType = TypeUtils.getImpliedType(arrayType.getElementType());
+                    this.addTargetType(elementType);
+                    break;
+                case TypeTags.TUPLE_TAG:
+                    int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
+                    TupleType tupleType = (TupleType) lastTargetType;
+                    List<Type> tupleTypes = tupleType.getTupleTypes();
+                    int targetTupleSize = tupleTypes.size();
+                    Type tupleRestType = tupleType.getRestType();
+                    boolean noRestType = tupleRestType == null;
+                    Type tupleElementType;
+                    if (targetTupleSize <= tupleListIndex) {
+                        if (noRestType) {
+                            throw new ParserException("'" + tupleType + "' " + TUPLE_SIZE_MISMATCH);
+                        } else {
+                            tupleElementType = TypeUtils.getImpliedType(tupleRestType);
+                        }
+                    } else {
+                        tupleElementType = TypeUtils.getImpliedType(tupleTypes.get(tupleListIndex));
+                    }
+                    this.addTargetType(tupleElementType);
+                    break;
+                case TypeTags.MAP_TAG:
+                    this.addTargetType(((MapType) lastTargetType).getConstrainedType());
+                    break;
+                case TypeTags.RECORD_TYPE_TAG:
+                    BRecordType recordType = (BRecordType) lastTargetType;
+                    String fieldName = this.fieldNames.getFirst();
+                    Map<String, Field> fields = recordType.getFields();
+                    Field field = fields.get(fieldName);
+                    if (field == null) {
+                        this.addTargetType(recordType.restFieldType);
+                    } else {
+                        this.addTargetType(field.getFieldType());
+                    }
+                    break;
+                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
+                        TypeTags.FINITE_TYPE_TAG:
+                    break;
+                default:
+                    throw new ParserException(UNSUPPORTED_TYPE + lastTargetType + "'");
+            }
         }
 
         /**
@@ -645,34 +683,7 @@ public class JsonParser {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
-                        Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
-                        Object bString = StringUtils.fromString(sm.value());
-                        switch (targetType.getTag()) {
-                            case TypeTags.MAP_TAG:
-                                try {
-                                    bString = ValueConverter.getConvertedStringValue((BString) bString,
-                                            ((MapType) targetType).getConstrainedType());
-                                } catch (BError e) {
-                                    throw new ParserException(e.getMessage());
-                                }
-                                break;
-                            case TypeTags.RECORD_TYPE_TAG:
-                                // in records, when processing the field name, target type is added to targetTypes list.
-                                Type fieldType = getFieldType(sm, (BRecordType) targetType);
-                                try {
-                                    bString = ValueConverter.getConvertedStringValue((BString) bString, fieldType);
-                                } catch (BError e) {
-                                    throw new ParserException(e.getMessage());
-                                }
-                                break;
-                            case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG, TypeTags.TABLE_TAG,
-                                    TypeTags.FINITE_TYPE_TAG:
-                                break;
-                            default:
-                                throw new ParserException(UNSUPPORTED_TYPE + targetType + "'");
-                        }
-                        ((MapValueImpl<BString, Object>) sm.currentJsonNode).putForcefully(
-                                StringUtils.fromString(sm.fieldNames.pop()), bString);
+                        processQuoteCharacter(sm, ssm);
                         state = FIELD_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_FIELD_ESC_CHAR_PROCESSING_STATE;
@@ -687,6 +698,37 @@ public class JsonParser {
                 }
                 sm.index = i + 1;
                 return state;
+            }
+
+            private static void processQuoteCharacter(StateMachine sm, StreamStateMachine ssm) throws ParserException {
+                Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
+                Object bString = StringUtils.fromString(sm.value());
+                switch (targetType.getTag()) {
+                    case TypeTags.MAP_TAG:
+                        try {
+                            bString = ValueConverter.getConvertedStringValue((BString) bString,
+                                    ((MapType) targetType).getConstrainedType());
+                        } catch (BError e) {
+                            throw new ParserException(e.getMessage());
+                        }
+                        break;
+                    case TypeTags.RECORD_TYPE_TAG:
+                        // in records, when processing the field name, target type is added to targetTypes list.
+                        Type fieldType = getFieldType(sm, (BRecordType) targetType);
+                        try {
+                            bString = ValueConverter.getConvertedStringValue((BString) bString, fieldType);
+                        } catch (BError e) {
+                            throw new ParserException(e.getMessage());
+                        }
+                        break;
+                    case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG, TypeTags.TABLE_TAG,
+                            TypeTags.FINITE_TYPE_TAG:
+                        break;
+                    default:
+                        throw new ParserException(UNSUPPORTED_TYPE + targetType + "'");
+                }
+                ((MapValueImpl<BString, Object>) sm.currentJsonNode).putForcefully(
+                        StringUtils.fromString(sm.fieldNames.pop()), bString);
             }
 
             private static Type getFieldType(StateMachine sm, BRecordType targetType) {
@@ -712,37 +754,7 @@ public class JsonParser {
                     sm.processLocation(ch);
                     StreamStateMachine ssm = (StreamStateMachine) sm;
                     if (ch == sm.currentQuoteChar) {
-                        Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
-                        BString bString = StringUtils.fromString(sm.value());
-                        int listIndex;
-                        switch (targetType.getTag()) {
-                            case TypeTags.ARRAY_TAG:
-                                listIndex = ssm.listIndices.get(ssm.listIndices.size() - 1);
-                                try {
-                                    ((ArrayValueImpl) sm.currentJsonNode)
-                                            .convertStringAndAddRefValue(listIndex, bString);
-                                } catch (BError e) {
-                                    throw new ParserException(e.getMessage());
-                                }
-                                ssm.listIndices.set(ssm.listIndices.size() - 1, listIndex + 1);
-                                break;
-                            case TypeTags.TUPLE_TAG:
-                                listIndex = ssm.listIndices.get(ssm.listIndices.size() - 1);
-                                try {
-                                    ((TupleValueImpl) sm.currentJsonNode)
-                                            .convertStringAndAddRefValue(listIndex, bString);
-                                } catch (BError e) {
-                                    throw new ParserException(e.getMessage());
-                                }
-                                ssm.listIndices.set(ssm.listIndices.size() - 1, listIndex + 1);
-                                break;
-                            case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG, TypeTags.FINITE_TYPE_TAG:
-                                ArrayValueImpl arrayValue = (ArrayValueImpl) sm.currentJsonNode;
-                                arrayValue.addRefValueForcefully(arrayValue.size(), bString);
-                                break;
-                            default:
-                                throw new ParserException(UNSUPPORTED_TYPE + targetType + "'");
-                        }
+                        processQuoteCharater(sm, ssm);
                         state = ARRAY_ELEMENT_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_AE_ESC_CHAR_PROCESSING_STATE;
@@ -757,6 +769,40 @@ public class JsonParser {
                 }
                 sm.index = i + 1;
                 return state;
+            }
+
+            private static void processQuoteCharater(StateMachine sm, StreamStateMachine ssm) throws ParserException {
+                Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
+                BString bString = StringUtils.fromString(sm.value());
+                int listIndex;
+                switch (targetType.getTag()) {
+                    case TypeTags.ARRAY_TAG:
+                        listIndex = ssm.listIndices.get(ssm.listIndices.size() - 1);
+                        try {
+                            ((ArrayValueImpl) sm.currentJsonNode)
+                                    .convertStringAndAddRefValue(listIndex, bString);
+                        } catch (BError e) {
+                            throw new ParserException(e.getMessage());
+                        }
+                        ssm.listIndices.set(ssm.listIndices.size() - 1, listIndex + 1);
+                        break;
+                    case TypeTags.TUPLE_TAG:
+                        listIndex = ssm.listIndices.get(ssm.listIndices.size() - 1);
+                        try {
+                            ((TupleValueImpl) sm.currentJsonNode)
+                                    .convertStringAndAddRefValue(listIndex, bString);
+                        } catch (BError e) {
+                            throw new ParserException(e.getMessage());
+                        }
+                        ssm.listIndices.set(ssm.listIndices.size() - 1, listIndex + 1);
+                        break;
+                    case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG, TypeTags.FINITE_TYPE_TAG:
+                        ArrayValueImpl arrayValue = (ArrayValueImpl) sm.currentJsonNode;
+                        arrayValue.addRefValueForcefully(arrayValue.size(), bString);
+                        break;
+                    default:
+                        throw new ParserException(UNSUPPORTED_TYPE + targetType + "'");
+                }
             }
 
         }
@@ -806,15 +852,7 @@ public class JsonParser {
 
         private static Object getNonStringValueAsJson(String str) throws ParserException {
             if (str.indexOf('.') >= 0) {
-                try {
-                    if (isNegativeZero(str) || mode == FROM_JSON_FLOAT_STRING) {
-                        return Double.parseDouble(str);
-                    } else {
-                        return new DecimalValue(str);
-                    }
-                } catch (NumberFormatException ignore) {
-                    throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
-                }
+                return getFloatingPointValue(str);
             } else {
                 char ch = str.charAt(0);
                 if (ch == 't' && TRUE.equals(str)) {
@@ -824,18 +862,34 @@ public class JsonParser {
                 } else if (ch == 'n' && NULL.equals(str)) {
                     return null;
                 } else {
-                    try {
-                        if (isNegativeZero(str) || mode == FROM_JSON_FLOAT_STRING) {
-                            return Double.parseDouble(str);
-                        } else if (isExponential(str) || mode == FROM_JSON_DECIMAL_STRING) {
-                            return new DecimalValue(str);
-                        } else {
-                            return Long.parseLong(str);
-                        }
-                    } catch (NumberFormatException ignore) {
-                        throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
-                    }
+                    return getNumericValue(str);
                 }
+            }
+        }
+
+        private static Object getNumericValue(String str) throws ParserException {
+            try {
+                if (isNegativeZero(str) || mode == FROM_JSON_FLOAT_STRING) {
+                    return Double.parseDouble(str);
+                } else if (isExponential(str) || mode == FROM_JSON_DECIMAL_STRING) {
+                    return new DecimalValue(str);
+                } else {
+                    return Long.parseLong(str);
+                }
+            } catch (NumberFormatException ignore) {
+                throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
+            }
+        }
+
+        private static Object getFloatingPointValue(String str) throws ParserException {
+            try {
+                if (isNegativeZero(str) || mode == FROM_JSON_FLOAT_STRING) {
+                    return Double.parseDouble(str);
+                } else {
+                    return new DecimalValue(str);
+                }
+            } catch (NumberFormatException ignore) {
+                throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
             }
         }
 
@@ -848,74 +902,75 @@ public class JsonParser {
             Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
             Type referredType = TypeUtils.getImpliedType(targetType);
             switch (referredType.getTag()) {
-                case TypeTags.UNION_TAG, TypeTags.FINITE_TYPE_TAG:
+                case TypeTags.UNION_TAG, TypeTags.FINITE_TYPE_TAG -> {
                     processNonStringValueAsJson(str, type);
                     if (this.nodesStackSizeWhenUnionStarts == -1) {
                         this.currentJsonNode = convert(this.currentJsonNode, targetType);
                     }
-                    break;
-                case TypeTags.ANYDATA_TAG, TypeTags.JSON_TAG, TypeTags.TABLE_TAG:
-                    processNonStringValueAsJson(str, type);
-                    break;
-                case TypeTags.ARRAY_TAG:
-                    if (this.currentJsonNode == null) {
-                        throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
-                    }
-                    int listIndex = this.listIndices.get(this.listIndices.size() - 1);
-                    ArrayType arrayType = (ArrayType) referredType;
-                    Type elementType = TypeUtils.getImpliedType(arrayType.getElementType());
-                    ((ArrayValueImpl) this.currentJsonNode).addRefValue(listIndex, convertValues(elementType, str));
-                    this.listIndices.set(this.listIndices.size() - 1, listIndex + 1);
-                    break;
-                case TypeTags.TUPLE_TAG:
-                    if (this.currentJsonNode == null) {
-                        throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
-                    }
-                    int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
-                    TupleType tupleType = (TupleType) referredType;
-                    List<Type> tupleTypes = tupleType.getTupleTypes();
-                    int targetTupleSize = tupleTypes.size();
-                    Type tupleRestType = tupleType.getRestType();
-                    boolean noRestType = tupleRestType == null;
-                    Type tupleElementType;
-                    if (targetTupleSize <= tupleListIndex) {
-                        if (noRestType) {
-                            throw new ParserException("'" + tupleType + "' " + TUPLE_SIZE_MISMATCH);
-                        } else {
-                            tupleElementType = TypeUtils.getImpliedType(tupleRestType);
-                        }
-                    } else {
-                        tupleElementType = TypeUtils.getImpliedType(tupleTypes.get(tupleListIndex));
-                    }
-                    ((TupleValueImpl) this.currentJsonNode).addRefValueForcefully(tupleListIndex,
-                            convertValues(tupleElementType, str));
-                    this.listIndices.set(this.listIndices.size() - 1, tupleListIndex + 1);
-                    break;
-                case TypeTags.MAP_TAG:
-                    if (this.currentJsonNode == null) {
-                        throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
-                    }
-                    MapType mapType = (MapType) referredType;
-                    Type constrainedType = TypeUtils.getImpliedType(mapType.getConstrainedType());
-                    ((MapValueImpl<BString, Object>) this.currentJsonNode).putForcefully(
-                            StringUtils.fromString(this.fieldNames.pop()), convertValues(constrainedType, str));
-                    break;
-                case TypeTags.RECORD_TYPE_TAG:
-                    if (this.currentJsonNode == null) {
-                        throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
-                    }
-                    BRecordType recordType = (BRecordType) referredType;
-                    String fieldName = this.fieldNames.pop();
-                    Map<String, Field> fields = recordType.getFields();
-                    Field field = fields.get(fieldName);
-                    Type fieldType = field == null ? recordType.restFieldType : field.getFieldType();
-                    ((MapValueImpl<BString, Object>) this.currentJsonNode).putForcefully(
-                            StringUtils.fromString(fieldName), convertValues(TypeUtils.getImpliedType(fieldType), str));
-                    break;
-                default:
-                    this.currentJsonNode = convertValues(referredType, str);
-                    break;
+                }
+                case TypeTags.ANYDATA_TAG, TypeTags.JSON_TAG, TypeTags.TABLE_TAG ->
+                        processNonStringValueAsJson(str, type);
+                case TypeTags.ARRAY_TAG -> processArrayType(str, (ArrayType) referredType);
+                case TypeTags.TUPLE_TAG -> processTupleType(str, (TupleType) referredType);
+                case TypeTags.MAP_TAG -> processMapType(str, (MapType) referredType);
+                case TypeTags.RECORD_TYPE_TAG -> processRecordType(str, (BRecordType) referredType);
+                default -> this.currentJsonNode = convertValues(referredType, str);
             }
+        }
+
+        private void processRecordType(String str, BRecordType referredType) throws ParserException {
+            if (this.currentJsonNode == null) {
+                throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
+            }
+            String fieldName = this.fieldNames.pop();
+            Map<String, Field> fields = referredType.getFields();
+            Field field = fields.get(fieldName);
+            Type fieldType = field == null ? referredType.restFieldType : field.getFieldType();
+            ((MapValueImpl<BString, Object>) this.currentJsonNode).putForcefully(
+                    StringUtils.fromString(fieldName), convertValues(TypeUtils.getImpliedType(fieldType), str));
+        }
+
+        private void processMapType(String str, MapType referredType) throws ParserException {
+            if (this.currentJsonNode == null) {
+                throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
+            }
+            Type constrainedType = TypeUtils.getImpliedType(referredType.getConstrainedType());
+            ((MapValueImpl<BString, Object>) this.currentJsonNode).putForcefully(
+                    StringUtils.fromString(this.fieldNames.pop()), convertValues(constrainedType, str));
+        }
+
+        private void processTupleType(String str, TupleType referredType) throws ParserException {
+            if (this.currentJsonNode == null) {
+                throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
+            }
+            int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
+            List<Type> tupleTypes = referredType.getTupleTypes();
+            int targetTupleSize = tupleTypes.size();
+            Type tupleRestType = referredType.getRestType();
+            boolean noRestType = tupleRestType == null;
+            Type tupleElementType;
+            if (targetTupleSize <= tupleListIndex) {
+                if (noRestType) {
+                    throw new ParserException("'" + referredType + "' " + TUPLE_SIZE_MISMATCH);
+                } else {
+                    tupleElementType = TypeUtils.getImpliedType(tupleRestType);
+                }
+            } else {
+                tupleElementType = TypeUtils.getImpliedType(tupleTypes.get(tupleListIndex));
+            }
+            ((TupleValueImpl) this.currentJsonNode).addRefValueForcefully(tupleListIndex,
+                    convertValues(tupleElementType, str));
+            this.listIndices.set(this.listIndices.size() - 1, tupleListIndex + 1);
+        }
+
+        private void processArrayType(String str, ArrayType referredType) throws ParserException {
+            if (this.currentJsonNode == null) {
+                throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
+            }
+            int listIndex = this.listIndices.get(this.listIndices.size() - 1);
+            Type elementType = TypeUtils.getImpliedType(referredType.getElementType());
+            ((ArrayValueImpl) this.currentJsonNode).addRefValue(listIndex, convertValues(elementType, str));
+            this.listIndices.set(this.listIndices.size() - 1, listIndex + 1);
         }
 
         void setValueToJsonType(ValueType type, Object value) {
@@ -941,11 +996,7 @@ public class JsonParser {
         private static Object convert(Object value, Type targetType, Set<TypeValuePair> unresolvedValues) {
 
             if (value == null) {
-                if (TypeUtils.getImpliedType(targetType).isNilable()) {
-                    return null;
-                }
-                throw createError(ErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
-                        ErrorHelper.getErrorDetails(ErrorCodes.CANNOT_CONVERT_NIL, targetType));
+                return handleNullConversion(targetType);
             }
 
             Type sourceType = TypeUtils.getImpliedType(TypeChecker.getType(value));
@@ -964,64 +1015,75 @@ public class JsonParser {
                 throw CloneUtils.createConversionError(value, targetType, errors);
             }
 
-            Object newValue;
-            Type matchingType = TypeUtils.getImpliedType(convertibleType);
-            switch (sourceType.getTag()) {
-                case TypeTags.MAP_TAG:
-                    newValue = convertMap((MapValueImpl<BString, Object>) value, matchingType, convertibleType,
-                            unresolvedValues);
-                    break;
-                case TypeTags.ARRAY_TAG:
-                    newValue = convertArray((ArrayValueImpl) value, matchingType, convertibleType, unresolvedValues);
-                    break;
-                case TypeTags.TABLE_TAG, TypeTags.RECORD_TYPE_TAG, TypeTags.TUPLE_TAG:
-                    // source type can't be tuple, record and table in the stream parser
-                    throw createConversionError(value, targetType);
-                default:
-                    if (TypeChecker.isRegExpType(targetType) && matchingType.getTag() == TypeTags.STRING_TAG) {
-                        try {
-                            newValue = RegExpFactory.parse(((BString) value).getValue());
-                            break;
-                        } catch (BError e) {
-                            throw createConversionError(value, targetType, e.getMessage());
-                        }
-                    }
-
-                    if (TypeTags.isXMLTypeTag(matchingType.getTag())) {
-                        String xmlString = value.toString();
-                        try {
-                            newValue = BalStringUtils.parseXmlExpressionStringValue(xmlString);
-                        } catch (BError e) {
-                            throw createConversionError(value, targetType);
-                        }
-                        if (matchingType.isReadOnly()) {
-                            ((BRefValue) newValue).freezeDirect();
-                        }
-                        break;
-                    }
-
-                    // can't put the below, above handling xml because for selectively mutable types when the
-                    // provided value is readonly, if the target type is non readonly, checkIsType provides true, but
-                    // we can't just clone the value as it should be non readonly.
-                    if (TypeChecker.checkIsType(value, matchingType)) {
-                        newValue = value;
-                        break;
-                    }
-
-                    // handle primitive values
-                    if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
-                        // has to be a numeric conversion.
-                        newValue = TypeConverter.convertValues(matchingType, value);
-                        break;
-                    }
-                    // should never reach here
-                    throw createConversionError(value, targetType);
-            }
+            Object newValue = handleConversion(value, targetType, unresolvedValues, convertibleType, sourceType);
 
             unresolvedValues.remove(typeValuePair);
             return newValue;
         }
 
+        private static Object handleConversion(Object value, Type targetType, Set<TypeValuePair> unresolvedValues,
+                                               Type convertibleType, Type sourceType) {
+            Type matchingType = TypeUtils.getImpliedType(convertibleType);
+            // source type can't be tuple, record and table in the stream parser
+            return switch (sourceType.getTag()) {
+                case TypeTags.MAP_TAG ->
+                        convertMap((MapValueImpl<BString, Object>) value, matchingType, convertibleType,
+                                unresolvedValues);
+                case TypeTags.ARRAY_TAG ->
+                        convertArray((ArrayValueImpl) value, matchingType, convertibleType, unresolvedValues);
+                case TypeTags.TABLE_TAG, TypeTags.RECORD_TYPE_TAG, TypeTags.TUPLE_TAG ->
+                        throw createConversionError(value, targetType);
+                default -> handleDefaultConversion(value, targetType, sourceType, matchingType);
+            };
+        }
+
+        private static Object handleDefaultConversion(Object value, Type targetType, Type sourceType,
+                                                      Type matchingType) {
+            Object newValue;
+            if (TypeChecker.isRegExpType(targetType) && matchingType.getTag() == TypeTags.STRING_TAG) {
+                try {
+                    return RegExpFactory.parse(((BString) value).getValue());
+                } catch (BError e) {
+                    throw createConversionError(value, targetType, e.getMessage());
+                }
+            }
+
+            if (TypeTags.isXMLTypeTag(matchingType.getTag())) {
+                String xmlString = value.toString();
+                try {
+                    newValue = BalStringUtils.parseXmlExpressionStringValue(xmlString);
+                } catch (BError e) {
+                    throw createConversionError(value, targetType);
+                }
+                if (matchingType.isReadOnly()) {
+                    ((BRefValue) newValue).freezeDirect();
+                }
+                return newValue;
+            }
+
+            // can't put the below, above handling xml because for selectively mutable types when the
+            // provided value is readonly, if the target type is non readonly, checkIsType provides true, but
+            // we can't just clone the value as it should be non readonly.
+            if (TypeChecker.checkIsType(value, matchingType)) {
+                return value;
+            }
+
+            // handle primitive values
+            if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
+                // has to be a numeric conversion.
+                return TypeConverter.convertValues(matchingType, value);
+            }
+            // should never reach here
+            throw createConversionError(value, targetType);
+        }
+
+        private static Object handleNullConversion(Type targetType) {
+            if (TypeUtils.getImpliedType(targetType).isNilable()) {
+                return null;
+            }
+            throw createError(ErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
+                    ErrorHelper.getErrorDetails(ErrorCodes.CANNOT_CONVERT_NIL, targetType));
+        }
 
         private static Object convertArray(ArrayValueImpl array, Type targetType, Type targetRefType,
                                            Set<TypeValuePair> unresolvedValues) {
