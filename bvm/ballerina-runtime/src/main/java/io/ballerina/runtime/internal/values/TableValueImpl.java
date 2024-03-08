@@ -613,7 +613,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             if (entries.containsKey(hash)) {
                 return updateExistingEntry(key, data, entry, hash);
             }
-
             return putNewData(key, data, entry, hash);
         }
 
@@ -638,22 +637,19 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             if (entries.containsKey(hash)) {
                 return updateExistingEntry(key, data, entry, hash);
             }
-
             return putNewData((K) key, data, entry, hash);
         }
 
         private V updateExistingEntry(K key, V data, Map.Entry<K, V> entry, Long hash) {
             updateIndexKeyMappings(hash, key, data);
+            List<V> valueList = values.get(hash);
             List<Map.Entry<K, V>> entryList = entries.get(hash);
             for (Map.Entry<K, V> extEntry: entryList) {
                 // Handle hash-collided entries
                 if (TypeChecker.isEqual(key, extEntry.getKey())) {
                     entryList.remove(extEntry);
-                    entryList.add(entry);
-                    List<V> valueList = values.get(hash);
                     valueList.remove(extEntry.getValue());
-                    valueList.add(data);
-                    return data;
+                    break;
                 }
             }
             entryList.add(entry);
