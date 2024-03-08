@@ -1,0 +1,15 @@
+WARNING [modules\mymath\mymath.bal:(8:5,8:6)] parameter 'a' already documented (BCE20003)
+  |
+8 | # + a - parameter description
+  |     ^
+
+WARNING [modules\mymath\mymath.bal:(9:5,9:6)] no such documentable parameter 'c' (BCE20002)
+  |
+9 | # + c - parameter description
+  |     ^
+
+WARNING [modules\mymath\mymath.bal:(11:33,11:38)] undocumented parameter 'b' (BCE20001)
+   |
+11 | public function subtract(int a, int b) returns int {
+   |                                 ^^^^^
+

@@ -18,7 +18,7 @@
 
 package io.ballerina.cli.task;
 
-import io.ballerina.cli.utils.AnnotateDiagnostics;
+import io.ballerina.cli.diagnostics.AnnotateDiagnostics;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.CodeModifierResult;
@@ -219,22 +219,10 @@ public class CompileTask implements Task {
             }
             // HashSet to keep track of the diagnostics to avoid duplicate diagnostics
             Set<String> diagnosticSet = new HashSet<>();
-            // HashMap for documents based on filename
-            Map<String, Document> documentMap = new HashMap<>();
+            Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(project.currentPackage());
             int terminalWidth = AnnotateDiagnostics.getTerminalWidth();
             boolean colorEnabled = terminalWidth != 0;
 
-            Package currentPackage = project.currentPackage();
-            currentPackage.moduleIds().forEach(moduleId -> {
-                currentPackage.module(moduleId).documentIds().forEach(documentId -> {
-                    Document document = currentPackage.module(moduleId).document(documentId);
-                    documentMap.put(getDocumentPath(document.module().moduleName(), document.name()), document);
-                });
-                currentPackage.module(moduleId).testDocumentIds().forEach(documentId -> {
-                    Document document = currentPackage.module(moduleId).document(documentId);
-                    documentMap.put(getDocumentPath(document.module().moduleName(), document.name()), document);
-                });
-            });
             // Report package compilation and backend diagnostics
             diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
             diagnostics.forEach(d -> {
@@ -271,13 +259,6 @@ public class CompileTask implements Task {
         } catch (ProjectException e) {
             throw createLauncherException("compilation failed: " + e.getMessage());
         }
-    }
-
-    private String getDocumentPath(ModuleName moduleName, String documentName) {
-        if (moduleName.isDefaultModuleName()) {
-            return documentName;
-        }
-        return Paths.get("modules", moduleName.moduleNamePart(), documentName).toString();
     }
 
     private boolean isPackCmdForATemplatePkg(Project project) {
