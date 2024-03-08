@@ -25,8 +25,6 @@ import io.ballerina.projects.CodeModifierResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.ModuleName;
-import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
@@ -46,9 +44,7 @@ import org.ballerinalang.central.client.CentralClientConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.PrintStream;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
