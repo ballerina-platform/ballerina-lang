@@ -1,6 +1,6 @@
 
 Executing Build Tools
-WARNING: Skipping validation of tool options for tool grpc(generate-grpc-client) due to: Schema file not found: grpc-options-schema.json
-ERROR [grpc] Build tool 'grpc' not found
+ERROR [grpc] Build tool 'grpc' cannot be resolved. Please try again without '--offline' flag
+
 Compiling source
 	foo/winery:0.1.0
