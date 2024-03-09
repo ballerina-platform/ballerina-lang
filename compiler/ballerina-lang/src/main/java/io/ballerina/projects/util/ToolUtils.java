@@ -56,13 +56,26 @@ public class ToolUtils {
     private ToolUtils() {}
 
     /**
-     * Report a package diagnostic for tool not found.
+     * Report a package diagnostic for tool command not found.
+     *
+     * @param commandName command/ subcommand name of the build tool
+     * @return diagnostic
+     */
+    public static PackageDiagnostic getBuildToolCommandNotFoundDiagnostic(String commandName) {
+        String message = "Build tool command '" + commandName + "' not found";
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(), message, DiagnosticSeverity.ERROR);
+        return new PackageDiagnostic(diagnosticInfo, commandName);
+    }
+
+    /**
+     * Report a package diagnostic for tool not resolved.
      *
      * @param toolId tool id of the build tool
      * @return diagnostic
      */
-    public static PackageDiagnostic getBuildToolNotFoundDiagnostic(String toolId) {
-        String message = "Build tool '" + toolId + "' not found";
+    public static PackageDiagnostic getCannotResolveBuildToolDiagnostic(String toolId) {
+        String message = "Build tool '" + toolId + "' cannot be resolved";
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                 ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(), message, DiagnosticSeverity.ERROR);
         return new PackageDiagnostic(diagnosticInfo, toolId);

@@ -232,20 +232,20 @@ public class ToolResolution {
         List<ToolResolutionCentralResponse.ResolvedTool> resolved = packageResolutionResponse.resolved();
         List<ToolResolutionCentralResponse.UnresolvedTool> unresolved = packageResolutionResponse.unresolved();
         for (ToolResolutionCentralResponse.UnresolvedTool tool : unresolved) {
-            PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(tool.id());
+            PackageDiagnostic diagnostic = ToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
             diagnosticList.add(diagnostic);
         }
         List<BuildTool> resolvedTools = new ArrayList<>();
         for (ToolResolutionCentralResponse.ResolvedTool tool : resolved) {
             if (tool.id() == null || tool.version() == null || tool.name() == null || tool.org() == null) {
-                PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(tool.id());
+                PackageDiagnostic diagnostic = ToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
                 diagnosticList.add(diagnostic);
                 continue;
             }
             try {
                 PackageVersion.from(tool.version());
             } catch (ProjectException ignore) {
-                PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(tool.id());
+                PackageDiagnostic diagnostic = ToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
                 diagnosticList.add(diagnostic);
                 continue;
             }

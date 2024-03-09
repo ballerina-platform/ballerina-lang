@@ -24,6 +24,7 @@ import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildTool;
 import io.ballerina.projects.Diagnostics;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
@@ -136,15 +137,21 @@ public class RunBuildToolsTask implements Task {
             toolServiceLoader = ServiceLoader.load(CodeGeneratorTool.class, toolClassLoader);
         }
 
-        for (Tool toolEntry : toolEntries) {
+        // We run only the entries of resolved tools.
+        List<PackageManifest.Tool> resolvedToolEntries = toolEntries.stream()
+                .filter(toolEntry -> resolvedTools.stream()
+                        .anyMatch(tool -> tool.id().value().equals(toolEntry.type().split("\\.")[0])))
+                .toList();
+        for (Tool toolEntry : resolvedToolEntries) {
             String commandName = toolEntry.type();
             ToolContext toolContext = toolContextMap.get(toolEntry.id());
             Optional<CodeGeneratorTool> targetTool = ToolUtils.getTargetTool(commandName, toolServiceLoader);
             if (targetTool.isEmpty()) {
                 // If the tool is not found, we skip the execution and report a diagnostic
-                PackageDiagnostic diagnostic = ToolUtils.getBuildToolNotFoundDiagnostic(commandName);
+                PackageDiagnostic diagnostic = ToolUtils.getBuildToolCommandNotFoundDiagnostic(commandName);
                 toolContext.reportDiagnostic(diagnostic);
                 this.outStream.println(diagnostic);
+                printToolSkipWarning(toolEntry);
                 continue;
             }
             // Here, we can safely pass the tool type value given in Ballerina.toml instead of
@@ -154,6 +161,7 @@ public class RunBuildToolsTask implements Task {
             if (cmdNameDiagnostic.isPresent()) {
                 toolContext.reportDiagnostic(cmdNameDiagnostic.get());
                 this.outStream.println(cmdNameDiagnostic.get());
+                printToolSkipWarning(toolEntry);
                 continue;
             }
             boolean hasOptionErrors = false;
@@ -175,8 +183,7 @@ public class RunBuildToolsTask implements Task {
             }
             // if manifest errors or options table validation errors
             if (toolEntry.hasErrorDiagnostic() || hasOptionErrors) {
-                outStream.printf("WARNING: Skipping execution of build tool %s(%s) as Ballerina.toml " +
-                        "contains errors%n%n", toolEntry.type(), toolEntry.id() != null ? toolEntry.id() : "");
+                printToolSkipWarning(toolEntry);
                 continue;
             }
 
@@ -312,6 +319,11 @@ public class RunBuildToolsTask implements Task {
                 .toArray(URL[]::new);
         ClassLoader systemClassLoader = this.getClass().getClassLoader();
         return new URLClassLoader(urls, systemClassLoader);
+    }
+
+    private void printToolSkipWarning(PackageManifest.Tool toolEntry) {
+        outStream.printf("WARNING: Skipping execution of build tool %s(%s) contains errors%n",
+                toolEntry.type(), toolEntry.id() != null ? toolEntry.id() : "");
     }
 
     private static List<File> getToolCommandJarAndDependencyJars(List<BuildTool> resolvedTools) {
