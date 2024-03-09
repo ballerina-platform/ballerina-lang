@@ -10,6 +10,7 @@ WARNING [tests\new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a' (
 153 |         int a = 9/0;
     |         ^^^^^^^^^^^^
 
+
 Running Tests with Coverage
 
 	dataproviders
