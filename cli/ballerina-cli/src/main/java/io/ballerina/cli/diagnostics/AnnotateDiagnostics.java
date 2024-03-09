@@ -94,7 +94,8 @@ public class AnnotateDiagnostics {
             });
             currentPackage.module(moduleId).testDocumentIds().forEach(documentId -> {
                 Document document = currentPackage.module(moduleId).document(documentId);
-                documentMap.put(getDocumentPath(document.module().moduleName(), document.name()), document);
+                documentMap.put(getDocumentPath(document.module().moduleName(), document.name().replace("/", "\\")),
+                        document);
             });
         });
 
