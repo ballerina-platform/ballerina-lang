@@ -1,0 +1,31 @@
+[indent]
+indentSize = 4
+continuationIndentSize = 8
+
+[wrapping]
+maxLineLength = 120
+simpleBlocksInOneLine = true
+simpleMethodsInOneLine = true
+
+[braces]
+classBraceStyle = "NewLine"
+methodBraceStyle = "NewLine"
+
+[methodDeclaration]
+parametersWrap = "ChopDown"
+alignMultilineParameters = true
+newLineAfterLeftParen = false
+rightParenOnNewLine = false
+
+[methodCall]
+parametersWrap = "Wrap"
+alignMultilineParameters = false
+newLineAfterLeftParen = false
+rightParenOnNewLine = false
+
+[ifStatement]
+elseOnNewLine = false
+
+[spacing]
+afterTypeCast = true
+aroundRecordBraces = true
