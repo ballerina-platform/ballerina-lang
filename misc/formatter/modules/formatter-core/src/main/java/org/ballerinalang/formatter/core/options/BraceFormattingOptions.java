@@ -78,9 +78,7 @@ public class BraceFormattingOptions {
                 switch (bracesKey) {
                     case CLASS_BRACE_STYLE -> setClassBraceStyle(style);
                     case METHOD_BRACE_STYLE -> setMethodBraceStyle(style);
-                    default -> {
-                        assert false : "Include the brace formatting option " + bracesKey + " in the validator";
-                    }
+                    default -> throw new FormatterException("Invalid Brace Option: " + bracesKey);
                 }
             }
             return build();

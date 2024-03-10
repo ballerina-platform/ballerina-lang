@@ -30,8 +30,7 @@ public enum BraceStyle {
         try {
             return BraceStyle.valueOf(value);
         } catch (IllegalArgumentException e) {
-            assert false : "Include the brace style " + value + " in the validator";
-            return EndOfLine;
+            throw new FormatterException("Invalid Brace style: " + value);
         }
     }
 }

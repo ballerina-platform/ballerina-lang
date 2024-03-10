@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.formatter.core.options;
 
+import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.FormatterUtils;
 
 import java.util.Map;
@@ -97,7 +98,7 @@ public class WrappingFormattingOptions {
                     simpleMethodsInOneLine);
         }
 
-        public WrappingFormattingOptions build(Map<String, Object> configs) {
+        public WrappingFormattingOptions build(Map<String, Object> configs) throws FormatterException {
             for (Map.Entry<String, Object> wrappingEntry : configs.entrySet()) {
                 String wrappingKey = wrappingEntry.getKey();
                 switch (wrappingKey) {
@@ -107,9 +108,7 @@ public class WrappingFormattingOptions {
                     }
                     case SIMPLE_BLOCKS_IN_ONE_LINE -> setSimpleBlocksInOneLine((Boolean) wrappingEntry.getValue());
                     case SIMPLE_METHODS_IN_ONE_LINE -> setSimpleMethodsInOneLine((Boolean) wrappingEntry.getValue());
-                    default -> {
-                        assert false : "Include the wrapping formatting option " + wrappingKey + " in the validator";
-                    }
+                    default -> throw new FormatterException("Invalid wrapping formatting option: " + wrappingKey);
                 }
             }
             return build();

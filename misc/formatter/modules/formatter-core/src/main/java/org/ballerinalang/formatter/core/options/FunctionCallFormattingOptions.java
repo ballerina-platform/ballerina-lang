@@ -117,10 +117,7 @@ public class FunctionCallFormattingOptions {
                     case ALIGN_MULTILINE_PARAMETERS -> setAlignMultilineParameters((Boolean) funcCallEntry.getValue());
                     case NEWLINE_AFTER_LEFT_PAREN -> setNewLineAfterLeftParen((Boolean) funcCallEntry.getValue());
                     case RIGHT_PAREN_ON_NEWLINE -> setRightParenOnNewLine((Boolean) funcCallEntry.getValue());
-                    default -> {
-                        assert false :
-                                "Include the function call formatting option " + funcCallKey + " in the validator";
-                    }
+                    default -> throw new FormatterException("Invalid function call formatting option: " + funcCallKey);
                 }
             }
             return build();

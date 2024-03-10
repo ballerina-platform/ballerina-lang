@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.formatter.core.options;
 
+import org.ballerinalang.formatter.core.FormatterException;
+
 import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
@@ -82,7 +84,7 @@ public class SpacingFormattingOptions {
             return new SpacingFormattingOptions(afterTypeCast, aroundRecordBraces, alignConsecutiveDefinitions);
         }
 
-        public SpacingFormattingOptions build(Map<String, Object> configs) {
+        public SpacingFormattingOptions build(Map<String, Object> configs) throws FormatterException {
             for (Map.Entry<String, Object> spacingEntry : configs.entrySet()) {
                 String spacingKey = spacingEntry.getKey();
                 switch (spacingKey) {
@@ -90,9 +92,7 @@ public class SpacingFormattingOptions {
                     case AROUND_RECORD_BRACES -> setAroundRecordBraces((Boolean) spacingEntry.getValue());
                     case ALIGN_CONSECUTIVE_DEFINITIONS ->
                             setAlignConsecutiveDefinitions((Boolean) spacingEntry.getValue());
-                    default -> {
-                        assert false : "Include the spacing formatting option " + spacingKey + " in the validator";
-                    }
+                    default -> throw new FormatterException("Invalid spacing formatting option: " + spacingKey);
                 }
             }
             return build();
