@@ -28,43 +28,11 @@ import (
 )
 
 func main() {
-	ballerinaHome := os.Getenv(BALLERINA_HOME)
-	javaPath := filepath.Join(ballerinaHome, "..", "..", "dependencies", "jdk-17.0.7+7-jre")
-	javaCmd := os.Getenv("JAVACMD")
-	javaHome := os.Getenv("JAVA_HOME")
+	ballerinaHome := os.Getenv("BALLERINA_HOME")
 	ballerinaVersion := "@VERSION@"
-	if stat, err := os.Stat(javaPath); err == nil && stat.IsDir() {
-		javaHome := javaPath
-		os.Setenv("JAVA_HOME", javaHome)
-	}
-
-	switch runtime.GOOS {
-	case "darwin":
-		javaVersion := os.Getenv("JAVA_VERSION")
-		path := filepath.Join("/", "usr", "libexec", "java_home")
-		if javaHome == "" {
-			if javaVersion == "" {
-				javaHomeCmd, _ := exec.Command(path).Output()
-				javaHome = string(javaHomeCmd)
-				os.Setenv("JAVA_HOME", javaHome)
-			} else {
-				// If JAVA_HOME is not set, but JAVA_VERSION is set, get the Java home for the specified version
-				javaHomeCmd := exec.Command(path, "-v", javaVersion)
-				javaHomeOutput, err := javaHomeCmd.Output()
-				if err == nil {
-					javaHome = string(javaHomeOutput)
-					os.Setenv("JAVA_HOME", javaHome)
-				} else {
-					fmt.Printf("Error determining Java home for version %s: %v\n", javaVersion, err)
-					os.Exit(1)
-				}
-			}
-		}
-	}
-
+	javaHome, javaCmd := getJavaSettings(ballerinaHome)
 	prg, err := os.Executable()
 	if err != nil {
-		fmt.Println("Error getting executable path:", err)
 		os.Exit(1)
 	}
 	for {
@@ -81,29 +49,18 @@ func main() {
 
 	// Get the directory of the script
 	prgDir := filepath.Dir(prg)
-
 	// Set BALLERINA_HOME
 	ballerinaHome, _ = filepath.Abs(filepath.Join(prgDir, ".."))
-	if javaCmd == "" {
-		if javaHome != "" {
-			var javacmdPath string
-			if _, err := os.Stat(filepath.Join(javaHome, "jre", "sh", "java")); err == nil {
-				javacmdPath = filepath.Join(javaHome, "jre", "sh", "java")
-			} else {
-				javacmdPath = filepath.Join(javaHome, "bin", "java")
-			}
-			if _, err := os.Stat(javacmdPath); err == nil {
-				javaCmd = javacmdPath
-			} else {
-				fmt.Printf("Error: Unable to find executable JAVACMD in specified JAVA_HOME: %s\n", javaHome)
-				os.Exit(1)
-			}
-		} else {
-			javaCmd = "java"
-		}
+
+	if !commandExists(javaCmd) {
+		fmt.Println("Error: JAVA_HOME is not defined correctly.")
+		os.Exit(1)
+	}
+	if javaHome == "" {
+		fmt.Println("You must set the JAVA_HOME variable before running Ballerina.")
+		os.Exit(1)
 	}
 
-	javaCmd = strings.TrimSpace(javaCmd)
 	setBallerinaCLIWidth()
 	javaOpts := getJavaOpts()
 	ballerinaClasspath := setBallerinaClassPath(ballerinaHome, javaHome)
@@ -140,10 +97,7 @@ func main() {
 		}
 		os.Exit(0)
 	} else if len(os.Args) == 4 && os.Args[1] == "run" && isJarFile(os.Args[3]) && os.Args[2][:8] == "--debug=" {
-		debugPort, err := extractDebugPort(os.Args[2]) //Implementation of bal run --debug=<PORT> <*.jar>
-		if err != nil {
-			os.Exit(1)
-		}
+		debugPort := extractDebugPort(os.Args[2]) //Implementation of bal run --debug=<PORT> <*.jar>
 		if validateDebugPort(debugPort) {
 			cmdArgs := append(cmdLineArgs,
 				"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address="+strconv.Itoa(debugPort),
@@ -157,7 +111,6 @@ func main() {
 
 			err := cmd.Run()
 			if err != nil {
-				fmt.Println("Error running else if 1 command:", err)
 				os.Exit(1)
 			}
 			os.Exit(0)
@@ -168,8 +121,7 @@ func main() {
 	} else if len(os.Args) == 5 && os.Args[1] == "run" && os.Args[2] == "--debug" && isJarFile(os.Args[4]) {
 		debugPort, err := strconv.Atoi(os.Args[3]) // handles "bal run --debug <PORT> <JAR_PATH>" command
 		if err != nil {
-			fmt.Println("Error:", err)
-			os.Exit(1)
+			debugPort = 0
 		}
 		if validateDebugPort(debugPort) {
 			cmdArgs := append(cmdLineArgs,
@@ -208,14 +160,17 @@ func isJarFile(filePath string) bool {
 	return len(filePath) > 4 && filePath[len(filePath)-4:] == ".jar"
 }
 
-func extractDebugPort(debugArg string) (int, error) {
+func extractDebugPort(debugArg string) int {
 	re := regexp.MustCompile(`--debug=([0-9]+)`)
 	matches := re.FindStringSubmatch(debugArg)
 	if len(matches) != 2 {
-		return 0, fmt.Errorf("invalid --debug argument format")
+		return 0
 	}
-
-	return strconv.Atoi(matches[1])
+	port, err := strconv.Atoi(matches[1])
+	if err != nil {
+		port = 0
+	}
+	return port
 }
 
 func commandExists(cmd string) bool {
@@ -302,4 +257,53 @@ func getJavaOpts() string {
 		}
 	}
 	return javaOpts
+}
+
+func getJavaSettings(ballerinaHome string) (javaHome, javaCmd string) {
+	javaPath := filepath.Join(ballerinaHome, "..", "..", "dependencies", "jdk-17.0.7+7-jre")
+	javaCmd = os.Getenv("JAVACMD")
+	javaHome = os.Getenv("JAVA_HOME")
+
+	if stat, err := os.Stat(javaPath); err == nil && stat.IsDir() {
+		javaHome = javaPath
+		os.Setenv("JAVA_HOME", javaHome)
+	}
+
+	switch runtime.GOOS {
+	case "darwin":
+		javaVersion := os.Getenv("JAVA_VERSION")
+		path := filepath.Join("/", "usr", "libexec", "java_home")
+		if javaHome == "" {
+			if javaVersion == "" {
+				javaHomeCmd, _ := exec.Command(path).Output()
+				javaHome = strings.TrimSpace(string(javaHomeCmd))
+				os.Setenv("JAVA_HOME", javaHome)
+			} else {
+				// If JAVA_HOME is not set, but JAVA_VERSION is set, get the Java home for the specified version
+				fmt.Println("Using Java version: ", javaVersion)
+				javaHomeCmd := exec.Command(path, "-v", javaVersion)
+				javaHomeOutput, err := javaHomeCmd.Output()
+				if err == nil {
+					javaHome = strings.TrimSpace(string(javaHomeOutput))
+					os.Setenv("JAVA_HOME", javaHome)
+				}
+			}
+		}
+	}
+
+	if javaCmd == "" {
+		if javaHome != "" {
+			javaCmdPath := filepath.Join(javaHome, "jre", "sh", "java")
+			if _, err := os.Stat(javaCmdPath); err == nil {
+				javaCmd = javaCmdPath
+			} else {
+				javaCmd = filepath.Join(javaHome, "bin", "java")
+			}
+		} else {
+			javaCmd = "java"
+		}
+	}
+
+	javaCmd = strings.TrimSpace(javaCmd)
+	return javaHome, javaCmd
 }
