@@ -40,6 +40,7 @@ import java.util.Map;
 import static io.ballerina.cli.diagnostics.DiagnosticAnnotation.NEW_LINE;
 import static io.ballerina.cli.diagnostics.DiagnosticAnnotation.SEVERITY_COLORS;
 import static io.ballerina.cli.diagnostics.DiagnosticAnnotation.getColoredString;
+import static io.ballerina.cli.utils.OsUtils.isWindows;
 
 /**
  * This class is used to generate diagnostic annotations from diagnostics.
@@ -94,7 +95,7 @@ public class AnnotateDiagnostics {
             });
             currentPackage.module(moduleId).testDocumentIds().forEach(documentId -> {
                 Document document = currentPackage.module(moduleId).document(documentId);
-                documentMap.put(getDocumentPath(document.module().moduleName(), document.name().replace("/", "\\")),
+                documentMap.put(getDocumentPath(document.module().moduleName(), document.name()),
                         document);
             });
         });
@@ -103,10 +104,11 @@ public class AnnotateDiagnostics {
     }
 
     private static String getDocumentPath(ModuleName moduleName, String documentName) {
+        String documentNameFixed = isWindows() ? documentName.replace("/", "\\") : documentName;
         if (moduleName.isDefaultModuleName()) {
-            return documentName;
+            return documentNameFixed;
         }
-        return Paths.get("modules", moduleName.moduleNamePart(), documentName).toString();
+        return Paths.get("modules", moduleName.moduleNamePart(), documentNameFixed).toString();
     }
 
     private static String diagnosticToString(Diagnostic diagnostic, boolean colorEnabled) {
