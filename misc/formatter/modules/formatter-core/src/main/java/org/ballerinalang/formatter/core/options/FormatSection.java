@@ -49,7 +49,6 @@ public enum FormatSection {
                 return section;
             }
         }
-        assert false : "Include the format section " + value + " in the validator";
-        return null;
+        throw new FormatterException("Invalid format section: " + value);
     }
 }

@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.formatter.core.options;
 
+import org.ballerinalang.formatter.core.FormatterException;
+
 import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
@@ -54,13 +56,13 @@ public class QueryFormattingOptions {
             return new QueryFormattingOptions(alignMultiLineQueries);
         }
 
-        public QueryFormattingOptions build(Map<String, Object> configs) {
+        public QueryFormattingOptions build(Map<String, Object> configs) throws FormatterException {
             for (Map.Entry<String, Object> queryStatementEntry : configs.entrySet()) {
                 String queryStatementKey = queryStatementEntry.getKey();
                 if (queryStatementKey.equals(ALIGN_MULTILINE_QUERIES)) {
                     setAlignMultiLineQueries((Boolean) queryStatementEntry.getValue());
                 } else {
-                    assert false : "Include the query formatting option " + queryStatementKey + " in the validator";
+                    throw new FormatterException("Invalid query formatting option: " + queryStatementKey);
                 }
             }
             return build();

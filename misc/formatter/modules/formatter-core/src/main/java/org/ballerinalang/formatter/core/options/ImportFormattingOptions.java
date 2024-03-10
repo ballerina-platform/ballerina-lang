@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.formatter.core.options;
 
+import org.ballerinalang.formatter.core.FormatterException;
+
 import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
@@ -84,15 +86,13 @@ public class ImportFormattingOptions {
             return new ImportFormattingOptions(groupImports, sortImports, removeUnusedImports);
         }
 
-        public ImportFormattingOptions build(Map<String, Object> configs) {
+        public ImportFormattingOptions build(Map<String, Object> configs) throws FormatterException {
             for (Map.Entry<String, Object> importEntry : configs.entrySet()) {
                 String importKey = importEntry.getKey();
                 switch (importKey) {
                     case SORT_IMPORTS -> setSortImports((Boolean) importEntry.getValue());
                     case GROUP_IMPORTS -> setGroupImports((Boolean) importEntry.getValue());
-                    default -> {
-                        assert false : "Include the import formatting option " + importKey + " in the validator";
-                    }
+                    default -> throw new FormatterException("Invalid import formatting option: " + importKey);
                 }
             }
             return build();

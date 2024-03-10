@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.formatter.core.options;
 
+import org.ballerinalang.formatter.core.FormatterException;
+
 import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
@@ -54,13 +56,13 @@ public class IfStatementFormattingOptions {
             return new IfStatementFormattingOptions(elseOnNewLine);
         }
 
-        public IfStatementFormattingOptions build(Map<String, Object> configs) {
+        public IfStatementFormattingOptions build(Map<String, Object> configs) throws FormatterException {
             for (Map.Entry<String, Object> ifStatementEntry : configs.entrySet()) {
                 String ifStatementKey = ifStatementEntry.getKey();
                 if (ifStatementKey.equals(ELSE_ON_NEW_LINE)) {
                     setElseOnNewLine((Boolean) ifStatementEntry.getValue());
                 } else {
-                    assert false : "Include the if statement formatting option " + ifStatementKey + " in the validator";
+                    throw new FormatterException("Invalid if statement formatting option: " + ifStatementKey);
                 }
             }
             return build();

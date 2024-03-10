@@ -106,37 +106,35 @@ public class FormatCmdTest {
     private Object[][] provideConfigurationProjects() {
         return new Object[][]{
                 {"brace", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "brace", "source", "project"))
+                        RES_DIR.resolve("configurations/options/brace/source/project")
                 )},
                 {"functionCall", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "functionCall", "source", "chopDown")),
-                        RES_DIR.resolve(Path.of("configurations", "options", "functionCall", "source", "noWrap")),
-                        RES_DIR.resolve(Path.of("configurations", "options", "functionCall", "source", "wrap"))
+                        RES_DIR.resolve("configurations/options/functionCall/source/chopDown"),
+                        RES_DIR.resolve("configurations/options/functionCall/source/noWrap"),
+                        RES_DIR.resolve("configurations/options/functionCall/source/wrap")
                 )},
                 {"functionDeclaration", List.of(
-                        RES_DIR.resolve(
-                                Path.of("configurations", "options", "functionDeclaration", "source", "chopDown")),
-                        RES_DIR.resolve(
-                                Path.of("configurations", "options", "functionDeclaration", "source", "noWrap")),
-                        RES_DIR.resolve(Path.of("configurations", "options", "functionDeclaration", "source", "wrap"))
+                        RES_DIR.resolve("configurations/options/functionDeclaration/source/chopDown"),
+                        RES_DIR.resolve("configurations/options/functionDeclaration/source/noWrap"),
+                        RES_DIR.resolve("configurations/options/functionDeclaration/source/wrap")
                 )},
                 {"ifStatement", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "ifStatement", "source", "ifelse"))
+                        RES_DIR.resolve("configurations/options/ifStatement/source/ifelse")
                 )},
                 {"imports", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "imports", "source", "project"))
+                        RES_DIR.resolve("configurations/options/imports/source/project")
                 )},
                 {"indent", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "indent", "source", "project"))
+                        RES_DIR.resolve("configurations/options/indent/source/project")
                 )},
                 {"query", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "query", "source", "project"))
+                        RES_DIR.resolve("configurations/options/query/source/project")
                 )},
                 {"spacing", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "spacing", "source", "project"))
+                        RES_DIR.resolve("configurations/options/spacing/source/project")
                 )},
                 {"wrapping", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "wrapping", "source", "project"))
+                        RES_DIR.resolve("configurations/options/wrapping/source/project")
                 )}
         };
     }

@@ -113,10 +113,8 @@ public class FunctionDeclFormattingOptions {
                     case NEWLINE_AFTER_LEFT_PAREN ->
                             setNewLineAfterLeftParen((Boolean) methodDeclarationEntry.getValue());
                     case RIGHT_PAREN_ON_NEWLINE -> setRightParenOnNewLine((Boolean) methodDeclarationEntry.getValue());
-                    default -> {
-                        assert false : "Include the function declaration formatting option " + methodDeclarationKey +
-                                " in the validator";
-                    }
+                    default -> throw new FormatterException(
+                            "Invalid function declaration formatting option: " + methodDeclarationKey);
                 }
             }
             return build();
