@@ -1,0 +1,16 @@
+ERROR [two-line-error.bal:(4:33,5:10)] operator '+' not defined for 'int' and 'float' (BCE2070)
+  |
+4 |     io:println("Hello, World!", 1 + 2
+  |                                 ^^^^^
+5 |     + 3.4, true, "Hello, World!");
+  | ^^^^^^^^^
+  |
+
+ERROR [two-line-error.bal:(19:41,20:29)] too many arguments in call to 'exponentiate()' (BCE2524)
+   |
+19 |     io:println("Hello, World!", 1 + 2 + exponentiate(2, 3
+   |                                         ^^^^^^^^^^^^^^^^^
+20 |     , true, "Hello, World!"));
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
