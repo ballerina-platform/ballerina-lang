@@ -124,17 +124,18 @@ public class FileRecoveryLog implements RecoveryLog {
      */
     private int findLatestVersion() {
         int latestVersion = 0;
-        File directory = recoveryLogDir.toFile();
         File[] files = getLogFilesInDirectory();
         if (files == null) {
             return latestVersion;
         }
         for (File file : files) {
             String fileName = file.getName();
-            int version = Integer.parseInt(
-                    fileName.replaceAll(baseFileName, "").replaceAll(LOG_FILE_EXTENSION, ""));
-            if (version > latestVersion) {
-                latestVersion = version;
+            if (fileName.matches("^" + baseFileName + "\\d+" + LOG_FILE_EXTENSION + "$")) {
+                int version = Integer.parseInt(
+                        fileName.replaceAll(baseFileName, "").replaceAll(LOG_FILE_EXTENSION, ""));
+                if (version > latestVersion) {
+                    latestVersion = version;
+                }
             }
         }
         return latestVersion;
