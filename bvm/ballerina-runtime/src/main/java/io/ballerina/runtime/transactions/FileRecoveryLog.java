@@ -140,7 +140,7 @@ public class FileRecoveryLog implements RecoveryLog {
         return latestVersion;
     }
 
-    private File[] getLogFilesInDirectory(){
+    private File[] getLogFilesInDirectory() {
         return recoveryLogDir.toFile().listFiles(
                 (dir, name) -> name.matches(baseFileName + LOG_FILE_NUMBER + LOG_FILE_EXTENSION)
         );
@@ -167,7 +167,7 @@ public class FileRecoveryLog implements RecoveryLog {
     @Override
     public void put(TransactionLogRecord trxRecord) {
         boolean force = !(trxRecord.getTransactionState().equals(RecoveryState.TERMINATED)); // lazy write
-        writeToFile(trxRecord.getTransactionLogRecord(), force);
+        writeToFile(trxRecord.getTransactionLogRecordString(), force);
         if (checkpointInterval != NO_CHECKPOINT_INTERVAL) {
             writeCheckpointIfNeeded();
             numOfPutsSinceLastCheckpoint++;
@@ -244,20 +244,14 @@ public class FileRecoveryLog implements RecoveryLog {
         if (existingLogs.isEmpty()) {
             return;
         }
-        Iterator<Map.Entry<String, TransactionLogRecord>> iterator = existingLogs.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, TransactionLogRecord> entry = iterator.next();
-            if (entry.getValue().isCompleted()) {
-                iterator.remove(); // Safely remove the entry
-            }
-        }
+        // Safely remove the completed entries
+        existingLogs.entrySet().removeIf(entry -> entry.getValue().isCompleted());
     }
 
-    public void writeCheckpointIfNeeded() {
+    private void writeCheckpointIfNeeded() {
         if (numOfPutsSinceLastCheckpoint >= checkpointInterval) {
             numOfPutsSinceLastCheckpoint = 0; // need to set here otherwise it will just keep creating new files
-            File newFile = createNextVersion();
-            logFile = newFile;
+            logFile = createNextVersion();
         }
     }
 
@@ -269,7 +263,7 @@ public class FileRecoveryLog implements RecoveryLog {
         try {
             appendChannel.close();
         } catch (IOException e) {
-            // nothing to do. java cray cray. :)
+            // nothing to do here.
         }
     }
 }

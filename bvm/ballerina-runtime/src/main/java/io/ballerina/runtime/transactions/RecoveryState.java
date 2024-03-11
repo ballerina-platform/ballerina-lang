@@ -34,7 +34,6 @@ public enum RecoveryState {
     ABORTED("ABORTED"),
     MIXED("MIXED"),
     HAZARD("HAZARD"),
-    IN_DOUBT("IN_DOUBT"),
     // done record
     TERMINATED("TERMINATED");
 

@@ -33,11 +33,6 @@ public interface RecoveryLog {
     void put(TransactionLogRecord trxRecord);
 
     /**
-     * Write a checkpoint to the recovery log file (not needed if checkpoint are not needed)
-     */
-    void writeCheckpointIfNeeded();
-
-    /**
      * Close the recovery log file.
      */
     void close();

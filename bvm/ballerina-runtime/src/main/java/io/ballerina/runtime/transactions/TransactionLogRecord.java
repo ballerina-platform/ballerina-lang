@@ -25,9 +25,9 @@ package io.ballerina.runtime.transactions;
  */
 public class TransactionLogRecord {
 
-    private final static String LINE_SEPARATOR = System.getProperty("line.separator");
-    private final static String FIELD_SEPARATOR = "|";
-    private final static String COMBINED_ID_SEPARATOR = ":";
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String FIELD_SEPARATOR = "|";
+    private static final String COMBINED_ID_SEPARATOR = ":";
 
     public String transactionId;
     private String transactionBlockId;
@@ -74,7 +74,7 @@ public class TransactionLogRecord {
         return transactionId + ":" + transactionBlockId;
     }
 
-    public String getTransactionLogRecord() {
+    public String getTransactionLogRecordString() {
         return transactionId + COMBINED_ID_SEPARATOR + transactionBlockId + FIELD_SEPARATOR + transactionStatus +
                 FIELD_SEPARATOR + logTime + LINE_SEPARATOR;
     }
@@ -96,7 +96,6 @@ public class TransactionLogRecord {
             RecoveryState transactionStatus = RecoveryState.getRecoveryStatus(transactionStatusString);
             return new TransactionLogRecord(transactionId, transactionBlockId, transactionStatus, logTime);
         }
-        // If parsing fails.. TODO: handle parsing fail properly
         return null;
     }
 
