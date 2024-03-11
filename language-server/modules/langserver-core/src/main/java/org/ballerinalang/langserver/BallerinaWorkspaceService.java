@@ -100,6 +100,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context, projectRoot);
                 }
             }
+            this.languageServer.getClient().telemetryEvent(params.getChanges());
         } catch (WorkspaceDocumentException e) {
             String msg = "Operation 'workspace/didChangeWatchedFiles' failed!";
             this.clientLogger.logError(LSContextOperation.WS_WF_CHANGED, msg, e, null, (Position) null);
