@@ -2448,7 +2448,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     for (int j = pointer; j < listConstructorExprs.size(); j++) {
                         BLangExpression argExpr = listConstructorExprs.get(j);
                         if (!(argExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP)) {
-                            pointer++;
                             continue;
                         }
                         BType argBType = Types.getReferredType(

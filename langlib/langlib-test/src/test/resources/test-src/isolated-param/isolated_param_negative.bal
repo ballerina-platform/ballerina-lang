@@ -65,6 +65,12 @@ isolated function testInvalidNonIsolatedFuncArgInFixedLengthArrayRestArg() {
     _ = marks.filter(...fns);
     _ = marks.filter(...[...fns]);
     _ = marks.filter(...[...[...fns]]);
+    _ = marks.filter(...[fns[0]]);
+
+    [(function (int x) returns boolean)] fnTuple = [x => x > 79];
+    _ = marks.filter(...fnTuple);
+    _ = marks.filter(...[...fnTuple]);
+    _ = marks.filter(...[fnTuple[0]]);
 }
 
 type Rec record {|
@@ -81,4 +87,5 @@ isolated function testInvalidNonIsolatedFuncArgAsMappingsInFixedLengthArrayRestA
     _ = marks.filter(...<Rec>{...rec});
     _ = marks.filter(...<Rec>{func});
     _ = marks.filter(...<Rec>{func: func});
+    _ = marks.filter(...<Rec>{...<Rec>{...rec}});
 }
