@@ -565,9 +565,9 @@ public final class TypeBuilder {
         public static final Type TYPE_TYPEDESC = wrap(new BTypedescType(TypeConstants.TYPEDESC_TNAME, EMPTY_MODULE));
         public static final Type TYPE_MAP = wrap(new BMapType(TypeConstants.MAP_TNAME, TYPE_ANY, EMPTY_MODULE));
         public static final Type TYPE_FUTURE = wrap(new BFutureType(TypeConstants.FUTURE_TNAME, EMPTY_MODULE));
-        //        public static final Type TYPE_NULL = wrap(new BNullType(TypeConstants.NULL_TNAME, EMPTY_MODULE));
+
         public static final Type TYPE_NULL = SemTypeUtils.SemTypeBuilder.from(SemTypeUtils.UniformTypeCodes.UT_NIL);
-        public static final Type TYPE_NEVER = wrap(new BNeverType(EMPTY_MODULE));
+        public static final Type TYPE_NEVER = SemTypeUtils.SemTypeBuilder.from(SemTypeUtils.UniformTypeCodes.UT_NEVER);
         public static final Type TYPE_XML_ATTRIBUTES =
                 wrap(new BXmlAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, EMPTY_MODULE));
         public static final Type TYPE_ITERATOR = wrap(new BIteratorType(TypeConstants.ITERATOR_TNAME, EMPTY_MODULE));

@@ -245,6 +245,12 @@ public abstract class BType implements Type, ProperSubTypeData, BTypeComponent {
     }
 
     @Override
+    public boolean isEmpty() {
+        // TODO: override this in record, list and tuple types
+        return false;
+    }
+
+    @Override
     public BType getBTypeComponent() {
         return this;
     }

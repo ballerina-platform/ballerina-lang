@@ -61,14 +61,19 @@ public final class SemTypeUtils {
 //            }
             BitSet all = new BitSet(N_TYPES);
             BitSet some = new BitSet(N_TYPES);
-            all.set(uniformTypeCode);
             ProperSubTypeData[] subTypeData = new ProperSubTypeData[N_TYPES];
+            if (uniformTypeCode != 0) {
+                all.set(uniformTypeCode);
+            }
             return new BSemType(all, some, subTypeData);
         }
 
         public static BSemType from(BType bType) {
             if (bType == null) {
                 throw new IllegalStateException("BType cannot be null");
+            }
+            if (bType.isEmpty()) {
+                return new BSemType();
             }
             if (bType instanceof BFiniteType finiteType) {
                 return from(finiteType);
@@ -190,9 +195,16 @@ public final class SemTypeUtils {
             return semtype;
         }
 
+        public static boolean isNever(Type type) {
+            return type instanceof BSemType semType && semType.all.isEmpty() && semType.some.isEmpty();
+        }
+
         public static boolean isEmpty(BSemType t) {
             // FIXME:
-            return t.some.isEmpty() && t.all.isEmpty();
+            if (!t.all.isEmpty()) {
+                return false;
+            }
+            return t.some.isEmpty();
         }
 
         public static BSemType intersection(BSemType t1, BSemType t2) {

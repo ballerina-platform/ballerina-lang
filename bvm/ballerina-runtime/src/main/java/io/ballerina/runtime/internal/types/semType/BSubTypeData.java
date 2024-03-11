@@ -125,6 +125,11 @@ public class BSubTypeData implements ProperSubTypeData, BTypeComponent {
     }
 
     @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
     public boolean isSubType(ProperSubTypeData other) {
         throw new UnsupportedOperationException("unimplemented");
     }

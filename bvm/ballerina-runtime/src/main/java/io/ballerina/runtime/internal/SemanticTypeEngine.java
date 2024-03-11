@@ -46,6 +46,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.TypeBuilder.wrap;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.N_TYPES;
 
 // TODO: once we have properly implemented semtypes we can inline this again in to TypeChecker
 class SemanticTypeEngine {
@@ -130,7 +131,12 @@ class SemanticTypeEngine {
         some.andNot(t2Any);
         if (!some.isEmpty()) {
             // t1 has something that t2 don't have partially or completely
-            return SubTypeCheckResult.FALSE;
+            // TODO: need to check if some is actually not empty
+            for (int i = 0; i < N_TYPES; i++) {
+                if (some.get(i) && !t1.subTypeData[i].isEmpty()) {
+                    return SubTypeCheckResult.FALSE;
+                }
+            }
         }
         // Everything t1 has partially t2 also has something that belong to same basic type partially or completely
         for (int i = 0; i < SemTypeUtils.UniformTypeCodes.UT_BTYPE; i++) {

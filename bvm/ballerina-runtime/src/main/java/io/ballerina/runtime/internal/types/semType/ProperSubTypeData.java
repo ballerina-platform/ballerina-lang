@@ -27,5 +27,7 @@ public interface ProperSubTypeData {
 
     ProperSubTypeData intersect(ProperSubTypeData other);
 
+    boolean isEmpty();
+
     boolean isSubType(ProperSubTypeData other);
 }

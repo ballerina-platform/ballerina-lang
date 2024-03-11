@@ -34,6 +34,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.TypeOperation.isNever;
+
 /**
  * {@code {@link BTupleType}} represents a tuple type in Ballerina.
  *
@@ -305,5 +307,15 @@ public class BTupleType extends BAnnotatableType implements TupleType, MaybeRoTy
     @Override
     public String getAnnotationKey() {
         return Utils.decodeIdentifier(this.typeName);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        for (Type type : tupleTypes) {
+            if (isNever(type)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

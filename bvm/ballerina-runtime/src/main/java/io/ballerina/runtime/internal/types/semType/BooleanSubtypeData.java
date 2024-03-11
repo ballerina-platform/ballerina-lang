@@ -21,8 +21,6 @@
 
 package io.ballerina.runtime.internal.types.semType;
 
-import io.ballerina.runtime.internal.types.semType.ProperSubTypeData;
-
 public class BooleanSubtypeData implements ProperSubTypeData {
 
     @Override
@@ -32,6 +30,11 @@ public class BooleanSubtypeData implements ProperSubTypeData {
 
     @Override
     public ProperSubTypeData intersect(ProperSubTypeData other) {
+        throw new RuntimeException("unimplemented");
+    }
+
+    @Override
+    public boolean isEmpty() {
         throw new RuntimeException("unimplemented");
     }
 

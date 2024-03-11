@@ -93,10 +93,7 @@ public class BSemType implements Type {
         if (onlyBType()) {
             return getBType().getZeroValue();
         }
-        if (all.cardinality() == 1 && all.get(UT_NIL)) {
-            return null;
-        }
-        throw new RuntimeException("unimplemented");
+        return null;
     }
 
     @Override
@@ -104,10 +101,7 @@ public class BSemType implements Type {
         if (onlyBType()) {
             return getBType().getEmptyValue();
         }
-        if (all.cardinality() == 1 && all.get(UT_NIL)) {
-            return null;
-        }
-        throw new RuntimeException("unimplemented");
+        return null;
     }
 
     @Override
@@ -150,14 +144,11 @@ public class BSemType implements Type {
 
     @Override
     public boolean isNilable() {
-        // FIXME:
+        // TODO: can this be true?
         if (onlyBType()) {
             return getBType().isNilable();
         }
-        if (all.cardinality() == 1 && all.get(UT_NIL)) {
-            return true;
-        }
-        throw new RuntimeException("unimplemented");
+        return all.get(UT_NIL);
     }
 
     @Override
@@ -219,10 +210,7 @@ public class BSemType implements Type {
         if (onlyBType()) {
             return getBType().isPureType();
         }
-        if (all.cardinality() == 1 && all.get(UT_NIL)) {
-            return false;
-        }
-        throw new RuntimeException("unimplemented");
+        return false;
     }
 
     @Override
@@ -231,13 +219,10 @@ public class BSemType implements Type {
             return getBType().isReadOnly();
         }
         // If we have only basic types for the subset we have implmented it is always readonly
-        if (all.cardinality() == 1 && all.get(UT_NIL) && some.cardinality() == 0) {
-            return true;
-        }
         if (some.get(UT_BTYPE)) {
             return getBTypePart().isReadOnly();
         }
-        throw new RuntimeException("unimplemented");
+        return true;
     }
 
     @Override
@@ -262,6 +247,9 @@ public class BSemType implements Type {
 
     @Override
     public String toString() {
+        if (some.cardinality() == 0 && all.cardinality() == 0) {
+            return "never";
+        }
         if (name != null) {
             return (module == null || module.getName() == null || module.getName().equals(".")) ? name :
                     module.toString() + ":" + name;
@@ -289,6 +277,7 @@ public class BSemType implements Type {
             }
             return containsNull ? "(" + sb + ")?" : "(" + sb + ")";
         }
+        // FIXME: this is problamtic we need a way to test these inside semtype module
         if (TypeChecker.isSameType(this, PredefinedTypes.TYPE_NULL)) {
             return "()";
         }

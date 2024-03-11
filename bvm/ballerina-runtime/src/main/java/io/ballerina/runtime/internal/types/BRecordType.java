@@ -44,6 +44,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.TypeOperation.isNever;
+
 /**
  * {@code BRecordType} represents a user defined record type in Ballerina.
  *
@@ -151,6 +153,16 @@ public class BRecordType extends BStructureType implements RecordType {
                     implicitInitValue.put(StringUtils.fromString(entry.getKey()), value);
                 });
         return (V) implicitInitValue;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        for (Field field : fields.values()) {
+            if (!SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL) && isNever(field.getFieldType())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

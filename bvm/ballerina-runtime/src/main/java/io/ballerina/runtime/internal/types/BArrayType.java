@@ -216,4 +216,5 @@ public class BArrayType extends BType implements ArrayType, MaybeRoType {
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
     }
+
 }
