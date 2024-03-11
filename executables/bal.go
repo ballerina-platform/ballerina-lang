@@ -64,7 +64,12 @@ func main() {
 	setBallerinaCLIWidth()
 	javaOpts := getJavaOpts()
 	ballerinaClasspath := setBallerinaClassPath(ballerinaHome, javaHome)
-
+	//BALLERINA_CLASSPATH_EXT is for outsiders to additionally add
+	//classpath locations, e.g. AWS Lambda function libraries.
+	ballerinaClasspathExt := os.Getenv("BALLERINA_CLASSPATH_EXT")
+	if ballerinaClasspathExt != "" {
+		ballerinaClasspath = ballerinaClasspath + string(filepath.ListSeparator) + ballerinaClasspathExt
+	}
 	//Define Ballerina CLI Arguments
 	cmdLineArgs := []string{
 		"-Xms256m", "-Xmx1024m",
