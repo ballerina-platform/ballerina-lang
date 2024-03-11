@@ -31,7 +31,7 @@ public class AnnotateDiagnosticsTest {
         this.testResources = Paths.get(testResourcesURI).resolve("diagnostics-test-files");
     }
 
-    @Test
+    @Test(description = "Test annotations when the source file contains missing tokens")
     public void testMissingTokenAnnotation() throws IOException {
         CompileResult result = BCompileUtil.compile(
                 "test-resources/diagnostics-test-files/bal-missing-error/semicolon-missing.bal");
@@ -46,7 +46,7 @@ public class AnnotateDiagnosticsTest {
         Assert.assertEquals(output, expectedOutput);
     }
 
-    @Test
+    @Test(description = "Test annotations when the source file contains a missing function keyword")
     public void testMissingFunctionKeywordAnnotation() throws IOException {
         CompileResult result = BCompileUtil.compile(
                 "test-resources/diagnostics-test-files/bal-missing-error/missing-function-keyword.bal");
@@ -61,7 +61,20 @@ public class AnnotateDiagnosticsTest {
         Assert.assertEquals(output, expectedOutput);
     }
 
-    @Test
+    @Test(description = "Test annotations when the source file contains a missing keywords")
+    public void testMissingMultipleKeywordsAnnotation() throws IOException {
+        CompileResult result = BCompileUtil.compile(
+                "test-resources/diagnostics-test-files/bal-missing-error/missing-multiple-keywords.bal");
+        Diagnostic[] diagnostics = result.getDiagnostics();
+        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
+        String expectedOutput = Files.readString(testResources.resolve("bal-missing-error")
+                .resolve("missing-multiple-keywords-expected.txt"));
+        Assert.assertTrue(diagnostics.length > 0);
+        String output = getAnnotatedDiagnostics(diagnostics, documentMap);
+        Assert.assertEquals(output, expectedOutput);
+    }
+
+    @Test(description = "Test annotations when the source file contains invalid tokens")
     void testInvalidTokenAnnotation() throws IOException {
         CompileResult result = BCompileUtil.compile(
                 "test-resources/diagnostics-test-files/bal-invalid-error/invalid-token.bal");
@@ -76,7 +89,7 @@ public class AnnotateDiagnosticsTest {
         Assert.assertEquals(output, expectedOutput);
     }
 
-    @Test
+    @Test(description = "Test annotations when erroneous line is longer than the terminal width. Tests truncation")
     void testLongLineAnnotation() throws IOException {
         int[] terminalWidth = {999, 200, 150, 100, 50, 40};
         CompileResult result = BCompileUtil.compile(
@@ -95,7 +108,7 @@ public class AnnotateDiagnosticsTest {
         }
     }
 
-    @Test
+    @Test(description = "Test annotations when a ballerina project contains errors in multiple files")
     void testProjectErrorAnnotation() throws IOException {
         CompileResult result = BCompileUtil.compile(
                 "test-resources/diagnostics-test-files/bal-project-error/project1");
@@ -107,7 +120,7 @@ public class AnnotateDiagnosticsTest {
 
     }
 
-    @Test
+    @Test(description = "Test warning annotations in a ballerina project")
     void testProjectWarningAnnotation() throws IOException {
         CompileResult result =
                 BCompileUtil.compileWithoutInitInvocation(
@@ -127,13 +140,35 @@ public class AnnotateDiagnosticsTest {
         Assert.assertEquals(output.toString(), expectedOutput);
     }
 
-    @Test
-    void testMultiLineAnnotations() throws IOException {
+    @Test(description = "Test annotations spanning two lines in the source file")
+    void testTwoLinedAnnotations() throws IOException {
+        CompileResult result =
+                BCompileUtil.compile("test-resources/diagnostics-test-files/bal-error/two-line-error.bal");
+        Diagnostic[] diagnostics = result.getDiagnostics();
+        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
+        String output = getAnnotatedDiagnostics(diagnostics, documentMap);
+        String expectedOutput =
+                Files.readString(testResources.resolve("bal-error").resolve("two-line-error-expected.txt"));
+        Assert.assertEquals(output, expectedOutput);
+    }
+
+    @Test(description = "Test annotations when the source file contains diagnostics spanning multiple lines")
+    void testMultiLinedAnnotations() throws IOException {
         CompileResult result = BCompileUtil.compile("test-resources/diagnostics-test-files/bal-error/multi-line.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
         String output = getAnnotatedDiagnostics(diagnostics, documentMap);
         String expectedOutput = Files.readString(testResources.resolve("bal-error").resolve("multi-line-expected.txt"));
+        Assert.assertEquals(output, expectedOutput);
+    }
+
+    @Test(description = "Test annotations when the source file contains tabs instead of spaces")
+    void testAnnotationsWithTabs() throws IOException {
+        CompileResult result = BCompileUtil.compile("test-resources/diagnostics-test-files/bal-error/tabs.bal");
+        Diagnostic[] diagnostics = result.getDiagnostics();
+        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
+        String output = getAnnotatedDiagnostics(diagnostics, documentMap);
+        String expectedOutput = Files.readString(testResources.resolve("bal-error").resolve("tabs-expected.txt"));
         Assert.assertEquals(output, expectedOutput);
     }
 
