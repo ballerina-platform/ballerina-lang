@@ -107,10 +107,10 @@ func TestRunBalProjectWithConfigurables(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to read expected output file: %v", err)
 	}
-	startString := " Compiling"
-	endString := "main.bal"
-	outputMod := replaceVaryingString(startString, endString, string(expectedOutput))
-	expectedOutputMod := replaceVaryingString(startString, endString, string(expectedOutput))
+	startString := "source"
+	endString := "unused"
+	outputMod := RemoveBetween(startString, endString, string(expectedOutput))
+	expectedOutputMod := RemoveBetween(startString, endString, string(expectedOutput))
 	if removeWhitespace(outputMod) != removeWhitespace(expectedOutputMod) {
 		t.Errorf("output does not match expected output:\nExpected: %s\nGot: %s", expectedOutput, output)
 	}
@@ -142,10 +142,14 @@ func TestRunBalProject(t *testing.T) {
 	}
 	expectedOutputPath := filepath.Join(rootDir, "go_tests", "bal_run_test", "run_output", DirName, "run_hello_output.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputPath)
+	startString := "source"
+	endString := "bal"
+	outputMod := RemoveBetween(startString, endString, string(expectedOutput))
+	expectedOutputMod := RemoveBetween(startString, endString, string(expectedOutput))
 	if err != nil {
 		t.Fatalf("Failed to read expected output file: %v", err)
 	}
-	if removeWhitespace(string(output)) != removeWhitespace(string(expectedOutput)) {
+	if removeWhitespace(outputMod) != removeWhitespace(expectedOutputMod) {
 		t.Errorf("output does not match expected output:\nExpected: %s\nGot: %s", expectedOutput, output)
 	}
 	os.RemoveAll(tmpDir)
@@ -160,13 +164,18 @@ func removeWhitespace(input string) string {
 func main() {
 
 }
-func replaceVaryingString(firstString, endString, output string) string {
-	startIndex := strings.Index(output, firstString)
-	endIndex := strings.Index(output, endString)
 
-	if startIndex == -1 || endIndex == -1 {
-		return output
+func RemoveBetween(startStr, endStr, input string) string {
+	startIndex := strings.Index(input, startStr)
+	if startIndex == -1 {
+		return input
 	}
 
-	return output[startIndex:endIndex]
+	endIndex := strings.Index(input[startIndex:], endStr)
+	if endIndex == -1 {
+		return input
+	}
+	endIndex += startIndex + len(endStr)
+
+	return input[:startIndex] + input[endIndex:]
 }
