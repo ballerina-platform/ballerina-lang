@@ -3,6 +3,10 @@
         "createdYear": "2024",
         "since": "2201.9.0"
     },
+    "ReceiveFieldNode": {
+        "createdYear": "2024",
+        "since": "2201.9.0"
+    },
     "ClientResourceActionNode": {
         "createdYear": "2022",
         "since": "2201.2.0"
@@ -138,9 +142,5 @@
     "SpreadMemberNode": {
         "createdYear": "2022",
         "since": "2201.1.0"
-    },
-    "ReceiveFieldNode": {
-        "createdYear": "2023",
-        "since": "2201.9.0"
     }
 }
