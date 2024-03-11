@@ -7,6 +7,12 @@ Running Tests with Coverage
 
 	object_mocking
 
+testDefaultInvalidMemberReturnValue has failed.
+
+
+		Test execution time :*****ms
+
+
 		[fail] testDefaultInvalidMemberReturnValue:
 
 		    error {ballerina/test:0}InvalidMemberFieldError ("return value provided does not match the type of 'url'")
@@ -23,4 +29,4 @@ Running Tests with Coverage
 
 Generating Test Report*****project-based-tests\object-mocking-tests\target\report\test_results.json
 
-error: there are test failures
+error: there are test failures

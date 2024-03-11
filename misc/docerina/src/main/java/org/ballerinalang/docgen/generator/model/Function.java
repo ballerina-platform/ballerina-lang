@@ -42,10 +42,10 @@ public class Function extends Construct {
     @Expose
     List<AnnotationAttachment> annotationAttachments;
 
-    public Function(String name, String description, FunctionKind functionKind, boolean isExtern, boolean isDeprecated,
-                    boolean isIsolated, List<DefaultableVariable> parameters, List<Variable> returnParameters,
-                    List<AnnotationAttachment> annotationAttachments) {
-        super(name, description, isDeprecated);
+    public Function(String name, String description, List<String> descriptionSections, FunctionKind functionKind,
+                    boolean isExtern, boolean isDeprecated, boolean isIsolated, List<DefaultableVariable> parameters,
+                    List<Variable> returnParameters, List<AnnotationAttachment> annotationAttachments) {
+        super(name, description, descriptionSections, isDeprecated);
         this.isRemote = checkRemote(functionKind);
         this.isResource = checkResource(functionKind);
         this.isExtern = isExtern;
@@ -55,10 +55,11 @@ public class Function extends Construct {
         this.annotationAttachments = annotationAttachments;
     }
 
-    public Function(String name, String accessor, String resourcePath, String description, FunctionKind functionKind,
-                    boolean isExtern, boolean isDeprecated, boolean isIsolated, List<DefaultableVariable> parameters,
+    public Function(String name, String accessor, String resourcePath, String description,
+                    List<String> descriptionSections, FunctionKind functionKind, boolean isExtern,
+                    boolean isDeprecated, boolean isIsolated, List<DefaultableVariable> parameters,
                     List<Variable> returnParameters, List<AnnotationAttachment> annotationAttachments) {
-        super(name, description, isDeprecated);
+        super(name, description, descriptionSections, isDeprecated);
         this.accessor = accessor;
         this.resourcePath = resourcePath;
         this.isRemote = checkRemote(functionKind);
@@ -70,9 +71,10 @@ public class Function extends Construct {
         this.annotationAttachments = annotationAttachments;
     }
 
-    public Function(String name, String description, FunctionKind functionKind, boolean isExtern, boolean isDeprecated,
-                    boolean isIsolated, List<DefaultableVariable> parameters, List<Variable> returnParameters) {
-        super(name, description, isDeprecated);
+    public Function(String name, String description, List<String> descriptionSections, FunctionKind functionKind,
+                    boolean isExtern, boolean isDeprecated, boolean isIsolated, List<DefaultableVariable> parameters,
+                    List<Variable> returnParameters) {
+        super(name, description, descriptionSections, isDeprecated);
         this.isRemote = checkRemote(functionKind);
         this.isResource = checkResource(functionKind);
         this.isExtern = isExtern;
@@ -81,10 +83,11 @@ public class Function extends Construct {
         this.isIsolated = isIsolated;
     }
 
-    public Function(String name, String accessor, String resourcePath, String description, FunctionKind functionKind,
-                    boolean isExtern, boolean isDeprecated, boolean isIsolated, List<DefaultableVariable> parameters,
+    public Function(String name, String accessor, String resourcePath, String description,
+                    List<String> descriptionSections, FunctionKind functionKind, boolean isExtern,
+                    boolean isDeprecated, boolean isIsolated, List<DefaultableVariable> parameters,
                     List<Variable> returnParameters) {
-        super(name, description, isDeprecated);
+        super(name, description, descriptionSections, isDeprecated);
         this.accessor = accessor;
         this.resourcePath = resourcePath;
         this.isRemote = checkRemote(functionKind);

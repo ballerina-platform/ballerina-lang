@@ -257,6 +257,14 @@ class PackageContext {
         packageResolution = PackageResolution.from(this, compilationOptions);
         return packageResolution;
     }
+
+    PackageResolution getResolution(CompilationOptions compilationOptions, boolean isCacheEnabled) {
+        if (!isCacheEnabled || packageResolution == null) {
+                packageResolution = PackageResolution.from(this, compilationOptions);
+        }
+        return packageResolution;
+    }
+
     Collection<PackageDependency> packageDependencies() {
         return packageDependencies;
     }
