@@ -20,7 +20,7 @@ package io.ballerina.types.typeops;
 import io.ballerina.types.Common;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeOps;
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.Range;
@@ -33,11 +33,11 @@ import static java.lang.Long.MAX_VALUE;
 import static java.lang.Long.MIN_VALUE;
 
 /**
- * Uniform subtype ops for int type.
+ * Basic subtype ops for int type.
  *
  * @since 2201.8.0
  */
-public class IntOps implements UniformTypeOps {
+public class IntOps implements BasicTypeOps {
 
     private static IntOps intOpsInstance = new IntOps();
 

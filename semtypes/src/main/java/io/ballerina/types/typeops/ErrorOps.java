@@ -22,18 +22,18 @@ import io.ballerina.types.BddMemo;
 import io.ballerina.types.Common;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeOps;
+import io.ballerina.types.BasicTypeOps;
 
 /**
- * Uniform type ops for error type.
+ * Basic type ops for error type.
  *
  * @since 2201.8.0
  */
-public class ErrorOps extends CommonOps implements UniformTypeOps {
+public class ErrorOps extends CommonOps implements BasicTypeOps {
 
     @Override
     public boolean isEmpty(Context cx, SubtypeData t) {
-        Bdd b = Common.bddFixReadOnly((Bdd) t);
+        Bdd b = (Bdd) t;
         BddMemo mm = cx.mappingMemo.get(b);
         BddMemo m;
         if (mm == null) {

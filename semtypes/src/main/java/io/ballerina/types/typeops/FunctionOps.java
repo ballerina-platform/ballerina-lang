@@ -27,7 +27,7 @@ import io.ballerina.types.FunctionAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeOps;
+import io.ballerina.types.BasicTypeOps;
 
 import java.io.PrintStream;
 
@@ -36,7 +36,7 @@ import java.io.PrintStream;
  *
  * @since 2201.8.0
  */
-public class FunctionOps extends CommonOps implements UniformTypeOps {
+public class FunctionOps extends CommonOps implements BasicTypeOps {
 
     private static final PrintStream console = System.out;
 

@@ -21,7 +21,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeCode;
+import io.ballerina.types.BasicTypeCode;
 
 import java.util.Optional;
 
@@ -51,7 +51,7 @@ public class BooleanSubtype implements ProperSubtypeData {
 
     public static SemType booleanConst(boolean value)  {
         BooleanSubtype t = BooleanSubtype.from(value);
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_BOOLEAN, t);
+        return PredefinedType.basicSubtype(BasicTypeCode.BT_BOOLEAN, t);
     }
 
     public static Optional<Boolean> booleanSubtypeSingleValue(SubtypeData d) {

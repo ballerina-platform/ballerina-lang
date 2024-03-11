@@ -18,19 +18,19 @@
 package io.ballerina.types;
 
 /**
- * UniformTypeBitSet node.
+ * BasicTypeBitSet node.
  *
  * @since 2201.8.0
  */
-public class UniformTypeBitSet implements SemType {
+public class BasicTypeBitSet implements SemType {
     public final int bitset;
 
-    private UniformTypeBitSet(int bitset) {
+    private BasicTypeBitSet(int bitset) {
         this.bitset = bitset;
     }
 
-    public static UniformTypeBitSet from(int bitset) {
-        return new UniformTypeBitSet(bitset);
+    public static BasicTypeBitSet from(int bitset) {
+        return new BasicTypeBitSet(bitset);
     }
 
     @Override
@@ -43,10 +43,10 @@ public class UniformTypeBitSet implements SemType {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof UniformTypeBitSet)) {
+        if (!(o instanceof BasicTypeBitSet)) {
             return false;
         }
-        UniformTypeBitSet s = (UniformTypeBitSet) o;
+        BasicTypeBitSet s = (BasicTypeBitSet) o;
         return (s.bitset == this.bitset);
     }
 

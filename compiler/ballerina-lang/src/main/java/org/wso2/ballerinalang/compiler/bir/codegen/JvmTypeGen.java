@@ -73,11 +73,11 @@ import java.util.Set;
 
 import static io.ballerina.types.Core.getComplexSubtypeData;
 import static io.ballerina.types.SemTypes.isSubtypeSimple;
-import static io.ballerina.types.UniformTypeCode.UT_BOOLEAN;
-import static io.ballerina.types.UniformTypeCode.UT_DECIMAL;
-import static io.ballerina.types.UniformTypeCode.UT_FLOAT;
-import static io.ballerina.types.UniformTypeCode.UT_INT;
-import static io.ballerina.types.UniformTypeCode.UT_STRING;
+import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
+import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
+import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
+import static io.ballerina.types.BasicTypeCode.BT_INT;
+import static io.ballerina.types.BasicTypeCode.BT_STRING;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -1140,23 +1140,23 @@ public class JvmTypeGen {
 
             ComplexSemType cs = (ComplexSemType) s;
             if (isSubtypeSimple(s, PredefinedType.BOOLEAN)) {
-                boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, UT_BOOLEAN)).get();
+                boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, BT_BOOLEAN)).get();
                 loadBooleanValue(mv, boolVal);
             } else if (isSubtypeSimple(s, PredefinedType.INT)) {
-                long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, UT_INT)).get();
+                long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, BT_INT)).get();
                 if (0 <= longVal && longVal <= 255) {
                     loadByteValue(mv, (int) longVal);
                 } else {
                     loadIntValue(mv, longVal);
                 }
             } else if (isSubtypeSimple(s, PredefinedType.FLOAT)) {
-                double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, UT_FLOAT)).get();
+                double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, BT_FLOAT)).get();
                 loadFloatValue(mv, doubleVal);
             } else if (isSubtypeSimple(s, PredefinedType.DECIMAL)) {
-                BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, UT_DECIMAL)).get();
+                BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, BT_DECIMAL)).get();
                 loadDecimalValue(mv, bVal);
             } else if (isSubtypeSimple(s, PredefinedType.STRING)) {
-                String stringVal = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, UT_STRING)).get();
+                String stringVal = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, BT_STRING)).get();
                 loadStringValue(mv, stringVal);
             } else {
                 throw new IllegalStateException("Unexpected value space type: " + s);

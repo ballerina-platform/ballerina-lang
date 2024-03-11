@@ -22,15 +22,15 @@ import io.ballerina.types.Conjunction;
 import io.ballerina.types.Context;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeOps;
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.subtypedata.XmlSubtype;
 
 /**
- * Uniform subtype ops for xml type.
+ * Basic subtype ops for xml type.
  *
  * @since 2201.8.0
  */
-public abstract class XmlCommonOps implements UniformTypeOps {
+public abstract class XmlCommonOps implements BasicTypeOps {
 
     private static final XmlSubtype xmlRoTop = XmlSubtype.from(XmlSubtype.XML_PRIMITIVE_RO_MASK,
             BddCommonOps.bddAtom(RecAtom.createRecAtom(XmlSubtype.XML_PRIMITIVE_RO_SINGLETON)));

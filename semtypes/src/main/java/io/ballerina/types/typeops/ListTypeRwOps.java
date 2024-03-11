@@ -19,14 +19,14 @@ package io.ballerina.types.typeops;
 
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeOps;
+import io.ballerina.types.BasicTypeOps;
 
 /**
  * List read/write specific methods operate on SubtypeData.
  *
  * @since 2201.8.0
  */
-public class ListTypeRwOps extends CommonOps implements UniformTypeOps {
+public class ListTypeRwOps extends CommonOps implements BasicTypeOps {
     @Override
     public boolean isEmpty(Context cx, SubtypeData t) {
         return ListCommonOps.listSubtypeIsEmpty(cx, t);

@@ -54,11 +54,11 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.types.Core.getComplexSubtypeData;
 import static io.ballerina.types.SemTypes.isSubtypeSimple;
-import static io.ballerina.types.UniformTypeCode.UT_BOOLEAN;
-import static io.ballerina.types.UniformTypeCode.UT_DECIMAL;
-import static io.ballerina.types.UniformTypeCode.UT_FLOAT;
-import static io.ballerina.types.UniformTypeCode.UT_INT;
-import static io.ballerina.types.UniformTypeCode.UT_STRING;
+import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
+import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
+import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
+import static io.ballerina.types.BasicTypeCode.BT_INT;
+import static io.ballerina.types.BasicTypeCode.BT_STRING;
 
 /**
  * Represents an union type descriptor.
@@ -126,23 +126,23 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             String value;
             if (isSubtypeSimple(s, PredefinedType.BOOLEAN)) {
                 broadType = symTable.booleanType;
-                boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, UT_BOOLEAN)).get();
+                boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, BT_BOOLEAN)).get();
                 value = boolVal ? Names.TRUE.value : Names.FALSE.value;
             } else if (isSubtypeSimple(s, PredefinedType.INT)) {
                 broadType = symTable.intType;
-                long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, UT_INT)).get();
+                long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, BT_INT)).get();
                 value = Long.toString(longVal);
             } else if (isSubtypeSimple(s, PredefinedType.FLOAT)) {
                 broadType = symTable.floatType;
-                double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, UT_FLOAT)).get();
+                double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, BT_FLOAT)).get();
                 value = Double.toString(doubleVal);
             } else if (isSubtypeSimple(s, PredefinedType.DECIMAL)) {
                 broadType = symTable.decimalType;
-                BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, UT_DECIMAL)).get();
+                BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, BT_DECIMAL)).get();
                 value = bVal.toPlainString();
             } else if (isSubtypeSimple(s, PredefinedType.STRING)) {
                 broadType = symTable.stringType;
-                value = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, UT_STRING)).get();
+                value = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, BT_STRING)).get();
             } else {
                 throw new IllegalStateException("Unexpected value space type: " + s);
             }

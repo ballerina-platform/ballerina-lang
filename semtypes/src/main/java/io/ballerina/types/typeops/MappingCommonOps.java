@@ -27,7 +27,7 @@ import io.ballerina.types.MappingAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeOps;
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.StringSubtype;
@@ -47,7 +47,7 @@ import static io.ballerina.types.typeops.StringOps.stringSubtypeListCoverage;
  *
  * @since 2201.8.0
  */
-public abstract class MappingCommonOps extends CommonOps implements UniformTypeOps {
+public abstract class MappingCommonOps extends CommonOps implements BasicTypeOps {
     // This works the same as the tuple case, except that instead of
     // just comparing the lengths of the tuples we compare the sorted list of field names
     public static boolean mappingFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {

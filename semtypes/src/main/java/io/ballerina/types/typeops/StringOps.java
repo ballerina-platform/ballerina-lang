@@ -23,7 +23,7 @@ import io.ballerina.types.EnumerableCharString;
 import io.ballerina.types.EnumerableString;
 import io.ballerina.types.EnumerableSubtype;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeOps;
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.CharStringSubtype;
 import io.ballerina.types.subtypedata.NonCharStringSubtype;
@@ -37,11 +37,11 @@ import static io.ballerina.types.EnumerableSubtype.GT;
 import static io.ballerina.types.EnumerableSubtype.LT;
 
 /**
- * Uniform subtype ops for string type.
+ * Basic subtype ops for string type.
  *
  * @since 2201.8.0
  */
-public class StringOps implements UniformTypeOps {
+public class StringOps implements BasicTypeOps {
     @Override
     public SubtypeData union(SubtypeData d1, SubtypeData d2) {
         //List<EnumerableString> values = new ArrayList<>();

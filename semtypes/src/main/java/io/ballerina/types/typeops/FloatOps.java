@@ -22,7 +22,7 @@ import io.ballerina.types.Context;
 import io.ballerina.types.EnumerableFloat;
 import io.ballerina.types.EnumerableSubtype;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeOps;
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.subtypedata.FloatSubtype;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
  *
  * @since 2201.8.0
  */
-public class FloatOps extends CommonOps implements UniformTypeOps {
+public class FloatOps extends CommonOps implements BasicTypeOps {
     @Override
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {
         ArrayList<EnumerableFloat> values = new ArrayList<>();

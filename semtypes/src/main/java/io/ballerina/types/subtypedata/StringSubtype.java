@@ -23,7 +23,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeCode;
+import io.ballerina.types.BasicTypeCode;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -107,14 +107,14 @@ public class StringSubtype implements ProperSubtypeData {
             chara = CharStringSubtype.from(true, new EnumerableCharString[]{});
             nonChar = NonCharStringSubtype.from(true, new EnumerableString[]{EnumerableString.from(value)});
         }
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_STRING, new StringSubtype(chara, nonChar));
+        return PredefinedType.basicSubtype(BasicTypeCode.BT_STRING, new StringSubtype(chara, nonChar));
     }
 
     public static SemType stringChar() {
         StringSubtype st = new StringSubtype(
                 CharStringSubtype.from(false, new EnumerableCharString[]{}),
                 NonCharStringSubtype.from(true, new EnumerableString[]{}));
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_STRING, st);
+        return PredefinedType.basicSubtype(BasicTypeCode.BT_STRING, st);
     }
 
     /**

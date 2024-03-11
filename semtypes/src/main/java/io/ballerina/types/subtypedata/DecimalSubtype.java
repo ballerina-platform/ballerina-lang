@@ -24,7 +24,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeCode;
+import io.ballerina.types.BasicTypeCode;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -49,7 +49,7 @@ public class DecimalSubtype extends EnumerableSubtype implements ProperSubtypeDa
     }
 
     public static SemType decimalConst(BigDecimal value) {
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_DECIMAL,
+        return PredefinedType.basicSubtype(BasicTypeCode.BT_DECIMAL,
                 new DecimalSubtype(true, EnumerableDecimal.from(value)));
     }
 

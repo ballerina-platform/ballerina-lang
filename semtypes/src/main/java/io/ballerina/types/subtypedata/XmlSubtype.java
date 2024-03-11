@@ -17,6 +17,7 @@
  */
 package io.ballerina.types.subtypedata;
 
+import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.Common;
 import io.ballerina.types.ComplexSemType;
@@ -26,9 +27,8 @@ import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformSubtype;
-import io.ballerina.types.UniformTypeBitSet;
-import io.ballerina.types.UniformTypeCode;
+import io.ballerina.types.BasicSubtype;
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.typeops.BddCommonOps;
 
 import java.util.ArrayList;
@@ -78,14 +78,14 @@ public class XmlSubtype implements ProperSubtypeData {
         if (constituentType == PredefinedType.NEVER) {
             return xmlSequence(xmlSingleton(XML_PRIMITIVE_NEVER));
         }
-        if (constituentType instanceof UniformTypeBitSet) {
+        if (constituentType instanceof BasicTypeBitSet) {
             return constituentType;
         } else {
             ComplexSemType cct = (ComplexSemType) constituentType;
-            SubtypeData ro = Core.getComplexSubtypeData(cct, UniformTypeCode.UT_XML_RO);
+            SubtypeData ro = Core.getComplexSubtypeData(cct, BasicTypeCode.UT_XML_RO);
             ro = (ro instanceof AllOrNothingSubtype) ? ro : makeSequence(true, (XmlSubtype) ro);
 
-            SubtypeData rw = Core.getComplexSubtypeData(cct, UniformTypeCode.UT_XML_RW);
+            SubtypeData rw = Core.getComplexSubtypeData(cct, BasicTypeCode.UT_XML_RW);
             rw = (rw instanceof AllOrNothingSubtype) ? rw : makeSequence(false, (XmlSubtype) rw);
 
             return createXmlSemtype(ro, rw);
@@ -101,21 +101,21 @@ public class XmlSubtype implements ProperSubtypeData {
     }
 
     public static ComplexSemType createXmlSemtype(SubtypeData ro, SubtypeData rw) {
-        ArrayList<UniformSubtype> subtypes = new ArrayList<>();
+        ArrayList<BasicSubtype> subtypes = new ArrayList<>();
         int all = 0;
         if (ro instanceof AllOrNothingSubtype) {
             if (Common.isAllSubtype(ro)) {
-                all = 1 << UniformTypeCode.UT_XML_RO.code;
+                all = 1 << BasicTypeCode.UT_XML_RO.code;
             }
         } else {
-            subtypes.add(UniformSubtype.from(UniformTypeCode.UT_XML_RO, (XmlSubtype) ro));
+            subtypes.add(BasicSubtype.from(BasicTypeCode.UT_XML_RO, (XmlSubtype) ro));
         }
         if (rw instanceof AllOrNothingSubtype) {
             if (Common.isAllSubtype(rw)) {
-                all |= 1 << UniformTypeCode.UT_XML_RO.code;
+                all |= 1 << BasicTypeCode.UT_XML_RO.code;
             }
         } else {
-            subtypes.add(UniformSubtype.from(UniformTypeCode.UT_XML_RW, (XmlSubtype) rw));
+            subtypes.add(BasicSubtype.from(BasicTypeCode.UT_XML_RW, (XmlSubtype) rw));
         }
         return ComplexSemType.createComplexSemType(all, subtypes);
     }

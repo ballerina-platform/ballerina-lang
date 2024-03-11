@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.ballerina.types.Atom;
 import io.ballerina.types.AtomicType;
+import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.EnumerableCharString;
@@ -33,7 +34,6 @@ import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
 import io.ballerina.types.TypeAtom;
-import io.ballerina.types.UniformTypeBitSet;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.BooleanSubtype;
@@ -596,11 +596,11 @@ public class BIRTypeWriter extends TypeVisitor {
             return;
         }
 
-        boolean isUniformTypeBitSet = semType instanceof UniformTypeBitSet;
+        boolean isUniformTypeBitSet = semType instanceof BasicTypeBitSet;
         buff.writeBoolean(isUniformTypeBitSet);
 
         if (isUniformTypeBitSet) {
-            buff.writeInt(((UniformTypeBitSet) semType).bitset);
+            buff.writeInt(((BasicTypeBitSet) semType).bitset);
             return;
         }
 

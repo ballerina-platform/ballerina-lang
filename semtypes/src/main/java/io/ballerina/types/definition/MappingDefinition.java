@@ -27,8 +27,8 @@ import io.ballerina.types.MappingAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
-import io.ballerina.types.UniformSubtype;
-import io.ballerina.types.UniformTypeCode;
+import io.ballerina.types.BasicSubtype;
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.typeops.BddCommonOps;
 
@@ -105,8 +105,8 @@ public class MappingDefinition implements Definition {
             rwBdd = BddCommonOps.bddAtom(rw);
         }
         SemType s = ComplexSemType.createComplexSemType(0,
-                UniformSubtype.from(UniformTypeCode.UT_MAPPING_RO, roBdd),
-                UniformSubtype.from(UniformTypeCode.UT_MAPPING_RW, rwBdd));
+                BasicSubtype.from(BasicTypeCode.UT_MAPPING_RO, roBdd),
+                BasicSubtype.from(BasicTypeCode.UT_MAPPING_RW, rwBdd));
         this.semType = s;
         return s;
     }

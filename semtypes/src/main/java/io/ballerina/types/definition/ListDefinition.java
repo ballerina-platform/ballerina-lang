@@ -28,8 +28,8 @@ import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
-import io.ballerina.types.UniformSubtype;
-import io.ballerina.types.UniformTypeCode;
+import io.ballerina.types.BasicSubtype;
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.typeops.BddCommonOps;
 
@@ -167,8 +167,8 @@ public class ListDefinition implements Definition {
         }
 
         ComplexSemType s = ComplexSemType.createComplexSemType(0,
-                UniformSubtype.from(UniformTypeCode.UT_LIST_RO, roBdd),
-                UniformSubtype.from(UniformTypeCode.UT_LIST_RW, rwBdd));
+                BasicSubtype.from(BasicTypeCode.UT_LIST_RO, roBdd),
+                BasicSubtype.from(BasicTypeCode.UT_LIST_RW, rwBdd));
         this.semType = s;
         return s;
     }

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Core;
 import io.ballerina.types.EnumerableCharString;
@@ -29,8 +30,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeBitSet;
-import io.ballerina.types.UniformTypeCode;
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.CharStringSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
@@ -226,8 +226,8 @@ import javax.xml.XMLConstants;
 
 import static io.ballerina.types.Core.getComplexSubtypeData;
 import static io.ballerina.types.Core.widenToBasicTypes;
-import static io.ballerina.types.UniformTypeCode.UT_INT;
-import static io.ballerina.types.UniformTypeCode.UT_STRING;
+import static io.ballerina.types.BasicTypeCode.BT_INT;
+import static io.ballerina.types.BasicTypeCode.BT_STRING;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_INSERTIONS;
@@ -525,12 +525,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private int getPreferredMemberTypeTag(BFiniteType finiteType) {
-        UniformTypeBitSet uniformTypeBitSet = widenToBasicTypes(finiteType.semType());
-        if ((uniformTypeBitSet.bitset & PredefinedType.INT.bitset) != 0) {
+        BasicTypeBitSet basicTypeBitSet = widenToBasicTypes(finiteType.semType());
+        if ((basicTypeBitSet.bitset & PredefinedType.INT.bitset) != 0) {
             return TypeTags.INT;
-        } else if ((uniformTypeBitSet.bitset & PredefinedType.FLOAT.bitset) != 0) {
+        } else if ((basicTypeBitSet.bitset & PredefinedType.FLOAT.bitset) != 0) {
             return TypeTags.FLOAT;
-        } else if ((uniformTypeBitSet.bitset & PredefinedType.DECIMAL.bitset) != 0) {
+        } else if ((basicTypeBitSet.bitset & PredefinedType.DECIMAL.bitset) != 0) {
             return TypeTags.DECIMAL;
         } else {
             return TypeTags.NONE;
@@ -769,10 +769,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return symTable.floatType;
             } else if (expectedType.tag == TypeTags.FINITE) {
                 BType basicType;
-                UniformTypeBitSet uniformTypeBitSet = widenToBasicTypes(expectedType.semType());
-                if ((uniformTypeBitSet.bitset & PredefinedType.FLOAT.bitset) != 0) {
+                BasicTypeBitSet basicTypeBitSet = widenToBasicTypes(expectedType.semType());
+                if ((basicTypeBitSet.bitset & PredefinedType.FLOAT.bitset) != 0) {
                     basicType = symTable.floatType;
-                } else if ((uniformTypeBitSet.bitset & PredefinedType.DECIMAL.bitset) != 0) {
+                } else if ((basicTypeBitSet.bitset & PredefinedType.DECIMAL.bitset) != 0) {
                     basicType = symTable.decimalType;
                 } else {
                     return literalExpr.getBType();
@@ -8755,7 +8755,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     maxIndexValue = arrayType.size - 1;
                 }
 
-                SemType allowedInts = PredefinedType.uniformSubtype(UniformTypeCode.UT_INT,
+                SemType allowedInts = PredefinedType.basicSubtype(BasicTypeCode.BT_INT,
                         IntSubtype.createSingleRangeSubtype(0, maxIndexValue));
 
                 if (Core.isEmpty(types.semTypeCtx, SemTypes.intersect(t, allowedInts))) {
@@ -8846,7 +8846,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
                 SemType t = currentType.semType();
 
-                Optional<SubtypeData> properSubtypeData = getProperSubtypeData(t, UT_INT);
+                Optional<SubtypeData> properSubtypeData = getProperSubtypeData(t, BT_INT);
                 if (properSubtypeData.isEmpty()) {
                     return symTable.semanticError;
                 }
@@ -9019,7 +9019,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
                 SemType t = currentType.semType();
 
-                Optional<SubtypeData> properSubtypeData = getProperSubtypeData(t, UT_STRING);
+                Optional<SubtypeData> properSubtypeData = getProperSubtypeData(t, BT_STRING);
                 if (properSubtypeData.isEmpty()) {
                     return symTable.semanticError;
                 }
@@ -9098,8 +9098,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return actualType;
     }
 
-    private Optional<SubtypeData> getProperSubtypeData(SemType t, UniformTypeCode u) {
-        if (t instanceof UniformTypeBitSet) {
+    private Optional<SubtypeData> getProperSubtypeData(SemType t, BasicTypeCode u) {
+        if (t instanceof BasicTypeBitSet) {
             return Optional.empty();
         }
         SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, u);

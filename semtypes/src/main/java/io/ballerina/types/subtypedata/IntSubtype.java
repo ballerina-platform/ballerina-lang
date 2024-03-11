@@ -21,7 +21,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeCode;
+import io.ballerina.types.BasicTypeCode;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -49,7 +49,7 @@ public class IntSubtype implements ProperSubtypeData {
     }
 
     public static SemType intConst(long value) {
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_INT, createSingleRangeSubtype(value, value));
+        return PredefinedType.basicSubtype(BasicTypeCode.BT_INT, createSingleRangeSubtype(value, value));
     }
 
     static void validIntWidth(boolean signed, long bits) {
@@ -85,13 +85,13 @@ public class IntSubtype implements ProperSubtypeData {
             return PredefinedType.INT;
         }
         IntSubtype t = createSingleRangeSubtype(-(1L << (bits - 1L)), (1L << (bits - 1L)) - 1L);
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_INT, t);
+        return PredefinedType.basicSubtype(BasicTypeCode.BT_INT, t);
     }
 
     public static SemType intWidthUnsigned(int bits) {
         validIntWidth(false, bits);
         IntSubtype t = createSingleRangeSubtype(0L, (1L << bits) - 1L);
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_INT, t);
+        return PredefinedType.basicSubtype(BasicTypeCode.BT_INT, t);
     }
 
     // Widen to UnsignedN

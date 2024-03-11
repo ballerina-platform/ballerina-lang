@@ -18,9 +18,13 @@
 package io.ballerina.types;
 
 /**
- * Interface representing type operations on uniform types.
+ * Operations common to most of the subtypes.
  *
  * @since 2201.8.0
  */
-public interface UniformTypeOps extends IsEmptyOp, CommonUniformTypeOps {
+public interface CommonBasicTypeOps {
+    SubtypeData union(SubtypeData t1, SubtypeData t2);
+    SubtypeData intersect(SubtypeData t1, SubtypeData t2);
+    SubtypeData diff(SubtypeData t1, SubtypeData t2);
+    SubtypeData complement(SubtypeData t);
 }

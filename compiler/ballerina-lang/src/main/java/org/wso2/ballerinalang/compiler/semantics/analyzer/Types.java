@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
@@ -27,7 +28,6 @@ import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
-import io.ballerina.types.UniformTypeBitSet;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -4265,10 +4265,10 @@ public class Types {
 
         SemType t = SemTypeHelper.semTypeComponent(type);
         SemType tButNil = Core.diff(t, PredefinedType.NIL); // nil lift
-        UniformTypeBitSet uniformTypeBitSet = Core.widenToBasicTypes(tButNil);
-        return uniformTypeBitSet.equals(PredefinedType.INT) ||
-                uniformTypeBitSet.equals(PredefinedType.FLOAT) ||
-                uniformTypeBitSet.equals(PredefinedType.DECIMAL);
+        BasicTypeBitSet basicTypeBitSet = Core.widenToBasicTypes(tButNil);
+        return basicTypeBitSet.equals(PredefinedType.INT) ||
+                basicTypeBitSet.equals(PredefinedType.FLOAT) ||
+                basicTypeBitSet.equals(PredefinedType.DECIMAL);
     }
 
     boolean validIntegerTypeExists(BType bType) {
@@ -5996,7 +5996,7 @@ public class Types {
     }
 
     private boolean hasImplicitDefaultValue(SemType t) {
-        UniformTypeBitSet bitSet = Core.widenToBasicTypes(t);
+        BasicTypeBitSet bitSet = Core.widenToBasicTypes(t);
         Object value = null;
         if (bitSet.equals(PredefinedType.BOOLEAN)) {
             value = false;
@@ -6010,7 +6010,7 @@ public class Types {
             value = "";
         }
 
-        return value != null && (t instanceof UniformTypeBitSet || Core.containsConst(t, value));
+        return value != null && (t instanceof BasicTypeBitSet || Core.containsConst(t, value));
     }
 
     private boolean checkFillerValue(BUnionType type) {
@@ -6208,9 +6208,9 @@ public class Types {
     public boolean isOrderedType(SemType t) {
         assert !PredefinedType.NEVER.equals(t);
         SemType tButNil = Core.diff(t, PredefinedType.NIL);
-        UniformTypeBitSet uniformTypeBitSet = Core.widenToBasicTypes(tButNil);
-        if (SemTypes.isSubtypeSimple(uniformTypeBitSet, PredefinedType.SIMPLE_OR_STRING)) {
-            int bitCount = SemTypeHelper.bitCount(uniformTypeBitSet.bitset);
+        BasicTypeBitSet basicTypeBitSet = Core.widenToBasicTypes(tButNil);
+        if (SemTypes.isSubtypeSimple(basicTypeBitSet, PredefinedType.SIMPLE_OR_STRING)) {
+            int bitCount = SemTypeHelper.bitCount(basicTypeBitSet.bitset);
             return bitCount <= 1;
         }
 
@@ -6879,7 +6879,7 @@ public class Types {
 
     private void populateBasicTypes(SemType t, Set<BasicTypes> basicTypes) {
         int bitset;
-        if (t instanceof UniformTypeBitSet utb) {
+        if (t instanceof BasicTypeBitSet utb) {
             bitset = utb.bitset;
         } else {
             ComplexSemType cst = (ComplexSemType) t;

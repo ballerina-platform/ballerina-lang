@@ -34,7 +34,7 @@ import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
 import io.ballerina.types.TypeAtom;
-import io.ballerina.types.UniformTypeBitSet;
+import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.BooleanSubtype;
@@ -1890,7 +1890,7 @@ public class BIRPackageSymbolEnter {
 
             if (inputStream.readBoolean()) {
                 int bitset = inputStream.readInt();
-                return UniformTypeBitSet.from(bitset);
+                return BasicTypeBitSet.from(bitset);
             }
 
             int all = inputStream.readInt();
@@ -1900,7 +1900,7 @@ public class BIRPackageSymbolEnter {
             for (int i = 0; i < subtypeDataListLength; i++) {
                 subtypeList[i] = readProperSubtypeData();
             }
-            return new ComplexSemType(UniformTypeBitSet.from(all), UniformTypeBitSet.from(some), subtypeList);
+            return new ComplexSemType(BasicTypeBitSet.from(all), BasicTypeBitSet.from(some), subtypeList);
         }
 
         private ProperSubtypeData readProperSubtypeData() throws IOException {

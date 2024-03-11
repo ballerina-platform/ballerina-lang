@@ -30,22 +30,22 @@ import io.ballerina.types.typeops.MappingRoOps;
 import io.ballerina.types.typeops.MappingRwOps;
 import io.ballerina.types.typeops.StringOps;
 import io.ballerina.types.typeops.TableRwOps;
-import io.ballerina.types.typeops.UniformTypeOpsPanicImpl;
+import io.ballerina.types.typeops.BasicTypeOpsPanicImpl;
 import io.ballerina.types.typeops.XmlRoOps;
 import io.ballerina.types.typeops.XmlRwOps;
 
 /**
- * Lookup table containing subtype ops for each uniform type indexed by uniform type code.
+ * Lookup table containing subtype ops for each basic type indexed by basic type code.
  *
  * @since 2201.8.0
  */
 public class OpsTable {
-    private static final UniformTypeOpsPanicImpl PANIC_IMPL = new UniformTypeOpsPanicImpl();
-    static final UniformTypeOps[] OPS;
+    private static final BasicTypeOpsPanicImpl PANIC_IMPL = new BasicTypeOpsPanicImpl();
+    static final BasicTypeOps[] OPS;
 
     static {
         int i = 0;
-        OPS = new UniformTypeOps[23];
+        OPS = new BasicTypeOps[23];
         OPS[i++] = PANIC_IMPL;          // nil
         OPS[i++] = new BooleanOps();    // boolean
         OPS[i++] = new ListTypeRoOps(); // RO list

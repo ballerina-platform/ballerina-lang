@@ -20,16 +20,16 @@ package io.ballerina.types.typeops;
 import io.ballerina.types.Common;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeOps;
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 
 /**
- * Uniform type ops for boolean type.
+ * Basic type ops for boolean type.
  *
  * @since 2201.8.0
  */
-public class BooleanOps implements UniformTypeOps {
+public class BooleanOps implements BasicTypeOps {
     @Override
     public SubtypeData union(SubtypeData d1, SubtypeData d2) {
         BooleanSubtype v1 = (BooleanSubtype) d1;

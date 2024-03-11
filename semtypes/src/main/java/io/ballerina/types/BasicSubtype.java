@@ -18,13 +18,20 @@
 package io.ballerina.types;
 
 /**
- * Operations common to most of the subtypes.
+ * BasicSubtype node.
  *
  * @since 2201.8.0
  */
-public interface CommonUniformTypeOps {
-    SubtypeData union(SubtypeData t1, SubtypeData t2);
-    SubtypeData intersect(SubtypeData t1, SubtypeData t2);
-    SubtypeData diff(SubtypeData t1, SubtypeData t2);
-    SubtypeData complement(SubtypeData t);
+public class BasicSubtype {
+    public final BasicTypeCode basicTypeCode;
+    public final ProperSubtypeData subtypeData;
+
+    private BasicSubtype(BasicTypeCode basicTypeCode, ProperSubtypeData properSubtypeData) {
+        this.basicTypeCode = basicTypeCode;
+        this.subtypeData = properSubtypeData;
+    }
+
+    public static BasicSubtype from(BasicTypeCode typeCode, ProperSubtypeData data) {
+        return new BasicSubtype(typeCode, data);
+    }
 }

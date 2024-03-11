@@ -18,20 +18,9 @@
 package io.ballerina.types;
 
 /**
- * UniformSubtype node.
+ * Interface representing type operations on basic types.
  *
  * @since 2201.8.0
  */
-public class UniformSubtype {
-    public final UniformTypeCode uniformTypeCode;
-    public final ProperSubtypeData subtypeData;
-
-    private UniformSubtype(UniformTypeCode uniformTypeCode, ProperSubtypeData properSubtypeData) {
-        this.uniformTypeCode = uniformTypeCode;
-        this.subtypeData = properSubtypeData;
-    }
-
-    public static UniformSubtype from(UniformTypeCode typeCode, ProperSubtypeData data) {
-        return new UniformSubtype(typeCode, data);
-    }
+public interface BasicTypeOps extends IsEmptyOp, CommonBasicTypeOps {
 }

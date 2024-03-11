@@ -24,7 +24,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeCode;
+import io.ballerina.types.BasicTypeCode;
 
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -48,7 +48,7 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
     }
 
     public static SemType floatConst(double value) {
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_FLOAT, new FloatSubtype(true,
+        return PredefinedType.basicSubtype(BasicTypeCode.BT_FLOAT, new FloatSubtype(true,
                 EnumerableFloat.from(value)));
     }
 

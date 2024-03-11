@@ -28,7 +28,7 @@ import io.ballerina.types.typeops.BddCommonOps;
  */
 public class Error {
     public static SemType errorDetail(SemType detail) {
-        SubtypeData sd = Core.subtypeData(detail, UniformTypeCode.UT_MAPPING_RO);
+        SubtypeData sd = Core.subtypeData(detail, BasicTypeCode.UT_MAPPING_RO);
         if (sd instanceof AllOrNothingSubtype) {
             if (((AllOrNothingSubtype) sd).isAllSubtype()) {
                 return PredefinedType.ERROR;
@@ -37,13 +37,13 @@ public class Error {
                 return PredefinedType.NEVER;
             }
         } else {
-            return PredefinedType.uniformSubtype(UniformTypeCode.UT_ERROR, (ProperSubtypeData) sd);
+            return PredefinedType.basicSubtype(BasicTypeCode.BT_ERROR, (ProperSubtypeData) sd);
         }
     }
 
     // distinctId must be >= 0
     public SemType errorDistinct(int distinctId) {
         BddNode bdd = BddCommonOps.bddAtom(RecAtom.createRecAtom(-distinctId - 1));
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_ERROR, bdd);
+        return PredefinedType.basicSubtype(BasicTypeCode.BT_ERROR, bdd);
     }
 }

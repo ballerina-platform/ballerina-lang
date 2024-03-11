@@ -18,7 +18,7 @@
 package io.ballerina.types.typeops;
 
 import io.ballerina.types.ProperSubtypeData;
-import io.ballerina.types.UniformTypeCode;
+import io.ballerina.types.BasicTypeCode;
 
 /**
  * Represent a 3-tuple containing paired-up subtype data.
@@ -26,19 +26,19 @@ import io.ballerina.types.UniformTypeCode;
  * @since 2201.8.0
  */
 public class SubtypePair {
-    public final UniformTypeCode uniformTypeCode;
+    public final BasicTypeCode basicTypeCode;
     public final ProperSubtypeData subtypeData1;
     public final ProperSubtypeData subtypeData2;
 
-    private SubtypePair(UniformTypeCode uniformTypeCode, ProperSubtypeData subtypeData1,
+    private SubtypePair(BasicTypeCode basicTypeCode, ProperSubtypeData subtypeData1,
                         ProperSubtypeData subtypeData2) {
-        this.uniformTypeCode = uniformTypeCode;
+        this.basicTypeCode = basicTypeCode;
         this.subtypeData1 = subtypeData1;
         this.subtypeData2 = subtypeData2;
     }
 
-    public static SubtypePair create(UniformTypeCode uniformTypeCode,
+    public static SubtypePair create(BasicTypeCode basicTypeCode,
                                      ProperSubtypeData subtypeData1, ProperSubtypeData subtypeData2) {
-        return new SubtypePair(uniformTypeCode, subtypeData1, subtypeData2);
+        return new SubtypePair(basicTypeCode, subtypeData1, subtypeData2);
     }
 }

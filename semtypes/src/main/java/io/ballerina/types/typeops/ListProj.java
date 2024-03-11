@@ -27,7 +27,7 @@ import io.ballerina.types.FixedLengthArray;
 import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeBitSet;
+import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.IntSubtype;
@@ -48,8 +48,8 @@ import static io.ballerina.types.Core.isNever;
 import static io.ballerina.types.Core.union;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.TOP;
-import static io.ballerina.types.UniformTypeCode.UT_LIST_RO;
-import static io.ballerina.types.UniformTypeCode.UT_LIST_RW;
+import static io.ballerina.types.BasicTypeCode.UT_LIST_RO;
+import static io.ballerina.types.BasicTypeCode.UT_LIST_RW;
 import static io.ballerina.types.subtypedata.IntSubtype.intSubtypeContains;
 import static io.ballerina.types.typeops.ListCommonOps.fixedArrayAnyEmpty;
 import static io.ballerina.types.typeops.ListCommonOps.fixedArrayShallowCopy;
@@ -66,8 +66,8 @@ public class ListProj {
 
     // Based on listMemberType
     public static SemType listProj(Context cx, SemType t, SemType k) {
-        if (t instanceof UniformTypeBitSet) {
-            return isListBitsSet((UniformTypeBitSet) t) ? TOP : NEVER;
+        if (t instanceof BasicTypeBitSet) {
+            return isListBitsSet((BasicTypeBitSet) t) ? TOP : NEVER;
         } else {
             SubtypeData keyData = Core.intSubtype(k);
             if (isNothingSubtype(keyData)) {

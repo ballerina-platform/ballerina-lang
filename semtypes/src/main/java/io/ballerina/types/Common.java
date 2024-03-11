@@ -27,8 +27,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.ballerina.types.Conjunction.and;
-import static io.ballerina.types.UniformTypeCode.UT_LIST_RO;
-import static io.ballerina.types.UniformTypeCode.UT_LIST_RW;
+import static io.ballerina.types.BasicTypeCode.UT_LIST_RO;
+import static io.ballerina.types.BasicTypeCode.UT_LIST_RW;
 import static io.ballerina.types.typeops.BddCommonOps.bddComplement;
 import static io.ballerina.types.typeops.BddCommonOps.bddDiff;
 import static io.ballerina.types.typeops.BddCommonOps.bddIntersect;
@@ -209,7 +209,7 @@ public class Common {
         return data instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) data).isNothingSubtype();
     }
 
-    public static boolean isListBitsSet(UniformTypeBitSet t) {
+    public static boolean isListBitsSet(BasicTypeBitSet t) {
         int bitset = t.bitset;
         return ((bitset & UT_LIST_RO.code) != 0) || ((bitset & UT_LIST_RW.code) != 0);
     }

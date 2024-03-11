@@ -27,36 +27,36 @@ import java.util.List;
  * @since 2201.8.0
  */
 public class ComplexSemType implements SemType {
-    // For a uniform type with code c,
-    // all & (1 << c) is non-zero iff this type contains all of the uniform type
-    // some & (1 << c) is non-zero iff this type contains some but not all of the uniform type
-    public final UniformTypeBitSet all;
-    public final UniformTypeBitSet some;
+    // For a basic type with code c,
+    // all & (1 << c) is non-zero iff this type contains all of the basic type
+    // some & (1 << c) is non-zero iff this type contains some but not all of the basic type
+    public final BasicTypeBitSet all;
+    public final BasicTypeBitSet some;
     // There is one member of subtypes for each bit set in some.
-    // Ordered in increasing order of UniformTypeCode
+    // Ordered in increasing order of BasicTypeCode
     public final ProperSubtypeData[] subtypeDataList;
 
-    public ComplexSemType(UniformTypeBitSet all, UniformTypeBitSet some, ProperSubtypeData[] subtypeDataList) {
+    public ComplexSemType(BasicTypeBitSet all, BasicTypeBitSet some, ProperSubtypeData[] subtypeDataList) {
         this.all = all;
         this.some = some;
         this.subtypeDataList = subtypeDataList;
     }
 
-    public static ComplexSemType createComplexSemType(int allBitset, UniformSubtype... subtypeList) {
+    public static ComplexSemType createComplexSemType(int allBitset, BasicSubtype... subtypeList) {
         return createComplexSemType(allBitset, Arrays.asList(subtypeList));
     }
 
-    public static ComplexSemType createComplexSemType(int allBitset, List<UniformSubtype> subtypeList) {
+    public static ComplexSemType createComplexSemType(int allBitset, List<BasicSubtype> subtypeList) {
         int some = 0;
         ArrayList<ProperSubtypeData> dataList = new ArrayList<>();
-        for (UniformSubtype uniformSubtype : subtypeList) {
-            dataList.add(uniformSubtype.subtypeData);
-            int c = uniformSubtype.uniformTypeCode.code;
+        for (BasicSubtype basicSubtype : subtypeList) {
+            dataList.add(basicSubtype.subtypeData);
+            int c = basicSubtype.basicTypeCode.code;
             some |= 1 << c;
         }
         return new ComplexSemType(
-                UniformTypeBitSet.from(allBitset),
-                UniformTypeBitSet.from(some),
+                BasicTypeBitSet.from(allBitset),
+                BasicTypeBitSet.from(some),
                 dataList.toArray(new ProperSubtypeData[]{}));
     }
 }

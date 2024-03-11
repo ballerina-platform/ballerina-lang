@@ -19,7 +19,7 @@ package io.ballerina.types.typeops;
 
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeOps;
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.subtypedata.RwTableSubtype;
 
 /**
@@ -27,7 +27,7 @@ import io.ballerina.types.subtypedata.RwTableSubtype;
  *
  * @since 2201.8.0
  */
-public class TableRwOps implements UniformTypeOps {
+public class TableRwOps implements BasicTypeOps {
 
     @Override
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {
