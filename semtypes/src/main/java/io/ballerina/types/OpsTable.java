@@ -61,7 +61,7 @@ public class OpsTable {
         OPS[i++] = new FunctionOps();   // function
         OPS[i++] = PANIC_IMPL;          // typedesc
         OPS[i++] = PANIC_IMPL;          // handle
-        OPS[i++] = new CellOps();;      // cell
+        OPS[i++] = new CellOps();       // cell
         OPS[i++] = PANIC_IMPL;          // RW future
         OPS[i++] = PANIC_IMPL;          // RW stream
         OPS[i++] = new ListTypeRwOps(); // RW list

@@ -80,9 +80,9 @@ public class SemTypes {
         return Core.union(t1, t2);
     }
 
-    public static SemType union(SemType... t) {
-        SemType u = PredefinedType.NEVER;
-        for (SemType s : t) {
+    public static SemType union(SemType first, SemType second, SemType... rest) {
+        SemType u = Core.union(first, second);
+        for (SemType s : rest) {
             u = Core.union(u, s);
         }
         return u;
@@ -92,9 +92,9 @@ public class SemTypes {
         return Core.intersect(t1, t2);
     }
 
-    public static SemType intersect(SemType... t) {
-        SemType i = PredefinedType.TOP;
-        for (SemType s : t) {
+    public static SemType intersect(SemType first, SemType second, SemType... rest) {
+        SemType i = Core.intersect(first, second);
+        for (SemType s : rest) {
             i = Core.intersect(i, s);
         }
         return i;

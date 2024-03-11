@@ -242,8 +242,6 @@ public class CellTypeTest {
         };
     }
 
-
-
     @Test(dataProvider = "cellSubtypeDataProvider2")
     public void testCellSubtyping2(SemType t1, SemType t2, Relation relation) {
         assertSemTypeRelation(t1, t2, relation);

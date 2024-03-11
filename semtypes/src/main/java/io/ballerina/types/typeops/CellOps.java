@@ -31,6 +31,9 @@ import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformTypeOps;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 
+import java.util.Collections;
+import java.util.EnumSet;
+
 import static io.ballerina.types.Common.bddSubtypeComplement;
 import static io.ballerina.types.Common.bddSubtypeDiff;
 import static io.ballerina.types.Common.bddSubtypeIntersect;
@@ -71,17 +74,11 @@ public class CellOps extends CommonOps implements UniformTypeOps {
         if (Core.isEmpty(cx, pos)) {
             return false;
         }
-        switch (posCell.mut) {
-            case CELL_MUT_NONE -> {
-                return cellMutNoneInhabited(cx, pos, negList);
-            }
-            case CELL_MUT_LIMITED -> {
-                return cellMutLimitedInhabited(cx, pos, negList);
-            }
-            default -> {
-                return cellMutUnlimitedInhabited(cx, pos, negList);
-            }
-        }
+        return switch (posCell.mut) {
+            case CELL_MUT_NONE -> cellMutNoneInhabited(cx, pos, negList);
+            case CELL_MUT_LIMITED -> cellMutLimitedInhabited(cx, pos, negList);
+            default -> cellMutUnlimitedInhabited(cx, pos, negList);
+        };
     }
 
     private static boolean cellMutNoneInhabited(Context cx, SemType pos, Conjunction negList) {
@@ -106,7 +103,7 @@ public class CellOps extends CommonOps implements UniformTypeOps {
             return true;
         }
         CellAtomicType negAtomicCell = cellAtomType(negList.atom);
-        if (negAtomicCell.mut.getValue() >= CellAtomicType.CellMutability.CELL_MUT_LIMITED.getValue() &&
+        if ((negAtomicCell.mut.compareTo(CellAtomicType.CellMutability.CELL_MUT_LIMITED) >= 0) &&
                 Core.isEmpty(cx, Core.diff(pos, negAtomicCell.ty))) {
             return false;
         }
@@ -142,9 +139,7 @@ public class CellOps extends CommonOps implements UniformTypeOps {
 
     private static CellAtomicType intersectCellAtomicType(CellAtomicType c1, CellAtomicType c2) {
         SemType ty = Core.intersect(c1.ty, c2.ty);
-        CellAtomicType.CellMutability mut = CellAtomicType.CellMutability.fromValue(
-                Integer.min(c1.mut.getValue(), c2.mut.getValue())
-        );
+        CellAtomicType.CellMutability mut = Collections.min(EnumSet.of(c1.mut, c2.mut));
         return CellAtomicType.from(ty, mut);
     }
 

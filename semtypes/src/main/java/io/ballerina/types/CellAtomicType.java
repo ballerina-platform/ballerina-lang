@@ -39,27 +39,8 @@ public final class CellAtomicType implements AtomicType {
     }
 
     public enum CellMutability {
-        CELL_MUT_NONE(0),
-        CELL_MUT_LIMITED(1),
-        CELL_MUT_UNLIMITED(2);
-
-        private final int value;
-
-        CellMutability(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public static CellMutability fromValue(int value) {
-            for (CellMutability mutability : values()) {
-                if (mutability.value == value) {
-                    return mutability;
-                }
-            }
-            throw new IllegalArgumentException("No enum constant with value " + value);
-        }
+        CELL_MUT_NONE,
+        CELL_MUT_LIMITED,
+        CELL_MUT_UNLIMITED;
     }
 }
