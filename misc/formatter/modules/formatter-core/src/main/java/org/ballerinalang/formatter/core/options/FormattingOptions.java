@@ -203,7 +203,6 @@ public class FormattingOptions {
                     case QUERY -> queryFormattingOptions = QueryFormattingOptions.builder().build(configs);
                     case SPACING -> spacingFormattingOptions = SpacingFormattingOptions.builder().build(configs);
                     case IMPORT -> importFormattingOptions = ImportFormattingOptions.builder().build(configs);
-                    default -> throw new FormatterException("Invalid formatting option section : " + section);
                 }
             }
             return build();

@@ -106,35 +106,38 @@ public class FormatCmdTest {
     private Object[][] provideConfigurationProjects() {
         return new Object[][]{
                 {"brace", List.of(
-                        RES_DIR.resolve("configurations/options/brace/source/project")
+                        RES_DIR.resolve(Path.of("configurations", "options", "brace", "source", "project"))
                 )},
                 {"functionCall", List.of(
-                        RES_DIR.resolve("configurations/options/functionCall/source/chopDown"),
-                        RES_DIR.resolve("configurations/options/functionCall/source/noWrap"),
-                        RES_DIR.resolve("configurations/options/functionCall/source/wrap")
+                        RES_DIR.resolve(Path.of("configurations", "options", "functionCall", "source", "chopDown")),
+                        RES_DIR.resolve(Path.of("configurations", "options", "functionCall", "source", "noWrap")),
+                        RES_DIR.resolve(Path.of("configurations", "options", "functionCall", "source", "wrap"))
                 )},
                 {"functionDeclaration", List.of(
-                        RES_DIR.resolve("configurations/options/functionDeclaration/source/chopDown"),
-                        RES_DIR.resolve("configurations/options/functionDeclaration/source/noWrap"),
-                        RES_DIR.resolve("configurations/options/functionDeclaration/source/wrap")
+                        RES_DIR.resolve(
+                                Path.of("configurations", "options", "functionDeclaration", "source", "chopDown")),
+                        RES_DIR.resolve(
+                                Path.of("configurations", "options", "functionDeclaration", "source", "noWrap")),
+                        RES_DIR.resolve(Path.of("configurations", "options", "functionDeclaration", "source", "wrap"))
                 )},
                 {"ifStatement", List.of(
-                        RES_DIR.resolve("configurations/options/ifStatement/source/ifelse")
+                        RES_DIR.resolve(Path.of("configurations", "options", "ifStatement", "source", "ifelse"))
                 )},
                 {"imports", List.of(
-                        RES_DIR.resolve("configurations/options/imports/source/project")
+                        RES_DIR.resolve(Path.of("configurations", "options", "imports", "source", "project"))
                 )},
                 {"indent", List.of(
-                        RES_DIR.resolve("configurations/options/indent/source/project")
+                        RES_DIR.resolve(Path.of("configurations", "options", "indent", "source", "project"))
                 )},
                 {"query", List.of(
-                        RES_DIR.resolve("configurations/options/query/source/project")
-                )},
+                        RES_DIR.resolve(Path.of("configurations", "options", "query", "source", "project"))
+                )}
+                ,
                 {"spacing", List.of(
-                        RES_DIR.resolve("configurations/options/spacing/source/project")
+                        RES_DIR.resolve(Path.of("configurations", "options", "spacing", "source", "project"))
                 )},
                 {"wrapping", List.of(
-                        RES_DIR.resolve("configurations/options/wrapping/source/project")
+                        RES_DIR.resolve(Path.of("configurations", "options", "wrapping", "source", "project"))
                 )}
         };
     }
@@ -344,9 +347,9 @@ public class FormatCmdTest {
     public void formatCLIOnBallerinaProjectWithModulesWithConfigurations() {
         List<String> argList = new ArrayList<>();
         String module = "core";
-        Path sourceDir = RES_DIR.resolve(Path.of("configurations", "module", "source"));
-        Path projectDir = sourceDir.resolve(Path.of("project"));
-        Path assertDir = Paths.get(sourceDir.toString().replace("/source", "/assert"));
+        Path sourceDir = RES_DIR.resolve(Path.of("configurations", "module"));
+        Path projectDir = sourceDir.resolve(Path.of("source", "project"));
+        Path assertDir = sourceDir.resolve("assert");
         Path moduleRelativePath = Path.of("modules", module, "core.bal");
         try {
             FormatUtil.execute(argList, false, module, null, false, projectDir);
@@ -355,7 +358,7 @@ public class FormatCmdTest {
                     Files.readString(assertDir.resolve("main.bal")));
             Assert.assertEquals(Files.readString(projectDir.resolve(moduleRelativePath)),
                     Files.readString(assertDir.resolve(moduleRelativePath)));
-            FileUtils.copyDirectory(sourceDir.resolve(Path.of("projectTemp")).toFile(), projectDir.toFile());
+            FileUtils.copyDirectory(sourceDir.resolve(Path.of("source", "projectTemp")).toFile(), projectDir.toFile());
         } catch (IOException e) {
             String exception = e.getMessage();
             Assert.assertTrue(exception.contains("error: "), "actual exception didn't match the expected.");
@@ -367,18 +370,18 @@ public class FormatCmdTest {
         List<String> argList = new ArrayList<>();
         argList.add("project");
         String module = "mod";
-        Path sourceDir = RES_DIR.resolve(Path.of("configurations", "projectWithModule", "source"));
-        Path projectDir = sourceDir.resolve(Path.of("project"));
-        Path assertDir = Paths.get(sourceDir.toString().replace("/source", "/assert"));
+        Path sourceDir = RES_DIR.resolve(Path.of("configurations", "projectWithModule"));
+        Path projectDir = sourceDir.resolve(Path.of("source", "project"));
+        Path assertDir = sourceDir.resolve("assert");
         Path moduleRelativePath = Path.of("modules", module, "mod.bal");
         try {
-            FormatUtil.execute(argList, false, module, null, false, sourceDir);
+            FormatUtil.execute(argList, false, module, null, false, sourceDir.resolve("source"));
 
             Assert.assertEquals(Files.readString(projectDir.resolve("main.bal")),
                     Files.readString(assertDir.resolve("main.bal")));
             Assert.assertEquals(Files.readString(projectDir.resolve(moduleRelativePath)),
                     Files.readString(assertDir.resolve(moduleRelativePath)));
-            FileUtils.copyDirectory(sourceDir.resolve(Path.of("projectTemp")).toFile(), projectDir.toFile());
+            FileUtils.copyDirectory(sourceDir.resolve(Path.of("source", "projectTemp")).toFile(), projectDir.toFile());
         } catch (IOException e) {
             String exception = e.getMessage();
             Assert.assertTrue(exception.contains("error: "), "actual exception didn't match the expected.");

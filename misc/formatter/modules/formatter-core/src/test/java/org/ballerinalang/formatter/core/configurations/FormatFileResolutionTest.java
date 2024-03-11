@@ -22,12 +22,8 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.FormatterUtils;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -44,29 +40,6 @@ public class FormatFileResolutionTest {
     private final Path validRemote = resDir.resolve("validRemote");
     private final Path withTarget = resDir.resolve("withTarget");
     private final Path invalidLocal = resDir.resolve("invalidLocal");
-    private final Path invalidCached = resDir.resolve(Path.of("invalidCached"));
-    private final Path invalidCacheTarget = resDir.resolve("invalidCacheTarget");
-    private final Path invalidCacheWrite = resDir.resolve("invalidCacheWrite");
-
-    // In the case of tests failing to run, check whether these temp files exists and delete them if so.
-    private File tempInvalidPermissionFile;
-    private File tempInvalidCachedPermissionFile;
-    private File tempInvalidTargetDir;
-    private File tempInvalidFormatDir;
-
-    @BeforeClass
-    public void setup() {
-        try {
-            tempInvalidPermissionFile = createTempUnreadableFile(invalidLocal.resolve("Format.toml"));
-            tempInvalidCachedPermissionFile =
-                    createTempUnreadableFile(invalidCached.resolve(Path.of("target", "format", "Format.toml")));
-            tempInvalidTargetDir = createTempUnwritableDir(invalidCacheTarget.resolve("target"));
-            tempInvalidFormatDir = createTempUnwritableDir(invalidCacheWrite.resolve("target").resolve("format"));
-
-        } catch (IOException e) {
-            throw new RuntimeException("Error while setting up the formatter resolution test.");
-        }
-    }
 
     @Test(description = "Test for local formatting configuration file")
     public void resolutionOfLocalFormatFileTest() throws FormatterException {
@@ -79,6 +52,11 @@ public class FormatFileResolutionTest {
         FormatterUtils.getFormattingConfigurations(validRemote, validRemoteUrl);
     }
 
+    @Test(description = "Test for cached remote formatting configuration file")
+    public void resolutionOfCachedRemoteFormatFileTest() throws FormatterException {
+        FormatterUtils.getFormattingConfigurations(resDir.resolve("cached"), validRemoteUrl);
+    }
+
     @Test(description = "Test caching of configuration file with target directory present")
     public void cacheWithTargetDirectoryPresent() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(withTarget, validRemoteUrl);
@@ -89,14 +67,13 @@ public class FormatFileResolutionTest {
             expectedExceptionsMessageRegExp = "Failed to retrieve local formatting configuration file")
     public void invalidLocalFormatFileTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(invalidLocal, invalidLocal.resolve("directory.toml").toString());
-        FormatterUtils.getFormattingConfigurations(invalidLocal, tempInvalidPermissionFile.toString());
     }
 
     @Test(description = "Test invalid remote cached formatting configuration files",
             expectedExceptions = FormatterException.class,
             expectedExceptionsMessageRegExp = "Failed to read cached formatting configuration file")
     public void invalidRemoteCachedFormatFileTest() throws FormatterException {
-        FormatterUtils.getFormattingConfigurations(invalidCached, validRemoteUrl);
+        FormatterUtils.getFormattingConfigurations(resDir.resolve(Path.of("invalidCached")), validRemoteUrl);
     }
 
     @Test(description = "Test invalid remote formatting configuration file url",
@@ -117,39 +94,19 @@ public class FormatFileResolutionTest {
     @Test(description = "Test invalid formatting configuration files", expectedExceptions = FormatterException.class,
             expectedExceptionsMessageRegExp = "Failed to create format configuration cache directory")
     public void failureToCreateFormatCacheFolderTest() throws FormatterException {
-        FormatterUtils.getFormattingConfigurations(invalidCacheTarget, validRemoteUrl);
+        FormatterUtils.getFormattingConfigurations(resDir.resolve("invalidCacheTarget"), validRemoteUrl);
     }
 
     @Test(description = "Test invalid formatting configuration files", expectedExceptions = FormatterException.class,
             expectedExceptionsMessageRegExp = "Failed to write format configuration cache file")
     public void failureToWriteCacheFileTest() throws FormatterException {
-        FormatterUtils.getFormattingConfigurations(invalidCacheWrite, validRemoteUrl);
-    }
-
-    private File createTempUnreadableFile(Path path) throws IOException {
-        Files.deleteIfExists(path);
-        File file = new File(path.toString());
-        file.createNewFile();
-        file.setReadable(false);
-        return file;
-    }
-
-    private File createTempUnwritableDir(Path path) throws IOException {
-        Files.deleteIfExists(path);
-        File dir = new File(path.toString());
-        dir.mkdir();
-        dir.setWritable(false);
-        return dir;
+        FormatterUtils.getFormattingConfigurations(resDir.resolve("invalidCacheWrite"), validRemoteUrl);
     }
 
     @AfterClass
     public void tearDown() {
         ProjectUtils.deleteDirectory(validRemote.resolve("target"));
         ProjectUtils.deleteDirectory(withTarget.resolve("target").resolve("format"));
-        tempInvalidPermissionFile.delete();
-        tempInvalidCachedPermissionFile.delete();
-        tempInvalidTargetDir.delete();
-        tempInvalidFormatDir.delete();
     }
 
 }
