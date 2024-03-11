@@ -541,7 +541,9 @@ public class SyntacticTypeEngine {
                 }
                 return false;
             case TypeTags.UNION_TAG:
-                return TypeChecker.checkIsLikeType(errors, sourceValue, targetType, unresolvedValues,
+                // FIXME:checkIsLikeUnionType(errors, sourceValue, (BUnionType) targetType, unresolvedValues,
+                // allowNumericConversion, varName);
+                return TypeChecker.checkIsLikeUnionType(errors, sourceValue, targetType, unresolvedValues,
                         allowNumericConversion, varName);
             case TypeTags.INTERSECTION_TAG:
                 return checkIsLikeOnValue(errors, sourceValue, sourceType,
@@ -859,7 +861,7 @@ public class SyntacticTypeEngine {
             case TypeTags.TABLE_TAG:
                 return TableTypeChecker.checkIsTableType(sourceType, TypeBuilder.unwrap(targetType), unresolvedTypes);
             case TypeTags.JSON_TAG:
-                return MapTypeChecker.checkIsJSONType(sourceType, unresolvedTypes);
+                return TypeChecker.checkIsJSONType(sourceType, unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 return MapTypeChecker.checkIsRecordType(sourceType, TypeBuilder.unwrap(targetType), unresolvedTypes);
             case TypeTags.FUNCTION_POINTER_TAG:
@@ -2788,7 +2790,7 @@ public class SyntacticTypeEngine {
                     }
                     Type tupleRestType = listRestType(sourceType);
                     if (tupleRestType != null) {
-                        return checkIsJSONType(tupleRestType, unresolvedTypes);
+                        return TypeChecker.checkIsJSONType(tupleRestType, unresolvedTypes);
                     }
                     return true;
                 case TypeTags.UNION_TAG:

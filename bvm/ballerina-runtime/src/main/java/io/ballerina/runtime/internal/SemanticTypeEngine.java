@@ -37,16 +37,20 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Set;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BOOLEAN;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BYTE;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FLOAT;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
+import static io.ballerina.runtime.api.TypeBuilder.booleanSubType;
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.TypeBuilder.wrap;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.N_TYPES;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 
 // TODO: once we have properly implemented semtypes we can inline this again in to TypeChecker
 class SemanticTypeEngine {
@@ -112,6 +116,14 @@ class SemanticTypeEngine {
         TRUE, FALSE, UNDEFINED
     }
 
+    static boolean isSubTypeSimple(BSemType t1, int uniformTypeCode) {
+        if (uniformTypeCode == UT_NEVER) {
+            return t1.some.isEmpty() && t1.all.isEmpty();
+        }
+        return t1.some.cardinality() + t1.all.cardinality() == 1 &&
+                (t1.some.get(uniformTypeCode) || t1.all.get(uniformTypeCode));
+    }
+
     // t1 < t2
     static SubTypeCheckResult isSubType(BSemType t1, BSemType t2) {
         if (t1 == t2) {
@@ -139,16 +151,17 @@ class SemanticTypeEngine {
             }
         }
         // Everything t1 has partially t2 also has something that belong to same basic type partially or completely
-        for (int i = 0; i < SemTypeUtils.UniformTypeCodes.UT_BTYPE; i++) {
+        for (int i = 0; i < UT_BTYPE; i++) {
             if (!t1.some.get(i) || t2.all.get(i)) {
                 // t1 don't have it or t2 has all of this type so no point checking
                 continue;
             }
+            // both t1 and t2 has parts of it
             if (!t1.subTypeData[i].isSubType(t2.subTypeData[i])) {
                 return SubTypeCheckResult.FALSE;
             }
         }
-        return t1.some.get(SemTypeUtils.UniformTypeCodes.UT_BTYPE) ? SubTypeCheckResult.UNDEFINED :
+        return t1.some.get(UT_BTYPE) ? SubTypeCheckResult.UNDEFINED :
                 SubTypeCheckResult.TRUE;
     }
 
@@ -165,8 +178,8 @@ class SemanticTypeEngine {
             }
         } else if (value instanceof BString) {
             return TYPE_STRING;
-        } else if (value instanceof Boolean) {
-            return TYPE_BOOLEAN;
+        } else if (value instanceof Boolean booleanValue) {
+            return booleanSubType(booleanValue);
         } else if (value instanceof BObject) {
             return ((BObject) value).getOriginalType();
         }
@@ -184,6 +197,31 @@ class SemanticTypeEngine {
                 null);
     }
 
+    static boolean checkIsLikeUnionType(List<String> errors, Object sourceValue, Type targetType,
+                                        List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
+                                        String varName) {
+        BSemType targetSemType = wrap(targetType);
+        return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
+            case TRUE -> true;
+            case FALSE -> false;
+            default -> {
+                // FIXME: we have do this since BType part may just a single type
+                BType bTypePart = getBTypePart(targetSemType);
+                if (bTypePart.getTag() == TypeTags.UNION_TAG) {
+                    yield SyntacticTypeEngine.checkIsLikeUnionType(
+                            errors, sourceValue, (BUnionType) bTypePart, unresolvedValues,
+                            allowNumericConversion, varName);
+                } else {
+                    // TODO: we need to pass in the target type itself since this try to type check against the value
+                    // type. Decided to keep this in semantic type check for the time will revisit this when doing
+                    // records
+                    yield SyntacticTypeEngine.checkIsLikeType(errors, sourceValue, targetType, unresolvedValues,
+                            allowNumericConversion, varName);
+                }
+            }
+        };
+    }
+
     static boolean checkIsLikeType(List<String> errors, Object sourceValue, Type targetType,
                                    List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
                                    String varName) {
@@ -192,6 +230,7 @@ class SemanticTypeEngine {
             case TRUE -> true;
             case FALSE -> false;
             default -> {
+                // FIXME:
                 BType bTypePart = getBTypePart(targetSemType);
                 if (bTypePart.getTag() == TypeTags.UNION_TAG) {
                     yield SyntacticTypeEngine.checkIsLikeUnionType(
@@ -292,6 +331,11 @@ class SemanticTypeEngine {
 
     protected static boolean isSimpleBasicType(Type type) {
         if (type instanceof BSemType semType) {
+            if (semType.some.cardinality() + semType.all.cardinality() == 1) {
+                if (!semType.some.get(UT_BTYPE) && !semType.all.get(UT_NIL)) {
+                    return true;
+                }
+            }
             if (semType.some.isEmpty()) {
                 return semType.all.isEmpty();
             } else {
@@ -309,7 +353,7 @@ class SemanticTypeEngine {
 
     protected static boolean isNumericType(Type type) {
         BSemType semType = wrap(type);
-        if (!semType.some.get(SemTypeUtils.UniformTypeCodes.UT_BTYPE)) {
+        if (!semType.some.get(UT_BTYPE)) {
             return false;
         }
         return SyntacticTypeEngine.isNumericType(getBTypePart(semType));
@@ -373,10 +417,16 @@ class SemanticTypeEngine {
 
     static boolean hasFillerValue(Type type) {
         BSemType semType = wrap(type);
-        if (semType.all.cardinality() > 0) {
+        if (semType.all.get(UT_NIL)) {
             return true;
         }
-        return SyntacticTypeEngine.hasFillerValue(type, new ArrayList<>());
+        if (isSubTypeSimple(semType, UT_BOOLEAN)) {
+            return true;
+        }
+        if (SemTypeUtils.belongToSingleUniformType(semType, UT_BTYPE)) {
+            return SyntacticTypeEngine.hasFillerValue(getBTypePart(semType), new ArrayList<>());
+        }
+        return false;
     }
 
     static Object handleAnydataValues(Object sourceVal, Type targetType) {

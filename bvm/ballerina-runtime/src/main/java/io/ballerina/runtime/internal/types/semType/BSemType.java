@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BAnyType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BType;
 
 import java.util.Arrays;
@@ -36,6 +37,7 @@ import java.util.BitSet;
 import java.util.List;
 
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.N_TYPES;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 
@@ -43,6 +45,8 @@ public class BSemType implements Type {
 
     public final BitSet all;
     public final BitSet some;
+    // TODO: for the time being we are using a sparse array (acutally extra sparse where 0 is alway null), unlike
+    // nballerina to make things easier to implement. Consider using a compact array
     public final ProperSubTypeData[] subTypeData;
     private String name;
     private Module module;
@@ -93,6 +97,9 @@ public class BSemType implements Type {
         if (onlyBType()) {
             return getBType().getZeroValue();
         }
+        if (isUniformType(UT_BOOLEAN)) {
+            return (V) Boolean.valueOf(false);
+        }
         return null;
     }
 
@@ -100,6 +107,9 @@ public class BSemType implements Type {
     public <V> V getEmptyValue() {
         if (onlyBType()) {
             return getBType().getEmptyValue();
+        }
+        if (isUniformType(UT_BOOLEAN)) {
+            return (V) Boolean.valueOf(false);
         }
         return null;
     }
@@ -110,6 +120,11 @@ public class BSemType implements Type {
             tag = calculateTag();
         }
         return tag;
+    }
+
+    private boolean isUniformType(int uniformTypeTag) {
+        return this.all.cardinality() + this.some.cardinality() == 1 &&
+                (this.all.get(uniformTypeTag) || this.some.get(uniformTypeTag));
     }
 
     private int calculateTag() {
@@ -128,16 +143,36 @@ public class BSemType implements Type {
                 return TypeTags.ANY_TAG;
             } else if (bTypeComponent instanceof BIntersectionType) {
                 return TypeTags.INTERSECTION_TAG;
+            } else if (bTypeComponent instanceof BJsonType) {
+                return TypeTags.JSON_TAG;
             }
         }
-        if (some.cardinality() + all.cardinality() > 1) {
-            return TypeTags.UNION_TAG;
-        }
-        if (some.cardinality() == 0) {
-            if (all.cardinality() == 1 && all.get(UT_NIL)) {
-                return TypeTags.NULL_TAG;
-            }
+        if (all.isEmpty() && some.isEmpty()) {
             return TypeTags.NEVER_TAG;
+        }
+        boolean hasAnotherType = false;
+        for (int i = 0; i < N_TYPES; i++) {
+            if (i == UT_NIL) {
+                continue;
+            }
+            if (all.get(i) || some.get(i)) {
+                if (hasAnotherType) {
+                    return TypeTags.UNION_TAG;
+                }
+                hasAnotherType = true;
+            }
+        }
+        // Only one type
+        BitSet maskedAll = (BitSet) all.clone();
+        maskedAll.clear(UT_NIL);
+        if (maskedAll.cardinality() + some.cardinality() == 1 && (maskedAll.get(UT_BOOLEAN) || some.get(UT_BOOLEAN))) {
+            return TypeTags.BOOLEAN_TAG;
+        }
+        if (isUniformType(UT_NIL)) {
+            return TypeTags.NULL_TAG;
+        }
+        if (all.get(UT_NIL) && some.get(UT_BTYPE)) {
+            return TypeTags.UNION_TAG;
         }
         return getBTypePart().getTag();
     }
@@ -153,7 +188,15 @@ public class BSemType implements Type {
 
     @Override
     public String getName() {
-        return name == null ? "" : name;
+        if (name == null) {
+            if (all.cardinality() + some.cardinality() == 1) {
+                if (all.get(UT_BOOLEAN) || some.get(UT_BOOLEAN)) {
+                    return "boolean";
+                }
+            }
+            return "";
+        }
+        return name;
     }
 
     @Override
@@ -276,6 +319,12 @@ public class BSemType implements Type {
                 addPrefix = true;
             }
             return containsNull ? "(" + sb + ")?" : "(" + sb + ")";
+        }
+
+        if (all.cardinality() + some.cardinality() == 1) {
+            if (all.get(UT_BOOLEAN) || some.get(UT_BOOLEAN)) {
+                return "boolean";
+            }
         }
         // FIXME: this is problamtic we need a way to test these inside semtype module
         if (TypeChecker.isSameType(this, PredefinedTypes.TYPE_NULL)) {

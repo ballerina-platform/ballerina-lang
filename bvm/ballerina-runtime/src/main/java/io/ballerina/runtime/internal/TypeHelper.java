@@ -57,6 +57,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
@@ -238,6 +239,7 @@ public class TypeHelper {
         return switch (typeCode) {
             case UT_NEVER -> PredefinedTypes.TYPE_NEVER;
             case UT_NIL -> PredefinedTypes.TYPE_NULL;
+            case UT_BOOLEAN -> PredefinedTypes.TYPE_BOOLEAN;
             default -> throw new UnsupportedOperationException("uniform type not supported for type code: " + typeCode);
         };
     }

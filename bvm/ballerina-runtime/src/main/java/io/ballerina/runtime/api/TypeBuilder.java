@@ -28,7 +28,6 @@ import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BAnyType;
 import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.internal.types.BBooleanType;
 import io.ballerina.runtime.internal.types.BByteType;
 import io.ballerina.runtime.internal.types.BDecimalType;
 import io.ballerina.runtime.internal.types.BErrorType;
@@ -67,6 +66,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.VALUE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 
 public final class TypeBuilder {
 
@@ -464,7 +464,7 @@ public final class TypeBuilder {
     }
 
     public static Type booleanSubType(boolean value) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return value ? TypeCache.BOOLEAN_TRUE : TypeCache.BOOLEAN_FALSE;
     }
 
     public static Type stringSubType(StringSubtypeData data) {
@@ -510,7 +510,7 @@ public final class TypeBuilder {
                 wrap(new BIntegerType(TypeConstants.UNSIGNED32,
                         new Module(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null),
                         TypeTags.UNSIGNED32_INT_TAG));
-        public static final Type TYPE_BOOLEAN = wrap(new BBooleanType(TypeConstants.BOOLEAN_TNAME, EMPTY_MODULE));
+        public static final Type TYPE_BOOLEAN = SemTypeUtils.SemTypeBuilder.from(UT_BOOLEAN);
         public static final Type TYPE_BYTE = wrap(new BByteType(TypeConstants.BYTE_TNAME, EMPTY_MODULE));
         public static final Type TYPE_FLOAT = wrap(new BFloatType(TypeConstants.FLOAT_TNAME, EMPTY_MODULE));
         public static final Type TYPE_DECIMAL = wrap(new BDecimalType(TypeConstants.DECIMAL_TNAME, EMPTY_MODULE));
@@ -596,6 +596,8 @@ public final class TypeBuilder {
         public static final Type ANY_AND_READONLY_TYPE =
                 wrap(ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_ANY));
         public static final Type ANY_AND_READONLY_OR_ERROR_TYPE;
+        public static final Type BOOLEAN_TRUE = SemTypeUtils.SemTypeBuilder.booleanSubType(true);
+        public static final Type BOOLEAN_FALSE = SemTypeUtils.SemTypeBuilder.booleanSubType(false);
 
         private TypeCache() {
         }

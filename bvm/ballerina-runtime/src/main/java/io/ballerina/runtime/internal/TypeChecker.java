@@ -490,6 +490,13 @@ public class TypeChecker {
         return SemanticTypeEngine.isFiniteTypeValue(sourceValue, sourceType, valueSpaceItem, allowNumericConversion);
     }
 
+    static boolean checkIsLikeUnionType(List<String> errors, Object sourceValue, Type targetType,
+                                        List<TypeValuePair> unresolvedValues,
+                                        boolean allowNumericConversion, String varName) {
+        return SemanticTypeEngine.checkIsLikeUnionType(errors, sourceValue, targetType, unresolvedValues,
+                allowNumericConversion, varName);
+    }
+
     static boolean checkIsLikeType(List<String> errors, Object sourceValue, Type targetType,
             List<TypeValuePair> unresolvedValues,
             boolean allowNumericConversion, String varName) {

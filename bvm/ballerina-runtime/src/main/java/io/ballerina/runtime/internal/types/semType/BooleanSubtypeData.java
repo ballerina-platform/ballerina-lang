@@ -23,23 +23,53 @@ package io.ballerina.runtime.internal.types.semType;
 
 public class BooleanSubtypeData implements ProperSubTypeData {
 
+    final boolean value;
+    // TODO: probably don't need this part
+    private final boolean isEmpty;
+
+    public BooleanSubtypeData(boolean value) {
+        this.value = value;
+        this.isEmpty = false;
+    }
+
+    private BooleanSubtypeData() {
+        this.isEmpty = true;
+        this.value = false;
+    }
+
     @Override
     public ProperSubTypeData union(ProperSubTypeData other) {
-        throw new RuntimeException("unimplemented");
+        if (other instanceof BooleanSubtypeData otherBoolean) {
+            return new BooleanSubtypeData(value || otherBoolean.value);
+        } else {
+            throw new UnsupportedOperationException("union of different subtypes");
+        }
     }
 
     @Override
     public ProperSubTypeData intersect(ProperSubTypeData other) {
-        throw new RuntimeException("unimplemented");
+        if (other instanceof BooleanSubtypeData otherBoolean) {
+            if (otherBoolean.value == value) {
+                return new BooleanSubtypeData(value);
+            } else {
+                return new BooleanSubtypeData();
+            }
+        } else {
+            throw new UnsupportedOperationException("intersection of different subtypes");
+        }
     }
 
     @Override
     public boolean isEmpty() {
-        throw new RuntimeException("unimplemented");
+        return isEmpty;
     }
 
     @Override
     public boolean isSubType(ProperSubTypeData other) {
-        throw new RuntimeException("unimplemented");
+        if (other instanceof BooleanSubtypeData otherBoolean) {
+            return otherBoolean.isEmpty || otherBoolean.value == value;
+        } else {
+            throw new UnsupportedOperationException("subtypes check of different subtypes");
+        }
     }
 }
