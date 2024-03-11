@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -96,7 +97,7 @@ public class DisplayAnnotationTest {
 
     @Test
     public void testDisplayAnnotOnRecord() {
-        TypeDefinition typeDefinition = result.getAST().getTypeDefinitions().get(14);
+        TypeDefinition typeDefinition = result.getAST().getTypeDefinitions().get(15);
         List<? extends AnnotationAttachmentNode> annot = typeDefinition.getAnnotationAttachments();
         Assert.assertEquals(annot.size(), 1);
         Assert.assertEquals(annot.get(0).getExpression().toString(),
@@ -123,7 +124,16 @@ public class DisplayAnnotationTest {
                 " {label: worker annotation,type: <anydata> named,id: <anydata> hash}");
     }
 
-    @Test void testDisplayAnnotationNegative() {
+    @Test
+    public void testDisplayAnnotOnExternalFunctionBody() {
+        BLangExternalFunctionBody body = (BLangExternalFunctionBody) result.getAST().getFunctions().get(3).getBody();
+        BLangAnnotationAttachment annot = (BLangAnnotationAttachment) ((List) body.annAttachments).get(0);
+        Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(annot.expr).toString(),
+                " {label: external,id: <anydata> hash}");
+    }
+
+    @Test
+    void testDisplayAnnotationNegative() {
         BAssertUtil.validateError(negative, 0, "cannot specify more than one annotation value " +
                 "for annotation 'ballerina/lang.annotations:0.0.0:display'", 17, 1);
         BAssertUtil.validateError(negative, 1, "incompatible types: expected '\"text\"|\"password\"|\"file\"?'," +

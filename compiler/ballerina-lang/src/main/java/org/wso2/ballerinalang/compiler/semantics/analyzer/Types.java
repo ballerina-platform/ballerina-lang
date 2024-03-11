@@ -1498,6 +1498,7 @@ public class Types {
             case TypeTags.INVOKABLE:
             case TypeTags.TYPEDESC:
             case TypeTags.HANDLE:
+            case TypeTags.REGEXP:    
                 return true;
             case TypeTags.XML:
                 return getImpliedType(((BXMLType) type).constraint).tag == TypeTags.NEVER;
@@ -1528,6 +1529,52 @@ public class Types {
         }
 
         return type;
+    }
+
+    public BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType) {
+        if (lhsType.tag == TypeTags.NONE) {
+            return expr;
+        }
+
+        BType rhsType = expr.getBType();
+
+        if (lhsType.tag == TypeTags.TYPEREFDESC && rhsType.tag != TypeTags.TYPEREFDESC) {
+            return addConversionExprIfRequired(expr, Types.getReferredType(lhsType));
+        }
+
+        if (isSameType(rhsType, lhsType)) {
+            return expr;
+        }
+
+        setImplicitCastExpr(expr, rhsType, lhsType);
+        if (expr.impConversionExpr != null) {
+            BLangExpression impConversionExpr = expr.impConversionExpr;
+            expr.impConversionExpr = null;
+            return impConversionExpr;
+        }
+
+        if (lhsType.tag == TypeTags.JSON && rhsType.tag == TypeTags.NIL) {
+            return expr;
+        }
+
+        if (lhsType.tag == TypeTags.NIL && rhsType.isNullable()) {
+            return expr;
+        }
+
+        if (lhsType.tag == TypeTags.ARRAY && rhsType.tag == TypeTags.TUPLE) {
+            return expr;
+        }
+
+        // Create a type cast expression
+        BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr)
+                TreeBuilder.createTypeConversionNode();
+        conversionExpr.expr = expr;
+        conversionExpr.targetType = lhsType;
+        conversionExpr.setBType(lhsType);
+        conversionExpr.pos = expr.pos;
+        conversionExpr.checkTypes = false;
+        conversionExpr.internal = true;
+        return conversionExpr;
     }
 
     boolean isSelectivelyImmutableType(BType type, PackageID packageID) {
@@ -5569,10 +5616,10 @@ public class Types {
                 invokableSymbol.flags = tsymbol.flags;
             } else {
                 recordFieldSymbol = new BVarSymbol(intersectionFlags, name, env.enclPkg.packageID,
-                                                   intersectionFieldType, newTypeSymbol, lhsRecordField.pos, SOURCE);
+                        intersectionFieldType, newTypeSymbol, lhsRecordField.symbol.pos, SOURCE);
             }
 
-            newTypeFields.put(key, new BField(name, null, recordFieldSymbol));
+            newTypeFields.put(key, new BField(name, recordFieldSymbol.pos, recordFieldSymbol));
             newTypeSymbol.scope.define(name,  recordFieldSymbol);
         }
         return true;
@@ -5623,8 +5670,6 @@ public class Types {
                 Flags.PUBLIC, Names.EMPTY, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner,
                 false, symTable.builtinPos, VIRTUAL);
         initFuncSymbol.retType = symTable.nilType;
-        recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
-                                                                         bInvokableType, symTable.builtinPos);
         recordSymbol.scope = new Scope(recordSymbol);
 
         BRecordType recordType = new BRecordType(recordSymbol);

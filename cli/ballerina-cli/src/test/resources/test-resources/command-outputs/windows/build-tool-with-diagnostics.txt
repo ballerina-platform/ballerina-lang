@@ -1,0 +1,7 @@
+
+Executing Build Tools
+	openapi(generate-delivery-client)
+
+ERROR [openAPI sample build tool:(1:1,1:1)] The provided filePath does not exist
+Compiling source
+	foo/winery:0.1.0

@@ -1527,6 +1527,7 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangObjectTypeNode node, T data) {
         analyzeNode(node, data);
+        visitNode(node.initFunction, data);
         visitBLangStructureTypeNode(node, data);
         visitNode(node.functions, data);
     }
@@ -1618,7 +1619,5 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
     private void visitBLangStructureTypeNode(BLangStructureTypeNode node, T data) {
         visitNode(node.fields, data);
         visitNode(node.typeRefs, data);
-        visitNode(node.initFunction, data);
-        visitNode(node.initFunction, data);
     }
 }

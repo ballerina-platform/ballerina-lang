@@ -183,6 +183,7 @@ public class QueryTypeChecker extends TypeChecker {
         if (finalClause.getKind() == NodeKind.SELECT) {
             actualType = resolveQueryType(commonAnalyzerData.queryEnvs.peek(),
                     ((BLangSelectClause) finalClause).expression, data.expType, queryExpr, clauses, data);
+            queryExpr.setDeterminedType(actualType);
             actualType = (actualType == symTable.semanticError) ? actualType : types.checkType(queryExpr.pos,
                     actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         } else {
@@ -196,6 +197,7 @@ public class QueryTypeChecker extends TypeChecker {
             if (completionType != null) {
                 queryType = BUnionType.create(null, queryType, completionType);
             }
+            queryExpr.setDeterminedType(queryType);
             actualType = types.checkType(finalClauseExpr.pos, queryType, data.expType,
                     DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
@@ -481,8 +483,8 @@ public class QueryTypeChecker extends TypeChecker {
                 }
             }
             errorTypes.forEach(expType -> {
-                checkExpr(selectExp, env, expType, data);
                 selectExp.typeChecked = false;
+                checkExpr(selectExp, env, expType, data);
             });
             selectExp.typeChecked = true;
         }

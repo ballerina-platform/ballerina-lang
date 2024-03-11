@@ -57,6 +57,9 @@ under the License.
             <class name="org.ballerinalang.testerina.test.ExcludeFromCodeCoverageTest"/>
             <class name="org.ballerinalang.testerina.test.ConfigurableCliArgsTest"/>
             <class name="org.ballerinalang.testerina.test.negative.InvalidConfigurableCliArgsTestCase"/>
+            <class name="org.ballerinalang.testerina.test.TestparallelizationTest"/>
+            <class name="org.ballerinalang.testerina.test.SingleTestExecutionWithInitFailuresTest"/>
+            <class name="org.ballerinalang.testerina.test.TestExecutionWithInitFailuresTest"/>
         </classes>
     </test>
 </suite>

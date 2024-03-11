@@ -22,6 +22,8 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotatableNode;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -98,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -251,8 +254,8 @@ class NodeFinder extends BaseVisitor {
         this.enclosingNode = null;
 
         for (TopLevelNode node : nodes) {
-            if (!PositionUtil.isRangeWithinNode(this.range, node.getPosition()) || isLambdaFunction(node)
-                    || isClassForService(node)) {
+            if ((!PositionUtil.isRangeWithinNode(this.range, node.getPosition()) && !isWithinNodeMetaData(node)) ||
+                    isLambdaFunction(node) || isClassForService(node)) {
                 continue;
             }
 
@@ -304,9 +307,18 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         lookupNodes(funcNode.annAttachments);
+
+        for (BLangSimpleVariable requiredParam : funcNode.requiredParams) {
+            lookupNodes(requiredParam.annAttachments);
+        }
         lookupNodes(funcNode.requiredParams);
+
+        if (funcNode.restParam != null) {
+            lookupNodes(funcNode.restParam.annAttachments);
+        }
         lookupNode(funcNode.restParam);
         lookupNode(funcNode.returnTypeNode);
+        lookupNodes(funcNode.returnTypeAnnAttachments);
         lookupNode(funcNode.body);
     }
 
@@ -341,12 +353,14 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
         lookupNode(typeDefinition.typeNode);
+        lookupNodes(typeDefinition.annAttachments);
     }
 
     @Override
     public void visit(BLangConstant constant) {
         lookupNode(constant.typeNode);
         lookupNode(constant.expr);
+        lookupNodes(constant.annAttachments);
         setEnclosingNode(constant, constant.name.pos);
     }
 
@@ -361,6 +375,7 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangAnnotation annotationNode) {
         lookupNode(annotationNode.typeNode);
+        lookupNodes(annotationNode.annAttachments);
         setEnclosingNode(annotationNode, annotationNode.name.pos);
     }
 
@@ -693,6 +708,7 @@ class NodeFinder extends BaseVisitor {
         lookupNodes(actionInvocationExpr.argExprs);
         lookupNodes(actionInvocationExpr.restArgs);
         lookupNode(actionInvocationExpr.expr);
+        lookupNodes(actionInvocationExpr.annAttachments);
 
         if (setEnclosingNode(actionInvocationExpr, actionInvocationExpr.name.pos)) {
             return;
@@ -965,9 +981,17 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangClassDefinition classDefinition) {
         lookupNodes(classDefinition.annAttachments);
+
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            lookupNodes(field.annAttachments);
+        }
         lookupNodes(classDefinition.fields);
         lookupNodes(classDefinition.referencedFields);
         lookupNode(classDefinition.initFunction);
+
+        for (BLangFunction method : classDefinition.functions) {
+            lookupNodes(method.annAttachments);
+        }
         lookupNodes(classDefinition.functions);
         lookupNodes(classDefinition.typeRefs);
         setEnclosingNode(classDefinition, classDefinition.name.pos);
@@ -985,13 +1009,28 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
+            lookupNodes(field.annAttachments);
+        }
         lookupNodes(objectTypeNode.fields);
+
+        for (BLangFunction function : objectTypeNode.functions) {
+            lookupNodes(function.annAttachments);
+        }
         lookupNodes(objectTypeNode.functions);
         lookupNodes(objectTypeNode.typeRefs);
     }
 
     @Override
+    public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+        lookupNode(objectConstructorExpression.classNode);
+    }
+
+    @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            lookupNodes(field.annAttachments);
+        }
         lookupNodes(recordTypeNode.fields);
         lookupNodes(recordTypeNode.typeRefs);
     }
@@ -1541,5 +1580,19 @@ class NodeFinder extends BaseVisitor {
 
         return ((BLangClassDefinition) node).flagSet.contains(Flag.SERVICE) && ((BLangClassDefinition) node).flagSet
                 .contains(Flag.ANONYMOUS);
+    }
+
+    private boolean isWithinNodeMetaData(TopLevelNode node) {
+        if (node instanceof AnnotatableNode) {
+            List<AnnotationAttachmentNode> nodes =
+                    (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();
+
+            for (AnnotationAttachmentNode annotAttachment : nodes) {
+                if (PositionUtil.isRangeWithinNode(this.range, annotAttachment.getPosition())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

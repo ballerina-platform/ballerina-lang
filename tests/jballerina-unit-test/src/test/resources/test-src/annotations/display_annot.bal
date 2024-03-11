@@ -85,3 +85,5 @@ function annotationOnWorker() {
 
     }
 }
+
+function testExternalFunction() = @display { label: "external", id: "hash" } external;

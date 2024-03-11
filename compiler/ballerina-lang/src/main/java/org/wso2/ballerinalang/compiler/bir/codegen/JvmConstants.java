@@ -167,6 +167,7 @@ public class JvmConstants {
     public static final String FINITE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFiniteType";
     public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFutureType";
     public static final String TYPE_REF_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTypeReferenceType";
+    public static final String TYPE_IMPL = "io/ballerina/runtime/internal/types/BType";
     public static final String MODULE = "io/ballerina/runtime/api/Module";
     public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
     public static final String B_STRING_VAR_PREFIX = "$bString";
@@ -344,8 +345,8 @@ public class JvmConstants {
     public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
     public static final String FRAME_CLASS_PREFIX = "frames/$frame$";
     public static final String BALLERINA = "ballerina";
-    public static final String ENCODED_DOT_CHARACTER = "$0046";
-    public static final String ENCODED_JAVA_MODULE = "jballerina$0046java";
+    public static final String ENCODED_DOT_CHARACTER = "&0046";
+    public static final String ENCODED_JAVA_MODULE = "jballerina&0046java";
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, new Name(ENCODED_DOT_CHARACTER),
                                                           DEFAULT_VERSION);
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";
@@ -459,8 +460,8 @@ public class JvmConstants {
     Max strings constant initializations per method = 64000/12 -> 5000
     */
     public static final int MAX_STRINGS_PER_METHOD = 5000;
-
     public static final int VISIT_MAX_SAFE_MARGIN = 10;
+    public static final int OVERFLOW_LINE_NUMBER = 0x80000000;
 
     private JvmConstants() {
     }

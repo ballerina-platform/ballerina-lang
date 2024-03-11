@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -108,6 +109,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private boolean transactionInternalModuleIncluded = false;
     private boolean trxCoordinatorServiceStarted = false;
     private int trxResourceCount;
+    private final Types types;
 
     private TransactionDesugar(CompilerContext context) {
         context.put(TRANSACTION_DESUGAR_KEY, this);
@@ -116,6 +118,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
+        this.types = Types.getInstance(context);
     //    if (this.symTable.internalTransactionModuleSymbol == null) {
     //        this.symTable.internalTransactionModuleSymbol =
     //                pkgLoader.loadPackageSymbol(PackageID.TRANSACTION_INTERNAL, null, null);
@@ -222,7 +225,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
         failStmt.pos = pos;
-        failStmt.expr = desugar.addConversionExprIfRequired(trapResultRef, symTable.errorType);
+        failStmt.expr = types.addConversionExprIfRequired(trapResultRef, symTable.errorType);
 
         BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
         panicNode.pos = pos;
@@ -438,6 +441,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         // transactional
         BLangTransactionalExpr isTransactionalCheck = TreeBuilder.createTransactionalExpressionNode();
+        isTransactionalCheck.setBType(symTable.booleanType);
         isTransactionalCheck.pos = pos;
 
         // if(($trxError$ is error) && !($trxError$ is TransactionError) && transactional)
@@ -447,7 +451,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         // rollbackTransaction(transactionBlockID, retryManager);
         BLangStatementExpression rollbackInvocation = invokeRollbackFunc(pos,
-                desugar.addConversionExprIfRequired(trxResultRef, symTable.errorOrNilType),
+                types.addConversionExprIfRequired(trxResultRef, symTable.errorOrNilType),
                 trxBlockId, shouldRetryRef);
 
         BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckPanickedExpr(pos, rollbackInvocation,

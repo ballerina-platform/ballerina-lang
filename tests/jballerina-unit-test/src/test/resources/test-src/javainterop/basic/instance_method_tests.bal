@@ -235,7 +235,8 @@ function hashCode(handle receiver) returns int = @java:Method {
 } external;
 
 function newByte(int val) returns handle = @java:Constructor {
-   'class: "java.lang.Byte"
+   'class: "java.lang.Byte",
+   paramTypes: ["byte"]
 } external;
 
 function getStringFromFutureResult(handle receiver) returns string = @java:Method {

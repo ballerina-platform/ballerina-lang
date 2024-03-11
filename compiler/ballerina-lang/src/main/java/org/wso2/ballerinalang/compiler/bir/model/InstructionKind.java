@@ -124,6 +124,7 @@ public enum InstructionKind {
     NEW_RE_FLAG_EXPR((byte) 99),
     NEW_RE_FLAG_ON_OFF((byte) 100),
     NEW_RE_QUANTIFIER((byte) 101),
+    RECORD_DEFAULT_FP_LOAD((byte) 102),
 
     PLATFORM((byte) 128);
 

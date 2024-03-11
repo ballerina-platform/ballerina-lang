@@ -378,6 +378,11 @@ public class WorkerTest {
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
+    @Test
+    public void testWorkerWithQuery() {
+        BRunUtil.invoke(result, "testWorkerWithQuery", new Object[0]);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

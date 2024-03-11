@@ -29,8 +29,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import static org.objectweb.asm.Opcodes.AALOAD;
+import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FRAME_CLASS_PREFIX;
@@ -38,8 +43,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_LOCAL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -111,6 +118,15 @@ public class MethodGenUtils {
         }
 
         return LAMBDA_PREFIX + Utils.encodeFunctionIdentifier(funcName);
+    }
+
+    static void callSetDaemonStrand(MethodVisitor mv) {
+        // set daemon strand
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
+        mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "setDaemonStrand", SET_STRAND, false);
     }
 
     private MethodGenUtils() {

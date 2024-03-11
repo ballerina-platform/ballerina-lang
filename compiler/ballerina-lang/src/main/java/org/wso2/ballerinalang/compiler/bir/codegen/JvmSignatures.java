@@ -334,7 +334,9 @@ public class JvmSignatures {
     public static final String INIT_WITH_STRING = "(L" + STRING_VALUE + ";)V";
     public static final String INITIAL_METHOD_DESC = "(L" + STRAND_CLASS + ";";
     public static final String INIT_TYPE_REF = "(L" + STRING_VALUE + ";L" + MODULE + ";IZ)V";
-    public static final String INSTANTIATE = "(L" + STRAND_CLASS + ";[L" + B_INITIAL_VALUE_ENTRY + ";)L" + OBJECT + ";";
+    public static final String INSTANTIATE_WITH_INITIAL_VALUES = "(L" + STRAND_CLASS + ";[L" +
+            B_INITIAL_VALUE_ENTRY + ";)L" + OBJECT + ";";
+    public static final String INSTANTIATE = "(L" + STRAND_CLASS + ";)L" + OBJECT + ";";
     public static final String INT_VALUE_OF_METHOD = "(I)L" + INT_VALUE + ";";
     public static final String INTI_VARIABLE_KEY =
             "(L" + MODULE + ";L" + STRING_VALUE + ";L" + TYPE + ";L" + STRING_VALUE + ";Z)V";
@@ -502,6 +504,7 @@ public class JvmSignatures {
     public static final String GET_TOML_DETAILS = "()L" + TOML_DETAILS + ";";
     public static final String GET_TEST_CONFIG_PATH = "(L" + MODULE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
             ";)L" + TOML_DETAILS + ";";
+    public static final String SET_DEFAULT_VALUE_METHOD = "(L" + STRING_VALUE + ";L" + B_FUNCTION_POINTER + ";)V";
     public static final String ALT_RECEIVE_CALL = "(L" + STRAND_CLASS + ";[L" + STRING_VALUE + ";)L" + OBJECT + ";";
     public static final String MULTIPLE_RECEIVE_CALL = "(L" + STRAND_CLASS + ";[L" + RECEIVE_FIELD + ";L" + TYPE +
             ";)L" + OBJECT + ";";

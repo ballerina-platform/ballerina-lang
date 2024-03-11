@@ -18,8 +18,14 @@
 
 package io.ballerina.cli.launcher;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Custom class loader used to load the tool implementation classes.
@@ -28,23 +34,76 @@ import java.net.URLClassLoader;
  * @since 2201.8.0
  */
 public class CustomToolClassLoader extends URLClassLoader {
+    private final ClassLoader system;
 
     public CustomToolClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
+        system = getSystemClassLoader();
     }
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        try {
-            // Load from parent if cli or picocli classes. This is to avoid SPI and class loading issues
-            if (name.startsWith("io.ballerina.cli") || name.startsWith("picocli")) {
-                return super.loadClass(name, resolve);
+        Class<?> loadedClass = findLoadedClass(name);
+        if (loadedClass == null) {
+            try {
+                // Load from parent if cli or picocli classes. This is to avoid SPI and class loading issues
+                if (name.startsWith("io.ballerina.cli") || name.startsWith("picocli")) {
+                    loadedClass = super.loadClass(name, resolve);
+                } else {
+                    // Try to load the class from the URLs
+                    loadedClass = findClass(name);
+                }
+            } catch (ClassNotFoundException e) {
+                try {
+                    // If not found, delegate to the parent
+                    loadedClass = super.loadClass(name, resolve);
+                } catch (ClassNotFoundException e2) {
+                    // If not found, delegate to the system class loader
+                    if (system != null) {
+                        loadedClass = system.loadClass(name);
+                    }
+                }
             }
-            // First, try to load the class from the URLs
-            return findClass(name);
-        } catch (ClassNotFoundException e) {
-            // If not found, delegate to the parent
-            return super.loadClass(name, resolve);
         }
+        if (resolve) {
+            resolveClass(Objects.requireNonNull(loadedClass));
+        }
+        return loadedClass;
+    }
+
+    @Override
+    public Enumeration<URL> getResources(String name) throws IOException {
+        List<URL> allResources = new LinkedList<>();
+        Enumeration<URL> sysResource;
+        if (system != null) {
+            sysResource = system.getResources(name);
+            while (sysResource.hasMoreElements()) {
+                allResources.add(sysResource.nextElement());
+            }
+        }
+        Enumeration<URL> thisResource = findResources(name);
+        while (thisResource.hasMoreElements()) {
+            allResources.add(thisResource.nextElement());
+        }
+        Enumeration<URL> parentResource;
+        if (getParent() != null) {
+            parentResource = getParent().getResources(name);
+            while (parentResource.hasMoreElements()) {
+                allResources.add(parentResource.nextElement());
+            }
+        }
+        return Collections.enumeration(allResources);
+    }
+
+    @Override
+    public URL getResource(String name) {
+        URL resource = findResource(name);
+        if (resource == null) {
+            resource = super.getResource(name);
+        }
+        if (resource == null && system != null) {
+            resource = system.getResource(name);
+        }
+        return resource;
     }
 }

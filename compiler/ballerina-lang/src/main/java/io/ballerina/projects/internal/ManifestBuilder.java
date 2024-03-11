@@ -20,6 +20,7 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.Diagnostics;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
@@ -31,6 +32,7 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
@@ -55,6 +57,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,7 +65,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
+import static io.ballerina.projects.internal.ManifestUtils.getBuildToolTomlValueType;
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
+import static io.ballerina.projects.internal.ManifestUtils.ToolNodeValueType;
 import static io.ballerina.projects.util.ProjectUtils.defaultName;
 import static io.ballerina.projects.util.ProjectUtils.defaultOrg;
 import static io.ballerina.projects.util.ProjectUtils.defaultVersion;
@@ -84,6 +89,8 @@ public class ManifestBuilder {
 
     private static final String PACKAGE = "package";
     private static final String VERSION = "version";
+    public static final String ORG = "org";
+    public static final String NAME = "name";
     private static final String LICENSE = "license";
     private static final String AUTHORS = "authors";
     private static final String REPOSITORY = "repository";
@@ -102,6 +109,8 @@ public class ManifestBuilder {
     private static final String URL = "url";
     private static final String DEPENDENCY = "dependency";
     private static final String ID = "id";
+    private static final String TARGETMODULE = "targetModule";
+    private static final String OPTIONS = "options";
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
@@ -214,6 +223,9 @@ public class ManifestBuilder {
         // Process local repo dependencies
         List<PackageManifest.Dependency> localRepoDependencies = getLocalRepoDependencies();
 
+        // Process pre build generator tools
+        List<PackageManifest.Tool> tools = getTools();
+
         // Compiler plugin descriptor
         CompilerPluginDescriptor pluginDescriptor = null;
         if (this.compilerPluginToml != null) {
@@ -222,7 +234,69 @@ public class ManifestBuilder {
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
                 diagnostics(), license, authors, keywords, exported, includes, repository, ballerinaVersion, visibility,
-                template, icon);
+                template, icon, tools);
+    }
+
+    private List<PackageManifest.Tool> getTools() {
+        TomlTableNode rootNode = ballerinaToml.toml().rootNode();
+        if (rootNode.entries().isEmpty()) {
+            return Collections.emptyList();
+        }
+        TopLevelNode toolEntries = rootNode.entries().get("tool");
+        List<PackageManifest.Tool> tools = new ArrayList<>();
+        if (toolEntries == null || toolEntries.kind() != TomlType.TABLE) {
+            return Collections.emptyList();
+        }
+        TomlTableNode toolTable = (TomlTableNode) toolEntries;
+        Set<String> toolCodes = toolTable.entries().keySet();
+        Set<String> toolIdsSet = new HashSet<>();
+        Set<String> targetModuleSet = new HashSet<>();
+
+        // Gather tool configurations and add the tools to a list
+        for (String toolCode : toolCodes) {
+            TopLevelNode toolCodeNode = toolTable.entries().get(toolCode);
+            if (toolCodeNode.kind() != TomlType.TABLE_ARRAY) {
+                break;
+            }
+            TomlTableArrayNode toolEntriesArray = (TomlTableArrayNode) toolCodeNode;
+            for (TomlTableNode dependencyNode : toolEntriesArray.children()) {
+                if (dependencyNode.entries().isEmpty()) {
+                    break;
+                }
+                String id = getStringValueFromPreBuildToolNode(dependencyNode, "id", toolCode);
+                String filePath = getStringValueFromPreBuildToolNode(dependencyNode, "filePath",
+                    toolCode);
+                String targetModule = getStringValueFromPreBuildToolNode(dependencyNode,
+                    TARGETMODULE, toolCode);
+                Toml optionsToml = getToml(dependencyNode, OPTIONS);
+                TopLevelNode topLevelNode = dependencyNode.entries().get(OPTIONS);
+                TomlTableNode optionsNode = null;
+                if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
+                    optionsNode = (TomlTableNode) topLevelNode;
+                }
+
+                // Validate recurring tool ids and target modules
+                if (!toolIdsSet.add(id)) {
+                    reportDiagnostic(dependencyNode, "recurring tool id '" + id + "' found in Ballerina.toml. " +
+                                    "Tool id must be unique for each tool",
+                            ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES,
+                            DiagnosticSeverity.ERROR);
+                }
+                if (!targetModuleSet.add(targetModule)) {
+                    reportDiagnostic(dependencyNode, "recurring target module found in Ballerina.toml. Target " +
+                                    "module must be unique for each tool",
+                            ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES,
+                            DiagnosticSeverity.ERROR);
+                }
+
+                // Add a flag for tools with error diagnostics
+                boolean hasErrorDiagnostic = !Diagnostics.filterErrors(dependencyNode.diagnostics()).isEmpty();
+                PackageManifest.Tool tool = new PackageManifest.Tool(toolCode, id, filePath,
+                    targetModule, optionsToml, optionsNode, hasErrorDiagnostic);
+                tools.add(tool);
+            }
+        }
+        return tools;
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
@@ -239,7 +313,7 @@ public class ManifestBuilder {
 
         if (tomlTableNode.entries().isEmpty()) {
             reportDiagnostic(tomlTableNode, errorMessage,
-                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML,
                     DiagnosticSeverity.WARNING);
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
@@ -247,35 +321,35 @@ public class ManifestBuilder {
         TopLevelNode topLevelPkgNode = tomlTableNode.entries().get(PACKAGE);
         if (topLevelPkgNode == null || topLevelPkgNode.kind() != TomlType.TABLE) {
             reportDiagnostic(tomlTableNode, errorMessage,
-                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML,
                     DiagnosticSeverity.WARNING);
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
 
         TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
 
-        org = getStringValueFromTomlTableNode(pkgNode, "org");
-        if (org == null) {
+        org = getStringValueFromTomlTableNode(pkgNode, ORG, "");
+        if (pkgNode.entries().get(ORG) == null) {
             org = defaultOrg().value();
             reportDiagnostic(pkgNode, "missing key 'org' in table '[package]' in 'Ballerina.toml'. " +
                             "Defaulting to 'org = \"" + org + "\"'",
-                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML,
                     DiagnosticSeverity.WARNING);
         }
-        name = getStringValueFromTomlTableNode(pkgNode, "name");
-        if (name == null) {
+        name = getStringValueFromTomlTableNode(pkgNode, NAME, "");
+        if (pkgNode.entries().get(NAME) == null) {
             name = defaultName(this.projectPath).value();
             reportDiagnostic(pkgNode, "missing key 'name' in table '[package]' in 'Ballerina.toml'. " +
                             "Defaulting to 'name = \"" + name + "\"'",
-                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML,
                     DiagnosticSeverity.WARNING);
         }
-        version = getStringValueFromTomlTableNode(pkgNode, VERSION);
-        if (version == null) {
+        version = getStringValueFromTomlTableNode(pkgNode, VERSION, "");
+        if (pkgNode.entries().get(VERSION) == null) {
             version = defaultVersion().value().toString();
             reportDiagnostic(pkgNode, "missing key 'version' in table '[package]' in 'Ballerina.toml'. " +
                             "Defaulting to 'version = \"" + version + "\"'",
-                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML,
                     DiagnosticSeverity.WARNING);
         }
 
@@ -313,7 +387,7 @@ public class ManifestBuilder {
                 // if file path does not exist, throw this error
                 reportDiagnostic(pkgNode.entries().get(ICON),
                         "could not locate icon path '" + icon + "'",
-                        "error.invalid.path", DiagnosticSeverity.ERROR);
+                        ProjectDiagnosticErrorCode.INVALID_PATH, DiagnosticSeverity.ERROR);
             } else {
                 // validate file content
                 // if other file types renamed as png, throw this error
@@ -321,7 +395,7 @@ public class ManifestBuilder {
                     if (!FileUtils.isValidPng(iconPath)) {
                         reportDiagnostic(pkgNode.entries().get("icon"),
                                 "invalid 'icon' under [package]: 'icon' can only have 'png' images",
-                                "error.invalid.icon", DiagnosticSeverity.ERROR);
+                                ProjectDiagnosticErrorCode.INVALID_ICON, DiagnosticSeverity.ERROR);
                     }
                 } catch (IOException e) {
                     // should not reach to this line
@@ -442,7 +516,7 @@ public class ManifestBuilder {
                             if (Files.notExists(path)) {
                                 reportDiagnostic(platformEntryTable.entries().get("path"),
                                         "could not locate dependency path '" + pathValue + "'",
-                                        "error.invalid.path", DiagnosticSeverity.ERROR);
+                                        ProjectDiagnosticErrorCode.INVALID_PATH, DiagnosticSeverity.ERROR);
                             }
                         }
                         platformEntryMap.put("path",
@@ -493,8 +567,8 @@ public class ManifestBuilder {
             TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
 
             for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
-                String name = getStringValueFromDependencyNode(dependencyNode, "name");
-                String org = getStringValueFromDependencyNode(dependencyNode, "org");
+                String name = getStringValueFromDependencyNode(dependencyNode, NAME);
+                String org = getStringValueFromDependencyNode(dependencyNode, ORG);
                 String version = getStringValueFromDependencyNode(dependencyNode, VERSION);
                 String repository = getStringValueFromDependencyNode(dependencyNode, REPOSITORY);
 
@@ -516,12 +590,13 @@ public class ManifestBuilder {
         return dependencies;
     }
 
+    // TODO: Fix code and messageFormat parameters in usages.
     private void reportDiagnostic(TopLevelNode tomlTableNode,
                                   String message,
-                                  String messageFormat,
+                                  ProjectDiagnosticErrorCode errorCode,
                                   DiagnosticSeverity severity) {
         DiagnosticInfo diagnosticInfo =
-                new DiagnosticInfo(null, messageFormat, severity);
+                new DiagnosticInfo(errorCode.diagnosticId(), errorCode.messageKey(), severity);
         TomlDiagnostic tomlDiagnostic = new TomlDiagnostic(
                 tomlTableNode.location(),
                 diagnosticInfo,
@@ -714,6 +789,49 @@ public class ManifestBuilder {
             return null;
         }
         return getStringFromTomlTableNode(topLevelNode);
+    }
+
+    private String getStringValueFromPreBuildToolNode(TomlTableNode toolNode, String key, String toolCode) {
+        TopLevelNode topLevelNode = toolNode.entries().get(key);
+        String errorMessage = "missing key '[" + key + "]' in table '[tool." + toolCode + "]'.";
+        if (topLevelNode == null) {
+            if (!key.equals(TARGETMODULE)) {
+                reportDiagnostic(toolNode, errorMessage,
+                        ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML,
+                        DiagnosticSeverity.ERROR);
+            }
+            return null;
+        }
+        ToolNodeValueType toolNodeValueType = getBuildToolTomlValueType(topLevelNode);
+        if (ToolNodeValueType.STRING.equals(toolNodeValueType)) {
+            return getStringFromTomlTableNode(topLevelNode);
+        } else if (ToolNodeValueType.EMPTY.equals(toolNodeValueType)) {
+            if (!key.equals(TARGETMODULE)) {
+                reportDiagnostic(toolNode, "empty string found for key '[" + key + "]' in table '[tool."
+                                + toolCode + "]'.",
+                    ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY,
+                    DiagnosticSeverity.ERROR);
+            }
+            return null;
+        } else if (ToolNodeValueType.NON_STRING.equals(toolNodeValueType)) {
+            reportDiagnostic(toolNode, "incompatible type found for key '[" + key + "]': expected 'STRING'",
+                ProjectDiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_TOOL_PROPERTY,
+                DiagnosticSeverity.ERROR);
+            return null;
+        }
+        return null;
+    }
+
+    private Toml getToml(TomlTableNode toolNode, String key) {
+        TopLevelNode topLevelNode = toolNode.entries().get(key);
+        if (topLevelNode == null) {
+            return null;
+        }
+        if (topLevelNode.kind() != TomlType.TABLE) {
+            return null;
+        }
+        TomlTableNode optionsNode = (TomlTableNode) topLevelNode;
+        return new Toml(optionsNode);
     }
 
     /**

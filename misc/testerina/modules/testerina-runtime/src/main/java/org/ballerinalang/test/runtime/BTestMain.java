@@ -79,7 +79,7 @@ public class BTestMain {
         if (args.length >= 4) {
             Path targetPath = Paths.get(args[0]);
             Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
-                            .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
+                    .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
             String jacocoAgentJarPath = args[1];
             boolean report = Boolean.parseBoolean(args[2]);
             boolean coverage = Boolean.parseBoolean(args[3]);

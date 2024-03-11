@@ -72,51 +72,69 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
 
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
-        if ((node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION && 
-                !TypeResolverUtil.isInNewExpressionParameterContext((ExplicitNewExpressionNode) node, 
-                        context.getCursorPositionInTree())) 
+        if ((node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION &&
+                !TypeResolverUtil.isInNewExpressionParameterContext((ExplicitNewExpressionNode) node,
+                        context.getCursorPositionInTree()))
                 || (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
-                        !TypeResolverUtil.isInNewExpressionParameterContext(
-                                (ImplicitNewExpressionNode) node, context.getCursorPositionInTree()))) {
+                !TypeResolverUtil.isInNewExpressionParameterContext(
+                        (ImplicitNewExpressionNode) node, context.getCursorPositionInTree()))) {
             super.sort(context, node, completionItems);
             return;
         }
 
+        Optional<TypeSymbol> parameterSymbol = getParameterTypeSymbol(context);
+        for (LSCompletionItem completionItem : completionItems) {
+            if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
+                sortNamedArgCompletionItem(context, completionItem);
+            } else if (parameterSymbol.isEmpty()) {
+                sortParameterlessCompletionItem(context, completionItem);
+            } else {
+                sortDefaultCompletionItem(context, parameterSymbol.get(), completionItem);
+            }
+        }
+    }
+
+    protected static Optional<TypeSymbol> getParameterTypeSymbol(BallerinaCompletionContext context) {
         Optional<TypeSymbol> parameterSymbol = Optional.empty();
         if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
             parameterSymbol = context.currentSemanticModel().get().expectedType(context.currentDocument().get(),
                     LinePosition.from(context.getCursorPosition().getLine(),
                             context.getCursorPosition().getCharacter()));
         }
+        return parameterSymbol;
+    }
 
-        for (LSCompletionItem completionItem : completionItems) {
-            if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
-                NamedArgCompletionItem argCompletionItem = (NamedArgCompletionItem) completionItem;
-                Either<ParameterSymbol, RecordFieldSymbol> symbol = argCompletionItem.getParameterSymbol();
-                String sortText;
-                if (symbol.isRight()) {
-                    RecordFieldSymbol right = symbol.getRight();
-                    if (right.isOptional()) {
-                        sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(3);
-                    } else if (right.hasDefaultValue()) {
-                        sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(2);
-                    } else {
-                        sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(1);
-                    }
-                } else {
-                    sortText = SortingUtil.genSortText(1) +
-                            SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
-                }
-                completionItem.getCompletionItem().setSortText(sortText);
-            } else if (parameterSymbol.isEmpty()) {
-                completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(
-                        SortingUtil.toRank(context, completionItem)));
+    protected static void sortNamedArgCompletionItem(BallerinaCompletionContext context,
+                                                     LSCompletionItem completionItem) {
+        NamedArgCompletionItem argCompletionItem = (NamedArgCompletionItem) completionItem;
+        Either<ParameterSymbol, RecordFieldSymbol> symbol = argCompletionItem.getParameterSymbol();
+        String sortText;
+        if (symbol.isRight()) {
+            RecordFieldSymbol right = symbol.getRight();
+            if (right.isOptional()) {
+                sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(3);
+            } else if (right.hasDefaultValue()) {
+                sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(2);
             } else {
-                completionItem.getCompletionItem().setSortText(
-                        SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol.get()));
+                sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(1);
             }
+        } else {
+            sortText = SortingUtil.genSortText(1) +
+                    SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
         }
+        completionItem.getCompletionItem().setSortText(sortText);
+    }
 
+    protected static void sortParameterlessCompletionItem(BallerinaCompletionContext context,
+                                                          LSCompletionItem completionItem) {
+        completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(
+                SortingUtil.toRank(context, completionItem)));
+    }
+
+    protected static void sortDefaultCompletionItem(BallerinaCompletionContext context, TypeSymbol parameterSymbol,
+                                                    LSCompletionItem completionItem) {
+        completionItem.getCompletionItem().setSortText(
+                SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol));
     }
 
     protected List<LSCompletionItem> getNamedArgCompletionItems(BallerinaCompletionContext context,

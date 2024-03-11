@@ -83,9 +83,27 @@ public class DataProviderTest extends BaseTestCase {
         AssertionUtils.assertOutput("DataProviderTest-testValidDataProviderCase.txt", output);
     }
 
+    @Test (dependsOnMethods = "testValidDataProviderWithFail")
+    public void testValidDataProviderCaseWithoutQuotes() throws BallerinaTestException, IOException {
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "dataproviders:jsonDataProviderTest#json1",
+                "data-providers"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        AssertionUtils.assertOutput("DataProviderTest-testValidDataProviderCase.txt", output);
+    }
+
     @Test (dependsOnMethods = "testValidDataProviderCase")
     public void testDataProviderWithMixedType() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction1#'CaseNew*'",
+                "data-providers"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        AssertionUtils.assertOutput("DataProviderTest-testDataProviderWithMixedType.txt", output);
+    }
+
+    @Test (dependsOnMethods = "testValidDataProviderCase")
+    public void testDataProviderWithMixedTypeWithoutQuotes() throws BallerinaTestException, IOException {
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction1#CaseNew*",
                 "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);

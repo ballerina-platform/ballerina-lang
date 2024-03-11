@@ -98,6 +98,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAKE_CONCAT_WITH_CONSTANTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRINGS_PER_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OVERFLOW_LINE_NUMBER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_OF_HEADING_WITH_SEMICOLON;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
@@ -520,7 +521,9 @@ public class JvmCodeGenUtil {
     static String cleanupObjectTypeName(String typeName) {
         int index = typeName.lastIndexOf("."); // Internal type names can contain dots hence use the `lastIndexOf`
         int typeNameLength = typeName.length();
-        if (index > 0 && index != typeNameLength - 1) { // Resource method name can contain . at the end 
+        if (index > 1 && typeName.charAt(index - 1) == '\\') { // Methods can contain escaped characters
+            return typeName;
+        } else if (index > 0 && index != typeNameLength - 1) { // Resource method name can contain . at the end 
             return typeName.substring(index + 1);
         } else if (index > 0) {
             // We will reach here for resource methods eg: (MyClient8.$get$.)
@@ -603,7 +606,7 @@ public class JvmCodeGenUtil {
 
     public static void generateDiagnosticPos(Location pos, MethodVisitor mv) {
         Label label = new Label();
-        if (pos != null && pos.lineRange().startLine().line() != 0x80000000) {
+        if (pos != null && pos.lineRange().startLine().line() != OVERFLOW_LINE_NUMBER) {
             mv.visitLabel(label);
             // Adding +1 since 'pos' is 0-based and we want 1-based positions at run time
             mv.visitLineNumber(pos.lineRange().startLine().line() + 1, label);

@@ -1483,6 +1483,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         private ProjectContext(Project project, Lock lock) {
             this.project = project;
             this.lock = lock;
+            this.compilationCrashed = false;
         }
 
         public static ProjectContext from(Project project) {
@@ -1536,7 +1537,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
          * @return whether the compilation is in a crashed state
          */
         public boolean compilationCrashed() {
-            return Boolean.TRUE.equals(this.compilationCrashed);
+            return this.compilationCrashed;
         }
 
         /**
