@@ -86,6 +86,7 @@ public class TransactionLogRecord {
      * @return the transaction log record
      */
     public static TransactionLogRecord parseTransactionLogRecord(String logLine) {
+        logLine = logLine.stripTrailing();
         String[] logBlocks = logLine.split("\\|");
         if (logBlocks.length == 3) {
             String[] combinedId = logBlocks[0].split(COMBINED_ID_SEPARATOR);
