@@ -158,7 +158,8 @@ public enum ErrorCodes implements DiagnosticCode {
     TRANSACTION_IN_MIXED_STATE("transaction.in.mixed.state", "RUNTIME_0126"),
     TRANSACTION_STARTUP_RECOVERY_FAILED("transaction.startup.recovery.failed", "RUNTIME_0127"),
     TRANSACTION_CANNOT_CREATE_LOG_FILE("transaction.cannot.create.log.file", "RUNTIME_0128"),
-    TRANSACTION_CANNOT_COLLECT_XIDS_IN_RESOURCE("transaction.cannot.collect.xids.in.resource", "RUNTIME_0129");
+    TRANSACTION_CANNOT_COLLECT_XIDS_IN_RESOURCE("transaction.cannot.collect.xids.in.resource", "RUNTIME_0129"),
+    TRANSACTION_CANNOT_PARSE_LOG_RECORD("transaction.cannot.parse.log.record", "RUNTIME_0130");
 
 
     private final String errorMsgKey;

@@ -60,6 +60,7 @@ public class FileRecoveryLog implements RecoveryLog {
     private FileChannel appendChannel = null;
     private Map<String, TransactionLogRecord> existingLogs;
     private static final PrintStream stderr = System.err;
+    private final RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
 
     /**
      * Initializes a new FileRecoveryLog instance with the given base file name.
@@ -228,15 +229,18 @@ public class FileRecoveryLog implements RecoveryLog {
             String line;
             while ((line = reader.readLine()) != null) {
                 TransactionLogRecord transactionLogRecord = TransactionLogRecord.parseTransactionLogRecord(line);
-                if (transactionLogRecord != null) {
-                    // TODO: add a check here to check whether the record exists in the logMap and new state is a valid
-                    //  state from the current state
-                    logMap.put(transactionLogRecord.transactionId, transactionLogRecord);
+                if (transactionLogRecord == null) {
+                    diagnosticLog.error(ErrorCodes.TRANSACTION_CANNOT_PARSE_LOG_RECORD, null, line);
+                    continue;
                 }
+                logMap.put(transactionLogRecord.transactionId, transactionLogRecord);
             }
         } catch (IOException e) {
             stderr.println(ERROR_MESSAGE_PREFIX + " failed to read the recovery log file " + file.toPath() + ": "
                     + e.getMessage());
+        }
+        if (!diagnosticLog.getDiagnosticList().isEmpty()) {
+            RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
         }
         return logMap;
     }
