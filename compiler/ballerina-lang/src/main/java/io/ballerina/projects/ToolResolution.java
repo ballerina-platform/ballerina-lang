@@ -114,6 +114,9 @@ public class ToolResolution {
                 resolvedTools.add(tool);
             }
         }
+        if (resolutionRequiredTools.isEmpty()) {
+            return;
+        }
         try {
             resolvedTools.addAll(resolveToolVersions(currentProject, resolutionRequiredTools));
         } catch (CentralClientException e) {
