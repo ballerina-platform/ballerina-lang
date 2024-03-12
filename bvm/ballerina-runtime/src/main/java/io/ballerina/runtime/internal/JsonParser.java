@@ -89,8 +89,8 @@ import static io.ballerina.runtime.internal.ValueUtils.createRecordValueWithDefa
  */
 public class JsonParser {
 
-    private static final ThreadLocal<StreamStateMachine> tlStateMachine =
-            ThreadLocal.withInitial(StreamStateMachine::new);
+    private static final ThreadLocal<JsonStateMachine> tlStateMachine =
+            ThreadLocal.withInitial(JsonStateMachine::new);
 
     private JsonParser() {
     }
@@ -155,10 +155,10 @@ public class JsonParser {
      */
     public static Object parse(Reader reader, Type targetType, JsonUtils.NonStringValueProcessingMode mode)
             throws BError {
-        StreamStateMachine sm = tlStateMachine.get();
+        JsonStateMachine sm = tlStateMachine.get();
         try {
             sm.addTargetType(targetType);
-            StreamStateMachine.mode = mode;
+            JsonStateMachine.mode = mode;
             return sm.execute(reader);
         } finally {
             // Need to reset the state machine before leaving. Otherwise, references to the created
@@ -206,7 +206,7 @@ public class JsonParser {
     /**
      * Represents the state machine used for input stream parsing.
      */
-    private static class StreamStateMachine extends StateMachine {
+    private static class JsonStateMachine extends StateMachine {
 
         private static final String UNSUPPORTED_TYPE = "unsupported type: ";
         private static final String ARRAY_SIZE_MISMATCH = "array size is not enough for the provided values";
@@ -224,7 +224,7 @@ public class JsonParser {
         private static JsonUtils.NonStringValueProcessingMode mode =
                 JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING;
 
-        StreamStateMachine() {
+        JsonStateMachine() {
             super("input stream", new FieldNameState(), new StringValueState(), new StringFieldValueState(),
                     new StringArrayElementState());
         }
@@ -632,13 +632,12 @@ public class JsonParser {
             public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
                 char ch;
                 State state = null;
-                StreamStateMachine ssm = (StreamStateMachine) sm;
                 for (; i < count; i++) {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
                         sm.processFieldName();
-                        processFieldNameValue(sm, ssm);
+                        processFieldNameValue(sm);
                         state = END_FIELD_NAME_STATE;
                     } else if (ch == REV_SOL) {
                         state = FIELD_NAME_ESC_CHAR_PROCESSING_STATE;
@@ -656,7 +655,8 @@ public class JsonParser {
                 return state;
             }
 
-            private static void processFieldNameValue(StateMachine sm, StreamStateMachine ssm) throws ParserException {
+            private static void processFieldNameValue(StateMachine sm) throws ParserException {
+                JsonStateMachine ssm = (JsonStateMachine) sm;
                 Type parentTargetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
                 // maps can have any field name
                 // for unions, json, anydata also we do nothing
@@ -683,12 +683,11 @@ public class JsonParser {
             public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
                 State state = null;
                 char ch;
-                StreamStateMachine ssm = (StreamStateMachine) sm;
                 for (; i < count; i++) {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
-                        processQuoteCharacter(sm, ssm);
+                        processQuoteCharacter(sm);
                         state = FIELD_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_FIELD_ESC_CHAR_PROCESSING_STATE;
@@ -706,7 +705,8 @@ public class JsonParser {
                 return state;
             }
 
-            private static void processQuoteCharacter(StateMachine sm, StreamStateMachine ssm) throws ParserException {
+            private static void processQuoteCharacter(StateMachine sm) throws ParserException {
+                JsonStateMachine ssm = (JsonStateMachine) sm;
                 Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
                 Object bString = StringUtils.fromString(sm.value());
                 switch (targetType.getTag()) {
@@ -758,9 +758,8 @@ public class JsonParser {
                 for (; i < count; i++) {
                     ch = buff[i];
                     sm.processLocation(ch);
-                    StreamStateMachine ssm = (StreamStateMachine) sm;
                     if (ch == sm.currentQuoteChar) {
-                        processQuoteCharacter(sm, ssm);
+                        processQuoteCharacter(sm);
                         state = ARRAY_ELEMENT_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_AE_ESC_CHAR_PROCESSING_STATE;
@@ -778,7 +777,8 @@ public class JsonParser {
                 return state;
             }
 
-            private static void processQuoteCharacter(StateMachine sm, StreamStateMachine ssm) throws ParserException {
+            private static void processQuoteCharacter(StateMachine sm) throws ParserException {
+                JsonStateMachine ssm = (JsonStateMachine) sm;
                 Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
                 BString bString = StringUtils.fromString(sm.value());
                 int listIndex;
@@ -826,9 +826,8 @@ public class JsonParser {
                 for (; i < count; i++) {
                     ch = buff[i];
                     sm.processLocation(ch);
-                    StreamStateMachine ssm = (StreamStateMachine) sm;
                     if (ch == sm.currentQuoteChar) {
-                        processStringValue(sm, ssm);
+                        processStringValue(sm);
                         state = DOC_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_VAL_ESC_CHAR_PROCESSING_STATE;
@@ -846,7 +845,8 @@ public class JsonParser {
                 return state;
             }
 
-            private static void processStringValue(StateMachine sm, StreamStateMachine ssm) throws ParserException {
+            private static void processStringValue(StateMachine sm) throws ParserException {
+                JsonStateMachine ssm = (JsonStateMachine) sm;
                 Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
                 BString bString = StringUtils.fromString(sm.value());
                 if (ssm.nodesStackSizeWhenUnionStarts == -1) {
