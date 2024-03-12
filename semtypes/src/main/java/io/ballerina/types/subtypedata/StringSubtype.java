@@ -17,13 +17,13 @@
  */
 package io.ballerina.types.subtypedata;
 
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.EnumerableCharString;
 import io.ballerina.types.EnumerableString;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.BasicTypeCode;
 
 import java.util.Arrays;
 import java.util.Optional;

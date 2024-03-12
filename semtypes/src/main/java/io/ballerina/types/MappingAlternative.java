@@ -36,22 +36,22 @@ public class MappingAlternative {
         this.neg = neg;
     }
 
-    public MappingAlternative[] mappingAlternativesRw(Context cx, SemType t) {
+    public MappingAlternative[] mappingAlternatives(Context cx, SemType t) {
         if (t instanceof BasicTypeBitSet) {
-            if ((((BasicTypeBitSet) t).bitset & PredefinedType.MAPPING_RW.bitset) == 0) {
+            if ((((BasicTypeBitSet) t).bitset & PredefinedType.MAPPING.bitset) == 0) {
                 return new MappingAlternative[]{};
             } else {
                 return new MappingAlternative[]{
-                        from(cx, PredefinedType.MAPPING_RW, List.of(), List.of())
+                        from(cx, PredefinedType.MAPPING, List.of(), List.of())
                 };
             }
         } else {
             List<BddPath> paths = new ArrayList<>();
-            BddPath.bddPaths((Bdd) Core.getComplexSubtypeData((ComplexSemType) t, BasicTypeCode.UT_MAPPING_RW), paths,
+            BddPath.bddPaths((Bdd) Core.getComplexSubtypeData((ComplexSemType) t, BasicTypeCode.BT_MAPPING), paths,
                     BddPath.from());
             List<MappingAlternative> alts = new ArrayList<>();
             for (BddPath bddPath : paths) {
-                SemType semType = Core.createBasicSemType(BasicTypeCode.UT_MAPPING_RW, bddPath.bdd);
+                SemType semType = Core.createBasicSemType(BasicTypeCode.BT_MAPPING, bddPath.bdd);
                 if (!PredefinedType.NEVER.equals(semType)) {
                     alts.add(from(cx, semType, bddPath.pos, bddPath.neg));
                 }

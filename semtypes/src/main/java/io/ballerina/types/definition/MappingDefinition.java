@@ -18,17 +18,14 @@
 package io.ballerina.types.definition;
 
 import io.ballerina.types.Atom;
-import io.ballerina.types.Common;
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.ComplexSemType;
-import io.ballerina.types.Core;
 import io.ballerina.types.Definition;
 import io.ballerina.types.Env;
 import io.ballerina.types.MappingAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
-import io.ballerina.types.BasicSubtype;
-import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.typeops.BddCommonOps;
 
@@ -44,19 +41,16 @@ import java.util.List;
  */
 public class MappingDefinition implements Definition {
 
-    private RecAtom roRec = null;
-    private RecAtom rwRec = null;
+    private RecAtom rec = null;
     private SemType semType = null;
 
     @Override
     public SemType getSemType(Env env) {
         SemType s = this.semType;
         if (s == null) {
-            RecAtom ro = env.recMappingAtom();
-            RecAtom rw = env.recMappingAtom();
-            this.roRec = ro;
-            this.rwRec = rw;
-            return createSemType(env, ro, rw);
+            RecAtom rec = env.recMappingAtom();
+            this.rec = rec;
+            return this.createSemType(env, rec);
         } else {
             return s;
         }
@@ -64,49 +58,22 @@ public class MappingDefinition implements Definition {
 
     public SemType define(Env env, List<Field> fields, SemType rest) {
         SplitField sfh = splitFields(fields);
-        MappingAtomicType rwType = MappingAtomicType.from(sfh.names.toArray(new String[]{}),
+        MappingAtomicType atomicType = MappingAtomicType.from(sfh.names.toArray(new String[]{}),
                 sfh.types.toArray(new SemType[]{}), rest);
-        Atom rw;
-        RecAtom rwRec = this.rwRec;
-        if (rwRec != null) {
-            rw = rwRec;
-            env.setRecMappingAtomType(rwRec, rwType);
+        Atom atom;
+        RecAtom rec = this.rec;
+        if (rec != null) {
+            atom = rec;
+            env.setRecMappingAtomType(rec, atomicType);
         } else {
-            rw = env.mappingAtom(rwType);
+            atom = env.mappingAtom(atomicType);
         }
-        Atom ro;
-        if (Common.typeListIsReadOnly(rwType.types) && Core.isReadOnly(rest)) {
-            RecAtom roRec = this.roRec;
-            if (roRec == null) {
-                ro = rw;
-            } else {
-                ro = roRec;
-                env.setRecMappingAtomType(roRec, rwType);
-            }
-        } else {
-            MappingAtomicType roType = MappingAtomicType.from(rwType.names,
-                    (Common.readOnlyTypeList(rwType.types)),
-                    Core.intersect(rest, PredefinedType.READONLY));
-            ro = env.mappingAtom(roType);
-            RecAtom roRec = this.roRec;
-            if (roRec != null) {
-                env.setRecMappingAtomType(roRec, roType);
-            }
-        }
-        return this.createSemType(env, ro, rw);
+        return this.createSemType(env, atom);
     }
 
-    private SemType createSemType(Env env, Atom ro, Atom rw) {
-        BddNode roBdd = BddCommonOps.bddAtom(ro);
-        BddNode rwBdd;
-        if (BddCommonOps.atomCmp(ro, rw) == 0) {
-            rwBdd = roBdd;
-        } else {
-            rwBdd = BddCommonOps.bddAtom(rw);
-        }
-        SemType s = ComplexSemType.createComplexSemType(0,
-                BasicSubtype.from(BasicTypeCode.UT_MAPPING_RO, roBdd),
-                BasicSubtype.from(BasicTypeCode.UT_MAPPING_RW, rwBdd));
+    private SemType createSemType(Env env, Atom atom) {
+        BddNode bdd = BddCommonOps.bddAtom(atom);
+        ComplexSemType s = PredefinedType.basicSubtype(BasicTypeCode.BT_MAPPING, bdd);
         this.semType = s;
         return s;
     }

@@ -17,8 +17,8 @@
  */
 package io.ballerina.types.typeops;
 
-import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.BasicTypeCode;
+import io.ballerina.types.ProperSubtypeData;
 
 /**
  * Represent a 3-tuple containing paired-up subtype data.

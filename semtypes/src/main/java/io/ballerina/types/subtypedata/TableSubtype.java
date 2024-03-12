@@ -17,10 +17,10 @@
  */
 package io.ballerina.types.subtypedata;
 
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.Core;
 import io.ballerina.types.SemType;
-import io.ballerina.types.BasicTypeCode;
 
 /**
  * TableSubtype.
@@ -30,11 +30,7 @@ import io.ballerina.types.BasicTypeCode;
 public class TableSubtype {
 
     public static SemType tableContaining(SemType memberType) {
-        Bdd ro = (Bdd) Core.subtypeData(memberType, BasicTypeCode.UT_MAPPING_RO);
-        Bdd rw = (Bdd) Core.subtypeData(memberType, BasicTypeCode.UT_MAPPING_RW);
-        SemType roSemtype = Core.createBasicSemType(BasicTypeCode.UT_TABLE_RO, ro);
-        SemType rwSemtype = Core.createBasicSemType(BasicTypeCode.UT_TABLE_RW,
-                RwTableSubtype.createRwTableSubtype(ro, rw));
-        return Core.union(roSemtype, rwSemtype);
+        Bdd bdd = (Bdd) Core.subtypeData(memberType, BasicTypeCode.BT_MAPPING);
+        return Core.createBasicSemType(BasicTypeCode.BT_TABLE, bdd);
     }
 }

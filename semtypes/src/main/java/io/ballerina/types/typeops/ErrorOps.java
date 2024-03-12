@@ -17,12 +17,12 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.BddMemo;
 import io.ballerina.types.Common;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.BasicTypeOps;
 
 /**
  * Basic type ops for error type.
@@ -48,7 +48,7 @@ public class ErrorOps extends CommonOps implements BasicTypeOps {
                 return res == BddMemo.MemoStatus.TRUE;
             }
         }
-        boolean isEmpty = Common.bddEveryPositive(cx, b, null, null, MappingCommonOps::mappingFormulaIsEmpty);
+        boolean isEmpty = Common.bddEveryPositive(cx, b, null, null, MappingOps::mappingFormulaIsEmpty);
         m.setIsEmpty(isEmpty);
         return isEmpty;
     }

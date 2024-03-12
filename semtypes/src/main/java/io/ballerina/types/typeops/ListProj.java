@@ -18,6 +18,7 @@
 package io.ballerina.types.typeops;
 
 import io.ballerina.types.Atom;
+import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Conjunction;
@@ -27,7 +28,6 @@ import io.ballerina.types.FixedLengthArray;
 import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.IntSubtype;
@@ -38,7 +38,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static io.ballerina.types.Common.isListBitsSet;
+import static io.ballerina.types.BasicTypeCode.BT_LIST;
 import static io.ballerina.types.Common.isNothingSubtype;
 import static io.ballerina.types.Conjunction.and;
 import static io.ballerina.types.Core.diff;
@@ -46,15 +46,14 @@ import static io.ballerina.types.Core.getComplexSubtypeData;
 import static io.ballerina.types.Core.isEmpty;
 import static io.ballerina.types.Core.isNever;
 import static io.ballerina.types.Core.union;
+import static io.ballerina.types.PredefinedType.LIST;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.TOP;
-import static io.ballerina.types.BasicTypeCode.UT_LIST_RO;
-import static io.ballerina.types.BasicTypeCode.UT_LIST_RW;
 import static io.ballerina.types.subtypedata.IntSubtype.intSubtypeContains;
-import static io.ballerina.types.typeops.ListCommonOps.fixedArrayAnyEmpty;
-import static io.ballerina.types.typeops.ListCommonOps.fixedArrayShallowCopy;
-import static io.ballerina.types.typeops.ListCommonOps.listIntersectWith;
-import static io.ballerina.types.typeops.ListCommonOps.listMemberAt;
+import static io.ballerina.types.typeops.ListOps.fixedArrayAnyEmpty;
+import static io.ballerina.types.typeops.ListOps.fixedArrayShallowCopy;
+import static io.ballerina.types.typeops.ListOps.listIntersectWith;
+import static io.ballerina.types.typeops.ListOps.listMemberAt;
 
 /**
  * Class to hold functions ported from `listProj.bal` file.
@@ -66,21 +65,14 @@ public class ListProj {
 
     // Based on listMemberType
     public static SemType listProj(Context cx, SemType t, SemType k) {
-        if (t instanceof BasicTypeBitSet) {
-            return isListBitsSet((BasicTypeBitSet) t) ? TOP : NEVER;
+        if (t instanceof BasicTypeBitSet basicTypeBitSet) {
+            return (basicTypeBitSet.bitset & LIST.bitset) != 0 ? TOP : NEVER;
         } else {
             SubtypeData keyData = Core.intSubtype(k);
             if (isNothingSubtype(keyData)) {
                 return NEVER;
             }
-            return union(listProjBdd(cx,
-                                     keyData,
-                                     (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_LIST_RO),
-                                     null, null),
-                         listProjBdd(cx,
-                                     keyData,
-                                     (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_LIST_RW),
-                                     null, null));
+            return listProjBdd(cx, keyData, (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_LIST), null, null);
         }
     }
 
@@ -139,10 +131,10 @@ public class ListProj {
             }
         }
         // return listProjExclude(cx, k, members, rest, listConjunction(cx, neg));
-        List<Integer> indices = ListCommonOps.listSamples(cx, members, rest, neg);
+        List<Integer> indices = ListOps.listSamples(cx, members, rest, neg);
         int[] keyIndices;
         TwoTuple projSamples = listProjSamples(indices, k);
-        TwoTuple sampleTypes = ListCommonOps.listSampleTypes(cx, members, rest, indices);
+        TwoTuple sampleTypes = ListOps.listSampleTypes(cx, members, rest, indices);
         return listProjExclude(cx, ((List<Integer>) projSamples.item1).toArray(new Integer[0]),
                 ((List<Integer>) projSamples.item2).toArray(new Integer[0]),
                 ((List<SemType>) sampleTypes.item1).toArray(new SemType[0]),

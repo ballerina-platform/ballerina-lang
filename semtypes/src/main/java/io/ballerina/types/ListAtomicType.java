@@ -17,8 +17,6 @@
  */
 package io.ballerina.types;
 
-import java.util.ArrayList;
-
 /**
  * ListAtomicType node.
  *
@@ -27,9 +25,6 @@ import java.util.ArrayList;
 public class ListAtomicType implements AtomicType {
     public final FixedLengthArray members;
     public final SemType rest;
-
-    public static final ListAtomicType LIST_SUBTYPE_RO =
-            new ListAtomicType(FixedLengthArray.from(new ArrayList<>(), 0), PredefinedType.READONLY);
 
     private ListAtomicType(FixedLengthArray members, SemType rest) {
         this.members = members;

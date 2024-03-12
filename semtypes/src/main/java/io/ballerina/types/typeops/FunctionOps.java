@@ -17,6 +17,7 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.BddMemo;
 import io.ballerina.types.Common;
@@ -27,7 +28,6 @@ import io.ballerina.types.FunctionAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.BasicTypeOps;
 
 import java.io.PrintStream;
 

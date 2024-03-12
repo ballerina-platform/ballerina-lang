@@ -35,25 +35,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.types.Common.isListBitsSet;
 import static io.ballerina.types.Common.isNothingSubtype;
 import static io.ballerina.types.MappingAtomicType.MAPPING_ATOMIC_TOP;
+import static io.ballerina.types.PredefinedType.LIST;
 import static io.ballerina.types.PredefinedType.MAPPING;
-import static io.ballerina.types.PredefinedType.MAPPING_RW;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.TOP;
 import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
 import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
 import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
 import static io.ballerina.types.BasicTypeCode.BT_INT;
-import static io.ballerina.types.BasicTypeCode.UT_LIST_RO;
-import static io.ballerina.types.BasicTypeCode.UT_LIST_RW;
-import static io.ballerina.types.BasicTypeCode.UT_MAPPING_RO;
-import static io.ballerina.types.BasicTypeCode.UT_MAPPING_RW;
+import static io.ballerina.types.BasicTypeCode.BT_LIST;
+import static io.ballerina.types.BasicTypeCode.BT_MAPPING;
 import static io.ballerina.types.BasicTypeCode.BT_STRING;
-import static io.ballerina.types.typeops.ListCommonOps.bddListMemberType;
-import static io.ballerina.types.typeops.MappingCommonOps.bddMappingMemberRequired;
-import static io.ballerina.types.typeops.MappingCommonOps.bddMappingMemberType;
+import static io.ballerina.types.typeops.ListOps.bddListMemberType;
+import static io.ballerina.types.typeops.MappingOps.bddMappingMemberRequired;
+import static io.ballerina.types.typeops.MappingOps.bddMappingMemberType;
 
 /**
  * Contain functions defined in `core.bal` file.
@@ -168,7 +165,7 @@ public final class Core {
                 if (((BasicTypeBitSet) t1).bitset == 0) {
                     return t1;
                 }
-                if (((BasicTypeBitSet) t1).bitset == BasicTypeCode.UT_MASK) {
+                if (((BasicTypeBitSet) t1).bitset == BasicTypeCode.VT_MASK) {
                     return t2;
                 }
                 ComplexSemType complexT2 = (ComplexSemType) t2;
@@ -185,7 +182,7 @@ public final class Core {
                 if (((BasicTypeBitSet) t2).bitset == 0) {
                     return t2;
                 }
-                if (((BasicTypeBitSet) t2).bitset == BasicTypeCode.UT_MASK) {
+                if (((BasicTypeBitSet) t2).bitset == BasicTypeCode.VT_MASK) {
                     return t1;
                 }
                 all2 = (BasicTypeBitSet) t2;
@@ -261,7 +258,7 @@ public final class Core {
             all1 = complexT1.all;
             some1 = complexT1.some;
             if (t2 instanceof BasicTypeBitSet) {
-                if (((BasicTypeBitSet) t2).bitset == BasicTypeCode.UT_MASK) {
+                if (((BasicTypeBitSet) t2).bitset == BasicTypeCode.VT_MASK) {
                     return BasicTypeBitSet.from(0);
                 }
                 all2 = (BasicTypeBitSet) t2;
@@ -286,8 +283,8 @@ public final class Core {
             SubtypeData data2 = pair.subtypeData2;
 
             SubtypeData data;
-            if (cx == null || code.code < BasicTypeCode.UT_COUNT_RO) {
-                // normal diff or read-only uniform type
+            if (cx == null || code.code < BasicTypeCode.VT_COUNT_INHERENTLY_IMMUTABLE) {
+                // normal diff or read-only basic type
                 if (data1 == null) {
                     data = OpsTable.OPS[code.code].complement(data2);
                 } else if (data2 == null) {
@@ -296,7 +293,7 @@ public final class Core {
                     data = OpsTable.OPS[code.code].diff(data1, data2);
                 }
             } else {
-                // read-only diff for mutable uniform type
+                // read-only diff for mutable basic type
                 if (data1 == null) {
                     // data1 was all
                     data = AllOrNothingSubtype.createAll();
@@ -420,95 +417,33 @@ public final class Core {
         return subtypeData(t, BT_STRING);
     }
 
-    // default strict = false
-    public static Optional<BasicTypeBitSet> simpleArrayMemberType(Env env, SemType t) {
-        return simpleArrayMemberType(env, t, false);
-    }
-
-    // This is a temporary API that identifies when a SemType corresponds to a type T[]
-    // where T is a union of complete basic types.
-    // When `strict`, require ro and rw to be consistent; otherwise just consider rw.
-    public static Optional<BasicTypeBitSet> simpleArrayMemberType(Env env, SemType t, boolean strict) {
-        if (t instanceof BasicTypeBitSet) {
-            return (((BasicTypeBitSet) t).bitset == PredefinedType.LIST.bitset ||
-                    (((BasicTypeBitSet) t).bitset == PredefinedType.LIST_RW.bitset && !strict)) ?
-                    Optional.of(TOP) : Optional.empty();
-        } else {
-            if (!isSubtypeSimple(t, PredefinedType.LIST)) {
-                return Optional.empty();
-            }
-            Optional<BasicTypeBitSet> rw = bddListSimpleMemberType(env,
-                    (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_LIST_RW));
-            if (rw.isPresent() && strict) {
-                Optional<BasicTypeBitSet> ro = bddListSimpleMemberType(env,
-                        (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_LIST_RO));
-                if (ro.isEmpty() || ro.get().bitset != (rw.get().bitset & BasicTypeCode.UT_READONLY)) {
-                    return Optional.empty();
-                }
-            }
-            return rw;
-        }
-    }
-    public static Optional<BasicTypeBitSet> bddListSimpleMemberType(Env env, Bdd bdd) {
-        if (bdd instanceof BddAllOrNothing) {
-            if (((BddAllOrNothing) bdd).isAll()) {
-                return Optional.of(TOP);
-            }
-        } else {
-            BddNode bn = (BddNode) bdd;
-            if ((bn.left instanceof BddAllOrNothing && ((BddAllOrNothing) bn.left).isAll())
-                    && (bn.middle instanceof BddAllOrNothing && !((BddAllOrNothing) bn.middle).isAll())
-                    && (bn.right instanceof BddAllOrNothing && !((BddAllOrNothing) ((BddNode) bdd).right).isAll())) {
-                ListAtomicType atomic = env.listAtomType(bn.atom);
-                if (atomic.members.initial.size() == 0) {
-                    SemType memberType = atomic.rest;
-                    if (memberType instanceof BasicTypeBitSet) {
-                        return Optional.of((BasicTypeBitSet) memberType);
-                    }
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
     // This computes the spec operation called "member type of K in T",
     // for the case when T is a subtype of list, and K is either `int` or a singleton int.
     // This is what Castagna calls projection.
     // We will extend this to allow `key` to be a SemType, which will turn into an IntSubtype.
     // If `t` is not a list, NEVER is returned
     public static SemType listMemberType(Context cx, SemType t, SemType k) {
-        if (t instanceof BasicTypeBitSet) {
-            return isListBitsSet((BasicTypeBitSet) t) ? TOP : NEVER;
+        if (t instanceof BasicTypeBitSet basicTypeBitSet) {
+            return (basicTypeBitSet.bitset & LIST.bitset) != 0 ? TOP : NEVER;
         } else {
             SubtypeData keyData = intSubtype(k);
             if (isNothingSubtype(keyData)) {
                 return NEVER;
             }
-            return union(bddListMemberType(cx,
-                                           (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_LIST_RO),
-                                           keyData,
-                                           TOP),
-                         bddListMemberType(cx,
-                                           (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_LIST_RW),
-                                           keyData,
-                                           TOP));
+            return bddListMemberType(cx, (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_LIST), keyData, TOP);
         }
     }
 
-    public static MappingAtomicType mappingAtomicTypeRw(Context cx, SemType t) {
+    public static MappingAtomicType mappingAtomicType(Context cx, SemType t) {
         if (t instanceof BasicTypeBitSet) {
-            if (((BasicTypeBitSet) t).bitset == MAPPING.bitset
-                    || ((BasicTypeBitSet) t).bitset == MAPPING_RW.bitset) {
-                return MAPPING_ATOMIC_TOP;
-            }
-            return null;
+            return ((BasicTypeBitSet) t).bitset == MAPPING.bitset ? MAPPING_ATOMIC_TOP : null;
         } else {
             Env env = cx.env;
             if (!isSubtypeSimple(t, MAPPING)) {
                 return null;
             }
             return bddMappingAtomicType(env,
-                                       (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW),
+                                       (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_MAPPING),
                                        MAPPING_ATOMIC_TOP);
         }
     }
@@ -540,12 +475,7 @@ public final class Core {
             if (isNothingSubtype(keyData)) {
                 return NEVER;
             }
-            return union(bddMappingMemberType(cx,
-                                             (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RO),
-                                             keyData, TOP),
-                         bddMappingMemberType(cx,
-                                             (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW),
-                                              keyData, TOP));
+            return bddMappingMemberType(cx, (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_MAPPING), keyData, TOP);
         }
     }
 
@@ -554,42 +484,8 @@ public final class Core {
             return false;
         } else {
             StringSubtype stringSubType = (StringSubtype) getComplexSubtypeData((ComplexSemType) k, BT_STRING);
-            return bddMappingMemberRequired(cx,
-                                            (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW),
-                                            stringSubType, false)
-                    && bddMappingMemberRequired(cx,
-                                                (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RO),
-                                                stringSubType, false);
-        }
-    }
-
-    // default strict = false
-    public static Optional<BasicTypeBitSet> simpleMapMemberType(Env env, SemType t) {
-        return simpleMapMemberType(env, t, false);
-    }
-
-    // This is a temporary API that identifies when a SemType corresponds to a type T[]
-    // where T is a union of complete basic types.
-    public static Optional<BasicTypeBitSet> simpleMapMemberType(Env env, SemType t, boolean strict) {
-        if (t instanceof BasicTypeBitSet) {
-            int bitset = ((BasicTypeBitSet) t).bitset;
-            return (bitset == MAPPING.bitset || (bitset == MAPPING_RW.bitset && !strict))
-                    ? Optional.of(TOP)
-                    : Optional.empty();
-        } else {
-            if (!isSubtypeSimple(t, MAPPING)) {
-                return Optional.empty();
-            }
-            Optional<BasicTypeBitSet> rw =
-                    bddMappingSimpleMemberType(env, (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW));
-            if (rw.isPresent() && strict) {
-                Optional<BasicTypeBitSet> ro =
-                        bddMappingSimpleMemberType(env, (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RO));
-                if (ro.isEmpty() || ro.get().bitset != (rw.get().bitset & BasicTypeCode.UT_READONLY)) {
-                    return Optional.empty();
-                }
-            }
-            return rw;
+            return bddMappingMemberRequired(cx, (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_MAPPING),
+                                            stringSubType, false);
         }
     }
 
@@ -660,16 +556,6 @@ public final class Core {
         } else {
             throw new IllegalStateException("Unsupported type: " + v.getClass().getName());
         }
-    }
-
-    public static boolean isReadOnly(SemType t) {
-        BasicTypeBitSet bits;
-        if (t instanceof BasicTypeBitSet) {
-            bits = (BasicTypeBitSet) t;
-        } else {
-            bits = BasicTypeBitSet.from(((ComplexSemType) t).all.bitset | ((ComplexSemType) t).some.bitset);
-        }
-        return ((bits.bitset & BasicTypeCode.UT_RW_MASK) == 0);
     }
 
     public static boolean containsConst(SemType t, Object v) {

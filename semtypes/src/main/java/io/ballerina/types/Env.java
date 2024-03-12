@@ -38,13 +38,8 @@ public class Env {
 
     public Env() {
         this.atomTable = new HashMap<>();
-        // Set up index 0 for use by bddFixReadOnly
         this.recListAtoms = new ArrayList<>();
-        this.recListAtoms.add(ListAtomicType.LIST_SUBTYPE_RO);
-
         this.recMappingAtoms = new ArrayList<>();
-        this.recMappingAtoms.add(MappingAtomicType.MAPPING_SUBTYPE_RO);
-
         this.recFunctionAtoms = new ArrayList<>();
         types = new LinkedHashMap<>();
     }

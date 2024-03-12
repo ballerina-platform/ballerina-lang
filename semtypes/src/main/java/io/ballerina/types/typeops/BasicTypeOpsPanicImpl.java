@@ -17,9 +17,9 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.BasicTypeOps;
 
 /**
  * Default implementation for basic subtypes that does not need type-ops.

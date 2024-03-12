@@ -20,15 +20,12 @@ package io.ballerina.types;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
-import io.ballerina.types.typeops.BddCommonOps;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static io.ballerina.types.Conjunction.and;
-import static io.ballerina.types.BasicTypeCode.UT_LIST_RO;
-import static io.ballerina.types.BasicTypeCode.UT_LIST_RW;
 import static io.ballerina.types.typeops.BddCommonOps.bddComplement;
 import static io.ballerina.types.typeops.BddCommonOps.bddDiff;
 import static io.ballerina.types.typeops.BddCommonOps.bddIntersect;
@@ -40,54 +37,6 @@ import static io.ballerina.types.typeops.BddCommonOps.bddUnion;
  * @since 2201.8.0
  */
 public class Common {
-
-    public static boolean typeListIsReadOnly(SemType[] list) {
-        for (SemType t : list) {
-            if (!Core.isReadOnly(t)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static boolean typeListIsReadOnly(Iterable<SemType> list) {
-        for (SemType t : list) {
-            if (!Core.isReadOnly(t)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static SemType[] readOnlyTypeList(SemType[] mt) {
-        List<SemType> types = new ArrayList<>();
-        for (SemType s : mt) {
-            SemType t;
-            if (Core.isReadOnly(s)) {
-                t = s;
-            } else {
-                t = Core.intersect(s, PredefinedType.READONLY);
-            }
-            types.add(t);
-        }
-
-        return types.toArray(new SemType[]{});
-    }
-
-    public static SemType[] readOnlyTypeList(Iterable<SemType> mt) {
-        List<SemType> types = new ArrayList<>();
-        for (SemType s : mt) {
-            SemType t;
-            if (Core.isReadOnly(s)) {
-                t = s;
-            } else {
-                t = Core.intersect(s, PredefinedType.READONLY);
-            }
-            types.add(t);
-        }
-
-        return types.toArray(new SemType[]{});
-    }
 
     // [from nballerina] A Bdd represents a disjunction of conjunctions of atoms, where each atom is either positive or
     // negative (negated). Each path from the root to a leaf that is true represents one of the conjunctions
@@ -118,26 +67,6 @@ public class Common {
             return bddEveryPositive(cx, bn.left, andIfPositive(bn.atom, pos), neg, predicate)
                     && bddEveryPositive(cx, bn.middle, pos, neg, predicate)
                     && bddEveryPositive(cx, bn.right, pos, andIfPositive(bn.atom, neg), predicate);
-        }
-    }
-
-    /* [from nballerina] The goal of this is to ensure that mappingFormulaIsEmpty does
-    not get an empty posList, because it will interpret that
-    as `map<any|error>` rather than `map<readonly>`.
-    Similarly, for listFormulaIsEmpty.
-    We want to share BDDs between the RW and RO case, so we cannot change how the BDD is interpreted.
-    Instead, we transform the BDD to avoid cases that would give the wrong answer.
-    Atom index 0 is LIST_SUBTYPE_RO and MAPPING_SUBTYPE_RO */
-    public static Bdd bddFixReadOnly(Bdd b) {
-        return bddPosMaybeEmpty(b) ? bddIntersect(b, BddCommonOps.bddAtom(RecAtom.createRecAtom(0))) : b;
-    }
-
-    public static boolean bddPosMaybeEmpty(Bdd b) {
-        if (b instanceof BddAllOrNothing) {
-            return ((BddAllOrNothing) b).isAll();
-        } else {
-            BddNode bn = (BddNode) b;
-            return bddPosMaybeEmpty(bn.middle) || bddPosMaybeEmpty(bn.right);
         }
     }
 
@@ -209,11 +138,6 @@ public class Common {
         return data instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) data).isNothingSubtype();
     }
 
-    public static boolean isListBitsSet(BasicTypeBitSet t) {
-        int bitset = t.bitset;
-        return ((bitset & UT_LIST_RO.code) != 0) || ((bitset & UT_LIST_RW.code) != 0);
-    }
-
     /**
      * Function interface used for method references.
      *
@@ -224,8 +148,8 @@ public class Common {
     }
 
     public static boolean isAllSubtype(SubtypeData d) {
-        if (d instanceof AllOrNothingSubtype) {
-            return ((AllOrNothingSubtype) d).isAllSubtype();
+        if (d instanceof AllOrNothingSubtype allOrNothingSubtype) {
+            return allOrNothingSubtype.isAllSubtype();
         }
         return false;
     }

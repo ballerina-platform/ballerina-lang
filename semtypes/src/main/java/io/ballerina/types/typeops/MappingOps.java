@@ -17,6 +17,7 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.BddMemo;
 import io.ballerina.types.Common;
@@ -27,7 +28,6 @@ import io.ballerina.types.MappingAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.StringSubtype;
@@ -37,17 +37,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static io.ballerina.types.Common.bddSubtypeComplement;
+import static io.ballerina.types.Common.bddSubtypeDiff;
+import static io.ballerina.types.Common.bddSubtypeIntersect;
+import static io.ballerina.types.Common.bddSubtypeUnion;
 import static io.ballerina.types.Common.isAllSubtype;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.typeops.StringOps.stringSubtypeContainedIn;
 import static io.ballerina.types.typeops.StringOps.stringSubtypeListCoverage;
 
 /**
- * Common mapping related methods operate on SubtypeData.
+ * Basic type ops for mapping type.
  *
  * @since 2201.8.0
  */
-public abstract class MappingCommonOps extends CommonOps implements BasicTypeOps {
+public class MappingOps extends CommonOps implements BasicTypeOps {
     // This works the same as the tuple case, except that instead of
     // just comparing the lengths of the tuples we compare the sorted list of field names
     public static boolean mappingFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
@@ -189,7 +193,7 @@ public abstract class MappingCommonOps extends CommonOps implements BasicTypeOps
                     return false;
             }
         }
-        boolean isEmpty = Common.bddEvery(cx, b, null, null, MappingCommonOps::mappingFormulaIsEmpty);
+        boolean isEmpty = Common.bddEvery(cx, b, null, null, MappingOps::mappingFormulaIsEmpty);
         m.setIsEmpty(isEmpty);
         return isEmpty;
     }
@@ -247,5 +251,30 @@ public abstract class MappingCommonOps extends CommonOps implements BasicTypeOps
                     && bddMappingMemberRequired(cx, bdd.middle, k, requiredOnPath)
                     && bddMappingMemberRequired(cx, bdd.right, k, requiredOnPath);
         }
+    }
+
+    @Override
+    public SubtypeData union(SubtypeData d1, SubtypeData d2) {
+        return bddSubtypeUnion(d1, d2);
+    }
+
+    @Override
+    public SubtypeData intersect(SubtypeData d1, SubtypeData d2) {
+        return bddSubtypeIntersect(d1, d2);
+    }
+
+    @Override
+    public SubtypeData diff(SubtypeData d1, SubtypeData d2) {
+        return bddSubtypeDiff(d1, d2);
+    }
+
+    @Override
+    public SubtypeData complement(SubtypeData d) {
+        return bddSubtypeComplement(d);
+    }
+
+    @Override
+    public boolean isEmpty(Context cx, SubtypeData d) {
+        return mappingSubtypeIsEmpty(cx, d);
     }
 }

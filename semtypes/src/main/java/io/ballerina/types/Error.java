@@ -28,7 +28,7 @@ import io.ballerina.types.typeops.BddCommonOps;
  */
 public class Error {
     public static SemType errorDetail(SemType detail) {
-        SubtypeData sd = Core.subtypeData(detail, BasicTypeCode.UT_MAPPING_RO);
+        SubtypeData sd = Core.subtypeData(detail, BasicTypeCode.BT_MAPPING); // TODO: type should be MAPPING_RO
         if (sd instanceof AllOrNothingSubtype) {
             if (((AllOrNothingSubtype) sd).isAllSubtype()) {
                 return PredefinedType.ERROR;

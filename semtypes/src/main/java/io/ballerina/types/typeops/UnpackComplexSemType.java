@@ -17,10 +17,10 @@
  */
 package io.ballerina.types.typeops;
 
-import io.ballerina.types.ComplexSemType;
-import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.BasicSubtype;
 import io.ballerina.types.BasicTypeCode;
+import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.ProperSubtypeData;
 
 import java.util.ArrayList;
 import java.util.List;

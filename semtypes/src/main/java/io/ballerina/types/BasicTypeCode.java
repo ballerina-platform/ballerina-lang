@@ -30,47 +30,39 @@ public class BasicTypeCode {
     // Inherently immutable
     public static final BasicTypeCode BT_NIL = from(0x00);
     public static final BasicTypeCode BT_BOOLEAN = from(0x01);
-    public static final BasicTypeCode BT_INT = from(0x07);
-    public static final BasicTypeCode BT_FLOAT = from(0x08);
-    public static final BasicTypeCode BT_DECIMAL = from(0x09);
-    public static final BasicTypeCode BT_STRING = from(0x0A);
-    public static final BasicTypeCode BT_ERROR = from(0x0B);
-    public static final BasicTypeCode BT_TYPEDESC = from(0x0D);
-    public static final BasicTypeCode BT_HANDLE = from(0x0E);
-    public static final BasicTypeCode BT_FUNCTION = from(0x0C);
+    public static final BasicTypeCode BT_INT = from(0x02);
+    public static final BasicTypeCode BT_FLOAT = from(0x03);
+    public static final BasicTypeCode BT_DECIMAL = from(0x04);
+    public static final BasicTypeCode BT_STRING = from(0x05);
+    public static final BasicTypeCode BT_ERROR = from(0x06);
+    public static final BasicTypeCode BT_TYPEDESC = from(0x07);
+    public static final BasicTypeCode BT_HANDLE = from(0x08);
+    public static final BasicTypeCode BT_FUNCTION = from(0x09);
 
     // Inherently mutable
-    public static final BasicTypeCode BT_FUTURE = from(0x10);
-    public static final BasicTypeCode BT_STREAM = from(0x11);
+    public static final BasicTypeCode BT_FUTURE = from(0x0A);
+    public static final BasicTypeCode BT_STREAM = from(0x0B);
 
     // Selectively immutable
-    public static final BasicTypeCode UT_LIST_RO = from(0x02);
-    public static final BasicTypeCode UT_MAPPING_RO = from(0x03);
-    public static final BasicTypeCode UT_TABLE_RO = from(0x04);
-    public static final BasicTypeCode UT_XML_RO = from(0x05);
-    public static final BasicTypeCode UT_OBJECT_RO = from(0x06);
+    public static final BasicTypeCode BT_LIST = from(0x0C);
+    public static final BasicTypeCode BT_MAPPING = from(0x0D);
+    public static final BasicTypeCode BT_TABLE = from(0x0E);
+    public static final BasicTypeCode BT_XML = from(0x0F);
+    public static final BasicTypeCode BT_OBJECT = from(0x10);
 
     // Non-val
-    public static final BasicTypeCode BT_CELL = from(0x0F);
-    public static final BasicTypeCode BT_UNDEF = from(0x0F);
-
-    // Selectively immutable; mutable half
-    public static final BasicTypeCode UT_LIST_RW = from(0x12);
-    public static final BasicTypeCode UT_MAPPING_RW = from(0x13);
-    public static final BasicTypeCode UT_TABLE_RW = from(0x14);
-    public static final BasicTypeCode UT_XML_RW = from(0x15);
-    public static final BasicTypeCode UT_OBJECT_RW = from(0x16);
+    public static final BasicTypeCode BT_CELL = from(0x11);
 
     // Helper bit fields (does not represent basic type tag)
-    static final int UT_COUNT = UT_OBJECT_RW.code + 1;
-    static final int UT_MASK = (1 << UT_COUNT) - 1;
+    static final int VT_COUNT = BT_OBJECT.code + 1;
+    static final int VT_MASK = (1 << VT_COUNT) - 1;
 
-    static final int UT_COUNT_RO = 0x10;
-    static final int UT_READONLY = (1 << UT_COUNT_RO) - 1;
+    static final int VT_COUNT_INHERENTLY_IMMUTABLE = 0x0A;
+    static final int VT_INHERENTLY_IMMUTABLE = (1 << VT_COUNT_INHERENTLY_IMMUTABLE) - 1;
 
-    static final int UT_RW_MASK = UT_MASK ^ ~UT_READONLY;
     public final int code;
 
+    // There is an integer for each basic type.
     private BasicTypeCode(int code) {
         this.code = code;
     }

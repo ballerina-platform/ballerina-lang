@@ -17,37 +17,37 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Bdd;
+import io.ballerina.types.Common;
 import io.ballerina.types.Conjunction;
 import io.ballerina.types.Context;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.BasicTypeOps;
+import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.XmlSubtype;
+
+import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_ALL_MASK;
+import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_RO_MASK;
+import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_RO_SINGLETON;
 
 /**
  * Basic subtype ops for xml type.
  *
  * @since 2201.8.0
  */
-public abstract class XmlCommonOps implements BasicTypeOps {
+public class XmlOps implements BasicTypeOps {
 
-    private static final XmlSubtype xmlRoTop = XmlSubtype.from(XmlSubtype.XML_PRIMITIVE_RO_MASK,
-            BddCommonOps.bddAtom(RecAtom.createRecAtom(XmlSubtype.XML_PRIMITIVE_RO_SINGLETON)));
-    private static final XmlSubtype xmlRwTop = XmlSubtype.from(XmlSubtype.XML_PRIMITIVE_RW_MASK,
-            BddCommonOps.bddAtom(RecAtom.createRecAtom(XmlSubtype.XML_PRIMITIVE_SINGLETON)));
+    public static final XmlSubtype XML_SUBTYPE_RO = XmlSubtype.from(XML_PRIMITIVE_RO_MASK,
+            BddCommonOps.bddAtom(RecAtom.createRecAtom(XML_PRIMITIVE_RO_SINGLETON)));
+    public static final XmlSubtype XML_SUBTYPE_TOP = XmlSubtype.from(XML_PRIMITIVE_ALL_MASK, BddAllOrNothing.bddAll());
 
-    public SubtypeData commonUnion(boolean isRo, SubtypeData d1, SubtypeData d2) {
+    @Override
+    public SubtypeData union(SubtypeData d1, SubtypeData d2) {
         XmlSubtype v1 = (XmlSubtype) d1;
         XmlSubtype v2 = (XmlSubtype) d2;
         int primitives = v1.primitives | v2.primitives;
-        return XmlSubtype.createXmlSubtype(isRo, primitives, BddCommonOps.bddUnion(v1.sequence, v2.sequence));
-    }
-
-
-    public SubtypeData commonComplement(boolean isRo, SubtypeData d) {
-        XmlSubtype top = isRo ? xmlRoTop : xmlRwTop;
-        return diff(top, d);
+        return XmlSubtype.createXmlSubtype(primitives, BddCommonOps.bddUnion(v1.sequence, v2.sequence));
     }
 
     @Override
@@ -67,6 +67,11 @@ public abstract class XmlCommonOps implements BasicTypeOps {
     }
 
     @Override
+    public SubtypeData complement(SubtypeData d) {
+        return diff(XML_SUBTYPE_TOP, d);
+    }
+
+    @Override
     public boolean isEmpty(Context cx, SubtypeData t) {
         XmlSubtype sd = (XmlSubtype) t;
         if (sd.primitives != 0) {
@@ -75,19 +80,26 @@ public abstract class XmlCommonOps implements BasicTypeOps {
         return xmlBddEmpty(cx, sd.sequence);
     }
 
-    abstract boolean xmlBddEmpty(Context cx, Bdd sequence);
-
-    public static int collectAllBits(Conjunction con) {
-        int allBits = 0;
-        Conjunction current = con;
-        while (current != null) {
-            allBits |= getIndex(current);
-            current = current.next;
-        }
-        return allBits;
+    boolean xmlBddEmpty(Context cx, Bdd bdd) {
+        return Common.bddEvery(cx, bdd, null, null, XmlOps::xmlFormulaIsEmpty);
     }
 
-    public static boolean hasTotalNegative(int allBits, Conjunction con) {
+    private static boolean xmlFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
+        int allPosBits = collectAllPrimitives(pos) & XmlSubtype.XML_PRIMITIVE_ALL_MASK;
+        return xmlHasTotalNegative(allPosBits, neg);
+    }
+
+    public static int collectAllPrimitives(Conjunction con) {
+        int bits = 0;
+        Conjunction current = con;
+        while (current != null) {
+            bits &= getIndex(current);
+            current = current.next;
+        }
+        return bits;
+    }
+
+    public static boolean xmlHasTotalNegative(int allBits, Conjunction con) {
         if (allBits == 0) {
             return true;
         }

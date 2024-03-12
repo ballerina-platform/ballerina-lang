@@ -17,13 +17,13 @@
  */
 package io.ballerina.types.definition;
 
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.Definition;
 import io.ballerina.types.Env;
 import io.ballerina.types.FunctionAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
-import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.typeops.BddCommonOps;
 
 /**

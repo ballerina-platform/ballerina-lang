@@ -18,6 +18,7 @@
 package io.ballerina.types.typeops;
 
 import io.ballerina.types.Atom;
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.BddMemo;
 import io.ballerina.types.Common;
@@ -38,11 +39,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static io.ballerina.types.Common.bddSubtypeComplement;
+import static io.ballerina.types.Common.bddSubtypeDiff;
+import static io.ballerina.types.Common.bddSubtypeIntersect;
+import static io.ballerina.types.Common.bddSubtypeUnion;
 import static io.ballerina.types.Common.shallowCopyTypes;
-import static io.ballerina.types.Core.diff;
-import static io.ballerina.types.Core.intersect;
-import static io.ballerina.types.Core.isEmpty;
-import static io.ballerina.types.Core.union;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.TOP;
 import static io.ballerina.types.subtypedata.IntSubtype.intSubtypeContains;
@@ -50,11 +51,12 @@ import static io.ballerina.types.typeops.IntOps.intSubtypeMax;
 import static io.ballerina.types.typeops.IntOps.intSubtypeOverlapRange;
 
 /**
- * Operations Common to ListRo and ListRw.
+ * Basic type ops for list type.
  *
  * @since 2201.8.0
  */
-public class ListCommonOps {
+public class ListOps extends CommonOps implements BasicTypeOps {
+
     static boolean listSubtypeIsEmpty(Context cx, SubtypeData t) {
         Bdd b = (Bdd) t;
         BddMemo mm = cx.listMemo.get(b);
@@ -73,7 +75,7 @@ public class ListCommonOps {
                 return res == BddMemo.MemoStatus.TRUE;
             }
         }
-        boolean isEmpty = Common.bddEvery(cx, b, null, null, ListCommonOps::listFormulaIsEmpty);
+        boolean isEmpty = Common.bddEvery(cx, b, null, null, ListOps::listFormulaIsEmpty);
         m.setIsEmpty(isEmpty);
         return isEmpty;
     }
@@ -115,7 +117,7 @@ public class ListCommonOps {
                 return true;
             }
             // Ensure that we can use isNever on rest in listInhabited
-            if (!NEVER.equals(rest) && isEmpty(cx, rest)) {
+            if (!NEVER.equals(rest) && Core.isEmpty(cx, rest)) {
                 rest = NEVER;
             }
         }
@@ -224,7 +226,7 @@ public class ListCommonOps {
         ArrayList<SemType> initial = new ArrayList<>();
         int max = Integer.max(members1.initial.size(), members2.initial.size());
         for (int i = 0; i < max; i++) {
-            initial.add(intersect(listMemberAt(members1, rest1, i), listMemberAt(members2, rest2, i)));
+            initial.add(Core.intersect(listMemberAt(members1, rest1, i), listMemberAt(members2, rest2, i)));
         }
         return TwoTuple.from(FixedLengthArray.from(initial,
                 Integer.max(members1.fixedLength,
@@ -290,7 +292,7 @@ public class ListCommonOps {
             // return !isEmpty(cx, d1) &&  tupleInhabited(cx, [s[0], d1], neg.rest);
             // We can generalize this to tuples of arbitrary length.
             for (int i = 0; i < memberTypes.length; i++) {
-                SemType d = diff(memberTypes[i], listMemberAt(nt.members, nt.rest, indices[i]));
+                SemType d = Core.diff(memberTypes[i], listMemberAt(nt.members, nt.rest, indices[i]));
                 if (!Core.isEmpty(cx, d)) {
                     SemType[] t = memberTypes.clone();
                     t[i] = d;
@@ -328,7 +330,7 @@ public class ListCommonOps {
 
     static boolean fixedArrayAnyEmpty(Context cx, FixedLengthArray array) {
         for (var t : array.initial) {
-            if (isEmpty(cx, t)) {
+            if (Core.isEmpty(cx, t)) {
                 return true;
             }
         }
@@ -357,22 +359,22 @@ public class ListCommonOps {
             if (fixedLen != 0) {
                 for (int i = 0; i < initLen; i++) {
                     if (intSubtypeContains(key, i)) {
-                        m = union(m, fixedArrayGet(fixedArray, i));
+                        m = Core.union(m, fixedArrayGet(fixedArray, i));
                     }
                 }
                 if (intSubtypeOverlapRange((IntSubtype) key, Range.from(initLen, fixedLen - 1))) {
-                    m = union(m, fixedArrayGet(fixedArray, fixedLen - 1));
+                    m = Core.union(m, fixedArrayGet(fixedArray, fixedLen - 1));
                 }
             }
             if (fixedLen == 0 || intSubtypeMax((IntSubtype) key) > fixedLen - 1) {
-                m = union(m, rest);
+                m = Core.union(m, rest);
             }
             return m;
         }
         SemType m = rest;
         if (fixedArray.fixedLength > 0) {
             for (SemType ty : fixedArray.initial) {
-                m = union(m, ty);
+                m = Core.union(m, ty);
             }
         }
         return m;
@@ -383,13 +385,38 @@ public class ListCommonOps {
             return ((BddAllOrNothing) b).isAll() ? accum : NEVER;
         } else {
             BddNode bddNode = (BddNode) b;
-            return union(bddListMemberType(cx,
+            return Core.union(bddListMemberType(cx,
                                            bddNode.left,
                                            key,
-                                           intersect(listAtomicMemberType(cx.listAtomType(bddNode.atom), key), accum)),
-                         union(bddListMemberType(cx, bddNode.middle, key, accum),
+                                           Core.intersect(listAtomicMemberType(cx.listAtomType(bddNode.atom), key),
+                                                   accum)),
+                    Core.union(bddListMemberType(cx, bddNode.middle, key, accum),
                                bddListMemberType(cx, bddNode.right, key, accum)));
         }
     }
 
+    @Override
+    public SubtypeData union(SubtypeData d1, SubtypeData d2) {
+        return bddSubtypeUnion(d1, d2);
+    }
+
+    @Override
+    public SubtypeData intersect(SubtypeData d1, SubtypeData d2) {
+        return bddSubtypeIntersect(d1, d2);
+    }
+
+    @Override
+    public SubtypeData diff(SubtypeData d1, SubtypeData d2) {
+        return bddSubtypeDiff(d1, d2);
+    }
+
+    @Override
+    public SubtypeData complement(SubtypeData d) {
+        return bddSubtypeComplement(d);
+    }
+
+    @Override
+    public boolean isEmpty(Context cx, SubtypeData d) {
+        return listSubtypeIsEmpty(cx, d);
+    }
 }

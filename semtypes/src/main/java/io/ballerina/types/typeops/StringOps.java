@@ -17,13 +17,13 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Common;
 import io.ballerina.types.Context;
 import io.ballerina.types.EnumerableCharString;
 import io.ballerina.types.EnumerableString;
 import io.ballerina.types.EnumerableSubtype;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.CharStringSubtype;
 import io.ballerina.types.subtypedata.NonCharStringSubtype;

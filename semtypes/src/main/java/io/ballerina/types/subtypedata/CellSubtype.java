@@ -17,6 +17,7 @@
  */
 package io.ballerina.types.subtypedata;
 
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.CellAtomicType;
 import io.ballerina.types.CellSemType;
 import io.ballerina.types.ComplexSemType;
@@ -24,7 +25,6 @@ import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.TypeAtom;
-import io.ballerina.types.BasicTypeCode;
 
 import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
 

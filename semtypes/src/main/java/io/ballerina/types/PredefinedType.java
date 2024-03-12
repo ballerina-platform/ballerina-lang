@@ -46,30 +46,26 @@ public class PredefinedType {
     public static final BasicTypeBitSet DECIMAL = basicType(BasicTypeCode.BT_DECIMAL);
     public static final BasicTypeBitSet STRING = basicType(BasicTypeCode.BT_STRING);
     public static final BasicTypeBitSet ERROR = basicType(BasicTypeCode.BT_ERROR);
-    public static final BasicTypeBitSet LIST_RW = basicType(BasicTypeCode.UT_LIST_RW);
-    public static final BasicTypeBitSet LIST =
-            basicTypeUnion((1 << BasicTypeCode.UT_LIST_RO.code) | (1 << BasicTypeCode.UT_LIST_RW.code));
-    public static final BasicTypeBitSet MAPPING_RW = basicType(BasicTypeCode.UT_MAPPING_RW);
-    public static final BasicTypeBitSet MAPPING =
-            basicTypeUnion((1 << BasicTypeCode.UT_MAPPING_RO.code) | (1 << BasicTypeCode.UT_MAPPING_RW.code));
+    public static final BasicTypeBitSet LIST = basicType(BasicTypeCode.BT_LIST);
+    public static final BasicTypeBitSet MAPPING = basicType(BasicTypeCode.BT_MAPPING);
+    public static final BasicTypeBitSet TABLE = basicType(BasicTypeCode.BT_TABLE);
+    public static final BasicTypeBitSet CELL = basicType(BasicTypeCode.BT_CELL);
 
     // matches all functions
     public static final BasicTypeBitSet FUNCTION = basicType(BasicTypeCode.BT_FUNCTION);
     public static final BasicTypeBitSet TYPEDESC = basicType(BasicTypeCode.BT_TYPEDESC);
     public static final BasicTypeBitSet HANDLE = basicType(BasicTypeCode.BT_HANDLE);
 
-    public static final BasicTypeBitSet XML =
-            basicTypeUnion((1 << BasicTypeCode.UT_XML_RO.code) | (1 << BasicTypeCode.UT_XML_RW.code));
+    public static final BasicTypeBitSet XML = basicType(BasicTypeCode.BT_XML);
+    public static final BasicTypeBitSet OBJECT = basicType(BasicTypeCode.BT_OBJECT);
     public static final BasicTypeBitSet STREAM = basicType(BasicTypeCode.BT_STREAM);
     public static final BasicTypeBitSet FUTURE = basicType(BasicTypeCode.BT_FUTURE);
 
-    public static final BasicTypeBitSet CELL = basicType(BasicTypeCode.BT_CELL);
-
     // this is SubtypeData|error
-    public static final BasicTypeBitSet TOP = basicTypeUnion(BasicTypeCode.UT_MASK);
+    public final BasicTypeBitSet VAL = basicTypeUnion(BasicTypeCode.VT_MASK);
+    public static final BasicTypeBitSet TOP = basicTypeUnion(BasicTypeCode.VT_MASK);
     public static final BasicTypeBitSet ANY =
-            basicTypeUnion(BasicTypeCode.UT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code));
-    public static final BasicTypeBitSet READONLY = basicTypeUnion(BasicTypeCode.UT_READONLY);
+            basicTypeUnion(BasicTypeCode.VT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code));
     public static final BasicTypeBitSet SIMPLE_OR_STRING =
             basicTypeUnion((1 << BasicTypeCode.BT_NIL.code)
                     | (1 << BasicTypeCode.BT_BOOLEAN.code)
@@ -94,7 +90,7 @@ public class PredefinedType {
     }
 
     // Union of complete basic types
-    // bits is bit vecor indexed by BasicTypeCode
+    // bits is bit vector indexed by BasicTypeCode
     // I would like to make the arg int:Unsigned32
     // but are language/impl bugs that make this not work well
     static BasicTypeBitSet basicTypeUnion(int bitset) {
@@ -105,7 +101,7 @@ public class PredefinedType {
         return BasicTypeBitSet.from(1 << code.code);
     }
 
-    public static SemType basicSubtype(BasicTypeCode code, ProperSubtypeData data) {
+    public static ComplexSemType basicSubtype(BasicTypeCode code, ProperSubtypeData data) {
         return ComplexSemType.createComplexSemType(0, BasicSubtype.from(code, data));
     }
 
@@ -147,7 +143,7 @@ public class PredefinedType {
         if ((ut.bitset & HANDLE.bitset) != 0) {
             sb.add("handle");
         }
-        if ((ut.bitset & BasicTypeCode.UT_READONLY) != 0) {
+        if ((ut.bitset & BasicTypeCode.VT_INHERENTLY_IMMUTABLE) != 0) { // TODO: fix when porting readonly
             sb.add("readonly");
         }
         if ((ut.bitset & MAPPING.bitset) != 0) {

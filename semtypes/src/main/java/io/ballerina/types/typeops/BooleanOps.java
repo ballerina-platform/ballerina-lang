@@ -17,10 +17,10 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Common;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 
