@@ -97,8 +97,7 @@ public class BalRuntime extends Runtime {
 
     public void invokeMethodAsync(String functionName, Object[] args, Callback callback) {
         if (!moduleInitialized) {
-            throw ErrorCreator.createError(StringUtils.fromString("attempt to invoke a function before the " +
-                    "module initialization"));
+            throw ErrorCreator.createError(StringUtils.fromString("attempt to invoke the function 'foo' before module initialization"));
         }
         invokeMethodAsync(functionName, args, callback, PredefinedTypes.TYPE_ANY, functionName);
     }

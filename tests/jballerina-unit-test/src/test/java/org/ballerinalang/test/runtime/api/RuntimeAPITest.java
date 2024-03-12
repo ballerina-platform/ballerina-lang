@@ -18,11 +18,8 @@
 package org.ballerinalang.test.runtime.api;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -97,25 +94,5 @@ public class RuntimeAPITest {
         } catch (InterruptedException e) {
             throw new RuntimeException("Error while invoking function 'main'", e);
         }
-    }
-
-    @Test
-    public void testSimpleBalFunctionInvocation() {
-        final Object[] output = new Object[1];
-        BCompileUtil.compile("test-src/runtime/api/function_invocation");
-        Runtime balRuntime = Runtime.from(new Module("testorg", "function_invocation", "0"));
-        balRuntime.invokeMethodAsync("calculate", new Object[]{5L, 7L, StringUtils.fromString("mul")},
-                new Callback() {
-                    @Override
-                    public void notifySuccess(Object result) {
-                        output[0] = result;
-                    }
-
-                    @Override
-                    public void notifyFailure(BError error) {
-                        output[0] = error;
-                    }
-                });
-        Assert.assertEquals(output[0], 35L);
     }
 }

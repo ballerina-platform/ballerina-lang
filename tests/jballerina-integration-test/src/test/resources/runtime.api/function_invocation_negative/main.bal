@@ -14,16 +14,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function calculate(int a, int b, string operation) returns int {
-    int result = 0;
-    if (operation == "add") {
-        result = a + b;
-    } else if (operation == "sub") {
-        result = a - b;
-    } else if (operation == "mul") {
-        result = a * b;
-    } else if (operation == "div") {
-        result = a / b;
-    }
-    return result;
-}
+public function foo() {}

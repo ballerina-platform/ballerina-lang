@@ -50,9 +50,13 @@ public class RuntimeAPITest extends BaseTest {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
-        Path sourceRoot = Paths.get(testFileLocation, "function_invocation").toAbsolutePath();
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
+        Path sourceRoot = Paths.get(testFileLocation, "function_invocation").toAbsolutePath();
+        bMainInstance.runMain("build", new String[0], envProperties, new String[0], null,
+                sourceRoot.toString());
+
+        sourceRoot = Paths.get(testFileLocation, "function_invocation_negative").toAbsolutePath();
         bMainInstance.runMain("build", new String[0], envProperties, new String[0], null,
                 sourceRoot.toString());
     }
@@ -61,9 +65,9 @@ public class RuntimeAPITest extends BaseTest {
     public void testRuntimeAPIsForBalFunctionInvocation() throws BallerinaTestException {
         Path jarPath = Paths.get(testFileLocation, "function_invocation", "target", "bin",
                 "function_invocation.jar").toAbsolutePath();
-        compileJavaSource(jarPath);
-        unzipJarFile(jarPath);
-        createExecutableJar();
+        compileJavaSource(jarPath, "RuntimeAPICall.java", "targetDir");
+        unzipJarFile(jarPath, "targetDir");
+        createExecutableJar("targetDir", "org.ballerinalang.test.runtime.api.RuntimeAPICall");
 
         // Run the executable jar and assert the output
         Path execJarPath = Paths.get(javaSrcLocation.toString(), "targetDir", "test-exec.jar").toAbsolutePath();
@@ -95,20 +99,59 @@ public class RuntimeAPITest extends BaseTest {
         }
     }
 
+    @Test
+    public void testBalFunctionInvocationAPINegative() throws BallerinaTestException {
+        Path jarPath = Paths.get(testFileLocation, "function_invocation_negative", "target", "bin",
+                "function_invocation_negative.jar").toAbsolutePath();
+        compileJavaSource(jarPath, "RuntimeAPICallNegative.java", "target-dir-negative");
+        unzipJarFile(jarPath, "target-dir-negative");
+        createExecutableJar("target-dir-negative", "org.ballerinalang.test.runtime.api.RuntimeAPICallNegative");
+
+        // Run the executable jar and assert the output
+        Path execJarPath = Paths.get(javaSrcLocation.toString(), "target-dir-negative",
+                "test-exec.jar").toAbsolutePath();
+        List<String> runCmdSet = new ArrayList<>();
+        runCmdSet.add("java");
+        runCmdSet.add("-jar");
+        runCmdSet.add(execJarPath.toString());
+        ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
+        runProcessBuilder.redirectErrorStream(true);
+        Map<String, String> envProperties = new HashMap<>();
+        bMainInstance.addJavaAgents(envProperties);
+        Map<String, String> env = runProcessBuilder.environment();
+        env.putAll(envProperties);
+        try {
+            Process runProcess = runProcessBuilder.start();
+            ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
+            List<LogLeecher> leechers = new ArrayList<>();
+            leechers.add(new LogLeecher("attempt to invoke the function 'foo' before " +
+                    "module initialization", LogLeecher.LeecherType.ERROR));
+            addToServerInfoLogReader(serverInfoLogReader, leechers);
+            serverInfoLogReader.start();
+            bMainInstance.waitForLeechers(leechers, 5000);
+            runProcess.waitFor();
+            serverInfoLogReader.stop();
+            serverInfoLogReader.removeAllLeechers();
+        } catch (IOException | InterruptedException e) {
+            throw new BallerinaTestException("Error occurred while running the java file");
+        }
+    }
+
     @AfterClass
     public void tearDown() {
         bMainInstance = null;
         BFileUtil.deleteDirectory(Paths.get(javaSrcLocation.toString(), "targetDir").toFile());
+        BFileUtil.deleteDirectory(Paths.get(javaSrcLocation.toString(), "target-dir-negative").toFile());
     }
 
-    private static void compileJavaSource(Path jarPath) throws BallerinaTestException {
+    private static void compileJavaSource(Path jarPath, String srcFile, String targetDir) throws BallerinaTestException {
         List<String> compileCmdSet = new ArrayList<>();
         compileCmdSet.add("javac");
         compileCmdSet.add("-cp");
         compileCmdSet.add(jarPath.toString());
         compileCmdSet.add("-d");
-        compileCmdSet.add("targetDir");
-        compileCmdSet.add(Paths.get(javaSrcLocation.toString(), "RuntimeAPICall.java").toString());
+        compileCmdSet.add(targetDir);
+        compileCmdSet.add(Paths.get(javaSrcLocation.toString(), srcFile).toString());
         ProcessBuilder compile = new ProcessBuilder(compileCmdSet).directory(javaSrcLocation.toFile());
         try {
             Process process = compile.start();
@@ -118,13 +161,13 @@ public class RuntimeAPITest extends BaseTest {
         }
     }
 
-    private static void unzipJarFile(Path jarPath) throws BallerinaTestException {
+    private static void unzipJarFile(Path jarPath, String targetDir) throws BallerinaTestException {
         List<String> unzipProcessCmdSet = new ArrayList<>();
         unzipProcessCmdSet.add("unzip");
         unzipProcessCmdSet.add("-qq");
         unzipProcessCmdSet.add(jarPath.toString());
         unzipProcessCmdSet.add("-d");
-        unzipProcessCmdSet.add("targetDir");
+        unzipProcessCmdSet.add(targetDir);
         ProcessBuilder unzipProcess = new ProcessBuilder(unzipProcessCmdSet).directory(javaSrcLocation.toFile());
         unzipProcess.redirectErrorStream(true);
         try {
@@ -135,15 +178,15 @@ public class RuntimeAPITest extends BaseTest {
         }
     }
 
-    private static void createExecutableJar() throws BallerinaTestException {
+    private static void createExecutableJar(String targetDir, String mainClass) throws BallerinaTestException {
         List<String> jarCmdSet = new ArrayList<>();
         jarCmdSet.add("jar");
         jarCmdSet.add("-cfe");
         jarCmdSet.add("test-exec.jar");
-        jarCmdSet.add("org.ballerinalang.test.runtime.api.RuntimeAPICall");
+        jarCmdSet.add(mainClass);
         jarCmdSet.add(".");
-        Path targetDir = Paths.get(javaSrcLocation.toString(), "targetDir").toAbsolutePath();
-        ProcessBuilder jarProcess = new ProcessBuilder(jarCmdSet).inheritIO().directory(targetDir.toFile());
+        Path targetPath = Paths.get(javaSrcLocation.toString(), targetDir).toAbsolutePath();
+        ProcessBuilder jarProcess = new ProcessBuilder(jarCmdSet).inheritIO().directory(targetPath.toFile());
         try {
             Process process = jarProcess.start();
             process.waitFor();
