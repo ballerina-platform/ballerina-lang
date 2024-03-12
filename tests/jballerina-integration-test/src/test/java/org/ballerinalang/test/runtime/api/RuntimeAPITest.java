@@ -73,13 +73,12 @@ public class RuntimeAPITest extends BaseTest {
         Path execJarPath = Paths.get(javaSrcLocation.toString(), "targetDir", "test-exec.jar").toAbsolutePath();
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
+        runCmdSet.add("-javaagent:" + Paths.get(balServer.getServerHome()).resolve("bre").resolve("lib")
+                .resolve("jacocoagent.jar") + "=destfile=" + Paths.get(System.getProperty("user.dir"))
+                .resolve("build").resolve("jacoco").resolve("test.exec"));
         runCmdSet.add("-jar");
         runCmdSet.add(execJarPath.toString());
         ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
-        Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
-        Map<String, String> env = runProcessBuilder.environment();
-        env.putAll(envProperties);
         try {
             Process runProcess = runProcessBuilder.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
@@ -113,14 +112,13 @@ public class RuntimeAPITest extends BaseTest {
                 "test-exec.jar").toAbsolutePath();
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
+        runCmdSet.add("-javaagent:" + Paths.get(balServer.getServerHome()).resolve("bre").resolve("lib")
+                .resolve("jacocoagent.jar") + "=destfile=" + Paths.get(System.getProperty("user.dir"))
+                .resolve("build").resolve("jacoco").resolve("test.exec"));
         runCmdSet.add("-jar");
         runCmdSet.add(execJarPath.toString());
         ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
         runProcessBuilder.redirectErrorStream(true);
-        Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
-        Map<String, String> env = runProcessBuilder.environment();
-        env.putAll(envProperties);
         try {
             Process runProcess = runProcessBuilder.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
