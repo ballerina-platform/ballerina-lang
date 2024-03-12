@@ -92,6 +92,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<TransactionDesugar> TRANSACTION_DESUGAR_KEY = new CompilerContext.Key<>();
     private static final String SHOULD_CLEANUP_SYMBOL = "$shouldCleanUp$";
+    public static final String STARTUP_RECOVERY_SYMBOL = "$startupRecovery$";
     private final Desugar desugar;
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
@@ -366,10 +367,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
     private BLangSimpleVariableDef createVarDefForStartupRecovery(SymbolEnv env, Location pos) {
         BLangExpression invocation = createStartupCrashRecoveryStmt(pos);
-        BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$startupRecoveryErr$"),
+        BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name(STARTUP_RECOVERY_SYMBOL),
                 env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner, pos, VIRTUAL);
         BLangSimpleVariable outputVariable =
-                ASTBuilderUtil.createVariable(pos, "$startupRecoveryErr$", symTable.errorOrNilType,
+                ASTBuilderUtil.createVariable(pos, STARTUP_RECOVERY_SYMBOL, symTable.errorOrNilType,
                         invocation, outputVarSymbol);
         return ASTBuilderUtil.createVariableDef(pos, outputVariable);
     }
