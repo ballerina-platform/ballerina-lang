@@ -35,8 +35,8 @@ public class StringSubType implements SubType {
         this.data = data;
     }
 
-    static StringSubType createStringSubTypeData(boolean charsAllowed, String[] chars, boolean nonCharsAllowed,
-                                          String[] nonChars) {
+    static StringSubType createStringSubType(boolean charsAllowed, String[] chars, boolean nonCharsAllowed,
+                                             String[] nonChars) {
         if (chars.length == 0 && nonChars.length == 0) {
             if (!charsAllowed && !nonCharsAllowed) {
                 return ALL;
@@ -105,6 +105,7 @@ public class StringSubType implements SubType {
     @Override
     public SubType union(SubType otherSubType) {
         StringSubType other = (StringSubType) otherSubType;
+        // TODO: refactor
         if (this.data instanceof AllOrNothing || other.data instanceof AllOrNothing) {
             if (this.data == AllOrNothing.ALL) {
                 return this;
@@ -123,7 +124,7 @@ public class StringSubType implements SubType {
         boolean charsAllowed = data.chars.union(otherData.chars, chars);
         List<String> nonChars = new ArrayList<>();
         boolean nonCharsAllowed = data.nonChars.union(otherData.nonChars, nonChars);
-        return createStringSubTypeData(charsAllowed, chars.toArray(new String[0]), nonCharsAllowed,
+        return createStringSubType(charsAllowed, chars.toArray(new String[0]), nonCharsAllowed,
                 nonChars.toArray(new String[0]));
     }
 
@@ -149,7 +150,7 @@ public class StringSubType implements SubType {
         boolean charsAllowed = data.chars.intersect(otherData.chars, chars);
         List<String> nonChars = new ArrayList<>();
         boolean nonCharsAllowed = data.nonChars.intersect(otherData.nonChars, nonChars);
-        return createStringSubTypeData(charsAllowed, chars.toArray(new String[0]), nonCharsAllowed,
+        return createStringSubType(charsAllowed, chars.toArray(new String[0]), nonCharsAllowed,
                 nonChars.toArray(new String[0]));
     }
 
@@ -165,7 +166,7 @@ public class StringSubType implements SubType {
         StringSubTypeData stringData = (StringSubTypeData) data;
         ValueData chars = stringData.chars;
         ValueData nonChars = stringData.nonChars;
-        return createStringSubTypeData(!chars.allowed, chars.values, !nonChars.allowed, nonChars.values);
+        return createStringSubType(!chars.allowed, chars.values, !nonChars.allowed, nonChars.values);
     }
 
     @Override
@@ -184,6 +185,7 @@ public class StringSubType implements SubType {
 
         public ValueData(boolean allowed, String[] values) {
             this.allowed = allowed;
+            // FIXME: sort values
             this.values = values;
         }
 

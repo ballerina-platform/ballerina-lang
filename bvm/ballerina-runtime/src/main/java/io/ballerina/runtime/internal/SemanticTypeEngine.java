@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
@@ -32,6 +33,7 @@ import io.ballerina.runtime.internal.types.semType.BSubType;
 import io.ballerina.runtime.internal.types.semType.Core;
 import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -47,6 +49,7 @@ import static io.ballerina.runtime.api.TypeBuilder.wrap;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
@@ -159,6 +162,9 @@ class SemanticTypeEngine {
             } else {
                 return SemTypeUtils.SemTypeBuilder.stringSubType(stringValue);
             }
+        } else if (value instanceof BDecimal decimal) {
+            BigDecimal valueBigDecimal = decimal.value();
+            return SemTypeUtils.SemTypeBuilder.decimalSubType(valueBigDecimal);
         } else if (value instanceof Boolean booleanValue) {
             return booleanSubType(booleanValue);
         } else if (value instanceof BObject) {
@@ -418,6 +424,12 @@ class SemanticTypeEngine {
         if (isSubTypeSimple(semType, UT_STRING)) {
             // TODO: this is wrong since we may have an string union here
             if (semType.all.get(UT_STRING)) {
+                return Optional.of(true);
+            }
+            return Optional.of(semType.getZeroValue() != null);
+        }
+        if (isSubTypeSimple(semType, UT_DECIMAL)) {
+            if (semType.all.get(UT_DECIMAL)) {
                 return Optional.of(true);
             }
             return Optional.of(semType.getZeroValue() != null);

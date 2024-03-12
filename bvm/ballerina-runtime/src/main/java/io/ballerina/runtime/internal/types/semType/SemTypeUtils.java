@@ -29,7 +29,9 @@ import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BReadonlyType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.values.DecimalValue;
 
+import java.math.BigDecimal;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,6 +42,7 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.TypeOpera
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.N_TYPES;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
 
@@ -52,18 +55,19 @@ public final class SemTypeUtils {
         public final static int UT_NIL = 0x01;
         public final static int UT_BOOLEAN = 0x02;
         public final static int UT_STRING = 0x03;
-        public final static int UT_BTYPE = 0x04;
+        public final static int UT_DECIMAL = 0x04;
+        public final static int UT_BTYPE = 0x05;
 
-        public final static int N_TYPES = 5;
+        public final static int N_TYPES = 6;
     }
 
     public static final class SemTypeBuilder {
 
-        public static final BSemType ALL_SEMTYPES = from(UT_NIL | UT_BOOLEAN | UT_STRING);
+        public static final BSemType ALL_SEMTYPES = from(UT_NIL | UT_BOOLEAN | UT_STRING | UT_DECIMAL);
         public static final BSemType ALL_BTYPE = from(UT_BTYPE);
 
         public static BSemType from(int uniformTypeCode) {
-            if (uniformTypeCode < 0 || uniformTypeCode >= N_TYPES) {
+            if (uniformTypeCode < 0) {
                 throw new IllegalStateException("Invalid uniform type code");
             }
             BitSet all = new BitSet(N_TYPES);
@@ -91,7 +95,7 @@ public final class SemTypeUtils {
             SubType[] subTypeData = new SubType[N_TYPES];
             some.set(UT_STRING);
             subTypeData[UT_STRING] =
-                    StringSubType.createStringSubTypeData(charsAllowed, chars, nonCharsAllowed, nonChars);
+                    StringSubType.createStringSubType(charsAllowed, chars, nonCharsAllowed, nonChars);
             return new BSemType(all, some, subTypeData);
         }
 
@@ -101,6 +105,15 @@ public final class SemTypeUtils {
 
         public static Type charSubType(String value) {
             return stringSubType(true, new String[]{value}, true, new String[0]);
+        }
+
+        public static Type decimalSubType(BigDecimal value) {
+            BitSet all = new BitSet(N_TYPES);
+            BitSet some = new BitSet(N_TYPES);
+            SubType[] subTypeData = new SubType[N_TYPES];
+            some.set(UT_DECIMAL);
+            subTypeData[UT_DECIMAL] = DecimalSubType.createDecimalSubType(true, new BigDecimal[]{value});
+            return new BSemType(all, some, subTypeData);
         }
 
         public static BSemType from(BType bType) {
@@ -123,6 +136,7 @@ public final class SemTypeUtils {
                 all.set(UT_NIL);
                 all.set(UT_BOOLEAN);
                 all.set(UT_STRING);
+                all.set(UT_DECIMAL);
             }
             if (bType instanceof BIntersectionType intersectionType) {
                 // NOTE: we need to take the effective type break up into bType and semtypes (this can be done by converting
@@ -136,15 +150,9 @@ public final class SemTypeUtils {
                 effectiveSemType = TypeOperation.diff(effectiveSemType, ALL_SEMTYPES);
                 effectiveSemType.setIdentifiers(effectiveType.getName(), effectiveType.getPackage());
                 String name = intersectionType.getName();
-//                if (name != null) {
                 bType = new BIntersectionType(name, intersectionType.getPkg(),
                         intersectionType.constituentTypes.toArray(new Type[0]), effectiveSemType,
                         intersectionType.getTypeFlags(), intersectionType.isReadOnly());
-//                } else {
-//                    bType = new BIntersectionType(intersectionType.getPkg(),
-//                            intersectionType.constituentTypes.toArray(new Type[0]), effectiveSemType,
-//                            intersectionType.getTypeFlags(), intersectionType.isReadOnly());
-//                }
             }
             // TODO: this means we always have an extra null at the beginning
             SubType[] subTypeData = new SubType[N_TYPES];
@@ -185,6 +193,7 @@ public final class SemTypeUtils {
             Set<Object> remainingValues = new HashSet<>();
             Set<String> charValues = new HashSet<>();
             Set<String> nonCharValues = new HashSet<>();
+            Set<BigDecimal> decimalValues = new HashSet<>();
             for (Object value : finiteType.valueSpace) {
                 if (value == null) {
                     all.set(UniformTypeCodes.UT_NIL);
@@ -212,6 +221,8 @@ public final class SemTypeUtils {
                     } else {
                         charValues.add(stringValue);
                     }
+                } else if (value instanceof DecimalValue decimal) {
+                    decimalValues.add(decimal.decimalValue());
                 } else {
                     remainingValues.add(value);
                 }
@@ -224,8 +235,13 @@ public final class SemTypeUtils {
             if (!nonCharValues.isEmpty() || !charValues.isEmpty()) {
                 some.set(UT_STRING);
                 subTypeData[UT_STRING] =
-                        StringSubType.createStringSubTypeData(true, charValues.toArray(new String[0]), true,
+                        StringSubType.createStringSubType(true, charValues.toArray(new String[0]), true,
                                 nonCharValues.toArray(new String[0]));
+            }
+            if (!decimalValues.isEmpty()) {
+                some.set(UT_DECIMAL);
+                subTypeData[UT_DECIMAL] =
+                        DecimalSubType.createDecimalSubType(true, decimalValues.toArray(new BigDecimal[0]));
             }
             return new BSemType(all, some, subTypeData);
         }

@@ -30,7 +30,9 @@ import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.values.DecimalValue;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
@@ -38,6 +40,7 @@ import java.util.List;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.N_TYPES;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
 
@@ -107,6 +110,13 @@ public class BSemType implements Type {
                 StringSubType stringSubType = (StringSubType) subTypeData[UT_STRING];
                 return (V) StringUtils.fromString(stringSubType.defaultValue());
             }
+        } else if (isUniformType(UT_DECIMAL)) {
+            if (all.get(UT_DECIMAL)) {
+                return (V) new DecimalValue(BigDecimal.ZERO);
+            } else {
+                DecimalSubType decimalSubType = (DecimalSubType) subTypeData[UT_DECIMAL];
+                return (V) new DecimalValue(decimalSubType.defaultValue());
+            }
         }
         return null;
     }
@@ -124,6 +134,13 @@ public class BSemType implements Type {
             } else {
                 StringSubType stringSubType = (StringSubType) subTypeData[UT_STRING];
                 return (V) StringUtils.fromString(stringSubType.defaultValue());
+            }
+        } else if (isUniformType(UT_DECIMAL)) {
+            if (all.get(UT_DECIMAL)) {
+                return (V) new DecimalValue(BigDecimal.ZERO);
+            } else {
+                DecimalSubType decimalSubType = (DecimalSubType) subTypeData[UT_DECIMAL];
+                return (V) new DecimalValue(decimalSubType.defaultValue());
             }
         }
         return null;
@@ -194,6 +211,8 @@ public class BSemType implements Type {
                 }
             }
             return TypeTags.STRING_TAG;
+        } else if (isUniformType(UT_DECIMAL)) {
+            return TypeTags.DECIMAL_TAG;
         }
         throw new IllegalStateException("Unable to calculate tag for the given SemType: " + this);
     }
@@ -216,6 +235,9 @@ public class BSemType implements Type {
                 }
                 if (all.get(UT_STRING)) {
                     return "string";
+                }
+                if (all.get(UT_DECIMAL)) {
+                    return "decimal";
                 }
             }
             return "";
@@ -333,6 +355,9 @@ public class BSemType implements Type {
                 // Return '' if subtype is nothing?
                 return "string";
             }
+            if (some.get(UT_DECIMAL) || all.get(UT_DECIMAL)) {
+                return "decimal";
+            }
             if (all.get(UT_NIL)) {
                 return "()";
             }
@@ -360,6 +385,7 @@ public class BSemType implements Type {
                 switch (i) {
                     case UT_BOOLEAN -> sb.append(booleanPartToString());
                     case UT_STRING -> sb.append("\"").append(stringPartToString()).append("\"");
+                    case UT_DECIMAL -> sb.append(decimalPartToString());
                     case UT_BTYPE -> {
                         String result = getBTypePart().toString();
                         if (result.contains("readonly")) {
@@ -376,12 +402,19 @@ public class BSemType implements Type {
         return "(" + sb + ")";
     }
 
+    private String decimalPartToString() {
+        if (all.get(UT_DECIMAL)) {
+            return "decimal";
+        } else {
+            return subTypeData[UT_DECIMAL].toString();
+        }
+    }
+
     private String booleanPartToString() {
         if (all.get(UT_BOOLEAN)) {
             return "boolean";
         } else {
-            BooleanSubType booleanSubType = (BooleanSubType) subTypeData[UT_BOOLEAN];
-            return booleanSubType.toString();
+            return subTypeData[UT_BOOLEAN].toString();
         }
     }
 
@@ -389,8 +422,7 @@ public class BSemType implements Type {
         if (all.get(UT_STRING)) {
             return "string";
         } else {
-            StringSubType stringSubType = (StringSubType) subTypeData[UT_STRING];
-            return stringSubType.toString();
+            return subTypeData[UT_STRING].toString();
         }
     }
 
@@ -420,6 +452,10 @@ public class BSemType implements Type {
     }
 
     public void addCyclicMembers(List<Type> members) {
+        if (!some.get(UT_BTYPE)) {
+            some.set(UT_BTYPE);
+            subTypeData[UT_BTYPE] = new BSubType(List.of());
+        }
         BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[UT_BTYPE];
         if (!(bTypeComponent instanceof BUnionType) && bTypeComponent instanceof BType singleType) {
             BSubType newBTypeComponent = new BSubType(List.of(singleType));

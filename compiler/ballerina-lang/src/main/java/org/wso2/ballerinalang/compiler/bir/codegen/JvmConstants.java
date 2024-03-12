@@ -153,7 +153,6 @@ public class JvmConstants {
     public static final String INTEGER_TYPE = "io/ballerina/runtime/api/types/IntegerType";
     public static final String BYTE_TYPE = "io/ballerina/runtime/api/types/ByteType";
     public static final String FLOAT_TYPE = "io/ballerina/runtime/api/types/FloatType";
-    public static final String DECIMAL_TYPE = "io/ballerina/runtime/api/types/DecimalType";
     public static final String READONLY_TYPE = "io/ballerina/runtime/api/types/ReadonlyType";
     public static final String ANY_TYPE = "io/ballerina/runtime/api/types/AnyType";
     public static final String ANYDATA_TYPE = "io/ballerina/runtime/api/types/AnydataType";
