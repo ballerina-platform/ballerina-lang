@@ -52,7 +52,7 @@ public class RunProfilerTask implements Task {
     private final PrintStream err;
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private static final String CURRENT_DIR_KEY = "current.dir";
-    private final Path targetOutputPath = Paths.get(System.getProperty(USER_DIR));
+    private static final Path TARGET_OUTPUT_PATH = Paths.get(System.getProperty(USER_DIR));
 
     public RunProfilerTask(PrintStream errStream) {
         this.err = errStream;
@@ -111,7 +111,7 @@ public class RunProfilerTask implements Task {
     private String getAgentArgs() {
         // add jacoco agent
         String jacocoArgLine = "-javaagent:" + Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
-                "jacocoagent.jar") + "=destfile=" + targetOutputPath.resolve("build").resolve("jacoco")
+                "jacocoagent.jar") + "=destfile=" + TARGET_OUTPUT_PATH.resolve("build").resolve("jacoco")
                 .resolve("test.exec");
         return jacocoArgLine + " ";
     }
@@ -131,14 +131,14 @@ public class RunProfilerTask implements Task {
 
     private Path getTargetPath(Project project) {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            return targetOutputPath;
+            return TARGET_OUTPUT_PATH;
         }
         return project.targetDir();
     }
 
     private String getTargetFilePath(Project project) {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            return Path.of(targetOutputPath.resolve(getFileNameWithoutExtension(project.sourceRoot()) +
+            return Path.of(TARGET_OUTPUT_PATH.resolve(getFileNameWithoutExtension(project.sourceRoot()) +
                     BLANG_COMPILED_JAR_EXT).toUri()).toString();
         }
         return Path.of(project.targetDir().resolve("bin").resolve(project.currentPackage().packageName() +
