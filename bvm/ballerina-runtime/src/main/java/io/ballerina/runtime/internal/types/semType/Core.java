@@ -31,6 +31,49 @@ public class Core {
         return new BSemType(all, new BitSet(N_TYPES), new SubType[N_TYPES]);
     }
 
+    public static BSemType intersect(BSemType t1, BSemType t2) {
+        // all = all1 & all2
+        BitSet all = new BitSet(N_TYPES);
+        all.or(t1.all);
+        all.and(t2.all);
+
+        // some = (some1 | all1) & (some2 | all2) & ~all
+        BitSet t1Some = new BitSet(N_TYPES);
+        t1Some.or(t1.some);
+        t1Some.or(t1.all);
+
+        BitSet t2Some = new BitSet(N_TYPES);
+        t2Some.or(t2.some);
+        t2Some.or(t2.all);
+
+        BitSet some = new BitSet(N_TYPES);
+        some.or(t1Some);
+        some.and(t2Some);
+        some.andNot(all);
+
+        if (some.isEmpty()) {
+            return basicTypeUnion(all);
+        }
+        SubType[] subTypes = new SubType[N_TYPES];
+        for (int i = 0; i < UT_BTYPE; i++) {
+            if (!t1.some.get(i) && !t2.some.get(i)) {
+                continue;
+            }
+            SubType data;
+            if (t1.some.get(i) && t2.some.get(i)) {
+                data = t1.subTypeData[i].intersect(t2.subTypeData[i]);
+            } else if (!t1.some.get(i)) {
+                data = t2.subTypeData[i];
+            } else {
+                data = t1.subTypeData[i];
+            }
+            if (!data.isEmpty()) {
+                subTypes[i] = data;
+            }
+        }
+        return new BSemType(all, some, subTypes);
+    }
+
     public static BSemType diff(BSemType t1, BSemType t2) {
         // all = all1 & ~(all2 | some2)
         BitSet rhs = new BitSet(N_TYPES);

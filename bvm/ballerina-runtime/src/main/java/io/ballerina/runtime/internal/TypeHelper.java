@@ -62,6 +62,7 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTy
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_FLOAT;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_INT;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
@@ -247,6 +248,7 @@ public class TypeHelper {
             case UT_STRING -> PredefinedTypes.TYPE_STRING;
             case UT_DECIMAL -> PredefinedTypes.TYPE_DECIMAL;
             case UT_FLOAT -> PredefinedTypes.TYPE_FLOAT;
+            case UT_INT -> PredefinedTypes.TYPE_INT;
             default -> throw new UnsupportedOperationException("uniform type not supported for type code: " + typeCode);
         };
     }
@@ -264,6 +266,9 @@ public class TypeHelper {
     // TODO: ideally if we should always use proper TypeChecks to check if two types are equal
     @Deprecated
     public static boolean typeEqual(Type sourceType, Type targetType) {
+        if (sourceType == targetType) {
+            return true;
+        }
         Type sourceUnwrapped = unwrap(sourceType);
         Type targetUnwrapped = unwrap(targetType);
         return sourceUnwrapped.equals(targetUnwrapped);
@@ -281,21 +286,24 @@ public class TypeHelper {
                 remainingMembers = new LinkedList<>(unionType.getMemberTypes());
             } else if (type instanceof BSemType semType) {
                 remainingMembers = new LinkedList<>();
-                // TODO: factor a simple type code and Type array for all implemnted semtypes
+                // TODO: factor a simple type code and Type array for all implemented semtypes
                 if (Core.containsSimple(semType, UT_NIL)) {
                     remainingMembers.add(PredefinedTypes.TYPE_NULL);
                 }
                 if (Core.containsSimple(semType, UT_BOOLEAN)) {
-                    remainingMembers.add(PredefinedTypes.TYPE_BOOLEAN);
+                    remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_BOOLEAN));
                 }
                 if (Core.containsSimple(semType, UT_STRING)) {
-                    remainingMembers.add(PredefinedTypes.TYPE_STRING);
+                    remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_STRING));
                 }
                 if (Core.containsSimple(semType, UT_DECIMAL)) {
-                    remainingMembers.add(PredefinedTypes.TYPE_DECIMAL);
+                    remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_DECIMAL));
                 }
                 if (Core.containsSimple(semType, UT_FLOAT)) {
-                    remainingMembers.add(PredefinedTypes.TYPE_FLOAT);
+                    remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_FLOAT));
+                }
+                if (Core.containsSimple(semType, UT_INT)) {
+                    remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_INT));
                 }
                 if (semType.some.get(UT_BTYPE)) {
                     BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[UT_BTYPE];

@@ -40,8 +40,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BYTE;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.TypeBuilder.booleanSubType;
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
@@ -52,6 +50,7 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTy
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_FLOAT;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_INT;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
@@ -59,11 +58,12 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTy
 // TODO: once we have properly implemented semtypes we can inline this again in to TypeChecker
 class SemanticTypeEngine {
 
-    private static final BitSet NemericTypeMask = new BitSet(N_TYPES);
+    private static final BitSet NumericTypeMask = new BitSet(N_TYPES);
 
     static {
-        NemericTypeMask.set(UT_FLOAT);
-        NemericTypeMask.set(UT_DECIMAL);
+        NumericTypeMask.set(UT_FLOAT);
+        NumericTypeMask.set(UT_DECIMAL);
+        NumericTypeMask.set(UT_INT);
     }
 
     static boolean checkIsType(Object sourceVal, Type targetType) {
@@ -156,14 +156,15 @@ class SemanticTypeEngine {
     static Type getType(Object value) {
         if (value == null) {
             return TYPE_NULL;
-        } else if (value instanceof Number) {
-            if (value instanceof Long) {
-                return TYPE_INT;
-            } else if (value instanceof Double floatVal) {
+        } else if (value instanceof Number number) {
+            if (value instanceof Double floatVal) {
                 return SemTypeUtils.SemTypeBuilder.floatSubType(floatVal);
-            } else if (value instanceof Integer || value instanceof Byte) {
-                return TYPE_BYTE;
             }
+            BSemType intSingletonType = (BSemType) SemTypeUtils.SemTypeBuilder.intSubType(number.longValue());
+            if (value instanceof Byte || value instanceof Integer) {
+                intSingletonType.setByteClass();
+            }
+            return intSingletonType;
         } else if (value instanceof BString bString) {
             String stringValue = bString.getValue();
             if (stringValue.length() == 1) {
@@ -220,12 +221,12 @@ class SemanticTypeEngine {
         BitSet sourceWidenedType = new BitSet(N_TYPES);
         sourceWidenedType.or(sourceType.some);
         sourceWidenedType.or(sourceType.all);
-        sourceWidenedType.and(NemericTypeMask);
+        sourceWidenedType.and(NumericTypeMask);
 
         BitSet targetWidenedType = new BitSet(N_TYPES);
         targetWidenedType.or(targetType.some);
         targetWidenedType.or(targetType.all);
-        targetWidenedType.and(NemericTypeMask);
+        targetWidenedType.and(NumericTypeMask);
 
         // TODO: throw error based on value for int
         return targetWidenedType.cardinality() > 0 && sourceWidenedType.cardinality() > 0;
@@ -336,12 +337,15 @@ class SemanticTypeEngine {
     }
 
     public static boolean isInherentlyImmutableType(Type type) {
-        if (isSimpleBasicType(type)) {
-            return true;
+        BSemType semType = wrap(type);
+        if (semType.some.get(UT_BTYPE)) {
+            return SyntacticTypeEngine.isInherentlyImmutableType(getBTypePart(semType));
         }
-        return !(type instanceof BSemType) && SyntacticTypeEngine.isInherentlyImmutableType(unwrap(type));
+        // SemType parts are currently immutable
+        return true;
     }
 
+    // FIXME:
     protected static boolean isSimpleBasicType(Type type) {
         if (type instanceof BSemType semType) {
             if (semType.some.cardinality() + semType.all.cardinality() == 1) {
@@ -366,10 +370,14 @@ class SemanticTypeEngine {
 
     protected static boolean isNumericType(Type type) {
         BSemType semType = wrap(type);
-        if (!semType.some.get(UT_BTYPE)) {
-            return false;
+        BitSet types = new BitSet(N_TYPES);
+        types.or(semType.some);
+        types.or(semType.all);
+        if (types.cardinality() == 1) {
+            types.and(NumericTypeMask);
+            return types.isEmpty();
         }
-        return SyntacticTypeEngine.isNumericType(getBTypePart(semType));
+        return false;
     }
 
     public static boolean isSelectivelyImmutableType(Type type, Set<Type> unresolvedTypes) {
@@ -465,6 +473,12 @@ class SemanticTypeEngine {
         }
         if (isSubTypeSimple(semType, UT_FLOAT)) {
             if (semType.all.get(UT_FLOAT)) {
+                return Optional.of(true);
+            }
+            return Optional.of(semType.getZeroValue() != null);
+        }
+        if (isSubTypeSimple(semType, UT_INT)) {
+            if (semType.all.get(UT_INT)) {
                 return Optional.of(true);
             }
             return Optional.of(semType.getZeroValue() != null);

@@ -36,12 +36,14 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.N_TYPES;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_FLOAT;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_INT;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
 
@@ -49,6 +51,7 @@ public class BSemType implements Type {
 
     public final BitSet all;
     public final BitSet some;
+    public boolean poisoned = false;
     // TODO: for the time being we are using a sparse array (acutally extra sparse where 0 is alway null), unlike
     // nballerina to make things easier to implement. Consider using a compact array
     public final SubType[] subTypeData;
@@ -117,6 +120,14 @@ public class BSemType implements Type {
             return (V) new DecimalValue(BigDecimal.ZERO);
         } else if (isUniformType(UT_FLOAT)) {
             return (V) new Double(0);
+        } else if (isUniformType(UT_INT)) {
+            if (some.get(UT_INT)) {
+                IntSubType intSubType = (IntSubType) subTypeData[UT_INT];
+                if (intSubType.isByte) {
+                    return (V) new Integer(0);
+                }
+            }
+            return (V) new Long(0);
         }
         return null;
     }
@@ -149,6 +160,14 @@ public class BSemType implements Type {
                 FloatSubType floatSubType = (FloatSubType) subTypeData[UT_FLOAT];
                 return (V) floatSubType.defaultValue();
             }
+        } else if (isUniformType(UT_INT)) {
+            if (some.get(UT_INT)) {
+                IntSubType intSubType = (IntSubType) subTypeData[UT_INT];
+                if (intSubType.isByte) {
+                    return (V) new Integer(0);
+                }
+            }
+            return (V) new Long(0);
         }
         return null;
     }
@@ -222,6 +241,15 @@ public class BSemType implements Type {
             return TypeTags.DECIMAL_TAG;
         } else if (isUniformType(UT_FLOAT)) {
             return TypeTags.FLOAT_TAG;
+        } else if (isUniformType(UT_INT)) {
+            if (some.get(UT_INT)) {
+                IntSubType intSubType = (IntSubType) subTypeData[UT_INT];
+                Optional<Integer> subtypeTag = intSubType.getTag();
+                if (subtypeTag.isPresent()) {
+                    return subtypeTag.get();
+                }
+            }
+            return TypeTags.INT_TAG;
         }
         throw new IllegalStateException("Unable to calculate tag for the given SemType: " + this);
     }
@@ -250,6 +278,9 @@ public class BSemType implements Type {
                 }
                 if (all.get(UT_FLOAT)) {
                     return "float";
+                }
+                if (all.get(UT_INT)) {
+                    return "int";
                 }
             }
             return "";
@@ -364,7 +395,6 @@ public class BSemType implements Type {
                 return "boolean";
             }
             if (some.get(UT_STRING) || all.get(UT_STRING)) {
-                // Return '' if subtype is nothing?
                 return "string";
             }
             if (some.get(UT_DECIMAL) || all.get(UT_DECIMAL)) {
@@ -372,6 +402,15 @@ public class BSemType implements Type {
             }
             if (some.get(UT_FLOAT) || all.get(UT_FLOAT)) {
                 return "float";
+            }
+            if (some.get(UT_INT) || all.get(UT_INT)) {
+                if (some.get(UT_INT)) {
+                    IntSubType intSubType = (IntSubType) subTypeData[UT_INT];
+                    if (intSubType.isByte) {
+                        return "byte";
+                    }
+                }
+                return "int";
             }
             if (all.get(UT_NIL)) {
                 return "()";
@@ -402,6 +441,7 @@ public class BSemType implements Type {
                     case UT_STRING -> sb.append("\"").append(stringPartToString()).append("\"");
                     case UT_DECIMAL -> sb.append(decimalPartToString());
                     case UT_FLOAT -> sb.append(floatPartToString());
+                    case UT_INT -> sb.append(intPartToString());
                     case UT_BTYPE -> {
                         String result = getBTypePart().toString();
                         if (result.contains("readonly")) {
@@ -416,6 +456,14 @@ public class BSemType implements Type {
             return "(" + sb + ")?";
         }
         return "(" + sb + ")";
+    }
+
+    private String intPartToString() {
+        if (all.get(UT_INT)) {
+            return "int";
+        } else {
+            return subTypeData[UT_INT].toString();
+        }
     }
 
     private String floatPartToString() {
@@ -487,6 +535,15 @@ public class BSemType implements Type {
             bTypeComponent = newBTypeComponent;
         }
         bTypeComponent.addCyclicMembers(members);
+    }
+
+    public void setByteClass() {
+        if (some.get(UT_INT)) {
+            IntSubType intSubType = (IntSubType) subTypeData[UT_INT];
+            intSubType.isByte = true;
+            return;
+        }
+        throw new IllegalStateException("Trying to set byte class to a non int type");
     }
 
     public void setBTypeClass(BSubType.BTypeClass typeClass) {

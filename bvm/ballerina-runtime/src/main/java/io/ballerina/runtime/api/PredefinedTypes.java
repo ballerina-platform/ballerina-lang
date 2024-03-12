@@ -68,15 +68,15 @@ public class PredefinedTypes {
     public static final Type TYPE_ANY = TypeBuilder.anyType();
     public static final Type TYPE_READONLY_ANY = TypeBuilder.intersect(TYPE_ANY, TYPE_READONLY);
     public static final Type TYPE_TYPEDESC = TypeBuilder.typedescType();
-    public static final Type TYPE_MAP = TypeBuilder.typeMap();
-    public static final Type TYPE_FUTURE = TypeBuilder.typeFuture();
+    public static final Type TYPE_MAP = TypeBuilder.mapType();
+    public static final Type TYPE_FUTURE = TypeBuilder.futureType();
     public static final Type TYPE_NULL = TypeBuilder.nilType();
     public static final Type TYPE_NEVER = TypeBuilder.neverType();
     public static final Type TYPE_XML_ATTRIBUTES = TypeBuilder.TypeCache.TYPE_XML_ATTRIBUTES;
     public static final Type TYPE_ITERATOR = TypeBuilder.TypeCache.TYPE_ITERATOR;
     public static final Type TYPE_ANY_SERVICE = TypeBuilder.TypeCache.TYPE_ANY_SERVICE;
-    public static final Type TYPE_HANDLE = TypeBuilder.typeHandle();
-    public static final Type TYPE_STREAM = TypeBuilder.typeStream();
+    public static final Type TYPE_HANDLE = TypeBuilder.handleType();
+    public static final Type TYPE_STREAM = TypeBuilder.streamType();
 
     public static final Type TYPE_JSON = TypeBuilder.jsonType();
     public static final Type TYPE_READONLY_JSON = TypeBuilder.intersect(TYPE_JSON, TYPE_READONLY);
@@ -86,7 +86,7 @@ public class PredefinedTypes {
     public static final Type TYPE_ANYDATA_ARRAY = TypeBuilder.TypeCache.TYPE_ANYDATA_ARRAY;
     public static final Type TYPE_DETAIL = TypeBuilder.TypeCache.TYPE_DETAIL;
     public static final Type TYPE_ERROR_DETAIL = TypeBuilder.TypeCache.TYPE_ERROR_DETAIL;
-    public static final Type TYPE_ERROR = TypeBuilder.typeError();
+    public static final Type TYPE_ERROR = TypeBuilder.errorType();
     public static final Type TYPE_CLONEABLE = TypeBuilder.TypeCache.TYPE_CLONEABLE;
 
     public static final Type TYPE_JSON_DECIMAL = TypeBuilder.TypeCache.TYPE_JSON_DECIMAL;

@@ -407,6 +407,7 @@ public class JvmTypeGen {
             case TypeTags.NEVER -> "neverType";
             case TypeTags.STRING -> "stringType";
             case TypeTags.XML -> "xmlType";
+            case TypeTags.ERROR -> "errorType";
             default -> throw new UnsupportedOperationException("Unexpected type: " + type);
         };
         mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, methodName, BASIC_TYPE_BUILDER_DESCRIPTOR, false);
@@ -713,6 +714,11 @@ public class JvmTypeGen {
                     TypeTags.FLOAT, TypeTags.STRING, TypeTags.CHAR_STRING, TypeTags.DECIMAL, TypeTags.BOOLEAN,
                     TypeTags.ANY, TypeTags.ANYDATA, TypeTags.JSON,
                     TypeTags.XML_COMMENT, TypeTags.XML_PI, TypeTags.XML_ELEMENT, TypeTags.XML_TEXT -> true;
+            case TypeTags.ERROR -> {
+                BErrorType errorType = (BErrorType) type;
+                PackageID pkgID = errorType.tsymbol.pkgID;
+                yield JvmCodeGenUtil.isBuiltInPackage(pkgID);
+            }
             case TypeTags.ARRAY -> {
                 BArrayType arrayType = (BArrayType) type;
                 yield canBeHandledByTypeBuilder(arrayType.eType, seen);

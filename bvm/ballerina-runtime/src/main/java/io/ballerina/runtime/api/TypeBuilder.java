@@ -29,15 +29,12 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BAnyType;
 import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.internal.types.BByteType;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BFutureType;
 import io.ballerina.runtime.internal.types.BHandleType;
-import io.ballerina.runtime.internal.types.BIntegerType;
 import io.ballerina.runtime.internal.types.BIteratorType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
-import io.ballerina.runtime.internal.types.BNeverType;
 import io.ballerina.runtime.internal.types.BReadonlyType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BStreamType;
@@ -61,12 +58,22 @@ import java.util.Iterator;
 import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED16_MAX_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED16_MIN_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED32_MAX_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED32_MIN_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED8_MAX_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED8_MIN_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED16_MAX_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.VALUE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_FLOAT;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_INT;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
 
 public final class TypeBuilder {
@@ -80,12 +87,16 @@ public final class TypeBuilder {
 
     public static BSemType wrap(Type type) {
         if (type instanceof BSemType semType) {
+            if (semType.poisoned) {
+                BType bType = semType.getBType();
+                return wrap(bType);
+            }
             return semType;
         }
         if (type instanceof BUnionType unionType) {
             // TODO: not sure if this needs ordered members
             BSemType semType = unionFrom(unionType.getName(), unionType.getPackage(), unionType.getMemberTypes());
-            if (unionType instanceof BJsonType) {
+            if (unionType instanceof BJsonType jsonType && !jsonType.getMemberTypes().isEmpty()) {
                 semType.setBTypeClass(BSubType.BTypeClass.BJson);
             } else if (unionType instanceof BAnydataType) {
                 semType.setBTypeClass(BSubType.BTypeClass.BAnyData);
@@ -154,23 +165,23 @@ public final class TypeBuilder {
         return TypeCache.TYPE_TYPEDESC;
     }
 
-    public static Type typeMap() {
+    public static Type mapType() {
         return TypeCache.TYPE_MAP;
     }
 
-    public static Type typeFuture() {
+    public static Type futureType() {
         return TypeCache.TYPE_FUTURE;
     }
 
-    public static Type typeHandle() {
+    public static Type handleType() {
         return TypeCache.TYPE_HANDLE;
     }
 
-    public static Type typeStream() {
+    public static Type streamType() {
         return TypeCache.TYPE_STREAM;
     }
 
-    public static Type typeError() {
+    public static Type errorType() {
         return TypeCache.TYPE_ERROR;
     }
 
@@ -209,12 +220,11 @@ public final class TypeBuilder {
 
     // TODO: next we need to make sure all the predefined union types could be build using this
     public static Type union(Type type1, Type type2) {
-        if (type1 instanceof BSemType semType1 && type2 instanceof BSemType semType2) {
-            BSemType result = SemTypeUtils.TypeOperation.union(semType1, semType2);
-            result.setOrderedUnionMembers(new Type[]{type1, type2});
-            return result;
-        }
-        return union(wrap(type1), wrap(type2));
+        BSemType semType1 = wrap(type1);
+        BSemType semType2 = wrap(type2);
+        BSemType result = SemTypeUtils.TypeOperation.union(semType1, semType2);
+        result.setOrderedUnionMembers(new Type[]{type1, type2});
+        return result;
     }
 
     static Type unionFrom(Collection<Type> types) {
@@ -358,7 +368,7 @@ public final class TypeBuilder {
     @Deprecated
     public static Type tupleSubType(Type[] memberTypes, int fixedLength, Type restType) {
         List<Type> memberTypeList = new ArrayList<>(fixedLength);
-        boolean setAnydataFlag = true;
+        boolean setAnydataFlag = isAnydata(restType);
         for (int i = 0; i < fixedLength; i++) {
             if (i < memberTypes.length) {
                 Type memberType = memberTypes[i];
@@ -484,33 +494,28 @@ public final class TypeBuilder {
 
         private static final Module EMPTY_MODULE = new Module(null, null, null);
 
-        public static final Type TYPE_INT = wrap(new BIntegerType(TypeConstants.INT_TNAME, EMPTY_MODULE));
+        public static final Type TYPE_INT = SemTypeUtils.SemTypeBuilder.from(UT_INT);
         public static final Type TYPE_INT_SIGNED_8 =
-                wrap(new BIntegerType(TypeConstants.SIGNED8,
-                        new Module(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null),
-                        TypeTags.SIGNED8_INT_TAG));
+                SemTypeUtils.SemTypeBuilder.intSubType(SIGNED8_MIN_VALUE.longValue(), SIGNED8_MAX_VALUE.longValue());
         public static final Type TYPE_INT_SIGNED_16 =
-                wrap(new BIntegerType(TypeConstants.SIGNED16,
-                        new Module(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null),
-                        TypeTags.SIGNED16_INT_TAG));
+                SemTypeUtils.SemTypeBuilder.intSubType(SIGNED16_MIN_VALUE.longValue(), SIGNED16_MAX_VALUE.longValue());
         public static final Type TYPE_INT_SIGNED_32 =
-                wrap(new BIntegerType(TypeConstants.SIGNED32,
-                        new Module(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null),
-                        TypeTags.SIGNED32_INT_TAG));
+                SemTypeUtils.SemTypeBuilder.intSubType(SIGNED32_MIN_VALUE.longValue(), SIGNED32_MAX_VALUE.longValue());
         public static final Type TYPE_INT_UNSIGNED_8 =
-                wrap(new BIntegerType(TypeConstants.UNSIGNED8,
-                        new Module(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null),
-                        TypeTags.UNSIGNED8_INT_TAG));
+                SemTypeUtils.SemTypeBuilder.intSubType(0L, UNSIGNED8_MAX_VALUE.longValue());
         public static final Type TYPE_INT_UNSIGNED_16 =
-                wrap(new BIntegerType(TypeConstants.UNSIGNED16,
-                        new Module(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null),
-                        TypeTags.UNSIGNED16_INT_TAG));
+                SemTypeUtils.SemTypeBuilder.intSubType(0L, UNSIGNED16_MAX_VALUE.longValue());
         public static final Type TYPE_INT_UNSIGNED_32 =
-                wrap(new BIntegerType(TypeConstants.UNSIGNED32,
-                        new Module(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null),
-                        TypeTags.UNSIGNED32_INT_TAG));
+                SemTypeUtils.SemTypeBuilder.intSubType(0L, UNSIGNED32_MAX_VALUE);
         public static final Type TYPE_BOOLEAN = SemTypeUtils.SemTypeBuilder.from(UT_BOOLEAN);
-        public static final Type TYPE_BYTE = wrap(new BByteType(TypeConstants.BYTE_TNAME, EMPTY_MODULE));
+
+        public static final Type TYPE_BYTE =
+                SemTypeUtils.SemTypeBuilder.intSubType(0L, UNSIGNED8_MAX_VALUE.longValue());
+        static {
+            BSemType semType = (BSemType) TYPE_BYTE;
+            semType.setByteClass();
+        }
+
         public static final Type TYPE_FLOAT = SemTypeUtils.SemTypeBuilder.from(UT_FLOAT);
         public static final Type TYPE_DECIMAL = SemTypeUtils.SemTypeBuilder.from(UT_DECIMAL);
         public static final Type TYPE_STRING = SemTypeUtils.SemTypeBuilder.from(UT_STRING);
@@ -542,7 +547,7 @@ public final class TypeBuilder {
                 TypeTags.XML_TEXT_TAG, true));
 
         public static final Type TYPE_XML_NEVER =
-                wrap(new BXmlType(TypeConstants.XML_TNAME, new BNeverType(EMPTY_MODULE),
+                wrap(new BXmlType(TypeConstants.XML_TNAME, SemTypeUtils.SemTypeBuilder.from(UT_NEVER),
                         EMPTY_MODULE, true));
 
         public static final Type TYPE_XML = wrap(new BXmlType(TypeConstants.XML_TNAME,

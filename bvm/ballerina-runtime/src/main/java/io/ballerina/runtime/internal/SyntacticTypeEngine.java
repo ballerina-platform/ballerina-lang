@@ -46,7 +46,6 @@ import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BFutureType;
-import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BNetworkObjectType;
 import io.ballerina.runtime.internal.types.BObjectType;
@@ -57,10 +56,10 @@ import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BTypeIdSet;
-import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
+import io.ballerina.runtime.internal.types.semType.BSemType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
@@ -107,6 +106,7 @@ import static io.ballerina.runtime.internal.TypeHelper.members;
 import static io.ballerina.runtime.internal.TypeHelper.paramValueType;
 import static io.ballerina.runtime.internal.TypeHelper.referredType;
 import static io.ballerina.runtime.internal.TypeHelper.typeConstraint;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 
 public class SyntacticTypeEngine {
 
@@ -957,13 +957,17 @@ public class SyntacticTypeEngine {
             case TypeTags.TUPLE_TAG:
                 return checkFillerValue((BTupleType) unwrap(type), unanalyzedTypes);
             case TypeTags.UNION_TAG:
-                return checkFillerValue((BUnionType) unwrap(type), unanalyzedTypes);
+                if (type instanceof BSemType semType) {
+                    if (SemanticTypeEngine.isSubTypeSimple(semType, UT_BTYPE)) {
+                        return checkFillerValue((BUnionType) unwrap(type), unanalyzedTypes);
+                    }
+                    return TypeChecker.hasFillerValue(type, unanalyzedTypes);
+                }
+                return checkFillerValue((BUnionType) type, unanalyzedTypes);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return hasFillerValue(((BTypeReferenceType) unwrap(type)).getReferredType(),
-                        unanalyzedTypes);
+                return hasFillerValue(TypeHelper.referredType(type), unanalyzedTypes);
             case TypeTags.INTERSECTION_TAG:
-                return hasFillerValue(((BIntersectionType) unwrap(type)).getEffectiveType(),
-                        unanalyzedTypes);
+                return hasFillerValue(TypeHelper.effectiveType(type), unanalyzedTypes);
             default:
                 return false;
         }
