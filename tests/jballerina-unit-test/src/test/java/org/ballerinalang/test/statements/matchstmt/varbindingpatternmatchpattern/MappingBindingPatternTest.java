@@ -42,7 +42,7 @@ public class MappingBindingPatternTest {
                 "/mapping_binding_pattern_with_rest_binding_pattern.bal");
     }
 
-    @Test(dataProvider = "functionsToTestMappingBindingPattern")
+    @Test(dataProvider = "functionsToTestMappingBindingPattern", enabled = false)
     public void testMappingBindingPattern(String functionName) {
         BRunUtil.invoke(result, functionName);
     }

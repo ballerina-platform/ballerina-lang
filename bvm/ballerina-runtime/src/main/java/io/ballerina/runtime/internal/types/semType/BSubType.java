@@ -36,7 +36,7 @@ import java.util.Set;
 
 // TODO: document
 // A common interface to represent a union of BTypes, will create the compatible BType on demand
-public class BSubTypeData implements ProperSubTypeData, BTypeComponent {
+public class BSubType implements SubType, BTypeComponent {
 
     private final List<Type> members;
     private final List<Type> cyclicMembers;
@@ -51,14 +51,14 @@ public class BSubTypeData implements ProperSubTypeData, BTypeComponent {
         BJson
     }
 
-    public BSubTypeData(List<Type> members) {
+    public BSubType(List<Type> members) {
         Set<Type> uniqueMembers = new HashSet<>(members);
         this.members = List.copyOf(uniqueMembers);
         isCyclic = false;
         cyclicMembers = new ArrayList<>();
     }
 
-    private BSubTypeData(List<Type> members, List<Type> cyclicMembers, boolean isCyclic) {
+    private BSubType(List<Type> members, List<Type> cyclicMembers, boolean isCyclic) {
         Set<Type> uniqueMembers = new HashSet<>(members);
         this.members = List.copyOf(uniqueMembers);
         this.cyclicMembers = cyclicMembers;
@@ -66,9 +66,9 @@ public class BSubTypeData implements ProperSubTypeData, BTypeComponent {
     }
 
     @Override
-    public ProperSubTypeData union(ProperSubTypeData other) {
+    public SubType union(SubType other) {
         // We need to create new instance since (in the future) we'll use union as an operation
-        if (other instanceof BSubTypeData typeUnion) {
+        if (other instanceof BSubType typeUnion) {
             return unionWith(typeUnion);
         } else if (other instanceof BType bType) {
             return unionWith(bType);
@@ -76,68 +76,38 @@ public class BSubTypeData implements ProperSubTypeData, BTypeComponent {
         throw new UnsupportedOperationException("BType union can't be calculate union with " + other);
     }
 
-    private BSubTypeData unionWith(BSubTypeData other) {
-//        List<Type> combinedMembers = new ArrayList<>();
-//        if (this.isCyclic) {
-//            combinedMembers.add(this.getBTypeComponent());
-//        } else {
-//            combinedMembers.addAll(this.members);
-//        }
-//        if (other.isCyclic) {
-//            combinedMembers.add(other.getBTypeComponent());
-//        } else {
-//            combinedMembers.addAll(other.members);
-//        }
-//        // FIXME: this is a hack we need to do what BUnionType does in merge here as well
-//        HashSet<Type> uniqueMembers = new HashSet<>(this.members);
-//        uniqueMembers.addAll(other.members);
-//        List<Type> combinedMembers = new ArrayList<>(uniqueMembers);
-//
-//        // TODO: handle the case where unique members already contain cyclic members
-//        combinedMembers.addAll(this.cyclicMembers);
-//        combinedMembers.addAll(other.cyclicMembers);
-//        HashSet<Type> uniqueCyclicMembers = new HashSet<>(this.cyclicMembers);
-//        uniqueCyclicMembers.addAll(other.cyclicMembers);
-//        List<Type> combinedCyclicMembers = new ArrayList<>(uniqueCyclicMembers);
-
-//        boolean isCyclic = this.isCyclic || other.isCyclic;
-        return new BSubTypeData(List.of(this.getBTypeComponent(), other.getBTypeComponent()));
-//        return new BSubTypeData(combinedMembers, List.of(), false);
+    private BSubType unionWith(BSubType other) {
+        return new BSubType(List.of(this.getBTypeComponent(), other.getBTypeComponent()));
     }
 
-    private BSubTypeData unionWith(BType other) {
-//        HashSet<Type> uniqueMembers = new HashSet<>(this.members);
-//        uniqueMembers.add(other);
-//        List<Type> combinedMembers = new ArrayList<>(uniqueMembers);
-//        List<Type> combinedMembers = new ArrayList<>();
-//        if (this.isCyclic) {
-//            combinedMembers.add(this.getBTypeComponent());
-//        } else {
-//            combinedMembers.addAll(this.members);
-//        }
-//        combinedMembers.add(other);
-        return new BSubTypeData(List.of(this.getBTypeComponent(), other));
+    private BSubType unionWith(BType other) {
+        return new BSubType(List.of(this.getBTypeComponent(), other));
     }
 
     @Override
-    public ProperSubTypeData intersect(ProperSubTypeData other) {
-        throw new UnsupportedOperationException("unimplemented");
+    public SubType intersect(SubType other) {
+        throw new UnsupportedOperationException("BSubType don't support semtype operations");
+    }
+
+    @Override
+    public SubType diff(SubType other) {
+        throw new UnsupportedOperationException("BSubType don't support semtype operations");
+    }
+
+    @Override
+    public SubType complement() {
+        throw new UnsupportedOperationException("BSubType don't support semtype operations");
     }
 
     @Override
     public boolean isEmpty() {
-        return false;
+        throw new UnsupportedOperationException("BSubType don't support semtype operations");
     }
 
-    @Override
-    public boolean isSubType(ProperSubTypeData other) {
-        throw new UnsupportedOperationException("unimplemented");
-    }
-
+    // TODO: this is common code factor it
     @Override
     public BType getBTypeComponent() {
         if (bType == null) {
-            // TODO: this is common code factor it
             boolean isReadonly = readonly != null ? readonly : false;
             List<Type> memberList = new ArrayList<>(members);
             BUnionType unionType = switch (typeClass) {

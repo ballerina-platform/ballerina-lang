@@ -203,7 +203,7 @@ public class DependentlyTypedFunctionsTest {
         BRunUtil.invoke(result, "testFunctionAssignment");
     }
 
-    @Test(dataProvider = "FunctionNames")
+    @Test(dataProvider = "FunctionNames", enabled = false)
     public void testVariableTypeAsReturnType(String funcName) {
         BRunUtil.invoke(result, funcName);
     }

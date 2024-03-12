@@ -51,7 +51,7 @@ import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlAttributesType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.types.semType.BSemType;
-import io.ballerina.runtime.internal.types.semType.BSubTypeData;
+import io.ballerina.runtime.internal.types.semType.BSubType;
 import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
@@ -116,7 +116,7 @@ public final class TypeBuilder {
     static final Type INT_SIGNED_8 = intSubType(-128, 127);
     static final Type INT_SIGNED_16 = intSubType(-32768, 32767);
     static final Type INT_SIGNED_32 = intSubType(-2147483648, 2147483647);
-    static final Type STRING_CHAR = stringSubType(new StringSubTypeData().includeStrings().excludeChars());
+    static final Type STRING_CHAR = stringSubType(new StringSubtypeData().includeStrings().excludeChars());
 
     // Basic Types
     public static Type neverType() {
@@ -467,7 +467,7 @@ public final class TypeBuilder {
         return value ? TypeCache.BOOLEAN_TRUE : TypeCache.BOOLEAN_FALSE;
     }
 
-    public static Type stringSubType(StringSubTypeData data) {
+    public static Type stringSubType(StringSubtypeData data) {
         if (data.stringPositive && data.strings.length == 0 && !(data.includingChars) && data.chars.length == 0) {
             return TypeCache.TYPE_STRING_CHAR;
         }
@@ -619,7 +619,7 @@ public final class TypeBuilder {
 
         private static Type getAnydataType(List<Type> members, String typeName, boolean readonly) {
             BSemType anydataType = unionFrom(typeName, EMPTY_MODULE, members);
-            anydataType.setBTypeClass(BSubTypeData.BTypeClass.BAnyData);
+            anydataType.setBTypeClass(BSubType.BTypeClass.BAnyData);
             anydataType.setReadonly(readonly);
             Type internalAnydataMap = new BMapType(TypeConstants.MAP_TNAME, anydataType, EMPTY_MODULE, readonly);
             Type internalAnydataArray = new BArrayType(anydataType, readonly);
@@ -638,7 +638,7 @@ public final class TypeBuilder {
             members.add(TYPE_DECIMAL);
             members.add(TYPE_STRING);
             BSemType jsonType = unionFrom(TypeConstants.JSON_TNAME, EMPTY_MODULE, members);
-            jsonType.setBTypeClass(BSubTypeData.BTypeClass.BJson);
+            jsonType.setBTypeClass(BSubType.BTypeClass.BJson);
             jsonType.setReadonly(false);
             Type internalJsonMap = new BMapType(TypeConstants.MAP_TNAME, jsonType, EMPTY_MODULE);
             Type internalJsonArray = new BArrayType(jsonType);
@@ -648,7 +648,7 @@ public final class TypeBuilder {
 //            TYPE_READONLY_JSON = wrap(new BJsonType(unwrap(jsonType), TypeConstants.READONLY_JSON_TNAME, true));
             // FIXME: this is not setting the readonly properly
             BSemType jsonROType = unionFrom(TypeConstants.READONLY_JSON_TNAME, EMPTY_MODULE, members);
-            jsonROType.setBTypeClass(BSubTypeData.BTypeClass.BJson);
+            jsonROType.setBTypeClass(BSubType.BTypeClass.BJson);
             jsonROType.setReadonly(true);
             Type internalRoJsonMap = new BMapType(TypeConstants.MAP_TNAME, jsonROType, EMPTY_MODULE, true);
             Type internalRoJsonArray = new BArrayType(jsonROType, true);
@@ -710,7 +710,7 @@ public final class TypeBuilder {
         }
     }
 
-    public final static class StringSubTypeData {
+    public final static class StringSubtypeData {
 
         // If true chars are the set of chars included in the set else it's the set of chars excluded from the set
         private boolean includingChars;
@@ -718,30 +718,30 @@ public final class TypeBuilder {
         private String[] chars; // Java char can't represent unicode values
         private String[] strings;
 
-        public StringSubTypeData() {
+        public StringSubtypeData() {
             this.includingChars = false;
             this.stringPositive = false;
             this.chars = null;
             this.strings = null;
         }
 
-        public StringSubTypeData includeStrings(String... values) {
+        public StringSubtypeData includeStrings(String... values) {
             return setStringState(true, values);
         }
 
-        public StringSubTypeData excludeStrings(String... values) {
+        public StringSubtypeData excludeStrings(String... values) {
             return setStringState(false, values);
         }
 
-        public StringSubTypeData includeChars(String... values) {
+        public StringSubtypeData includeChars(String... values) {
             return setCharState(true, values);
         }
 
-        public StringSubTypeData excludeChars(String... values) {
+        public StringSubtypeData excludeChars(String... values) {
             return setCharState(false, values);
         }
 
-        private StringSubTypeData setStringState(boolean includingStrings, String[] strings) {
+        private StringSubtypeData setStringState(boolean includingStrings, String[] strings) {
             if (this.strings != null) {
                 throw new UnsupportedOperationException("Can't include and exclude strings at the same time");
             }
@@ -750,7 +750,7 @@ public final class TypeBuilder {
             return this;
         }
 
-        private StringSubTypeData setCharState(boolean includingChars, String[] chars) {
+        private StringSubtypeData setCharState(boolean includingChars, String[] chars) {
             if (this.chars != null) {
                 throw new UnsupportedOperationException("Can't include and exclude chars at the same time");
             }

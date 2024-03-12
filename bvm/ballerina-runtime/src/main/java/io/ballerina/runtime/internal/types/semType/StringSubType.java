@@ -24,26 +24,26 @@ package io.ballerina.runtime.internal.types.semType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StringSubTypeData implements ProperSubTypeData {
+public class StringSubType implements SubType {
 
     ValueData charValues;
     ValueData nonCharValues;
 
-    private StringSubTypeData(ValueData charValues, ValueData nonCharValues) {
+    private StringSubType(ValueData charValues, ValueData nonCharValues) {
         this.charValues = charValues;
         this.nonCharValues = nonCharValues;
     }
 
-    StringSubTypeData createStringSubTypeData(boolean charsAllowed, String[] chars, boolean nonCharsAllowed,
-                                              String[] nonChars) {
+    StringSubType createStringSubTypeData(boolean charsAllowed, String[] chars, boolean nonCharsAllowed,
+                                          String[] nonChars) {
         ValueData charValues = new ValueData(charsAllowed, chars);
         ValueData nonCharValues = new ValueData(nonCharsAllowed, nonChars);
-        return new StringSubTypeData(charValues, nonCharValues);
+        return new StringSubType(charValues, nonCharValues);
     }
 
     @Override
-    public ProperSubTypeData union(ProperSubTypeData other) {
-        if (other instanceof StringSubTypeData otherString) {
+    public SubType union(SubType other) {
+        if (other instanceof StringSubType otherString) {
             List<String> chars = new ArrayList<>();
             List<String> nonChars = new ArrayList<>();
             boolean charsAllowed = charValues.union(otherString.charValues, chars);
@@ -56,17 +56,22 @@ public class StringSubTypeData implements ProperSubTypeData {
     }
 
     @Override
-    public ProperSubTypeData intersect(ProperSubTypeData other) {
+    public SubType intersect(SubType other) {
         throw new UnsupportedOperationException("unimplemented");
     }
 
     @Override
-    public boolean isEmpty() {
-        return false;
+    public SubType diff(SubType other) {
+        return null;
     }
 
     @Override
-    public boolean isSubType(ProperSubTypeData other) {
+    public SubType complement() {
+        return null;
+    }
+
+    @Override
+    public boolean isEmpty() {
         return false;
     }
 

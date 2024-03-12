@@ -1,5 +1,4 @@
 /*
- *
  *   Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
  *
  *   WSO2 LLC. licenses this file to you under the Apache License,
@@ -15,19 +14,19 @@
  *   KIND, either express or implied.  See the License for the
  *   specific language governing permissions and limitations
  *   under the License.
- * /
- *
  */
 
 package io.ballerina.runtime.internal.types.semType;
 
-public interface ProperSubTypeData {
+public interface SubType {
 
-    ProperSubTypeData union(ProperSubTypeData other);
+    SubType union(SubType other);
 
-    ProperSubTypeData intersect(ProperSubTypeData other);
+    SubType intersect(SubType other);
+
+    SubType diff(SubType other);
+
+    SubType complement();
 
     boolean isEmpty();
-
-    boolean isSubType(ProperSubTypeData other);
 }

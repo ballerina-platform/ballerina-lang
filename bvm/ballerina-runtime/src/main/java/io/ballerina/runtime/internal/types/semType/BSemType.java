@@ -1,5 +1,4 @@
 /*
- *
  *   Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
  *
  *   WSO2 LLC. licenses this file to you under the Apache License,
@@ -15,7 +14,6 @@
  *   KIND, either express or implied.  See the License for the
  *   specific language governing permissions and limitations
  *   under the License.
- * /
  *
  */
 
@@ -47,7 +45,7 @@ public class BSemType implements Type {
     public final BitSet some;
     // TODO: for the time being we are using a sparse array (acutally extra sparse where 0 is alway null), unlike
     // nballerina to make things easier to implement. Consider using a compact array
-    public final ProperSubTypeData[] subTypeData;
+    public final SubType[] subTypeData;
     private String name;
     private Module module;
     // NOTE: we are keeping these around instead of eagerly building the string representation to reduce the cost of
@@ -59,9 +57,10 @@ public class BSemType implements Type {
     protected BSemType() {
         this.all = new BitSet(N_TYPES);
         this.some = new BitSet(N_TYPES);
-        this.subTypeData = new ProperSubTypeData[N_TYPES];
+        this.subTypeData = new SubType[N_TYPES];
     }
-    protected BSemType(BitSet all, BitSet some, ProperSubTypeData[] subtypeData) {
+
+    protected BSemType(BitSet all, BitSet some, SubType[] subtypeData) {
         this.all = all;
         this.some = some;
         this.subTypeData = subtypeData;
@@ -130,7 +129,7 @@ public class BSemType implements Type {
     private int calculateTag() {
         if (some.get(UT_BTYPE)) {
             BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
-            if (bTypeComponent instanceof BSubTypeData subTypeData) {
+            if (bTypeComponent instanceof BSubType subTypeData) {
                 switch (subTypeData.getTypeClass()) {
                     case BAnyData -> {
                         return TypeTags.ANYDATA_TAG;
@@ -236,13 +235,13 @@ public class BSemType implements Type {
             return true;
         }
         BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
-        if (bTypeComponent instanceof BSubTypeData subTypeData) {
+        if (bTypeComponent instanceof BSubType subTypeData) {
             // NOTE: this is because for cyclic types trying to get the BType going to put us to infinite loop
             // TODO: fix this with something similar to what we have in BUnionType
             if (subTypeData.isCyclic) {
-                BSubTypeData.BTypeClass typeClass = subTypeData.getTypeClass();
-                return typeClass == BSubTypeData.BTypeClass.BAnyData ||
-                        typeClass == BSubTypeData.BTypeClass.BJson;
+                BSubType.BTypeClass typeClass = subTypeData.getTypeClass();
+                return typeClass == BSubType.BTypeClass.BAnyData ||
+                        typeClass == BSubType.BTypeClass.BJson;
             }
         }
         return bTypeComponent.getBTypeComponent().isAnydata();
@@ -350,14 +349,14 @@ public class BSemType implements Type {
         bTypeComponent.addCyclicMembers(members);
     }
 
-    public void setBTypeClass(BSubTypeData.BTypeClass typeClass) {
-        BSubTypeData bTypeComponent = (BSubTypeData) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
+    public void setBTypeClass(BSubType.BTypeClass typeClass) {
+        BSubType bTypeComponent = (BSubType) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
         bTypeComponent.setBTypeClass(typeClass);
     }
 
     public void setReadonly(boolean readonly) {
-        ProperSubTypeData subTypeData = this.subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
-        if (subTypeData instanceof BSubTypeData bTypeComponent) {
+        SubType subTypeData = this.subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
+        if (subTypeData instanceof BSubType bTypeComponent) {
             bTypeComponent.setReadonly(readonly);
         }
     }

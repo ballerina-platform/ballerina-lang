@@ -29,11 +29,11 @@ import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.semType.BSemType;
-import io.ballerina.runtime.internal.types.semType.BSubTypeData;
+import io.ballerina.runtime.internal.types.semType.BSubType;
+import io.ballerina.runtime.internal.types.semType.Core;
 import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,7 +46,6 @@ import static io.ballerina.runtime.api.TypeBuilder.booleanSubType;
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.TypeBuilder.wrap;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.N_TYPES;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
@@ -129,40 +128,51 @@ class SemanticTypeEngine {
         if (t1 == t2) {
             return SubTypeCheckResult.TRUE;
         }
-        BitSet all = (BitSet) t1.all.clone();
-        all.andNot(t2.all);
-        if (!all.isEmpty()) {
-            // t1 has all of some time that t2 don't have all of (it may have some but not all)
+        if (t1.some.get(UT_BTYPE) && !t2.some.get(UT_BTYPE)) {
             return SubTypeCheckResult.FALSE;
         }
-        BitSet some = (BitSet) t1.some.clone();
-
-        BitSet t2Any = (BitSet) t2.all.clone(); // Set of types t2 has all or some of
-        t2Any.or(t2.some);
-
-        some.andNot(t2Any);
-        if (!some.isEmpty()) {
-            // t1 has something that t2 don't have partially or completely
-            // TODO: need to check if some is actually not empty
-            for (int i = 0; i < N_TYPES; i++) {
-                if (some.get(i) && !t1.subTypeData[i].isEmpty()) {
-                    return SubTypeCheckResult.FALSE;
-                }
-            }
+        boolean semTypeResult = Core.isSubType(t1, t2);
+        if (!semTypeResult) {
+            return SubTypeCheckResult.FALSE;
         }
-        // Everything t1 has partially t2 also has something that belong to same basic type partially or completely
-        for (int i = 0; i < UT_BTYPE; i++) {
-            if (!t1.some.get(i) || t2.all.get(i)) {
-                // t1 don't have it or t2 has all of this type so no point checking
-                continue;
-            }
-            // both t1 and t2 has parts of it
-            if (!t1.subTypeData[i].isSubType(t2.subTypeData[i])) {
-                return SubTypeCheckResult.FALSE;
-            }
+        if (t1.some.get(UT_BTYPE)) {
+            return SubTypeCheckResult.UNDEFINED;
         }
-        return t1.some.get(UT_BTYPE) ? SubTypeCheckResult.UNDEFINED :
-                SubTypeCheckResult.TRUE;
+        return SubTypeCheckResult.TRUE;
+//        BitSet all = (BitSet) t1.all.clone();
+//        all.andNot(t2.all);
+//        if (!all.isEmpty()) {
+//            // t1 has all of some time that t2 don't have all of (it may have some but not all)
+//            return SubTypeCheckResult.FALSE;
+//        }
+//        BitSet some = (BitSet) t1.some.clone();
+//
+//        BitSet t2Any = (BitSet) t2.all.clone(); // Set of types t2 has all or some of
+//        t2Any.or(t2.some);
+//
+//        some.andNot(t2Any);
+//        if (!some.isEmpty()) {
+//            // t1 has something that t2 don't have partially or completely
+//            // TODO: need to check if some is actually not empty
+//            for (int i = 0; i < N_TYPES; i++) {
+//                if (some.get(i) && !t1.subTypeData[i].isEmpty()) {
+//                    return SubTypeCheckResult.FALSE;
+//                }
+//            }
+//        }
+//        // Everything t1 has partially t2 also has something that belong to same basic type partially or completely
+//        for (int i = 0; i < UT_BTYPE; i++) {
+//            if (!t1.some.get(i) || t2.all.get(i)) {
+//                // t1 don't have it or t2 has all of this type so no point checking
+//                continue;
+//            }
+//            // both t1 and t2 has parts of it
+//            if (!t1.subTypeData[i].isSubType(t2.subTypeData[i])) {
+//                return SubTypeCheckResult.FALSE;
+//            }
+//        }
+//        return t1.some.get(UT_BTYPE) ? SubTypeCheckResult.UNDEFINED :
+//                SubTypeCheckResult.TRUE;
     }
 
     static Type getType(Object value) {
@@ -288,7 +298,7 @@ class SemanticTypeEngine {
                                    List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
         BSemType targetSemType = wrap(targetType);
         if (targetType.getTag() == TypeTags.JSON_TAG) {
-            targetSemType.setBTypeClass(BSubTypeData.BTypeClass.BJson);
+            targetSemType.setBTypeClass(BSubType.BTypeClass.BJson);
         }
         BSemType sourceSemType = wrap(getType(sourceValue));
         return switch (isSubType(sourceSemType, targetSemType)) {

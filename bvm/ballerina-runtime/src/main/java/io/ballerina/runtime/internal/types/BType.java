@@ -24,9 +24,9 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semType.BSubType;
 import io.ballerina.runtime.internal.types.semType.BTypeComponent;
-import io.ballerina.runtime.internal.types.semType.BSubTypeData;
-import io.ballerina.runtime.internal.types.semType.ProperSubTypeData;
+import io.ballerina.runtime.internal.types.semType.SubType;
 
 import java.util.List;
 import java.util.Objects;
@@ -41,7 +41,7 @@ import java.util.Objects;
  *
  * @since 0.995.0
  */
-public abstract class BType implements Type, ProperSubTypeData, BTypeComponent {
+public abstract class BType implements Type, SubType, BTypeComponent {
     protected String typeName;
     protected Module pkg;
     protected Class<? extends Object> valueClass;
@@ -220,34 +220,34 @@ public abstract class BType implements Type, ProperSubTypeData, BTypeComponent {
     }
 
     @Override
-    public ProperSubTypeData union(ProperSubTypeData other) {
+    public SubType union(SubType other) {
         if (other instanceof BType bType) {
-//            boolean isReadOnly = this.isReadOnly() && bType.isReadOnly();
-//            String otherName = ((BType) other).getName();
-//            String thisName = getName();
-//            if (thisName.equals(otherName)) {
-//                return new BUnionType(thisName, this.pkg, List.of(this, bType), isReadOnly);
-//            }
-            return new BSubTypeData(List.of(this, bType));
+            return new BSubType(List.of(this, bType));
+        } else if (other instanceof BSubType bSubType) {
+            return bSubType.union(this);
         }
-        return other.union(this);
-//        throw new IllegalStateException("union of different subtypes not possible");
+        throw new UnsupportedOperationException("union of different subtypes");
     }
 
     @Override
-    public ProperSubTypeData intersect(ProperSubTypeData other) {
-        throw new RuntimeException("unimplemented");
+    public SubType intersect(SubType other) {
+        throw new UnsupportedOperationException("BTypes don't support semtype operations");
     }
 
-    @Override
-    public boolean isSubType(ProperSubTypeData other) {
-        throw new RuntimeException("unimplemented");
-    }
-
+    // Override this for types such as record and tuples where you can define types that don't contain any values
     @Override
     public boolean isEmpty() {
-        // TODO: override this in record, list and tuple types
         return false;
+    }
+
+    @Override
+    public SubType diff(SubType other) {
+        throw new UnsupportedOperationException("BTypes don't support semtype operations");
+    }
+
+    @Override
+    public SubType complement() {
+        throw new UnsupportedOperationException("BTypes don't support semtype operations");
     }
 
     @Override

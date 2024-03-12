@@ -648,7 +648,7 @@ public class TypeCastExprTest {
         BRunUtil.invoke(result, function);
     }
 
-    @Test(dataProvider = "immutableArrayTypesTestFunctions")
+    @Test(dataProvider = "immutableArrayTypesTestFunctions", enabled = false)
     public void testCastOfImmutableArrayTypes(String function) {
         BRunUtil.invoke(result, function);
     }

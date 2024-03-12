@@ -66,7 +66,7 @@ public final class SemTypeUtils {
 //            }
             BitSet all = new BitSet(N_TYPES);
             BitSet some = new BitSet(N_TYPES);
-            ProperSubTypeData[] subTypeData = new ProperSubTypeData[N_TYPES];
+            SubType[] subTypeData = new SubType[N_TYPES];
             if (uniformTypeCode != 0) {
                 all.set(uniformTypeCode);
             }
@@ -88,9 +88,9 @@ public final class SemTypeUtils {
         public static Type booleanSubType(boolean value) {
             BitSet all = new BitSet(N_TYPES);
             BitSet some = new BitSet(N_TYPES);
-            ProperSubTypeData[] subTypeData = new ProperSubTypeData[N_TYPES];
+            SubType[] subTypeData = new SubType[N_TYPES];
             some.set(UT_BOOLEAN);
-            subTypeData[UT_BOOLEAN] = new BooleanSubtypeData(value);
+            subTypeData[UT_BOOLEAN] = new BooleanSubType(value);
             return new BSemType(all, some, subTypeData);
         }
 
@@ -137,7 +137,7 @@ public final class SemTypeUtils {
 //                }
             }
             // TODO: this means we always have an extra null at the beginning
-            ProperSubTypeData[] subTypeData = new ProperSubTypeData[N_TYPES];
+            SubType[] subTypeData = new SubType[N_TYPES];
             subTypeData[UniformTypeCodes.UT_BTYPE] = bType;
             return new BSemType(all, some, subTypeData);
         }
@@ -171,7 +171,7 @@ public final class SemTypeUtils {
         private static BSemType from(BFiniteType finiteType) {
             BitSet all = new BitSet();
             BitSet some = new BitSet();
-            ProperSubTypeData[] subTypeData = new ProperSubTypeData[N_TYPES];
+            SubType[] subTypeData = new SubType[N_TYPES];
             Set<Object> remainingValues = new HashSet<>();
             for (Object value : finiteType.valueSpace) {
                 if (value == null) {
@@ -182,14 +182,16 @@ public final class SemTypeUtils {
                     }
                     boolean val = (Boolean) value;
                     if (some.get(UT_BOOLEAN)) {
-                        BooleanSubtypeData current = (BooleanSubtypeData) subTypeData[UT_BOOLEAN];
-                        if (current.value != val) {
-                            some.clear(UT_BOOLEAN);
-                            all.set(UT_BOOLEAN);
+                        BooleanSubType current = (BooleanSubType) subTypeData[UT_BOOLEAN];
+                        if (current.data instanceof BooleanSubType.BooleanSubTypeData currentData) {
+                            if (currentData.value() != val) {
+                                some.clear(UT_BOOLEAN);
+                                all.set(UT_BOOLEAN);
+                            }
                         }
                     } else {
                         some.set(UT_BOOLEAN);
-                        subTypeData[UT_BOOLEAN] = new BooleanSubtypeData(val);
+                        subTypeData[UT_BOOLEAN] = new BooleanSubType(val);
                     }
                 } else {
                     remainingValues.add(value);
@@ -222,7 +224,7 @@ public final class SemTypeUtils {
             semtype.some.or(t2.some);
             semtype.some.andNot(semtype.all);
 
-            ProperSubTypeData[] subTypeData = semtype.subTypeData;
+            SubType[] subTypeData = semtype.subTypeData;
             for (int i = 0; i < N_TYPES; i++) {
                 boolean t1Has = t1.some.get(i);
                 boolean t2Has = t2.some.get(i);

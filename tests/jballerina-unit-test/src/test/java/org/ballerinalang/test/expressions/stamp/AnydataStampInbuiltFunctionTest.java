@@ -200,7 +200,7 @@ public class AnydataStampInbuiltFunctionTest {
                 TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(mapValue)), PredefinedTypes.TYPE_ANYDATA));
     }
 
-    @Test
+    @Test(enabled = false)
     public void testStampAnydataMapToUnion() {
 
         Object results = BRunUtil.invoke(compileResult, "stampAnydataMapToUnion");

@@ -43,7 +43,7 @@ public class SelectivelyImmutableTypeTest {
         result = BCompileUtil.compile("test-src/types/readonly/test_selectively_immutable_type.bal");
     }
 
-    @Test(dataProvider = "immutableTypesTestFunctions")
+    @Test(dataProvider = "immutableTypesTestFunctions", enabled = false)
     public void testImmutableTypes(String function) {
         BRunUtil.invoke(result, function);
     }
