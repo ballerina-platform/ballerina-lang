@@ -157,7 +157,7 @@ public class DiagnosticAnnotation {
         return count;
     }
 
-    private static TruncateResult truncate(String line, int maxLength, int diagnosticStart, int diagnosticLength) {
+    protected static TruncateResult truncate(String line, int maxLength, int diagnosticStart, int diagnosticLength) {
         if (line.length() < maxLength - 3) {
             return new TruncateResult(line, diagnosticStart, diagnosticLength);
         }
@@ -193,7 +193,7 @@ public class DiagnosticAnnotation {
      * @param diagnosticStart  The start of the diagnostic in the truncated line
      * @param diagnosticLength The length of the diagnostic in the truncated line
      */
-    private record TruncateResult(String line, int diagnosticStart, int diagnosticLength) {
+    protected record TruncateResult(String line, int diagnosticStart, int diagnosticLength) {
 
     }
 }
