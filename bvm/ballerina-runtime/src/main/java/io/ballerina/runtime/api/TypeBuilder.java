@@ -116,7 +116,7 @@ public final class TypeBuilder {
     static final Type INT_SIGNED_8 = intSubType(-128, 127);
     static final Type INT_SIGNED_16 = intSubType(-32768, 32767);
     static final Type INT_SIGNED_32 = intSubType(-2147483648, 2147483647);
-    static final Type STRING_CHAR = stringSubType(new StringSubtypeData().includeStrings().excludeChars());
+    static final Type STRING_CHAR = stringSubType(new StringSubTypeData().includeStrings().excludeChars());
 
     // Basic Types
     public static Type neverType() {
@@ -467,7 +467,7 @@ public final class TypeBuilder {
         return value ? TypeCache.BOOLEAN_TRUE : TypeCache.BOOLEAN_FALSE;
     }
 
-    public static Type stringSubType(StringSubtypeData data) {
+    public static Type stringSubType(StringSubTypeData data) {
         if (data.stringPositive && data.strings.length == 0 && !(data.includingChars) && data.chars.length == 0) {
             return TypeCache.TYPE_STRING_CHAR;
         }
@@ -710,7 +710,7 @@ public final class TypeBuilder {
         }
     }
 
-    public final static class StringSubtypeData {
+    public final static class StringSubTypeData {
 
         // If true chars are the set of chars included in the set else it's the set of chars excluded from the set
         private boolean includingChars;
@@ -718,30 +718,30 @@ public final class TypeBuilder {
         private String[] chars; // Java char can't represent unicode values
         private String[] strings;
 
-        public StringSubtypeData() {
+        public StringSubTypeData() {
             this.includingChars = false;
             this.stringPositive = false;
             this.chars = null;
             this.strings = null;
         }
 
-        public StringSubtypeData includeStrings(String... values) {
+        public StringSubTypeData includeStrings(String... values) {
             return setStringState(true, values);
         }
 
-        public StringSubtypeData excludeStrings(String... values) {
+        public StringSubTypeData excludeStrings(String... values) {
             return setStringState(false, values);
         }
 
-        public StringSubtypeData includeChars(String... values) {
+        public StringSubTypeData includeChars(String... values) {
             return setCharState(true, values);
         }
 
-        public StringSubtypeData excludeChars(String... values) {
+        public StringSubTypeData excludeChars(String... values) {
             return setCharState(false, values);
         }
 
-        private StringSubtypeData setStringState(boolean includingStrings, String[] strings) {
+        private StringSubTypeData setStringState(boolean includingStrings, String[] strings) {
             if (this.strings != null) {
                 throw new UnsupportedOperationException("Can't include and exclude strings at the same time");
             }
@@ -750,7 +750,7 @@ public final class TypeBuilder {
             return this;
         }
 
-        private StringSubtypeData setCharState(boolean includingChars, String[] chars) {
+        private StringSubTypeData setCharState(boolean includingChars, String[] chars) {
             if (this.chars != null) {
                 throw new UnsupportedOperationException("Can't include and exclude chars at the same time");
             }

@@ -24,16 +24,12 @@ package io.ballerina.runtime.internal.types.semType;
 public class BooleanSubtypeData implements ProperSubTypeData {
 
     final boolean value;
-    // TODO: probably don't need this part
-    private final boolean isEmpty;
 
     public BooleanSubtypeData(boolean value) {
         this.value = value;
-        this.isEmpty = false;
     }
 
     private BooleanSubtypeData() {
-        this.isEmpty = true;
         this.value = false;
     }
 
@@ -61,7 +57,7 @@ public class BooleanSubtypeData implements ProperSubTypeData {
 
     @Override
     public boolean isEmpty() {
-        return isEmpty;
+        return false;
     }
 
     @Override
