@@ -16,31 +16,35 @@ public class DiagnosticAnnotationTest {
         String hintColor = DiagnosticAnnotation.SEVERITY_COLORS.get(DiagnosticSeverity.HINT);
         String message = "Hello World!";
 
-        String error_message = DiagnosticAnnotation.getColoredString(message, errorColor, true);
+        String errorMessage = DiagnosticAnnotation.getColoredString(message, errorColor, true);
         String expected =
                 DiagnosticAnnotation.JANSI_ANNOTATOR + "red" + " " + message + DiagnosticAnnotation.JANSI_RESET;
-        Assert.assertEquals(error_message, expected);
+        Assert.assertEquals(errorMessage, expected);
 
-        String warning_message = DiagnosticAnnotation.getColoredString(message, warningColor, true);
+        String warningMessage = DiagnosticAnnotation.getColoredString(message, warningColor, true);
         expected = DiagnosticAnnotation.JANSI_ANNOTATOR + "yellow" + " " + message + DiagnosticAnnotation.JANSI_RESET;
-        Assert.assertEquals(warning_message, expected);
+        Assert.assertEquals(warningMessage, expected);
 
-        String hint_message = DiagnosticAnnotation.getColoredString(message, hintColor, true);
+        String hintMessage = DiagnosticAnnotation.getColoredString(message, hintColor, true);
         expected = DiagnosticAnnotation.JANSI_ANNOTATOR + "blue" + " " + message + DiagnosticAnnotation.JANSI_RESET;
-        Assert.assertEquals(hint_message, expected);
+        Assert.assertEquals(hintMessage, expected);
     }
 
     @Test
     public void testTruncation() {
         String message = "This is a long message that needs to be truncated";
         int importantPartStart = 15;
-        int importantPartLength = 8;
+        int importantPartLength = 7;
         Map<Integer, String> truncatedLines = new HashMap<>();
         truncatedLines.put(30, "This is a long message that...");
-        truncatedLines.put(25, "... a long message tha...");
-        truncatedLines.put(20, "... long message ...");
+        truncatedLines.put(25, "This is a long message...");
+        truncatedLines.put(20, "...ong message th...");
+        truncatedLines.put(13, "...message...");
+        truncatedLines.put(10, "...essa...");
+        truncatedLines.put(5, "......");
+        truncatedLines.put(0, "......");
 
-        int[] lengths = {30, 25, 20};
+        int[] lengths = {30, 25, 20, 13, 10, 5, 0};
         for (int length : lengths) {
             DiagnosticAnnotation.TruncateResult truncatedMessage =
                     DiagnosticAnnotation.truncate(message, length, importantPartStart, importantPartLength);
