@@ -49,6 +49,7 @@ under the License.
     <test name="diagnostics-tests" preserve-order="true">
         <classes>
             <class name="io.ballerina.cli.diagnostics.AnnotateDiagnosticsTest" />
+            <class name="io.ballerina.cli.diagnostics.DiagnosticAnnotationTest" />
         </classes>
     </test>
 </suite>
