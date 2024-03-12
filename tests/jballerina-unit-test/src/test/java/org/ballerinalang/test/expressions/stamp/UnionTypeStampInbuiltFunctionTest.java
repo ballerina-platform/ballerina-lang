@@ -29,7 +29,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.types.BStringType;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -69,10 +68,10 @@ public class UnionTypeStampInbuiltFunctionTest {
         Assert.assertEquals(getType(employee0).getName(), "Employee");
 
         Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
-        BAssertUtil.assertTypeClass(getType(employee0.get(StringUtils.fromString("batch"))), BStringType.class);
+        TypeChecker.checkIsType(getType(employee0.get(StringUtils.fromString("batch"))), PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(employee0.get(StringUtils.fromString("school")).toString(), "Hindu College");
-        BAssertUtil.assertTypeClass(getType(employee0.get(StringUtils.fromString("school"))), BStringType.class);
+        TypeChecker.checkIsType(getType(employee0.get(StringUtils.fromString("school"))), PredefinedTypes.TYPE_STRING);
     }
 
     @Test
@@ -87,10 +86,10 @@ public class UnionTypeStampInbuiltFunctionTest {
                 TypeChecker.checkIsType(TypeHelper.typeConstraint(employee0.getType()), PredefinedTypes.TYPE_JSON));
 
         Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
-        BAssertUtil.assertTypeClass(getType(employee0.get(StringUtils.fromString("batch"))), BStringType.class);
+        TypeChecker.checkIsType(getType(employee0.get(StringUtils.fromString("batch"))), PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(employee0.get(StringUtils.fromString("school")).toString(), "Hindu College");
-        BAssertUtil.assertTypeClass(getType(employee0.get(StringUtils.fromString("school"))), BStringType.class);
+        TypeChecker.checkIsType(getType(employee0.get(StringUtils.fromString("school"))), PredefinedTypes.TYPE_STRING);
     }
 
     @Test
@@ -114,7 +113,7 @@ public class UnionTypeStampInbuiltFunctionTest {
         Object results = BRunUtil.invoke(compileResult, "stampUnionToAnydata");
         Object stampedValue = results;
 
-        BAssertUtil.assertTypeClass(getType(stampedValue), BStringType.class);
+        TypeChecker.checkIsType(getType(stampedValue), PredefinedTypes.TYPE_STRING);
     }
 
     @Test
@@ -126,10 +125,10 @@ public class UnionTypeStampInbuiltFunctionTest {
         Object stampedValue1 = results.get(1);
 
         Assert.assertEquals(stampedValue0.toString(), "mohan");
-        BAssertUtil.assertTypeClass(getType(stampedValue0), BStringType.class);
+        TypeChecker.checkIsType(getType(stampedValue0), PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(stampedValue1.toString(), "LK2014");
-        BAssertUtil.assertTypeClass(getType(stampedValue1), BStringType.class);
+        TypeChecker.checkIsType(getType(stampedValue1), PredefinedTypes.TYPE_STRING);
     }
 
     @Test
@@ -138,7 +137,7 @@ public class UnionTypeStampInbuiltFunctionTest {
         Object results = BRunUtil.invoke(compileResult, "stampUnionToAnydataV2");
         Object stampedValue = results;
 
-        BAssertUtil.assertTypeClass(getType(stampedValue), BStringType.class);
+        TypeChecker.checkIsType(getType(stampedValue), PredefinedTypes.TYPE_STRING);
     }
 
     @Test
@@ -158,21 +157,21 @@ public class UnionTypeStampInbuiltFunctionTest {
         Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(
                         StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
-        BAssertUtil.assertTypeClass(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(
-                StringUtils.fromString("school"))), BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(
+                StringUtils.fromString("school"))), PredefinedTypes.TYPE_STRING);
 
-        BAssertUtil.assertTypeClass(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(
-                StringUtils.fromString("batch"))), BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(
+                StringUtils.fromString("batch"))), PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(getType(employee0.get(StringUtils.fromString("b"))).getName(), "Teacher");
         Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("b"))).get(
                         StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
-        BAssertUtil.assertTypeClass(getType(((BMap) employee0.get(StringUtils.fromString("b"))).get(
-                StringUtils.fromString("school"))), BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) employee0.get(StringUtils.fromString("b"))).get(
+                StringUtils.fromString("school"))), PredefinedTypes.TYPE_STRING);
 
-        BAssertUtil.assertTypeClass(getType(((BMap) employee0.get(StringUtils.fromString("b"))).get(
-                StringUtils.fromString("batch"))), BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) employee0.get(StringUtils.fromString("b"))).get(
+                StringUtils.fromString("batch"))), PredefinedTypes.TYPE_STRING);
     }
 
     @AfterClass

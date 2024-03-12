@@ -20,15 +20,16 @@
 package io.ballerina.runtime.internal.types.semType;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.types.BAnyType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BType;
+import io.ballerina.runtime.internal.types.BUnionType;
 
 import java.util.Arrays;
 import java.util.BitSet;
@@ -38,6 +39,7 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTy
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
 
 public class BSemType implements Type {
 
@@ -98,6 +100,13 @@ public class BSemType implements Type {
         }
         if (isUniformType(UT_BOOLEAN)) {
             return (V) Boolean.valueOf(false);
+        } else if (isUniformType(UT_STRING)) {
+            if (all.get(UT_STRING)) {
+                return (V) RuntimeConstants.STRING_EMPTY_VALUE;
+            } else {
+                StringSubType stringSubType = (StringSubType) subTypeData[UT_STRING];
+                return (V) StringUtils.fromString(stringSubType.defaultValue());
+            }
         }
         return null;
     }
@@ -109,6 +118,13 @@ public class BSemType implements Type {
         }
         if (isUniformType(UT_BOOLEAN)) {
             return (V) Boolean.valueOf(false);
+        } else if (isUniformType(UT_STRING)) {
+            if (all.get(UT_STRING)) {
+                return (V) RuntimeConstants.STRING_EMPTY_VALUE;
+            } else {
+                StringSubType stringSubType = (StringSubType) subTypeData[UT_STRING];
+                return (V) StringUtils.fromString(stringSubType.defaultValue());
+            }
         }
         return null;
     }
@@ -127,6 +143,7 @@ public class BSemType implements Type {
     }
 
     private int calculateTag() {
+        // If we have BType
         if (some.get(UT_BTYPE)) {
             BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
             if (bTypeComponent instanceof BSubType subTypeData) {
@@ -145,35 +162,40 @@ public class BSemType implements Type {
             } else if (bTypeComponent instanceof BJsonType) {
                 return TypeTags.JSON_TAG;
             }
+            if (some.cardinality() + all.cardinality() > 1) {
+                return TypeTags.UNION_TAG;
+            } else {
+                return bTypeComponent.getBTypeComponent().getTag();
+            }
         }
-        if (all.isEmpty() && some.isEmpty()) {
+        // Pure SemType
+        int nBasicTypes = some.cardinality() + all.cardinality();
+        if (nBasicTypes == 0) {
             return TypeTags.NEVER_TAG;
-        }
-        boolean hasAnotherType = false;
-        for (int i = 0; i < N_TYPES; i++) {
-            if (i == UT_NIL) {
-                continue;
-            }
-            if (all.get(i) || some.get(i)) {
-                if (hasAnotherType) {
-                    return TypeTags.UNION_TAG;
-                }
-                hasAnotherType = true;
-            }
-        }
-        // Only one type
-        BitSet maskedAll = (BitSet) all.clone();
-        maskedAll.clear(UT_NIL);
-        if (maskedAll.cardinality() + some.cardinality() == 1 && (maskedAll.get(UT_BOOLEAN) || some.get(UT_BOOLEAN))) {
-            return TypeTags.BOOLEAN_TAG;
-        }
-        if (isUniformType(UT_NIL)) {
-            return TypeTags.NULL_TAG;
-        }
-        if (all.get(UT_NIL) && some.get(UT_BTYPE)) {
+        } else if (nBasicTypes > 1) {
             return TypeTags.UNION_TAG;
         }
-        return getBTypePart().getTag();
+
+        // Single type
+        if (isUniformType(UT_NIL)) {
+            return TypeTags.NULL_TAG;
+        } else if (isUniformType(UT_BOOLEAN)) {
+            return TypeTags.BOOLEAN_TAG;
+        } else if (isUniformType(UT_STRING)) {
+            if (some.get(UT_STRING)) {
+                StringSubType stringSubType = (StringSubType) subTypeData[UT_STRING];
+                if (stringSubType.data instanceof StringSubType.StringSubTypeData stringSubTypeData) {
+                    var chars = stringSubTypeData.chars();
+                    var nonChars = stringSubTypeData.nonChars();
+                    if (!chars.allowed() && chars.values().length == 0 && nonChars.allowed() &&
+                            nonChars.values().length == 0) {
+                        return TypeTags.CHAR_STRING_TAG;
+                    }
+                }
+            }
+            return TypeTags.STRING_TAG;
+        }
+        throw new IllegalStateException("Unable to calculate tag for the given SemType: " + this);
     }
 
     @Override
@@ -189,8 +211,11 @@ public class BSemType implements Type {
     public String getName() {
         if (name == null) {
             if (all.cardinality() + some.cardinality() == 1) {
-                if (all.get(UT_BOOLEAN) || some.get(UT_BOOLEAN)) {
+                if (all.get(UT_BOOLEAN)) {
                     return "boolean";
+                }
+                if (all.get(UT_STRING)) {
+                    return "string";
                 }
             }
             return "";
@@ -289,73 +314,128 @@ public class BSemType implements Type {
 
     @Override
     public String toString() {
-        if (some.cardinality() == 0 && all.cardinality() == 0) {
-            return "never";
-        }
         if (name != null) {
             return (module == null || module.getName() == null || module.getName().equals(".")) ? name :
                     module.toString() + ":" + name;
         }
-        boolean containsNull = false;
-        boolean addPrefix = false;
         if (orderedUnionMembers != null) {
-            StringBuilder sb = new StringBuilder();
-            for (Type member : orderedUnionMembers) {
-                if (member.getTag() == TypeTags.NULL_TAG) {
-                    containsNull = true;
-                    continue;
-                }
-                String memberStr = member.toString();
-                if (addPrefix) {
-                    sb.append("|");
-                }
-                if (memberStr.length() > 2 && memberStr.charAt(0) == '(' &&
-                        memberStr.charAt(memberStr.length() - 1) == ')') {
-                    sb.append(memberStr, 1, memberStr.length() - 1);
-                } else {
-                    sb.append(memberStr);
-                }
-                addPrefix = true;
-            }
-            return containsNull ? "(" + sb + ")?" : "(" + sb + ")";
+            return orderedMembersToString();
         }
-
-        if (all.cardinality() + some.cardinality() == 1) {
-            if (all.get(UT_BOOLEAN) || some.get(UT_BOOLEAN)) {
+        int nBasicTypes = some.cardinality() + all.cardinality();
+        if (nBasicTypes == 0) {
+            return "never";
+        } else if (nBasicTypes == 1) {
+            // TODO: once all test error messages has been updated to handle singleton types return the correct string
+            if (some.get(UT_BOOLEAN) || all.get(UT_BOOLEAN)) {
                 return "boolean";
             }
+            if (some.get(UT_STRING) || all.get(UT_STRING)) {
+                // Return '' if subtype is nothing?
+                return "string";
+            }
+            if (all.get(UT_NIL)) {
+                return "()";
+            }
+            if (some.get(UT_BTYPE)) {
+                return getBTypePart().toString();
+            }
+            throw new IllegalStateException("Unexpected single type");
         }
-        // FIXME: this is problamtic we need a way to test these inside semtype module
-        if (TypeChecker.isSameType(this, PredefinedTypes.TYPE_NULL)) {
-            return "()";
+        // TODO: try to avoid using the tag
+        int tag = getTag();
+        switch (tag) {
+            case TypeTags.JSON_TAG:
+                return "json";
+            case TypeTags.READONLY_TAG:
+                return "readonly";
+            case TypeTags.ANY_TAG:
+                return "any";
         }
-        if (TypeChecker.isSameType(this, PredefinedTypes.TYPE_ANY)) {
-            return "any";
+        StringBuilder sb = new StringBuilder();
+        for (int i = UT_NIL + 1; i < N_TYPES; i++) {
+            if (all.get(i) || some.get(i)) {
+                if (!sb.isEmpty()) {
+                    sb.append("|");
+                }
+                switch (i) {
+                    case UT_BOOLEAN -> sb.append(booleanPartToString());
+                    case UT_STRING -> sb.append("\"").append(stringPartToString()).append("\"");
+                    case UT_BTYPE -> {
+                        String result = getBTypePart().toString();
+                        if (result.contains("readonly")) {
+                            return "readonly";
+                        }
+                        sb.append(result);
+                    }
+                }
+            }
         }
-        if (TypeChecker.isSameType(this, PredefinedTypes.TYPE_JSON)) {
-            return "json";
+        if (all.get(UT_NIL)) {
+            return "(" + sb + ")?";
         }
-        if (TypeChecker.isSameType(this, PredefinedTypes.TYPE_READONLY)) {
-            return "readonly";
+        return "(" + sb + ")";
+    }
+
+    private String booleanPartToString() {
+        if (all.get(UT_BOOLEAN)) {
+            return "boolean";
+        } else {
+            BooleanSubType booleanSubType = (BooleanSubType) subTypeData[UT_BOOLEAN];
+            return booleanSubType.toString();
         }
-        if (onlyBType()) {
-            return getBType().toString();
+    }
+
+    private String stringPartToString() {
+        if (all.get(UT_STRING)) {
+            return "string";
+        } else {
+            StringSubType stringSubType = (StringSubType) subTypeData[UT_STRING];
+            return stringSubType.toString();
         }
-        return some.get(UT_BTYPE) ? getBTypePart().toString() + "?" : "()";
+    }
+
+    private String orderedMembersToString() {
+        boolean containsNull = false;
+        boolean addPrefix = false;
+        StringBuilder sb = new StringBuilder();
+        for (Type member : orderedUnionMembers) {
+            // TODO: avoid using the tag
+            if (member.getTag() == TypeTags.NULL_TAG) {
+                containsNull = true;
+                continue;
+            }
+            String memberStr = member.toString();
+            if (addPrefix) {
+                sb.append("|");
+            }
+            if (memberStr.length() > 2 && memberStr.charAt(0) == '(' &&
+                    memberStr.charAt(memberStr.length() - 1) == ')') {
+                sb.append(memberStr, 1, memberStr.length() - 1);
+            } else {
+                sb.append(memberStr);
+            }
+            addPrefix = true;
+        }
+        return containsNull ? "(" + sb + ")?" : "(" + sb + ")";
     }
 
     public void addCyclicMembers(List<Type> members) {
-        BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
+        BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[UT_BTYPE];
+        if (!(bTypeComponent instanceof BUnionType) && bTypeComponent instanceof BType singleType) {
+            BSubType newBTypeComponent = new BSubType(List.of(singleType));
+            subTypeData[UT_BTYPE] = newBTypeComponent;
+            bTypeComponent = newBTypeComponent;
+        }
         bTypeComponent.addCyclicMembers(members);
     }
 
     public void setBTypeClass(BSubType.BTypeClass typeClass) {
-        BSubType bTypeComponent = (BSubType) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
+        BSubType bTypeComponent = (BSubType) subTypeData[UT_BTYPE];
         bTypeComponent.setBTypeClass(typeClass);
     }
 
     public void setReadonly(boolean readonly) {
-        SubType subTypeData = this.subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
+        SubType subTypeData = this.subTypeData[UT_BTYPE];
         if (subTypeData instanceof BSubType bTypeComponent) {
             bTypeComponent.setReadonly(readonly);
         }

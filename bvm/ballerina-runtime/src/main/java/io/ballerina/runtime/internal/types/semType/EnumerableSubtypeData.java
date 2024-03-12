@@ -47,6 +47,24 @@ public abstract class EnumerableSubtypeData<E extends Comparable<E>> {
         }
     }
 
+    boolean intersect(EnumerableSubtypeData<E> other, List<E> results) {
+        boolean b1 = this.allowed();
+        boolean b2 = other.allowed();
+        if (b1 && b2) {
+            enumerableListIntersection(this.values(), other.values(), results);
+            return true;
+        } else if (!b1 && !b2) {
+            enumerableListUnion(this.values(), other.values(), results);
+            return false;
+        } else if (b1 && !b2) {
+            enumerableListDiff(this.values(), other.values(), results);
+            return true;
+        } else {
+            enumerableListDiff(other.values(), this.values(), results);
+            return true;
+        }
+    }
+
     private static <E extends Comparable<E>> void enumerableListUnion(E[] values1, E[] values2, List<E> results) {
         int i1, i2;
         i1 = i2 = 0;
@@ -65,20 +83,17 @@ public abstract class EnumerableSubtypeData<E extends Comparable<E>> {
             } else {
                 E s1 = values1[i1];
                 E s2 = values2[i2];
-                switch (s1.compareTo(s2)) {
-                    case 0:
-                        results.add(s1);
-                        i1 += 1;
-                        i2 += 1;
-                        break;
-                    case -1:
-                        results.add(s1);
-                        i1 += 1;
-                        break;
-                    case 1:
-                        results.add(s2);
-                        i2 += 1;
-                        break;
+                int result = s1.compareTo(s2);
+                if (result == 0) {
+                    results.add(s1);
+                    i1 += 1;
+                    i2 += 1;
+                } else if (result < 0) {
+                    results.add(s1);
+                    i1 += 1;
+                } else {
+                    results.add(s2);
+                    i2 += 1;
                 }
             }
         }
@@ -96,18 +111,15 @@ public abstract class EnumerableSubtypeData<E extends Comparable<E>> {
             } else {
                 E s1 = v1[i1];
                 E s2 = v2[i2];
-                switch (s1.compareTo(s2)) {
-                    case 0:
-                        results.add(s1);
-                        i1 += 1;
-                        i2 += 1;
-                        break;
-                    case -1:
-                        i1 += 1;
-                        break;
-                    case 1:
-                        i2 += 1;
-                        break;
+                int result = s1.compareTo(s2);
+                if (result == 0) {
+                    results.add(s1);
+                    i1 += 1;
+                    i2 += 1;
+                } else if (result < 0) {
+                    i1 += 1;
+                } else {
+                    i2 += 1;
                 }
             }
         }
@@ -128,18 +140,15 @@ public abstract class EnumerableSubtypeData<E extends Comparable<E>> {
             } else {
                 E s1 = t1[i1];
                 E s2 = t2[i2];
-                switch (s1.compareTo(s2)) {
-                    case 0:
-                        i1 += 1;
-                        i2 += 1;
-                        break;
-                    case -1:
-                        results.add(s1);
-                        i1 += 1;
-                        break;
-                    case 1:
-                        i2 += 1;
-                        break;
+                int result = s1.compareTo(s2);
+                if (result == 0) {
+                    i1 += 1;
+                    i2 += 1;
+                } else if (result < 0) {
+                    results.add(s1);
+                    i1 += 1;
+                } else {
+                    i2 += 1;
                 }
             }
         }

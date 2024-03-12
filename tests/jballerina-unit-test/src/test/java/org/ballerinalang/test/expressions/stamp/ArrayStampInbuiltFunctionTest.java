@@ -27,7 +27,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.types.BStringType;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -100,11 +99,11 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue0.getType().getName(), "Employee");
         Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-        BAssertUtil.assertTypeClass(getType(mapValue0.get(StringUtils.fromString("school"))), BStringType.class);
+        TypeChecker.checkIsType(getType(mapValue0.get(StringUtils.fromString("school"))), PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(mapValue1.getType().getName(), "Employee");
         Assert.assertEquals(getType(mapValue1.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-        BAssertUtil.assertTypeClass(getType(mapValue1.get(StringUtils.fromString("school"))), BStringType.class);
+        TypeChecker.checkIsType(getType(mapValue1.get(StringUtils.fromString("school"))), PredefinedTypes.TYPE_STRING);
     }
 
     @Test
@@ -119,11 +118,11 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue0.getType().getName(), "Employee");
         Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-        BAssertUtil.assertTypeClass(getType(mapValue0.get(StringUtils.fromString("school"))), BStringType.class);
+        TypeChecker.checkIsType(getType(mapValue0.get(StringUtils.fromString("school"))), PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(mapValue1.getType().getName(), "Employee");
         Assert.assertEquals(getType(mapValue1.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-        BAssertUtil.assertTypeClass(getType(mapValue1.get(StringUtils.fromString("school"))), BStringType.class);
+        TypeChecker.checkIsType(getType(mapValue1.get(StringUtils.fromString("school"))), PredefinedTypes.TYPE_STRING);
     }
 
     @Test
@@ -142,8 +141,8 @@ public class ArrayStampInbuiltFunctionTest {
                 TypeChecker.checkIsType(TypeHelper.typeConstraint(mapValue0.getType()), PredefinedTypes.TYPE_JSON));
         Assert.assertEquals((mapValue0).size(), 4);
         Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        BAssertUtil.assertTypeClass(getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch"))),
+                PredefinedTypes.TYPE_STRING);
 
         BAssertUtil.assertTypeClass(getType(mapValue1), BMapType.class);
         Assert.assertTrue(
@@ -151,8 +150,8 @@ public class ArrayStampInbuiltFunctionTest {
         Assert.assertEquals((mapValue1).size(), 4);
         Assert.assertEquals(((LinkedHashMap) mapValue1).get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        BAssertUtil.assertTypeClass(getType(((LinkedHashMap) mapValue1).get(StringUtils.fromString("batch"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((LinkedHashMap) mapValue1).get(StringUtils.fromString("batch"))),
+                PredefinedTypes.TYPE_STRING);
     }
 
     @Test
@@ -199,11 +198,11 @@ public class ArrayStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue0.getType().getName(), "Employee");
         Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-        BAssertUtil.assertTypeClass(getType(mapValue0.get(StringUtils.fromString("school"))), BStringType.class);
+        TypeChecker.checkIsType(getType(mapValue0.get(StringUtils.fromString("school"))), PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(mapValue1.getType().getName(), "Employee");
         Assert.assertEquals(getType(mapValue1.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-        BAssertUtil.assertTypeClass(getType(mapValue1.get(StringUtils.fromString("school"))), BStringType.class);
+        TypeChecker.checkIsType(getType(mapValue1.get(StringUtils.fromString("school"))), PredefinedTypes.TYPE_STRING);
     }
 
     @Test
@@ -225,24 +224,24 @@ public class ArrayStampInbuiltFunctionTest {
         Assert.assertEquals(((BMap) tupleValue2).size(), 4);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
-        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
-        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
-        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) tupleValue1).get(StringUtils.fromString("school")).toString(), "Royal College");
-        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue1).get(StringUtils.fromString("school"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue1).get(StringUtils.fromString("school"))),
+                PredefinedTypes.TYPE_STRING);
     }
 
     @Test

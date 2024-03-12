@@ -22,6 +22,7 @@
 package io.ballerina.runtime.internal.types.semType;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BAnyType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
@@ -40,30 +41,31 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTy
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
 
 public final class SemTypeUtils {
 
     public static final class UniformTypeCodes {
 
+        // TODO: make sure the type codes matches
         public final static int UT_NEVER = 0;
         public final static int UT_NIL = 0x01;
         public final static int UT_BOOLEAN = 0x02;
-        public final static int UT_BTYPE = 0x03;
+        public final static int UT_STRING = 0x03;
+        public final static int UT_BTYPE = 0x04;
 
-        public final static int N_TYPES = 4;
+        public final static int N_TYPES = 5;
     }
 
     public static final class SemTypeBuilder {
 
-        private static final BSemType ALL_SEMTYPES = union(from(UT_NIL), from(UT_BOOLEAN));
+        public static final BSemType ALL_SEMTYPES = from(UT_NIL | UT_BOOLEAN | UT_STRING);
+        public static final BSemType ALL_BTYPE = from(UT_BTYPE);
 
         public static BSemType from(int uniformTypeCode) {
             if (uniformTypeCode < 0 || uniformTypeCode >= N_TYPES) {
                 throw new IllegalStateException("Invalid uniform type code");
             }
-//            if (uniformTypeCode != UniformTypeCodes.UT_NIL) {
-//                throw new IllegalStateException("This method can only be used to create a semType for a BType");
-//            }
             BitSet all = new BitSet(N_TYPES);
             BitSet some = new BitSet(N_TYPES);
             SubType[] subTypeData = new SubType[N_TYPES];
@@ -73,18 +75,6 @@ public final class SemTypeUtils {
             return new BSemType(all, some, subTypeData);
         }
 
-        //        public static BSemType from(Object value) {
-//            if (value instanceof Boolean b) {
-//                BitSet all = new BitSet(N_TYPES);
-//                BitSet some = new BitSet(N_TYPES);
-//                ProperSubTypeData[] subTypeData = new ProperSubTypeData[N_TYPES];
-//                some.set(UT_BOOLEAN);
-//                subTypeData[UT_BOOLEAN] = new BooleanSubtypeData(b);
-//                return new BSemType(all, some, subTypeData);
-//            }
-//            throw new IllegalStateException("Unsupported value type" + value);
-//        }
-//
         public static Type booleanSubType(boolean value) {
             BitSet all = new BitSet(N_TYPES);
             BitSet some = new BitSet(N_TYPES);
@@ -92,6 +82,25 @@ public final class SemTypeUtils {
             some.set(UT_BOOLEAN);
             subTypeData[UT_BOOLEAN] = new BooleanSubType(value);
             return new BSemType(all, some, subTypeData);
+        }
+
+        public static Type stringSubType(boolean charsAllowed, String[] chars, boolean nonCharsAllowed,
+                                         String[] nonChars) {
+            BitSet all = new BitSet(N_TYPES);
+            BitSet some = new BitSet(N_TYPES);
+            SubType[] subTypeData = new SubType[N_TYPES];
+            some.set(UT_STRING);
+            subTypeData[UT_STRING] =
+                    StringSubType.createStringSubTypeData(charsAllowed, chars, nonCharsAllowed, nonChars);
+            return new BSemType(all, some, subTypeData);
+        }
+
+        public static Type stringSubType(String value) {
+            return stringSubType(true, new String[0], true, new String[]{value});
+        }
+
+        public static Type charSubType(String value) {
+            return stringSubType(true, new String[]{value}, true, new String[0]);
         }
 
         public static BSemType from(BType bType) {
@@ -113,6 +122,7 @@ public final class SemTypeUtils {
             if ((bType instanceof BAnyType) || (bType instanceof BReadonlyType)) {
                 all.set(UT_NIL);
                 all.set(UT_BOOLEAN);
+                all.set(UT_STRING);
             }
             if (bType instanceof BIntersectionType intersectionType) {
                 // NOTE: we need to take the effective type break up into bType and semtypes (this can be done by converting
@@ -173,6 +183,8 @@ public final class SemTypeUtils {
             BitSet some = new BitSet();
             SubType[] subTypeData = new SubType[N_TYPES];
             Set<Object> remainingValues = new HashSet<>();
+            Set<String> charValues = new HashSet<>();
+            Set<String> nonCharValues = new HashSet<>();
             for (Object value : finiteType.valueSpace) {
                 if (value == null) {
                     all.set(UniformTypeCodes.UT_NIL);
@@ -193,14 +205,27 @@ public final class SemTypeUtils {
                         some.set(UT_BOOLEAN);
                         subTypeData[UT_BOOLEAN] = new BooleanSubType(val);
                     }
+                } else if (value instanceof BString bString) {
+                    String stringValue = bString.getValue();
+                    if (stringValue.length() > 1) {
+                        nonCharValues.add(stringValue);
+                    } else {
+                        charValues.add(stringValue);
+                    }
                 } else {
                     remainingValues.add(value);
                 }
             }
             if (!remainingValues.isEmpty()) {
-                some.set(UniformTypeCodes.UT_BTYPE);
-                subTypeData[UniformTypeCodes.UT_BTYPE] =
+                some.set(UT_BTYPE);
+                subTypeData[UT_BTYPE] =
                         new BFiniteType(finiteType.getName(), remainingValues, finiteType.getTypeFlags());
+            }
+            if (!nonCharValues.isEmpty() || !charValues.isEmpty()) {
+                some.set(UT_STRING);
+                subTypeData[UT_STRING] =
+                        StringSubType.createStringSubTypeData(true, charValues.toArray(new String[0]), true,
+                                nonCharValues.toArray(new String[0]));
             }
             return new BSemType(all, some, subTypeData);
         }
@@ -209,12 +234,6 @@ public final class SemTypeUtils {
     public static final class TypeOperation {
 
         public static BSemType union(BSemType t1, BSemType t2) {
-//            if (t1.some.isEmpty()) {
-//                if (t2.some.isEmpty()) {
-//                    throw new RuntimeException("unimplemented");
-//                }
-//                throw new RuntimeException("unimplemented");
-//            }
             BSemType semtype = new BSemType();
 
             semtype.all.or(t1.all);

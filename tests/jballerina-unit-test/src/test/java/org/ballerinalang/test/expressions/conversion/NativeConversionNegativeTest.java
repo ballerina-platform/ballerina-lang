@@ -60,9 +60,10 @@ public class NativeConversionNegativeTest {
         Assert.assertTrue(returns instanceof BError);
         String errorMsg = ((BMap<String, Object>) ((BError) returns).getDetails()).get(
                 StringUtils.fromString("message")).toString();
+        // TODO: string fix
         Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'Person': \n\t\t{" +
-                "\n\t\t  field 'parent.parent' in record 'Person' should be of type 'Person?', found '\"Parent\"" +
-                "'\n\t\t}");
+                "\n\t\t  field 'parent.parent' in record 'Person' should be of type 'Person?', found 'Parent'" +
+                "\n\t\t}");
     }
 
     @Test

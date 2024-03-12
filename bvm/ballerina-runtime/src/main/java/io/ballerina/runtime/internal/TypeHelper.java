@@ -45,6 +45,7 @@ import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.types.semType.BSemType;
 import io.ballerina.runtime.internal.types.semType.BTypeComponent;
+import io.ballerina.runtime.internal.types.semType.Core;
 import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
 import io.ballerina.runtime.internal.values.MapValue;
 
@@ -61,6 +62,7 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTy
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
 
 // TODO: type utils factor these to a separate protected class
 public class TypeHelper {
@@ -240,6 +242,7 @@ public class TypeHelper {
             case UT_NEVER -> PredefinedTypes.TYPE_NEVER;
             case UT_NIL -> PredefinedTypes.TYPE_NULL;
             case UT_BOOLEAN -> PredefinedTypes.TYPE_BOOLEAN;
+            case UT_STRING -> PredefinedTypes.TYPE_STRING;
             default -> throw new UnsupportedOperationException("uniform type not supported for type code: " + typeCode);
         };
     }
@@ -274,8 +277,15 @@ public class TypeHelper {
                 remainingMembers = new LinkedList<>(unionType.getMemberTypes());
             } else if (type instanceof BSemType semType) {
                 remainingMembers = new LinkedList<>();
-                if (semType.all.get(UT_NIL)) {
+                // TODO: factor a simple type code and Type array for all implemnted semtypes
+                if (Core.containsSimple(semType, UT_NIL)) {
                     remainingMembers.add(PredefinedTypes.TYPE_NULL);
+                }
+                if (Core.containsSimple(semType, UT_BOOLEAN)) {
+                    remainingMembers.add(PredefinedTypes.TYPE_BOOLEAN);
+                }
+                if (Core.containsSimple(semType, UT_STRING)) {
+                    remainingMembers.add(PredefinedTypes.TYPE_STRING);
                 }
                 if (semType.some.get(UT_BTYPE)) {
                     BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[UT_BTYPE];

@@ -1,5 +1,4 @@
 /*
- *
  *   Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
  *
  *   WSO2 LLC. licenses this file to you under the Apache License,
@@ -15,8 +14,6 @@
  *   KIND, either express or implied.  See the License for the
  *   specific language governing permissions and limitations
  *   under the License.
- * /
- *
  */
 
 package io.ballerina.runtime.internal.types.semType;
@@ -24,6 +21,8 @@ package io.ballerina.runtime.internal.types.semType;
 public class BooleanSubType implements SubType {
 
     final SubTypeData data;
+    private static final BooleanSubType NOTHING = new BooleanSubType(AllOrNothing.NOTHING);
+    private static final BooleanSubType ALL = new BooleanSubType(AllOrNothing.ALL);
 
     public BooleanSubType(boolean data) {
         this.data = new BooleanSubTypeData(data);
@@ -31,15 +30,6 @@ public class BooleanSubType implements SubType {
 
     private BooleanSubType(AllOrNothing data) {
         this.data = data;
-    }
-
-    // TODO: cache these
-    static BooleanSubType nothing() {
-        return new BooleanSubType(AllOrNothing.NOTHING);
-    }
-
-    static BooleanSubType all() {
-        return new BooleanSubType(AllOrNothing.ALL);
     }
 
     // TODO: refactor
@@ -51,7 +41,7 @@ public class BooleanSubType implements SubType {
                     if (thisdata.value == otherdata.value) {
                         return this;
                     }
-                    return all();
+                    return ALL;
                 } else if (otherBoolean.data instanceof AllOrNothing allOrNothing) {
                     if (allOrNothing == AllOrNothing.ALL) {
                         return other;
@@ -79,7 +69,7 @@ public class BooleanSubType implements SubType {
                     if (otherdata.value == thisdata.value) {
                         return this;
                     }
-                    return nothing();
+                    return NOTHING;
                 } else if (otherBoolean.data instanceof AllOrNothing allOrNothing) {
                     if (allOrNothing == AllOrNothing.NOTHING) {
                         return other;
@@ -105,14 +95,14 @@ public class BooleanSubType implements SubType {
             if (this.data instanceof BooleanSubTypeData thisdata) {
                 if (otherBoolean.data instanceof BooleanSubTypeData otherdata) {
                     if (otherdata.value == thisdata.value) {
-                        return nothing();
+                        return NOTHING;
                     }
                     return this;
                 } else if (otherBoolean.data instanceof AllOrNothing allOrNothing) {
                     if (allOrNothing == AllOrNothing.NOTHING) {
                         return this;
                     }
-                    return nothing();
+                    return NOTHING;
                 }
             } else if (this.data instanceof AllOrNothing allOrNothing) {
                 if (allOrNothing == AllOrNothing.NOTHING) {
@@ -132,19 +122,24 @@ public class BooleanSubType implements SubType {
             return new BooleanSubType(!booleanData.value);
         } else if (this.data instanceof AllOrNothing allOrNothing) {
             if (allOrNothing == AllOrNothing.NOTHING) {
-                return all();
+                return ALL;
             }
-            return nothing();
+            return NOTHING;
         }
         throw new IllegalStateException("unreachable");
     }
 
     @Override
-    public boolean isEmpty() {
-        if (data instanceof AllOrNothing allOrNothing) {
-            return allOrNothing == AllOrNothing.NOTHING;
+    public String toString() {
+        if (data instanceof BooleanSubTypeData booleanSubTypeData) {
+            return booleanSubTypeData.value ? "true" : "false";
         }
-        return false;
+        return "boolean";
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return data == AllOrNothing.NOTHING;
     }
 
     record BooleanSubTypeData(boolean value) implements SubTypeData {

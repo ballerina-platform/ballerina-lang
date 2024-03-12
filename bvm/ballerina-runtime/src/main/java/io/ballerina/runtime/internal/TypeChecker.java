@@ -1027,6 +1027,9 @@ public class TypeChecker {
         return SemanticTypeEngine.hasFillerValue(type);
     }
 
+    static boolean hasFillerValue(Type type, List<Type> unanalyzedTypes) {
+        return SemanticTypeEngine.hasFillerValue(type, unanalyzedTypes);
+    }
 
     private static BError createTypeCastError(Object value, Type targetType, List<String> errors) {
         if ((errors == null) || (errors.isEmpty())) {

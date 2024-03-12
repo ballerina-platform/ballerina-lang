@@ -95,8 +95,8 @@ public class ReadOnlyUtils {
     // TODO: these needs to be fixed when we can have non readonly semtypes
     // TODO: need better names for these
     private static Type bTypeReadonlyUtilDriver(BSemType semType, Function<BType, Type> fn) {
-        BSemType semTypePart = SemTypeUtils.TypeOperation.diff(semType, TypeBuilder.PURE_B_TYPE);
-        BSemType bTypePart = SemTypeUtils.TypeOperation.intersection(semType, TypeBuilder.PURE_B_TYPE);
+        BSemType semTypePart = SemTypeUtils.TypeOperation.diff(semType, SemTypeUtils.SemTypeBuilder.ALL_BTYPE);
+        BSemType bTypePart = SemTypeUtils.TypeOperation.intersection(semType, SemTypeUtils.SemTypeBuilder.ALL_BTYPE);
         if (SemTypeUtils.TypeOperation.isEmpty(bTypePart)) {
             return semTypePart;
         }

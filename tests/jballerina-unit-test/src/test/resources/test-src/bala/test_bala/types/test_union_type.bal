@@ -58,14 +58,14 @@ function testUnionRuntimeToString() {
     assertTrue(c is error);
     err = <error> c;
     assertEquals("{ballerina}TypeCastError", err.message());
-    assertEquals("incompatible types: '(any|error)[]' cannot be cast to 'testorg/foo:1:FooBar'",
+    assertEquals("incompatible types: '(any|error)[]' cannot be cast to 'testorg/foo:1.0.0:FooBar'",
                  <string> checkpanic err.detail()["message"]);
 
     foo:BazQux|error d = trap <foo:BazQux> a;
     assertTrue(d is error);
     err = <error> d;
     assertEquals("{ballerina}TypeCastError", err.message());
-    assertEquals("incompatible types: '(any|error)[]' cannot be cast to 'testorg/foo:1:BazQux'",
+    assertEquals("incompatible types: '(any|error)[]' cannot be cast to 'testorg/foo:1.0.0:BazQux'",
                  <string> checkpanic err.detail()["message"]);
 }
 

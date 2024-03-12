@@ -29,7 +29,6 @@ import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.types.BStringType;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -98,9 +97,8 @@ public class JSONStampInbuiltFunctionTest {
         Assert.assertEquals((mapValue0).size(), 4);
         Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school")).toString(),
                 "Hindu College");
-        BAssertUtil.assertTypeClass(getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school"))),
-                BStringType.class);
-
+        TypeChecker.checkIsType(getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school"))),
+                PredefinedTypes.TYPE_STRING);
     }
 
     @Test
@@ -141,16 +139,16 @@ public class JSONStampInbuiltFunctionTest {
 
         Assert.assertEquals((mapValue0).size(), 4);
         Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        BAssertUtil.assertTypeClass(getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((LinkedHashMap) mapValue0).get(StringUtils.fromString("batch"))),
+                PredefinedTypes.TYPE_STRING);
 
         BAssertUtil.assertTypeClass(mapValue1.getType(), BRecordType.class);
         Assert.assertEquals(mapValue1.getType().getName(), "Student");
 
         Assert.assertEquals((mapValue1).size(), 4);
         Assert.assertEquals(((LinkedHashMap) mapValue1).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        BAssertUtil.assertTypeClass(getType(((LinkedHashMap) mapValue1).get(StringUtils.fromString("batch"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((LinkedHashMap) mapValue1).get(StringUtils.fromString("batch"))),
+                PredefinedTypes.TYPE_STREAM);
     }
 
     @Test
@@ -164,7 +162,7 @@ public class JSONStampInbuiltFunctionTest {
         Assert.assertEquals(results.get(1).toString(), "false");
         Assert.assertEquals(getType(results.get(1)).getTag(), TypeTags.BOOLEAN_TAG);
         Assert.assertEquals(results.get(2).toString(), "foo");
-        BAssertUtil.assertTypeClass(getType(results.get(2)), BStringType.class);
+        TypeChecker.checkIsType(getType(results.get(2)), PredefinedTypes.TYPE_STRING);
         Assert.assertEquals((((BMap) results.get(3))).size(), 2);
         BAssertUtil.assertTypeClass(getType(results.get(3)), BMapType.class);
         TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(results.get(3))), PredefinedTypes.TYPE_ANYDATA);
@@ -196,7 +194,7 @@ public class JSONStampInbuiltFunctionTest {
         Assert.assertEquals(results.get(1).toString(), "false");
         Assert.assertEquals(getType(results.get(1)).getTag(), TypeTags.BOOLEAN_TAG);
         Assert.assertEquals(results.get(2).toString(), "foo");
-        BAssertUtil.assertTypeClass(getType(results.get(2)), BStringType.class);
+        TypeChecker.checkIsType(getType(results.get(2)), PredefinedTypes.TYPE_STRING);
         Assert.assertNull(results.get(3));
         Assert.assertEquals((((BMap) results.get(4))).size(), 2);
 
@@ -213,9 +211,9 @@ public class JSONStampInbuiltFunctionTest {
         BAssertUtil.assertTypeClass(mapValue0.getType(), BRecordType.class);
         Assert.assertEquals(mapValue0.getType().getName(), "Foo");
 
-        BAssertUtil.assertTypeClass(
+        TypeChecker.checkIsType(
                 TypeHelper.listRestType(getType(mapValue0.get(StringUtils.fromString("a")))),
-                BStringType.class);
+                PredefinedTypes.TYPE_STRING);
     }
 
     //----------------------------------- Negative Test cases ----------------------------------------------------

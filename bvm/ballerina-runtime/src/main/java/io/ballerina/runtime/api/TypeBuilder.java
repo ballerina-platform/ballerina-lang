@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BAnyType;
+import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BByteType;
 import io.ballerina.runtime.internal.types.BDecimalType;
@@ -36,12 +37,12 @@ import io.ballerina.runtime.internal.types.BFutureType;
 import io.ballerina.runtime.internal.types.BHandleType;
 import io.ballerina.runtime.internal.types.BIntegerType;
 import io.ballerina.runtime.internal.types.BIteratorType;
+import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BNeverType;
 import io.ballerina.runtime.internal.types.BReadonlyType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BStreamType;
-import io.ballerina.runtime.internal.types.BStringType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BType;
@@ -63,14 +64,13 @@ import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.VALUE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
 
 public final class TypeBuilder {
 
-    public static final BSemType PURE_B_TYPE = SemTypeUtils.SemTypeBuilder.from(SemTypeUtils.UniformTypeCodes.UT_BTYPE);
     private TypeBuilder() {
     }
 
@@ -85,17 +85,16 @@ public final class TypeBuilder {
         if (type instanceof BUnionType unionType) {
             // TODO: not sure if this needs ordered members
             BSemType semType = unionFrom(unionType.getName(), unionType.getPackage(), unionType.getMemberTypes());
-//            if (unionType.isCyclic()) {
-//                semType.addCyclicMembers(List.of());
-//            }
+            if (unionType instanceof BJsonType) {
+                semType.setBTypeClass(BSubType.BTypeClass.BJson);
+            } else if (unionType instanceof BAnydataType) {
+                semType.setBTypeClass(BSubType.BTypeClass.BAnyData);
+            }
             return semType;
         }
         if (type instanceof BTypeReferenceType referenceType) {
             return wrap(referenceType.getReferredType());
         }
-//        if (type instanceof BIntersectionType intersectionType) {
-//            return wrap(intersectionType.getEffectiveType());
-//        }
         return SemTypeUtils.SemTypeBuilder.from((BType) type);
     }
 
@@ -195,18 +194,17 @@ public final class TypeBuilder {
     }
 
     public static Type union(Type type1, Type type2, Identifier identifier) {
-        if (type1 instanceof BSemType semType1 && type2 instanceof BSemType semType2) {
-            BSemType result = SemTypeUtils.TypeOperation.union(semType1, semType2);
-            // TODO: avoid creating new modules instead use some sort of flyweight here
-            String name = identifier.name;
-            if (name != null && !name.isEmpty()) {
-                result.setIdentifiers(name, new Module(identifier.org, identifier.pkgName, identifier.version));
-            } else {
-                result.setOrderedUnionMembers(new Type[]{type1, type2});
-            }
-            return result;
+        BSemType semType1 = wrap(type1);
+        BSemType semType2 = wrap(type2);
+        BSemType result = SemTypeUtils.TypeOperation.union(semType1, semType2);
+        // TODO: avoid creating new modules instead use some sort of flyweight here
+        String name = identifier.name;
+        if (name != null && !name.isEmpty()) {
+            result.setIdentifiers(name, new Module(identifier.org, identifier.pkgName, identifier.version));
+        } else {
+            result.setOrderedUnionMembers(new Type[]{type1, type2});
         }
-        throw new RuntimeException("unexpected named union");
+        return result;
     }
 
     // TODO: next we need to make sure all the predefined union types could be build using this
@@ -471,7 +469,8 @@ public final class TypeBuilder {
         if (data.stringPositive && data.strings.length == 0 && !(data.includingChars) && data.chars.length == 0) {
             return TypeCache.TYPE_STRING_CHAR;
         }
-        throw new UnsupportedOperationException("Not implemented yet");
+        return SemTypeUtils.SemTypeBuilder.stringSubType(data.includingChars, data.chars, data.stringPositive,
+                data.strings);
     }
 
     // TODO: consider
@@ -514,11 +513,9 @@ public final class TypeBuilder {
         public static final Type TYPE_BYTE = wrap(new BByteType(TypeConstants.BYTE_TNAME, EMPTY_MODULE));
         public static final Type TYPE_FLOAT = wrap(new BFloatType(TypeConstants.FLOAT_TNAME, EMPTY_MODULE));
         public static final Type TYPE_DECIMAL = wrap(new BDecimalType(TypeConstants.DECIMAL_TNAME, EMPTY_MODULE));
-        public static final Type TYPE_STRING = wrap(new BStringType(TypeConstants.STRING_TNAME, EMPTY_MODULE));
-        public static final Type TYPE_STRING_CHAR = wrap(new BStringType(TypeConstants.CHAR,
-                new Module(BALLERINA_BUILTIN_PKG_PREFIX,
-                        STRING_LANG_LIB, null),
-                TypeTags.CHAR_STRING_TAG));
+        public static final Type TYPE_STRING = SemTypeUtils.SemTypeBuilder.from(UT_STRING);
+        public static final Type TYPE_STRING_CHAR =
+                SemTypeUtils.SemTypeBuilder.stringSubType(false, new String[0], true, new String[0]);
 
         public static final Type TYPE_READONLY = wrap(new BReadonlyType(TypeConstants.READONLY_TNAME, EMPTY_MODULE));
         public static final Type TYPE_ELEMENT = wrap(new BXmlType(TypeConstants.XML_ELEMENT,
@@ -712,6 +709,7 @@ public final class TypeBuilder {
 
     public final static class StringSubtypeData {
 
+        // TODO: fix field names
         // If true chars are the set of chars included in the set else it's the set of chars excluded from the set
         private boolean includingChars;
         private boolean stringPositive;

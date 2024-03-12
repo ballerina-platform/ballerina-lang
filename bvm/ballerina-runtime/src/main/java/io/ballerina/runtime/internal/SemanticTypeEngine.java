@@ -19,7 +19,6 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BObject;
@@ -35,13 +34,13 @@ import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BYTE;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FLOAT;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.TypeBuilder.booleanSubType;
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.TypeBuilder.wrap;
@@ -50,6 +49,7 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTy
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
 
 // TODO: once we have properly implemented semtypes we can inline this again in to TypeChecker
 class SemanticTypeEngine {
@@ -59,7 +59,7 @@ class SemanticTypeEngine {
     }
 
     static <T extends BType> T getBTypePart(BSemType semType) {
-        return unwrap(SemTypeUtils.TypeOperation.intersection(semType, TypeBuilder.PURE_B_TYPE));
+        return unwrap(SemTypeUtils.TypeOperation.intersection(semType, SemTypeUtils.SemTypeBuilder.ALL_BTYPE));
     }
 
     static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
@@ -139,40 +139,6 @@ class SemanticTypeEngine {
             return SubTypeCheckResult.UNDEFINED;
         }
         return SubTypeCheckResult.TRUE;
-//        BitSet all = (BitSet) t1.all.clone();
-//        all.andNot(t2.all);
-//        if (!all.isEmpty()) {
-//            // t1 has all of some time that t2 don't have all of (it may have some but not all)
-//            return SubTypeCheckResult.FALSE;
-//        }
-//        BitSet some = (BitSet) t1.some.clone();
-//
-//        BitSet t2Any = (BitSet) t2.all.clone(); // Set of types t2 has all or some of
-//        t2Any.or(t2.some);
-//
-//        some.andNot(t2Any);
-//        if (!some.isEmpty()) {
-//            // t1 has something that t2 don't have partially or completely
-//            // TODO: need to check if some is actually not empty
-//            for (int i = 0; i < N_TYPES; i++) {
-//                if (some.get(i) && !t1.subTypeData[i].isEmpty()) {
-//                    return SubTypeCheckResult.FALSE;
-//                }
-//            }
-//        }
-//        // Everything t1 has partially t2 also has something that belong to same basic type partially or completely
-//        for (int i = 0; i < UT_BTYPE; i++) {
-//            if (!t1.some.get(i) || t2.all.get(i)) {
-//                // t1 don't have it or t2 has all of this type so no point checking
-//                continue;
-//            }
-//            // both t1 and t2 has parts of it
-//            if (!t1.subTypeData[i].isSubType(t2.subTypeData[i])) {
-//                return SubTypeCheckResult.FALSE;
-//            }
-//        }
-//        return t1.some.get(UT_BTYPE) ? SubTypeCheckResult.UNDEFINED :
-//                SubTypeCheckResult.TRUE;
     }
 
     static Type getType(Object value) {
@@ -186,8 +152,13 @@ class SemanticTypeEngine {
             } else if (value instanceof Integer || value instanceof Byte) {
                 return TYPE_BYTE;
             }
-        } else if (value instanceof BString) {
-            return TYPE_STRING;
+        } else if (value instanceof BString bString) {
+            String stringValue = bString.getValue();
+            if (stringValue.length() == 1) {
+                return SemTypeUtils.SemTypeBuilder.charSubType(stringValue);
+            } else {
+                return SemTypeUtils.SemTypeBuilder.stringSubType(stringValue);
+            }
         } else if (value instanceof Boolean booleanValue) {
             return booleanSubType(booleanValue);
         } else if (value instanceof BObject) {
@@ -222,10 +193,7 @@ class SemanticTypeEngine {
                             errors, sourceValue, (BUnionType) bTypePart, unresolvedValues,
                             allowNumericConversion, varName);
                 } else {
-                    // TODO: we need to pass in the target type itself since this try to type check against the value
-                    // type. Decided to keep this in semantic type check for the time will revisit this when doing
-                    // records
-                    yield SyntacticTypeEngine.checkIsLikeType(errors, sourceValue, targetType, unresolvedValues,
+                    yield SyntacticTypeEngine.checkIsLikeType(errors, sourceValue, bTypePart, unresolvedValues,
                             allowNumericConversion, varName);
                 }
             }
@@ -425,13 +393,43 @@ class SemanticTypeEngine {
         };
     }
 
-    static boolean hasFillerValue(Type type) {
+    static boolean hasFillerValue(Type type, List<Type> unanalyzedTypes) {
         BSemType semType = wrap(type);
+        Optional<Boolean> result = semtypeHasFillerValue(semType);
+        if (result.isPresent()) {
+            return result.get();
+        }
+        if (SemTypeUtils.belongToSingleUniformType(semType, UT_BTYPE)) {
+            return SyntacticTypeEngine.hasFillerValue(getBTypePart(semType), unanalyzedTypes);
+        }
+        return false;
+    }
+
+    private static Optional<Boolean> semtypeHasFillerValue(BSemType semType) {
         if (semType.all.get(UT_NIL)) {
-            return true;
+            return Optional.of(true);
+        }
+        if (semType.some.isEmpty() && semType.all.cardinality() == 1) {
+            return Optional.of(true);
         }
         if (isSubTypeSimple(semType, UT_BOOLEAN)) {
-            return true;
+            return Optional.of(true);
+        }
+        if (isSubTypeSimple(semType, UT_STRING)) {
+            // TODO: this is wrong since we may have an string union here
+            if (semType.all.get(UT_STRING)) {
+                return Optional.of(true);
+            }
+            return Optional.of(semType.getZeroValue() != null);
+        }
+        return Optional.empty();
+    }
+
+    static boolean hasFillerValue(Type type) {
+        BSemType semType = wrap(type);
+        Optional<Boolean> result = semtypeHasFillerValue(semType);
+        if (result.isPresent()) {
+            return result.get();
         }
         if (SemTypeUtils.belongToSingleUniformType(semType, UT_BTYPE)) {
             return SyntacticTypeEngine.hasFillerValue(getBTypePart(semType), new ArrayList<>());

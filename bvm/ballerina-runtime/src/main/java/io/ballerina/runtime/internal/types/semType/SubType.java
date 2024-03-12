@@ -24,7 +24,9 @@ public interface SubType {
 
     SubType intersect(SubType other);
 
-    SubType diff(SubType other);
+    default SubType diff(SubType other) {
+        return this.intersect(other.complement());
+    }
 
     SubType complement();
 

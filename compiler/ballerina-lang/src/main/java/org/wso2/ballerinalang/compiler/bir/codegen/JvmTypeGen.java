@@ -19,19 +19,22 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
+import io.ballerina.types.SubtypeData;
 import io.ballerina.types.subtypedata.BooleanSubtype;
+import io.ballerina.types.subtypedata.CharStringSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.NonCharStringSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.XmlSubtype;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -71,6 +74,8 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -119,13 +124,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OB
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FINITE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTABLE_REFERENCE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_SUBTYPE_BUILDER_DESCRIPTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
@@ -171,7 +174,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BDECIMAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BOBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUTURE_VALUE;
@@ -190,7 +192,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FIN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_TYPE_IMPL_WITH_PARAMS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_INTERSECTION_TYPE_WITH_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_PARAMETERIZED_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_STREAM_TYPE_IMPL;
@@ -382,12 +383,20 @@ public class JvmTypeGen {
             return;
         }
         int tag = type.tag;
+        if (tag == TypeTags.INTERSECTION) {
+            loadIntersectionTypeUsingTypeBuilder(mv, type);
+            return;
+        }
         if (tag == TypeTags.UNION) {
             loadUnionTypeUsingTypeBuilder(mv, type);
             return;
         }
         if (tag == TypeTags.CHAR_STRING) {
             loadStringSubTypeUsingTypeBuilder(mv, type);
+            return;
+        }
+        if (tag == TypeTags.FINITE) {
+            loadFiniteTypeUsingTypeBuilder(mv, type);
             return;
         }
         String methodName = switch (tag) {
@@ -401,6 +410,48 @@ public class JvmTypeGen {
             default -> throw new UnsupportedOperationException("Unexpected type: " + type);
         };
         mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, methodName, BASIC_TYPE_BUILDER_DESCRIPTOR, false);
+    }
+
+    private static void loadFiniteTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
+        // TODO: this don't properly handle cases where
+        BFiniteType finiteType = (BFiniteType) type;
+        for (int i = 0; i < finiteType.valueSpace.length; i++) {
+            SemType semType = finiteType.valueSpace[i].semType();
+            SubtypeData subtypeData = Core.stringSubtype(semType);
+            // Create singleton string
+            if (subtypeData instanceof StringSubtype stringSubtype) {
+                CharStringSubtype chars = stringSubtype.getChar();
+                NonCharStringSubtype nonChars = stringSubtype.getNonChar();
+                loadStringSubTypeUsingTypeBuilderInner(
+                        mv,
+                        chars.allowed,
+                        Arrays.stream(chars.values).map(each -> each.value).toList(),
+                        nonChars.allowed,
+                        Arrays.stream(nonChars.values).map(each -> each.value).toList());
+            } else {
+                throw new IllegalStateException("Unexpected subtype data: " + subtypeData);
+            }
+            if (i > 0) {
+                if (i < finiteType.valueSpace.length - 1) {
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union", BINARY_TYPE_OPERATION_DESCRIPTOR, false);
+                } else {
+                    if (hasIdentifier(type)) {
+                        loadTypeBuilderIdentifier(mv, type);
+                        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union",
+                                BINARY_TYPE_OPERATION_WITH_IDENTIFIER_DESCRIPTOR, false);
+                    } else {
+                        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union", BINARY_TYPE_OPERATION_DESCRIPTOR,
+                                false);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void loadIntersectionTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
+        BIntersectionType intersectionType = (BIntersectionType) type;
+        BType effectiveType = intersectionType.effectiveType;
+        loadTypeUsingTypeBuilder(mv, effectiveType);
     }
 
     private static void loadUnionTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
@@ -624,6 +675,16 @@ public class JvmTypeGen {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "stringSubType", STRING_SUBTYPE_BUILDER_DESCRIPTOR, false);
     }
 
+    private static void loadStringSubTypeUsingTypeBuilderInner(MethodVisitor mv, boolean allowChars, List<String> chars,
+                                                               boolean allowNonChars, List<String> nonChars) {
+        mv.visitTypeInsn(NEW, STRING_SUBTYPE_DATA);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, STRING_SUBTYPE_DATA, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
+        stringSubtypeDataBuilderHelper(mv, chars, allowChars ? "includeChars" : "excludeChars");
+        stringSubtypeDataBuilderHelper(mv, nonChars, allowNonChars ? "includeStrings" : "excludeStrings");
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "stringSubType", STRING_SUBTYPE_BUILDER_DESCRIPTOR, false);
+    }
+
     private static void stringSubtypeDataBuilderHelper(MethodVisitor mv, List<String> chars, String methodName) {
         mv.visitLdcInsn(chars.size());
         mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
@@ -636,10 +697,15 @@ public class JvmTypeGen {
         mv.visitMethodInsn(INVOKEVIRTUAL, STRING_SUBTYPE_DATA, methodName, STRING_SUBTYPE_DATA_BUILDER_DESC, false);
     }
 
-    private static boolean canBeHandledByTypeBuilder(BType type) {
+    private static boolean canBeHandledByTypeBuilder(BType type, Set<BType> seen) {
         if (type == null) {
             return true;
         }
+        if (seen.contains(type)) {
+            // TODO: type builder can't handle cyclic types (basic types are not cyclic)
+            return false;
+        }
+        seen.add(type);
         return switch (type.tag) {
             case TypeTags.NEVER, TypeTags.INT, TypeTags.NIL, TypeTags.BYTE,
                     TypeTags.UNSIGNED8_INT, TypeTags.UNSIGNED16_INT, TypeTags.UNSIGNED32_INT,
@@ -649,17 +715,20 @@ public class JvmTypeGen {
                     TypeTags.XML_COMMENT, TypeTags.XML_PI, TypeTags.XML_ELEMENT, TypeTags.XML_TEXT -> true;
             case TypeTags.ARRAY -> {
                 BArrayType arrayType = (BArrayType) type;
-                yield canBeHandledByTypeBuilder(arrayType.eType);
+                yield canBeHandledByTypeBuilder(arrayType.eType, seen);
             }
             case TypeTags.UNION -> {
                 BUnionType unionType = (BUnionType) type;
+                if (unionType.isCyclic) {
+                    yield false;
+                }
                 LinkedHashSet<BType> members = unionType.getMemberTypes();
                 if (members.size() < 2) {
                     // TODO: how to handle this?
                     yield false;
                 }
                 for (BType memberType : members) {
-                    if (!canBeHandledByTypeBuilder(memberType)) {
+                    if (!canBeHandledByTypeBuilder(memberType, seen)) {
                         yield false;
                     }
                 }
@@ -667,20 +736,37 @@ public class JvmTypeGen {
             }
             case TypeTags.TUPLE -> {
                 BTupleType tupleType = (BTupleType) type;
+                if (tupleType.isCyclic) {
+                    yield false;
+                }
                 for (BTupleMember member : tupleType.getMembers()) {
-                    if (!canBeHandledByTypeBuilder(member.type)) {
+                    if (!canBeHandledByTypeBuilder(member.type, seen)) {
                         yield false;
                     }
                 }
-                if (!canBeHandledByTypeBuilder(tupleType.restType)) {
+                if (!canBeHandledByTypeBuilder(tupleType.restType, seen)) {
                     yield false;
                 }
-                yield !tupleType.isCyclic;
+                yield true;
+            }
+            case TypeTags.INTERSECTION -> {
+                BIntersectionType intersectionType = (BIntersectionType) type;
+                yield canBeHandledByTypeBuilder(intersectionType.effectiveType, seen);
+            }
+            case TypeTags.FINITE -> {
+                BFiniteType finiteType = (BFiniteType) type;
+                for (SemNamedType valueType : finiteType.valueSpace) {
+                    // FIXME:
+                    if (!Core.isSubtypeSimple(valueType.semType(), PredefinedType.STRING)) {
+                        yield false;
+                    }
+                }
+                yield true;
             }
             case TypeTags.XML -> {
                 BXMLType xmlType = (BXMLType) type;
                 // FIXME: handle intersections
-                yield xmlType.constraint == null || canBeHandledByTypeBuilder(xmlType.constraint);
+                yield xmlType.constraint == null || canBeHandledByTypeBuilder(xmlType.constraint, seen);
             }
             // TODO: handle unions
             default -> false;
@@ -696,7 +782,7 @@ public class JvmTypeGen {
      */
     public void loadType(MethodVisitor mv, BType bType) {
         String typeFieldName;
-        if (canBeHandledByTypeBuilder(bType)) {
+        if (canBeHandledByTypeBuilder(bType, new HashSet<>())) {
             loadTypeUsingTypeBuilder(mv, bType);
             return;
         } else {

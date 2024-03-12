@@ -85,4 +85,8 @@ public class Core {
     public static boolean isSubType(BSemType t1, BSemType t2) {
         return isEmpty(diff(t1, t2));
     }
+
+    public static boolean containsSimple(BSemType t1, int uniformTypeCode) {
+        return t1.all.get(uniformTypeCode) || t1.some.get(uniformTypeCode);
+    }
 }

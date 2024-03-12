@@ -36,7 +36,7 @@ import java.util.Set;
 
 // TODO: document
 // A common interface to represent a union of BTypes, will create the compatible BType on demand
-public class BSubType implements SubType, BTypeComponent {
+public class BSubType implements BTypeComponent, SubType {
 
     private final List<Type> members;
     private final List<Type> cyclicMembers;

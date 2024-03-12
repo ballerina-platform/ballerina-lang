@@ -28,7 +28,6 @@ import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.types.BStringType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -77,13 +76,10 @@ public class AnydataStampInbuiltFunctionTest {
 
         Assert.assertEquals(getType(employee0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(employee0.get(StringUtils.fromString("age")).toString(), "25");
-
-        Assert.assertTrue(
-                TypeBuilder.unwrap(getType(employee0.get(StringUtils.fromString("batch")))) instanceof BStringType);
+        TypeChecker.checkIsType(getType(employee0.get(StringUtils.fromString("batch"))), PredefinedTypes.TYPE_STRING);
         Assert.assertEquals(employee0.get(StringUtils.fromString("batch")).toString(), "LK2014");
 
-        Assert.assertTrue(
-                TypeBuilder.unwrap(getType(employee0.get(StringUtils.fromString("school")))) instanceof BStringType);
+        TypeChecker.checkIsType(getType(employee0.get(StringUtils.fromString("school"))), PredefinedTypes.TYPE_STRING);
         Assert.assertEquals(employee0.get(StringUtils.fromString("school")).toString(), "Hindu College");
     }
 
@@ -100,9 +96,8 @@ public class AnydataStampInbuiltFunctionTest {
         Assert.assertEquals((mapValue0).size(), 5);
         Assert.assertEquals(((LinkedHashMap) mapValue0).get(StringUtils.fromString("school")).toString(),
                 "Hindu College");
-        Assert.assertTrue(
-                TypeBuilder.unwrap(getType(((LinkedHashMap) mapValue0).get(
-                        StringUtils.fromString("school")))) instanceof BStringType);
+        TypeChecker.checkIsType(getType(((LinkedHashMap) mapValue0).get(
+                StringUtils.fromString("school"))), PredefinedTypes.TYPE_STRING);
 
     }
 
@@ -156,7 +151,7 @@ public class AnydataStampInbuiltFunctionTest {
         Object tupleValue2 = results.get(1);
 
         Assert.assertEquals(tupleValue1.toString(), "Mohan");
-        Assert.assertTrue(TypeBuilder.unwrap(getType(tupleValue1)) instanceof BStringType);
+        TypeChecker.checkIsType(getType(tupleValue1), PredefinedTypes.TYPE_STRING);
 
         Assert.assertTrue(TypeBuilder.unwrap(getType(tupleValue2)) instanceof BRecordType);
         Assert.assertEquals(getType(tupleValue2).getName(), "Teacher");
@@ -164,24 +159,24 @@ public class AnydataStampInbuiltFunctionTest {
         Assert.assertEquals(((BMap) tupleValue2).size(), 5);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertTrue(TypeBuilder.unwrap(
-                getType(((BMap) tupleValue2).get(StringUtils.fromString("name")))) instanceof BStringType);
+        TypeChecker.checkIsType(
+                getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))), PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("age")).toString(), "25");
         Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertTrue(TypeBuilder.unwrap(
-                getType(((BMap) tupleValue2).get(StringUtils.fromString("status")))) instanceof BStringType);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertTrue(TypeBuilder.unwrap(
-                getType(((BMap) tupleValue2).get(StringUtils.fromString("batch")))) instanceof BStringType);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertTrue(TypeBuilder.unwrap(
-                getType(((BMap) tupleValue2).get(StringUtils.fromString("school")))) instanceof BStringType);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))),
+                PredefinedTypes.TYPE_STRING);
     }
 
     @Test
@@ -212,15 +207,13 @@ public class AnydataStampInbuiltFunctionTest {
         Assert.assertTrue(TypeBuilder.unwrap(TypeHelper.typeConstraint(getType(mapValue))) instanceof BJsonType);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertTrue(
-                TypeBuilder.unwrap(getType(mapValue.get(StringUtils.fromString("name")))) instanceof BStringType);
+        TypeChecker.checkIsType(getType(mapValue.get(StringUtils.fromString("name"))), PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("age")).toString(), "25");
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertTrue(
-                TypeBuilder.unwrap(getType(mapValue.get(StringUtils.fromString("status")))) instanceof BStringType);
+        TypeChecker.checkIsType(getType(mapValue.get(StringUtils.fromString("status"))), PredefinedTypes.TYPE_STRING);
     }
 
     @AfterClass

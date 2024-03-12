@@ -26,7 +26,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.types.BStringType;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -65,7 +64,7 @@ public class TupleTypeStampInbuiltFunctionTest {
         Object tupleValue2 = results.get(1);
 
         Assert.assertEquals(tupleValue1.toString(), "Mohan");
-        BAssertUtil.assertTypeClass(getType(tupleValue1), BStringType.class);
+        TypeChecker.checkIsType(getType(tupleValue1), PredefinedTypes.TYPE_STRING);
 
         BAssertUtil.assertTypeClass(getType(tupleValue2), BRecordType.class);
         Assert.assertEquals(getType(tupleValue2).getName(), "Teacher");
@@ -73,24 +72,24 @@ public class TupleTypeStampInbuiltFunctionTest {
         Assert.assertEquals(((BMap) tupleValue2).size(), 5);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
-        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("age")).toString(), "25");
         Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
-        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
-        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))),
+                PredefinedTypes.TYPE_STRING);
     }
 
     @Test
@@ -105,7 +104,7 @@ public class TupleTypeStampInbuiltFunctionTest {
 
         Assert.assertEquals(tupleValue1.toString(), "Mohan");
 
-        BAssertUtil.assertTypeClass(getType(tupleValue1), BStringType.class);
+        TypeChecker.checkIsType(getType(tupleValue1), PredefinedTypes.TYPE_STRING);
 
         BAssertUtil.assertTypeClass(getType(tupleValue2), BRecordType.class);
         Assert.assertEquals(getType(tupleValue2).getName(), "Employee");
@@ -113,24 +112,24 @@ public class TupleTypeStampInbuiltFunctionTest {
         Assert.assertEquals(((BMap) tupleValue2).size(), 5);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
-        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("age")).toString(), "25");
         Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
-        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
-        BAssertUtil.assertTypeClass(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))),
+                PredefinedTypes.TYPE_STRING);
     }
 
     @Test
@@ -145,7 +144,7 @@ public class TupleTypeStampInbuiltFunctionTest {
 
         Assert.assertEquals(tupleValue1.toString(), "Mohan");
 
-        BAssertUtil.assertTypeClass(getType(tupleValue1), BStringType.class);
+        TypeChecker.checkIsType(getType(tupleValue1), PredefinedTypes.TYPE_STRING);
 
         BAssertUtil.assertTypeClass(getType(tupleValue2), BMapType.class);
         TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(tupleValue2)), PredefinedTypes.TYPE_ANYDATA);
@@ -170,20 +169,20 @@ public class TupleTypeStampInbuiltFunctionTest {
         Assert.assertEquals(((BMap) arrayValue2).size(), 4);
 
         Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("name")).toString(), "Raja");
-        BAssertUtil.assertTypeClass(getType(((BMap) arrayValue2).get(StringUtils.fromString("name"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) arrayValue2).get(StringUtils.fromString("name"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("status")).toString(), "single");
-        BAssertUtil.assertTypeClass(getType(((BMap) arrayValue2).get(StringUtils.fromString("status"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) arrayValue2).get(StringUtils.fromString("status"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        BAssertUtil.assertTypeClass(getType(((BMap) arrayValue2).get(StringUtils.fromString("batch"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) arrayValue2).get(StringUtils.fromString("batch"))),
+                PredefinedTypes.TYPE_STRING);
 
         Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
-        BAssertUtil.assertTypeClass(getType(((BMap) arrayValue2).get(StringUtils.fromString("school"))),
-                BStringType.class);
+        TypeChecker.checkIsType(getType(((BMap) arrayValue2).get(StringUtils.fromString("school"))),
+                PredefinedTypes.TYPE_STRING);
     }
 
     @Test
