@@ -7,6 +7,12 @@ Running Tests with Coverage
 
 	object_mocking
 
+testDefaultMockInvalidFieldName has failed.
+
+
+		Test execution time :*****ms
+
+
 		[fail] testDefaultMockInvalidFieldName:
 
 		    error {ballerina/test:0}InvalidMemberFieldError ("invalid field name 'invalidField' provided")

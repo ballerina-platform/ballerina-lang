@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	pre_declared_imports
+
+		Test execution time :*****ms
+
 		[pass] testImportTest1
 		[pass] testImportTest2
 		[pass] testImportTest3
