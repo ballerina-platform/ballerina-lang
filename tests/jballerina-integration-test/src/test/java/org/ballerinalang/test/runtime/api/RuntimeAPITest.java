@@ -105,7 +105,8 @@ public class RuntimeAPITest extends BaseTest {
                 "function_invocation_negative.jar").toAbsolutePath();
         compileJavaSource(jarPath, "RuntimeAPICallNegative.java", "target-dir-negative");
         unzipJarFile(jarPath, "target-dir-negative");
-        createExecutableJar("target-dir-negative", "org.ballerinalang.test.runtime.api.RuntimeAPICallNegative");
+        createExecutableJar("target-dir-negative",
+                "org.ballerinalang.test.runtime.api.RuntimeAPICallNegative");
 
         // Run the executable jar and assert the output
         Path execJarPath = Paths.get(javaSrcLocation.toString(), "target-dir-negative",
@@ -144,7 +145,8 @@ public class RuntimeAPITest extends BaseTest {
         BFileUtil.deleteDirectory(Paths.get(javaSrcLocation.toString(), "target-dir-negative").toFile());
     }
 
-    private static void compileJavaSource(Path jarPath, String srcFile, String targetDir) throws BallerinaTestException {
+    private static void compileJavaSource(Path jarPath, String srcFile, String targetDir)
+            throws BallerinaTestException {
         List<String> compileCmdSet = new ArrayList<>();
         compileCmdSet.add("javac");
         compileCmdSet.add("-cp");
