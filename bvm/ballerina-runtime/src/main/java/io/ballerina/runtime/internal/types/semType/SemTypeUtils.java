@@ -43,6 +43,7 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTy
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_FLOAT;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
 
@@ -56,14 +57,15 @@ public final class SemTypeUtils {
         public final static int UT_BOOLEAN = 0x02;
         public final static int UT_STRING = 0x03;
         public final static int UT_DECIMAL = 0x04;
-        public final static int UT_BTYPE = 0x05;
+        public final static int UT_FLOAT = 0x05;
+        public final static int UT_BTYPE = 0x06;
 
-        public final static int N_TYPES = 6;
+        public final static int N_TYPES = 7;
     }
 
     public static final class SemTypeBuilder {
 
-        public static final BSemType ALL_SEMTYPES = from(UT_NIL | UT_BOOLEAN | UT_STRING | UT_DECIMAL);
+        public static final BSemType ALL_SEMTYPES = from(UT_NIL | UT_BOOLEAN | UT_STRING | UT_DECIMAL | UT_FLOAT);
         public static final BSemType ALL_BTYPE = from(UT_BTYPE);
 
         public static BSemType from(int uniformTypeCode) {
@@ -116,6 +118,15 @@ public final class SemTypeUtils {
             return new BSemType(all, some, subTypeData);
         }
 
+        public static Type floatSubType(double value) {
+            BitSet all = new BitSet(N_TYPES);
+            BitSet some = new BitSet(N_TYPES);
+            SubType[] subTypeData = new SubType[N_TYPES];
+            some.set(UT_FLOAT);
+            subTypeData[UT_FLOAT] = FloatSubType.createFloatSubType(true, new Double[]{value});
+            return new BSemType(all, some, subTypeData);
+        }
+
         public static BSemType from(BType bType) {
             if (bType == null) {
                 throw new IllegalStateException("BType cannot be null");
@@ -137,6 +148,7 @@ public final class SemTypeUtils {
                 all.set(UT_BOOLEAN);
                 all.set(UT_STRING);
                 all.set(UT_DECIMAL);
+                all.set(UT_FLOAT);
             }
             if (bType instanceof BIntersectionType intersectionType) {
                 // NOTE: we need to take the effective type break up into bType and semtypes (this can be done by converting
@@ -194,6 +206,7 @@ public final class SemTypeUtils {
             Set<String> charValues = new HashSet<>();
             Set<String> nonCharValues = new HashSet<>();
             Set<BigDecimal> decimalValues = new HashSet<>();
+            Set<Double> floatValues = new HashSet<>();
             for (Object value : finiteType.valueSpace) {
                 if (value == null) {
                     all.set(UniformTypeCodes.UT_NIL);
@@ -223,6 +236,8 @@ public final class SemTypeUtils {
                     }
                 } else if (value instanceof DecimalValue decimal) {
                     decimalValues.add(decimal.decimalValue());
+                } else if (value instanceof Double floatValue) {
+                    floatValues.add(floatValue);
                 } else {
                     remainingValues.add(value);
                 }
@@ -242,6 +257,11 @@ public final class SemTypeUtils {
                 some.set(UT_DECIMAL);
                 subTypeData[UT_DECIMAL] =
                         DecimalSubType.createDecimalSubType(true, decimalValues.toArray(new BigDecimal[0]));
+            }
+            if (!floatValues.isEmpty()) {
+                some.set(UT_FLOAT);
+                subTypeData[UT_FLOAT] =
+                        FloatSubType.createFloatSubType(true, floatValues.toArray(new Double[0]));
             }
             return new BSemType(all, some, subTypeData);
         }

@@ -31,7 +31,6 @@ import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BByteType;
 import io.ballerina.runtime.internal.types.BErrorType;
-import io.ballerina.runtime.internal.types.BFloatType;
 import io.ballerina.runtime.internal.types.BFutureType;
 import io.ballerina.runtime.internal.types.BHandleType;
 import io.ballerina.runtime.internal.types.BIntegerType;
@@ -67,6 +66,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.VALUE_LANG_LIB
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_FLOAT;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
 
 public final class TypeBuilder {
@@ -511,7 +511,7 @@ public final class TypeBuilder {
                         TypeTags.UNSIGNED32_INT_TAG));
         public static final Type TYPE_BOOLEAN = SemTypeUtils.SemTypeBuilder.from(UT_BOOLEAN);
         public static final Type TYPE_BYTE = wrap(new BByteType(TypeConstants.BYTE_TNAME, EMPTY_MODULE));
-        public static final Type TYPE_FLOAT = wrap(new BFloatType(TypeConstants.FLOAT_TNAME, EMPTY_MODULE));
+        public static final Type TYPE_FLOAT = SemTypeUtils.SemTypeBuilder.from(UT_FLOAT);
         public static final Type TYPE_DECIMAL = SemTypeUtils.SemTypeBuilder.from(UT_DECIMAL);
         public static final Type TYPE_STRING = SemTypeUtils.SemTypeBuilder.from(UT_STRING);
         public static final Type TYPE_STRING_CHAR =

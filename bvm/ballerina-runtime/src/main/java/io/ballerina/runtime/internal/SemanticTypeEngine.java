@@ -35,27 +35,36 @@ import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BYTE;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FLOAT;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.TypeBuilder.booleanSubType;
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.TypeBuilder.wrap;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.N_TYPES;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_FLOAT;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
 
 // TODO: once we have properly implemented semtypes we can inline this again in to TypeChecker
 class SemanticTypeEngine {
+
+    private static final BitSet NemericTypeMask = new BitSet(N_TYPES);
+
+    static {
+        NemericTypeMask.set(UT_FLOAT);
+        NemericTypeMask.set(UT_DECIMAL);
+    }
 
     static boolean checkIsType(Object sourceVal, Type targetType) {
         return checkIsType(null, sourceVal, getType(sourceVal), targetType);
@@ -150,8 +159,8 @@ class SemanticTypeEngine {
         } else if (value instanceof Number) {
             if (value instanceof Long) {
                 return TYPE_INT;
-            } else if (value instanceof Double) {
-                return TYPE_FLOAT;
+            } else if (value instanceof Double floatVal) {
+                return SemTypeUtils.SemTypeBuilder.floatSubType(floatVal);
             } else if (value instanceof Integer || value instanceof Byte) {
                 return TYPE_BYTE;
             }
@@ -190,7 +199,8 @@ class SemanticTypeEngine {
         BSemType targetSemType = wrap(targetType);
         return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
             case TRUE -> true;
-            case FALSE -> false;
+            case FALSE -> allowNumericConversion &&
+                    numericConvertPossible(sourceValue, wrap(getType(sourceValue)), targetSemType);
             default -> {
                 // FIXME: we have do this since BType part may just a single type
                 BType bTypePart = getBTypePart(targetSemType);
@@ -206,13 +216,29 @@ class SemanticTypeEngine {
         };
     }
 
+    static boolean numericConvertPossible(Object sourceValue, BSemType sourceType, BSemType targetType) {
+        BitSet sourceWidenedType = new BitSet(N_TYPES);
+        sourceWidenedType.or(sourceType.some);
+        sourceWidenedType.or(sourceType.all);
+        sourceWidenedType.and(NemericTypeMask);
+
+        BitSet targetWidenedType = new BitSet(N_TYPES);
+        targetWidenedType.or(targetType.some);
+        targetWidenedType.or(targetType.all);
+        targetWidenedType.and(NemericTypeMask);
+
+        // TODO: throw error based on value for int
+        return targetWidenedType.cardinality() > 0 && sourceWidenedType.cardinality() > 0;
+    }
+
     static boolean checkIsLikeType(List<String> errors, Object sourceValue, Type targetType,
                                    List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
                                    String varName) {
         BSemType targetSemType = wrap(targetType);
         return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
             case TRUE -> true;
-            case FALSE -> false;
+            case FALSE -> allowNumericConversion &&
+                    numericConvertPossible(sourceValue, wrap(getType(sourceValue)), targetSemType);
             default -> {
                 // FIXME:
                 BType bTypePart = getBTypePart(targetSemType);
@@ -236,7 +262,8 @@ class SemanticTypeEngine {
         BSemType targetSemType = wrap(targetType);
         return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
             case TRUE -> true;
-            case FALSE -> false;
+            case FALSE -> allowNumericConversion &&
+                    numericConvertPossible(sourceValue, wrap(getType(sourceValue)), targetSemType);
             default -> switch (targetType.getTag()) {
                 case TypeTags.TABLE_TAG -> SyntacticTypeEngine.TableTypeChecker.checkIsLikeTableType(
                         sourceValue, getBTypePart(targetSemType), unresolvedValues, allowNumericConversion);
@@ -258,7 +285,8 @@ class SemanticTypeEngine {
         BSemType targetSemType = wrap(targetType);
         return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
             case TRUE -> true;
-            case FALSE -> false;
+            case FALSE -> allowNumericConversion &&
+                    numericConvertPossible(sourceValue, wrap(getType(sourceValue)), targetSemType);
             default -> switch (targetType.getTag()) {
                 case TypeTags.RECORD_TYPE_TAG -> SyntacticTypeEngine.MapTypeChecker.checkIsLikeRecordType(
                         sourceValue, getBTypePart(targetSemType), unresolvedValues, allowNumericConversion, varName,
@@ -277,7 +305,8 @@ class SemanticTypeEngine {
         BSemType sourceSemType = wrap(getType(sourceValue));
         return switch (isSubType(sourceSemType, targetSemType)) {
             case TRUE -> true;
-            case FALSE -> false;
+            case FALSE -> allowNumericConversion &&
+                    numericConvertPossible(sourceValue, wrap(getType(sourceValue)), targetSemType);
             default -> switch (targetType.getTag()) {
                 case TypeTags.JSON_TAG -> SyntacticTypeEngine.MapTypeChecker.checkIsLikeJSONType(
                         sourceValue, getBTypePart(sourceSemType), getBTypePart(targetSemType), unresolvedValues,
@@ -421,8 +450,8 @@ class SemanticTypeEngine {
         if (isSubTypeSimple(semType, UT_BOOLEAN)) {
             return Optional.of(true);
         }
+        // TODO: factor common code
         if (isSubTypeSimple(semType, UT_STRING)) {
-            // TODO: this is wrong since we may have an string union here
             if (semType.all.get(UT_STRING)) {
                 return Optional.of(true);
             }
@@ -430,6 +459,12 @@ class SemanticTypeEngine {
         }
         if (isSubTypeSimple(semType, UT_DECIMAL)) {
             if (semType.all.get(UT_DECIMAL)) {
+                return Optional.of(true);
+            }
+            return Optional.of(semType.getZeroValue() != null);
+        }
+        if (isSubTypeSimple(semType, UT_FLOAT)) {
+            if (semType.all.get(UT_FLOAT)) {
                 return Optional.of(true);
             }
             return Optional.of(semType.getZeroValue() != null);

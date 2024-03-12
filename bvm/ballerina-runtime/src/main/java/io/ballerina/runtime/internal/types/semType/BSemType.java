@@ -41,6 +41,7 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTy
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_FLOAT;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
 
@@ -98,6 +99,8 @@ public class BSemType implements Type {
 
     @Override
     public <V> V getZeroValue() {
+        // TODO: for string type if we don't consider subtyping we get and error but if we do consider subtyping for
+        //  float we get an error. Need to check if this is the expected behavior
         if (onlyBType()) {
             return getBType().getZeroValue();
         }
@@ -111,12 +114,9 @@ public class BSemType implements Type {
                 return (V) StringUtils.fromString(stringSubType.defaultValue());
             }
         } else if (isUniformType(UT_DECIMAL)) {
-            if (all.get(UT_DECIMAL)) {
-                return (V) new DecimalValue(BigDecimal.ZERO);
-            } else {
-                DecimalSubType decimalSubType = (DecimalSubType) subTypeData[UT_DECIMAL];
-                return (V) new DecimalValue(decimalSubType.defaultValue());
-            }
+            return (V) new DecimalValue(BigDecimal.ZERO);
+        } else if (isUniformType(UT_FLOAT)) {
+            return (V) new Double(0);
         }
         return null;
     }
@@ -141,6 +141,13 @@ public class BSemType implements Type {
             } else {
                 DecimalSubType decimalSubType = (DecimalSubType) subTypeData[UT_DECIMAL];
                 return (V) new DecimalValue(decimalSubType.defaultValue());
+            }
+        } else if (isUniformType(UT_FLOAT)) {
+            if (all.get(UT_FLOAT)) {
+                return (V) new Double(0);
+            } else {
+                FloatSubType floatSubType = (FloatSubType) subTypeData[UT_FLOAT];
+                return (V) floatSubType.defaultValue();
             }
         }
         return null;
@@ -213,6 +220,8 @@ public class BSemType implements Type {
             return TypeTags.STRING_TAG;
         } else if (isUniformType(UT_DECIMAL)) {
             return TypeTags.DECIMAL_TAG;
+        } else if (isUniformType(UT_FLOAT)) {
+            return TypeTags.FLOAT_TAG;
         }
         throw new IllegalStateException("Unable to calculate tag for the given SemType: " + this);
     }
@@ -238,6 +247,9 @@ public class BSemType implements Type {
                 }
                 if (all.get(UT_DECIMAL)) {
                     return "decimal";
+                }
+                if (all.get(UT_FLOAT)) {
+                    return "float";
                 }
             }
             return "";
@@ -358,6 +370,9 @@ public class BSemType implements Type {
             if (some.get(UT_DECIMAL) || all.get(UT_DECIMAL)) {
                 return "decimal";
             }
+            if (some.get(UT_FLOAT) || all.get(UT_FLOAT)) {
+                return "float";
+            }
             if (all.get(UT_NIL)) {
                 return "()";
             }
@@ -386,6 +401,7 @@ public class BSemType implements Type {
                     case UT_BOOLEAN -> sb.append(booleanPartToString());
                     case UT_STRING -> sb.append("\"").append(stringPartToString()).append("\"");
                     case UT_DECIMAL -> sb.append(decimalPartToString());
+                    case UT_FLOAT -> sb.append(floatPartToString());
                     case UT_BTYPE -> {
                         String result = getBTypePart().toString();
                         if (result.contains("readonly")) {
@@ -400,6 +416,14 @@ public class BSemType implements Type {
             return "(" + sb + ")?";
         }
         return "(" + sb + ")";
+    }
+
+    private String floatPartToString() {
+        if (all.get(UT_FLOAT)) {
+            return "float";
+        } else {
+            return subTypeData[UT_FLOAT].toString();
+        }
     }
 
     private String decimalPartToString() {
@@ -466,6 +490,12 @@ public class BSemType implements Type {
     }
 
     public void setBTypeClass(BSubType.BTypeClass typeClass) {
+        if (!some.get(UT_BTYPE)) {
+            some.set(UT_BTYPE);
+            subTypeData[UT_BTYPE] = new BSubType(List.of());
+        } else if (subTypeData[UT_BTYPE] instanceof BType bType) {
+            subTypeData[UT_BTYPE] = new BSubType(List.of(bType));
+        }
         BSubType bTypeComponent = (BSubType) subTypeData[UT_BTYPE];
         bTypeComponent.setBTypeClass(typeClass);
     }

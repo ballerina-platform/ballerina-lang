@@ -1,0 +1,138 @@
+/*
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ *
+ *  WSO2 LLC. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ */
+
+package io.ballerina.runtime.internal.types.semType;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class FloatSubType implements SubType {
+
+    final SubTypeData data;
+
+    private FloatSubType(SubTypeData data) {
+        this.data = data;
+    }
+
+    private final static FloatSubType ALL = new FloatSubType(AllOrNothing.ALL);
+    private final static FloatSubType NOTHING = new FloatSubType(AllOrNothing.NOTHING);
+
+    public static FloatSubType createFloatSubType(boolean allowed, Double[] values) {
+        if (values.length == 0) {
+            if (!allowed) {
+                return ALL;
+            } else {
+                return NOTHING;
+            }
+        }
+        Double[] sortedValues = Arrays.stream(values).sorted().toArray(Double[]::new);
+        return new FloatSubType(new FloatSubTypeData(allowed, sortedValues));
+    }
+
+    @Override
+    public SubType union(SubType otherSubtype) {
+        FloatSubType other = (FloatSubType) otherSubtype;
+        if (data instanceof AllOrNothing) {
+            if (data == AllOrNothing.ALL) {
+                return this;
+            } else {
+                return other;
+            }
+        } else if (other.data instanceof AllOrNothing) {
+            if (other.data == AllOrNothing.ALL) {
+                return other;
+            } else {
+                return this;
+            }
+        }
+        List<Double> values = new ArrayList<>();
+        FloatSubTypeData data = (FloatSubTypeData) this.data;
+        FloatSubTypeData otherData = (FloatSubTypeData) other.data;
+        boolean allowed = data.union(otherData, values);
+        return createFloatSubType(allowed, values.toArray(new Double[0]));
+    }
+
+    @Override
+    public SubType intersect(SubType otherSubtype) {
+        FloatSubType other = (FloatSubType) otherSubtype;
+        if (data instanceof AllOrNothing) {
+            if (data == AllOrNothing.ALL) {
+                return other;
+            } else {
+                return NOTHING;
+            }
+        } else if (other.data instanceof AllOrNothing) {
+            if (other.data == AllOrNothing.ALL) {
+                return this;
+            } else {
+                return NOTHING;
+            }
+        }
+        List<Double> values = new ArrayList<>();
+        FloatSubTypeData data = (FloatSubTypeData) this.data;
+        FloatSubTypeData otherData = (FloatSubTypeData) other.data;
+        boolean allowed = data.intersect(otherData, values);
+        return createFloatSubType(allowed, values.toArray(new Double[0]));
+    }
+
+    @Override
+    public SubType complement() {
+        if (data == AllOrNothing.ALL) {
+            return NOTHING;
+        } else if (data == AllOrNothing.NOTHING) {
+            return ALL;
+        }
+        FloatSubTypeData data = (FloatSubTypeData) this.data;
+        return createFloatSubType(!data.allowed, data.values);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return data == AllOrNothing.NOTHING;
+    }
+
+    public Double defaultValue() {
+        if (data instanceof FloatSubTypeData subTypeData && subTypeData.allowed && subTypeData.values.length > 0) {
+            return subTypeData.values[0];
+        }
+        return null;
+    }
+
+    static class FloatSubTypeData extends EnumerableSubtypeData<Double> implements SubTypeData {
+
+        private final boolean allowed;
+        private final Double[] values;
+
+        FloatSubTypeData(boolean allowed, Double[] values) {
+            this.allowed = allowed;
+            this.values = values;
+        }
+
+        @Override
+        boolean allowed() {
+            return allowed;
+        }
+
+        @Override
+        Double[] values() {
+            return values;
+        }
+    }
+}

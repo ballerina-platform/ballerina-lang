@@ -61,6 +61,7 @@ import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_FLOAT;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
@@ -245,6 +246,7 @@ public class TypeHelper {
             case UT_BOOLEAN -> PredefinedTypes.TYPE_BOOLEAN;
             case UT_STRING -> PredefinedTypes.TYPE_STRING;
             case UT_DECIMAL -> PredefinedTypes.TYPE_DECIMAL;
+            case UT_FLOAT -> PredefinedTypes.TYPE_FLOAT;
             default -> throw new UnsupportedOperationException("uniform type not supported for type code: " + typeCode);
         };
     }
@@ -291,6 +293,9 @@ public class TypeHelper {
                 }
                 if (Core.containsSimple(semType, UT_DECIMAL)) {
                     remainingMembers.add(PredefinedTypes.TYPE_DECIMAL);
+                }
+                if (Core.containsSimple(semType, UT_FLOAT)) {
+                    remainingMembers.add(PredefinedTypes.TYPE_FLOAT);
                 }
                 if (semType.some.get(UT_BTYPE)) {
                     BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[UT_BTYPE];
