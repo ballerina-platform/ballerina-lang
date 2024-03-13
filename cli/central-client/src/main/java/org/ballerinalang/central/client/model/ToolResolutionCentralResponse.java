@@ -40,7 +40,7 @@ public class ToolResolutionCentralResponse {
     }
 
     /**
-     * Tool resolution response Unresolved Tool model.
+     * Tool resolution response unresolved tool model.
      *
      */
     public static class UnresolvedTool {
@@ -70,7 +70,7 @@ public class ToolResolutionCentralResponse {
     }
 
     /**
-     * Tool resolution response Resolved Tool model.
+     * Tool resolution response resolved tool model.
      *
      */
     public static class ResolvedTool {

@@ -167,7 +167,7 @@ public class RunBuildToolsTask implements Task {
             boolean hasOptionErrors = false;
             try {
                 // validate the options toml and report diagnostics
-                hasOptionErrors = validateOptionsToml(toolEntry.optionsToml(), commandName);
+                hasOptionErrors = validateOptionsToml(toolEntry.optionsToml(), toolEntry.id(), toolEntry.type());
                 if (hasOptionErrors) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_FAILED.diagnosticId(),
@@ -178,8 +178,8 @@ public class RunBuildToolsTask implements Task {
                 }
             } catch (IOException e) {
                 // if there is no options toml, we warn the user and continue
-                outStream.printf("WARNING: Skipping validation of tool options for tool %s(%s) " +
-                        "due to: %s%n", toolEntry.type(), toolEntry.id(), e.getMessage());
+                outStream.printf("WARNING: Validation of tool options of '%s' for '%s' is skipped due to: %s%n",
+                        commandName, toolEntry.id(), e.getMessage());
             }
             // if manifest errors or options table validation errors
             if (toolEntry.hasErrorDiagnostic() || hasOptionErrors) {
@@ -205,17 +205,17 @@ public class RunBuildToolsTask implements Task {
         this.outStream.println();
     }
 
-    private boolean validateOptionsToml(Toml optionsToml, String toolName) throws IOException {
+    private boolean validateOptionsToml(Toml optionsToml, String toolId, String toolType) throws IOException {
         if (optionsToml == null) {
-            return validateEmptyOptionsToml(toolName);
+            return validateEmptyOptionsToml(toolId, toolType);
         }
-        FileUtils.validateToml(optionsToml, toolName, toolClassLoader);
+        FileUtils.validateToml(optionsToml, toolType, toolClassLoader);
         optionsToml.diagnostics().forEach(outStream::println);
         return !Diagnostics.filterErrors(optionsToml.diagnostics()).isEmpty();
     }
 
-    private boolean validateEmptyOptionsToml(String toolName) throws IOException {
-        Schema schema = Schema.from(FileUtils.readSchema(toolName, toolClassLoader));
+    private boolean validateEmptyOptionsToml(String toolId, String toolType) throws IOException {
+        Schema schema = Schema.from(FileUtils.readSchema(toolType, toolClassLoader));
         List<String> requiredFields = schema.required();
         if (!requiredFields.isEmpty()) {
             for (String field: requiredFields) {
@@ -224,13 +224,13 @@ public class RunBuildToolsTask implements Task {
                         String.format("missing required optional field '%s'", field),
                         DiagnosticSeverity.ERROR);
                 PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
-                        toolName);
+                        toolType);
                 this.outStream.println(diagnostic);
             }
             return true;
         }
-        this.outStream.printf("WARNING: Skipping validation of tool options for tool %s due to: " +
-                "No tool options found for%n", toolName);
+        this.outStream.printf("WARNING: Validation of tool options of '%s' for '%s' is skipped due to " +
+                "no tool options found%n", toolType, toolId);
         return false;
     }
 
@@ -322,8 +322,8 @@ public class RunBuildToolsTask implements Task {
     }
 
     private void printToolSkipWarning(PackageManifest.Tool toolEntry) {
-        outStream.printf("WARNING: Skipping execution of build tool %s(%s) contains errors%n",
-                toolEntry.type(), toolEntry.id() != null ? toolEntry.id() : "");
+        outStream.printf("WARNING: Execution of the build tool '%s' for '%s' is skipped due to errors%n", toolEntry
+                .type(), toolEntry.id() != null ? toolEntry.id() : "");
     }
 
     private static List<File> getToolCommandJarAndDependencyJars(List<BuildTool> resolvedTools) {

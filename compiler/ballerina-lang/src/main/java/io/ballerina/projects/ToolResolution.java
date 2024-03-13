@@ -129,7 +129,7 @@ public class ToolResolution {
         PackageLockingMode packageLockingMode = getPackageLockingMode(project);
         updateLockedToolDependencyVersions(unresolvedTools, project);
         if (project.buildOptions().offlineBuild()) {
-            return getToolResolutionResponseOffline(unresolvedTools, project, packageLockingMode);
+            return getToolResolutionResponseOffline(unresolvedTools, packageLockingMode);
         }
         Set<ToolResolutionRequest> resolutionRequests = getToolResolutionRequests(unresolvedTools, packageLockingMode);
         ToolResolutionCentralRequest toolResolutionRequest = createToolResolutionRequests(resolutionRequests);
@@ -161,7 +161,7 @@ public class ToolResolution {
         return PackageLockingMode.MEDIUM;
     }
 
-    private List<BuildTool> getToolResolutionResponseOffline(List<BuildTool> unresolvedTools, Project project,
+    private List<BuildTool> getToolResolutionResponseOffline(List<BuildTool> unresolvedTools,
                                                              PackageLockingMode packageLockingMode) {
         List<BuildTool> resolvedTools = new ArrayList<>();
         for (BuildTool tool: unresolvedTools) {
