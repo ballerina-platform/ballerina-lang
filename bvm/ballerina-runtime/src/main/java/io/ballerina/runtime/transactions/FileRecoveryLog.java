@@ -107,9 +107,7 @@ public class FileRecoveryLog implements RecoveryLog {
             }
             // write existing unfinished logs to the new file
             cleanUpFinishedLogs();
-            for (Map.Entry<String, TransactionLogRecord> entry : existingLogs.entrySet()) {
-                put(entry.getValue());
-            }
+            putAll(existingLogs);
             existingLogs.clear();
         } catch (IOException e) {
             stderr.println(ERROR_MESSAGE_PREFIX + " failed to create recovery log file in " + recoveryLogDir + ": "
@@ -176,6 +174,12 @@ public class FileRecoveryLog implements RecoveryLog {
         }
     }
 
+    private void putAll(Map<String, TransactionLogRecord> trxRecords) {
+        for (TransactionLogRecord trxRecord : trxRecords.values()) {
+            writeToFile(trxRecord.getTransactionLogRecordString(), true);
+        }
+    }
+
     public Map<String, TransactionLogRecord> getPendingLogs() {
         Map<String, TransactionLogRecord> pendingTransactions = new HashMap<>();
         Map<String, TransactionLogRecord> transactionLogs = readLogsFromFile(logFile);
@@ -233,7 +237,7 @@ public class FileRecoveryLog implements RecoveryLog {
                     diagnosticLog.error(ErrorCodes.TRANSACTION_CANNOT_PARSE_LOG_RECORD, null, line);
                     continue;
                 }
-                logMap.put(transactionLogRecord.transactionId, transactionLogRecord);
+                logMap.put(transactionLogRecord.getCombinedId(), transactionLogRecord);
             }
         } catch (IOException e) {
             stderr.println(ERROR_MESSAGE_PREFIX + " failed to read the recovery log file " + file.toPath() + ": "
