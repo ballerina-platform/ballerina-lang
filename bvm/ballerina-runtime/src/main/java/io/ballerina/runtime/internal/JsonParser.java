@@ -332,8 +332,7 @@ public class JsonParser {
                     this.targetTypes.remove(this.targetTypes.size() - 1);
                     processArrayType((ArrayType) targetType);
                 }
-                case TypeTags.TUPLE_TAG -> processTupleType((TupleType) targetType);
-                default -> throw new ParserException("unsupported type: '" + targetType + "'");
+                default -> processTupleType((TupleType) targetType);
             }
 
             if (this.nodesStack.isEmpty()) {
@@ -356,13 +355,6 @@ public class JsonParser {
                     this.currentJsonNode = parentNode;
                     yield ARRAY_ELEMENT_END_STATE;
                 }
-                case TypeTags.TUPLE_TAG -> {
-                    int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
-                    ((TupleValueImpl) parentNode).addRefValue(tupleListIndex, currentJsonNode);
-                    this.listIndices.set(this.listIndices.size() - 1, tupleListIndex + 1);
-                    this.currentJsonNode = parentNode;
-                    yield ARRAY_ELEMENT_END_STATE;
-                }
                 case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
                         TypeTags.FINITE_TYPE_TAG -> {
                     if (TypeUtils.getImpliedType(TypeChecker.getType(parentNode)).getTag() == TypeTags.MAP_TAG) {
@@ -376,7 +368,13 @@ public class JsonParser {
                     this.currentJsonNode = parentNode;
                     yield ARRAY_ELEMENT_END_STATE;
                 }
-                default -> throw new ParserException("unsupported type: '" + parentTargetType + "'");
+                default -> {
+                    int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
+                    ((TupleValueImpl) parentNode).addRefValue(tupleListIndex, currentJsonNode);
+                    this.listIndices.set(this.listIndices.size() - 1, tupleListIndex + 1);
+                    this.currentJsonNode = parentNode;
+                    yield ARRAY_ELEMENT_END_STATE;
+                }
             };
         }
 

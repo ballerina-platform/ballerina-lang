@@ -56,7 +56,8 @@ public class RuntimeAPITest {
                 "utils",
                 "identifier_utils",
                 "environment",
-                "stream"
+                "stream",
+                "json"
         };
     }
 

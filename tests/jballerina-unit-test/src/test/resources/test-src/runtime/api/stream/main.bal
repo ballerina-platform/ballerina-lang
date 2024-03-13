@@ -121,6 +121,11 @@ type Rec5 record {|
     int gain = 18;
 |};
 
+type Rec6 record {|
+    Rec1 student;
+    anydata ...;
+|};
+
 type Union1 map<int>|map<float>|int|string|float|Rec4|Rec5|[float, int]|int[]|float[]|[int, float];
 
 type Union1Sub1 Rec4|map<int>|map<float>|int|string|float|Rec5|[float, int]|int[]|float[]|[int, float];
@@ -228,6 +233,12 @@ type anydataType anydata;
 
 type Union1Decimal Union1|decimal;
 
+type invalidUnion floatType|Rec5;
+
+type type5Closed map<int>[1];
+type tupleClosed [map<int>];
+type tupleClosedWithRest [map<int>, anydata...];
+
 public function main() {
     testParsingCharacterStreamToTypes();
 }
@@ -269,6 +280,8 @@ function testParsingCharacterStreamToTypes() {
         ["null", NilType],
         [string `{"name": "John", "age": 30, "height": 1.8}`, Rec1],
         [string `{"student": {"name": "John", "age": 30, "height": 1.8}}`, Rec3],
+        [string `{"dummy": {"name": "John", "age": 30, "height": 1.8}, "student": {"name": "John", "age": 30,
+        "height": 1.8}}`, Rec6],
         [string `{"isSingle": true, "address": "this is address", "count": 14, "student": {"name": "John", "age": 30, "height": 1.8}}`, Rec2],
 
         [string `[1, 2, 3]`, intArrayReadonly],
@@ -342,11 +355,16 @@ function testParsingCharacterStreamToTypes() {
 
         [string `[[1], 2]`, anydataType],
         [string `[{"name": "John", "salary": 100 }]`, TableType1],
-        [string `[{"name": "John", "salary": 100 }, { "name": "Jane", "salary": 200 }]`, TableType1]
+        [string `[{"name": "John", "salary": 100 }, { "name": "Jane", "salary": 200 }]`, TableType1],
+        ["[{\"id\": 12, \"age\": 24}, {\"id\": 12, \"age\": 24}]", tupleClosedWithRest]
     ];
 
     [string, typedesc<anydata>][] negativeCases = [
         [string `[1, 2, 3]`, booleanArray],
+        ["2-invalid", ByteType],
+        ["2-invalid", decimalType],
+        ["2-invalid", floatType],
+        ["{}", floatType],
         ["[\"1\"]", type1],
         ["[\"1\"]", char2Array],
         ["[2]", type1],
@@ -385,8 +403,10 @@ function testParsingCharacterStreamToTypes() {
         ["12.3", BooleanTypeReadonly],
         ["\"hello\"", BooleanTypeReadonly],
         ["\"h\"", intSigned32Readonly],
-
-        ["[\"123\"]", char2Array]
+        ["{\"gain\":1}", Rec5],
+        ["[\"123\"]", char2Array],
+        ["[{\"id\": 12, \"age\": 24}, {\"id\": 12, \"age\": 24}]", type5Closed],
+        ["[{\"id\": 12, \"age\": 24}, {\"id\": 12, \"age\": 24}]", tupleClosed]
     ];
 
     foreach [string, typedesc<anydata>] [givenStr, targetType] in positiveCases {
