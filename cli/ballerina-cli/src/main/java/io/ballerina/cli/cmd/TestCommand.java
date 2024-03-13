@@ -197,11 +197,6 @@ public class TestCommand implements BLauncherCmd {
             "generation")
     private String graalVMBuildOptions;
 
-    @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
-            "output file name may or may not contain the " +
-            "'.jar' extension.")
-    private String output;
-
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
 
@@ -372,7 +367,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified,
                         buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
-                .addTask(new CreateTestExecutableTask(outStream, this.output, includes, excludes, groupList,
+                .addTask(new CreateTestExecutableTask(outStream, includes, excludes, groupList,
                                 disableGroupList, coverageFormat, testList, moduleMap, listGroups, cliArgs),
                         project.buildOptions().cloud().isEmpty())
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
