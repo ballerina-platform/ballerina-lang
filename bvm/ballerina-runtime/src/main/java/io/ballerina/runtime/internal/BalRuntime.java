@@ -91,7 +91,7 @@ public class BalRuntime extends Runtime {
 
     public void start() {
         if (!moduleInitialized) {
-            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_MODULE_START_CALL);
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_METHOD_CALL, "start");
         }
         invokeMethodAsync("$moduleStart", new Object[1], null, PredefinedTypes.TYPE_NULL, "start");
     }
@@ -105,7 +105,7 @@ public class BalRuntime extends Runtime {
 
     public void stop() {
         if (!moduleInitialized) {
-            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_MODULE_STOP_CALL);
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_METHOD_CALL, "stop");
         }
         invokeMethodAsync("$moduleStop", new Object[1], null, PredefinedTypes.TYPE_NULL, "stop");
     }

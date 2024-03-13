@@ -55,10 +55,6 @@ public class RuntimeAPITest extends BaseTest {
         Path sourceRoot = Paths.get(testFileLocation, "function_invocation").toAbsolutePath();
         bMainInstance.runMain("build", new String[0], envProperties, new String[0], null,
                 sourceRoot.toString());
-
-        sourceRoot = Paths.get(testFileLocation, "function_invocation_negative").toAbsolutePath();
-        bMainInstance.runMain("build", new String[0], envProperties, new String[0], null,
-                sourceRoot.toString());
     }
 
     @Test
@@ -100,8 +96,8 @@ public class RuntimeAPITest extends BaseTest {
 
     @Test
     public void testBalFunctionInvocationAPINegative() throws BallerinaTestException {
-        Path jarPath = Paths.get(testFileLocation, "function_invocation_negative", "target", "bin",
-                "function_invocation_negative.jar").toAbsolutePath();
+        Path jarPath = Paths.get(testFileLocation, "function_invocation", "target", "bin",
+                "function_invocation.jar").toAbsolutePath();
         compileJavaSource(jarPath, "RuntimeAPICallNegative.java", "target-dir-negative");
         unzipJarFile(jarPath, "target-dir-negative");
         createExecutableJar("target-dir-negative",
@@ -123,7 +119,45 @@ public class RuntimeAPITest extends BaseTest {
             Process runProcess = runProcessBuilder.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
             List<LogLeecher> leechers = new ArrayList<>();
-            leechers.add(new LogLeecher("function 'foo' is called before module initialization",
+            leechers.add(new LogLeecher("function 'add' is called before module initialization",
+                    LogLeecher.LeecherType.ERROR));
+            addToServerInfoLogReader(serverInfoLogReader, leechers);
+            serverInfoLogReader.start();
+            bMainInstance.waitForLeechers(leechers, 5000);
+            runProcess.waitFor();
+            serverInfoLogReader.stop();
+            serverInfoLogReader.removeAllLeechers();
+        } catch (IOException | InterruptedException e) {
+            throw new BallerinaTestException("Error occurred while running the java file");
+        }
+    }
+
+    @Test
+    public void testModuleStartCallNegative() throws BallerinaTestException {
+        Path jarPath = Paths.get(testFileLocation, "function_invocation", "target", "bin",
+                "function_invocation.jar").toAbsolutePath();
+        compileJavaSource(jarPath, "ModuleStartCallNegative.java", "start-call-negative");
+        unzipJarFile(jarPath, "start-call-negative");
+        createExecutableJar("start-call-negative",
+                "org.ballerinalang.test.runtime.api.ModuleStartCallNegative");
+
+        // Run the executable jar and assert the output
+        Path execJarPath = Paths.get(javaSrcLocation.toString(), "start-call-negative",
+                "test-exec.jar").toAbsolutePath();
+        List<String> runCmdSet = new ArrayList<>();
+        runCmdSet.add("java");
+        runCmdSet.add("-javaagent:" + Paths.get(balServer.getServerHome()).resolve("bre").resolve("lib")
+                .resolve("jacocoagent.jar") + "=destfile=" + Paths.get(System.getProperty("user.dir"))
+                .resolve("build").resolve("jacoco").resolve("test.exec"));
+        runCmdSet.add("-jar");
+        runCmdSet.add(execJarPath.toString());
+        ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
+        runProcessBuilder.redirectErrorStream(true);
+        try {
+            Process runProcess = runProcessBuilder.start();
+            ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
+            List<LogLeecher> leechers = new ArrayList<>();
+            leechers.add(new LogLeecher("'start' method is called before module initialization",
                     LogLeecher.LeecherType.ERROR));
             addToServerInfoLogReader(serverInfoLogReader, leechers);
             serverInfoLogReader.start();
@@ -141,6 +175,7 @@ public class RuntimeAPITest extends BaseTest {
         bMainInstance = null;
         BFileUtil.deleteDirectory(Paths.get(javaSrcLocation.toString(), "targetDir").toFile());
         BFileUtil.deleteDirectory(Paths.get(javaSrcLocation.toString(), "target-dir-negative").toFile());
+        BFileUtil.deleteDirectory(Paths.get(javaSrcLocation.toString(), "start-call-negative").toFile());
     }
 
     private static void compileJavaSource(Path jarPath, String srcFile, String targetDir)

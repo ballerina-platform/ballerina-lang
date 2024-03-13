@@ -18,33 +18,17 @@ package org.ballerinalang.test.runtime.api;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.async.Callback;
-import io.ballerina.runtime.api.values.BError;
-
-import java.io.PrintStream;
 
 /**
  * Source class to test the functionality of Ballerina runtime APIs for invoking functions.
  *
  * @since 2201.9.0
  */
-public class RuntimeAPICallNegative {
-
-    private static final PrintStream out = System.out;
+public class ModuleStartCallNegative {
 
     public static void main(String[] args) {
-        Module module = new Module("testorg", "function_invocation", "1");
+        Module module = new Module("testorg", "function_invocation_negative", "1");
         Runtime balRuntime = Runtime.from(module);
-        balRuntime.invokeMethodAsync("add", new Object[0], new Callback() {
-            @Override
-            public void notifySuccess(Object result) {
-                out.println(result);
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                out.println("Error: " + error);
-            }
-        });
+        balRuntime.start();
     }
 }

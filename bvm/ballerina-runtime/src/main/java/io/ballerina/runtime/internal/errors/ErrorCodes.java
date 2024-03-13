@@ -150,9 +150,8 @@ public enum ErrorCodes implements DiagnosticCode {
     CONFIG_TOML_INVALID_MODULE_STRUCTURE_WITH_VARIABLE("config.toml.invalid.module.structure.with.variable",
                                                                "RUNTIME_0121"),
     EMPTY_XML_SEQUENCE_HAS_NO_ATTRIBUTES("empty.xml.sequence.no.attributes", "RUNTIME_0122"),
-    INVALID_MODULE_START_CALL("invalid.module.start.call", "RUNTIME_0123"),
-    INVALID_MODULE_STOP_CALL("invalid.module.stop.call", "RUNTIME_0124"),
-    INVALID_FUNCTION_INVOCATION("invalid.function.invocation.call", "RUNTIME_0125");
+    INVALID_METHOD_CALL("invalid.method.call", "RUNTIME_0123"),
+    INVALID_FUNCTION_INVOCATION("invalid.function.invocation.call", "RUNTIME_0124");
 
     private final String errorMsgKey;
     private final String errorCode;
