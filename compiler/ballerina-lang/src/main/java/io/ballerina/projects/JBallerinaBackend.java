@@ -244,23 +244,21 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     public EmitResult getEmitResult(Path filePath, Path generatedArtifact, ArtifactType artifactType) {
-        ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
-
+        ArrayList<Diagnostic> emitDiagnostics = new ArrayList<>();
         if (filePath != null) {
             List<Diagnostic> pluginDiagnostics = notifyCompilationCompletion(filePath, artifactType);
             if (!pluginDiagnostics.isEmpty()) {
-                diagnostics.addAll(pluginDiagnostics);
+                emitDiagnostics.addAll(pluginDiagnostics);
             }
         }
-
-        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
-
-        List<Diagnostic> allDiagnostics = new ArrayList<>(diagnostics);
+        List<Diagnostic> allDiagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
         jarResolver().diagnosticResult().diagnostics().stream().forEach(
-                diagnostic -> allDiagnostics.add(diagnostic));
+                diagnostic -> emitDiagnostics.add(diagnostic));
+        allDiagnostics.addAll(emitDiagnostics);
+        diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
 
         // TODO handle the EmitResult properly
-        return new EmitResult(true, new DefaultDiagnosticResult(allDiagnostics), generatedArtifact);
+        return new EmitResult(true, new DefaultDiagnosticResult(emitDiagnostics), generatedArtifact);
     }
 
     public List<Diagnostic> notifyCompilationCompletion(Path filePath, ArtifactType artifactType) {
@@ -471,13 +469,13 @@ public class JBallerinaBackend extends CompilerBackend {
             // Copy merged spi services.
             copyMergedSpiServices(serviceEntries, outStream);
 
-            //write the test suite json file
+            // Write the test suite json file
             JarArchiveEntry testSuiteJsonEntry = new JarArchiveEntry(jsonCopyPath);
             outStream.putArchiveEntry(testSuiteJsonEntry);
             outStream.write(Files.readAllBytes(testSuiteJsonPath));
             outStream.closeArchiveEntry();
 
-            //get the module jar paths and copy them to the executable jar
+            // Get the module jar paths and copy them to the executable jar
             JarArchiveEntry classPathTextEntry = new JarArchiveEntry(classPathTextCopyPath);
             outStream.putArchiveEntry(classPathTextEntry);
             for (String path : excludingClassPaths) {
