@@ -31,6 +31,12 @@ function testInvalidUpdates() {
 }
 
 function testUndefinedMemberAccess() {
-    float[] _ = foo:l10;
-    string[] _ = foo:l11;
+    float[] _ = foo:l13;
+    string[] _ = foo:l14;
+}
+
+function testNonPublicConstAccess() {
+    int[] _ = foo:l10;
+    [int, int, boolean] _ = foo:l11;
+    string[] _ = foo:l12;
 }

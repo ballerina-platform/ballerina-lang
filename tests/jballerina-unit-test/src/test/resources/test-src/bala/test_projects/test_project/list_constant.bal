@@ -27,3 +27,6 @@ public const IntArr l6 = [1, 2, 3];
 public const [int, string...] l7 = [1, "f", "g"];
 public const (string|int)[][] l8 = [[1, "2", 3], [4, 5, 6]];
 public const [(string[]|int[])...] l9 = [[1, 2, 3], ["4", "5", "6"]];
+const int[] l10 = [1, 2, 3];
+const [int, int, boolean] l11 = [1, 2, true];
+const l12 = l1;
