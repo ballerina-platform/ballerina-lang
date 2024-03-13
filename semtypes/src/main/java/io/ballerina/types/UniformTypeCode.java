@@ -50,6 +50,9 @@ public class UniformTypeCode {
     public static final UniformTypeCode UT_TYPEDESC = from(0x0D);
     public static final UniformTypeCode UT_HANDLE = from(0x0E);
 
+    // Non-val
+    public static final UniformTypeCode BT_CELL = from(0x0F);
+
     // Inherently mutable
     public static final UniformTypeCode UT_FUTURE = from(0x10);
     public static final UniformTypeCode UT_STREAM = from(0x11);

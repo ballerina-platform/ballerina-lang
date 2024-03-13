@@ -80,8 +80,24 @@ public class SemTypes {
         return Core.union(t1, t2);
     }
 
+    public static SemType union(SemType first, SemType second, SemType... rest) {
+        SemType u = Core.union(first, second);
+        for (SemType s : rest) {
+            u = Core.union(u, s);
+        }
+        return u;
+    }
+
     public static SemType intersect(SemType t1, SemType t2) {
         return Core.intersect(t1, t2);
+    }
+
+    public static SemType intersect(SemType first, SemType second, SemType... rest) {
+        SemType i = Core.intersect(first, second);
+        for (SemType s : rest) {
+            i = Core.intersect(i, s);
+        }
+        return i;
     }
 
     public static SemType tuple(Env env, SemType[] members) {
@@ -97,7 +113,7 @@ public class SemTypes {
     }
 
     public static boolean isSameType(Context context, SemType t1, SemType t2) {
-        return isSubtype(context, t1, t2) && isSubtype(context, t2, t1);
+        return Core.isSameType(context, t1, t2);
     }
 
     public static SemType errorDetail(SemType detail) {

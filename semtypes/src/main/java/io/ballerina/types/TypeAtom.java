@@ -17,6 +17,9 @@
  */
 package io.ballerina.types;
 
+import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_NEVER;
+import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_VAL;
+
 /**
  * Represent a TypeAtom.
  *
@@ -25,6 +28,9 @@ package io.ballerina.types;
 public class TypeAtom implements Atom {
     public final long index;
     public final AtomicType atomicType;
+
+    public static final TypeAtom ATOM_CELL_VAL = createTypeAtom(0, CELL_ATOMIC_VAL);
+    public static final TypeAtom ATOM_CELL_NEVER = createTypeAtom(1, CELL_ATOMIC_NEVER);
 
     private TypeAtom(long index, AtomicType atomicType) {
         this.index = index;

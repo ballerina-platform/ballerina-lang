@@ -78,6 +78,10 @@ public class Env {
         return this.typeAtom(atomicType);
     }
 
+    public TypeAtom cellAtom(CellAtomicType atomicType) {
+        return this.typeAtom(atomicType);
+    }
+
     private TypeAtom typeAtom(AtomicType atomicType) {
         synchronized (this.atomTable) {
             TypeAtom ta = this.atomTable.get(atomicType);
@@ -145,6 +149,10 @@ public class Env {
         synchronized (this.recMappingAtoms) {
             return (MappingAtomicType) this.recMappingAtoms.get(ra.index);
         }
+    }
+
+    public static CellAtomicType cellAtomType(Atom atom) {
+        return (CellAtomicType) ((TypeAtom) atom).atomicType;
     }
 
     public void addTypeDef(String typeName, SemType semType) {

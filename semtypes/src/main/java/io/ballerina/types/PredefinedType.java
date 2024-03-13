@@ -63,6 +63,8 @@ public class PredefinedType {
     public static final UniformTypeBitSet STREAM = uniformType(UniformTypeCode.UT_STREAM);
     public static final UniformTypeBitSet FUTURE = uniformType(UniformTypeCode.UT_FUTURE);
 
+    public static final UniformTypeBitSet CELL = uniformType(UniformTypeCode.BT_CELL);
+
     // this is SubtypeData|error
     public static final UniformTypeBitSet TOP = uniformTypeUnion(UniformTypeCode.UT_MASK);
     public static final UniformTypeBitSet ANY =

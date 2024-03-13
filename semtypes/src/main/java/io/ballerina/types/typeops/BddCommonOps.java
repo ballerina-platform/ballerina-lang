@@ -143,32 +143,35 @@ public abstract class BddCommonOps {
         if (b instanceof BddAllOrNothing) {
             return ((BddAllOrNothing) b).complement();
         } else {
-            BddNode bdd = (BddNode) b;
-            BddAllOrNothing bddNothing = BddAllOrNothing.bddNothing();
-            if (bdd.right.equals(bddNothing)) {
-                return bddCreate(bdd.atom,
-                        bddNothing,
-                        bddComplement(bddUnion(bdd.left, bdd.middle)),
-                        bddComplement(bdd.middle));
-            } else if (bdd.left.equals(bddNothing)) {
-                return bddCreate(bdd.atom,
-                        bddComplement(bdd.middle),
-                        bddComplement(bddUnion(bdd.right, bdd.middle)),
-                        bddNothing);
-            } else if (bdd.middle.equals(bddNothing)) {
-                return bddCreate(bdd.atom,
-                        bddComplement(bdd.left),
-                        bddComplement(bddUnion(bdd.left, bdd.right)),
-                        bddComplement(bdd.right));
-            } else {
-                // There is a typo in the Frisch PhD thesis for this formula.
-                // (It has left and right swapped.)
-                // Castagna (the PhD supervisor) confirms that this is the correct formula.
-                return bddCreate(bdd.atom,
-                        bddComplement(bddUnion(bdd.left, bdd.middle)),
-                        bddNothing,
-                        bddComplement(bddUnion(bdd.right, bdd.middle)));
-            }
+            return bddNodeComplement((BddNode) b);
+        }
+    }
+
+    public static Bdd bddNodeComplement(BddNode b) {
+        BddAllOrNothing bddNothing = BddAllOrNothing.bddNothing();
+        if (b.right.equals(bddNothing)) {
+            return bddCreate(b.atom,
+                    bddNothing,
+                    bddComplement(bddUnion(b.left, b.middle)),
+                    bddComplement(b.middle));
+        } else if (b.left.equals(bddNothing)) {
+            return bddCreate(b.atom,
+                    bddComplement(b.middle),
+                    bddComplement(bddUnion(b.right, b.middle)),
+                    bddNothing);
+        } else if (b.middle.equals(bddNothing)) {
+            return bddCreate(b.atom,
+                    bddComplement(b.left),
+                    bddComplement(bddUnion(b.left, b.right)),
+                    bddComplement(b.right));
+        } else {
+            // There is a typo in the Frisch PhD thesis for this formula.
+            // (It has left and right swapped.)
+            // Castagna (the PhD supervisor) confirms that this is the correct formula.
+            return bddCreate(b.atom,
+                    bddComplement(bddUnion(b.left, b.middle)),
+                    bddNothing,
+                    bddComplement(bddUnion(b.right, b.middle)));
         }
     }
 
