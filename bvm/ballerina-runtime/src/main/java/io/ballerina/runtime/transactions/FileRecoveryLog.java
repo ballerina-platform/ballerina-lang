@@ -91,8 +91,8 @@ public class FileRecoveryLog implements RecoveryLog {
         if (oldFile.exists()) {
             existingLogs = readLogsFromFile(oldFile);
             if (deleteOldLogs) {
-                File[] files = getLogFilesInDirectory();
-                for (File file : files) {
+                File[] matchingLogfiles = getLogFilesInDirectory();
+                for (File file : matchingLogfiles) {
                     file.delete();
                 }
             }
@@ -123,18 +123,16 @@ public class FileRecoveryLog implements RecoveryLog {
      */
     private int findLatestVersion() {
         int latestVersion = 0;
-        File[] files = getLogFilesInDirectory();
-        if (files == null) {
+        File[] matchingFiles = getLogFilesInDirectory();
+        if (matchingFiles == null) {
             return latestVersion;
         }
-        for (File file : files) {
+        for (File file : matchingFiles) {
             String fileName = file.getName();
-            if (fileName.matches("^" + baseFileName + "\\d+" + LOG_FILE_EXTENSION + "$")) {
-                int version = Integer.parseInt(
-                        fileName.replaceAll(baseFileName, "").replaceAll(LOG_FILE_EXTENSION, ""));
-                if (version > latestVersion) {
-                    latestVersion = version;
-                }
+            int version = Integer.parseInt(
+                    fileName.replaceAll(baseFileName, "").replaceAll(LOG_FILE_EXTENSION, ""));
+            if (version > latestVersion) {
+                latestVersion = version;
             }
         }
         return latestVersion;
@@ -142,7 +140,7 @@ public class FileRecoveryLog implements RecoveryLog {
 
     private File[] getLogFilesInDirectory() {
         return recoveryLogDir.toFile().listFiles(
-                (dir, name) -> name.matches(baseFileName + LOG_FILE_NUMBER + LOG_FILE_EXTENSION)
+                (dir, name) -> name.matches(baseFileName + LOG_FILE_NUMBER + LOG_FILE_EXTENSION + "$")
         );
     }
 
