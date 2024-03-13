@@ -1,6 +1,6 @@
-// Copyright (c) 2024 WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
+// Copyright (c) 2024 WSO2 LLC. (http://www.wso2.com).
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -18,8 +18,8 @@ package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.BuildUtils;
-import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.cli.utils.NativeUtils;
+import io.ballerina.cli.utils.TestSuiteCreatingArgs;
 import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -32,6 +32,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.TestEmitArgs;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -50,7 +51,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,6 +62,13 @@ import static io.ballerina.cli.utils.NativeUtils.modifyJarForFunctionMock;
 import static io.ballerina.cli.utils.TestUtils.createTestSuitesForProject;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MODIFIED_JAR_SUFFIX;
+
+/**
+ * Task for creating the executable testable jar(s) for the ballerina project.
+ *
+ * @since 2201.9.0
+ */
 
 public class CreateTestExecutableTask implements Task {
     private final transient PrintStream out;
@@ -191,12 +198,12 @@ public class CreateTestExecutableTask implements Task {
                 jarName + ProjectConstants.TEST_UBER_JAR_SUFFIX + ProjectConstants.BLANG_COMPILED_JAR_EXT);
 
         List<Path> moduleJarPaths = TestUtils.getModuleJarPaths(jBallerinaBackend, project.currentPackage());
-        List<String> excludingClassPaths = new ArrayList<>();
+        List<String> excludedClasses = new ArrayList<>();
         for (Path moduleJarPath : moduleJarPaths) {
             ZipFile zipFile = new ZipFile(moduleJarPath.toFile());
             zipFile.stream().forEach(entry -> {
                 if (entry.getName().endsWith(ProjectConstants.JAVA_CLASS_EXT)) {
-                    excludingClassPaths.add(entry.getName().replace(File.separator, ProjectConstants.DOT)
+                    excludedClasses.add(entry.getName().replace(File.separator, ProjectConstants.DOT)
                             .replace(ProjectConstants.JAVA_CLASS_EXT, ""));
                 }
             });
@@ -205,14 +212,9 @@ public class CreateTestExecutableTask implements Task {
 
         // Create the single fat jar for all the test modules that includes the test suite json
         EmitResult result = jBallerinaBackend.emit(
-                JBallerinaBackend.OutputType.TEST,
-                testExecutablePath,
-                testExecDependencies,
-                TestUtils.getJsonFilePath(testCachePath),
-                TestUtils.getJsonFilePathInFatJar(File.separator),
-                excludingClassPaths,
-                ProjectConstants.EXCLUDING_CLASSES_FILE
-        );
+                new TestEmitArgs(JBallerinaBackend.OutputType.TEST, testExecutablePath, testExecDependencies,
+                        TestUtils.getJsonFilePath(testCachePath), TestUtils.getJsonFilePathInFatJar(File.separator),
+                        excludedClasses, ProjectConstants.EXCLUDED_CLASSES_FILE));
         emitDiagnostics.addAll(result.diagnostics().diagnostics());
     }
 
@@ -221,26 +223,12 @@ public class CreateTestExecutableTask implements Task {
                                            Project project)
             throws IOException {
         // Clone the map to the count of test suites
-        int testSuiteCount = 0;
         List<Map<String, TestSuite>> clonedMaps = new ArrayList<>();
-        for (int i = 0; i < testSuiteMap.size(); i++) {
-            clonedMaps.add(new HashMap<>(testSuiteMap));
-            testSuiteCount++;
-        }
-
-        // For each map, remove all the test suites except the one at the current index
-        for (int i = 0; i < testSuiteCount; i++) {
-            Map<String, TestSuite> clonedMap = clonedMaps.get(i);
-            Iterator<Map.Entry<String, TestSuite>> iterator = clonedMap.entrySet().iterator();
-            int index = 0;
-            while (iterator.hasNext()) {
-                Map.Entry<String, TestSuite> entry = iterator.next();
-                if (index != i) {
-                    iterator.remove();
-                }
-                index++;
-            }
-        }
+        testSuiteMap.keySet().forEach(mapEntry -> {
+            Map<String, TestSuite> clonedMap = new HashMap<>();
+            clonedMap.put(mapEntry, testSuiteMap.get(mapEntry));
+            clonedMaps.add(clonedMap);
+        });
 
         List<ModuleName> moduleNames = project.currentPackage().moduleDependencyGraph()
                 .toTopologicallySortedList().stream().map(ModuleDescriptor::name).toList();
@@ -264,27 +252,27 @@ public class CreateTestExecutableTask implements Task {
                     .getJarFilePathsRequiredForTestExecution(moduleNameObj);
 
             // Filter the testDependencies from the testSuite's test dependencies
-            Collection<Path> neededDependencies = testSuite.getTestExecutionDependencies().stream()
+            Collection<Path> requiredDependencies = testSuite.getTestExecutionDependencies().stream()
                     .map(Paths::get).toList();
             HashSet<JarLibrary> filteredTestDependencies = new HashSet<>();
-            neededDependencies.forEach(neededDependency -> {
-                String comparingStr = TesterinaConstants.HYPHEN
-                        + TesterinaConstants.MODIFIED
-                        + BLANG_COMPILED_JAR_EXT;
-                String neededDependencyFileName = neededDependency.getFileName().toString();
-                if (neededDependencyFileName.contains(comparingStr)) {
-                    String originalFileName = neededDependencyFileName.replace(comparingStr, "");
-                    Optional<JarLibrary> foundDependency = testDependencies.stream().filter(dep ->
-                            dep.path().getFileName().toString().contains(originalFileName) &&
-                                    !dep.path().getFileName().toString().contains(TesterinaConstants.TESTABLE)
-                    ).findFirst();
-                    if (foundDependency.isPresent()) {
-                        JarLibrary modifiedJarLibrary = new JarLibrary(neededDependency,
-                                foundDependency.get().scope());
-                        filteredTestDependencies.add(modifiedJarLibrary);
-                        testDependencies.remove(foundDependency.get());
-                    }
+            requiredDependencies.forEach(neededDependency -> {
+                String comparingStr = MODIFIED_JAR_SUFFIX;
+                String requiredDependencyFileName = neededDependency.getFileName().toString();
+                if (!requiredDependencyFileName.contains(comparingStr)) {
+                    return;
                 }
+                String originalFileName = requiredDependencyFileName.replace(comparingStr, "");
+                Optional<JarLibrary> foundDependency = testDependencies.stream().filter(dep ->
+                        dep.path().getFileName().toString().contains(originalFileName) &&
+                                !dep.path().getFileName().toString().contains(TesterinaConstants.TESTABLE)
+                ).findFirst();
+                if (!foundDependency.isPresent()) {
+                    return;
+                }
+                JarLibrary modifiedJarLibrary = new JarLibrary(neededDependency,
+                        foundDependency.get().scope());
+                filteredTestDependencies.add(modifiedJarLibrary);
+                testDependencies.remove(foundDependency.get());
             });
 
             // Add the remaining dependencies
@@ -303,28 +291,22 @@ public class CreateTestExecutableTask implements Task {
             // Create the fat jar for the test suite
             // excluding class paths are not needed because we do not modify any classes in this scenario
             EmitResult result = jBallerinaBackend.emit(
-                    JBallerinaBackend.OutputType.TEST,
-                    testExecutablePath,
-                    filteredTestDependencies,
-                    TestUtils.getJsonFilePath(target.getTestsCachePath()),
-                    TestUtils.getJsonFilePathInFatJar(File.separator),
-                    new ArrayList<>(),
-                    ProjectConstants.EXCLUDING_CLASSES_FILE
-            );
+                    new TestEmitArgs(JBallerinaBackend.OutputType.TEST, testExecutablePath, filteredTestDependencies,
+                            TestUtils.getJsonFilePath(target.getTestsCachePath()),
+                            TestUtils.getJsonFilePathInFatJar(File.separator), new ArrayList<>(),
+                            ProjectConstants.EXCLUDED_CLASSES_FILE));
             emitDiagnostics.addAll(result.diagnostics().diagnostics());
         }
     }
 
     private boolean createTestSuiteForCloudArtifacts(Project project, JBallerinaBackend jBallerinaBackend,
                                                      Target target, Map<String, TestSuite> testSuiteMap) {
-        boolean report = project.buildOptions().testReport();
-        boolean coverage = project.buildOptions().codeCoverage();
         TestProcessor testProcessor = new TestProcessor(jBallerinaBackend.jarResolver());
         List<String> moduleNamesList = new ArrayList<>();
-        List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
-        boolean hasTests = createTestSuitesForProject(project, target, testProcessor, testSuiteMap,
-                moduleNamesList, mockClassNames, this.isRerunTestExecution, report, coverage);
+        boolean hasTests = createTestSuitesForProject(
+                new TestSuiteCreatingArgs(project, target, testProcessor, testSuiteMap, moduleNamesList, mockClassNames,
+                        this.isRerunTestExecution, this.report, this.coverage));
         if (hasTests) {
             // Now write the map to a json file
             try {

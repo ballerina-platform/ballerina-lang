@@ -39,12 +39,12 @@ public class CustomSystemClassLoader extends ClassLoader {
     public CustomSystemClassLoader() {
         super(getSystemClassLoader());
         this.modifiedClassDefs = new HashMap<>();
-        populateExcludingClasses();
+        populateExcludedClasses();
     }
 
-    private void populateExcludingClasses() {
+    private void populateExcludedClasses() {
         try(InputStream is = BTestMain.class.getResourceAsStream(ProjectConstants.FAT_JAR_ROOT_DIR +
-                ProjectConstants.EXCLUDING_CLASSES_FILE);
+                ProjectConstants.EXCLUDED_CLASSES_FILE);
             BufferedReader br = new BufferedReader(new InputStreamReader(Objects.requireNonNull(is)))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -58,7 +58,7 @@ public class CustomSystemClassLoader extends ClassLoader {
     public CustomSystemClassLoader(Map<String, byte[]> modifiedClassDefs) {
         super(getSystemClassLoader());
         this.modifiedClassDefs = new HashMap<>(modifiedClassDefs);
-        populateExcludingClasses();
+        populateExcludedClasses();
     }
 
     @Override
