@@ -16,6 +16,10 @@
 
 Client clientEndpoint = check new ("http://localhost:9090");
 
+# Represents possible path parameters type
+public type comType int|string|decimal|float;
+
+# Client to test the resource mocking
 public client class Client {
 
     function init(string url) returns error? {
@@ -46,6 +50,10 @@ public client class Client {
         return "hey";
     }
 
+    resource function get greeting/hellore/[int name](int a) returns string {
+        return "hey";
+    }
+
     resource function post greeting/hello1(string a) returns string {
         return "hey";
     }
@@ -68,6 +76,20 @@ public client class Client {
 
     resource function get greeting/hello4() returns error? {
         return;
+    }
+
+    resource function get greeting/hello/[int num]/[string str]/[comType... comtype](string str1, int
+            int1) returns string {
+        return "hey";
+    }
+
+    resource function get greeting/[int num]/[string str]/[comType comtype](string str1, int
+            int1) returns string {
+        return "hey";
+    }
+
+    resource function get greetin/[string al](string me = "luhee") returns string {
+        return "hey";
     }
 
     remote function alp() returns string {

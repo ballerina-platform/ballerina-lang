@@ -14,8 +14,8 @@ testNonPublicMemberFieldMock has failed.
 		[fail] testNonPublicMemberFieldMock:
 
 		    error("NonPublicMemberFieldError",message="member field should be public to be mocked. The provided field 'url' is not public")
-				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 355
-				callableName: thenReturn moduleName: ballerina.test.0.MemberVariableStub fileName: mock.bal lineNumber: 212
+				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 551
+				callableName: thenReturn moduleName: ballerina.test.0.MemberVariableStub fileName: mock.bal lineNumber: 362
 				callableName: testNonPublicMemberFieldMock moduleName: intg_tests.non_public_field_mock$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 23
 				callableName: testNonPublicMemberFieldMock$lambda0$ moduleName: intg_tests.non_public_field_mock$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 4
 			

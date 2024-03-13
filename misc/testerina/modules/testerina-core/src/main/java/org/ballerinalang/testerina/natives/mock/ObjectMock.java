@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -45,6 +46,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ObjectValue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -81,7 +83,6 @@ public class ObjectMock {
                         StringUtils.fromString(detail),
                         null,
                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
-
             } else {
                 for (MethodType attachedFunction : objectValueType.getMethods()) {
                     BError error = validateFunctionSignatures(attachedFunction,
@@ -213,7 +214,8 @@ public class ObjectMock {
         return null;
     }
 
-    private static boolean validateAccessor(String resourcePath, String accessor, ResourceMethodType[] resourceMethods) {
+    private static boolean validateAccessor(String resourcePath, String accessor, ResourceMethodType[]
+            resourceMethods) {
         String functionPattern = getFunctionNameForResourcePath(resourcePath);
         for (ResourceMethodType attachedFunction : resourceMethods) {
             if (attachedFunction.getName().endsWith(functionPattern) &&
@@ -234,10 +236,31 @@ public class ObjectMock {
     public static BError validatePathParams(BObject caseObj, BMap pathParams) {
         String functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
         String[] pathSegments = functionName.split(MockConstants.PATH_SEPARATOR);
-        for (String pathSegment : pathSegments) {
-            if (pathSegment.startsWith(MockConstants.PATH_PARAM_INDICATOR)) {
-                if (pathParams.get(StringUtils.fromString(pathSegment.substring(1))) == null) {
-                    String detail = "required path param '" + pathSegment.substring(1) + "' is not provided";
+        for (int i = 0; i < pathSegments.length; i++) {
+            if (pathSegments[i].startsWith(MockConstants.REST_PARAMETER_INDICATOR)) {
+                if (i != pathSegments.length - 1) {
+                    String detail = "rest parameter '" + pathSegments[i] + "' should be the last segment of the path";
+                    throw ErrorCreator.createError(
+                            MockConstants.TEST_PACKAGE_ID,
+                            MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                            StringUtils.fromString(detail),
+                            null,
+                            new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                }
+                String restSegment = pathSegments[i].substring(2);
+                if (pathParams.get(StringUtils.fromString(restSegment)) == null) {
+                    String detail = "required rest parameter '" + restSegment + "' is not provided";
+                    throw ErrorCreator.createError(
+                            MockConstants.TEST_PACKAGE_ID,
+                            MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                            StringUtils.fromString(detail),
+                            null,
+                            new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                }
+            } else if (pathSegments[i].startsWith(MockConstants.PATH_PARAM_INDICATOR)) {
+                String pathSegment = pathSegments[i].substring(1);
+                if (pathParams.get(StringUtils.fromString(pathSegment)) == null) {
+                    String detail = "required path parameter '" + pathSegment + "' is not provided";
                     throw ErrorCreator.createError(
                             MockConstants.TEST_PACKAGE_ID,
                             MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
@@ -343,22 +366,25 @@ public class ObjectMock {
     }
 
     /**
-     * Validates the resource arguments(both path and function arguments).
+     * Validates the resource path arguments.
      *
      * @param caseObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
-    public static BError validateResourceArguments(BObject caseObj) {
+    public static BError validatePathArgs(BObject caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
                 StringUtils.fromString(MockConstants.MOCK_OBJECT));
         String functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
         String[] pathParamPlaceHolder = getPathParamPlaceHolders(functionName);
-        BArray argsList = caseObj.getArrayValue(StringUtils.fromString(MockConstants.ARGS));
+        BArray argsList = caseObj.getArrayValue(StringUtils.fromString(MockConstants.PATH_ARGS));
         String functionPattern = getFunctionNameForResourcePath(functionName);
         for (ResourceMethodType attachedFunction : ((BClientType) genericMock.getType()).getResourceMethods()) {
             if (attachedFunction.getName().endsWith(functionPattern)) {
+                int pathSegmentCount = (int) functionPattern.chars().filter(ch -> ch ==
+                        MockConstants.PATH_PARAM_PLACEHOLDER.charAt(0)).count() -
+                        (functionPattern.endsWith(MockConstants.REST_PARAM_PLACEHOLDER) ? 1 : 0);
                 // validate the number of arguments provided
-                if (argsList.size() > attachedFunction.getType().getParameters().length ) {
+                if (argsList.size() > pathSegmentCount) {
                     String detail = "too many argument provided to mock the function '" + functionName + "()'";
                     return ErrorCreator.createError(
                             MockConstants.TEST_PACKAGE_ID,
@@ -369,17 +395,89 @@ public class ObjectMock {
                 }
 
                 // validate if each argument is compatible with the type given in the function signature
-                int i = 0 ;
+                int i = 0;
                 for (BIterator it = argsList.getIterator(); it.hasNext(); i++) {
-                    String detail;
-                    if (i < pathParamPlaceHolder.length){
-                        detail = "incorrect type of path provided for '" + pathParamPlaceHolder[i] +
-                                "' to mock the function '" + functionName ;
-                    } else {
-                        detail = "incorrect type of argument provided at position '" + (i + 1 -
-                                pathParamPlaceHolder.length) + "' to mock the function '" + functionName ;
-                    }
+                    String detail = "incorrect type of path provided for '" + pathParamPlaceHolder[i] +
+                                "' to mock the function '" + functionName;
                     Type paramType = TypeUtils.getImpliedType(attachedFunction.getType().getParameters()[i].type);
+                    if (paramType instanceof UnionType) {
+                        Object arg = it.next();
+                        boolean isTypeAvailable = false;
+                        List<Type> memberTypes = ((UnionType) paramType).getMemberTypes();
+                        for (Type memberType : memberTypes) {
+                            if (TypeChecker.checkIsType(arg, memberType)) {
+                                isTypeAvailable = true;
+                                break;
+                            }
+                        }
+                        if (!isTypeAvailable) {
+                            return ErrorCreator.createError(
+                                    MockConstants.TEST_PACKAGE_ID,
+                                    MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                                    StringUtils.fromString(detail),
+                                    null,
+                                    new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                        }
+                    } else if (paramType instanceof ArrayType) {
+                        Object arg = it.next();
+                        if (!(TypeChecker.getType(arg) instanceof ArrayType)) {
+                            return ErrorCreator.createError(
+                                    MockConstants.TEST_PACKAGE_ID,
+                                    MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                                    StringUtils.fromString(detail),
+                                    null,
+                                    new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                        }
+                    } else if (!TypeChecker.checkIsType(it.next(), paramType)) {
+                        return ErrorCreator.createError(
+                                MockConstants.TEST_PACKAGE_ID,
+                                MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                                StringUtils.fromString(detail),
+                                null,
+                                new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                    }
+                }
+                break;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Validates the resource function arguments.
+     *
+     * @param caseObj ballerina object that contains information about the case to register
+     * @return an optional error if a validation fails
+     */
+    public static BError validateResourceArguments(BObject caseObj) {
+        GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
+                StringUtils.fromString(MockConstants.MOCK_OBJECT));
+        String functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
+        BArray argsList = caseObj.getArrayValue(StringUtils.fromString(MockConstants.ARGS));
+        String functionPattern = getFunctionNameForResourcePath(functionName);
+        for (ResourceMethodType attachedFunction : ((BClientType) genericMock.getType()).getResourceMethods()) {
+            if (attachedFunction.getName().endsWith(functionPattern)) {
+                int pathSegmentCount = (int) functionPattern.chars().filter(ch -> ch ==
+                        MockConstants.PATH_PARAM_PLACEHOLDER.charAt(0)).count() -
+                        (functionPattern.endsWith(MockConstants.REST_PARAM_PLACEHOLDER) ? 1 : 0);
+                // validate the number of arguments provided
+                if (argsList.size() > attachedFunction.getType().getParameters().length - pathSegmentCount) {
+                    String detail = "too many argument provided to mock the function '" + functionName + "()'";
+                    return ErrorCreator.createError(
+                            MockConstants.TEST_PACKAGE_ID,
+                            MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                            StringUtils.fromString(detail),
+                            null,
+                            new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                }
+
+                // validate if each argument is compatible with the type given in the function signature
+                int i = 0;
+                for (BIterator it = argsList.getIterator(); it.hasNext(); i++) {
+                    String detail = "incorrect type of argument provided at position '" + (i + 1) + "' " +
+                            "to mock the function '" + functionName;
+                    Type paramType = TypeUtils.getImpliedType(attachedFunction.getType()
+                            .getParameters()[i + pathSegmentCount].type);
                     if (paramType instanceof UnionType) {
                         Object arg = it.next();
                         boolean isTypeAvailable = false;
@@ -440,6 +538,7 @@ public class ObjectMock {
             // register return value for member function
             BArray args = caseObj.getArrayValue(StringUtils.fromString(MockConstants.ARGS));
             if (MockConstants.MEMBER_RESOURCE_FUNCTION_STUB.equals(mockType)) {
+                BArray pathArgs = caseObj.getArrayValue(StringUtils.fromString(MockConstants.PATH_ARGS));
                 String functionPattern = getFunctionNameForResourcePath(functionName);
                 String accessor = caseObj.getStringValue(StringUtils.fromString(MockConstants.ACCESSOR)).toString();
                 String resourceFunctionPattern = MockConstants.DOLLAR_RESOURCE_SEPARATOR + accessor +
@@ -456,6 +555,7 @@ public class ObjectMock {
                             null,
                             new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
                 }
+                resourceFunctionPattern = replacePathPlaceHolders(resourceFunctionPattern, pathArgs);
                 MockRegistry.getInstance().registerCase(mockObj, resourceFunctionPattern, args, returnVal);
             } else {
                 if (!validateReturnValue(functionName, returnVal, objectType.getMethods())) {
@@ -491,6 +591,37 @@ public class ObjectMock {
             MockRegistry.getInstance().registerCase(mockObj, fieldName, null, returnVal);
         }
         return null;
+    }
+
+    private static String replacePathPlaceHolders(String functionPattern, BArray pathArgs) {
+        int caretCount = (int) functionPattern.chars().filter(ch -> ch == MockConstants.PATH_PARAM_PLACEHOLDER
+                .charAt(0)).count();
+        Object[] args = pathArgs.getValues();
+        BArray restArgs = null;
+        StringBuilder newFuncName = new StringBuilder(functionPattern);
+        if (functionPattern.endsWith(MockConstants.REST_PARAM_PLACEHOLDER)) {
+            restArgs = (BArray) args[caretCount - 2];
+        }
+        if (restArgs != null) {
+            newFuncName.setLength(0);
+            String substring = functionPattern.substring(0, functionPattern.length() - 2);
+            newFuncName.append(substring);
+            Arrays.stream(restArgs.getValues()).forEach(arg -> {
+                if (arg != null) {
+                    newFuncName.append(arg).append(MockConstants.DOLLAR_RESOURCE_SEPARATOR);
+                }
+            });
+            newFuncName.setLength(newFuncName.length() - 1);
+            caretCount -= 2;
+        }
+        for (int i = 0; i < caretCount; i++) {
+            if (args[i] != null) {
+                newFuncName.replace(newFuncName.indexOf(MockConstants.PATH_PARAM_PLACEHOLDER),
+                        newFuncName.indexOf(MockConstants.PATH_PARAM_PLACEHOLDER) + 1,
+                        args[i].toString());
+            }
+        }
+        return newFuncName.toString();
     }
 
     private static boolean validateFieldAccessIsPublic(ObjectType objectType, String fieldName) {
@@ -591,7 +722,9 @@ public class ObjectMock {
     private static String getFunctionNameForResourcePath(String path) {
         String[] components = path.split(MockConstants.PATH_SEPARATOR);
         for (int i = 0; i < components.length; i++) {
-            if (components[i].startsWith(MockConstants.PATH_PARAM_INDICATOR)) {
+            if (components[i].startsWith(MockConstants.REST_PARAMETER_INDICATOR)) {
+                components[i] = MockConstants.REST_PARAM_PLACEHOLDER;
+            } else if (components[i].startsWith(MockConstants.PATH_PARAM_INDICATOR)) {
                 components[i] = MockConstants.PATH_PARAM_PLACEHOLDER;
             }
         }
@@ -602,7 +735,9 @@ public class ObjectMock {
         List<String> placeHolderList = new ArrayList<>();
         String[] components = path.split(MockConstants.PATH_SEPARATOR);
         for (String component : components) {
-            if (component.startsWith(MockConstants.PATH_PARAM_INDICATOR)) {
+            if (component.startsWith(MockConstants.REST_PARAMETER_INDICATOR)) {
+                placeHolderList.add(component.substring(2));
+            } else if (component.startsWith(MockConstants.PATH_PARAM_INDICATOR)) {
                 placeHolderList.add(component.substring(1));
             }
         }

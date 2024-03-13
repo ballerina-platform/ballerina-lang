@@ -214,9 +214,8 @@ public class MemberResourceFunctionStub {
     object {} mockObject;
     string functionName = "";
     string accessor = "get";
-    (anydata|error)[] functionArgs = [];
-    anydata[] pathArgs = [];
     (anydata|error)[] args = [];
+    anydata[] pathArgs = [];
     any|error returnValue = ();
     any|error returnValueSeq = [];
 
@@ -250,6 +249,10 @@ public class MemberResourceFunctionStub {
             panic result;
         }
         self.pathArgs = populatePathParams(self.functionName, paths);
+        result = validatePathArgsExt(self);
+        if (result is error) {
+            panic result;
+        }
         return self;
     }
 
@@ -258,7 +261,11 @@ public class MemberResourceFunctionStub {
     # + args - Arguments list
     # + return - Object that allows stubbing calls to provided member function
     public isolated function withArguments(anydata|error... args) returns MemberResourceFunctionStub {
-        self.functionArgs = args;
+        self.args = args;
+        error? result = validateResourceArgumentsExt(self);
+        if (result is error) {
+            panic result;
+        }
         return self;
     }
 
@@ -266,14 +273,9 @@ public class MemberResourceFunctionStub {
     #
     # + returnValue - Value or error to return
     public isolated function thenReturn(any|error returnValue) {
-        self.args = [...self.pathArgs, ...self.functionArgs];
         if (self.functionName == "") {
             error err = error("resource function to mock is not specified.");
             panic err;
-        }
-        error? result = validateResourceArgumentsExt(self);
-        if (result is error) {
-            panic result;
         }
         self.returnValue = returnValue;
         error? thenReturnExtResult = thenReturnExt(self);
@@ -290,7 +292,7 @@ public class MemberResourceFunctionStub {
             error err = error("resource function to mock is not specified.");
             panic err;
         }
-        if (self.functionArgs.length() != 0) {
+        if (self.args.length() != 0) {
             error err = error("'withArguments' function cannot be specified with a return sequence");
             panic err;
         }
@@ -321,9 +323,14 @@ public class MemberResourceFunctionStub {
 
 isolated function populatePathParams(string functionName, map<anydata> pathParamsMap) returns anydata[] {
     string[] pathSegments = split(functionName, "/");
-    anydata[] pathArgs = from string pathSegment in pathSegments
-        where pathSegment.startsWith(":")
-        select pathParamsMap[pathSegment.substring(1)];
+    anydata[] pathArgs = [];
+    foreach string pathSegment in pathSegments {
+        if pathSegment.startsWith("::") {
+            pathArgs.push(pathParamsMap[pathSegment.substring(2)]);
+        } else if pathSegment.startsWith(":") {
+            pathArgs.push(pathParamsMap[pathSegment.substring(1)]);
+        }
+    }
     return pathArgs;
 }
 
@@ -523,8 +530,17 @@ isolated function validateArgumentsExt(MemberResourceFunctionStub|MemberFunction
 #
 # + case - Case to validate
 # + return - error in case of an argument mismatch
-isolated function validateResourceArgumentsExt(MemberResourceFunctionStub|MemberFunctionStub case) returns error? = @java:Method {
+isolated function validateResourceArgumentsExt(MemberResourceFunctionStub case) returns error? = @java:Method {
     name: "validateResourceArguments",
+    'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
+} external;
+
+# Inter-op to validate the resource function path arguments list.
+#
+# + case - Case to validate
+# + return - error in case of an argument mismatch
+isolated function validatePathArgsExt(MemberResourceFunctionStub case) returns error? = @java:Method {
+    name: "validatePathArgs",
     'class: "org.ballerinalang.testerina.natives.mock.ObjectMock"
 } external;
 

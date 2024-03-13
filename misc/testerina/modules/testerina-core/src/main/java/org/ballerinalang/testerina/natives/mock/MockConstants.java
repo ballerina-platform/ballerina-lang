@@ -54,4 +54,7 @@ public class MockConstants {
     public static final String PATH_PARAM_PLACEHOLDER = "^";
     public static final String RESOURCE_FUNCTION_ARGS = "functionArgs";
     public static final String PATH_ARGS = "pathArgs";
+    public static final String REST_PARAMETER_INDICATOR = "::";
+    public static final String REST_PARAM_PLACEHOLDER = "^^";
+    public static final String CASE_ID_DELIMITER = "-";
 }

@@ -14,7 +14,16 @@ testPathParamsWThenReturnSeq has failed.
 testWErrorneousMultiPath has failed.
 
 
+testWErrorneousMultiPathParamsWMultiArg has failed.
+
+
 testWErrorneousResourceMethod has failed.
+
+
+testWMultiPathParamsWErrorneousMultiArg has failed.
+
+
+testWMultiPathParamsWErrorneousMultiArg_1 has failed.
 
 
 testWMultiPathParamsWMultiArg_1 has failed.
@@ -25,10 +34,10 @@ testWMultiPathParamsWMultiArg_2 has failed.
 
 		Test execution time :*****ms
 
+		[pass] testDefaultArgsResources
 		[pass] testDoNoting1
 		[pass] testDoNoting2
 		[pass] testGetMethod
-		[pass] testGetMethodWsingleArg
 		[pass] testGetWPathParamWSingleArg
 		[pass] testGetWithPathParam
 		[pass] testPostMethod
@@ -39,62 +48,93 @@ testWMultiPathParamsWMultiArg_2 has failed.
 		[pass] testPostWPathParamsWSingleArg
 		[pass] testPostWithPathParam
 		[pass] testRemoteMethod
+		[pass] testRestPathParamThenReturn
+		[pass] testRestPathParamThenReturnSeq
+		[pass] testThenReturnWOArgsPaths_1
+		[pass] testThenReturnWOArgsPaths_2
 
 		[fail] testArgsWThenReturnSeq:
 
 		    error("'withArguments' function cannot be specified with a return sequence")
-				callableName: thenReturnSequence moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 292
-				callableName: testArgsWThenReturnSeq moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 161
-				callableName: testArgsWThenReturnSeq$lambda14$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 18
+				callableName: thenReturnSequence moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 296
+				callableName: testArgsWThenReturnSeq moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 159
+				callableName: testArgsWThenReturnSeq$lambda13$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 17
 			
 
 		[fail] testPathParamsWThenReturnSeq:
 
 		    error("'withPathParams' function cannot be specified with a return sequence")
-				callableName: thenReturnSequence moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 296
-				callableName: testPathParamsWThenReturnSeq moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 147
-				callableName: testPathParamsWThenReturnSeq$lambda13$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 17
+				callableName: thenReturnSequence moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 300
+				callableName: testPathParamsWThenReturnSeq moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 144
+				callableName: testPathParamsWThenReturnSeq$lambda12$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 16
 			
 
 		[fail] testWErrorneousMultiPath:
 
-		    error {ballerina/test:0}InvalidPathParameterError ("required path param 'town' is not provided")
-				callableName: validatePathParamsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 496
-				callableName: withPathParams moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 246
-				callableName: testWErrorneousMultiPath moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 187
-				callableName: testWErrorneousMultiPath$lambda17$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 21
+		    error {ballerina/test:0}FunctionSignatureMismatchError ("required path parameter 'town' is not provided")
+				callableName: validatePathParamsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 505
+				callableName: withPathParams moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 247
+				callableName: testWErrorneousMultiPath moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 209
+				callableName: testWErrorneousMultiPath$lambda19$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 23
+			
+
+		[fail] testWErrorneousMultiPathParamsWMultiArg:
+
+		    error {ballerina/test:0}FunctionSignatureMismatchError ("incorrect type of path provided for 'name' to mock the function 'greeting/hellore/:name")
+				callableName: validatePathArgsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 542
+				callableName: withPathParams moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 252
+				callableName: testWErrorneousMultiPathParamsWMultiArg moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 195
+				callableName: testWErrorneousMultiPathParamsWMultiArg$lambda17$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 21
 			
 
 		[fail] testWErrorneousResourceMethod:
 
 		    error {ballerina/test:0}FunctionNotFoundError ("invalid accessor method 'postr' provided")
-				callableName: validateResourceMethodExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 486
-				callableName: onMethod moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 238
-				callableName: testWErrorneousResourceMethod moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 193
-				callableName: testWErrorneousResourceMethod$lambda18$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 22
+				callableName: validateResourceMethodExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 495
+				callableName: onMethod moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 235
+				callableName: testWErrorneousResourceMethod moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 216
+				callableName: testWErrorneousResourceMethod$lambda20$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 24
+			
+
+		[fail] testWMultiPathParamsWErrorneousMultiArg:
+
+		    error {ballerina/test:0}FunctionSignatureMismatchError ("too many argument provided to mock the function 'greeting/hello2/:name/:town()'")
+				callableName: validateResourceArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 533
+				callableName: withArguments moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 265
+				callableName: testWMultiPathParamsWErrorneousMultiArg moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 181
+				callableName: testWMultiPathParamsWErrorneousMultiArg$lambda15$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 19
+			
+
+		[fail] testWMultiPathParamsWErrorneousMultiArg_1:
+
+		    error {ballerina/test:0}FunctionSignatureMismatchError ("incorrect type of argument provided at position '1' to mock the function 'greeting/hellore/:name")
+				callableName: validateResourceArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 533
+				callableName: withArguments moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 265
+				callableName: testWMultiPathParamsWErrorneousMultiArg_1 moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 188
+				callableName: testWMultiPathParamsWErrorneousMultiArg_1$lambda16$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 20
 			
 
 		[fail] testWMultiPathParamsWMultiArg_1:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("incorrect type of argument provided at position '2' to mock the function 'greeting/hello2/:name/:town")
-				callableName: validateResourceArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 524
-				callableName: thenReturn moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 272
-				callableName: testWMultiPathParamsWMultiArg_1 moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 175
-				callableName: testWMultiPathParamsWMultiArg_1$lambda15$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 19
+				callableName: validateResourceArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 533
+				callableName: withArguments moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 265
+				callableName: testWMultiPathParamsWMultiArg_1 moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 174
+				callableName: testWMultiPathParamsWMultiArg_1$lambda14$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 18
 			
 
 		[fail] testWMultiPathParamsWMultiArg_2:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("incorrect type of path provided for 'town' to mock the function 'greeting/hello2/:name/:town")
-				callableName: validateResourceArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 524
-				callableName: thenReturn moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 272
-				callableName: testWMultiPathParamsWMultiArg_2 moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 181
-				callableName: testWMultiPathParamsWMultiArg_2$lambda16$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 20
+				callableName: validatePathArgsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 542
+				callableName: withPathParams moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 252
+				callableName: testWMultiPathParamsWMultiArg_2 moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 202
+				callableName: testWMultiPathParamsWMultiArg_2$lambda18$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 22
 			
 
 
-		14 passing
-		6 failing
+		18 passing
+		9 failing
 		0 skipped
 
 Generating Test Report
