@@ -62,7 +62,7 @@ public class PredefinedType {
     public static final BasicTypeBitSet FUTURE = basicType(BasicTypeCode.BT_FUTURE);
 
     // this is SubtypeData|error
-    public final BasicTypeBitSet VAL = basicTypeUnion(BasicTypeCode.VT_MASK);
+    // public final BasicTypeBitSet VAL = basicTypeUnion(BasicTypeCode.VT_MASK);
     public static final BasicTypeBitSet TOP = basicTypeUnion(BasicTypeCode.VT_MASK);
     public static final BasicTypeBitSet ANY =
             basicTypeUnion(BasicTypeCode.VT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code));

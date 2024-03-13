@@ -43,7 +43,6 @@ import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.NonCharStringSubtype;
 import io.ballerina.types.subtypedata.Range;
-import io.ballerina.types.subtypedata.RwTableSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.XmlSubtype;
 import io.netty.buffer.ByteBuf;
@@ -634,13 +633,8 @@ public class BIRTypeWriter extends TypeVisitor {
         } else if (psd instanceof StringSubtype) {
             buff.writeByte(6);
             writeStringSubtype((StringSubtype) psd);
-        } else if (psd instanceof RwTableSubtype) {
-            buff.writeByte(7);
-            RwTableSubtype rts = (RwTableSubtype) psd;
-            writeBdd(rts.ro);
-            writeBdd(rts.rw);
         } else if (psd instanceof XmlSubtype) {
-            buff.writeByte(8);
+            buff.writeByte(7);
             XmlSubtype xs = (XmlSubtype) psd;
             buff.writeInt(xs.primitives);
             writeBdd(xs.sequence);

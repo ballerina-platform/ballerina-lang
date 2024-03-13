@@ -21,6 +21,7 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.types.BasicTypeBitSet;
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Core;
 import io.ballerina.types.EnumerableCharString;
@@ -30,7 +31,6 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.CharStringSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
@@ -224,10 +224,10 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
-import static io.ballerina.types.Core.getComplexSubtypeData;
-import static io.ballerina.types.Core.widenToBasicTypes;
 import static io.ballerina.types.BasicTypeCode.BT_INT;
 import static io.ballerina.types.BasicTypeCode.BT_STRING;
+import static io.ballerina.types.Core.getComplexSubtypeData;
+import static io.ballerina.types.Core.widenToBasicTypes;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_INSERTIONS;
