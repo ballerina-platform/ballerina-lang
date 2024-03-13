@@ -74,5 +74,20 @@ public class JsonValues {
         return JsonUtils.parse(str.getValue(), JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
     }
 
+    public static Object testBStringParsingWithProcessingMode(BString str) {
+        return JsonUtils.parse(str.getValue(), JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
+    }
+
+    public static Object testParsingWithOnlyStream(BString str) {
+        InputStream stream = new ByteArrayInputStream(str.getValue().getBytes(StandardCharsets.UTF_8));
+        return JsonUtils.parse(stream);
+    }
+
+    public static Object testParsingWithStreamAndCharset(BString str) {
+        String s = str.getValue();
+        InputStream stream = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
+        return JsonUtils.parse(stream, "UTF-8");
+    }
+
 
 }

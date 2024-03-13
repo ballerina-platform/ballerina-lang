@@ -27,9 +27,15 @@ public function main() {
 
     result =  testParsingWithProcessingMode(jsonStr);
     test:assertTrue(result is json, "Invalid json");
-    
 
+    result =  testParsingWithOnlyStream(jsonStr);
+    test:assertTrue(result is json, "Invalid json");
 
+    result =  testParsingWithStreamAndCharset(jsonStr);
+    test:assertTrue(result is json, "Invalid json");
+
+    result =  testBStringParsingWithProcessingMode(jsonStr);
+    test:assertTrue(result is json, "Invalid json");
 }
 
 public isolated function testParsingWrongCharset(string str) returns json|error = @java:Method {
@@ -37,5 +43,17 @@ public isolated function testParsingWrongCharset(string str) returns json|error 
 } external;
 
 public isolated function testParsingWithProcessingMode(string str) returns json|error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.JsonValues"
+} external;
+
+public isolated function testParsingWithOnlyStream(string str) returns json|error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.JsonValues"
+} external;
+
+public isolated function testParsingWithStreamAndCharset(string str) returns json|error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.JsonValues"
+} external;
+
+public isolated function testBStringParsingWithProcessingMode(string str) returns json|error = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.JsonValues"
 } external;
