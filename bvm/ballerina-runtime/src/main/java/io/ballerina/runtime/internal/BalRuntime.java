@@ -34,6 +34,8 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -89,24 +91,21 @@ public class BalRuntime extends Runtime {
 
     public void start() {
         if (!moduleInitialized) {
-            throw ErrorCreator.createError(StringUtils.fromString("'start' method is called before the " +
-                    "module initialization"));
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_MODULE_START_CALL);
         }
         invokeMethodAsync("$moduleStart", new Object[1], null, PredefinedTypes.TYPE_NULL, "start");
     }
 
     public void invokeMethodAsync(String functionName, Object[] args, Callback callback) {
         if (!moduleInitialized) {
-            throw ErrorCreator.createError(StringUtils.fromString("attempt to invoke the function '" + functionName
-                    + "' before module initialization"));
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION, functionName);
         }
         invokeMethodAsync(functionName, args, callback, PredefinedTypes.TYPE_ANY, functionName);
     }
 
     public void stop() {
         if (!moduleInitialized) {
-            throw ErrorCreator.createError(StringUtils.fromString("'stop' method is called without calling the " +
-                    "module initialization"));
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_MODULE_STOP_CALL);
         }
         invokeMethodAsync("$moduleStop", new Object[1], null, PredefinedTypes.TYPE_NULL, "stop");
     }

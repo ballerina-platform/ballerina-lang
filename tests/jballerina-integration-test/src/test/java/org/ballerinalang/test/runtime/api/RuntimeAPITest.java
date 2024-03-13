@@ -123,8 +123,8 @@ public class RuntimeAPITest extends BaseTest {
             Process runProcess = runProcessBuilder.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
             List<LogLeecher> leechers = new ArrayList<>();
-            leechers.add(new LogLeecher("attempt to invoke the function 'foo' before " +
-                    "module initialization", LogLeecher.LeecherType.ERROR));
+            leechers.add(new LogLeecher("function 'foo' is called before module initialization",
+                    LogLeecher.LeecherType.ERROR));
             addToServerInfoLogReader(serverInfoLogReader, leechers);
             serverInfoLogReader.start();
             bMainInstance.waitForLeechers(leechers, 5000);
