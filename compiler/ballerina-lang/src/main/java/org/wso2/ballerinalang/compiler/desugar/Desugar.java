@@ -9946,7 +9946,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (!(accessExpr.errorSafeNavigation || accessExpr.nilSafeNavigation)) {
             BType originalType = Types.getImpliedType(accessExpr.originalType);
-            if (TypeTags.isXMLTypeTag(originalType.tag) || isMapJson(originalType, false)) {
+            if (isMapJson(originalType, false)) {
                 accessExpr.setBType(BUnionType.create(null, originalType, symTable.errorType));
             } else {
                 accessExpr.setBType(originalType);
