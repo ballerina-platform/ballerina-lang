@@ -358,7 +358,7 @@ public class TypeConverter {
                                                            String varName, List<String> errors,
                                                            Set<TypeValuePair> unresolvedValues,
                                                            boolean allowNumericConversion) {
-        List<Type> memberTypes = TypeHelper.constituentTypes(targetUnionType);
+        List<Type> memberTypes = TypeHelper.memberList(targetUnionType);
         if (TypeChecker.isStructuredType(getType(inputValue))) {
             return getConvertibleStructuredTypeInUnion(inputValue, varName, errors,
                     unresolvedValues, allowNumericConversion, memberTypes);

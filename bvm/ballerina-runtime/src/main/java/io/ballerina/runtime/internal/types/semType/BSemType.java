@@ -580,4 +580,8 @@ public class BSemType implements Type {
         }
         return false;
     }
+
+    public List<Type> getOrderedUnionMembers() {
+        return List.of(orderedUnionMembers);
+    }
 }

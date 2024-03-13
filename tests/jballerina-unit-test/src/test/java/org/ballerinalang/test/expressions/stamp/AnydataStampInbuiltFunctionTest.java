@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeHelper;
-import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BXmlType;
@@ -195,7 +194,7 @@ public class AnydataStampInbuiltFunctionTest {
                 TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(mapValue)), PredefinedTypes.TYPE_ANYDATA));
     }
 
-    @Test(enabled = false)
+    @Test
     public void testStampAnydataMapToUnion() {
 
         Object results = BRunUtil.invoke(compileResult, "stampAnydataMapToUnion");
@@ -204,7 +203,8 @@ public class AnydataStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 5);
 
         Assert.assertTrue(TypeBuilder.unwrap(getType(mapValue)) instanceof BMapType);
-        Assert.assertTrue(TypeBuilder.unwrap(TypeHelper.typeConstraint(getType(mapValue))) instanceof BJsonType);
+        Assert.assertTrue(
+                TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(mapValue)), PredefinedTypes.TYPE_JSON));
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("name")).toString(), "Raja");
         TypeChecker.checkIsType(getType(mapValue.get(StringUtils.fromString("name"))), PredefinedTypes.TYPE_STRING);

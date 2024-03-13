@@ -92,7 +92,7 @@ public class ArrayFillNegativeTest {
 
     @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
-                    "without filler values.*", enabled = false)
+                    "without filler values.*")
     public void testIllegalTwoDimensionalArrayInsertion() {
         BRunUtil.invoke(negativeCompileResult, "testIllegalTwoDimensionalArrayInsertion");
     }

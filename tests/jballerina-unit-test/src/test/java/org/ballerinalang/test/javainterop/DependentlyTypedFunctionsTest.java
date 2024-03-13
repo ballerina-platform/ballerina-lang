@@ -203,6 +203,8 @@ public class DependentlyTypedFunctionsTest {
         BRunUtil.invoke(result, "testFunctionAssignment");
     }
 
+    // TODO: fix when implementing function semtype that need to treat dependently typed return types differently from
+    //   typedesc parameters passed in.
     @Test(dataProvider = "FunctionNames", enabled = false)
     public void testVariableTypeAsReturnType(String funcName) {
         BRunUtil.invoke(result, funcName);

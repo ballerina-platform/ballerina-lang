@@ -43,6 +43,8 @@ public class SelectivelyImmutableTypeTest {
         result = BCompileUtil.compile("test-src/types/readonly/test_selectively_immutable_type.bal");
     }
 
+    // TODO: this involves cases where the effective type is filled in after the intersection is already materialized,
+    //  which can't be fully (common cases should work with poisoning) handled by semtypes
     @Test(dataProvider = "immutableTypesTestFunctions", enabled = false)
     public void testImmutableTypes(String function) {
         BRunUtil.invoke(result, function);

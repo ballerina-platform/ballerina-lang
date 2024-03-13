@@ -794,6 +794,8 @@ public class TypesTest {
         BRunUtil.invoke(compileResult, "testTypeDescValuePrint");
     }
 
+    // TODO: actual `returnType` is a semtype and it don't have the ability to perform this sort of introspection.
+    //   Look into expanding TypeHelper to support this sort of operations
     @Test(enabled = false)
     public void testEnumFlagAndMembers() {
         Object result = BRunUtil.invokeAndGetJVMResult(compileResult, "testEnumFlagAndMembers");

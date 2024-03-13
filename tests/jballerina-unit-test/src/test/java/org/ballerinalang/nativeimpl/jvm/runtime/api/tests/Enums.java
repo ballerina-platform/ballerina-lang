@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -31,9 +31,10 @@ import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semType.BSemType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,28 +69,12 @@ public class Enums {
     public static void testFiniteTypeUnionElements(BTypedesc t, BArray elements) {
         Set<String> members = new HashSet<>();
         members.addAll(Arrays.asList(elements.getStringArray()));
-        BError notFiniteTypeError = ErrorCreator.createError(
-                StringUtils.fromString("union member type is not a finite type"));
-        BError matchError = ErrorCreator.createError(
-                StringUtils.fromString("type name does not match given names"));
 
         Type describingType = TypeUtils.getImpliedType(t.getDescribingType());
-        if (describingType.getTag() == TypeTags.UNION_TAG) {
-            UnionType unionType = (UnionType) describingType;
-            for (Type memberType : unionType.getMemberTypes()) {
-                if (memberType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-                    String typeName = memberType.getName();
-                    if (members.contains(typeName)) {
-                        members.remove(typeName);
-                    } else {
-                        throw matchError;
-                    }
-                } else {
-                    throw notFiniteTypeError;
-                }
-            }
-            if (!members.isEmpty()) {
-                throw ErrorCreator.createError(StringUtils.fromString("all union member type names are not provided"));
+        if (describingType instanceof BSemType semType) {
+            if (!(TypeChecker.checkIsType(describingType, PredefinedTypes.TYPE_STRING))) {
+                throw ErrorCreator.createError(
+                        StringUtils.fromString(semType + " is not a string union"));
             }
         } else {
             throw ErrorCreator.createError(StringUtils.fromString("given type is not a union type"));
