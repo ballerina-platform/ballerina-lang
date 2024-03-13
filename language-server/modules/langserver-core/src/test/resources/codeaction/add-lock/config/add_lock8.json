@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 3,
+    "character": 5
+  },
+  "source": "add_lock8.bal",
+  "description": "Wrap in a lock statement for a ",
+  "expected": [
+    {
+      "title": "Surround with lock",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 23
+            }
+          },
+          "newText": "lock {\n\t    mp[\"a\"] = inputArr;\n    }"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

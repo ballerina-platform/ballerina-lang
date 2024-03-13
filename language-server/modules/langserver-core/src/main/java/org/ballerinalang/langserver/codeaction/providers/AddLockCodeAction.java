@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
@@ -42,7 +43,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * An code action to wrap an isolated variable with a lock.
+ * A code action to wrap an isolated variable with a lock.
  *
  * @since 2201.9.0
  */
@@ -64,6 +65,11 @@ public class AddLockCodeAction implements DiagnosticBasedCodeActionProvider {
                                            CodeActionContext context) {
         Optional<StatementNode> matchingStatementNode = getMatchingStatementNode(positionDetails.matchedNode());
         if (matchingStatementNode.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Diagnostic> diagnostics = context.diagnostics(context.filePath());
+        if (diagnostics.size() > 1 && hasMultipleIsolationVars(matchingStatementNode.get(), diagnostic, diagnostics)) {
             return Collections.emptyList();
         }
 
@@ -91,8 +97,18 @@ public class AddLockCodeAction implements DiagnosticBasedCodeActionProvider {
         Position posCheckLineStart = new Position(endLinePosition.line(), endLinePosition.offset());
 
         String spaces = " ".repeat(startLinePosition.offset());
-        String editText = "lock {" + CommonUtil.LINE_SEPARATOR + "\t" + node.toSourceCode() + spaces + "}";
+        String statement = node.toSourceCode();
+        String indentedStatement = statement.substring(0, statement.length() - 1).replace("\n", "\n\t") + "\n";
+
+        String editText = "lock {" + CommonUtil.LINE_SEPARATOR + "\t" + indentedStatement + spaces + "}";
         return new TextEdit(new Range(positionLock, posCheckLineStart), editText);
+    }
+
+    private static boolean hasMultipleIsolationVars(StatementNode statementNode, Diagnostic currentDiagnostic,
+                                                    List<Diagnostic> diagnostics) {
+        return diagnostics.stream().anyMatch(diagnostic -> !currentDiagnostic.equals(diagnostic) &&
+                        DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
+                        PositionUtil.isWithinLineRange(diagnostic.location().lineRange(), statementNode.lineRange()));
     }
 
     @Override
