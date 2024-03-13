@@ -65,7 +65,6 @@ import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 
 public class CreateTestExecutableTask implements Task {
     private final transient PrintStream out;
-    private Path output;
     private Path currentDir;
     private final String includesInCoverage;
     private final String excludesInCoverage;
@@ -80,14 +79,11 @@ public class CreateTestExecutableTask implements Task {
     private boolean listGroups;
     private final List<String> cliArgs;
 
-    public CreateTestExecutableTask(PrintStream out, String output, String includesInCoverage,
+    public CreateTestExecutableTask(PrintStream out, String includesInCoverage,
                                     String excludesInCoverage, String groupList, String disableGroupList,
                                     String coverageReportFormat, String singleExecTests,
                                     Map<String, Module> coverageModules, boolean listGroups, String[] cliArgs) {
         this.out = out;
-        if (output != null) {
-            this.output = Paths.get(output);
-        }
         this.includesInCoverage = includesInCoverage;
         this.excludesInCoverage = excludesInCoverage;
         this.groupList = groupList;
@@ -171,6 +167,7 @@ public class CreateTestExecutableTask implements Task {
         // todo following call has to be refactored after introducing new plugin architecture
         // Similar case as in CreateExecutableTask.java
         BuildUtils.notifyPlugins(project, target);
+        TestUtils.cleanTempCache(project, target.path());
     }
 
     private void standaloneFatJarGeneration(Project project, JBallerinaBackend jBallerinaBackend, Target target,
@@ -281,8 +278,6 @@ public class CreateTestExecutableTask implements Task {
                             dep.path().getFileName().toString().contains(originalFileName) &&
                                     !dep.path().getFileName().toString().contains(TesterinaConstants.TESTABLE)
                     ).findFirst();
-                    //TODO:: if modified found, find the original jar and get its scope to create the jar library
-                    //TODO:: use modified jar path to create the jar library
                     if (foundDependency.isPresent()) {
                         JarLibrary modifiedJarLibrary = new JarLibrary(neededDependency,
                                 foundDependency.get().scope());
@@ -394,31 +389,5 @@ public class CreateTestExecutableTask implements Task {
             throw createLauncherException("unable to create executable:" + e.getMessage());
         }
         return target;
-    }
-
-    private Path getExecutablePath(Project project) {
-
-        Path fileName = project.sourceRoot().getFileName();
-
-        // If the --output flag is not set, create the executable in the current directory
-        if (this.output == null) {
-            return this.currentDir.resolve(getFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
-        }
-
-        if (!this.output.isAbsolute()) {
-            this.output = currentDir.resolve(this.output);
-        }
-
-        // If the --output is a directory create the executable in the given directory
-        if (Files.isDirectory(this.output)) {
-            return output.resolve(getFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
-        }
-
-        // If the --output does not have an extension, append the .jar extension
-        if (!FileUtils.hasExtension(this.output)) {
-            return Paths.get(this.output.toString() + BLANG_COMPILED_JAR_EXT);
-        }
-
-        return this.output;
     }
 }
