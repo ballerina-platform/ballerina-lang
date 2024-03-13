@@ -3564,7 +3564,6 @@ public class TypeChecker {
             return false;
         }
         FunctionType initFuncType = generatedInitMethod.getType();
-        // Todo: check defaultable params of the init func as well
         boolean noParams = initFuncType.getParameters().length == 0;
         boolean nilReturn = getImpliedType(initFuncType.getReturnType()).getTag() == TypeTags.NULL_TAG;
         return noParams && nilReturn;
