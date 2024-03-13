@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * Represent bit field that indicate which basic type a semType belongs to.
  *
- * @since 2201.8.0
+ * @since 2201.10.0
  */
 public class BasicTypeCode {
     // Inherently immutable
