@@ -37,6 +37,8 @@ dependencies {
     implementation project(':identifier-util')
 
     testImplementation 'org.testng:testng'
+    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+    testImplementation 'org.mockito:mockito-testng'
 }
 
 
