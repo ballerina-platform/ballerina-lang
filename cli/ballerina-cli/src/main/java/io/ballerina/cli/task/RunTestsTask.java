@@ -19,11 +19,11 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.cli.utils.TestSuiteCreatingArgs;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
@@ -62,15 +62,12 @@ import java.util.stream.Stream;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
-import static io.ballerina.cli.utils.TestUtils.addMockClasses;
 import static io.ballerina.cli.utils.TestUtils.appendRequiredArgs;
 import static io.ballerina.cli.utils.TestUtils.cleanTempCache;
-import static io.ballerina.cli.utils.TestUtils.clearFailedTestsJson;
 import static io.ballerina.cli.utils.TestUtils.createTestSuitesForProject;
 import static io.ballerina.cli.utils.TestUtils.getInitialCmdArgs;
 import static io.ballerina.cli.utils.TestUtils.getClassPath;
 import static io.ballerina.cli.utils.TestUtils.getJacocoAgentJarPath;
-import static io.ballerina.cli.utils.TestUtils.getResolvedModuleName;
 import static io.ballerina.cli.utils.TestUtils.getModuleJarPaths;
 import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
@@ -202,11 +199,11 @@ public class RunTestsTask implements Task {
         TestProcessor testProcessor = new TestProcessor(jarResolver);
         List<String> moduleNamesList = new ArrayList<>();
         Map<String, TestSuite> testSuiteMap = new HashMap<>();
-        List<String> updatedSingleExecTests;
         List<String> mockClassNames = new ArrayList<>();
 
-        boolean hasTests = createTestSuitesForProject(project, target, testProcessor, testSuiteMap,
-                moduleNamesList, mockClassNames, this.isRerunTestExecution, this.report, this.coverage);
+        boolean hasTests = createTestSuitesForProject(
+                new TestSuiteCreatingArgs(project, target, testProcessor, testSuiteMap, moduleNamesList, mockClassNames,
+                        this.isRerunTestExecution, this.report, this.coverage));
 
         writeToTestSuiteJson(testSuiteMap, testsCachePath);
 

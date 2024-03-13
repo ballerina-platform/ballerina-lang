@@ -210,7 +210,7 @@ public class JBallerinaBackend extends CompilerBackend {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
-            return getFailedEmitResult(generatedArtifact);
+            new EmitResult(false, diagnosticResult, null);
         }
 
         List<Diagnostic> emitResultDiagnostics = new ArrayList<>();
@@ -224,23 +224,23 @@ public class JBallerinaBackend extends CompilerBackend {
         return getEmitResult(filePath, generatedArtifact, ArtifactType.BUILD);
     }
 
-    public EmitResult emit(OutputType outputType, Path filePath,
-                           HashSet<JarLibrary> jarDependencies, Path testSuiteJsonPath, String jsonCopyPath,
-                           List<String> excludingClassPaths, String classPathTextCopyPath) {
+    public EmitResult emit(TestEmitArgs testEmitArgs) {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
-            return getFailedEmitResult(generatedArtifact);
+            new EmitResult(false, diagnosticResult, null);
         }
 
-        if (outputType == OutputType.TEST) {
-            generatedArtifact = emitTestExecutable(filePath, jarDependencies, testSuiteJsonPath, jsonCopyPath,
-                    excludingClassPaths, classPathTextCopyPath);
+        if (testEmitArgs.outputType() == OutputType.TEST) {
+            generatedArtifact = emitTestExecutable(testEmitArgs.filePath(), testEmitArgs.jarDependencies(),
+                    testEmitArgs.testSuiteJsonPath(),
+                    testEmitArgs.jsonCopyPath(),
+                    testEmitArgs.excludedClasses(), testEmitArgs.classPathTextCopyPath());
         } else {
-            throw new RuntimeException("Unexpected output type: " + outputType);
+            throw new RuntimeException("Unexpected output type: " + testEmitArgs.outputType());
         }
 
-        return getEmitResult(filePath, generatedArtifact, ArtifactType.TEST);
+        return getEmitResult(testEmitArgs.filePath(), generatedArtifact, ArtifactType.TEST);
     }
 
     public EmitResult getEmitResult(Path filePath, Path generatedArtifact, ArtifactType artifactType) {
@@ -263,10 +263,6 @@ public class JBallerinaBackend extends CompilerBackend {
 
     public List<Diagnostic> notifyCompilationCompletion(Path filePath, ArtifactType artifactType) {
         return packageCompilation.notifyCompilationCompletion(filePath, artifactType);
-    }
-
-    public EmitResult getFailedEmitResult(Path generatedArtifact) {
-        return new EmitResult(false, diagnosticResult, generatedArtifact);
     }
 
     private Path emitBala(Path filePath) {
@@ -450,7 +446,7 @@ public class JBallerinaBackend extends CompilerBackend {
                                            Manifest manifest,
                                            Collection<JarLibrary> jarLibraries,
                                            Path testSuiteJsonPath, String jsonCopyPath,
-                                           List<String> excludingClassPaths, String classPathTextCopyPath)
+                                           List<String> excludedClasses, String classPathTextCopyPath)
             throws IOException {
         // Used to prevent adding duplicated entries during the final jar creation.
         HashMap<String, JarLibrary> copiedEntries = new HashMap<>();
@@ -478,7 +474,7 @@ public class JBallerinaBackend extends CompilerBackend {
             // Get the module jar paths and copy them to the executable jar
             JarArchiveEntry classPathTextEntry = new JarArchiveEntry(classPathTextCopyPath);
             outStream.putArchiveEntry(classPathTextEntry);
-            for (String path : excludingClassPaths) {
+            for (String path : excludedClasses) {
                 outStream.write((path + "\n").getBytes(StandardCharsets.UTF_8));
             }
             outStream.closeArchiveEntry();
@@ -651,12 +647,12 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private Path emitTestExecutable(Path executableFilePath, HashSet<JarLibrary> jarDependencies,
-                          Path testSuiteJsonPath, String jsonCopyPath, List<String> excludingClassPaths,
+                          Path testSuiteJsonPath, String jsonCopyPath, List<String> excludedClasses,
                           String classPathTextCopyPath) {
         Manifest manifest = createTestManifest();
         try {
             assembleTestExecutableJar(executableFilePath, manifest, jarDependencies, testSuiteJsonPath, jsonCopyPath,
-                    excludingClassPaths, classPathTextCopyPath);
+                    excludedClasses, classPathTextCopyPath);
         } catch (IOException e) {
             throw new ProjectException("error while creating the test executable jar file for package '" +
                     this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);

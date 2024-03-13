@@ -284,13 +284,6 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
-        if (project.buildOptions().cloud().equals("k8s")) {
-            String errMsg = "Cloud artifact generation does not support Kubernetes for tests";
-            CommandUtil.printError(this.errStream, errMsg, null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
         // If project is empty
         if (ProjectUtils.isProjectEmpty(project)) {
             CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null, false);

@@ -42,7 +42,6 @@ import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
-import org.ballerinalang.testerina.core.TestProcessor;
 import org.jacoco.core.analysis.IClassCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.data.ExecutionData;
@@ -85,7 +84,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
- * Utility functions and classes for Run Test Task.
+ * Utility functions and classes for Run Test Task and Create Test Executable Task.
  *
  * @since 2.3.0
  */
@@ -276,36 +275,33 @@ public class TestUtils {
         }
     }
 
-    public static boolean createTestSuitesForProject(Project project, Target target,
-                                                     TestProcessor testProcessor, Map<String, TestSuite> testSuiteMap,
-                                                     List<String> moduleNamesList, List<String> mockClassNames,
-                                                     boolean isRerunTestExecution, boolean report, boolean coverage) {
+    public static boolean createTestSuitesForProject(TestSuiteCreatingArgs testSuiteCreatingArgs) {
         boolean hasTests = false;
         for (ModuleDescriptor moduleDescriptor :
-                project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
-            Module module = project.currentPackage().module(moduleDescriptor.name());
+                testSuiteCreatingArgs.project().currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+            Module module = testSuiteCreatingArgs.project().currentPackage().module(moduleDescriptor.name());
             ModuleName moduleName = module.moduleName();
 
-            TestSuite suite = testProcessor.testSuite(module).orElse(null);
+            TestSuite suite = testSuiteCreatingArgs.testProcessor().testSuite(module).orElse(null);
             if (suite == null) {
                 continue;
             }
 
             hasTests = true;
 
-            if (!isRerunTestExecution) {
-                clearFailedTestsJson(target.path());
+            if (!testSuiteCreatingArgs.isRerunTestExecution()) {
+                clearFailedTestsJson(testSuiteCreatingArgs.target().path());
             }
-            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                suite.setSourceFileName(project.sourceRoot().getFileName().toString());
+            if (testSuiteCreatingArgs.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                suite.setSourceFileName(testSuiteCreatingArgs.project().sourceRoot().getFileName().toString());
             }
-            suite.setReportRequired(report || coverage);
+            suite.setReportRequired(testSuiteCreatingArgs.report() || testSuiteCreatingArgs.coverage());
             String resolvedModuleName =
                     getResolvedModuleName(module, moduleName);
-            testSuiteMap.put(resolvedModuleName, suite);
-            moduleNamesList.add(resolvedModuleName);
+            testSuiteCreatingArgs.testSuiteMap().put(resolvedModuleName, suite);
+            testSuiteCreatingArgs.moduleNamesList().add(resolvedModuleName);
 
-            addMockClasses(suite, mockClassNames);
+            addMockClasses(suite, testSuiteCreatingArgs.mockClassNames());
         }
         return hasTests;
     }
