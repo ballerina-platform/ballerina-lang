@@ -53,7 +53,9 @@ public class AddLockCodeActionTest extends AbstractCodeActionTest {
                 {"add_lock12.json"},
                 {"add_lock13.json"},
                 {"add_lock14.json"},
-                {"add_lock15.json"}
+                {"add_lock15.json"},
+                {"add_lock16.json"},
+                {"add_lock17.json"},
         };
     }
 
