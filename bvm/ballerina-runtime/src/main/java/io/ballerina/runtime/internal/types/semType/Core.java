@@ -19,10 +19,12 @@
 
 package io.ballerina.runtime.internal.types.semType;
 
+import io.ballerina.runtime.api.types.Type;
+
 import java.util.BitSet;
 
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.N_TYPES;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.N_TYPES;
 
 public class Core {
 
@@ -31,6 +33,9 @@ public class Core {
         return new BSemType(all, new BitSet(N_TYPES), new SubType[N_TYPES]);
     }
 
+    // NOTE: all type operations expect intersection and union has undefined behavior for the BType part.
+    //  With intersection, you can use all of BType inorder to separate out BType part of a semtype. Union should work
+    //  as expected for BType part.
     public static BSemType intersect(BSemType t1, BSemType t2) {
         // all = all1 & all2
         BitSet all = new BitSet(N_TYPES);
@@ -55,7 +60,7 @@ public class Core {
             return basicTypeUnion(all);
         }
         SubType[] subTypes = new SubType[N_TYPES];
-        for (int i = 0; i < UT_BTYPE; i++) {
+        for (int i = 0; i < N_TYPES; i++) {
             if (!t1.some.get(i) && !t2.some.get(i)) {
                 continue;
             }
@@ -94,7 +99,7 @@ public class Core {
             return basicTypeUnion(all);
         }
         SubType[] subTypes = new SubType[N_TYPES];
-        for (int i = 0; i < UT_BTYPE; i++) {
+        for (int i = 0; i < BT_BTYPE; i++) {
             if (!t1.some.get(i) && !t2.some.get(i)) {
                 continue;
             }
@@ -117,7 +122,7 @@ public class Core {
         if (type.some.isEmpty()) {
             return true;
         }
-        for (int i = 0; i < UT_BTYPE; i++) {
+        for (int i = 0; i < BT_BTYPE; i++) {
             if (type.some.get(i) && !type.subTypeData[i].isEmpty()) {
                 return false;
             }
@@ -131,5 +136,36 @@ public class Core {
 
     public static boolean containsSimple(BSemType t1, int uniformTypeCode) {
         return t1.all.get(uniformTypeCode) || t1.some.get(uniformTypeCode);
+    }
+
+    public static boolean isNever(Type type) {
+        return type instanceof BSemType semType && semType.all.isEmpty() && semType.some.isEmpty();
+    }
+
+    public static BSemType union(BSemType t1, BSemType t2) {
+        BSemType semtype = new BSemType();
+
+        semtype.all.or(t1.all);
+        semtype.all.or(t2.all);
+
+        semtype.some.or(t1.some);
+        semtype.some.or(t2.some);
+        semtype.some.andNot(semtype.all);
+
+        SubType[] subTypeData = semtype.subTypeData;
+        for (int i = 0; i < N_TYPES; i++) {
+            // TODO: this don't lift the some to all, (I think each subtype needs to provide a method similar to empty to
+            //  check this)
+            boolean t1Has = t1.some.get(i);
+            boolean t2Has = t2.some.get(i);
+            if (t1Has && t2Has) {
+                subTypeData[i] = t1.subTypeData[i].union(t2.subTypeData[i]);
+            } else if (t1Has) {
+                subTypeData[i] = t1.subTypeData[i];
+            } else if (t2Has) {
+                subTypeData[i] = t2.subTypeData[i];
+            }
+        }
+        return semtype;
     }
 }

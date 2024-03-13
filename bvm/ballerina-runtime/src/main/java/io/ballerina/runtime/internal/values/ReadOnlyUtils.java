@@ -50,6 +50,7 @@ import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.types.semType.BSemType;
+import io.ballerina.runtime.internal.types.semType.Core;
 import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
 
 import java.util.ArrayList;
@@ -67,6 +68,8 @@ import static io.ballerina.runtime.api.constants.TypeConstants.READONLY_XML_TNAM
 import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.types.semType.Core.intersect;
+import static io.ballerina.runtime.internal.types.semType.Core.isNever;
 
 /**
  * Util class for readonly-typed value related operations.
@@ -95,17 +98,17 @@ public class ReadOnlyUtils {
     // TODO: these needs to be fixed when we can have non readonly semtypes
     // TODO: need better names for these
     private static Type bTypeReadonlyUtilDriver(BSemType semType, Function<BType, Type> fn) {
-        BSemType semTypePart = SemTypeUtils.TypeOperation.diff(semType, SemTypeUtils.SemTypeBuilder.ALL_BTYPE);
-        BSemType bTypePart = SemTypeUtils.TypeOperation.intersection(semType, SemTypeUtils.SemTypeBuilder.ALL_BTYPE);
-        if (SemTypeUtils.TypeOperation.isEmpty(bTypePart)) {
+        BSemType semTypePart = intersect(semType, SemTypeUtils.ALL_SEMTYPE);
+        BSemType bTypePart = intersect(semType, SemTypeUtils.ALL_BTYPE);
+        if (isNever(bTypePart)) {
             return semTypePart;
         }
         Type readonlyBTypePart = fn.apply(unwrap(bTypePart));
         if (readonlyBTypePart == null) {
-            return SemTypeUtils.TypeOperation.isEmpty(semType) ? PredefinedTypes.TYPE_NEVER : semTypePart;
+            return isNever(semType) ? PredefinedTypes.TYPE_NEVER : semTypePart;
         }
         BSemType lhs = TypeBuilder.wrap(readonlyBTypePart);
-        return SemTypeUtils.TypeOperation.union(lhs, semTypePart);
+        return Core.union(lhs, semTypePart);
     }
 
     public static Type getReadOnlyType(Type type, Set<Type> unresolvedTypes) {

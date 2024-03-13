@@ -58,14 +58,14 @@ import java.util.Map;
 import java.util.Queue;
 
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_FLOAT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_INT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_INT;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NEVER;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NIL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_STRING;
 
 // TODO: type utils factor these to a separate protected class
 public class TypeHelper {
@@ -173,7 +173,7 @@ public class TypeHelper {
         // TODO: figure out a better workaround for this currently this is exploiting the fact that BType component is
         // the original intersection type
         BSemType semType = (BSemType) type;
-        BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[UT_BTYPE];
+        BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[BT_BTYPE];
         BIntersectionType intersectionType = (BIntersectionType) bTypeComponent.getBTypeComponent();
         return intersectionType.getEffectiveType();
         // This causes an stack overflow (TODO: fix this)
@@ -212,14 +212,14 @@ public class TypeHelper {
         // the remining parts, so far haven't caused problems)
         if (type instanceof BSemType semType) {
             List<Type> members = new ArrayList<>();
-            for (int i = 0; i < SemTypeUtils.UniformTypeCodes.N_TYPES; i++) {
+            for (int i = 0; i < SemTypeUtils.BasicTypeCodes.N_TYPES; i++) {
                 if (semType.all.get(i)) {
                     // TODO: make this cleaner
                     members.add(fromUniformType(i));
                 }
             }
-            if (semType.some.get(UT_BTYPE)) {
-                BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[UT_BTYPE];
+            if (semType.some.get(BT_BTYPE)) {
+                BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[BT_BTYPE];
                 BType bType = bTypeComponent.getBTypeComponent();
                 if (bType instanceof BUnionType bUnionType) {
                     members.addAll(bUnionType.getMemberTypes());
@@ -242,13 +242,13 @@ public class TypeHelper {
 
     private static Type fromUniformType(int typeCode) {
         return switch (typeCode) {
-            case UT_NEVER -> PredefinedTypes.TYPE_NEVER;
-            case UT_NIL -> PredefinedTypes.TYPE_NULL;
-            case UT_BOOLEAN -> PredefinedTypes.TYPE_BOOLEAN;
-            case UT_STRING -> PredefinedTypes.TYPE_STRING;
-            case UT_DECIMAL -> PredefinedTypes.TYPE_DECIMAL;
-            case UT_FLOAT -> PredefinedTypes.TYPE_FLOAT;
-            case UT_INT -> PredefinedTypes.TYPE_INT;
+            case BT_NEVER -> PredefinedTypes.TYPE_NEVER;
+            case BT_NIL -> PredefinedTypes.TYPE_NULL;
+            case BT_BOOLEAN -> PredefinedTypes.TYPE_BOOLEAN;
+            case BT_STRING -> PredefinedTypes.TYPE_STRING;
+            case BT_DECIMAL -> PredefinedTypes.TYPE_DECIMAL;
+            case BT_FLOAT -> PredefinedTypes.TYPE_FLOAT;
+            case BT_INT -> PredefinedTypes.TYPE_INT;
             default -> throw new UnsupportedOperationException("uniform type not supported for type code: " + typeCode);
         };
     }
@@ -287,26 +287,26 @@ public class TypeHelper {
             } else if (type instanceof BSemType semType) {
                 remainingMembers = new LinkedList<>();
                 // TODO: factor a simple type code and Type array for all implemented semtypes
-                if (Core.containsSimple(semType, UT_NIL)) {
+                if (Core.containsSimple(semType, BT_NIL)) {
                     remainingMembers.add(PredefinedTypes.TYPE_NULL);
                 }
-                if (Core.containsSimple(semType, UT_BOOLEAN)) {
+                if (Core.containsSimple(semType, BT_BOOLEAN)) {
                     remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_BOOLEAN));
                 }
-                if (Core.containsSimple(semType, UT_STRING)) {
+                if (Core.containsSimple(semType, BT_STRING)) {
                     remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_STRING));
                 }
-                if (Core.containsSimple(semType, UT_DECIMAL)) {
+                if (Core.containsSimple(semType, BT_DECIMAL)) {
                     remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_DECIMAL));
                 }
-                if (Core.containsSimple(semType, UT_FLOAT)) {
+                if (Core.containsSimple(semType, BT_FLOAT)) {
                     remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_FLOAT));
                 }
-                if (Core.containsSimple(semType, UT_INT)) {
+                if (Core.containsSimple(semType, BT_INT)) {
                     remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_INT));
                 }
-                if (semType.some.get(UT_BTYPE)) {
-                    BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[UT_BTYPE];
+                if (semType.some.get(BT_BTYPE)) {
+                    BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[BT_BTYPE];
                     BType bType = bTypeComponent.getBTypeComponent();
                     if (bType instanceof BUnionType bUnionType) {
                         remainingMembers.addAll(bUnionType.getMemberTypes());

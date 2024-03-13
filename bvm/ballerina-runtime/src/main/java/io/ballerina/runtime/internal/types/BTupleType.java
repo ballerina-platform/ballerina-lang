@@ -34,7 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.TypeOperation.isNever;
+import static io.ballerina.runtime.internal.types.semType.Core.isNever;
 
 /**
  * {@code {@link BTupleType}} represents a tuple type in Ballerina.

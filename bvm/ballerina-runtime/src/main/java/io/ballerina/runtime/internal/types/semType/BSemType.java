@@ -38,14 +38,14 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.N_TYPES;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BTYPE;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_FLOAT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_INT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NIL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_INT;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NIL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_STRING;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.N_TYPES;
 
 public class BSemType implements Type {
 
@@ -76,7 +76,7 @@ public class BSemType implements Type {
     }
 
     private boolean onlyBType() {
-        return some.cardinality() == 1 && some.get(SemTypeUtils.UniformTypeCodes.UT_BTYPE) && all.cardinality() == 0;
+        return some.cardinality() == 1 && some.get(SemTypeUtils.BasicTypeCodes.BT_BTYPE) && all.cardinality() == 0;
     }
 
     public void setIdentifiers(String name, Module module) {
@@ -92,14 +92,16 @@ public class BSemType implements Type {
         return getBTypePart();
     }
 
+    // TODO: replace this with intersect with BALLType and unwrap
     private BType getBTypePart() {
-        BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
+        BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.BasicTypeCodes.BT_BTYPE];
         if (this.name != null || this.module != null) {
             return bTypeComponent.getBTypeComponent(this.name, this.module);
         }
         return bTypeComponent.getBTypeComponent();
     }
 
+    // TODO: move this logic to Semtype Utils
     @Override
     public <V> V getZeroValue() {
         // TODO: for string type if we don't consider subtyping we get and error but if we do consider subtyping for
@@ -107,22 +109,22 @@ public class BSemType implements Type {
         if (onlyBType()) {
             return getBType().getZeroValue();
         }
-        if (isUniformType(UT_BOOLEAN)) {
+        if (isUniformType(BT_BOOLEAN)) {
             return (V) Boolean.valueOf(false);
-        } else if (isUniformType(UT_STRING)) {
-            if (all.get(UT_STRING)) {
+        } else if (isUniformType(BT_STRING)) {
+            if (all.get(BT_STRING)) {
                 return (V) RuntimeConstants.STRING_EMPTY_VALUE;
             } else {
-                StringSubType stringSubType = (StringSubType) subTypeData[UT_STRING];
+                StringSubType stringSubType = (StringSubType) subTypeData[BT_STRING];
                 return (V) StringUtils.fromString(stringSubType.defaultValue());
             }
-        } else if (isUniformType(UT_DECIMAL)) {
+        } else if (isUniformType(BT_DECIMAL)) {
             return (V) new DecimalValue(BigDecimal.ZERO);
-        } else if (isUniformType(UT_FLOAT)) {
+        } else if (isUniformType(BT_FLOAT)) {
             return (V) new Double(0);
-        } else if (isUniformType(UT_INT)) {
-            if (some.get(UT_INT)) {
-                IntSubType intSubType = (IntSubType) subTypeData[UT_INT];
+        } else if (isUniformType(BT_INT)) {
+            if (some.get(BT_INT)) {
+                IntSubType intSubType = (IntSubType) subTypeData[BT_INT];
                 if (intSubType.isByte) {
                     return (V) new Integer(0);
                 }
@@ -132,37 +134,38 @@ public class BSemType implements Type {
         return null;
     }
 
+    // TODO: move this logic to Semtype Utils
     @Override
     public <V> V getEmptyValue() {
         if (onlyBType()) {
             return getBType().getEmptyValue();
         }
-        if (isUniformType(UT_BOOLEAN)) {
+        if (isUniformType(BT_BOOLEAN)) {
             return (V) Boolean.valueOf(false);
-        } else if (isUniformType(UT_STRING)) {
-            if (all.get(UT_STRING)) {
+        } else if (isUniformType(BT_STRING)) {
+            if (all.get(BT_STRING)) {
                 return (V) RuntimeConstants.STRING_EMPTY_VALUE;
             } else {
-                StringSubType stringSubType = (StringSubType) subTypeData[UT_STRING];
+                StringSubType stringSubType = (StringSubType) subTypeData[BT_STRING];
                 return (V) StringUtils.fromString(stringSubType.defaultValue());
             }
-        } else if (isUniformType(UT_DECIMAL)) {
-            if (all.get(UT_DECIMAL)) {
+        } else if (isUniformType(BT_DECIMAL)) {
+            if (all.get(BT_DECIMAL)) {
                 return (V) new DecimalValue(BigDecimal.ZERO);
             } else {
-                DecimalSubType decimalSubType = (DecimalSubType) subTypeData[UT_DECIMAL];
+                DecimalSubType decimalSubType = (DecimalSubType) subTypeData[BT_DECIMAL];
                 return (V) new DecimalValue(decimalSubType.defaultValue());
             }
-        } else if (isUniformType(UT_FLOAT)) {
-            if (all.get(UT_FLOAT)) {
+        } else if (isUniformType(BT_FLOAT)) {
+            if (all.get(BT_FLOAT)) {
                 return (V) new Double(0);
             } else {
-                FloatSubType floatSubType = (FloatSubType) subTypeData[UT_FLOAT];
+                FloatSubType floatSubType = (FloatSubType) subTypeData[BT_FLOAT];
                 return (V) floatSubType.defaultValue();
             }
-        } else if (isUniformType(UT_INT)) {
-            if (some.get(UT_INT)) {
-                IntSubType intSubType = (IntSubType) subTypeData[UT_INT];
+        } else if (isUniformType(BT_INT)) {
+            if (some.get(BT_INT)) {
+                IntSubType intSubType = (IntSubType) subTypeData[BT_INT];
                 if (intSubType.isByte) {
                     return (V) new Integer(0);
                 }
@@ -180,15 +183,17 @@ public class BSemType implements Type {
         return tag;
     }
 
+    // TODO: move this logic to Semtype Utils
     private boolean isUniformType(int uniformTypeTag) {
         return this.all.cardinality() + this.some.cardinality() == 1 &&
                 (this.all.get(uniformTypeTag) || this.some.get(uniformTypeTag));
     }
 
+    // TODO: move this logic to Semtype Utils
     private int calculateTag() {
         // If we have BType
-        if (some.get(UT_BTYPE)) {
-            BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
+        if (some.get(BT_BTYPE)) {
+            BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.BasicTypeCodes.BT_BTYPE];
             if (bTypeComponent instanceof BSubType subTypeData) {
                 switch (subTypeData.getTypeClass()) {
                     case BAnyData -> {
@@ -220,13 +225,13 @@ public class BSemType implements Type {
         }
 
         // Single type
-        if (isUniformType(UT_NIL)) {
+        if (isUniformType(BT_NIL)) {
             return TypeTags.NULL_TAG;
-        } else if (isUniformType(UT_BOOLEAN)) {
+        } else if (isUniformType(BT_BOOLEAN)) {
             return TypeTags.BOOLEAN_TAG;
-        } else if (isUniformType(UT_STRING)) {
-            if (some.get(UT_STRING)) {
-                StringSubType stringSubType = (StringSubType) subTypeData[UT_STRING];
+        } else if (isUniformType(BT_STRING)) {
+            if (some.get(BT_STRING)) {
+                StringSubType stringSubType = (StringSubType) subTypeData[BT_STRING];
                 if (stringSubType.data instanceof StringSubType.StringSubTypeData stringSubTypeData) {
                     var chars = stringSubTypeData.chars();
                     var nonChars = stringSubTypeData.nonChars();
@@ -237,13 +242,13 @@ public class BSemType implements Type {
                 }
             }
             return TypeTags.STRING_TAG;
-        } else if (isUniformType(UT_DECIMAL)) {
+        } else if (isUniformType(BT_DECIMAL)) {
             return TypeTags.DECIMAL_TAG;
-        } else if (isUniformType(UT_FLOAT)) {
+        } else if (isUniformType(BT_FLOAT)) {
             return TypeTags.FLOAT_TAG;
-        } else if (isUniformType(UT_INT)) {
-            if (some.get(UT_INT)) {
-                IntSubType intSubType = (IntSubType) subTypeData[UT_INT];
+        } else if (isUniformType(BT_INT)) {
+            if (some.get(BT_INT)) {
+                IntSubType intSubType = (IntSubType) subTypeData[BT_INT];
                 Optional<Integer> subtypeTag = intSubType.getTag();
                 if (subtypeTag.isPresent()) {
                     return subtypeTag.get();
@@ -260,26 +265,26 @@ public class BSemType implements Type {
         if (onlyBType()) {
             return getBType().isNilable();
         }
-        return all.get(UT_NIL);
+        return all.get(BT_NIL);
     }
 
     @Override
     public String getName() {
         if (name == null) {
             if (all.cardinality() + some.cardinality() == 1) {
-                if (all.get(UT_BOOLEAN)) {
+                if (all.get(BT_BOOLEAN)) {
                     return "boolean";
                 }
-                if (all.get(UT_STRING)) {
+                if (all.get(BT_STRING)) {
                     return "string";
                 }
-                if (all.get(UT_DECIMAL)) {
+                if (all.get(BT_DECIMAL)) {
                     return "decimal";
                 }
-                if (all.get(UT_FLOAT)) {
+                if (all.get(BT_FLOAT)) {
                     return "float";
                 }
-                if (all.get(UT_INT)) {
+                if (all.get(BT_INT)) {
                     return "int";
                 }
             }
@@ -321,10 +326,10 @@ public class BSemType implements Type {
     @Override
     public boolean isAnydata() {
         // Error type is always a BType
-        if (!some.get(SemTypeUtils.UniformTypeCodes.UT_BTYPE)) {
+        if (!some.get(SemTypeUtils.BasicTypeCodes.BT_BTYPE)) {
             return true;
         }
-        BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.UniformTypeCodes.UT_BTYPE];
+        BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.BasicTypeCodes.BT_BTYPE];
         if (bTypeComponent instanceof BSubType subTypeData) {
             // NOTE: this is because for cyclic types trying to get the BType going to put us to infinite loop
             // TODO: fix this with something similar to what we have in BUnionType
@@ -351,7 +356,7 @@ public class BSemType implements Type {
             return getBType().isReadOnly();
         }
         // If we have only basic types for the subset we have implmented it is always readonly
-        if (some.get(UT_BTYPE)) {
+        if (some.get(BT_BTYPE)) {
             return getBTypePart().isReadOnly();
         }
         return true;
@@ -391,31 +396,31 @@ public class BSemType implements Type {
             return "never";
         } else if (nBasicTypes == 1) {
             // TODO: once all test error messages has been updated to handle singleton types return the correct string
-            if (some.get(UT_BOOLEAN) || all.get(UT_BOOLEAN)) {
+            if (some.get(BT_BOOLEAN) || all.get(BT_BOOLEAN)) {
                 return "boolean";
             }
-            if (some.get(UT_STRING) || all.get(UT_STRING)) {
+            if (some.get(BT_STRING) || all.get(BT_STRING)) {
                 return "string";
             }
-            if (some.get(UT_DECIMAL) || all.get(UT_DECIMAL)) {
+            if (some.get(BT_DECIMAL) || all.get(BT_DECIMAL)) {
                 return "decimal";
             }
-            if (some.get(UT_FLOAT) || all.get(UT_FLOAT)) {
+            if (some.get(BT_FLOAT) || all.get(BT_FLOAT)) {
                 return "float";
             }
-            if (some.get(UT_INT) || all.get(UT_INT)) {
-                if (some.get(UT_INT)) {
-                    IntSubType intSubType = (IntSubType) subTypeData[UT_INT];
+            if (some.get(BT_INT) || all.get(BT_INT)) {
+                if (some.get(BT_INT)) {
+                    IntSubType intSubType = (IntSubType) subTypeData[BT_INT];
                     if (intSubType.isByte) {
                         return "byte";
                     }
                 }
                 return "int";
             }
-            if (all.get(UT_NIL)) {
+            if (all.get(BT_NIL)) {
                 return "()";
             }
-            if (some.get(UT_BTYPE)) {
+            if (some.get(BT_BTYPE)) {
                 return getBTypePart().toString();
             }
             throw new IllegalStateException("Unexpected single type");
@@ -431,18 +436,18 @@ public class BSemType implements Type {
                 return "any";
         }
         StringBuilder sb = new StringBuilder();
-        for (int i = UT_NIL + 1; i < N_TYPES; i++) {
+        for (int i = BT_NIL + 1; i < N_TYPES; i++) {
             if (all.get(i) || some.get(i)) {
                 if (!sb.isEmpty()) {
                     sb.append("|");
                 }
                 switch (i) {
-                    case UT_BOOLEAN -> sb.append(booleanPartToString());
-                    case UT_STRING -> sb.append("\"").append(stringPartToString()).append("\"");
-                    case UT_DECIMAL -> sb.append(decimalPartToString());
-                    case UT_FLOAT -> sb.append(floatPartToString());
-                    case UT_INT -> sb.append(intPartToString());
-                    case UT_BTYPE -> {
+                    case BT_BOOLEAN -> sb.append(booleanPartToString());
+                    case BT_STRING -> sb.append("\"").append(stringPartToString()).append("\"");
+                    case BT_DECIMAL -> sb.append(decimalPartToString());
+                    case BT_FLOAT -> sb.append(floatPartToString());
+                    case BT_INT -> sb.append(intPartToString());
+                    case BT_BTYPE -> {
                         String result = getBTypePart().toString();
                         if (result.contains("readonly")) {
                             return "readonly";
@@ -452,49 +457,49 @@ public class BSemType implements Type {
                 }
             }
         }
-        if (all.get(UT_NIL)) {
+        if (all.get(BT_NIL)) {
             return "(" + sb + ")?";
         }
         return "(" + sb + ")";
     }
 
     private String intPartToString() {
-        if (all.get(UT_INT)) {
+        if (all.get(BT_INT)) {
             return "int";
         } else {
-            return subTypeData[UT_INT].toString();
+            return subTypeData[BT_INT].toString();
         }
     }
 
     private String floatPartToString() {
-        if (all.get(UT_FLOAT)) {
+        if (all.get(BT_FLOAT)) {
             return "float";
         } else {
-            return subTypeData[UT_FLOAT].toString();
+            return subTypeData[BT_FLOAT].toString();
         }
     }
 
     private String decimalPartToString() {
-        if (all.get(UT_DECIMAL)) {
+        if (all.get(BT_DECIMAL)) {
             return "decimal";
         } else {
-            return subTypeData[UT_DECIMAL].toString();
+            return subTypeData[BT_DECIMAL].toString();
         }
     }
 
     private String booleanPartToString() {
-        if (all.get(UT_BOOLEAN)) {
+        if (all.get(BT_BOOLEAN)) {
             return "boolean";
         } else {
-            return subTypeData[UT_BOOLEAN].toString();
+            return subTypeData[BT_BOOLEAN].toString();
         }
     }
 
     private String stringPartToString() {
-        if (all.get(UT_STRING)) {
+        if (all.get(BT_STRING)) {
             return "string";
         } else {
-            return subTypeData[UT_STRING].toString();
+            return subTypeData[BT_STRING].toString();
         }
     }
 
@@ -524,22 +529,22 @@ public class BSemType implements Type {
     }
 
     public void addCyclicMembers(List<Type> members) {
-        if (!some.get(UT_BTYPE)) {
-            some.set(UT_BTYPE);
-            subTypeData[UT_BTYPE] = new BSubType(List.of());
+        if (!some.get(BT_BTYPE)) {
+            some.set(BT_BTYPE);
+            subTypeData[BT_BTYPE] = new BSubType(List.of());
         }
-        BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[UT_BTYPE];
+        BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[BT_BTYPE];
         if (!(bTypeComponent instanceof BUnionType) && bTypeComponent instanceof BType singleType) {
             BSubType newBTypeComponent = new BSubType(List.of(singleType));
-            subTypeData[UT_BTYPE] = newBTypeComponent;
+            subTypeData[BT_BTYPE] = newBTypeComponent;
             bTypeComponent = newBTypeComponent;
         }
         bTypeComponent.addCyclicMembers(members);
     }
 
     public void setByteClass() {
-        if (some.get(UT_INT)) {
-            IntSubType intSubType = (IntSubType) subTypeData[UT_INT];
+        if (some.get(BT_INT)) {
+            IntSubType intSubType = (IntSubType) subTypeData[BT_INT];
             intSubType.isByte = true;
             return;
         }
@@ -547,18 +552,18 @@ public class BSemType implements Type {
     }
 
     public void setBTypeClass(BSubType.BTypeClass typeClass) {
-        if (!some.get(UT_BTYPE)) {
-            some.set(UT_BTYPE);
-            subTypeData[UT_BTYPE] = new BSubType(List.of());
-        } else if (subTypeData[UT_BTYPE] instanceof BType bType) {
-            subTypeData[UT_BTYPE] = new BSubType(List.of(bType));
+        if (!some.get(BT_BTYPE)) {
+            some.set(BT_BTYPE);
+            subTypeData[BT_BTYPE] = new BSubType(List.of());
+        } else if (subTypeData[BT_BTYPE] instanceof BType bType) {
+            subTypeData[BT_BTYPE] = new BSubType(List.of(bType));
         }
-        BSubType bTypeComponent = (BSubType) subTypeData[UT_BTYPE];
+        BSubType bTypeComponent = (BSubType) subTypeData[BT_BTYPE];
         bTypeComponent.setBTypeClass(typeClass);
     }
 
     public void setReadonly(boolean readonly) {
-        SubType subTypeData = this.subTypeData[UT_BTYPE];
+        SubType subTypeData = this.subTypeData[BT_BTYPE];
         if (subTypeData instanceof BSubType bTypeComponent) {
             bTypeComponent.setReadonly(readonly);
         }
@@ -581,7 +586,10 @@ public class BSemType implements Type {
         return false;
     }
 
-    public List<Type> getOrderedUnionMembers() {
-        return List.of(orderedUnionMembers);
+    public Optional<List<Type>> getOrderedUnionMembers() {
+        if (orderedUnionMembers == null) {
+            return Optional.empty();
+        }
+        return Optional.of(List.of(orderedUnionMembers));
     }
 }

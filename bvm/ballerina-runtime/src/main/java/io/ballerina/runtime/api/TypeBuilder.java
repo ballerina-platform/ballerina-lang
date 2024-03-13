@@ -48,6 +48,7 @@ import io.ballerina.runtime.internal.types.BXmlAttributesType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.types.semType.BSemType;
 import io.ballerina.runtime.internal.types.semType.BSubType;
+import io.ballerina.runtime.internal.types.semType.Core;
 import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
@@ -69,13 +70,14 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.VALUE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_BOOLEAN;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_DECIMAL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_FLOAT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_INT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_NEVER;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.UniformTypeCodes.UT_STRING;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_INT;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NEVER;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_STRING;
 
+// TODO: merge this with type creator
 public final class TypeBuilder {
 
     private TypeBuilder() {
@@ -207,7 +209,7 @@ public final class TypeBuilder {
     public static Type union(Type type1, Type type2, Identifier identifier) {
         BSemType semType1 = wrap(type1);
         BSemType semType2 = wrap(type2);
-        BSemType result = SemTypeUtils.TypeOperation.union(semType1, semType2);
+        BSemType result = Core.union(semType1, semType2);
         // TODO: avoid creating new modules instead use some sort of flyweight here
         String name = identifier.name;
         if (name != null && !name.isEmpty()) {
@@ -222,7 +224,7 @@ public final class TypeBuilder {
     public static Type union(Type type1, Type type2) {
         BSemType semType1 = wrap(type1);
         BSemType semType2 = wrap(type2);
-        BSemType result = SemTypeUtils.TypeOperation.union(semType1, semType2);
+        BSemType result = Core.union(semType1, semType2);
         result.setOrderedUnionMembers(new Type[]{type1, type2});
         return result;
     }
@@ -494,7 +496,7 @@ public final class TypeBuilder {
 
         private static final Module EMPTY_MODULE = new Module(null, null, null);
 
-        public static final Type TYPE_INT = SemTypeUtils.SemTypeBuilder.from(UT_INT);
+        public static final Type TYPE_INT = SemTypeUtils.SemTypeBuilder.from(BT_INT);
         public static final Type TYPE_INT_SIGNED_8 =
                 SemTypeUtils.SemTypeBuilder.intSubType(SIGNED8_MIN_VALUE.longValue(), SIGNED8_MAX_VALUE.longValue());
         public static final Type TYPE_INT_SIGNED_16 =
@@ -507,7 +509,7 @@ public final class TypeBuilder {
                 SemTypeUtils.SemTypeBuilder.intSubType(0L, UNSIGNED16_MAX_VALUE.longValue());
         public static final Type TYPE_INT_UNSIGNED_32 =
                 SemTypeUtils.SemTypeBuilder.intSubType(0L, UNSIGNED32_MAX_VALUE);
-        public static final Type TYPE_BOOLEAN = SemTypeUtils.SemTypeBuilder.from(UT_BOOLEAN);
+        public static final Type TYPE_BOOLEAN = SemTypeUtils.SemTypeBuilder.from(BT_BOOLEAN);
 
         public static final Type TYPE_BYTE =
                 SemTypeUtils.SemTypeBuilder.intSubType(0L, UNSIGNED8_MAX_VALUE.longValue());
@@ -516,9 +518,9 @@ public final class TypeBuilder {
             semType.setByteClass();
         }
 
-        public static final Type TYPE_FLOAT = SemTypeUtils.SemTypeBuilder.from(UT_FLOAT);
-        public static final Type TYPE_DECIMAL = SemTypeUtils.SemTypeBuilder.from(UT_DECIMAL);
-        public static final Type TYPE_STRING = SemTypeUtils.SemTypeBuilder.from(UT_STRING);
+        public static final Type TYPE_FLOAT = SemTypeUtils.SemTypeBuilder.from(BT_FLOAT);
+        public static final Type TYPE_DECIMAL = SemTypeUtils.SemTypeBuilder.from(BT_DECIMAL);
+        public static final Type TYPE_STRING = SemTypeUtils.SemTypeBuilder.from(BT_STRING);
         public static final Type TYPE_STRING_CHAR =
                 SemTypeUtils.SemTypeBuilder.stringSubType(false, new String[0], true, new String[0]);
 
@@ -547,7 +549,7 @@ public final class TypeBuilder {
                 TypeTags.XML_TEXT_TAG, true));
 
         public static final Type TYPE_XML_NEVER =
-                wrap(new BXmlType(TypeConstants.XML_TNAME, SemTypeUtils.SemTypeBuilder.from(UT_NEVER),
+                wrap(new BXmlType(TypeConstants.XML_TNAME, SemTypeUtils.SemTypeBuilder.from(BT_NEVER),
                         EMPTY_MODULE, true));
 
         public static final Type TYPE_XML = wrap(new BXmlType(TypeConstants.XML_TNAME,
@@ -568,8 +570,8 @@ public final class TypeBuilder {
         public static final Type TYPE_MAP = wrap(new BMapType(TypeConstants.MAP_TNAME, TYPE_ANY, EMPTY_MODULE));
         public static final Type TYPE_FUTURE = wrap(new BFutureType(TypeConstants.FUTURE_TNAME, EMPTY_MODULE));
 
-        public static final Type TYPE_NULL = SemTypeUtils.SemTypeBuilder.from(SemTypeUtils.UniformTypeCodes.UT_NIL);
-        public static final Type TYPE_NEVER = SemTypeUtils.SemTypeBuilder.from(SemTypeUtils.UniformTypeCodes.UT_NEVER);
+        public static final Type TYPE_NULL = SemTypeUtils.SemTypeBuilder.from(SemTypeUtils.BasicTypeCodes.BT_NIL);
+        public static final Type TYPE_NEVER = SemTypeUtils.SemTypeBuilder.from(SemTypeUtils.BasicTypeCodes.BT_NEVER);
         public static final Type TYPE_XML_ATTRIBUTES =
                 wrap(new BXmlAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, EMPTY_MODULE));
         public static final Type TYPE_ITERATOR = wrap(new BIteratorType(TypeConstants.ITERATOR_TNAME, EMPTY_MODULE));

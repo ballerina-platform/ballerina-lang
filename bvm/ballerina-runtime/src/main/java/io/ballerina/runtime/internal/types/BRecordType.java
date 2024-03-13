@@ -44,7 +44,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.TypeOperation.isNever;
+import static io.ballerina.runtime.internal.types.semType.Core.isNever;
 
 /**
  * {@code BRecordType} represents a user defined record type in Ballerina.

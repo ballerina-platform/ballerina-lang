@@ -101,7 +101,7 @@ public class BSubType implements BTypeComponent, SubType {
 
     @Override
     public boolean isEmpty() {
-        throw new UnsupportedOperationException("BSubType don't support semtype operations");
+        return false;
     }
 
     // TODO: this is common code factor it
