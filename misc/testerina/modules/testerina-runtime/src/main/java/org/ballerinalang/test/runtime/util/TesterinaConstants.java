@@ -118,5 +118,6 @@ public class TesterinaConstants {
         public static final int DISABLE_GROUP_LIST = 7;
         public static final int SINGLE_EXEC_TESTS = 8;
         public static final int IS_RERUN_TEST_EXECUTION = 9;
+        public static final int LIST_GROUPS = 10;
     }
 }
