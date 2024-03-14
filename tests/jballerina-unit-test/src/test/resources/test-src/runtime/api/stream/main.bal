@@ -435,7 +435,21 @@ function testParsingCharacterStreamToTypes() {
         ["{\"id\": 12, \"value\": \"1.2\"}", intType],
         ["[12, true, 123.4, \"hello]", type1],
         ["\"hello\\", stringType],
-        ["\"hello", stringType]
+        ["\"hello", stringType],
+        [string `{"gain": 122}, "130"}`, Union1],
+        ["278", ByteType],
+        ["278", intUnsigned8],
+        ["-278", intUnsigned8],
+        ["129", intSigned8],
+        ["-129", intSigned8],
+        ["65536", intUnsigned16],
+        ["-6", intUnsigned16],
+        ["-32800", intSigned16],
+        ["32800", intSigned16],
+        ["-17", intUnsigned32],
+        ["4294967296", intUnsigned32],
+        ["-2147483650", intSigned32],
+        ["-2147483660", intSigned32]
     ];
 
     foreach [string, typedesc<anydata>] [givenStr, targetType] in positiveCases {

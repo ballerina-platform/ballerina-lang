@@ -268,7 +268,11 @@ public class JsonParser {
 
         private static int convertToByte(Type targetType, String inputValue) throws ParserException {
             try {
-                return Integer.parseInt(inputValue);
+                int parsedInt = Integer.parseInt(inputValue);
+                if (!TypeChecker.isByteLiteral(parsedInt)) {
+                    throw getConversionError(targetType, inputValue);
+                }
+                return parsedInt;
             } catch (NumberFormatException e) {
                 throw getConversionError(targetType, inputValue);
             }
@@ -311,7 +315,11 @@ public class JsonParser {
 
         private static long convertToInt(Type targetType, String inputValue) throws ParserException {
             try {
-                return Long.parseLong(inputValue);
+                long parsedLong = Long.parseLong(inputValue);
+                if (!TypeConverter.isConvertibleToIntRange(targetType, parsedLong)) {
+                    throw getConversionError(targetType, inputValue);
+                }
+                return parsedLong;
             } catch (NumberFormatException e) {
                 throw getConversionError(targetType, inputValue);
             }

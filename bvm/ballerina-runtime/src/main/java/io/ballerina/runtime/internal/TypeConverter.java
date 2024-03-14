@@ -237,22 +237,20 @@ public class TypeConverter {
             default:
                 return false;
         }
-        switch (targetType.getTag()) {
-            case TypeTags.SIGNED32_INT_TAG:
-                return TypeChecker.isSigned32LiteralValue(val);
-            case TypeTags.SIGNED16_INT_TAG:
-                return TypeChecker.isSigned16LiteralValue(val);
-            case TypeTags.SIGNED8_INT_TAG:
-                return TypeChecker.isSigned8LiteralValue(val);
-            case TypeTags.UNSIGNED32_INT_TAG:
-                return TypeChecker.isUnsigned32LiteralValue(val);
-            case TypeTags.UNSIGNED16_INT_TAG:
-                return TypeChecker.isUnsigned16LiteralValue(val);
-            case TypeTags.UNSIGNED8_INT_TAG:
-                return TypeChecker.isUnsigned8LiteralValue(val);
-            default:
-                return false;
-        }
+        return isConvertibleToIntRange(targetType, val);
+    }
+
+    public static boolean isConvertibleToIntRange(Type targetType, long val) {
+        return switch (targetType.getTag()) {
+            case TypeTags.INT_TAG -> true;
+            case TypeTags.SIGNED32_INT_TAG -> TypeChecker.isSigned32LiteralValue(val);
+            case TypeTags.SIGNED16_INT_TAG -> TypeChecker.isSigned16LiteralValue(val);
+            case TypeTags.SIGNED8_INT_TAG -> TypeChecker.isSigned8LiteralValue(val);
+            case TypeTags.UNSIGNED32_INT_TAG -> TypeChecker.isUnsigned32LiteralValue(val);
+            case TypeTags.UNSIGNED16_INT_TAG -> TypeChecker.isUnsigned16LiteralValue(val);
+            case TypeTags.UNSIGNED8_INT_TAG -> TypeChecker.isUnsigned8LiteralValue(val);
+            default -> false;
+        };
     }
 
     static boolean isConvertibleToChar(Object value) {
