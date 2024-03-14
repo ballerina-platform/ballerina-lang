@@ -4,7 +4,7 @@
     "character": 14
   },
   "source": "add_lock20.bal",
-  "description": "Wrap in a lock statement for a ",
+  "description": "Wrap in a lock statement for a isolated variable within a remote method",
   "expected": [
     {
       "title": "Surround with lock",

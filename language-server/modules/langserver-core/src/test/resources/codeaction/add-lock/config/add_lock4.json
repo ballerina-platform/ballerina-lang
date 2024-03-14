@@ -4,7 +4,7 @@
     "character": 20
   },
   "source": "add_lock4.bal",
-  "description": "Wrap in a lock statement for a ",
+  "description": "Wrap in a lock statement for accessing a mutable storage",
   "expected": [
     {
       "title": "Surround with lock",

@@ -4,7 +4,7 @@
     "character": 39
   },
   "source": "add_lock18.bal",
-  "description": "Wrap in a lock statement for a ",
+  "description": "Wrap in a lock statement for a isolated variable within a query",
   "expected": [
     {
       "title": "Surround with lock",

@@ -4,7 +4,7 @@
     "character": 19
   },
   "source": "add_lock16.bal",
-  "description": "Wrap in a lock statement for a ",
+  "description": "Wrap in a lock statement within an anonymous function",
   "expected": [
     {
       "title": "Surround with lock",

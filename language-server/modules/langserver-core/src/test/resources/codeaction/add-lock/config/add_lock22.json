@@ -4,7 +4,7 @@
     "character": 9
   },
   "source": "add_lock22.bal",
-  "description": "Wrap in a lock statement for a ",
+  "description": "Wrap in a lock statement for a isolated variable within a if body",
   "expected": [
     {
       "title": "Surround with lock",

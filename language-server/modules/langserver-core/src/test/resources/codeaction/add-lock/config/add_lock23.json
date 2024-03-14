@@ -4,7 +4,7 @@
     "character": 15
   },
   "source": "add_lock23.bal",
-  "description": "Wrap in a lock statement for a ",
+  "description": "Wrap in a lock statement for a isolated variable within a match",
   "expected": [
     {
       "title": "Surround with lock",
