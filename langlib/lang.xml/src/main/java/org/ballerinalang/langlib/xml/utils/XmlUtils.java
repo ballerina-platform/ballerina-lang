@@ -25,10 +25,10 @@ import java.util.List;
  *
  * @since 2201.9.0
  */
-public class Lists {
+public class XmlUtils {
 
     @SafeVarargs
-    public static <E> List<E> of(E... values) {
+    public static <E> List<E> getList(E... values) {
         List<E> list = new ArrayList<>();
         Collections.addAll(list, values);
         return list;
