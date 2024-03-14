@@ -106,6 +106,7 @@ import static io.ballerina.runtime.internal.TypeHelper.members;
 import static io.ballerina.runtime.internal.TypeHelper.paramValueType;
 import static io.ballerina.runtime.internal.TypeHelper.referredType;
 import static io.ballerina.runtime.internal.TypeHelper.typeConstraint;
+import static io.ballerina.runtime.internal.types.semType.Core.belongToBasicType;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
 
 public class SyntacticTypeEngine {
@@ -958,7 +959,7 @@ public class SyntacticTypeEngine {
                 return checkFillerValue((BTupleType) unwrap(type), unanalyzedTypes);
             case TypeTags.UNION_TAG:
                 if (type instanceof BSemType semType) {
-                    if (SemanticTypeEngine.isSubTypeSimple(semType, BT_BTYPE)) {
+                    if (belongToBasicType(semType, BT_BTYPE)) {
                         return checkFillerValue((BUnionType) unwrap(type), unanalyzedTypes);
                     }
                     return TypeChecker.hasFillerValue(type, unanalyzedTypes);

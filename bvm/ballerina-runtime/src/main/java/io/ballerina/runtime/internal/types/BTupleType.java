@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MaybeRoType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.types.semType.BSemType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
@@ -312,7 +313,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, MaybeRoTy
     @Override
     public boolean isEmpty() {
         for (Type type : tupleTypes) {
-            if (isNever(type)) {
+            if (type instanceof BSemType semType && isNever(semType)) {
                 return true;
             }
         }

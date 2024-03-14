@@ -27,10 +27,11 @@ import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BUnionType;
 
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.runtime.internal.types.semType.Core.belongToBasicType;
+import static io.ballerina.runtime.internal.types.semType.Core.containsSimple;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
@@ -41,11 +42,14 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicType
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.N_TYPES;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.calculateDefaultValue;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.calculateTag;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.cardinality;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.isSet;
 
 public class BSemType implements Type {
 
-    public final BitSet all;
-    public final BitSet some;
+    // TODO: make these final
+    public int all;
+    public int some;
     public boolean poisoned = false;
     // TODO: for the time being we are using a sparse array (acutally extra sparse where 0 is alway null), unlike
     // nballerina to make things easier to implement. Consider using a compact array
@@ -58,20 +62,10 @@ public class BSemType implements Type {
     private Type[] orderedUnionMembers = null;
     private int tag = -1;
 
-    protected BSemType() {
-        this.all = new BitSet(N_TYPES);
-        this.some = new BitSet(N_TYPES);
-        this.subTypeData = new SubType[N_TYPES];
-    }
-
-    protected BSemType(BitSet all, BitSet some, SubType[] subtypeData) {
+    protected BSemType(int all, int some, SubType[] subtypeData) {
         this.all = all;
         this.some = some;
         this.subTypeData = subtypeData;
-    }
-
-    private boolean onlyBType() {
-        return some.cardinality() == 1 && some.get(SemTypeUtils.BasicTypeCodes.BT_BTYPE) && all.cardinality() == 0;
     }
 
     public void setIdentifiers(String name, Module module) {
@@ -81,7 +75,7 @@ public class BSemType implements Type {
 
     @Deprecated
     public BType getBType() {
-        if (!onlyBType()) {
+        if (!belongToBasicType(this, BT_BTYPE)) {
             throw new IllegalStateException("This semType does not contain only a BType");
         }
         return getBTypePart();
@@ -119,29 +113,29 @@ public class BSemType implements Type {
     @Override
     public boolean isNilable() {
         // TODO: can this be true?
-        if (onlyBType()) {
+        if (belongToBasicType(this, BT_BTYPE)) {
             return getBType().isNilable();
         }
-        return all.get(BT_NIL);
+        return containsSimple(this, BT_NIL);
     }
 
     @Override
     public String getName() {
         if (name == null) {
-            if (all.cardinality() + some.cardinality() == 1) {
-                if (all.get(BT_BOOLEAN)) {
+            if (cardinality(all) + cardinality(some) == 1) {
+                if (isSet(all, BT_BOOLEAN)) {
                     return "boolean";
                 }
-                if (all.get(BT_STRING)) {
+                if (isSet(all, BT_STRING)) {
                     return "string";
                 }
-                if (all.get(BT_DECIMAL)) {
+                if (isSet(all, BT_DECIMAL)) {
                     return "decimal";
                 }
-                if (all.get(BT_FLOAT)) {
+                if (isSet(all, BT_FLOAT)) {
                     return "float";
                 }
-                if (all.get(BT_INT)) {
+                if (isSet(all, BT_INT)) {
                     return "int";
                 }
             }
@@ -166,7 +160,7 @@ public class BSemType implements Type {
     @Override
     public boolean isPublic() {
         // FIXME:
-        if (onlyBType()) {
+        if (belongToBasicType(this, BT_BTYPE)) {
             return getBType().isPublic();
         }
         return false;
@@ -174,7 +168,7 @@ public class BSemType implements Type {
 
     @Override
     public boolean isNative() {
-        if (onlyBType()) {
+        if (belongToBasicType(this, BT_BTYPE)) {
             return getBType().isNative();
         }
         return false;
@@ -183,7 +177,7 @@ public class BSemType implements Type {
     @Override
     public boolean isAnydata() {
         // Error type is always a BType
-        if (!some.get(SemTypeUtils.BasicTypeCodes.BT_BTYPE)) {
+        if (!isSet(some, BT_BTYPE)) {
             return true;
         }
         BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.BasicTypeCodes.BT_BTYPE];
@@ -201,7 +195,7 @@ public class BSemType implements Type {
 
     @Override
     public boolean isPureType() {
-        if (onlyBType()) {
+        if (belongToBasicType(this, BT_BTYPE)) {
             return getBType().isPureType();
         }
         return false;
@@ -209,11 +203,8 @@ public class BSemType implements Type {
 
     @Override
     public boolean isReadOnly() {
-        if (onlyBType()) {
-            return getBType().isReadOnly();
-        }
         // If we have only basic types for the subset we have implmented it is always readonly
-        if (some.get(BT_BTYPE)) {
+        if (isSet(some, BT_BTYPE)) {
             return getBTypePart().isReadOnly();
         }
         return true;
@@ -248,25 +239,25 @@ public class BSemType implements Type {
         if (orderedUnionMembers != null) {
             return orderedMembersToString();
         }
-        int nBasicTypes = some.cardinality() + all.cardinality();
+        int nBasicTypes = cardinality(some) + cardinality(all);
         if (nBasicTypes == 0) {
             return "never";
         } else if (nBasicTypes == 1) {
             // TODO: once all test error messages has been updated to handle singleton types return the correct string
-            if (some.get(BT_BOOLEAN) || all.get(BT_BOOLEAN)) {
+            if (containsSimple(this, BT_BOOLEAN)) {
                 return "boolean";
             }
-            if (some.get(BT_STRING) || all.get(BT_STRING)) {
+            if (containsSimple(this, BT_STRING)) {
                 return "string";
             }
-            if (some.get(BT_DECIMAL) || all.get(BT_DECIMAL)) {
+            if (containsSimple(this, BT_DECIMAL)) {
                 return "decimal";
             }
-            if (some.get(BT_FLOAT) || all.get(BT_FLOAT)) {
+            if (containsSimple(this, BT_FLOAT)) {
                 return "float";
             }
-            if (some.get(BT_INT) || all.get(BT_INT)) {
-                if (some.get(BT_INT)) {
+            if (containsSimple(this, BT_INT)) {
+                if (isSet(some, BT_INT)) {
                     IntSubType intSubType = (IntSubType) subTypeData[BT_INT];
                     if (intSubType.isByte) {
                         return "byte";
@@ -274,10 +265,10 @@ public class BSemType implements Type {
                 }
                 return "int";
             }
-            if (all.get(BT_NIL)) {
+            if (containsSimple(this, BT_NIL)) {
                 return "()";
             }
-            if (some.get(BT_BTYPE)) {
+            if (containsSimple(this, BT_BTYPE)) {
                 return getBTypePart().toString();
             }
             throw new IllegalStateException("Unexpected single type");
@@ -294,7 +285,7 @@ public class BSemType implements Type {
         }
         StringBuilder sb = new StringBuilder();
         for (int i = BT_NIL + 1; i < N_TYPES; i++) {
-            if (all.get(i) || some.get(i)) {
+            if (containsSimple(this, i)) {
                 if (!sb.isEmpty()) {
                     sb.append("|");
                 }
@@ -314,14 +305,14 @@ public class BSemType implements Type {
                 }
             }
         }
-        if (all.get(BT_NIL)) {
+        if (containsSimple(this, BT_NIL)) {
             return "(" + sb + ")?";
         }
         return "(" + sb + ")";
     }
 
     private String intPartToString() {
-        if (all.get(BT_INT)) {
+        if (isSet(all, BT_INT)) {
             return "int";
         } else {
             return subTypeData[BT_INT].toString();
@@ -329,7 +320,7 @@ public class BSemType implements Type {
     }
 
     private String floatPartToString() {
-        if (all.get(BT_FLOAT)) {
+        if (isSet(all, BT_FLOAT)) {
             return "float";
         } else {
             return subTypeData[BT_FLOAT].toString();
@@ -337,7 +328,7 @@ public class BSemType implements Type {
     }
 
     private String decimalPartToString() {
-        if (all.get(BT_DECIMAL)) {
+        if (isSet(all, BT_DECIMAL)) {
             return "decimal";
         } else {
             return subTypeData[BT_DECIMAL].toString();
@@ -345,7 +336,7 @@ public class BSemType implements Type {
     }
 
     private String booleanPartToString() {
-        if (all.get(BT_BOOLEAN)) {
+        if (isSet(all, BT_BOOLEAN)) {
             return "boolean";
         } else {
             return subTypeData[BT_BOOLEAN].toString();
@@ -353,7 +344,7 @@ public class BSemType implements Type {
     }
 
     private String stringPartToString() {
-        if (all.get(BT_STRING)) {
+        if (isSet(all, BT_STRING)) {
             return "string";
         } else {
             return subTypeData[BT_STRING].toString();
@@ -386,8 +377,8 @@ public class BSemType implements Type {
     }
 
     public void addCyclicMembers(List<Type> members) {
-        if (!some.get(BT_BTYPE)) {
-            some.set(BT_BTYPE);
+        if (!isSet(some, BT_BTYPE)) {
+            some |= 1 << BT_BTYPE;
             subTypeData[BT_BTYPE] = new BSubType(List.of());
         }
         BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[BT_BTYPE];
@@ -400,7 +391,7 @@ public class BSemType implements Type {
     }
 
     public void setByteClass() {
-        if (some.get(BT_INT)) {
+        if (isSet(some, BT_INT)) {
             IntSubType intSubType = (IntSubType) subTypeData[BT_INT];
             intSubType.isByte = true;
             return;
@@ -409,8 +400,8 @@ public class BSemType implements Type {
     }
 
     public void setBTypeClass(BSubType.BTypeClass typeClass) {
-        if (!some.get(BT_BTYPE)) {
-            some.set(BT_BTYPE);
+        if (!isSet(some, BT_BTYPE)) {
+            some |= 1 << BT_BTYPE;
             subTypeData[BT_BTYPE] = new BSubType(List.of());
         } else if (subTypeData[BT_BTYPE] instanceof BType bType) {
             subTypeData[BT_BTYPE] = new BSubType(List.of(bType));
@@ -432,13 +423,13 @@ public class BSemType implements Type {
 
     @Override
     public int hashCode() {
-        return all.hashCode() + 31 * some.hashCode();
+        return all + 31 * some;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof BSemType other) {
-            return all.equals(other.all) && some.equals(other.some) && Arrays.equals(subTypeData, other.subTypeData);
+            return all == other.all && some == other.some && Arrays.equals(subTypeData, other.subTypeData);
         }
         return false;
     }

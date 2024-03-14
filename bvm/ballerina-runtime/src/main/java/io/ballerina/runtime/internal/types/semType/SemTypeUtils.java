@@ -37,7 +37,6 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,6 +45,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
+import static io.ballerina.runtime.internal.types.semType.Core.belongToBasicType;
 import static io.ballerina.runtime.internal.types.semType.Core.intersect;
 import static io.ballerina.runtime.internal.types.semType.Core.union;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
@@ -81,13 +81,13 @@ public final class SemTypeUtils {
     public static final class SemTypeBuilder {
 
         public static BSemType from(int... basicTypeCodes) {
-            BitSet all = new BitSet(N_TYPES);
-            BitSet some = new BitSet(N_TYPES);
+            int all = 0;
+            int some = 0;
             for (int code : basicTypeCodes) {
                 if (code == BT_NEVER) {
                     continue;
                 }
-                all.set(code);
+                all |= 1 << code;
             }
             SubType[] subTypeData = new SubType[N_TYPES];
             return new BSemType(all, some, subTypeData);
@@ -97,30 +97,25 @@ public final class SemTypeUtils {
             if (basicTypeCode < 0 || basicTypeCode > (1 << N_TYPES)) {
                 throw new IllegalStateException("Invalid type code");
             }
-            BitSet all = new BitSet(N_TYPES);
-            BitSet some = new BitSet(N_TYPES);
+            int all = basicTypeCode != BT_NEVER ? 1 << basicTypeCode : 0;
+            int some = 0;
             SubType[] subTypeData = new SubType[N_TYPES];
-            if (basicTypeCode != BT_NEVER) {
-                all.set(basicTypeCode);
-            }
             return new BSemType(all, some, subTypeData);
         }
 
         public static BSemType booleanSubType(boolean value) {
-            BitSet all = new BitSet(N_TYPES);
-            BitSet some = new BitSet(N_TYPES);
+            int all = 0;
+            int some = 1 << BT_BOOLEAN;
             SubType[] subTypeData = new SubType[N_TYPES];
-            some.set(BT_BOOLEAN);
             subTypeData[BT_BOOLEAN] = new BooleanSubType(value);
             return new BSemType(all, some, subTypeData);
         }
 
         public static BSemType stringSubType(boolean charsAllowed, String[] chars, boolean nonCharsAllowed,
                                              String[] nonChars) {
-            BitSet all = new BitSet(N_TYPES);
-            BitSet some = new BitSet(N_TYPES);
+            int all = 0;
+            int some = 1 << BT_STRING;
             SubType[] subTypeData = new SubType[N_TYPES];
-            some.set(BT_STRING);
             subTypeData[BT_STRING] =
                     StringSubType.createStringSubType(charsAllowed, chars, nonCharsAllowed, nonChars);
             return new BSemType(all, some, subTypeData);
@@ -138,10 +133,9 @@ public final class SemTypeUtils {
             List<Long> sortedValues = new ArrayList<>(values);
             Collections.sort(sortedValues);
             List<IntSubType.Range> ranges = getRanges(sortedValues);
-            BitSet all = new BitSet(N_TYPES);
-            BitSet some = new BitSet(N_TYPES);
+            int all = 0;
+            int some = 1 << BT_INT;
             SubType[] subTypeData = new SubType[N_TYPES];
-            some.set(BT_INT);
             subTypeData[BT_INT] = IntSubType.createIntSubType(ranges.toArray(new IntSubType.Range[0]));
             return new BSemType(all, some, subTypeData);
         }
@@ -164,10 +158,9 @@ public final class SemTypeUtils {
 
         public static BSemType intSubType(Long start, Long end) {
             IntSubType.Range range = new IntSubType.Range(start, end);
-            BitSet all = new BitSet(N_TYPES);
-            BitSet some = new BitSet(N_TYPES);
+            int all = 0;
+            int some = 1 << BT_INT;
             SubType[] subTypeData = new SubType[N_TYPES];
-            some.set(BT_INT);
             subTypeData[BT_INT] = IntSubType.createIntSubType(new IntSubType.Range[]{range});
             return new BSemType(all, some, subTypeData);
         }
@@ -177,23 +170,24 @@ public final class SemTypeUtils {
         }
 
         public static BSemType decimalSubType(BigDecimal value) {
-            BitSet all = new BitSet(N_TYPES);
-            BitSet some = new BitSet(N_TYPES);
+            int all = 0;
+            int some = 1 << BT_DECIMAL;
             SubType[] subTypeData = new SubType[N_TYPES];
-            some.set(BT_DECIMAL);
             subTypeData[BT_DECIMAL] = DecimalSubType.createDecimalSubType(true, new BigDecimal[]{value});
             return new BSemType(all, some, subTypeData);
         }
 
         public static BSemType floatSubType(double value) {
-            BitSet all = new BitSet(N_TYPES);
-            BitSet some = new BitSet(N_TYPES);
+            int all = 0;
+            int some = 1 << BT_FLOAT;
             SubType[] subTypeData = new SubType[N_TYPES];
-            some.set(BT_FLOAT);
             subTypeData[BT_FLOAT] = FloatSubType.createFloatSubType(true, new Double[]{value});
             return new BSemType(all, some, subTypeData);
         }
 
+        private static final int SEMTYPE_MASK =
+                (1 << BT_NIL) | (1 << BT_BOOLEAN) | (1 << BT_STRING) | (1 << BT_DECIMAL) | (1 << BT_FLOAT) |
+                        (1 << BT_INT);
         // NOTE: this is part of a temperory solution so we don't have to write builders for each type, until a given
         //  BType has been implemented in semtype (at which point you anyway can't create an instance because we remove
         //  the class) we can use this to convert the BType to a SemType.
@@ -202,7 +196,7 @@ public final class SemTypeUtils {
                 throw new IllegalStateException("BType cannot be null");
             }
             if (bType.isEmpty()) {
-                return new BSemType();
+                return from(BT_NEVER);
             }
             if (bType instanceof BFiniteType finiteType) {
                 return from(finiteType);
@@ -210,16 +204,11 @@ public final class SemTypeUtils {
             if (bType instanceof BUnionType unionType && !unionType.getMemberTypes().isEmpty()) {
                 return from(unionType);
             }
-            BitSet all = new BitSet(N_TYPES);
-            BitSet some = new BitSet(N_TYPES);
-            some.set(BasicTypeCodes.BT_BTYPE);
+            int all = 0;
+            int some = 0;
+            some |= 1 << BT_BTYPE;
             if ((bType instanceof BAnyType) || (bType instanceof BReadonlyType)) {
-                all.set(BT_NIL);
-                all.set(BT_BOOLEAN);
-                all.set(BT_STRING);
-                all.set(BT_DECIMAL);
-                all.set(BT_FLOAT);
-                all.set(BT_INT);
+                all |= SEMTYPE_MASK;
             }
             boolean poisoned = false;
             if (bType instanceof BIntersectionType intersectionType) {
@@ -245,8 +234,8 @@ public final class SemTypeUtils {
                 if (effectiveType instanceof BUnionType unionType && unionType.getMemberTypes().isEmpty()) {
                     poisoned = true;
                 }
-                all.or(effectiveSemType.all);
-                some.or(effectiveSemType.some);
+                all |= effectiveSemType.all;
+                some |= effectiveSemType.some;
                 effectiveSemType = intersect(effectiveSemType, ALL_BTYPE);
                 effectiveSemType.setIdentifiers(effectiveType.getName(), effectiveType.getPackage());
                 if (poisoned) {
@@ -307,18 +296,18 @@ public final class SemTypeUtils {
                 values.add(value);
             }
 
-            void applyTo(BSemType semType) {
+            boolean applyTo(SubType[] subTypeData) {
                 if (values.isEmpty()) {
-                    return;
+                    return false;
                 }
-                semType.some.set(BASIC_TYPE_CODE);
-                semType.subTypeData[BASIC_TYPE_CODE] = semTypeBuilder.apply(this);
+                subTypeData[BASIC_TYPE_CODE] = semTypeBuilder.apply(this);
+                return true;
             }
         }
 
         private static BSemType from(BFiniteType finiteType) {
-            BitSet all = new BitSet();
-            BitSet some = new BitSet();
+            int all = 0;
+            int some = 0;
             SubType[] subTypeData = new SubType[N_TYPES];
             ValueAccumulator<Object> bTypeAcc = new ValueAccumulator<>(BT_BTYPE,
                     (acc) -> new BFiniteType(finiteType.getName(), acc.values, finiteType.getTypeFlags()));
@@ -335,22 +324,22 @@ public final class SemTypeUtils {
             Set<String> nonCharValues = new HashSet<>();
             for (Object value : finiteType.valueSpace) {
                 if (value == null) {
-                    all.set(BasicTypeCodes.BT_NIL);
+                    all |= 1 << BT_NIL;
                 } else if (value instanceof Boolean) {
-                    if (all.get(BT_BOOLEAN)) {
+                    if (isSet(all, BT_BOOLEAN)) {
                         continue;
                     }
                     boolean val = (Boolean) value;
-                    if (some.get(BT_BOOLEAN)) {
+                    if (isSet(some, BT_BOOLEAN)) {
                         BooleanSubType current = (BooleanSubType) subTypeData[BT_BOOLEAN];
                         if (current.data instanceof BooleanSubType.BooleanSubTypeData currentData) {
                             if (currentData.value() != val) {
-                                some.clear(BT_BOOLEAN);
-                                all.set(BT_BOOLEAN);
+                                some ^= (1 << BT_BOOLEAN);
+                                all |= (1 << BT_BOOLEAN);
                             }
                         }
                     } else {
-                        some.set(BT_BOOLEAN);
+                        some |= 1 << BT_BOOLEAN;
                         subTypeData[BT_BOOLEAN] = new BooleanSubType(val);
                     }
                 } else if (value instanceof BString bString) {
@@ -371,28 +360,18 @@ public final class SemTypeUtils {
                 }
             }
             if (!nonCharValues.isEmpty() || !charValues.isEmpty()) {
-                some.set(BT_STRING);
+                some |= 1 << BT_STRING;
                 subTypeData[BT_STRING] =
                         StringSubType.createStringSubType(true, charValues.toArray(new String[0]), true,
                                 nonCharValues.toArray(new String[0]));
             }
-            BSemType result = new BSemType(all, some, subTypeData);
             for (var acc : accumulators) {
-                acc.applyTo(result);
+                if (acc.applyTo(subTypeData)) {
+                    some |= 1 << acc.BASIC_TYPE_CODE;
+                }
             }
-            return result;
+            return new BSemType(all, some, subTypeData);
         }
-    }
-
-    public static boolean belongToSingleBasicType(BSemType semType, int basicTypeCode) {
-        return belongToSingleBasicType(semType) && (semType.all.get(basicTypeCode) || semType.some.get(basicTypeCode));
-    }
-
-    public static boolean belongToSingleBasicType(BSemType semType) {
-        BitSet tmp = new BitSet();
-        tmp.or(semType.some);
-        tmp.or(semType.all);
-        return tmp.cardinality() <= 1; // NEVER don't set any bits
     }
 
     static <V extends SubType> V getSubType(BSemType semType, int basicTypeCode) {
@@ -402,24 +381,24 @@ public final class SemTypeUtils {
     static <V> V calculateDefaultValue(BSemType semType) {
         // TODO: for string type if we don't consider subtyping we get and error but if we do consider subtyping for
         //  float we get an error. Need to check if this is the expected behavior
-        if (belongToSingleBasicType(semType, BT_BTYPE)) {
+        if (belongToBasicType(semType, BT_BTYPE)) {
             return semType.getBType().getZeroValue();
         }
-        if (belongToSingleBasicType(semType, BT_BOOLEAN)) {
+        if (belongToBasicType(semType, BT_BOOLEAN)) {
             return (V) Boolean.valueOf(false);
-        } else if (belongToSingleBasicType(semType, BT_STRING)) {
-            if (semType.all.get(BT_STRING)) {
+        } else if (belongToBasicType(semType, BT_STRING)) {
+            if (isSet(semType.all, BT_STRING)) {
                 return (V) RuntimeConstants.STRING_EMPTY_VALUE;
             } else {
                 StringSubType stringSubType = getSubType(semType, BT_STRING);
                 return (V) StringUtils.fromString(stringSubType.defaultValue());
             }
-        } else if (belongToSingleBasicType(semType, BT_DECIMAL)) {
+        } else if (belongToBasicType(semType, BT_DECIMAL)) {
             return (V) new DecimalValue(BigDecimal.ZERO);
-        } else if (belongToSingleBasicType(semType, BT_FLOAT)) {
+        } else if (belongToBasicType(semType, BT_FLOAT)) {
             return (V) new Double(0);
-        } else if (belongToSingleBasicType(semType, BT_INT)) {
-            if (semType.some.get(BT_INT)) {
+        } else if (belongToBasicType(semType, BT_INT)) {
+            if (isSet(semType.some, BT_INT)) {
                 IntSubType intSubType = getSubType(semType, BT_INT);
                 if (intSubType.isByte) {
                     return (V) new Integer(0);
@@ -432,7 +411,7 @@ public final class SemTypeUtils {
 
     static int calculateTag(BSemType semType) {
         // If we have BType
-        if (semType.some.get(BT_BTYPE)) {
+        if (isSet(semType.some, BT_BTYPE)) {
             BTypeComponent bTypeComponent = getSubType(semType, BT_BTYPE);
             if (bTypeComponent instanceof BSubType subTypeData) {
                 switch (subTypeData.getTypeClass()) {
@@ -450,14 +429,14 @@ public final class SemTypeUtils {
             } else if (bTypeComponent instanceof BJsonType) {
                 return TypeTags.JSON_TAG;
             }
-            if (semType.some.cardinality() + semType.all.cardinality() > 1) {
+            if (cardinality(semType.some) + cardinality(semType.all) > 1) {
                 return TypeTags.UNION_TAG;
             } else {
                 return bTypeComponent.getBTypeComponent().getTag();
             }
         }
         // Pure SemType
-        int nBasicTypes = semType.some.cardinality() + semType.all.cardinality();
+        int nBasicTypes = cardinality(semType.some) + cardinality(semType.all);
         if (nBasicTypes == 0) {
             return TypeTags.NEVER_TAG;
         } else if (nBasicTypes > 1) {
@@ -465,12 +444,12 @@ public final class SemTypeUtils {
         }
 
         // Single type
-        if (belongToSingleBasicType(semType, BT_NIL)) {
+        if (belongToBasicType(semType, BT_NIL)) {
             return TypeTags.NULL_TAG;
-        } else if (belongToSingleBasicType(semType, BT_BOOLEAN)) {
+        } else if (belongToBasicType(semType, BT_BOOLEAN)) {
             return TypeTags.BOOLEAN_TAG;
-        } else if (belongToSingleBasicType(semType, BT_STRING)) {
-            if (semType.some.get(BT_STRING)) {
+        } else if (belongToBasicType(semType, BT_STRING)) {
+            if (isSet(semType.some, BT_STRING)) {
                 StringSubType stringSubType = getSubType(semType, BT_STRING);
                 if (stringSubType.data instanceof StringSubType.StringSubTypeData stringSubTypeData) {
                     var chars = stringSubTypeData.chars();
@@ -482,12 +461,12 @@ public final class SemTypeUtils {
                 }
             }
             return TypeTags.STRING_TAG;
-        } else if (belongToSingleBasicType(semType, BT_DECIMAL)) {
+        } else if (belongToBasicType(semType, BT_DECIMAL)) {
             return TypeTags.DECIMAL_TAG;
-        } else if (belongToSingleBasicType(semType, BT_FLOAT)) {
+        } else if (belongToBasicType(semType, BT_FLOAT)) {
             return TypeTags.FLOAT_TAG;
-        } else if (belongToSingleBasicType(semType, BT_INT)) {
-            if (semType.some.get(BT_INT)) {
+        } else if (belongToBasicType(semType, BT_INT)) {
+            if (isSet(semType.some, BT_INT)) {
                 IntSubType intSubType = getSubType(semType, BT_INT);
                 Optional<Integer> subtypeTag = intSubType.getTag();
                 if (subtypeTag.isPresent()) {
@@ -497,5 +476,18 @@ public final class SemTypeUtils {
             return TypeTags.INT_TAG;
         }
         throw new IllegalStateException("Unable to calculate tag for the given SemType: " + semType);
+    }
+
+    public static boolean isSet(int bitset, int index) {
+        return (bitset & (1 << index)) != 0;
+    }
+
+    public static int cardinality(int bitset) {
+        int count = 0;
+        while (bitset != 0) {
+            count += bitset & 1;
+            bitset >>= 1;
+        }
+        return count;
     }
 }

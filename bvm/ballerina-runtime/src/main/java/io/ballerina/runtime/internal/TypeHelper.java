@@ -58,6 +58,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.internal.types.semType.Core.containsSimple;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
@@ -213,12 +214,12 @@ public class TypeHelper {
         if (type instanceof BSemType semType) {
             List<Type> members = new ArrayList<>();
             for (int i = 0; i < SemTypeUtils.BasicTypeCodes.N_TYPES; i++) {
-                if (semType.all.get(i)) {
-                    // TODO: make this cleaner
+                // TODO: this is not handling the subType correctly
+                if ((semType.all & (1 << i)) != 0) {
                     members.add(fromUniformType(i));
                 }
             }
-            if (semType.some.get(BT_BTYPE)) {
+            if (containsSimple(semType, BT_BTYPE)) {
                 BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[BT_BTYPE];
                 BType bType = bTypeComponent.getBTypeComponent();
                 if (bType instanceof BUnionType bUnionType) {
@@ -287,25 +288,25 @@ public class TypeHelper {
             } else if (type instanceof BSemType semType) {
                 remainingMembers = new LinkedList<>();
                 // TODO: factor a simple type code and Type array for all implemented semtypes
-                if (Core.containsSimple(semType, BT_NIL)) {
+                if (containsSimple(semType, BT_NIL)) {
                     remainingMembers.add(PredefinedTypes.TYPE_NULL);
                 }
-                if (Core.containsSimple(semType, BT_BOOLEAN)) {
+                if (containsSimple(semType, BT_BOOLEAN)) {
                     remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_BOOLEAN));
                 }
-                if (Core.containsSimple(semType, BT_STRING)) {
+                if (containsSimple(semType, BT_STRING)) {
                     remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_STRING));
                 }
-                if (Core.containsSimple(semType, BT_DECIMAL)) {
+                if (containsSimple(semType, BT_DECIMAL)) {
                     remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_DECIMAL));
                 }
-                if (Core.containsSimple(semType, BT_FLOAT)) {
+                if (containsSimple(semType, BT_FLOAT)) {
                     remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_FLOAT));
                 }
-                if (Core.containsSimple(semType, BT_INT)) {
+                if (containsSimple(semType, BT_INT)) {
                     remainingMembers.add(Core.intersect(semType, (BSemType) PredefinedTypes.TYPE_INT));
                 }
-                if (semType.some.get(BT_BTYPE)) {
+                if (containsSimple(semType, BT_BTYPE)) {
                     BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[BT_BTYPE];
                     BType bType = bTypeComponent.getBTypeComponent();
                     if (bType instanceof BUnionType bUnionType) {

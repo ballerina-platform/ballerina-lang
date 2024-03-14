@@ -35,7 +35,6 @@ import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -45,27 +44,26 @@ import static io.ballerina.runtime.api.TypeBuilder.booleanSubType;
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.TypeBuilder.wrap;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
+import static io.ballerina.runtime.internal.types.semType.Core.containsNil;
+import static io.ballerina.runtime.internal.types.semType.Core.containsSimple;
 import static io.ballerina.runtime.internal.types.semType.Core.intersect;
+import static io.ballerina.runtime.internal.types.semType.Core.belongToBasicType;
+import static io.ballerina.runtime.internal.types.semType.Core.isSubTypeSimple;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_INT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NEVER;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_STRING;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.N_TYPES;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.cardinality;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.isSet;
 
 // TODO: once we have properly implemented semtypes we can inline this again in to TypeChecker
 class SemanticTypeEngine {
 
-    private static final BitSet NumericTypeMask = new BitSet(N_TYPES);
-
-    static {
-        NumericTypeMask.set(BT_FLOAT);
-        NumericTypeMask.set(BT_DECIMAL);
-        NumericTypeMask.set(BT_INT);
-    }
+    public static final int BASIC_TYPE_BIT_SET =
+            (1 << BT_INT) | (1 << BT_FLOAT) | (1 << BT_DECIMAL) | (1 << BT_STRING) |
+                    (1 << BT_BOOLEAN);
 
     static boolean checkIsType(Object sourceVal, Type targetType) {
         // TODO: layer
@@ -129,27 +127,19 @@ class SemanticTypeEngine {
         TRUE, FALSE, UNDEFINED
     }
 
-    static boolean isSubTypeSimple(BSemType t1, int uniformTypeCode) {
-        if (uniformTypeCode == BT_NEVER) {
-            return t1.some.isEmpty() && t1.all.isEmpty();
-        }
-        return t1.some.cardinality() + t1.all.cardinality() == 1 &&
-                (t1.some.get(uniformTypeCode) || t1.all.get(uniformTypeCode));
-    }
-
     // t1 < t2
     static SubTypeCheckResult isSubType(BSemType t1, BSemType t2) {
         if (t1 == t2) {
             return SubTypeCheckResult.TRUE;
         }
-        if (t1.some.get(BT_BTYPE) && !t2.some.get(BT_BTYPE)) {
+        // this assumes each of the BTypes are not empty
+        if (containsSimple(t1, BT_BTYPE) && !containsSimple(t2, BT_BTYPE)) {
             return SubTypeCheckResult.FALSE;
         }
-        boolean semTypeResult = Core.isSubType(t1, t2);
-        if (!semTypeResult) {
+        if (!Core.isSubType(t1, t2)) {
             return SubTypeCheckResult.FALSE;
         }
-        if (t1.some.get(BT_BTYPE)) {
+        if (isSet(t1.some, BT_BTYPE)) {
             return SubTypeCheckResult.UNDEFINED;
         }
         return SubTypeCheckResult.TRUE;
@@ -221,18 +211,8 @@ class SemanticTypeEngine {
     }
 
     static boolean numericConvertPossible(Object sourceValue, BSemType sourceType, BSemType targetType) {
-        BitSet sourceWidenedType = new BitSet(N_TYPES);
-        sourceWidenedType.or(sourceType.some);
-        sourceWidenedType.or(sourceType.all);
-        sourceWidenedType.and(NumericTypeMask);
-
-        BitSet targetWidenedType = new BitSet(N_TYPES);
-        targetWidenedType.or(targetType.some);
-        targetWidenedType.or(targetType.all);
-        targetWidenedType.and(NumericTypeMask);
-
-        // TODO: throw error based on value for int
-        return targetWidenedType.cardinality() > 0 && sourceWidenedType.cardinality() > 0;
+        // TODO: check the conversion possible if the source is int?
+        return isNumericType(sourceType) && isNumericType(targetType);
     }
 
     static boolean checkIsLikeType(List<String> errors, Object sourceValue, Type targetType,
@@ -342,27 +322,22 @@ class SemanticTypeEngine {
 
     public static boolean isInherentlyImmutableType(Type type) {
         BSemType semType = wrap(type);
-        if (semType.some.get(BT_BTYPE)) {
+        if (containsSimple(semType, BT_BTYPE)) {
             return SyntacticTypeEngine.isInherentlyImmutableType(getBTypePart(semType));
         }
         // SemType parts are currently immutable
         return true;
     }
 
-    // FIXME:
     protected static boolean isSimpleBasicType(Type type) {
         if (type instanceof BSemType semType) {
-            if (semType.some.cardinality() + semType.all.cardinality() == 1) {
-                if (!semType.some.get(BT_BTYPE) && !semType.all.get(BT_NIL)) {
-                    return true;
-                }
+            if (cardinality(semType.all) + cardinality(semType.some) > 1) {
+                return false;
             }
-            if (semType.some.isEmpty()) {
-                return semType.all.isEmpty();
-            } else {
-                return semType.all.isEmpty() && SyntacticTypeEngine.isSimpleBasicType(getBTypePart(semType));
+            if (belongToBasicType(semType, BT_BTYPE)) {
+                return SyntacticTypeEngine.isSimpleBasicType(getBTypePart(semType));
             }
-            // NOTE: null is not a simple basic type
+            return isSubTypeSimple(semType, BASIC_TYPE_BIT_SET);
         }
         return SyntacticTypeEngine.isSimpleBasicType(unwrap(type));
     }
@@ -372,39 +347,20 @@ class SemanticTypeEngine {
         return SyntacticTypeEngine.isFiniteTypeValue(sourceValue, sourceType, valueSpaceItem, allowNumericConversion);
     }
 
+    private static final int NUMERIC_TYPE_UNION = (1 << BT_INT) | (1 << BT_FLOAT) | (1 << BT_DECIMAL);
+
     protected static boolean isNumericType(Type type) {
         BSemType semType = wrap(type);
-        BitSet types = new BitSet(N_TYPES);
-        types.or(semType.some);
-        types.or(semType.all);
-        if (types.cardinality() == 1) {
-            types.and(NumericTypeMask);
-            return types.isEmpty();
-        }
-        return false;
+        return isSubTypeSimple(semType, NUMERIC_TYPE_UNION);
     }
 
     public static boolean isSelectivelyImmutableType(Type type, Set<Type> unresolvedTypes) {
         if (type instanceof BSemType semType) {
-            if (semType.some.isEmpty()) {
-                return false;
-            } else {
+            if (containsSimple(semType, BT_BTYPE)) {
                 return SyntacticTypeEngine.isSelectivelyImmutableType(getBTypePart(semType), unresolvedTypes);
             }
+            return false;
         }
-        // TODO: can't do this since we are calling this while creating the type builder itself
-//        if (isSameType(type, PredefinedTypes.TYPE_ANY)) {
-//            return true;
-//        }
-//        if (isSameType(type, PredefinedTypes.TYPE_ANYDATA)) {
-//            return true;
-//        }
-//        if (isSameType(type, PredefinedTypes.TYPE_JSON)) {
-//            return true;
-//        }
-//        if (isSameType(type, PredefinedTypes.TYPE_XML)) {
-//            return true;
-//        }
         return SyntacticTypeEngine.isSelectivelyImmutableType(unwrap(type), unresolvedTypes);
     }
 
@@ -446,46 +402,34 @@ class SemanticTypeEngine {
         if (result.isPresent()) {
             return result.get();
         }
-        if (SemTypeUtils.belongToSingleBasicType(semType, BT_BTYPE)) {
+        if (belongToBasicType(semType, BT_BTYPE)) {
             return SyntacticTypeEngine.hasFillerValue(getBTypePart(semType), unanalyzedTypes);
         }
         return false;
     }
 
+    private static boolean hasFillerValueInner(BSemType semType, int basicTypeCode) {
+        if (belongToBasicType(semType, basicTypeCode)) {
+            if (isSet(semType.all, basicTypeCode)) {
+                return true;
+            }
+            return semType.getZeroValue() != null;
+        }
+        return false;
+    }
+
     private static Optional<Boolean> semtypeHasFillerValue(BSemType semType) {
-        if (semType.all.get(BT_NIL)) {
+        if (containsNil(semType)) {
             return Optional.of(true);
         }
-        if (semType.some.isEmpty() && semType.all.cardinality() == 1) {
+        if (belongToBasicType(semType, BT_BOOLEAN)) {
             return Optional.of(true);
         }
-        if (isSubTypeSimple(semType, BT_BOOLEAN)) {
-            return Optional.of(true);
-        }
-        // TODO: factor common code
-        if (isSubTypeSimple(semType, BT_STRING)) {
-            if (semType.all.get(BT_STRING)) {
+        int[] basicTypeCodes = {BT_STRING, BT_DECIMAL, BT_FLOAT, BT_INT};
+        for (int basicTypeCode : basicTypeCodes) {
+            if (hasFillerValueInner(semType, basicTypeCode)) {
                 return Optional.of(true);
             }
-            return Optional.of(semType.getZeroValue() != null);
-        }
-        if (isSubTypeSimple(semType, BT_DECIMAL)) {
-            if (semType.all.get(BT_DECIMAL)) {
-                return Optional.of(true);
-            }
-            return Optional.of(semType.getZeroValue() != null);
-        }
-        if (isSubTypeSimple(semType, BT_FLOAT)) {
-            if (semType.all.get(BT_FLOAT)) {
-                return Optional.of(true);
-            }
-            return Optional.of(semType.getZeroValue() != null);
-        }
-        if (isSubTypeSimple(semType, BT_INT)) {
-            if (semType.all.get(BT_INT)) {
-                return Optional.of(true);
-            }
-            return Optional.of(semType.getZeroValue() != null);
         }
         return Optional.empty();
     }
@@ -496,7 +440,7 @@ class SemanticTypeEngine {
         if (result.isPresent()) {
             return result.get();
         }
-        if (SemTypeUtils.belongToSingleBasicType(semType, BT_BTYPE)) {
+        if (belongToBasicType(semType, BT_BTYPE)) {
             return SyntacticTypeEngine.hasFillerValue(getBTypePart(semType), new ArrayList<>());
         }
         return false;

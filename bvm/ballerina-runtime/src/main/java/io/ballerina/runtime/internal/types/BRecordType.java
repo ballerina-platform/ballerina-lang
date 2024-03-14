@@ -34,6 +34,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.types.semType.BSemType;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -158,8 +159,9 @@ public class BRecordType extends BStructureType implements RecordType {
     @Override
     public boolean isEmpty() {
         for (Field field : fields.values()) {
-            if (!SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL) && isNever(field.getFieldType())) {
-                return true;
+            if (!SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) {
+                Type fieldType = field.getFieldType();
+                return fieldType instanceof BSemType semType && isNever(semType);
             }
         }
         return false;
