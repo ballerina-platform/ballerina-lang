@@ -54,6 +54,7 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicType
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_INT;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_STRING;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.cardinality;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.isSet;
@@ -66,8 +67,13 @@ class SemanticTypeEngine {
                     (1 << BT_BOOLEAN);
 
     static boolean checkIsType(Object sourceVal, Type targetType) {
-        // TODO: layer
-        return checkIsType(null, sourceVal, getType(sourceVal), targetType);
+        int tag = getTypeTag(sourceVal);
+        BSemType targetSemType = wrap(targetType);
+        int bits = targetSemType.all | targetSemType.some;
+        if ((tag & bits) == 0) {
+            return false;
+        }
+        return checkIsType(null, sourceVal, getType(sourceVal), targetSemType);
     }
 
     static <T extends BType> T getBTypePart(BSemType semType) {
@@ -176,8 +182,30 @@ class SemanticTypeEngine {
         return ((BValue) value).getType();
     }
 
+    static int getTypeTag(Object value) {
+        if (value == null) {
+            return 1 << BT_NIL;
+        } else if (value instanceof Number) {
+            if (value instanceof Double) {
+                return 1 << BT_FLOAT;
+            }
+            return 1 << BT_INT;
+        } else if (value instanceof BString) {
+            return 1 << BT_STRING;
+        } else if (value instanceof BDecimal) {
+            return 1 << BT_DECIMAL;
+        } else if (value instanceof Boolean) {
+            return 1 << BT_BOOLEAN;
+        }
+        return 1 << BT_BTYPE;
+    }
+
     static SubTypeCheckResult checkIsLikeTypeInner(Object sourceValue, BSemType targetType) {
-        // TODO: layer
+        int tag = getTypeTag(sourceValue);
+        int bits = targetType.all | targetType.some;
+        if ((tag & bits) == 0) {
+            return SubTypeCheckResult.FALSE;
+        }
         BSemType sourceType = wrap(getType(sourceValue));
         return isSubType(sourceType, targetType);
     }

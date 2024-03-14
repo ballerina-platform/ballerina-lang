@@ -96,6 +96,7 @@ public class TypeChecker {
     public static Object checkCast(Object sourceVal, Type targetType) {
 
         List<String> errors = new ArrayList<>();
+        // FIXME:
         Type sourceType = getImpliedType(getType(sourceVal));
         if (checkIsType(errors, sourceVal, sourceType, targetType)) {
             return sourceVal;
