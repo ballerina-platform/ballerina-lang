@@ -36,7 +36,7 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
-import io.ballerina.projects.ToolResolution;
+import io.ballerina.projects.BuildToolResolution;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
@@ -427,9 +427,9 @@ public class BuildProject extends Project {
 
     private List<ToolDependency> getToolDependencies() {
         List<ToolDependency> toolDependencies = new ArrayList<>();
-        ToolResolution toolResolution = this.currentPackage().getToolResolution();
-        if (toolResolution != null) {
-            List<BuildTool> tools = toolResolution.getResolvedTools();
+        BuildToolResolution buildToolResolution = this.currentPackage().getBuildToolResolution();
+        if (buildToolResolution != null) {
+            List<BuildTool> tools = buildToolResolution.getResolvedTools();
             for (BuildTool tool : tools) {
                 ToolDependency toolDependency = new ToolDependency(
                         tool.id().value(), tool.org().value(), tool.name().value(), tool.version().toString());

@@ -62,7 +62,7 @@ class PackageContext {
     private Set<PackageDependency> packageDependencies;
     private DependencyGraph<ModuleDescriptor> moduleDependencyGraph;
     private PackageResolution packageResolution;
-    private ToolResolution toolResolution;
+    private BuildToolResolution buildToolResolution;
     private PackageCompilation packageCompilation;
 
     // TODO Try to reuse the unaffected compilations if possible
@@ -266,11 +266,11 @@ class PackageContext {
         return packageResolution;
     }
 
-    ToolResolution getToolResolution() {
-        if (toolResolution == null) {
-            toolResolution = ToolResolution.from(this);
+    BuildToolResolution getBuildToolResolution() {
+        if (buildToolResolution == null) {
+            buildToolResolution = BuildToolResolution.from(this);
         }
-        return toolResolution;
+        return buildToolResolution;
     }
 
     Collection<PackageDependency> packageDependencies() {

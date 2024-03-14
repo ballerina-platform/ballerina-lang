@@ -54,23 +54,23 @@ import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
- * {@code ToolResolution} Model for resolving tool dependencies.
+ * {@code BuildToolResolution} Model for resolving tool dependencies.
  *
  * @since 2201.9.0
  */
-public class ToolResolution {
+public class BuildToolResolution {
     private static final String PACKAGE_NAME_PREFIX  = "tool_";
     private final PackageContext packageContext;
     private final List<BuildTool> resolvedTools = new ArrayList<>();
     private final List<Diagnostic> diagnosticList = new ArrayList<>();
 
-    private ToolResolution(PackageContext packageContext) {
+    private BuildToolResolution(PackageContext packageContext) {
         this.packageContext = packageContext;
         resolveToolDependencies();
     }
 
-    static ToolResolution from(PackageContext packageContext) {
-        return new ToolResolution(packageContext);
+    static BuildToolResolution from(PackageContext packageContext) {
+        return new BuildToolResolution(packageContext);
     }
 
     public List<Diagnostic> getDiagnosticList() {

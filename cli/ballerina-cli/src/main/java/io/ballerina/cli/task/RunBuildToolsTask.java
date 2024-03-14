@@ -28,7 +28,7 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
-import io.ballerina.projects.ToolResolution;
+import io.ballerina.projects.BuildToolResolution;
 import io.ballerina.projects.buildtools.CodeGeneratorTool;
 import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.internal.PackageDiagnostic;
@@ -117,21 +117,21 @@ public class RunBuildToolsTask implements Task {
             ToolContext toolContext = ToolContext.from(toolEntry, project.currentPackage(), outStream);
             toolContextMap.put(toolEntry.id(), toolContext);
         }
-        ToolResolution toolResolution;
+        BuildToolResolution buildToolResolution;
         try {
-            toolResolution = project.currentPackage().getToolResolution();
+            buildToolResolution = project.currentPackage().getBuildToolResolution();
         } catch (ProjectException e) {
             CommandUtil.printError(this.outStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        toolResolution.getDiagnosticList().forEach(outStream::println);
-        List<BuildTool> resolvedTools = toolResolution.getResolvedTools();
+        buildToolResolution.getDiagnosticList().forEach(outStream::println);
+        List<BuildTool> resolvedTools = buildToolResolution.getResolvedTools();
         List<BuildTool> centralDeliveredResolvedTools = resolvedTools.stream().filter(tool -> !DEFAULT_VERSION
                 .equals(tool.version().toString())).toList();
         if (!centralDeliveredResolvedTools.isEmpty()) {
             if (!project.buildOptions().offlineBuild()) {
-                pullLocallyUnavailableTools(centralDeliveredResolvedTools);
+                pullLocallyUnavailableTools(centralDeliveredResolvedTools, buildToolResolution);
             }
             toolClassLoader = createToolClassLoader(centralDeliveredResolvedTools);
             toolServiceLoader = ServiceLoader.load(CodeGeneratorTool.class, toolClassLoader);
@@ -234,7 +234,7 @@ public class RunBuildToolsTask implements Task {
         return false;
     }
 
-    private void pullLocallyUnavailableTools(List<BuildTool> tools) {
+    private void pullLocallyUnavailableTools(List<BuildTool> tools, BuildToolResolution buildToolResolution) {
         for (BuildTool tool: tools) {
             String toolId = tool.id().value();
             String version = tool.version().toString();
@@ -246,13 +246,27 @@ public class RunBuildToolsTask implements Task {
                 }
                 pullToolFromCentral(toolId, version);
             } catch (CentralClientException e) {
-                throw createLauncherException(
-                        "failed to pull build tool '" + toolId + ":" + version + "' from Ballerina Central: "
-                                + e.getMessage());
+                String message = "failed to pull build tool '" + toolId + ":" + version + "' from Ballerina Central: "
+                        + e.getMessage();
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                        ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(),
+                        message,
+                        DiagnosticSeverity.ERROR);
+                PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, toolId);
+                outStream.println(diagnostic);
+                buildToolResolution.getDiagnosticList().add(diagnostic);
+                tools.remove(tool);
             } catch (ProjectException e) {
-                throw createLauncherException(
-                        "failed to resolve build tool '" + toolId + ":" + version + "' from the local cache: "
-                                + e.getMessage());
+                String message = "failed to resolve build tool '" + toolId + ":" + version +
+                        "' from the local cache: " + e.getMessage();
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                        ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(),
+                        message,
+                        DiagnosticSeverity.ERROR);
+                PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, toolId);
+                outStream.println(diagnostic);
+                buildToolResolution.getDiagnosticList().add(diagnostic);
+                tools.remove(tool);
             }
         }
     }

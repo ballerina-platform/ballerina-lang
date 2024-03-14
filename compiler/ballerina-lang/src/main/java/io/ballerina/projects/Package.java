@@ -154,8 +154,8 @@ public class Package {
         return this.packageContext.getResolution();
     }
 
-    public ToolResolution getToolResolution() {
-        return this.packageContext.getToolResolution();
+    public BuildToolResolution getBuildToolResolution() {
+        return this.packageContext.getBuildToolResolution();
     }
 
     public PackageResolution getResolution(CompilationOptions compilationOptions) {
