@@ -32,7 +32,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Test class to test the functionality of Ballerina runtime APIs for invoking functions.
@@ -51,10 +50,8 @@ public class RuntimeAPITest extends BaseTest {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
-        Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
         Path sourceRoot = Paths.get(testFileLocation, "function_invocation").toAbsolutePath();
-        bMainInstance.runMain("build", new String[0], envProperties, new String[0], null,
+        bMainInstance.runMain("build", new String[0], new HashMap<>(), new String[0], null,
                 sourceRoot.toString());
     }
 
