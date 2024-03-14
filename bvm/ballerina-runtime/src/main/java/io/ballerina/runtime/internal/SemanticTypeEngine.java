@@ -68,6 +68,7 @@ class SemanticTypeEngine {
     }
 
     static boolean checkIsType(Object sourceVal, Type targetType) {
+        // TODO: layer
         return checkIsType(null, sourceVal, getType(sourceVal), targetType);
     }
 
@@ -186,6 +187,7 @@ class SemanticTypeEngine {
     }
 
     static SubTypeCheckResult checkIsLikeTypeInner(Object sourceValue, BSemType targetType) {
+        // TODO: layer
         BSemType sourceType = wrap(getType(sourceValue));
         return isSubType(sourceType, targetType);
     }
@@ -304,6 +306,7 @@ class SemanticTypeEngine {
         if (targetType.getTag() == TypeTags.JSON_TAG) {
             targetSemType.setBTypeClass(BSubType.BTypeClass.BJson);
         }
+        // TODO: see if can use the sourceType here
         BSemType sourceSemType = wrap(getType(sourceValue));
         return switch (isSubType(sourceSemType, targetSemType)) {
             case TRUE -> true;

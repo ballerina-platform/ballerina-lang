@@ -21,15 +21,11 @@ package io.ballerina.runtime.internal.types.semType;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.values.DecimalValue;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
@@ -43,6 +39,7 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicType
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_STRING;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.N_TYPES;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.calculateDefaultValue;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.calculateTag;
 
 public class BSemType implements Type {
@@ -99,78 +96,16 @@ public class BSemType implements Type {
         return bTypeComponent.getBTypeComponent();
     }
 
-    // TODO: move this logic to Semtype Utils
     @Override
     public <V> V getZeroValue() {
-        // TODO: for string type if we don't consider subtyping we get and error but if we do consider subtyping for
-        //  float we get an error. Need to check if this is the expected behavior
-        if (onlyBType()) {
-            return getBType().getZeroValue();
-        }
-        if (isUniformType(BT_BOOLEAN)) {
-            return (V) Boolean.valueOf(false);
-        } else if (isUniformType(BT_STRING)) {
-            if (all.get(BT_STRING)) {
-                return (V) RuntimeConstants.STRING_EMPTY_VALUE;
-            } else {
-                StringSubType stringSubType = (StringSubType) subTypeData[BT_STRING];
-                return (V) StringUtils.fromString(stringSubType.defaultValue());
-            }
-        } else if (isUniformType(BT_DECIMAL)) {
-            return (V) new DecimalValue(BigDecimal.ZERO);
-        } else if (isUniformType(BT_FLOAT)) {
-            return (V) new Double(0);
-        } else if (isUniformType(BT_INT)) {
-            if (some.get(BT_INT)) {
-                IntSubType intSubType = (IntSubType) subTypeData[BT_INT];
-                if (intSubType.isByte) {
-                    return (V) new Integer(0);
-                }
-            }
-            return (V) new Long(0);
-        }
-        return null;
+        // TODO: need to think about a way to cache this result (one problem is some of these values seems to be
+        //  mutable)
+        return calculateDefaultValue(this);
     }
 
-    // TODO: move this logic to Semtype Utils
     @Override
     public <V> V getEmptyValue() {
-        if (onlyBType()) {
-            return getBType().getEmptyValue();
-        }
-        if (isUniformType(BT_BOOLEAN)) {
-            return (V) Boolean.valueOf(false);
-        } else if (isUniformType(BT_STRING)) {
-            if (all.get(BT_STRING)) {
-                return (V) RuntimeConstants.STRING_EMPTY_VALUE;
-            } else {
-                StringSubType stringSubType = (StringSubType) subTypeData[BT_STRING];
-                return (V) StringUtils.fromString(stringSubType.defaultValue());
-            }
-        } else if (isUniformType(BT_DECIMAL)) {
-            if (all.get(BT_DECIMAL)) {
-                return (V) new DecimalValue(BigDecimal.ZERO);
-            } else {
-                DecimalSubType decimalSubType = (DecimalSubType) subTypeData[BT_DECIMAL];
-                return (V) new DecimalValue(decimalSubType.defaultValue());
-            }
-        } else if (isUniformType(BT_FLOAT)) {
-            if (all.get(BT_FLOAT)) {
-                return (V) new Double(0);
-            } else {
-                FloatSubType floatSubType = (FloatSubType) subTypeData[BT_FLOAT];
-                return (V) floatSubType.defaultValue();
-            }
-        } else if (isUniformType(BT_INT)) {
-            if (some.get(BT_INT)) {
-                IntSubType intSubType = (IntSubType) subTypeData[BT_INT];
-                if (intSubType.isByte) {
-                    return (V) new Integer(0);
-                }
-            }
-            return (V) new Long(0);
-        }
-        return null;
+        return calculateDefaultValue(this);
     }
 
     @Override
@@ -179,12 +114,6 @@ public class BSemType implements Type {
             tag = calculateTag(this);
         }
         return tag;
-    }
-
-    // TODO: move this logic to Semtype Utils
-    private boolean isUniformType(int uniformTypeTag) {
-        return this.all.cardinality() + this.some.cardinality() == 1 &&
-                (this.all.get(uniformTypeTag) || this.some.get(uniformTypeTag));
     }
 
     @Override

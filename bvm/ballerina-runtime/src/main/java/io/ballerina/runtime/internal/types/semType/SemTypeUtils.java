@@ -22,7 +22,9 @@
 package io.ballerina.runtime.internal.types.semType;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BAnyType;
 import io.ballerina.runtime.internal.types.BFiniteType;
@@ -395,6 +397,37 @@ public final class SemTypeUtils {
 
     static <V extends SubType> V getSubType(BSemType semType, int basicTypeCode) {
         return (V) semType.subTypeData[basicTypeCode];
+    }
+
+    static <V> V calculateDefaultValue(BSemType semType) {
+        // TODO: for string type if we don't consider subtyping we get and error but if we do consider subtyping for
+        //  float we get an error. Need to check if this is the expected behavior
+        if (belongToSingleBasicType(semType, BT_BTYPE)) {
+            return semType.getBType().getZeroValue();
+        }
+        if (belongToSingleBasicType(semType, BT_BOOLEAN)) {
+            return (V) Boolean.valueOf(false);
+        } else if (belongToSingleBasicType(semType, BT_STRING)) {
+            if (semType.all.get(BT_STRING)) {
+                return (V) RuntimeConstants.STRING_EMPTY_VALUE;
+            } else {
+                StringSubType stringSubType = getSubType(semType, BT_STRING);
+                return (V) StringUtils.fromString(stringSubType.defaultValue());
+            }
+        } else if (belongToSingleBasicType(semType, BT_DECIMAL)) {
+            return (V) new DecimalValue(BigDecimal.ZERO);
+        } else if (belongToSingleBasicType(semType, BT_FLOAT)) {
+            return (V) new Double(0);
+        } else if (belongToSingleBasicType(semType, BT_INT)) {
+            if (semType.some.get(BT_INT)) {
+                IntSubType intSubType = getSubType(semType, BT_INT);
+                if (intSubType.isByte) {
+                    return (V) new Integer(0);
+                }
+            }
+            return (V) new Long(0);
+        }
+        return null;
     }
 
     static int calculateTag(BSemType semType) {
