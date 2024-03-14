@@ -33,9 +33,18 @@ type type4 map<map<int>>;
 
 type type5 map<int>[];
 
+type type6 map<int>;
+
+type type7 record {|
+    int id;
+    int value;
+|};
+
 type mapIntArray map<int[]>;
 
 type jsonType json;
+
+type jsonReadOnly json & readonly;
 
 type int2Array int[2];
 
@@ -126,12 +135,21 @@ type Rec6 record {|
     anydata ...;
 |};
 
+type Rec7 record {|
+    int age;
+    boolean isMarried = true;
+|};
+
 type Union1 map<int>|map<float>|int|string|float|Rec4|Rec5|[float, int]|int[]|float[]|[int, float];
 
 type Union1Sub1 Rec4|map<int>|map<float>|int|string|float|Rec5|[float, int]|int[]|float[]|[int, float];
 
 type RecUnion1 record {|
     Union1 val;
+|};
+
+type RecUnion2 record {|
+    anydata ...;
 |};
 
 type MapUnion1 map<Union1>;
@@ -330,6 +348,7 @@ function testParsingCharacterStreamToTypes() {
         [string `[{"gain": 122, "age": 130}]`, TupleUnion1],
         [string `[{"gain": 122, "age": 130}]`, ArrayUnion1],
         [string `{"val" : [12, 13.4]}`, RecUnion1],
+        [string `{"val" : [12, 13.4]}`, RecUnion2],
         [string `[[12, 13.4]]`, TupleUnion1],
         [string `[[12, 13.4]]`, ArrayUnion1],
         [string `"apple"`, Union1],
@@ -341,6 +360,7 @@ function testParsingCharacterStreamToTypes() {
         [string `[13.7]`, TupleUnion1],
         [string `[13.7]`, ArrayUnion1],
         ["[12, true, 123.4, \"hello\"]", jsonType],
+        ["[12, true, 123.4, \"hello\"]", jsonReadOnly],
         ["{\"id\": 12, \"name\": \"John\"}", type2],
         ["{\"id\": 12, \"name\": \"John\"}", jsonType],
 
@@ -406,7 +426,16 @@ function testParsingCharacterStreamToTypes() {
         ["{\"gain\":1}", Rec5],
         ["[\"123\"]", char2Array],
         ["[{\"id\": 12, \"age\": 24}, {\"id\": 12, \"age\": 24}]", type5Closed],
-        ["[{\"id\": 12, \"age\": 24}, {\"id\": 12, \"age\": 24}]", tupleClosed]
+        ["[{\"id\": 12, \"age\": 24}, {\"id\": 12, \"age\": 24}]", tupleClosed],
+        ["{\"id", type2],
+        [string `{"name": "John", "age": 30}`, Rec7],
+        [string `{"name": "John`, Rec1],
+        ["{\"id\": 12, \"name\": \"1.2\"}", type6],
+        ["{\"id\": 12, \"value\": \"1.2\"}", type7],
+        ["{\"id\": 12, \"value\": \"1.2\"}", intType],
+        ["[12, true, 123.4, \"hello]", type1],
+        ["\"hello\\", stringType],
+        ["\"hello", stringType],
     ];
 
     foreach [string, typedesc<anydata>] [givenStr, targetType] in positiveCases {
