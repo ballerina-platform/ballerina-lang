@@ -25,9 +25,6 @@ import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.internal.types.BAnyType;
-import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -46,6 +43,7 @@ import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicType
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NIL;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_STRING;
 import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.N_TYPES;
+import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.calculateTag;
 
 public class BSemType implements Type {
 
@@ -178,7 +176,7 @@ public class BSemType implements Type {
     @Override
     public int getTag() {
         if (tag == -1) {
-            tag = calculateTag();
+            tag = calculateTag(this);
         }
         return tag;
     }
@@ -187,76 +185,6 @@ public class BSemType implements Type {
     private boolean isUniformType(int uniformTypeTag) {
         return this.all.cardinality() + this.some.cardinality() == 1 &&
                 (this.all.get(uniformTypeTag) || this.some.get(uniformTypeTag));
-    }
-
-    // TODO: move this logic to Semtype Utils
-    private int calculateTag() {
-        // If we have BType
-        if (some.get(BT_BTYPE)) {
-            BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.BasicTypeCodes.BT_BTYPE];
-            if (bTypeComponent instanceof BSubType subTypeData) {
-                switch (subTypeData.getTypeClass()) {
-                    case BAnyData -> {
-                        return TypeTags.ANYDATA_TAG;
-                    }
-                    case BJson -> {
-                        return TypeTags.JSON_TAG;
-                    }
-                }
-            } else if (bTypeComponent instanceof BAnyType) {
-                return TypeTags.ANY_TAG;
-            } else if (bTypeComponent instanceof BIntersectionType) {
-                return TypeTags.INTERSECTION_TAG;
-            } else if (bTypeComponent instanceof BJsonType) {
-                return TypeTags.JSON_TAG;
-            }
-            if (some.cardinality() + all.cardinality() > 1) {
-                return TypeTags.UNION_TAG;
-            } else {
-                return bTypeComponent.getBTypeComponent().getTag();
-            }
-        }
-        // Pure SemType
-        int nBasicTypes = some.cardinality() + all.cardinality();
-        if (nBasicTypes == 0) {
-            return TypeTags.NEVER_TAG;
-        } else if (nBasicTypes > 1) {
-            return TypeTags.UNION_TAG;
-        }
-
-        // Single type
-        if (isUniformType(BT_NIL)) {
-            return TypeTags.NULL_TAG;
-        } else if (isUniformType(BT_BOOLEAN)) {
-            return TypeTags.BOOLEAN_TAG;
-        } else if (isUniformType(BT_STRING)) {
-            if (some.get(BT_STRING)) {
-                StringSubType stringSubType = (StringSubType) subTypeData[BT_STRING];
-                if (stringSubType.data instanceof StringSubType.StringSubTypeData stringSubTypeData) {
-                    var chars = stringSubTypeData.chars();
-                    var nonChars = stringSubTypeData.nonChars();
-                    if (!chars.allowed() && chars.values().length == 0 && nonChars.allowed() &&
-                            nonChars.values().length == 0) {
-                        return TypeTags.CHAR_STRING_TAG;
-                    }
-                }
-            }
-            return TypeTags.STRING_TAG;
-        } else if (isUniformType(BT_DECIMAL)) {
-            return TypeTags.DECIMAL_TAG;
-        } else if (isUniformType(BT_FLOAT)) {
-            return TypeTags.FLOAT_TAG;
-        } else if (isUniformType(BT_INT)) {
-            if (some.get(BT_INT)) {
-                IntSubType intSubType = (IntSubType) subTypeData[BT_INT];
-                Optional<Integer> subtypeTag = intSubType.getTag();
-                if (subtypeTag.isPresent()) {
-                    return subtypeTag.get();
-                }
-            }
-            return TypeTags.INT_TAG;
-        }
-        throw new IllegalStateException("Unable to calculate tag for the given SemType: " + this);
     }
 
     @Override

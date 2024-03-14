@@ -21,11 +21,13 @@
 
 package io.ballerina.runtime.internal.types.semType;
 
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BAnyType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BReadonlyType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BUnionType;
@@ -38,6 +40,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -388,5 +391,78 @@ public final class SemTypeUtils {
         tmp.or(semType.some);
         tmp.or(semType.all);
         return tmp.cardinality() <= 1; // NEVER don't set any bits
+    }
+
+    static <V extends SubType> V getSubType(BSemType semType, int basicTypeCode) {
+        return (V) semType.subTypeData[basicTypeCode];
+    }
+
+    static int calculateTag(BSemType semType) {
+        // If we have BType
+        if (semType.some.get(BT_BTYPE)) {
+            BTypeComponent bTypeComponent = getSubType(semType, BT_BTYPE);
+            if (bTypeComponent instanceof BSubType subTypeData) {
+                switch (subTypeData.getTypeClass()) {
+                    case BAnyData -> {
+                        return TypeTags.ANYDATA_TAG;
+                    }
+                    case BJson -> {
+                        return TypeTags.JSON_TAG;
+                    }
+                }
+            } else if (bTypeComponent instanceof BAnyType) {
+                return TypeTags.ANY_TAG;
+            } else if (bTypeComponent instanceof BIntersectionType) {
+                return TypeTags.INTERSECTION_TAG;
+            } else if (bTypeComponent instanceof BJsonType) {
+                return TypeTags.JSON_TAG;
+            }
+            if (semType.some.cardinality() + semType.all.cardinality() > 1) {
+                return TypeTags.UNION_TAG;
+            } else {
+                return bTypeComponent.getBTypeComponent().getTag();
+            }
+        }
+        // Pure SemType
+        int nBasicTypes = semType.some.cardinality() + semType.all.cardinality();
+        if (nBasicTypes == 0) {
+            return TypeTags.NEVER_TAG;
+        } else if (nBasicTypes > 1) {
+            return TypeTags.UNION_TAG;
+        }
+
+        // Single type
+        if (belongToSingleBasicType(semType, BT_NIL)) {
+            return TypeTags.NULL_TAG;
+        } else if (belongToSingleBasicType(semType, BT_BOOLEAN)) {
+            return TypeTags.BOOLEAN_TAG;
+        } else if (belongToSingleBasicType(semType, BT_STRING)) {
+            if (semType.some.get(BT_STRING)) {
+                StringSubType stringSubType = getSubType(semType, BT_STRING);
+                if (stringSubType.data instanceof StringSubType.StringSubTypeData stringSubTypeData) {
+                    var chars = stringSubTypeData.chars();
+                    var nonChars = stringSubTypeData.nonChars();
+                    if (!chars.allowed() && chars.values().length == 0 && nonChars.allowed() &&
+                            nonChars.values().length == 0) {
+                        return TypeTags.CHAR_STRING_TAG;
+                    }
+                }
+            }
+            return TypeTags.STRING_TAG;
+        } else if (belongToSingleBasicType(semType, BT_DECIMAL)) {
+            return TypeTags.DECIMAL_TAG;
+        } else if (belongToSingleBasicType(semType, BT_FLOAT)) {
+            return TypeTags.FLOAT_TAG;
+        } else if (belongToSingleBasicType(semType, BT_INT)) {
+            if (semType.some.get(BT_INT)) {
+                IntSubType intSubType = getSubType(semType, BT_INT);
+                Optional<Integer> subtypeTag = intSubType.getTag();
+                if (subtypeTag.isPresent()) {
+                    return subtypeTag.get();
+                }
+            }
+            return TypeTags.INT_TAG;
+        }
+        throw new IllegalStateException("Unable to calculate tag for the given SemType: " + semType);
     }
 }
