@@ -557,11 +557,11 @@ public final class TypeBuilder {
 
         public static final Type TYPE_READONLY_XML = wrap(ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_XML));
 
-        public static final Type TYPE_XML_ELEMENT_SEQUENCE = wrap(new BXmlType(PredefinedTypes.TYPE_ELEMENT, false));
-        public static final Type TYPE_XML_COMMENT_SEQUENCE = wrap(new BXmlType(PredefinedTypes.TYPE_COMMENT, false));
+        public static final Type TYPE_XML_ELEMENT_SEQUENCE = wrap(new BXmlType(TYPE_ELEMENT, false));
+        public static final Type TYPE_XML_COMMENT_SEQUENCE = wrap(new BXmlType(TYPE_COMMENT, false));
         public static final Type TYPE_XML_PI_SEQUENCE =
-                wrap(new BXmlType(PredefinedTypes.TYPE_PROCESSING_INSTRUCTION, false));
-        public static final Type TYPE_XML_TEXT_SEQUENCE = wrap(new BXmlType(PredefinedTypes.TYPE_TEXT, false));
+                wrap(new BXmlType(TYPE_PROCESSING_INSTRUCTION, false));
+        public static final Type TYPE_XML_TEXT_SEQUENCE = wrap(new BXmlType(TYPE_TEXT, false));
 
         public static final Type TYPE_ANY = wrap(new BAnyType(TypeConstants.ANY_TNAME, EMPTY_MODULE, false));
         public static final Type TYPE_READONLY_ANY =
