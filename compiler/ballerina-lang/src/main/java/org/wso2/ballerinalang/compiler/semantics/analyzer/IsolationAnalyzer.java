@@ -295,7 +295,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean inferredIsolated = true;
     private boolean inLockStatement = false;
-    private boolean inIsolationStartAction = false;
+    private boolean inIsolatedStartAction = false;
     private final Stack<LockInfo> copyInLockInfoStack = new Stack<>();
     private final Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
     private final Map<BSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
@@ -1288,7 +1288,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
         if (!recordFieldDefaultValue && !objectFieldDefaultValueRequiringIsolation && enclInvokable != null &&
                 isReferenceToVarDefinedInSameInvokable(symbol.owner, enclInvokable.symbol)) {
-            if (this.inIsolationStartAction
+            if (this.inIsolatedStartAction
                     && !isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(symbol.owner, symbol.getType())) {
                 inferredIsolated = false;
             }
@@ -2101,10 +2101,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isolatedFunctionCall) {
-            boolean prevInIsolationStartAction = this.inIsolationStartAction;
-            this.inIsolationStartAction = inStartAction;
+            boolean prevInIsolationStartAction = this.inIsolatedStartAction;
+            this.inIsolatedStartAction = inStartAction;
             analyzeArgIsolatedness(invocationExpr, requiredArgs, restArgs, symbol, expectsIsolation);
-            this.inIsolationStartAction = prevInIsolationStartAction;
+            this.inIsolatedStartAction = prevInIsolationStartAction;
             return;
         }
 
@@ -2358,9 +2358,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                                                 int reqArgCount, BLangRestArgsExpression varArg, BType varArgType,
                                                 Location varArgPos) {
         BLangExpression varArgExpr = varArg.expr;
-        if (varArgType.tag != TypeTags.RECORD) {
-            return;
-        }
         
         // type cast required for rest args as record literal
         boolean recordLiteralVarArg = varArgExpr.getKind() == NodeKind.TYPE_CONVERSION_EXPR;
@@ -2462,11 +2459,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                         if (size + j > tupleIndex) {
                             break;
                         }
-                        if (size + j == tupleIndex) {
-                            pointer++;
-                            break;
-                        }
-                        pointer++;
                     }
                     arg = listConstructorExprs.get(pointer);
                     if (arg.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
