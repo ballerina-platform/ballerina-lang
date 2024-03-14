@@ -149,6 +149,7 @@ public class JvmPackageGen {
     private final Set<PackageID> dependentModules;
     private final BLangDiagnosticLog dlog;
     private final Types types;
+    public Boolean isDuplicateGeneration = false;
 
     JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog, Types types) {
         birFunctionMap = new HashMap<>();
@@ -690,8 +691,10 @@ public class JvmPackageGen {
     }
 
     private void generateDependencyList(BPackageSymbol packageSymbol)  {
-        if (packageSymbol.bir != null) {
-            generate(packageSymbol.bir, false);
+        BIRPackage birPackage = isDuplicateGeneration ? packageSymbol.duplicateBir : packageSymbol.bir;
+
+        if (birPackage != null) {
+            generate(birPackage, false);
         } else {
             for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
                 if (importPkgSymbol == null) {

@@ -59,16 +59,16 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
-    public CompiledJarFile generate(BLangPackage bLangPackage) {
+    public CompiledJarFile generate(BLangPackage bLangPackage, Boolean isDuplicateGeneration) {
         // generate module
-        return generate(bLangPackage.symbol);
+        return generate(bLangPackage.symbol, isDuplicateGeneration);
     }
 
     public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage) {
-        return generate(bLangTestablePackage.symbol);
+        return generate(bLangTestablePackage.symbol, false);
     }
 
-    private CompiledJarFile generate(BPackageSymbol packageSymbol) {
+    private CompiledJarFile generate(BPackageSymbol packageSymbol, Boolean isDuplicateGeneration) {
         // Desugar BIR to include the observations
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
@@ -78,6 +78,9 @@ public class CodeGenerator {
 
         dlog.setCurrentPackageId(packageSymbol.pkgID);
         final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types);
+        if (isDuplicateGeneration) {
+            jvmPackageGen.isDuplicateGeneration = true;
+        }
 
         //Rewrite identifier names with encoding special characters
         HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
