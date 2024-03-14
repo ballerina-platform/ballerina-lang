@@ -16,8 +16,10 @@
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -34,6 +36,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.ReturnStatementFinder;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -154,27 +157,37 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
             returnStatementFinder.visit(funcDef.get());
             List<ReturnStatementNode> nodeList = returnStatementFinder.getNodeList();
 
+            CheckExprNodeFinder checkExprNodeFinder = new CheckExprNodeFinder();
+            funcDef.get().accept(checkExprNodeFinder);
+            boolean containCheckExprNode = checkExprNodeFinder.containCheckExprNode();
+
             for (ReturnStatementNode returnStatementNode : nodeList) {
                 if (returnStatementNode.expression().isEmpty() || context.currentSemanticModel().isEmpty()) {
                     return Collections.emptyList();
                 }
                 ExpressionNode expression = returnStatementNode.expression().get();
                 SemanticModel semanticModel = context.currentSemanticModel().get();
-                Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expression);
-                if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                Optional<TypeSymbol> typeSymbolOptional = semanticModel.typeOf(expression);
+                if (typeSymbolOptional.isEmpty() || typeSymbolOptional.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
                     return Collections.emptyList();
                 }
-                if (typeSymbol.get().typeKind() == TypeDescKind.FUNCTION) {
-                    combinedTypes.add(Collections.singletonList("(" + CodeActionUtil.getPossibleTypes(typeSymbol.get(),
+                TypeSymbol typeSymbol = typeSymbolOptional.get();
+                if (typeSymbol.typeKind() == TypeDescKind.FUNCTION) {
+                    combinedTypes.add(Collections.singletonList("(" + CodeActionUtil.getPossibleTypes(typeSymbol,
                             importEdits, context).get(0) + ")"));
                 } else {
-                    combinedTypes.add(CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context));
+                    TypeSymbol tSymbol = typeSymbol;
+                    if (containCheckExprNode) {
+                        tSymbol = CommonUtil.removeErrorTypes(typeSymbol, semanticModel.types());
+                        if (tSymbol == null) {
+                            continue;
+                        }
+                    }
+                    combinedTypes.add(CodeActionUtil.getPossibleTypes(tSymbol, importEdits, context));
                 }
             }
             
-            CheckExprNodeFinder checkExprNodeFinder = new CheckExprNodeFinder();
-            funcDef.get().accept(checkExprNodeFinder);
-            if (checkExprNodeFinder.containCheckExprNode()) {
+            if (containCheckExprNode) {
                 combinedTypes.add(Collections.singletonList("error"));
             }
 
