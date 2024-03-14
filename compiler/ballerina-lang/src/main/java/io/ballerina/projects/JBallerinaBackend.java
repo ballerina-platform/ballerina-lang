@@ -83,6 +83,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -175,6 +176,9 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
 
+        if (this.packageContext.project().buildOptions().optimizeCodegen() && !this.packageContext.project().buildOptions().skipTests()) {
+            markTestDependenciesForDuplicateBIRGen();
+        }
         List<Diagnostic> diagnostics = new ArrayList<>();
         // add package resolution diagnostics
         diagnostics.addAll(this.packageContext.getResolution().diagnosticResult().allDiagnostics);
@@ -257,6 +261,35 @@ public class JBallerinaBackend extends CompilerBackend {
 
         long endTime = System.currentTimeMillis();
         System.out.println("Duration for unused BIR node analysis : " + (endTime - startTime) + "ms");
+    }
+
+    private void markTestDependenciesForDuplicateBIRGen() {
+        for (int i = pkgResolution.topologicallySortedModuleList().size() - 1; i >= 0; i--) {
+            ModuleContext moduleContext = pkgResolution.topologicallySortedModuleList().get(i);
+            if (isRootModule(moduleContext)) {
+                BLangPackage bLangPackage = moduleContext.bLangPackage();
+                Set<BPackageSymbol> buildPkgDependencies = new HashSet<>();
+                Set<BPackageSymbol> testablePkgDependencies = new HashSet<>();
+
+                if (bLangPackage.hasTestablePackage()) {
+                    collectDependencies(bLangPackage.symbol, buildPkgDependencies);
+                    collectDependencies(bLangPackage.getTestablePkg().symbol, testablePkgDependencies);
+
+                    buildPkgDependencies.stream()
+                            .filter(testablePkgDependencies::contains)
+                            .forEach(pkgSymbol -> pkgSymbol.shouldGenerateDuplicateBIR = true);
+                }
+                return;
+            }
+        }
+    }
+
+    private void collectDependencies(BPackageSymbol pkgSymbol, Set<BPackageSymbol> currentDependencies) {
+        pkgSymbol.imports.forEach(dependency->{
+            if (currentDependencies.add(dependency)) {
+                collectDependencies(dependency, currentDependencies);
+            }
+        });
     }
 
     private void optimizeUnusedBIRPackages() {
@@ -485,7 +518,11 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
         boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
-        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, isRemoteMgtEnabled);
+        // FIXME: 
+        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, isRemoteMgtEnabled, false);
+        if (compiledJarFile == null) {
+            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
+        }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
             ByteArrayOutputStream byteStream = compiledJarFile.toByteArrayStream();
@@ -519,6 +556,30 @@ public class JBallerinaBackend extends CompilerBackend {
 
     public void performOptimizedCodeGen(ModuleContext moduleContext) {
         BLangPackage bLangPackage = moduleContext.bLangPackage();
+
+        if (bLangPackage.symbol.shouldGenerateDuplicateBIR) {
+            // Duplicate codegen
+            BIRNode.BIRPackage optimizableBirPkg = bLangPackage.symbol.bir;
+            bLangPackage.symbol.bir = bLangPackage.symbol.duplicateBir;
+            interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
+            if (bLangPackage.getErrorCount() > 0) {
+                return;
+            }
+            CompiledJarFile originalJarFile = jvmCodeGenerator.generate(bLangPackage, true);
+            bLangPackage.symbol.bir = optimizableBirPkg;
+
+            if (originalJarFile == null) {
+                throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
+            }
+            String jarFileName = "UNOPTIMIZED_" + getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
+            try {
+                ByteArrayOutputStream byteStream = JarWriter.write(originalJarFile, getResources(moduleContext));
+                moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, jarFileName, byteStream);
+            } catch (IOException e) {
+                throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
+            }
+        }
+
         long birOptimizeDeletionTimeStart = System.currentTimeMillis();
         optimizeBirPackage(bLangPackage.symbol);
         long birOptimizeDeletionTimeEnd = System.currentTimeMillis();
@@ -528,7 +589,7 @@ public class JBallerinaBackend extends CompilerBackend {
         if (bLangPackage.getErrorCount() > 0) {
             return;
         }
-        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage);
+        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, false);
         if (compiledJarFile == null) {
             throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }

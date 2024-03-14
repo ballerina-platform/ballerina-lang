@@ -151,6 +151,7 @@ public class JvmPackageGen {
     private final BLangDiagnosticLog dlog;
     private final Types types;
     private final boolean isRemoteMgtEnabled;
+    public Boolean isDuplicateGeneration = false;
 
     JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog, Types types,
                   boolean isRemoteMgtEnabled) {
@@ -695,7 +696,28 @@ public class JvmPackageGen {
         }
     }
 
-    CompiledJarFile generate(BIRPackage module) {
+    private void generateDependencyList(BPackageSymbol packageSymbol)  {
+        BIRPackage birPackage = isDuplicateGeneration ? packageSymbol.duplicateBir : packageSymbol.bir;
+
+        if (birPackage != null) {
+            generate(birPackage, false);
+        } else {
+            for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
+                if (importPkgSymbol == null) {
+                    continue;
+                }
+                generateDependencyList(importPkgSymbol);
+            }
+        }
+        dependentModules.add(packageSymbol.pkgID);
+    }
+
+    CompiledJarFile generate(BIRPackage module, boolean isEntry) {
+        if (dependentModules.contains(module.packageID)) {
+            return null;
+        }
+        Set<PackageID> moduleImports = new LinkedHashSet<>();
+        addBuiltinImports(module.packageID, moduleImports);
         boolean serviceEPAvailable = module.isListenerAvailable;
         for (BIRNode.BIRImportModule importModule : module.importModules) {
             BPackageSymbol pkgSymbol = packageCache.getSymbol(

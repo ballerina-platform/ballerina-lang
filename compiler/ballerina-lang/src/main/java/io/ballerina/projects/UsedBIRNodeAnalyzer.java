@@ -514,7 +514,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         protected void addToUsedPool(BIRNode.BIRFunction birFunction) {
             if (this.unusedFunctions.remove(birFunction)) {
                 this.usedFunctions.add(birFunction);
-            } else {
+            } else if (this.testablePkgInvocationData != null){
                 this.testablePkgInvocationData.unusedFunctions.remove(birFunction);
                 this.testablePkgInvocationData.usedFunctions.add(birFunction);
             }
@@ -538,7 +538,56 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         protected Collection<FunctionPointerData> getFpDataPool() {
-            return this.varDeclWiseFPDataPool.values();
+            return this.FPDataPool;
+        }
+
+        public void emitInvocationData(File file) {
+            try {
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+                out.newLine();
+                out.write("/".repeat(60));
+                out.write("/".repeat(60));
+
+                out.newLine();
+                out.write("Used Functions");
+                out.newLine();
+
+                for (BIRNode.BIRFunction function : usedFunctions) {
+                    out.write(function.originalName.value);
+                    out.newLine();
+                }
+
+                out.newLine();
+                out.write("-".repeat(60));
+                out.newLine();
+                out.write("Deleted functions");
+                for (BIRNode.BIRFunction function : unusedFunctions) {
+                    out.write(function.originalName.value);
+                    out.newLine();
+                }
+
+                out.newLine();
+                out.write("-".repeat(60));
+                out.newLine();
+                out.write("Used Type definitions");
+                for (BIRNode.BIRTypeDefinition typeDef : usedTypeDefs) {
+                    out.write(typeDef.originalName.value);
+                    out.newLine();
+                }
+
+                out.newLine();
+                out.write("-".repeat(60));
+                out.newLine();
+                out.write("Deleted Type definitions");
+                for (BIRNode.BIRTypeDefinition typeDef : unusedTypeDefs) {
+                    out.write(typeDef.originalName.value);
+                    out.newLine();
+                }
+
+                out.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -56,6 +55,8 @@ public class BPackageSymbol extends BTypeSymbol {
 
     // TODO Temporary mechanism to hold a reference to the generated bir model
     public BIRNode.BIRPackage bir;   // TODO try to remove this
+    public Boolean shouldGenerateDuplicateBIR = false;
+    public BIRNode.BIRPackage duplicateBir;
     public BIRPackageFile birPackageFile;
 
     // TODO Refactor following two flags

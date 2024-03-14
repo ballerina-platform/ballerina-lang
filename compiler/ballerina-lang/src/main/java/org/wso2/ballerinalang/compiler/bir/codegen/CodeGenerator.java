@@ -58,16 +58,17 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
-    public CompiledJarFile generate(BLangPackage bLangPackage, boolean isRemoteMgtEnabled) {
+    public CompiledJarFile generate(BLangPackage bLangPackage, boolean isRemoteMgtEnabled, boolean isDuplicateGeneration) {
         // generate module
-        return generate(bLangPackage.symbol, isRemoteMgtEnabled);
+        return generate(bLangPackage.symbol, isRemoteMgtEnabled, isDuplicateGeneration);
     }
 
-    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage, boolean isRemoteMgtEnabled) {
-        return generate(bLangTestablePackage.symbol, isRemoteMgtEnabled);
+    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage, boolean isRemoteMgtEnabled, 
+                                              boolean isDuplicateGeneration) {
+        return generate(bLangTestablePackage.symbol, isRemoteMgtEnabled, isDuplicateGeneration);
     }
 
-    private CompiledJarFile generate(BPackageSymbol packageSymbol, boolean isRemoteMgtEnabled) {
+    private CompiledJarFile generate(BPackageSymbol packageSymbol, boolean isRemoteMgtEnabled, boolean isDuplicateGeneration) {
         // Desugar BIR to include the observations
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
@@ -76,8 +77,11 @@ public class CodeGenerator {
         BIRGenUtils.rearrangeBasicBlocks(packageSymbol.bir);
 
         dlog.setCurrentPackageId(packageSymbol.pkgID);
-        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types,
+        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types, 
                 isRemoteMgtEnabled);
+        if (isDuplicateGeneration) {
+            jvmPackageGen.isDuplicateGeneration = true;
+        }
 
         //Rewrite identifier names with encoding special characters
         HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
