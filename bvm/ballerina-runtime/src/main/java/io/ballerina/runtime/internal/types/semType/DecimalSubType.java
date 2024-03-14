@@ -43,8 +43,8 @@ public class DecimalSubType implements SubType {
                 return NOTHING;
             }
         }
-        BigDecimal[] sortedValues = Arrays.stream(values).sorted().toArray(BigDecimal[]::new);
-        return new DecimalSubType(new DecimalSubTypeData(allowed, sortedValues));
+        Arrays.sort(values);
+        return new DecimalSubType(new DecimalSubTypeData(allowed, values));
     }
 
     @Override

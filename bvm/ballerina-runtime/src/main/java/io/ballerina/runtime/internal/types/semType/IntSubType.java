@@ -54,13 +54,12 @@ public class IntSubType implements SubType {
     private final static IntSubType NOTHING = new IntSubType(AllOrNothing.NOTHING);
 
     public static IntSubType createIntSubType(List<Long> values) {
-        List<Long> sortedValues = new ArrayList<>(values);
-        Collections.sort(sortedValues);
+        Collections.sort(values);
         List<IntSubType.Range> ranges = new ArrayList<>();
-        long start = sortedValues.get(0);
+        long start = values.get(0);
         long end = start;
-        for (int i = 1; i < sortedValues.size(); i++) {
-            long value = sortedValues.get(i);
+        for (int i = 1; i < values.size(); i++) {
+            long value = values.get(i);
             if (value == end + 1) {
                 end = value;
             } else {

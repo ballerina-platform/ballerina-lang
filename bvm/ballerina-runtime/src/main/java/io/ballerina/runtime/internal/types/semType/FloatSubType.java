@@ -42,8 +42,8 @@ public class FloatSubType implements SubType {
                 return NOTHING;
             }
         }
-        Double[] sortedValues = Arrays.stream(values).sorted().toArray(Double[]::new);
-        return new FloatSubType(new FloatSubTypeData(allowed, sortedValues));
+        Arrays.sort(values);
+        return new FloatSubType(new FloatSubTypeData(allowed, values));
     }
 
     @Override

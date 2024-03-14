@@ -130,9 +130,8 @@ public final class SemTypeUtils {
         }
 
         public static BSemType intSubType(List<Long> values) {
-            List<Long> sortedValues = new ArrayList<>(values);
-            Collections.sort(sortedValues);
-            List<IntSubType.Range> ranges = getRanges(sortedValues);
+            Collections.sort(values);
+            List<IntSubType.Range> ranges = getRanges(values);
             int all = 0;
             int some = 1 << BT_INT;
             SubType[] subTypeData = new SubType[N_TYPES];
@@ -316,7 +315,7 @@ public final class SemTypeUtils {
             ValueAccumulator<Double> floatAcc = new ValueAccumulator<>(BT_FLOAT,
                     (acc) -> FloatSubType.createFloatSubType(true, acc.values.toArray(new Double[0])));
             ValueAccumulator<Long> intAcc = new ValueAccumulator<>(BT_INT,
-                    (acc) -> IntSubType.createIntSubType(acc.values.stream().toList()));
+                    (acc) -> IntSubType.createIntSubType(new ArrayList<>(acc.values)));
 
             ValueAccumulator[] accumulators = {bTypeAcc, decimalAcc, floatAcc, intAcc};
 

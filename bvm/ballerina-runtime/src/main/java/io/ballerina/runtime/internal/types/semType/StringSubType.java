@@ -44,10 +44,10 @@ public class StringSubType implements SubType {
                 return NOTHING;
             }
         }
-        String[] sortedChars = Arrays.stream(chars).sorted().toArray(String[]::new);
-        String[] sortedNonChars = Arrays.stream(nonChars).sorted().toArray(String[]::new);
-        ValueData charValues = new ValueData(charsAllowed, sortedChars);
-        ValueData nonCharValues = new ValueData(nonCharsAllowed, sortedNonChars);
+        Arrays.sort(chars);
+        Arrays.sort(nonChars);
+        ValueData charValues = new ValueData(charsAllowed, chars);
+        ValueData nonCharValues = new ValueData(nonCharsAllowed, nonChars);
         StringSubTypeData data = new StringSubTypeData(charValues, nonCharValues);
         return new StringSubType(data);
     }
@@ -56,11 +56,6 @@ public class StringSubType implements SubType {
     String defaultValue() {
         if (data instanceof AllOrNothing) {
             return "";
-//            if (data == AllOrNothing.ALL) {
-//                return "";
-//            } else {
-//                return null;
-//            }
         }
         StringSubTypeData stringData = (StringSubTypeData) data;
         ValueData chars = stringData.chars;
@@ -71,7 +66,6 @@ public class StringSubType implements SubType {
             return nonChars.values[0];
         }
         return "";
-        // return null;
     }
 
     @Override
