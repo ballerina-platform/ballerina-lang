@@ -254,13 +254,13 @@ public class TransactionResourceManager {
      * @return int checkpoint interval
      */
     private Integer getCheckpointInterval() {
-        VariableKey recoveryLogNameKey =
+        VariableKey checkpointIntervalKey =
                 new VariableKey(TRANSACTION_PACKAGE_ID, "checkpointInterval", PredefinedTypes.TYPE_INT, false);
-        if (!ConfigMap.containsKey(recoveryLogNameKey)) {
+        if (!ConfigMap.containsKey(checkpointIntervalKey)) {
             return DEFAULT_CHECKPOINT_INTERVAL;
         } else {
             int checkpointInterval;
-            Object value = ConfigMap.get(recoveryLogNameKey);
+            Object value = ConfigMap.get(checkpointIntervalKey);
             if (value instanceof Long) {
                 checkpointInterval = ((Long) value).intValue();
             } else if (value instanceof Integer) {
