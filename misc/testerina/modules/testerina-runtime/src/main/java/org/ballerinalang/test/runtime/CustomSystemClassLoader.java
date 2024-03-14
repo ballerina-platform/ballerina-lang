@@ -34,7 +34,7 @@ import java.util.Objects;
 public class CustomSystemClassLoader extends ClassLoader {
 
     private final HashMap<String, byte[]> modifiedClassDefs;
-    private final List<String> excludingClasses = new ArrayList<>();
+    private final List<String> excludedClasses = new ArrayList<>();
 
     public CustomSystemClassLoader() {
         super(getSystemClassLoader());
@@ -48,10 +48,10 @@ public class CustomSystemClassLoader extends ClassLoader {
             BufferedReader br = new BufferedReader(new InputStreamReader(Objects.requireNonNull(is)))) {
             String line;
             while ((line = br.readLine()) != null) {
-                excludingClasses.add(line);
+                excludedClasses.add(line);
             }
         } catch (NullPointerException | IOException e) {
-            throw new RuntimeException("Error reading excludingClasses.txt", e);
+            throw new RuntimeException("Error reading " + ProjectConstants.EXCLUDED_CLASSES_FILE, e);
         }
     }
 
@@ -75,8 +75,8 @@ public class CustomSystemClassLoader extends ClassLoader {
             return super.loadClass(name);
         }
 
-        // If the class is in not in the excludingClasses list, delegate the classloading to the system classloader
-        if (!excludingClasses.contains(name)) {
+        // If the class is in not in the excludedClasses list, delegate the classloading to the system classloader
+        if (!excludedClasses.contains(name)) {
             return super.loadClass(name);
         }
         return findClass(name);
