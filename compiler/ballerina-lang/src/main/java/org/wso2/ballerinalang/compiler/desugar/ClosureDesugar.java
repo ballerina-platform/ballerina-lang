@@ -748,9 +748,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private BLangAssignment createAssignmentToClosureMap(BLangSimpleVariableDef varDefNode) {
         int absoluteLevel = findResolvedLevel(env, varDefNode.var.symbol);
         BVarSymbol mapSymbol = findClosureMapSymbol(absoluteLevel);
-        if (mapSymbol == null) {
-            mapSymbol = createMapSymbolIfAbsent(env.node, blockClosureMapCount);
-        }
         // Add the variable to the created map.
         BLangIndexBasedAccess accessExpr =
                 ASTBuilderUtil.createIndexBasesAccessExpr(varDefNode.pos, varDefNode.getBType(), mapSymbol,
@@ -766,15 +763,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private BVarSymbol findClosureMapSymbol(int absoluteLevel) {
         SymbolEnv symbolEnv = env;
         NodeKind nodeKind = symbolEnv.node.getKind();
-        BVarSymbol mapSymbol = null;
-        while (symbolEnv != null && nodeKind != NodeKind.PACKAGE) {
+        while (nodeKind != NodeKind.PACKAGE) {
             if (symbolEnv.envCount == absoluteLevel) {
-                mapSymbol = createMapSymbolIfAbsent(symbolEnv.node, symbolEnv.envCount);
+                return createMapSymbolIfAbsent(symbolEnv.node, symbolEnv.envCount);
             }
             symbolEnv = symbolEnv.enclEnv;
             nodeKind = symbolEnv.node.getKind();
         }
-        return mapSymbol;
+        throw new IllegalStateException("Failed to find the closure symbol defined scope");
     }
 
     private BVarSymbol createMapSymbolIfAbsent(BLangNode node, int closureMapCount) {
