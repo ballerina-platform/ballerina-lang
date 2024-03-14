@@ -668,12 +668,7 @@ public class JvmTypeGen {
         if (type.tag != TypeTags.CHAR_STRING) {
             throw new UnsupportedOperationException("Type loading is not supported for type: " + type);
         }
-        mv.visitTypeInsn(NEW, STRING_SUBTYPE_DATA);
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, STRING_SUBTYPE_DATA, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
-        stringSubtypeDataBuilderHelper(mv, List.of(), "excludeChars");
-        stringSubtypeDataBuilderHelper(mv, List.of(), "includeStrings");
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "stringSubType", STRING_SUBTYPE_BUILDER_DESCRIPTOR, false);
+        loadStringSubTypeUsingTypeBuilderInner(mv, false, List.of(), true, List.of());
     }
 
     private static void loadStringSubTypeUsingTypeBuilderInner(MethodVisitor mv, boolean allowChars, List<String> chars,
@@ -682,7 +677,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, STRING_SUBTYPE_DATA, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         stringSubtypeDataBuilderHelper(mv, chars, allowChars ? "includeChars" : "excludeChars");
-        stringSubtypeDataBuilderHelper(mv, nonChars, allowNonChars ? "includeStrings" : "excludeStrings");
+        stringSubtypeDataBuilderHelper(mv, nonChars, allowNonChars ? "includeNonChars" : "excludeNonChars");
         mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "stringSubType", STRING_SUBTYPE_BUILDER_DESCRIPTOR, false);
     }
 

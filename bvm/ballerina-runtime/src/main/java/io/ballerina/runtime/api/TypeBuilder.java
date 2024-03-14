@@ -128,7 +128,7 @@ public final class TypeBuilder {
     static final Type INT_SIGNED_8 = intSubType(-128, 127);
     static final Type INT_SIGNED_16 = intSubType(-32768, 32767);
     static final Type INT_SIGNED_32 = intSubType(-2147483648, 2147483647);
-    static final Type STRING_CHAR = stringSubType(new StringSubtypeData().includeStrings().excludeChars());
+    static final Type STRING_CHAR = stringSubType(new StringSubtypeData().includeNonChars().excludeChars());
 
     // Basic Types
     public static Type neverType() {
@@ -478,11 +478,11 @@ public final class TypeBuilder {
     }
 
     public static Type stringSubType(StringSubtypeData data) {
-        if (data.stringPositive && data.strings.length == 0 && !(data.includingChars) && data.chars.length == 0) {
+        if (data.nonCharsAllowed && data.nonChars.length == 0 && !(data.charsAllowed) && data.chars.length == 0) {
             return TypeCache.TYPE_STRING_CHAR;
         }
-        return SemTypeUtils.SemTypeBuilder.stringSubType(data.includingChars, data.chars, data.stringPositive,
-                data.strings);
+        return SemTypeUtils.SemTypeBuilder.stringSubType(data.charsAllowed, data.chars, data.nonCharsAllowed,
+                data.nonChars);
     }
 
     // TODO: consider
@@ -716,25 +716,23 @@ public final class TypeBuilder {
 
     public final static class StringSubtypeData {
 
-        // TODO: fix field names
-        // If true chars are the set of chars included in the set else it's the set of chars excluded from the set
-        private boolean includingChars;
-        private boolean stringPositive;
+        private boolean charsAllowed;
+        private boolean nonCharsAllowed;
         private String[] chars; // Java char can't represent unicode values
-        private String[] strings;
+        private String[] nonChars;
 
         public StringSubtypeData() {
-            this.includingChars = false;
-            this.stringPositive = false;
+            this.charsAllowed = false;
+            this.nonCharsAllowed = false;
             this.chars = null;
-            this.strings = null;
+            this.nonChars = null;
         }
 
-        public StringSubtypeData includeStrings(String... values) {
+        public StringSubtypeData includeNonChars(String... values) {
             return setStringState(true, values);
         }
 
-        public StringSubtypeData excludeStrings(String... values) {
+        public StringSubtypeData excludeNonChars(String... values) {
             return setStringState(false, values);
         }
 
@@ -746,24 +744,22 @@ public final class TypeBuilder {
             return setCharState(false, values);
         }
 
-        private StringSubtypeData setStringState(boolean includingStrings, String[] strings) {
-            if (this.strings != null) {
+        private StringSubtypeData setStringState(boolean nonCharsAllowed, String[] nonChars) {
+            if (this.nonChars != null) {
                 throw new UnsupportedOperationException("Can't include and exclude strings at the same time");
             }
-            this.stringPositive = includingStrings;
-            this.strings = strings;
+            this.nonCharsAllowed = nonCharsAllowed;
+            this.nonChars = nonChars;
             return this;
         }
 
-        private StringSubtypeData setCharState(boolean includingChars, String[] chars) {
+        private StringSubtypeData setCharState(boolean charsAllowed, String[] chars) {
             if (this.chars != null) {
                 throw new UnsupportedOperationException("Can't include and exclude chars at the same time");
             }
-            this.includingChars = includingChars;
+            this.charsAllowed = charsAllowed;
             this.chars = chars;
             return this;
         }
-
-        // TODO: this will have a method to get ProperSubtypeData
     }
 }
