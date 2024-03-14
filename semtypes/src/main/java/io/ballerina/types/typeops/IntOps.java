@@ -82,7 +82,8 @@ public class IntOps implements BasicTypeOps {
 
     static boolean intSubtypeOverlapRange(IntSubtype subtype, Range range) {
         SubtypeData subtypeData = intOpsInstance.intersect(subtype, IntSubtype.createIntSubtype(range));
-        return !(subtypeData instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) subtypeData).isNothingSubtype());
+        return !(subtypeData instanceof AllOrNothingSubtype allOrNothingSubtype &&
+                allOrNothingSubtype.isNothingSubtype());
     }
 
     public static long intSubtypeMax(IntSubtype subtype) {

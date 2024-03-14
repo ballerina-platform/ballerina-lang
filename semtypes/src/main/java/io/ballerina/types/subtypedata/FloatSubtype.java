@@ -70,8 +70,8 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
     }
 
     public static boolean floatSubtypeContains(SubtypeData d, EnumerableFloat f) {
-        if (d instanceof AllOrNothingSubtype) {
-            return ((AllOrNothingSubtype) d).isAllSubtype();
+        if (d instanceof AllOrNothingSubtype allOrNothingSubtype) {
+            return allOrNothingSubtype.isAllSubtype();
         }
 
         FloatSubtype v = (FloatSubtype) d;

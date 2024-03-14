@@ -199,8 +199,8 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
     }
 
     public static SemType bddMappingMemberType(Context cx, Bdd b, SubtypeData key, SemType accum)  {
-        if (b instanceof BddAllOrNothing) {
-            return ((BddAllOrNothing) b).isAll() ? accum : NEVER;
+        if (b instanceof BddAllOrNothing allOrNothing) {
+            return allOrNothing.isAll() ? accum : NEVER;
         } else {
             BddNode bdd = (BddNode) b;
             return Core.union(
@@ -242,8 +242,8 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
 
 
     public static boolean bddMappingMemberRequired(Context cx, Bdd b, StringSubtype k, boolean requiredOnPath) {
-        if (b instanceof BddAllOrNothing) {
-            return ((BddAllOrNothing) b).isAll() ? requiredOnPath : true;
+        if (b instanceof BddAllOrNothing allOrNothing) {
+            return !allOrNothing.isAll() || requiredOnPath;
         } else {
             BddNode bdd = (BddNode) b;
             return bddMappingMemberRequired(cx, bdd.left, k,

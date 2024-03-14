@@ -48,8 +48,8 @@ public class Common {
                                    Conjunction pos,
                                    Conjunction neg,
                                    BddPredicate predicate) {
-        if (b instanceof BddAllOrNothing) {
-            return !((BddAllOrNothing) b).isAll() || predicate.apply(cx, pos, neg);
+        if (b instanceof BddAllOrNothing allOrNothing) {
+            return !allOrNothing.isAll() || predicate.apply(cx, pos, neg);
         } else {
             BddNode bn = (BddNode) b;
             return bddEvery(cx, bn.left, and(bn.atom, pos), neg, predicate)
@@ -60,8 +60,8 @@ public class Common {
 
     public static boolean bddEveryPositive(Context cx, Bdd b, Conjunction pos, Conjunction neg,
                                            BddPredicate predicate) {
-        if (b instanceof BddAllOrNothing) {
-            return !((BddAllOrNothing) b).isAll() || predicate.apply(cx, pos, neg);
+        if (b instanceof BddAllOrNothing allOrNothing) {
+            return !allOrNothing.isAll() || predicate.apply(cx, pos, neg);
         } else {
             BddNode bn = (BddNode) b;
             return bddEveryPositive(cx, bn.left, andIfPositive(bn.atom, pos), neg, predicate)
@@ -71,7 +71,7 @@ public class Common {
     }
 
     public static Conjunction andIfPositive(Atom atom, Conjunction next) {
-        if (atom instanceof RecAtom && ((RecAtom) atom).index < 0) {
+        if (atom instanceof RecAtom recAtom && recAtom.index < 0) {
             return next;
         }
         return and(atom, next);
@@ -135,7 +135,7 @@ public class Common {
 
 
     public static boolean isNothingSubtype(SubtypeData data) {
-        return data instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) data).isNothingSubtype();
+        return data instanceof AllOrNothingSubtype allOrNothingSubtype && allOrNothingSubtype.isNothingSubtype();
     }
 
     /**

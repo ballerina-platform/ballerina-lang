@@ -91,22 +91,22 @@ public final class Core {
         BasicTypeBitSet some1;
         BasicTypeBitSet some2;
 
-        if (t1 instanceof BasicTypeBitSet) {
-            if (t2 instanceof BasicTypeBitSet) {
-                return BasicTypeBitSet.from(((BasicTypeBitSet) t1).bitset | ((BasicTypeBitSet) t2).bitset);
+        if (t1 instanceof BasicTypeBitSet b1) {
+            if (t2 instanceof BasicTypeBitSet b2) {
+                return BasicTypeBitSet.from(b1.bitset | b2.bitset);
             } else {
                 ComplexSemType complexT2 = (ComplexSemType) t2;
                 all2 = complexT2.all;
                 some2 = complexT2.some;
             }
-            all1 = (BasicTypeBitSet) t1;
+            all1 = b1;
             some1 = BasicTypeBitSet.from(0);
         } else {
             ComplexSemType complexT1 = (ComplexSemType) t1;
             all1 = complexT1.all;
             some1 = complexT1.some;
-            if (t2 instanceof BasicTypeBitSet) {
-                all2 = ((BasicTypeBitSet) t2);
+            if (t2 instanceof BasicTypeBitSet b2) {
+                all2 = b2;
                 some2 = BasicTypeBitSet.from(0);
             } else {
                 ComplexSemType complexT2 = (ComplexSemType) t2;
@@ -137,7 +137,7 @@ public final class Core {
                 data = OpsTable.OPS[code.code].union(data1, data2);
             }
 
-            if (data instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) data).isAllSubtype()) {
+            if (data instanceof AllOrNothingSubtype  allOrNothingSubtype && allOrNothingSubtype.isAllSubtype()) {
                 int c = code.code;
                 all = BasicTypeBitSet.from(all.bitset | 1 << c);
             } else {
@@ -158,34 +158,34 @@ public final class Core {
         BasicTypeBitSet some1;
         BasicTypeBitSet some2;
 
-        if (t1 instanceof BasicTypeBitSet) {
-            if (t2 instanceof BasicTypeBitSet) {
-                return BasicTypeBitSet.from(((BasicTypeBitSet) t1).bitset & ((BasicTypeBitSet) t2).bitset);
+        if (t1 instanceof BasicTypeBitSet b1) {
+            if (t2 instanceof BasicTypeBitSet b2) {
+                return BasicTypeBitSet.from(b1.bitset & b2.bitset);
             } else {
-                if (((BasicTypeBitSet) t1).bitset == 0) {
+                if (b1.bitset == 0) {
                     return t1;
                 }
-                if (((BasicTypeBitSet) t1).bitset == BasicTypeCode.VT_MASK) {
+                if (b1.bitset == BasicTypeCode.VT_MASK) {
                     return t2;
                 }
                 ComplexSemType complexT2 = (ComplexSemType) t2;
                 all2 = complexT2.all;
                 some2 = complexT2.some;
             }
-            all1 = (BasicTypeBitSet) t1;
+            all1 = b1;
             some1 = BasicTypeBitSet.from(0);
         } else {
             ComplexSemType complexT1 = (ComplexSemType) t1;
             all1 = complexT1.all;
             some1 = complexT1.some;
-            if (t2 instanceof BasicTypeBitSet) {
-                if (((BasicTypeBitSet) t2).bitset == 0) {
+            if (t2 instanceof BasicTypeBitSet b2) {
+                if (b2.bitset == 0) {
                     return t2;
                 }
-                if (((BasicTypeBitSet) t2).bitset == BasicTypeCode.VT_MASK) {
+                if (b2.bitset == BasicTypeCode.VT_MASK) {
                     return t1;
                 }
-                all2 = (BasicTypeBitSet) t2;
+                all2 = b2;
                 some2 = BasicTypeBitSet.from(0);
             } else {
                 ComplexSemType complexT2 = (ComplexSemType) t2;
@@ -216,7 +216,7 @@ public final class Core {
             } else {
                 data = OpsTable.OPS[code.code].intersect(data1, data2);
             }
-            if (!(data instanceof AllOrNothingSubtype) || ((AllOrNothingSubtype) data).isAllSubtype()) {
+            if (!(data instanceof AllOrNothingSubtype allOrNothingSubtype) || allOrNothingSubtype.isAllSubtype()) {
                 subtypes.add(BasicSubtype.from(code, (ProperSubtypeData) data));
             }
         }
@@ -240,25 +240,25 @@ public final class Core {
         BasicTypeBitSet some1;
         BasicTypeBitSet some2;
 
-        if (t1 instanceof BasicTypeBitSet) {
-            if (t2 instanceof BasicTypeBitSet) {
-                return BasicTypeBitSet.from(((BasicTypeBitSet) t1).bitset & ~((BasicTypeBitSet) t2).bitset);
+        if (t1 instanceof BasicTypeBitSet b1) {
+            if (t2 instanceof BasicTypeBitSet b2) {
+                return BasicTypeBitSet.from(b1.bitset & ~b2.bitset);
             } else {
-                if (((BasicTypeBitSet) t1).bitset == 0) {
+                if (b1.bitset == 0) {
                     return t1;
                 }
                 ComplexSemType complexT2 = (ComplexSemType) t2;
                 all2 = complexT2.all;
                 some2 = complexT2.some;
             }
-            all1 = (BasicTypeBitSet) t1;
+            all1 = b1;
             some1 = BasicTypeBitSet.from(0);
         } else {
             ComplexSemType complexT1 = (ComplexSemType) t1;
             all1 = complexT1.all;
             some1 = complexT1.some;
-            if (t2 instanceof BasicTypeBitSet) {
-                if (((BasicTypeBitSet) t2).bitset == BasicTypeCode.VT_MASK) {
+            if (t2 instanceof BasicTypeBitSet b2) {
+                if (b2.bitset == BasicTypeCode.VT_MASK) {
                     return BasicTypeBitSet.from(0);
                 }
                 all2 = (BasicTypeBitSet) t2;
@@ -328,12 +328,12 @@ public final class Core {
     }
 
     public static boolean isNever(SemType t) {
-        return (t instanceof BasicTypeBitSet) && (((BasicTypeBitSet) t).bitset == 0);
+        return (t instanceof BasicTypeBitSet b) && b.bitset == 0;
     }
 
     public static boolean isEmpty(Context cx, SemType t) {
-        if (t instanceof BasicTypeBitSet) {
-            return (((BasicTypeBitSet) t).bitset == 0);
+        if (t instanceof BasicTypeBitSet b) {
+            return b.bitset == 0;
         } else {
             ComplexSemType ct = (ComplexSemType) t;
             if (ct.all.bitset != 0) {
@@ -355,8 +355,8 @@ public final class Core {
 
     public static boolean isSubtypeSimple(SemType t1, BasicTypeBitSet t2) {
         int bits;
-        if (t1 instanceof BasicTypeBitSet) {
-            bits = ((BasicTypeBitSet) t1).bitset;
+        if (t1 instanceof BasicTypeBitSet b1) {
+            bits = b1.bitset;
         } else {
             ComplexSemType complexT1 = (ComplexSemType) t1;
             bits = complexT1.all.bitset | complexT1.some.bitset;
@@ -369,8 +369,8 @@ public final class Core {
     }
 
     public static BasicTypeBitSet widenToBasicTypes(SemType t) {
-        if (t instanceof BasicTypeBitSet basicTypeBitSet) {
-            return basicTypeBitSet;
+        if (t instanceof BasicTypeBitSet b) {
+            return b;
         } else {
             ComplexSemType complexSemType = (ComplexSemType) t;
             return BasicTypeBitSet.from(complexSemType.all.bitset | complexSemType.some.bitset);
@@ -423,8 +423,8 @@ public final class Core {
     // We will extend this to allow `key` to be a SemType, which will turn into an IntSubtype.
     // If `t` is not a list, NEVER is returned
     public static SemType listMemberType(Context cx, SemType t, SemType k) {
-        if (t instanceof BasicTypeBitSet basicTypeBitSet) {
-            return (basicTypeBitSet.bitset & LIST.bitset) != 0 ? TOP : NEVER;
+        if (t instanceof BasicTypeBitSet b) {
+            return (b.bitset & LIST.bitset) != 0 ? TOP : NEVER;
         } else {
             SubtypeData keyData = intSubtype(k);
             if (isNothingSubtype(keyData)) {
@@ -435,8 +435,8 @@ public final class Core {
     }
 
     public static MappingAtomicType mappingAtomicType(Context cx, SemType t) {
-        if (t instanceof BasicTypeBitSet) {
-            return ((BasicTypeBitSet) t).bitset == MAPPING.bitset ? MAPPING_ATOMIC_TOP : null;
+        if (t instanceof BasicTypeBitSet b) {
+            return b.bitset == MAPPING.bitset ? MAPPING_ATOMIC_TOP : null;
         } else {
             Env env = cx.env;
             if (!isSubtypeSimple(t, MAPPING)) {
@@ -449,8 +449,8 @@ public final class Core {
     }
 
     private static MappingAtomicType bddMappingAtomicType(Env env, Bdd bdd, MappingAtomicType top) {
-        if (bdd instanceof BddAllOrNothing) {
-            if (((BddAllOrNothing) bdd).isAll()) {
+        if (bdd instanceof BddAllOrNothing allOrNothing) {
+            if (allOrNothing.isAll()) {
                 return top;
             }
             return null;
@@ -468,8 +468,8 @@ public final class Core {
     // for when T is a subtype of mapping, and K is either `string` or a singleton string.
     // This is what Castagna calls projection.
     public static SemType mappingMemberType(Context cx, SemType t, SemType k) {
-        if (t instanceof BasicTypeBitSet) {
-            return (((BasicTypeBitSet) t).bitset & MAPPING.bitset) != 0 ? TOP : NEVER;
+        if (t instanceof BasicTypeBitSet b) {
+            return (b.bitset & MAPPING.bitset) != 0 ? TOP : NEVER;
         } else {
             SubtypeData keyData = stringSubtype(k);
             if (isNothingSubtype(keyData)) {
@@ -490,20 +490,20 @@ public final class Core {
     }
 
     public static Optional<BasicTypeBitSet> bddMappingSimpleMemberType(Env env, Bdd bdd) {
-        if (bdd instanceof BddAllOrNothing) {
-            if (((BddAllOrNothing) bdd).isAll()) {
+        if (bdd instanceof BddAllOrNothing allOrNothing) {
+            if (allOrNothing.isAll()) {
                 return Optional.of(TOP);
             }
         } else {
             BddNode bn = (BddNode) bdd;
-            if ((bn.left instanceof BddAllOrNothing && ((BddAllOrNothing) bn.left).isAll())
-                    && (bn.middle instanceof BddAllOrNothing && !((BddAllOrNothing) bn.middle).isAll())
-                    && (bn.right instanceof BddAllOrNothing && !((BddAllOrNothing) ((BddNode) bdd).right).isAll())) {
+            if ((bn.left instanceof BddAllOrNothing allOrNothingLeft && allOrNothingLeft.isAll())
+                    && (bn.middle instanceof BddAllOrNothing allOrNothingMiddle && !allOrNothingMiddle.isAll())
+                    && (bn.right instanceof BddAllOrNothing allOrNothingRight && !allOrNothingRight.isAll())) {
                 MappingAtomicType atomic = env.mappingAtomType(bn.atom);
                 if (atomic.names.length == 0) {
                     SemType memberType = atomic.rest;
-                    if (memberType instanceof BasicTypeBitSet) {
-                        return Optional.of((BasicTypeBitSet) memberType);
+                    if (memberType instanceof BasicTypeBitSet b) {
+                        return Optional.of(b);
                     }
                 }
             }
@@ -545,14 +545,14 @@ public final class Core {
             return PredefinedType.NIL;
         }
 
-        if (v instanceof Long) {
-            return IntSubtype.intConst((Long) v);
-        } else if (v instanceof Double) {
-            return FloatSubtype.floatConst((Double) v);
-        } else if (v instanceof String) {
-            return StringSubtype.stringConst((String) v);
-        } else if (v instanceof Boolean) {
-            return BooleanSubtype.booleanConst((Boolean) v);
+        if (v instanceof Long lng) {
+            return IntSubtype.intConst(lng);
+        } else if (v instanceof Double d) {
+            return FloatSubtype.floatConst(d);
+        } else if (v instanceof String s) {
+            return StringSubtype.stringConst(s);
+        } else if (v instanceof Boolean b) {
+            return BooleanSubtype.booleanConst(b);
         } else {
             throw new IllegalStateException("Unsupported type: " + v.getClass().getName());
         }
@@ -561,22 +561,22 @@ public final class Core {
     public static boolean containsConst(SemType t, Object v) {
         if (v == null) {
             return containsNil(t);
-        } else if (v instanceof Long) {
-            return containsConstInt(t, (Long) v);
-        } else if (v instanceof Double) {
-            return containsConstFloat(t, (Double) v);
-        } else if (v instanceof String) {
-            return containsConstString(t, (String) v);
-        } else if (v instanceof Boolean) {
-            return containsConstBoolean(t, (Boolean) v);
+        } else if (v instanceof Long lng) {
+            return containsConstInt(t, lng);
+        } else if (v instanceof Double d) {
+            return containsConstFloat(t, d);
+        } else if (v instanceof String s) {
+            return containsConstString(t, s);
+        } else if (v instanceof Boolean b) {
+            return containsConstBoolean(t, b);
         } else {
             return containsConstDecimal(t, (BigDecimal) v);
         }
     }
 
     public static boolean containsNil(SemType t) {
-        if (t instanceof BasicTypeBitSet) {
-            return (((BasicTypeBitSet) t).bitset & (1 << BasicTypeCode.BT_NIL.code)) != 0;
+        if (t instanceof BasicTypeBitSet b) {
+            return (b.bitset & (1 << BasicTypeCode.BT_NIL.code)) != 0;
         } else {
             // todo: Need to verify this behavior
             AllOrNothingSubtype complexSubtypeData =
@@ -587,8 +587,8 @@ public final class Core {
 
 
     public static boolean containsConstString(SemType t, String s) {
-        if (t instanceof BasicTypeBitSet) {
-            return (((BasicTypeBitSet) t).bitset & (1 << BT_STRING.code)) != 0;
+        if (t instanceof BasicTypeBitSet b) {
+            return (b.bitset & (1 << BT_STRING.code)) != 0;
         } else {
             return StringSubtype.stringSubtypeContains(
                     getComplexSubtypeData((ComplexSemType) t, BT_STRING), s);
@@ -596,8 +596,8 @@ public final class Core {
     }
 
     public static boolean containsConstInt(SemType t, long n) {
-        if (t instanceof BasicTypeBitSet) {
-            return (((BasicTypeBitSet) t).bitset & (1 << BT_INT.code)) != 0;
+        if (t instanceof BasicTypeBitSet b) {
+            return (b.bitset & (1 << BT_INT.code)) != 0;
         } else {
             return IntSubtype.intSubtypeContains(
                     getComplexSubtypeData((ComplexSemType) t, BT_INT), n);
@@ -605,8 +605,8 @@ public final class Core {
     }
 
     public static boolean containsConstFloat(SemType t, double n) {
-        if (t instanceof BasicTypeBitSet) {
-            return (((BasicTypeBitSet) t).bitset & (1 << BT_FLOAT.code)) != 0;
+        if (t instanceof BasicTypeBitSet b) {
+            return (b.bitset & (1 << BT_FLOAT.code)) != 0;
         } else {
             return FloatSubtype.floatSubtypeContains(
                     getComplexSubtypeData((ComplexSemType) t, BT_FLOAT), EnumerableFloat.from(n));
@@ -614,27 +614,27 @@ public final class Core {
     }
 
     public static boolean containsConstDecimal(SemType t, BigDecimal n) {
-        if (t instanceof BasicTypeBitSet) {
-            return (((BasicTypeBitSet) t).bitset & (1 << BT_DECIMAL.code)) != 0;
+        if (t instanceof BasicTypeBitSet b) {
+            return (b.bitset & (1 << BT_DECIMAL.code)) != 0;
         } else {
             return DecimalSubtype.decimalSubtypeContains(
                     getComplexSubtypeData((ComplexSemType) t, BT_DECIMAL), EnumerableDecimal.from(n));
         }
     }
 
-    public static boolean containsConstBoolean(SemType t, boolean b) {
-        if (t instanceof BasicTypeBitSet) {
-            return (((BasicTypeBitSet) t).bitset & (1 << BT_BOOLEAN.code)) != 0;
+    public static boolean containsConstBoolean(SemType t, boolean bool) {
+        if (t instanceof BasicTypeBitSet b) {
+            return (b.bitset & (1 << BT_BOOLEAN.code)) != 0;
         } else {
             return BooleanSubtype.booleanSubtypeContains(
-                    getComplexSubtypeData((ComplexSemType) t, BT_BOOLEAN), b);
+                    getComplexSubtypeData((ComplexSemType) t, BT_BOOLEAN), bool);
         }
     }
 
     public static Optional<BasicTypeBitSet> singleNumericType(SemType semType) {
         SemType numType = intersect(semType, PredefinedType.NUMBER);
-        if (numType instanceof BasicTypeBitSet) {
-            if (((BasicTypeBitSet) numType).bitset == NEVER.bitset) {
+        if (numType instanceof BasicTypeBitSet b) {
+            if (b.bitset == NEVER.bitset) {
                 return Optional.empty();
             }
         }
@@ -651,9 +651,8 @@ public final class Core {
     }
 
     public static SubtypeData subtypeData(SemType s, BasicTypeCode code) {
-        if (s instanceof BasicTypeBitSet) {
-            int bitset = ((BasicTypeBitSet) s).bitset;
-            if ((bitset & (1 << code.code)) != 0) {
+        if (s instanceof BasicTypeBitSet b) {
+            if ((b.bitset & (1 << code.code)) != 0) {
                 return AllOrNothingSubtype.createAll();
             }
             return AllOrNothingSubtype.createNothing();

@@ -135,8 +135,8 @@ public class IntSubtype implements ProperSubtypeData {
     }
 
     public static boolean intSubtypeContains(SubtypeData d, long n) {
-        if (d instanceof AllOrNothingSubtype) {
-            return ((AllOrNothingSubtype) d).isAllSubtype();
+        if (d instanceof AllOrNothingSubtype allOrNothingSubtype) {
+            return allOrNothingSubtype.isAllSubtype();
         }
         IntSubtype v = (IntSubtype) d;
         for (Range r : v.ranges) {

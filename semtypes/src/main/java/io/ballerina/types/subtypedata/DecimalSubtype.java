@@ -71,8 +71,8 @@ public class DecimalSubtype extends EnumerableSubtype implements ProperSubtypeDa
     }
 
     public static boolean decimalSubtypeContains(SubtypeData d, EnumerableDecimal f) {
-        if (d instanceof AllOrNothingSubtype) {
-            return ((AllOrNothingSubtype) d).isAllSubtype();
+        if (d instanceof AllOrNothingSubtype allOrNothingSubtype) {
+            return allOrNothingSubtype.isAllSubtype();
         }
 
         DecimalSubtype v = (DecimalSubtype) d;

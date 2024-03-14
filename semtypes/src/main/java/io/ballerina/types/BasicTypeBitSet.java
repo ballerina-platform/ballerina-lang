@@ -43,11 +43,10 @@ public class BasicTypeBitSet implements SemType {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof BasicTypeBitSet)) {
-            return false;
+        if (o instanceof BasicTypeBitSet b) {
+            return b.bitset == this.bitset;
         }
-        BasicTypeBitSet s = (BasicTypeBitSet) o;
-        return (s.bitset == this.bitset);
+        return false;
     }
 
     @Override

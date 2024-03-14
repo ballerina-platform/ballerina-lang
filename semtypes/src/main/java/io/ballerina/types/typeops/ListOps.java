@@ -352,7 +352,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
     }
 
     static SemType listAtomicMemberTypeAt(FixedLengthArray fixedArray, SemType rest, SubtypeData key) {
-        if (key instanceof IntSubtype) {
+        if (key instanceof IntSubtype intSubtype) {
             SemType m = NEVER;
             int initLen = fixedArray.initial.size();
             int fixedLen = fixedArray.fixedLength;
@@ -362,7 +362,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                         m = Core.union(m, fixedArrayGet(fixedArray, i));
                     }
                 }
-                if (intSubtypeOverlapRange((IntSubtype) key, Range.from(initLen, fixedLen - 1))) {
+                if (intSubtypeOverlapRange(intSubtype, Range.from(initLen, fixedLen - 1))) {
                     m = Core.union(m, fixedArrayGet(fixedArray, fixedLen - 1));
                 }
             }
@@ -381,8 +381,8 @@ public class ListOps extends CommonOps implements BasicTypeOps {
     }
 
     public static SemType bddListMemberType(Context cx, Bdd b, SubtypeData key, SemType accum) {
-        if (b instanceof BddAllOrNothing) {
-            return ((BddAllOrNothing) b).isAll() ? accum : NEVER;
+        if (b instanceof BddAllOrNothing allOrNothing) {
+            return allOrNothing.isAll() ? accum : NEVER;
         } else {
             BddNode bddNode = (BddNode) b;
             return Core.union(bddListMemberType(cx,

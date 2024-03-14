@@ -91,16 +91,16 @@ public class Env {
     }
 
     public ListAtomicType listAtomType(Atom atom) {
-        if (atom instanceof RecAtom) {
-            return getRecListAtomType((RecAtom) atom);
+        if (atom instanceof RecAtom recAtom) {
+            return getRecListAtomType(recAtom);
         } else {
             return (ListAtomicType) ((TypeAtom) atom).atomicType;
         }
     }
 
     public MappingAtomicType mappingAtomType(Atom atom) {
-        if (atom instanceof RecAtom) {
-            return getRecMappingAtomType((RecAtom) atom);
+        if (atom instanceof RecAtom recAtom) {
+            return getRecMappingAtomType(recAtom);
         } else {
             return (MappingAtomicType) ((TypeAtom) atom).atomicType;
         }

@@ -6879,8 +6879,8 @@ public class Types {
 
     private void populateBasicTypes(SemType t, Set<BasicTypes> basicTypes) {
         int bitset;
-        if (t instanceof BasicTypeBitSet utb) {
-            bitset = utb.bitset;
+        if (t instanceof BasicTypeBitSet b) {
+            bitset = b.bitset;
         } else {
             ComplexSemType cst = (ComplexSemType) t;
             bitset = cst.all.bitset | cst.some.bitset;

@@ -65,8 +65,8 @@ public class ListProj {
 
     // Based on listMemberType
     public static SemType listProj(Context cx, SemType t, SemType k) {
-        if (t instanceof BasicTypeBitSet basicTypeBitSet) {
-            return (basicTypeBitSet.bitset & LIST.bitset) != 0 ? TOP : NEVER;
+        if (t instanceof BasicTypeBitSet b) {
+            return (b.bitset & LIST.bitset) != 0 ? TOP : NEVER;
         } else {
             SubtypeData keyData = Core.intSubtype(k);
             if (isNothingSubtype(keyData)) {
@@ -78,8 +78,8 @@ public class ListProj {
 
     // Based on bddEvery
     static SemType listProjBdd(Context cx, SubtypeData k, Bdd b, Conjunction pos, Conjunction neg) {
-        if (b instanceof BddAllOrNothing) {
-            return ((BddAllOrNothing) b).isAll() ? listProjPath(cx, k, pos, neg) : NEVER;
+        if (b instanceof BddAllOrNothing allOrNothing) {
+            return allOrNothing.isAll() ? listProjPath(cx, k, pos, neg) : NEVER;
         } else {
             BddNode bddNode = (BddNode) b;
             return union(listProjBdd(cx, k, bddNode.left, and(bddNode.atom, pos), neg),
@@ -153,8 +153,8 @@ public class ListProj {
         for (int i : indices) {
             v.add(TwoTuple.from(i, intSubtypeContains(k, i)));
         }
-        if (k instanceof IntSubtype) {
-            for (Range range : ((IntSubtype) k).ranges) {
+        if (k instanceof IntSubtype intSubtype) {
+            for (Range range : intSubtype.ranges) {
                 long max = range.max;
                 if (range.max >= 0) {
                     v.add(TwoTuple.from((int) max, true));

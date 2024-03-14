@@ -37,8 +37,8 @@ public class MappingAlternative {
     }
 
     public MappingAlternative[] mappingAlternatives(Context cx, SemType t) {
-        if (t instanceof BasicTypeBitSet) {
-            if ((((BasicTypeBitSet) t).bitset & PredefinedType.MAPPING.bitset) == 0) {
+        if (t instanceof BasicTypeBitSet b) {
+            if ((b.bitset & PredefinedType.MAPPING.bitset) == 0) {
                 return new MappingAlternative[]{};
             } else {
                 return new MappingAlternative[]{

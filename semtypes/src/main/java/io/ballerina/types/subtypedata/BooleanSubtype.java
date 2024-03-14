@@ -42,8 +42,8 @@ public class BooleanSubtype implements ProperSubtypeData {
     }
 
     public static boolean booleanSubtypeContains(SubtypeData d, boolean b) {
-        if (d instanceof AllOrNothingSubtype) {
-            return ((AllOrNothingSubtype) d).isAllSubtype();
+        if (d instanceof AllOrNothingSubtype allOrNothingSubtype) {
+            return allOrNothingSubtype.isAllSubtype();
         }
         BooleanSubtype r = (BooleanSubtype) d;
         return r.value == b;

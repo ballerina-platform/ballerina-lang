@@ -56,17 +56,16 @@ public class StringSubtype implements ProperSubtypeData {
     }
 
     public static boolean stringSubtypeContains(SubtypeData d, String s) {
-        if (d instanceof AllOrNothingSubtype) {
-            return ((AllOrNothingSubtype) d).isAllSubtype();
+        if (d instanceof AllOrNothingSubtype allOrNothingSubtype) {
+            return allOrNothingSubtype.isAllSubtype();
         }
         StringSubtype st = (StringSubtype) d;
         CharStringSubtype chara = st.charData;
         NonCharStringSubtype nonChar = st.nonCharData;
         if (s.length() == 1) {
-            return Arrays.asList(chara.values).contains(EnumerableCharString.from(s)) ?
-                    chara.allowed : !chara.allowed;
+            return Arrays.asList(chara.values).contains(EnumerableCharString.from(s)) == chara.allowed;
         }
-        return Arrays.asList(nonChar.values).contains(EnumerableString.from(s)) ? nonChar.allowed : !nonChar.allowed;
+        return Arrays.asList(nonChar.values).contains(EnumerableString.from(s)) == nonChar.allowed;
     }
 
     public static SubtypeData createStringSubtype(CharStringSubtype chara, NonCharStringSubtype nonChar) {

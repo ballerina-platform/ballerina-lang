@@ -111,7 +111,7 @@ public class XmlSubtype implements ProperSubtypeData {
 
     public static SubtypeData createXmlSubtype(int primitives, Bdd sequence) {
         int p = primitives & XML_PRIMITIVE_ALL_MASK;
-        if (sequence instanceof BddAllOrNothing && ((BddAllOrNothing) sequence).isAll() &&
+        if (sequence instanceof BddAllOrNothing allOrNothing && allOrNothing.isAll() &&
                 p == XML_PRIMITIVE_ALL_MASK) {
             return AllOrNothingSubtype.createAll();
         }
@@ -119,7 +119,7 @@ public class XmlSubtype implements ProperSubtypeData {
     }
 
     public static SubtypeData createXmlSubtypeOrEmpty(int primitives, Bdd sequence) {
-        if (sequence instanceof BddAllOrNothing  && ((BddAllOrNothing) sequence).isNothing() && primitives == 0) {
+        if (sequence instanceof BddAllOrNothing allOrNothing && allOrNothing.isNothing() && primitives == 0) {
             return AllOrNothingSubtype.createNothing();
         }
         return from(primitives, sequence);
