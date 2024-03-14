@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 6,
+    "character": 14
+  },
+  "source": "add_lock21.bal",
+  "description": "Wrap in a lock statement for a ",
+  "expected": [
+    {
+      "title": "Surround with lock",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 12
+            },
+            "end": {
+              "line": 6,
+              "character": 25
+            }
+          },
+          "newText": "lock {\n\t            arr[2] = val;\n            }"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

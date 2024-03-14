@@ -56,6 +56,13 @@ public class AddLockCodeActionTest extends AbstractCodeActionTest {
                 {"add_lock15.json"},
                 {"add_lock16.json"},
                 {"add_lock17.json"},
+                {"add_lock18.json"},
+                {"add_lock19.json"},
+                {"add_lock20.json"},
+                {"add_lock21.json"},
+                {"add_lock22.json"},
+                {"add_lock23.json"},
+                {"add_lock24.json"}
         };
     }
 
@@ -70,6 +77,11 @@ public class AddLockCodeActionTest extends AbstractCodeActionTest {
         return new Object[][]{
                 {"add_lock_negative1.json"},
                 {"add_lock_negative2.json"},
+                {"add_lock_negative3.json"},
+                {"add_lock_negative4.json"},
+                {"add_lock_negative5.json"},
+                {"add_lock_negative6.json"},
+                {"add_lock_negative7.json"}
         };
     }
 

@@ -18,8 +18,10 @@
 
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.StatementNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -63,17 +65,20 @@ public class AddLockCodeAction implements DiagnosticBasedCodeActionProvider {
     @Override
     public List<CodeAction> getCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
-        Optional<StatementNode> matchingStatementNode = getMatchingStatementNode(positionDetails.matchedNode());
-        if (matchingStatementNode.isEmpty()) {
+        // Determine the enclosing statement node of the isolated variable
+        Optional<StatementNode> statementNode = getMatchingStatementNode(positionDetails.matchedNode());
+        if (statementNode.isEmpty()) {
             return Collections.emptyList();
         }
 
+        // Check if there are multiple isolated variables within a single statement
         List<Diagnostic> diagnostics = context.diagnostics(context.filePath());
-        if (diagnostics.size() > 1 && hasMultipleIsolationVars(matchingStatementNode.get(), diagnostic, diagnostics)) {
+        if (diagnostics.size() > 1 && hasMultipleIsolationVars(statementNode.get(), diagnostic, diagnostics)) {
             return Collections.emptyList();
         }
 
-        TextEdit surroundWithLockEditText = getSurroundWithLockEditText(matchingStatementNode.get());
+        // Generate and return the text edit for the lock statement
+        TextEdit surroundWithLockEditText = getTextEdit(statementNode.get());
         return Collections.singletonList(CodeActionUtil.createCodeAction(
                 CommandConstants.SURROUND_WITH_LOCK,
                 List.of(surroundWithLockEditText),
@@ -85,30 +90,42 @@ public class AddLockCodeAction implements DiagnosticBasedCodeActionProvider {
     private static Optional<StatementNode> getMatchingStatementNode(Node matchedNode) {
         Node parentNode = matchedNode.parent();
         while (parentNode != null && !(parentNode instanceof StatementNode)) {
+            // Lock statement does not support async calls
+            if (parentNode.kind() == SyntaxKind.START_ACTION) {
+                return Optional.empty();
+            }
             parentNode = parentNode.parent();
         }
+
+        // Check if the lock statement contains any async calls
+        if (parentNode != null && parentNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
+            SyntaxKind kind = ((AssignmentStatementNode) parentNode).expression().kind();
+            if (kind == SyntaxKind.RECEIVE_ACTION || kind == SyntaxKind.START_ACTION) {
+                return Optional.empty();
+            }
+        }
+
         return Optional.ofNullable((StatementNode) parentNode);
     }
 
-    private static TextEdit getSurroundWithLockEditText(Node node) {
+    private static TextEdit getTextEdit(Node node) {
         LinePosition startLinePosition = node.lineRange().startLine();
-        LinePosition endLinePosition = node.lineRange().endLine();
-        Position positionLock = new Position(startLinePosition.line(), startLinePosition.offset());
-        Position posCheckLineStart = new Position(endLinePosition.line(), endLinePosition.offset());
+        Position startPosition = PositionUtil.toPosition(startLinePosition);
+        Position endPosition = PositionUtil.toPosition(node.lineRange().endLine());
 
         String spaces = " ".repeat(startLinePosition.offset());
         String statement = node.toSourceCode();
         String indentedStatement = statement.substring(0, statement.length() - 1).replace("\n", "\n\t") + "\n";
 
         String editText = "lock {" + CommonUtil.LINE_SEPARATOR + "\t" + indentedStatement + spaces + "}";
-        return new TextEdit(new Range(positionLock, posCheckLineStart), editText);
+        return new TextEdit(new Range(startPosition, endPosition), editText);
     }
 
     private static boolean hasMultipleIsolationVars(StatementNode statementNode, Diagnostic currentDiagnostic,
                                                     List<Diagnostic> diagnostics) {
         return diagnostics.stream().anyMatch(diagnostic -> !currentDiagnostic.equals(diagnostic) &&
-                        DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
-                        PositionUtil.isWithinLineRange(diagnostic.location().lineRange(), statementNode.lineRange()));
+                DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
+                PositionUtil.isWithinLineRange(diagnostic.location().lineRange(), statementNode.lineRange()));
     }
 
     @Override
