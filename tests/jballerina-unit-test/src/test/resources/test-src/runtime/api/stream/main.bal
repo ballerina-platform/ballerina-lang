@@ -435,7 +435,7 @@ function testParsingCharacterStreamToTypes() {
         ["{\"id\": 12, \"value\": \"1.2\"}", intType],
         ["[12, true, 123.4, \"hello]", type1],
         ["\"hello\\", stringType],
-        ["\"hello", stringType],
+        ["\"hello", stringType]
     ];
 
     foreach [string, typedesc<anydata>] [givenStr, targetType] in positiveCases {
