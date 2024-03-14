@@ -279,13 +279,35 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public BLangPackage genBIR(BLangPackage astPkg) {
+        genBIR(astPkg, false);
+
+        if (astPkg.symbol.shouldGenerateDuplicateBIR) {
+            genBIR(astPkg, true);
+            // If we don't flip the BIRs, the global var references between pkgs will use the new BIRNodes as references.
+            // This breaks the usedBIRNodeAnalyzer
+            flipBIRs(astPkg);
+        }
+        return astPkg;
+    }
+
+    private void flipBIRs(BLangPackage astPkg) {
+        BIRPackage originalBIR = astPkg.symbol.bir;
+        astPkg.symbol.bir = astPkg.symbol.duplicateBir;
+        astPkg.symbol.duplicateBir = originalBIR;
+    }
+
+    public void genBIR(BLangPackage astPkg, Boolean isDuplicateGeneration) {
         boolean skipTest = astPkg.moduleContextDataHolder.skipTests();
         String sourceRoot = astPkg.moduleContextDataHolder.sourceRoot().toString();
         BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName, astPkg.packageID.pkgName,
                 astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName,
                 sourceRoot, skipTest);
 
-        astPkg.symbol.bir = birPkg; //TODO try to remove this
+        if (!isDuplicateGeneration) {
+            astPkg.symbol.bir = birPkg;
+        } else {
+            astPkg.symbol.duplicateBir = birPkg;
+        }
 
         this.env = new BIRGenEnv(birPkg);
         astPkg.accept(this);
@@ -299,15 +321,17 @@ public class BIRGen extends BLangNodeVisitor {
                 this.env = new BIRGenEnv(testBirPkg);
                 testPkg.accept(this);
                 this.birOptimizer.optimizePackage(testBirPkg);
-                testPkg.symbol.bir = testBirPkg;
+                if (!isDuplicateGeneration) {
+                    testPkg.symbol.bir = testBirPkg;
+                } else {
+                    testPkg.symbol.duplicateBir = testBirPkg;
+                }
                 testBirPkg.importModules.add(new BIRNode.BIRImportModule(null, testPkg.packageID.orgName,
                         testPkg.packageID.name, testPkg.packageID.version));
             });
         }
-
-        setEntryPoints(astPkg);
-        return astPkg;
     }
+
 
     private void setEntryPoints(BLangPackage pkgNode) {
         BLangFunction mainFunc = getMainFunction(pkgNode);
