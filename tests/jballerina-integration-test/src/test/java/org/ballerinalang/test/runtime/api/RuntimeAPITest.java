@@ -45,6 +45,7 @@ public class RuntimeAPITest extends BaseTest {
             .toAbsolutePath().toString();
     private static final Path javaSrcLocation = Paths.get("src", "test", "java", "org", "ballerinalang",
             "test", "runtime", "api").toAbsolutePath();
+    private static final String JAVA_OPTS = "JAVA_OPTS";
     private BMainInstance bMainInstance;
 
     @BeforeClass
@@ -69,12 +70,10 @@ public class RuntimeAPITest extends BaseTest {
         Path execJarPath = Paths.get(javaSrcLocation.toString(), "targetDir", "test-exec.jar").toAbsolutePath();
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
-        runCmdSet.add("-javaagent:" + Paths.get(balServer.getServerHome()).resolve("bre").resolve("lib")
-                .resolve("jacocoagent.jar") + "=destfile=" + Paths.get(System.getProperty("user.dir"))
-                .resolve("build").resolve("jacoco").resolve("test.exec"));
         runCmdSet.add("-jar");
         runCmdSet.add(execJarPath.toString());
         ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
+        runProcessBuilder.environment().put(JAVA_OPTS, getAgentArgs());
         try {
             Process runProcess = runProcessBuilder.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
@@ -108,12 +107,10 @@ public class RuntimeAPITest extends BaseTest {
                 "test-exec.jar").toAbsolutePath();
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
-        runCmdSet.add("-javaagent:" + Paths.get(balServer.getServerHome()).resolve("bre").resolve("lib")
-                .resolve("jacocoagent.jar") + "=destfile=" + Paths.get(System.getProperty("user.dir"))
-                .resolve("build").resolve("jacoco").resolve("test.exec"));
         runCmdSet.add("-jar");
         runCmdSet.add(execJarPath.toString());
         ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
+        runProcessBuilder.environment().put(JAVA_OPTS, getAgentArgs());
         runProcessBuilder.redirectErrorStream(true);
         try {
             Process runProcess = runProcessBuilder.start();
@@ -146,12 +143,10 @@ public class RuntimeAPITest extends BaseTest {
                 "test-exec.jar").toAbsolutePath();
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
-        runCmdSet.add("-javaagent:" + Paths.get(balServer.getServerHome()).resolve("bre").resolve("lib")
-                .resolve("jacocoagent.jar") + "=destfile=" + Paths.get(System.getProperty("user.dir"))
-                .resolve("build").resolve("jacoco").resolve("test.exec"));
         runCmdSet.add("-jar");
         runCmdSet.add(execJarPath.toString());
         ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
+        runProcessBuilder.environment().put(JAVA_OPTS, getAgentArgs());
         runProcessBuilder.redirectErrorStream(true);
         try {
             Process runProcess = runProcessBuilder.start();
@@ -234,5 +229,13 @@ public class RuntimeAPITest extends BaseTest {
         for (LogLeecher leecher : leechers) {
             serverInfoLogReader.addLeecher(leecher);
         }
+    }
+
+    private String getAgentArgs() {
+        // add jacoco agent
+        String jacocoArgLine = "-javaagent:" + Paths.get(balServer.getServerHome(), "bre", "lib",
+                "jacocoagent.jar") + "=destfile=" + Paths.get(System.getProperty("user.dir"))
+                .resolve("build").resolve("jacoco").resolve("test.exec");
+        return jacocoArgLine + " ";
     }
 }
