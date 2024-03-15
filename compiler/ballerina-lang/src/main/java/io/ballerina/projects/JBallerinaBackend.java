@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
@@ -277,7 +278,12 @@ public class JBallerinaBackend extends CompilerBackend {
 
                 // If dependencyFilePath does not exist, resolve it using MavenResolver
                 if (dependencyFilePath == null || dependencyFilePath.isEmpty()) {
-
+                    // if the current project is a bala project, and the platform dependency has
+                    // provided scope, skip adding the jar
+                    if (Objects.equals(dependencyScope, PlatformLibraryScope.PROVIDED)
+                    && this.packageContext().project().getClass().equals(BalaProject.class)) {
+                        continue;
+                    }
                     // if the dependency is transitive and has provided scope, check the current package's
                     // Ballerina.toml for provided platform dependencies
                     if (Objects.equals(dependencyScope, PlatformLibraryScope.PROVIDED)
@@ -325,7 +331,9 @@ public class JBallerinaBackend extends CompilerBackend {
     @Override
     public void performCodeGen(ModuleContext moduleContext, CompilationCache compilationCache) {
         BLangPackage bLangPackage = moduleContext.bLangPackage();
-        interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
+        if (!this.packageContext().project().kind().equals(ProjectKind.BALA_PROJECT)){
+            interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
+        }
         if (bLangPackage.getErrorCount() > 0) {
             return;
         }
@@ -707,19 +715,21 @@ public class JBallerinaBackend extends CompilerBackend {
      * @return platform lib path provided by user
      */
     private String getPlatformLibPathFromProvided(String platform, String groupId, String artifactId, String version) {
-
-        for (Map<String, Object> platformDep :
-                this.packageContext().packageManifest().platform(platform).dependencies()) {
-            String depArtifactId = (String) platformDep.get(JarLibrary.KEY_ARTIFACT_ID);
-            String depVersion = (String) platformDep.get(JarLibrary.KEY_VERSION);
-            String depGroupId = (String) platformDep.get(JarLibrary.KEY_GROUP_ID);
-            String depFilepath = (String) platformDep.get(JarLibrary.KEY_PATH);
-            if (artifactId.equals(depArtifactId) && groupId.equals(depGroupId)
-                    && version.equals(depVersion) && depFilepath != null && !depFilepath.isEmpty()) {
-                return depFilepath;
+        PackageManifest.Platform currentPlatform = this.packageContext().packageManifest().platform(platform);
+        if (currentPlatform != null) {
+            for (Map<String, Object> platformDep :
+                    this.packageContext().packageManifest().platform(platform).dependencies()) {
+                String depArtifactId = (String) platformDep.get(JarLibrary.KEY_ARTIFACT_ID);
+                String depVersion = (String) platformDep.get(JarLibrary.KEY_VERSION);
+                String depGroupId = (String) platformDep.get(JarLibrary.KEY_GROUP_ID);
+                String depFilepath = (String) platformDep.get(JarLibrary.KEY_PATH);
+                if (artifactId.equals(depArtifactId) && groupId.equals(depGroupId)
+                        && version.equals(depVersion) && depFilepath != null && !depFilepath.isEmpty()) {
+                    return depFilepath;
+                }
             }
         }
-        throw new ProjectException("cannot resolve " + artifactId + "as platform dependencies belonging to the " +
+        throw new ProjectException("cannot resolve " + artifactId + " as platform dependencies belonging to the " +
                 "provided scope must be provided by the user. Please add the dependency in the Ballerina.toml file");
     }
 
@@ -830,7 +840,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.PROVIDED_PLATFORM_JAR_IN_EXECUTABLE.diagnosticId(),
                             "Detected platform dependencies with provided scope in the executable. " +
-                                    "Please refrain from re-distributing the created executable",
+                                    "Please refrain from re-distributing the created executable\n",
                             DiagnosticSeverity.WARNING);
                     emitResultDiagnostics.add(new PackageDiagnostic(diagnosticInfo,
                             this.packageContext().descriptor().name().toString()));
