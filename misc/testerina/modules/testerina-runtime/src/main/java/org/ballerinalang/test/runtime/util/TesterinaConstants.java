@@ -103,6 +103,9 @@ public class TesterinaConstants {
     public static final int DEFAULT_TEST_WORKERS = 1;
     public static final String MODIFIED_JAR_SUFFIX = HYPHEN + MODIFIED + JAR_EXTENSION;
 
+    private TesterinaConstants() {
+    }
+
     /**
      * RuntimeArgs identifies the indices of the BTestMain arg
      *

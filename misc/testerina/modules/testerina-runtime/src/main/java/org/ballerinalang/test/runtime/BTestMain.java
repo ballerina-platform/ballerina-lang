@@ -98,8 +98,8 @@ public class BTestMain {
             }
             out.println();
 
-            try (InputStream is = BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR
-                        + testSuiteJsonPath)) {
+            try (InputStream is = isFatJarExecution ? BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR
+                        + testSuiteJsonPath) : null) {
                 BufferedReader br;
                 if (is != null) {
                     br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));

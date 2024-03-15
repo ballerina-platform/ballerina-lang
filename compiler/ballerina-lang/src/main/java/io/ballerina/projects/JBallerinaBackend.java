@@ -221,7 +221,7 @@ public class JBallerinaBackend extends CompilerBackend {
             default -> throw new RuntimeException("Unexpected output type: " + outputType);
         };
 
-        return getEmitResult(filePath, generatedArtifact, ArtifactType.BUILD);
+        return getEmitResult(filePath, generatedArtifact, BalCommand.BUILD);
     }
 
     public EmitResult emit(TestEmitArgs testEmitArgs) {
@@ -240,13 +240,13 @@ public class JBallerinaBackend extends CompilerBackend {
             throw new RuntimeException("Unexpected output type: " + testEmitArgs.outputType());
         }
 
-        return getEmitResult(testEmitArgs.filePath(), generatedArtifact, ArtifactType.TEST);
+        return getEmitResult(testEmitArgs.filePath(), generatedArtifact, BalCommand.TEST);
     }
 
-    public EmitResult getEmitResult(Path filePath, Path generatedArtifact, ArtifactType artifactType) {
+    public EmitResult getEmitResult(Path filePath, Path generatedArtifact, BalCommand balCommand) {
         ArrayList<Diagnostic> emitDiagnostics = new ArrayList<>();
         if (filePath != null) {
-            List<Diagnostic> pluginDiagnostics = notifyCompilationCompletion(filePath, artifactType);
+            List<Diagnostic> pluginDiagnostics = notifyCompilationCompletion(filePath, balCommand);
             if (!pluginDiagnostics.isEmpty()) {
                 emitDiagnostics.addAll(pluginDiagnostics);
             }
@@ -261,8 +261,8 @@ public class JBallerinaBackend extends CompilerBackend {
         return new EmitResult(true, new DefaultDiagnosticResult(emitDiagnostics), generatedArtifact);
     }
 
-    public List<Diagnostic> notifyCompilationCompletion(Path filePath, ArtifactType artifactType) {
-        return packageCompilation.notifyCompilationCompletion(filePath, artifactType);
+    public List<Diagnostic> notifyCompilationCompletion(Path filePath, BalCommand balCommand) {
+        return packageCompilation.notifyCompilationCompletion(filePath, balCommand);
     }
 
     private Path emitBala(Path filePath) {
