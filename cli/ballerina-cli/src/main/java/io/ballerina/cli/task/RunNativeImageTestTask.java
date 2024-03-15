@@ -365,10 +365,12 @@ public class RunNativeImageTestTask implements Task {
 
         // set name and path
         nativeArgs.add("-H:Name=" + NativeUtils.addQuotationMarkToString(packageName));
-        nativeArgs.add("-H:Path=" + NativeUtils.convertWinPathToUnixFormat(NativeUtils.addQuotationMarkToString(nativeTargetPath.toString())));
+        nativeArgs.add("-H:Path=" + NativeUtils.convertWinPathToUnixFormat(NativeUtils
+                .addQuotationMarkToString(nativeTargetPath.toString())));
 
         // native-image configs
-        nativeArgs.add("-H:ReflectionConfigurationFiles=" + NativeUtils.convertWinPathToUnixFormat(NativeUtils.addQuotationMarkToString(
+        nativeArgs.add("-H:ReflectionConfigurationFiles=" + NativeUtils
+                .convertWinPathToUnixFormat(NativeUtils.addQuotationMarkToString(
                 nativeConfigPath.resolve("reflect-config.json").toString())));
         nativeArgs.add("--no-fallback");
 

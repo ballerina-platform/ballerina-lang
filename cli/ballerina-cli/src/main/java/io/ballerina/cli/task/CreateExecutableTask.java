@@ -31,6 +31,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +40,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ServiceLoader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
