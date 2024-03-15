@@ -30,6 +30,19 @@ import java.util.Map;
  * @since 2201.9.0
  */
 
+/**
+ *
+ * @param project Project
+ * @param target Target
+ * @param testProcessor Test processor to create test suites
+ * @param testSuiteMap  Test suite map that is used to store test suites
+ * @param moduleNamesList   List of module names that will be created
+ * @param mockClassNames    List of mock class names that will be created
+ * @param isRerunTestExecution  Whether to rerun test execution
+ * @param report    Whether to report
+ * @param coverage  Whether to generate coverage
+ */
+
 public record TestSuiteCreatingArgs(Project project, Target target, TestProcessor testProcessor,
                                     Map<String, TestSuite> testSuiteMap, List<String> moduleNamesList,
                                     List<String> mockClassNames, boolean isRerunTestExecution, boolean report,
