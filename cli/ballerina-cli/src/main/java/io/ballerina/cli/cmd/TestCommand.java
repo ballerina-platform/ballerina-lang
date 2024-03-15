@@ -342,7 +342,7 @@ public class TestCommand implements BLauncherCmd {
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
-                .addTask(new RunBallerinaPreBuildToolsTask(outStream)) // run build tools
+                .addTask(new RunBallerinaPreBuildToolsTask(outStream), isSingleFile) // run build tools
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
