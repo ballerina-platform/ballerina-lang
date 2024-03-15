@@ -14,6 +14,9 @@ Running Tests
 			callableName: beforeEachFunction$lambda4$  fileName: failed-before-each-with-groups.bal lineNumber: 86
 		
 
+		Test execution time :*****ms
+
+
 
 		0 passing
 		0 failing

@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	before_after
+
+		Test execution time :*****ms
+
 		[pass] testFunc
 		[pass] testFunc2
 

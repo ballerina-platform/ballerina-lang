@@ -38,7 +38,7 @@ public class AnnotationAttachmentNegativeTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 289);
+        Assert.assertEquals(compileResult.getErrorCount(), 302);
     }
 
     @Test
@@ -535,6 +535,43 @@ public class AnnotationAttachmentNegativeTest {
         validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 1, 20);
         validateError(compileResult, index++, "undefined annotation 'UndefinedAnnotation'", line += 1, 16);
         validateError(compileResult, index, "undefined annotation 'UndefinedAnnotation'", line += 1, 20);
+    }
+
+    @Test
+    public void testInvalidAttachmentOnServiceRemoteMethod() {
+        int index = 289;
+        int line = 1014;
+        validateError(compileResult, index++, "annotation 'v1' is not allowed on service_remote, object_method, " +
+                "function", line, 5);
+        validateError(compileResult, index++, "annotation 'v2' is not allowed on service_remote, object_method, " +
+                "function", line += 3, 5);
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on service_remote, object_method, " +
+                "function", line += 12, 5);
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on service_remote, object_method, " +
+                "function", line += 3, 5);
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on service_remote, object_method, " +
+                "function", ++line, 5);
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on service_remote, object_method, " +
+                "function", line += 3, 5);
+        validateError(compileResult, index++, "annotation 'v10' is not allowed on service_remote, object_method, " +
+                "function", line += 3, 5);
+        validateError(compileResult, index++, "annotation 'v11' is not allowed on service_remote, object_method, " +
+                "function", line += 3, 5);
+        validateError(compileResult, index++, "annotation 'v12' is not allowed on service_remote, object_method, " +
+                "function", line += 3, 5);
+        validateError(compileResult, index++, "annotation 'v13' is not allowed on service_remote, object_method, " +
+                "function", line += 3, 5);
+        validateError(compileResult, index, "annotation 'v15' is not allowed on service_remote, object_method, " +
+                "function", line + 3, 5);
+    }
+
+    @Test
+    public void testInvalidServiceRemoteMethodAttachmentOnNonRemoteServiceMethods() {
+        int index = 300;
+        validateError(compileResult, index++, "annotation 'v26' is not allowed on object_method, function",
+                      1056, 5);
+        validateError(compileResult, index, "annotation 'v26' is not allowed on object_method, function",
+                      1059, 5);
     }
 
     @AfterClass
