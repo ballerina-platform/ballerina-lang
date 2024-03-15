@@ -57,6 +57,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
     public static final String TOOL = "tool";
     public static final String LIBS = "libs";
     public static final String COMPILER_PLUGIN = "compiler-plugin";
+    public static final String ANNON = "annon";
     private JBallerinaBackend backend;
 
     public JBallerinaBalaWriter(JBallerinaBackend backend) {
@@ -95,7 +96,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
             Path libPath = jar.path();
             // null check is added for spot bug with the toml validation filename cannot be null
             String fileName = Optional.ofNullable(libPath.getFileName())
-                    .map(Path::toString).orElse("annon");
+                    .map(Path::toString).orElse(ANNON);
             Path entryPath = Paths.get(PLATFORM)
                     .resolve(target)
                     .resolve(fileName);
@@ -157,7 +158,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
                     Path libPath = this.packageContext.project().sourceRoot().resolve(compilerPluginLib);
                     // null check is added for spot bug with the toml validation filename cannot be null
                     String fileName = Optional.ofNullable(libPath.getFileName())
-                            .map(p -> p.toString()).orElse("annon");
+                            .map(Path::toString).orElse(ANNON);
                     Path entryPath = Paths.get("compiler-plugin").resolve("libs").resolve(fileName);
                     // create a zip entry for each file
                     putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
@@ -207,7 +208,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
                 Path libPath = this.packageContext.project().sourceRoot().resolve(balToolLib);
                 // null check is added for spot bug with the toml validation filename cannot be null
                 String fileName = Optional.ofNullable(libPath.getFileName())
-                        .map(p -> p.toString()).orElse("annon");
+                        .map(Path::toString).orElse(ANNON);
                 Path entryPath = Paths.get(TOOL).resolve(LIBS).resolve(fileName);
                 // create a zip entry for each file
                 putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));

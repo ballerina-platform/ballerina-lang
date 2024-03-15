@@ -57,6 +57,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -108,7 +109,7 @@ public class BalaFiles {
     }
 
     private static PackageData loadPackageDataFromBalaFile(Path balaPath, PackageManifest packageManifest) {
-        URI zipURI = URI.create("jar:" + balaPath.toUri());
+        URI zipURI = getZipURI(balaPath);
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             // Load default module
             String pkgName = packageManifest.name().toString();
@@ -221,7 +222,7 @@ public class BalaFiles {
             Path dependencyGraphJsonPath = balaPath.resolve(DEPENDENCY_GRAPH_JSON);
             dependencyGraphResult = createPackageDependencyGraphFromJson(dependencyGraphJsonPath);
         } else {
-            URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri());
+            URI zipURI = getZipURI(balaPath);
             try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
                 Path dependencyGraphJsonPath = zipFileSystem.getPath(DEPENDENCY_GRAPH_JSON);
                 dependencyGraphResult = createPackageDependencyGraphFromJson(dependencyGraphJsonPath);
@@ -249,7 +250,7 @@ public class BalaFiles {
     }
 
     private static PackageManifest createPackageManifestFromBalaFile(Path balrPath) {
-        URI zipURI = URI.create("jar:" + balrPath.toAbsolutePath().toUri());
+        URI zipURI = getZipURI(balrPath);
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path packageJsonPath = zipFileSystem.getPath(PACKAGE_JSON);
             if (Files.notExists(packageJsonPath)) {
@@ -359,8 +360,7 @@ public class BalaFiles {
             return;
         }
         packageJson.getPlatformDependencies().forEach(dependency -> {
-            if (null == dependency.getScope()
-                    || !PlatformLibraryScope.PROVIDED.getStringValue().equals(dependency.getScope())) {
+            if (!Objects.equals(PlatformLibraryScope.PROVIDED.getStringValue(), dependency.getScope())) {
                 Path libPath = balaPath.getParent().resolve(dependency.getPath());
                 if (!Files.exists(libPath)) {
                     try {
@@ -697,7 +697,7 @@ public class BalaFiles {
             }
             packageJson = readPackageJson(balaPath, packageJsonPath);
         } else {
-            URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri());
+            URI zipURI = getZipURI(balaPath);
             try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
                 Path packageJsonPath = zipFileSystem.getPath(PACKAGE_JSON);
                 if (Files.notExists(packageJsonPath)) {
@@ -709,5 +709,9 @@ public class BalaFiles {
             }
         }
         return packageJson;
+    }
+
+    private static URI getZipURI(Path balaPath) {
+        return URI.create("jar:" + balaPath.toAbsolutePath().toUri());
     }
 }
