@@ -56,14 +56,14 @@ public class ListConstantInBalaNegativeTest {
                 "cannot update 'readonly' value of type '[1,\"f\",\"g\"] & readonly'", 30, 5);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected '(1|\"f\"|\"g\")', found 'string'",
                 30, 12);
-        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l13'", 34, 17);
-        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l14'", 35, 18);
-        BAssertUtil.validateError(compileResult, i++, "attempt to refer to non-accessible symbol 'l10'", 39, 15);
-        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l10'", 39, 15);
-        BAssertUtil.validateError(compileResult, i++, "attempt to refer to non-accessible symbol 'l11'", 40, 29);
-        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l11'", 40, 29);
-        BAssertUtil.validateError(compileResult, i++, "attempt to refer to non-accessible symbol 'l12'", 41, 18);
-        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l12'", 41, 18);
+        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l13'", 34, 9);
+        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l14'", 35, 9);
+        BAssertUtil.validateError(compileResult, i++, "attempt to refer to non-accessible symbol 'l10'", 39, 9);
+        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l10'", 39, 9);
+        BAssertUtil.validateError(compileResult, i++, "attempt to refer to non-accessible symbol 'l11'", 40, 9);
+        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l11'", 40, 9);
+        BAssertUtil.validateError(compileResult, i++, "attempt to refer to non-accessible symbol 'l12'", 41, 9);
+        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l12'", 41, 9);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 
