@@ -127,12 +127,12 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                         "contains errors%n%n", tool.type(), tool.id() != null ? tool.id() : "");
             }
         }
-        // Load current package to load the generated code
-        loadPackage(project);
+        // Reload the project to load the generated code
+        reloadProject(project);
         project.setToolContextMap(toolContextMap);
     }
 
-    private void loadPackage(Project project) {
+    private void reloadProject(Project project) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(project.sourceRoot(),
                 project.buildOptions().disableSyntaxTree());
         project.addPackage(packageConfig);
