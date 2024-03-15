@@ -31,6 +31,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
@@ -197,7 +198,12 @@ public class RunTestsTask implements Task {
             Module module = project.currentPackage().module(moduleDescriptor.name());
             ModuleName moduleName = module.moduleName();
 
-            TestSuite suite = testProcessor.testSuite(module).orElse(null);
+            TestSuite suite;
+            try {
+                suite = testProcessor.testSuite(module).orElse(null);
+            } catch (ProjectException e) {
+                throw createLauncherException(e.getMessage());
+            }
             if (suite == null) {
                 continue;
             }
@@ -224,9 +230,9 @@ public class RunTestsTask implements Task {
                 String functionToMockClassName;
                 // Find the first delimiter and compare the indexes
                 // The first index should always be a delimiter. Which ever one that is denotes the mocking type
-                if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
+                if (!key.contains(MOCK_LEGACY_DELIMITER)) {
                     functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-                } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
+                } else if (!key.contains(MOCK_FN_DELIMITER)) {
                     functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
                 } else {
                     if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
@@ -354,9 +360,7 @@ public class RunTestsTask implements Task {
         cmdArgs.add(Boolean.toString(isRerunTestExecution));
         cmdArgs.add(Boolean.toString(listGroups));
         cmdArgs.add(Boolean.toString(isParallelExecution));
-        cliArgs.forEach((arg) -> {
-            cmdArgs.add(arg);
-        });
+        cmdArgs.addAll(cliArgs);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
@@ -365,7 +369,7 @@ public class RunTestsTask implements Task {
 
     private List<Path> getAllSourceFilePaths(String projectRootString) throws IOException {
         List<Path> sourceFilePaths = new ArrayList<>();
-        List<Path> paths = Files.walk(Paths.get(projectRootString), 3).collect(Collectors.toList());
+        List<Path> paths = Files.walk(Paths.get(projectRootString), 3).toList();
 
         if (isWindows) {
             projectRootString = projectRootString.replace(PATH_SEPARATOR, EXCLUDES_PATTERN_PATH_SEPARATOR);
