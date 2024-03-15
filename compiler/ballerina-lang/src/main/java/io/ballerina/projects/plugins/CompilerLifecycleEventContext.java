@@ -17,7 +17,7 @@
  */
 package io.ballerina.projects.plugins;
 
-import io.ballerina.projects.ArtifactType;
+import io.ballerina.projects.BalCommand;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -60,5 +60,5 @@ public interface CompilerLifecycleEventContext {
      * @return path to the generated artifact.
      */
     public Optional<Path> getGeneratedArtifactPath();
-    public ArtifactType artifactType();
+    public BalCommand artifactType();
 }

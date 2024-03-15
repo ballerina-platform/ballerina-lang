@@ -44,7 +44,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -358,9 +357,7 @@ public class CreateTestExecutableTask implements Task {
             if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
                 target = new Target(project.targetDir());
             } else {
-                Path tempFilePath = Files.createTempDirectory("ballerina-test-cache" + System.nanoTime());
-                tempFilePath.toFile().deleteOnExit();
-                target = new Target(tempFilePath);
+                target = new Target(project.targetDir());
                 target.setOutputPath(target.path().resolve(
                         getFileNameWithoutExtension(project.sourceRoot().getFileName()) + BLANG_COMPILED_JAR_EXT
                 ));

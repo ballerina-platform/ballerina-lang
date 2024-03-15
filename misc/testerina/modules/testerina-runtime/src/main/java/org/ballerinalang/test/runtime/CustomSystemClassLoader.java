@@ -44,13 +44,17 @@ public class CustomSystemClassLoader extends ClassLoader {
 
     private void populateExcludedClasses() {
         try(InputStream is = BTestMain.class.getResourceAsStream(ProjectConstants.FAT_JAR_ROOT_DIR +
-                ProjectConstants.EXCLUDED_CLASSES_FILE);
-            BufferedReader br = new BufferedReader(new InputStreamReader(Objects.requireNonNull(is)))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                excludedClasses.add(line);
+                ProjectConstants.EXCLUDED_CLASSES_FILE)) {
+            if (is == null) {
+                throw new RuntimeException("Error reading " + ProjectConstants.EXCLUDED_CLASSES_FILE);
             }
-        } catch (NullPointerException | IOException e) {
+            try(BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    excludedClasses.add(line);
+                }
+            }
+        } catch (IOException e) {
             throw new RuntimeException("Error reading " + ProjectConstants.EXCLUDED_CLASSES_FILE, e);
         }
     }
@@ -71,12 +75,8 @@ public class CustomSystemClassLoader extends ClassLoader {
         }
 
         // If the class is an inbuilt class, delegate the classloading to the system classloader
-        if (name.startsWith("java.") || name.startsWith("javax.")) {
-            return super.loadClass(name);
-        }
-
         // If the class is in not in the excludedClasses list, delegate the classloading to the system classloader
-        if (!excludedClasses.contains(name)) {
+        if (name.startsWith("java.") || name.startsWith("javax.") || !excludedClasses.contains(name)) {
             return super.loadClass(name);
         }
         return findClass(name);
