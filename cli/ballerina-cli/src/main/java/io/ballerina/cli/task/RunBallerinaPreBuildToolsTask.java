@@ -126,6 +126,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
             }
         }
         project.setToolContextMap(toolContextMap);
+        // Dummy change
     }
 
     private CodeGeneratorTool getTargetTool(String commandName, ServiceLoader<CodeGeneratorTool> buildRunners) {
