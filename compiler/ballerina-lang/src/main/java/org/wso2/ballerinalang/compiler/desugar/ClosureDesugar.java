@@ -762,13 +762,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     private BVarSymbol findClosureMapSymbol(int absoluteLevel) {
         SymbolEnv symbolEnv = env;
-        NodeKind nodeKind = symbolEnv.node.getKind();
-        while (nodeKind != NodeKind.PACKAGE) {
+        while (symbolEnv.node.getKind() != NodeKind.PACKAGE) {
             if (symbolEnv.envCount == absoluteLevel) {
                 return createMapSymbolIfAbsent(symbolEnv.node, symbolEnv.envCount);
             }
             symbolEnv = symbolEnv.enclEnv;
-            nodeKind = symbolEnv.node.getKind();
         }
         throw new IllegalStateException("Failed to find the closure symbol defined scope");
     }
@@ -1542,10 +1540,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         // selfRelativeCount >= selfAbsoluteLevel - absoluteLevel ==> resolved within the same function.
         if (selfRelativeCount >= selfAbsoluteLevel - absoluteLevel) {
             BVarSymbol mapSym = findClosureMapSymbol(absoluteLevel);
-            if (mapSym != null) {
-                updateClosureVars(localVarRef, mapSym);
-                return;
-            }
+            updateClosureVars(localVarRef, mapSym);
         } else {
             // It is resolved from a parameter map.
             // Add parameter map symbol if one is not added.
@@ -1570,10 +1565,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
                         PARAMETER_MAP_NAME + absoluteLevel, env));
                 updateClosureVars(localVarRef, ((BLangFunction) env.enclInvokable).paramClosureMap.get(absoluteLevel));
             }
-        }
 
-        // 3) Add the resolved level of the closure variable to the preceding function maps.
-        updatePrecedingFunc(env, absoluteLevel);
+            // 3) Add the resolved level of the closure variable to the preceding function maps.
+            updatePrecedingFunc(env, absoluteLevel);
+        }
     }
 
     @Override
