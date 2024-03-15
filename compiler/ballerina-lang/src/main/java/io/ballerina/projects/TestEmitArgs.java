@@ -26,8 +26,17 @@ import java.util.List;
  * @since 2201.9.0
  */
 
+/**
+ * Record for storing arguments to use in JBallerinaBackend's emit of TEST.
+ * @param outputType    Output type to indicate the type of the emitting output
+ * @param filePath      File path to specify where the output should be emitted
+ * @param jarDependencies   Jar dependencies required for emitting the output
+ * @param testSuiteJsonPath Path to the test suite json that should be packed inside the output
+ * @param jsonCopyPath      The path inside the output where the test suite json should be copied
+ * @param excludedClasses   List of excluded classes
+ * @param classPathTextCopyPath Path inside the output where the class path text should be copied
+ */
 public record TestEmitArgs(JBallerinaBackend.OutputType outputType, Path filePath, HashSet<JarLibrary> jarDependencies,
                            Path testSuiteJsonPath, String jsonCopyPath, List<String> excludedClasses,
                            String classPathTextCopyPath) {
-
 }
