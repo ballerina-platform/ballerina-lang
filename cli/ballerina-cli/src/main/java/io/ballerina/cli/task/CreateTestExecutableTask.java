@@ -199,14 +199,14 @@ public class CreateTestExecutableTask implements Task {
         List<Path> moduleJarPaths = TestUtils.getModuleJarPaths(jBallerinaBackend, project.currentPackage());
         List<String> excludedClasses = new ArrayList<>();
         for (Path moduleJarPath : moduleJarPaths) {
-            ZipFile zipFile = new ZipFile(moduleJarPath.toFile());
-            zipFile.stream().forEach(entry -> {
-                if (entry.getName().endsWith(ProjectConstants.JAVA_CLASS_EXT)) {
-                    excludedClasses.add(entry.getName().replace(File.separator, ProjectConstants.DOT)
-                            .replace(ProjectConstants.JAVA_CLASS_EXT, ""));
-                }
-            });
-            zipFile.close();
+            try (ZipFile zipFile = new ZipFile(moduleJarPath.toFile())) {
+                zipFile.stream().forEach(entry -> {
+                    if (entry.getName().endsWith(ProjectConstants.JAVA_CLASS_EXT)) {
+                        excludedClasses.add(entry.getName().replace(File.separator, ProjectConstants.DOT)
+                                .replace(ProjectConstants.JAVA_CLASS_EXT, ""));
+                    }
+                });
+            }
         }
 
         // Create the single fat jar for all the test modules that includes the test suite json
