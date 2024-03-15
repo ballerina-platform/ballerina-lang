@@ -226,7 +226,7 @@ public class JBallerinaBackend extends CompilerBackend {
         emitResultDiagnostics.addAll(jarResolver().diagnosticResult().diagnostics());
 
         // Add warning for provided platform dependencies
-        if ((outputType.equals(OutputType.EXEC) || outputType.equals(OutputType.GRAAL_EXEC))) {
+        if (OutputType.EXEC.equals(outputType) || OutputType.GRAAL_EXEC.equals(outputType)) {
             addProvidedDependencyWarning(emitResultDiagnostics);
         }
         // JBallerinaBackend diagnostics contains all diagnostics.
@@ -674,9 +674,9 @@ public class JBallerinaBackend extends CompilerBackend {
         String scopeValue = (String) dependency.get(JarLibrary.KEY_SCOPE);
         if (scopeValue == null || scopeValue.isEmpty()) {
             scope = PlatformLibraryScope.DEFAULT;
-        } else if (scopeValue.equals(PlatformLibraryScope.TEST_ONLY.getStringValue())) {
+        } else if (PlatformLibraryScope.TEST_ONLY.getStringValue().equals(scopeValue)) {
             scope = PlatformLibraryScope.TEST_ONLY;
-        } else if (scopeValue.equals(PlatformLibraryScope.PROVIDED.getStringValue())) {
+        } else if (PlatformLibraryScope.PROVIDED.getStringValue().equals(scopeValue)) {
             scope = PlatformLibraryScope.PROVIDED;
         } else {
             throw new ProjectException("Invalid scope '" + scopeValue + "' is defined with the " +
@@ -729,8 +729,8 @@ public class JBallerinaBackend extends CompilerBackend {
                 }
             }
         }
-        throw new ProjectException("cannot resolve " + artifactId + " as platform dependencies belonging to the " +
-                "provided scope must be provided by the user. Please add the dependency in the Ballerina.toml file");
+        throw new ProjectException("cannot resolve '" + artifactId + "' as platform dependencies belonging to the " +
+                "'provided' scope must be provided by the user. Please add the dependency in the Ballerina.toml file");
     }
 
     /**
@@ -840,7 +840,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.PROVIDED_PLATFORM_JAR_IN_EXECUTABLE.diagnosticId(),
                             "Detected platform dependencies with provided scope in the executable. " +
-                                    "Please refrain from re-distributing the created executable\n",
+                                    "Please avoid redistributing the created executable\n",
                             DiagnosticSeverity.WARNING);
                     emitResultDiagnostics.add(new PackageDiagnostic(diagnosticInfo,
                             this.packageContext().descriptor().name().toString()));
