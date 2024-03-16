@@ -195,6 +195,7 @@ public class BuildOptions {
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
+        buildOptionsBuilder.setManagementServiceIncluded(compilationOptions.managementServiceIncluded);
 
         return buildOptionsBuilder.build();
     }
@@ -384,6 +385,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setNativeImage(Boolean value) {
             nativeImage = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setManagementServiceIncluded(Boolean value) {
+            compilationOptionsBuilder.setManagementServiceIncluded(value);
             return this;
         }
 

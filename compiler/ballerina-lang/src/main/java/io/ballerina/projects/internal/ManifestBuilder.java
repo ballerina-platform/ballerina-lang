@@ -64,10 +64,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
-import static io.ballerina.projects.internal.ManifestUtils.getBuildToolTomlValueType;
-import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
-import static io.ballerina.projects.internal.ManifestUtils.ToolNodeValueType;
+import static io.ballerina.projects.internal.ManifestUtils.*;
 import static io.ballerina.projects.util.ProjectUtils.defaultName;
 import static io.ballerina.projects.util.ProjectUtils.defaultOrg;
 import static io.ballerina.projects.util.ProjectUtils.defaultVersion;
@@ -641,7 +638,8 @@ public class ManifestBuilder {
                 BuildOptions.OptionName.EXPORT_COMPONENT_MODEL.toString());
         String graalVMBuildOptions = getStringFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.GRAAL_VM_BUILD_OPTIONS.toString());
-
+        Boolean managementServiceIncluded = getBooleanFromBuildOptionsTableNode(tableNode,
+                CompilerOptionName.MANAGEMENT_SERVICE_INCLUDED.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
@@ -655,7 +653,8 @@ public class ManifestBuilder {
                 .setEnableCache(enableCache)
                 .setNativeImage(nativeImage)
                 .setExportComponentModel(exportComponentModel)
-                .setGraalVMBuildOptions(graalVMBuildOptions);
+                .setGraalVMBuildOptions(graalVMBuildOptions)
+                .setManagementServiceIncluded(managementServiceIncluded);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir);

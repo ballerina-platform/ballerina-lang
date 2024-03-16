@@ -25,12 +25,21 @@ package org.ballerinalang.toml.model;
  */
 public class BuildOptions {
     private boolean observabilityIncluded;
+    private boolean managementServiceIncluded;
 
     public boolean isObservabilityIncluded() {
         return observabilityIncluded;
     }
 
+    public boolean isManagementServiceIncluded() {
+        return managementServiceIncluded;
+    }
+
     public void setObservabilityIncluded(boolean observabilityIncluded) {
         this.observabilityIncluded = observabilityIncluded;
+    }
+
+    public void setManagementServiceIncluded(boolean managementServiceIncluded) {
+        this.managementServiceIncluded = managementServiceIncluded;
     }
 }

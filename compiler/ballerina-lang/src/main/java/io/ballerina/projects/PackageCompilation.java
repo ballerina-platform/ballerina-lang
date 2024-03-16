@@ -37,11 +37,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 
-import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
-import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
-import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
-import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
+import static org.ballerinalang.compiler.CompilerOptionName.*;
 
 /**
  * Compilation at package level by resolving all the dependencies.
@@ -87,6 +83,7 @@ public class PackageCompilation {
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
         options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
         options.put(CLOUD, compilationOptions.getCloud());
+        options.put(MANAGEMENT_SERVICE_INCLUDED, Boolean.toString(compilationOptions.managementServiceIncluded()));
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {

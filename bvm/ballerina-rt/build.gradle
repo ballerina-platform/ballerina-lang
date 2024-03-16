@@ -135,6 +135,8 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn configurations.dist
     from { configurations.dist.collect { it.isDirectory() ? it : zipTree(it) } }
+    // exclude module-info.class from the runtime jar
+    exclude 'module-info.class'
 }
 
 description = 'Ballerina - Runtime'
