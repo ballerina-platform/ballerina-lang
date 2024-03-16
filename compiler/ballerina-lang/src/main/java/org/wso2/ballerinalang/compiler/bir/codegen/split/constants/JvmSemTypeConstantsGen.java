@@ -44,6 +44,7 @@ import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINARY_TYPE_OPERATION_DESCRIPTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINARY_TYPE_OPERATION_WITH_IDENTIFIER_DESCRIPTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_SEMTYPE_TYPE_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_BUILDER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
@@ -57,9 +58,9 @@ public class JvmSemTypeConstantsGen {
     private final String semTypeConstantsClass;
     private final Map<BType, String> typeVarMap;
     private final ClassWriter cw;
-    private final MethodVisitor mv;
+    private MethodVisitor mv;
     private int constantIndex = 0;
-    private int semTypeVarCount = 0;
+    private int methodCount = 1;
     private JvmTypeGen jvmTypeGen;
 
     public JvmSemTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator) {
@@ -86,6 +87,13 @@ public class JvmSemTypeConstantsGen {
 
     private String generateBSemTypeInitMethod(BType type) {
         String varName = JvmConstants.SEMTYPE_TYPE_VAR_PREFIX + constantIndex++;
+        if (constantIndex % MAX_CONSTANTS_PER_METHOD == 0 && constantIndex != 0) {
+            mv.visitMethodInsn(INVOKESTATIC, semTypeConstantsClass, B_SEMTYPE_TYPE_INIT_METHOD + methodCount,
+                    VOID_METHOD_DESC, false);
+            genMethodReturn(mv);
+            mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_SEMTYPE_TYPE_INIT_METHOD + methodCount++, VOID_METHOD_DESC,
+                    null, null);
+        }
         // TODO: if the number of semtypes is too large create a new method
         createSemTypeField(varName);
         if (type instanceof BUnionType unionType) {
