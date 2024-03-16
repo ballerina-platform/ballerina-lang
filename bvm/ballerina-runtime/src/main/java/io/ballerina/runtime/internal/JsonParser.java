@@ -1065,23 +1065,6 @@ public class JsonParser {
                     throw createConversionError(value, targetType, e.getMessage());
                 }
             }
-
-            if (TypeTags.isXMLTypeTag(matchingType.getTag())) {
-                String xmlString = value.toString();
-                try {
-                    newValue = BalStringUtils.parseXmlExpressionStringValue(xmlString);
-                } catch (BError e) {
-                    throw createConversionError(value, targetType);
-                }
-                if (matchingType.isReadOnly()) {
-                    ((BRefValue) newValue).freezeDirect();
-                }
-                return newValue;
-            }
-
-            // can't put the below, above handling xml because for selectively mutable types when the
-            // provided value is readonly, if the target type is non readonly, checkIsType provides true, but
-            // we can't just clone the value as it should be non readonly.
             if (TypeChecker.checkIsType(value, matchingType)) {
                 return value;
             }

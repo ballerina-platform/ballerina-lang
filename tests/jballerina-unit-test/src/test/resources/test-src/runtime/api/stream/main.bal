@@ -141,8 +141,10 @@ type Rec7 record {|
 |};
 
 type Union1 map<int>|map<float>|int|string|float|Rec4|Rec5|[float, int]|int[]|float[]|[int, float];
+type Union2 map<int?>|map<float>|int|string|float|Rec4|Rec5|[float, int]|int[]|float[]|[int, float];
 
 type Union1Sub1 Rec4|map<int>|map<float>|int|string|float|Rec5|[float, int]|int[]|float[]|[int, float];
+type Union1Sub2 Rec4 & readonly|map<int>|map<float>|int|string|float|Rec5|[float, int]|int[]|float[]|[int, float];
 
 type RecUnion1 record {|
     Union1 val;
@@ -256,6 +258,10 @@ type invalidUnion floatType|Rec5;
 type type5Closed map<int>[1];
 type tupleClosed [map<int>];
 type tupleClosedWithRest [map<int>, anydata...];
+
+type CyclicUnion int|CyclicUnion[]|map<CyclicUnion>;
+type UnionWithMapRegexp map<string:RegExp>|map<float>|int|string:RegExp|float|Rec4|Rec5|[float, int]|int[]|float[]|[int,
+ float];
 
 public function main() {
     testParsingCharacterStreamToTypes();
@@ -376,7 +382,10 @@ function testParsingCharacterStreamToTypes() {
         [string `[[1], 2]`, anydataType],
         [string `[{"name": "John", "salary": 100 }]`, TableType1],
         [string `[{"name": "John", "salary": 100 }, { "name": "Jane", "salary": 200 }]`, TableType1],
-        ["[{\"id\": 12, \"age\": 24}, {\"id\": 12, \"age\": 24}]", tupleClosedWithRest]
+        ["[{\"id\": 12, \"age\": 24}, {\"id\": 12, \"age\": 24}]", tupleClosedWithRest],
+        [string `{"regex1": "Hello*"}`, UnionWithMapRegexp],
+        [string `{"gain": null, "age": 130}`, Union2],
+        [string `{"gain": 122, "age": 130}`, Union1Sub2]
     ];
 
     [string, typedesc<anydata>][] negativeCases = [
@@ -449,7 +458,10 @@ function testParsingCharacterStreamToTypes() {
         ["-17", intUnsigned32],
         ["4294967296", intUnsigned32],
         ["-2147483650", intSigned32],
-        ["-2147483660", intSigned32]
+        ["-2147483660", intSigned32],
+        [string `{"val": [[122, [122]]}`, CyclicUnion],
+        ["{\"regex1\": \"abc|${xyz}\"}", UnionWithMapRegexp],
+        [string `null`, Union1]
     ];
 
     foreach [string, typedesc<anydata>] [givenStr, targetType] in positiveCases {
