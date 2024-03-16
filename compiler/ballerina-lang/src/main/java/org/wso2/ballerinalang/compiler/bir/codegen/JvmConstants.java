@@ -187,6 +187,8 @@ public class JvmConstants {
     public static final String LARGE_STRING_VAR_PREFIX = "$stringChunk";
     public static final String GET_SURROGATE_ARRAY_METHOD_PREFIX = "getSurrogateArray";
     public static final String UNION_TYPE_VAR_PREFIX = "$unionType";
+
+    public static final String SEMTYPE_TYPE_VAR_PREFIX = "$semType";
     public static final String ERROR_TYPE_VAR_PREFIX = "$errorType";
     public static final String TYPEREF_TYPE_VAR_PREFIX = "$typeRefType$";
     public static final String TUPLE_TYPE_VAR_PREFIX = "$tupleType";
@@ -307,6 +309,7 @@ public class JvmConstants {
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
     public static final String OBJECT_SELF_INSTANCE = "self";
     public static final String UNION_TYPE_CONSTANT_CLASS_NAME = "constants/$_union_type_constants";
+    public static final String SEMTYPE_TYPE_CONSTANT_CLASS_NAME = "constants/$_semtype_constants";
     public static final String ERROR_TYPE_CONSTANT_CLASS_NAME = "constants/$_error_type_constants";
     public static final String TUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
     public static final String ARRAY_TYPE_CONSTANT_CLASS_NAME = "constants/$_array_type_constants";
@@ -329,6 +332,7 @@ public class JvmConstants {
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String B_UNION_TYPE_INIT_METHOD = "$union_type_init";
+    public static final String B_SEMTYPE_TYPE_INIT_METHOD = "$semtype_init";
     public static final String B_ERROR_TYPE_INIT_METHOD = "$error_type_init";
     public static final String B_TUPLE_TYPE_INIT_METHOD = "$tuple_type_init";
     public static final String B_ARRAY_TYPE_INIT_METHOD = "$array_type_init";
