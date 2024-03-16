@@ -37,7 +37,12 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 
-import static org.ballerinalang.compiler.CompilerOptionName.*;
+import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
+import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
+import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
+import static org.ballerinalang.compiler.CompilerOptionName.MANAGEMENT_SERVICE_INCLUDED;
+import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 
 /**
  * Compilation at package level by resolving all the dependencies.

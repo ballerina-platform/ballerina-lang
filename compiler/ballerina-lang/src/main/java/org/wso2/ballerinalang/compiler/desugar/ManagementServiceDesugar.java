@@ -39,7 +39,8 @@ import java.util.List;
  */
 public class ManagementServiceDesugar {
 
-    private static final CompilerContext.Key<ManagementServiceDesugar> MANAGEMENT_SERVICE_DESUGAR_KEY = new CompilerContext.Key<>();
+    private static final CompilerContext.Key<ManagementServiceDesugar> MANAGEMENT_SERVICE_DESUGAR_KEY =
+            new CompilerContext.Key<>();
     private final boolean managementServiceIncluded;
     private final PackageCache packageCache;
     private PackageID managementPkgID;
@@ -56,7 +57,6 @@ public class ManagementServiceDesugar {
         context.put(MANAGEMENT_SERVICE_DESUGAR_KEY, this);
         managementServiceIncluded = Boolean.parseBoolean(CompilerOptions.getInstance(context)
                 .get(CompilerOptionName.MANAGEMENT_SERVICE_INCLUDED));
-        System.out.println("managementServiceIncluded: " + managementServiceIncluded);
         packageCache = PackageCache.getInstance(context);
         final BPackageSymbol symbol = PackageCache.getInstance(context).getSymbol(Names.BALLERINA_ORG.value
                 + Names.ORG_NAME_SEPARATOR.value + Names.MANAGEMENT_SERVICE.value);
