@@ -79,7 +79,7 @@ public class RunExecutableTask implements Task {
         out.println("Running executable");
         out.println();
 
-        try{
+        try {
             this.runGeneratedExecutable(project.currentPackage().getDefaultModule(), project);
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
