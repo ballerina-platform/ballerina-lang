@@ -331,7 +331,7 @@ public class JBallerinaBackend extends CompilerBackend {
     @Override
     public void performCodeGen(ModuleContext moduleContext, CompilationCache compilationCache) {
         BLangPackage bLangPackage = moduleContext.bLangPackage();
-        if (!this.packageContext().project().kind().equals(ProjectKind.BALA_PROJECT)){
+        if (!this.packageContext().project().kind().equals(ProjectKind.BALA_PROJECT)) {
             interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
         }
         if (bLangPackage.getErrorCount() > 0) {
