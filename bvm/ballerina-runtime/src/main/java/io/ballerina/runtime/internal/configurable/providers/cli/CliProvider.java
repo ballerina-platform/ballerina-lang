@@ -23,20 +23,18 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BFiniteType;
-import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.types.BUnionType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -225,7 +223,7 @@ public class CliProvider implements ConfigProvider {
     @Override
     public Optional<ConfigValue> getAsUnionAndMark(Module module, VariableKey key) {
         CliArg cliArg = getCliArg(module, key);
-        BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
+        Type unionType = TypeHelper.effectiveType(key.type);
         boolean isEnum = SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM);
         if (!isEnum && !containsSupportedMembers(unionType)) {
             throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, unionType);
@@ -239,7 +237,7 @@ public class CliProvider implements ConfigProvider {
         return getCliConfigValue(getUnionValue(key, unionType, cliArg));
     }
 
-    private Object getUnionValue(VariableKey key, BUnionType unionType, CliArg cliArg) {
+    private Object getUnionValue(VariableKey key, Type unionType, CliArg cliArg) {
         List<Object> matchingValues = getConvertibleMemberValues(cliArg.value, unionType);
         if (matchingValues.size() == 1) {
             return matchingValues.get(0);
@@ -251,9 +249,9 @@ public class CliProvider implements ConfigProvider {
         throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, cliArg, key.variable, typeName);
     }
 
-    private List<Object> getConvertibleMemberValues(String value, UnionType unionType) {
+    private List<Object> getConvertibleMemberValues(String value, Type unionType) {
         List<Object> matchingValues = new ArrayList<>();
-        for (Type type : unionType.getMemberTypes()) {
+        for (Type type : TypeHelper.members(unionType)) {
             switch (TypeUtils.getImpliedType(type).getTag()) {
                 case TypeTags.BYTE_TAG:
                     convertAndGetValuesFromString(matchingValues, TypeConverter::stringToByte, value);
@@ -291,9 +289,9 @@ public class CliProvider implements ConfigProvider {
         matchingValues.add(unionValue);
     }
 
-    private BString getFiniteValue(VariableKey key, BUnionType unionType, CliArg cliArg) {
+    private BString getFiniteValue(VariableKey key, Type unionType, CliArg cliArg) {
         BString stringVal = StringUtils.fromString(cliArg.value);
-        List<Type> memberTypes = unionType.getMemberTypes();
+        List<Type> memberTypes = TypeHelper.memberList(unionType);
         for (Type type : memberTypes) {
             if (((BFiniteType) type).valueSpace.contains(stringVal)) {
                 return stringVal;
@@ -303,8 +301,8 @@ public class CliProvider implements ConfigProvider {
                 decodeIdentifier(unionType.toString()), cliArg.value);
     }
 
-    private boolean containsSupportedMembers(BUnionType unionType) {
-        for (Type memberType : unionType.getMemberTypes()) {
+    private boolean containsSupportedMembers(Type unionType) {
+        for (Type memberType : TypeHelper.members(unionType)) {
             if (!isCliSupported(TypeUtils.getImpliedType(memberType).getTag())) {
                 return false;
             }
@@ -352,7 +350,7 @@ public class CliProvider implements ConfigProvider {
 
     @Override
     public Optional<ConfigValue> getAsXmlAndMark(Module module, VariableKey key) {
-        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        Type effectiveType = TypeHelper.effectiveType(key.type);
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();

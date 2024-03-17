@@ -27,7 +27,6 @@ import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
@@ -39,7 +38,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.TypeHelper;
-import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
@@ -65,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getValueFromKeyValueNode;
@@ -96,11 +95,11 @@ public class ConfigValueCreator {
         }
         switch (type.getTag()) {
             case TypeTags.ARRAY_TAG:
-                return createArrayValue(tomlValue, (ArrayType) type);
+                return createArrayValue(tomlValue, unwrap(type));
             case TypeTags.RECORD_TYPE_TAG:
                 return createRecordValue(tomlValue, type);
             case TypeTags.MAP_TAG:
-                return createMapValue(tomlValue, (MapType) type);
+                return createMapValue(tomlValue, unwrap(type));
             case TypeTags.TABLE_TAG:
                 return createTableValue(tomlValue, type);
             case TypeTags.ANYDATA_TAG:
@@ -115,9 +114,9 @@ public class ConfigValueCreator {
             case TypeTags.XML_TEXT_TAG:
                 return createBalValue(type, ((TomlKeyValueNode) tomlValue).value());
             case TypeTags.TUPLE_TAG:
-                return createTupleValue(tomlValue, (TupleType) type);
+                return createTupleValue(tomlValue, unwrap(type));
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return  createValue(tomlValue, ((ReferenceType) type).getReferredType());
+                return createValue(tomlValue, TypeHelper.referredType(type));
             default:
                 Type effectiveType = TypeHelper.effectiveType(type);
                 if (effectiveType.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -228,7 +227,7 @@ public class ConfigValueCreator {
         Type refElementType = TypeUtils.getImpliedType(elementType);
         switch (refElementType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                ArrayType arrayType = (ArrayType) refElementType;
+                ArrayType arrayType = unwrap(refElementType);
                 balValue = createArrayFromSimpleTomlValue(
                         (TomlArrayValueNode) tomlValueNode, arrayType,
                         TypeUtils.getImpliedType(arrayType.getElementType()));
@@ -249,15 +248,15 @@ public class ConfigValueCreator {
 
     private BMap<BString, Object> createRecordValue(TomlNode tomlNode, Type type) {
         RecordType mutableType;
-        Optional<IntersectionType> intersectionType = ((IntersectableReferenceType) type).getIntersectionType();
+        Optional<IntersectionType> intersectionType = ((IntersectableReferenceType) unwrap(type)).getIntersectionType();
         // Creating a record value with mutable type and freezing it.
         if (intersectionType.isPresent()) {
-            mutableType = (RecordType) ReadOnlyUtils.getMutableType((BIntersectionType) intersectionType.get());
+            mutableType = (RecordType) ReadOnlyUtils.getMutableType(intersectionType.get());
         } else {
             if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
                 mutableType = (RecordType) type;
             } else {
-                mutableType = (RecordType) ReadOnlyUtils.getMutableType((BIntersectionType) type);
+                mutableType = (RecordType) ReadOnlyUtils.getMutableType(type);
             }
         }
         TomlTableNode tomlValue = (TomlTableNode) tomlNode;
@@ -281,13 +280,13 @@ public class ConfigValueCreator {
         TableType tableType;
         Type constraintType;
         if (type.getTag() == TypeTags.INTERSECTION_TAG) {
-            tableType = (TableType) ((BIntersectionType) type).getEffectiveType();
+            tableType = unwrap(TypeHelper.effectiveType(type));
             constraintType = tableType.getConstrainedType();
             if (constraintType.getTag() == TypeTags.INTERSECTION_TAG) {
-                constraintType = ((IntersectionType) constraintType).getEffectiveType();
+                constraintType = TypeHelper.effectiveType(constraintType);
             }
             if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                tableType = (TableType) ReadOnlyUtils.getMutableType((BIntersectionType) type);
+                tableType = (TableType) ReadOnlyUtils.getMutableType(type);
             }
         } else {
             tableType = (TableType) type;

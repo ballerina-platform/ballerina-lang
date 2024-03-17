@@ -27,7 +27,6 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.RecordType;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -387,7 +386,7 @@ public class Utils {
             case TypeTags.INTERSECTION_TAG:
                 return TypeHelper.effectiveType(type);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getEffectiveType(((ReferenceType) type).getReferredType());
+                return getEffectiveType(TypeHelper.referredType(type));
             default:
                 return type;
         }

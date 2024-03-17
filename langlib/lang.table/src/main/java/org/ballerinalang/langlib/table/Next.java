@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.table;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -91,7 +90,7 @@ public class Next {
             }
         }
 
-        BArray currentKeyArray = ValueCreator.createArrayValue((ArrayType) TypeUtils.getImpliedType(keys.getType()));
+        BArray currentKeyArray = ValueCreator.createArrayValue(TypeUtils.getImpliedType(keys.getType()));
         for (int i = 0; i < currentKeys.size(); i++) {
             Object key = currentKeys.get(i);
             currentKeyArray.add(i, key);

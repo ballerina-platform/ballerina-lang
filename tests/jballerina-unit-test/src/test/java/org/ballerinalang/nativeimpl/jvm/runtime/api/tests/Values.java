@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -74,6 +73,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 
 /**
  * This class contains a set of utility methods required for runtime api @{@link ValueCreator} testing.
@@ -189,7 +190,8 @@ public class Values {
     }
 
     public static BArray getConstituentTypes(BArray array) {
-        Optional<IntersectionType> arrayType = ((IntersectableReferenceType) array.getType()).getIntersectionType();
+        Optional<IntersectionType> arrayType =
+                ((IntersectableReferenceType) unwrap(array.getType())).getIntersectionType();
         Assert.assertTrue(arrayType.isPresent());
         List<Type> constituentTypes = arrayType.get().getConstituentTypes();
         int size = constituentTypes.size();
@@ -441,7 +443,7 @@ public class Values {
     }
 
     public static BArray getTupleWithInitialValues(BTypedesc typedesc, BArray array) {
-        BTupleType tupleType = TypeBuilder.unwrap(TypeUtils.getReferredType(typedesc.getDescribingType()));
+        BTupleType tupleType = unwrap(TypeUtils.getReferredType(typedesc.getDescribingType()));
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {

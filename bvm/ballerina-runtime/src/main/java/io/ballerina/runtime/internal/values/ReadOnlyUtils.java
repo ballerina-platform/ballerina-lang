@@ -27,7 +27,6 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
@@ -410,7 +409,7 @@ public class ReadOnlyUtils {
                 case TypeTags.ANYDATA_TAG:
                 case TypeTags.JSON_TAG:
                     // Constructor enforces setting the immutable type for non-immutable types.
-                    return (BIntersectionType) type.getImmutableType();
+                    return type.getImmutableType();
                 default:
                     BUnionType origUnionType = (BUnionType) type;
 
@@ -467,7 +466,7 @@ public class ReadOnlyUtils {
                     // for records and objects
                     new Type[]{originalType,
                             TypeBuilder.readonlyType()},
-                    (IntersectableReferenceType) effectiveType,
+                    unwrap(effectiveType),
                     typeFlags, true);
             originalType.setImmutableType(intersectionType);
             return intersectionType;

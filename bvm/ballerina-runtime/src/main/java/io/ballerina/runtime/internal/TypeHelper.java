@@ -170,12 +170,20 @@ public class TypeHelper {
         if (type instanceof BIntersectionType intersectionType) {
             return intersectionType.getEffectiveType();
         }
-        // TODO: figure out a better workaround for this currently this is exploiting the fact that BType component is
-        //  the original intersection type
-        BSemType semType = (BSemType) type;
-        BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[BT_BTYPE];
-        BIntersectionType intersectionType = (BIntersectionType) bTypeComponent.getBTypeComponent();
-        return intersectionType.getEffectiveType();
+        if (type instanceof BSemType semType) {
+            // TODO: figure out a better workaround for this currently this is exploiting the fact that BType
+            //  component is the original intersection type
+            BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[BT_BTYPE];
+            if (bTypeComponent == null) {
+                return type;
+            }
+            BType bType = bTypeComponent.getBTypeComponent();
+            if (bType instanceof BIntersectionType intersectionType) {
+                return intersectionType.getEffectiveType();
+            }
+            return bType;
+        }
+        return type;
     }
 
     public static List<Type> constituentTypes(Type type) {
