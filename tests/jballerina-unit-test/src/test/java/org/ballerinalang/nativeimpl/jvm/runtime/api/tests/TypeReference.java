@@ -51,7 +51,7 @@ import io.ballerina.runtime.internal.values.TableValue;
 
 import java.util.List;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 
 /**
  * Utility methods used for runtime api @{@link io.ballerina.runtime.internal.types.BTypeReferenceType} testing.
@@ -61,7 +61,7 @@ import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 public class TypeReference {
 
     public static Boolean validateGetDetailType(BTypedesc typedesc) {
-        BErrorType errorType = unwrap(TypeUtils.getImpliedType(typedesc.getDescribingType()));
+        BErrorType errorType = toBType(TypeUtils.getImpliedType(typedesc.getDescribingType()));
         Type detailType = errorType.getDetailType();
         if (detailType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             return true;
@@ -70,7 +70,7 @@ public class TypeReference {
     }
 
     public static Boolean validateFunctionType(BTypedesc typedesc) {
-        BFunctionType functionType = unwrap(TypeUtils.getImpliedType(typedesc.getDescribingType()));
+        BFunctionType functionType = toBType(TypeUtils.getImpliedType(typedesc.getDescribingType()));
         BError error = ErrorCreator.createError(
                 StringUtils.fromString("function type API provided a non type reference type."));
 
@@ -109,7 +109,7 @@ public class TypeReference {
     }
 
     public static Boolean validateMapType(BTypedesc typedesc) {
-        BMapType mapType = unwrap(TypeUtils.getImpliedType(typedesc.getDescribingType()));
+        BMapType mapType = toBType(TypeUtils.getImpliedType(typedesc.getDescribingType()));
 
         if (mapType.getConstrainedType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw ErrorCreator.createError(StringUtils.fromString("map type API provided a non type reference " +
@@ -119,7 +119,7 @@ public class TypeReference {
     }
 
     public static Boolean validateRecordType(BTypedesc typedesc) {
-        BRecordType recordType = unwrap(TypeUtils.getImpliedType(typedesc.getDescribingType()));
+        BRecordType recordType = toBType(TypeUtils.getImpliedType(typedesc.getDescribingType()));
         if (recordType.getRestFieldType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw ErrorCreator.createError(StringUtils.fromString("record type API provided a non type reference" +
                     " type."));
@@ -128,7 +128,7 @@ public class TypeReference {
     }
 
     public static Boolean validateStreamType(BTypedesc value1, BStream value2) {
-        BStreamType streamType = unwrap(TypeUtils.getImpliedType(value1.getDescribingType()));
+        BStreamType streamType = toBType(TypeUtils.getImpliedType(value1.getDescribingType()));
         if (streamType.getConstrainedType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
                 streamType.getCompletionType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
                 value2.getConstraintType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
@@ -140,7 +140,7 @@ public class TypeReference {
     }
 
     public static Boolean validateTableType(BTypedesc typedesc, TableValue tableValue) {
-        BTableType tableType = unwrap(TypeUtils.getImpliedType(typedesc.getDescribingType()));
+        BTableType tableType = toBType(TypeUtils.getImpliedType(typedesc.getDescribingType()));
         if (tableType.getConstrainedType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
                 tableValue.getKeyType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
                 tableValue.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
@@ -151,7 +151,7 @@ public class TypeReference {
     }
 
     public static Boolean validateTupleType(BTypedesc typedesc) {
-        BTupleType tupleType = unwrap(TypeUtils.getImpliedType(typedesc.getDescribingType()));
+        BTupleType tupleType = toBType(TypeUtils.getImpliedType(typedesc.getDescribingType()));
         BError error = ErrorCreator.createError(StringUtils.fromString("table type API provided a non type reference" +
                 " type."));
         for (Type type : tupleType.getTupleTypes()) {
@@ -168,7 +168,7 @@ public class TypeReference {
     }
 
     public static Boolean validateTypedescType(BTypedesc typedesc) {
-        BTypedescType typedescType = unwrap(TypeUtils.getImpliedType(typedesc.getDescribingType()));
+        BTypedescType typedescType = toBType(TypeUtils.getImpliedType(typedesc.getDescribingType()));
         if (typedescType.getConstraint().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw ErrorCreator.createError(StringUtils.fromString("typdesc type API provided a non type " +
                     "reference type."));
@@ -177,7 +177,7 @@ public class TypeReference {
     }
 
     public static Boolean validateUnionType(BTypedesc typedesc) {
-        BUnionType unionType = unwrap(TypeUtils.getImpliedType(typedesc.getDescribingType()));
+        BUnionType unionType = toBType(TypeUtils.getImpliedType(typedesc.getDescribingType()));
         BError error = ErrorCreator.createError(StringUtils.fromString("union type API provided a non type " +
                 "reference type."));
 

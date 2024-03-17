@@ -464,7 +464,7 @@ public class TypeChecker {
      * @return the annotation value if present, nil else
      */
     public static Object getAnnotValue(TypedescValue typedescValue, BString annotTag) {
-        Type describingType = TypeBuilder.unwrap(typedescValue.getDescribingType());
+        Type describingType = TypeBuilder.toBType(typedescValue.getDescribingType());
         if (!(describingType instanceof BAnnotatableType)) {
             return null;
         }
@@ -1093,5 +1093,18 @@ public class TypeChecker {
 
     public static Object handleAnydataValues(Object sourceVal, Type targetType) {
         return SemanticTypeEngine.handleAnydataValues(sourceVal, targetType);
+    }
+
+    public static boolean isAnydata(Type type) {
+        // TODO: maybe we should do type equality not subtype here
+        return checkIsType(type, PredefinedTypes.TYPE_ANYDATA);
+    }
+
+    public static boolean isReadonly(Type type) {
+        return checkIsType(type, PredefinedTypes.TYPE_READONLY);
+    }
+
+    public static boolean isNever(Type type) {
+        return checkIsType(type, PredefinedTypes.TYPE_NEVER);
     }
 }

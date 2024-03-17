@@ -18,7 +18,7 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeBuilder;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -51,7 +51,7 @@ public class BAnyType extends BType implements AnyType {
 
         if (!readonly) {
             BAnyType immutableAnyType = new BAnyType(TypeConstants.READONLY_ANY_TNAME, pkg, true);
-            this.immutableType = new BIntersectionType(pkg, new Type[]{this, TypeBuilder.readonlyType()},
+            this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
                                                        immutableAnyType, TypeFlags.asMask(TypeFlags.NILABLE), true);
         }
     }

@@ -176,11 +176,31 @@ public final class SemTypeUtils {
             return new BSemType(all, some, subTypeData);
         }
 
+        public static BSemType decimalSubType(boolean allowed, BigDecimal... values) {
+            int all = 0;
+            int some = 1 << BT_DECIMAL;
+            SubType[] subTypeData = new SubType[N_TYPES];
+            subTypeData[BT_DECIMAL] = DecimalSubType.createDecimalSubType(allowed, values);
+            return new BSemType(all, some, subTypeData);
+        }
+
         public static BSemType floatSubType(double value) {
             int all = 0;
             int some = 1 << BT_FLOAT;
             SubType[] subTypeData = new SubType[N_TYPES];
             subTypeData[BT_FLOAT] = FloatSubType.createFloatSubType(true, new Double[]{value});
+            return new BSemType(all, some, subTypeData);
+        }
+
+        public static BSemType floatSubType(boolean allowed, double... values) {
+            int all = 0;
+            int some = 1 << BT_FLOAT;
+            SubType[] subTypeData = new SubType[N_TYPES];
+            Double[] boxedValues = new Double[values.length];
+            for (int i = 0; i < values.length; i++) {
+                boxedValues[i] = values[i];
+            }
+            subTypeData[BT_FLOAT] = FloatSubType.createFloatSubType(allowed, boxedValues);
             return new BSemType(all, some, subTypeData);
         }
 

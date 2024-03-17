@@ -49,7 +49,7 @@ public class Next {
             Object element = StringUtils.fromString((String) charIterator.next());
             return ValueCreator
                     .createRecordValue(ValueCreator.createRecordValue(
-                                    TypeBuilder.unwrap(PredefinedTypes.STRING_ITR_NEXT_RETURN_TYPE)),
+                                    TypeBuilder.toBType(PredefinedTypes.STRING_ITR_NEXT_RETURN_TYPE)),
                             element);
         }
         return null;

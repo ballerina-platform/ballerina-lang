@@ -10,7 +10,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 
 /**
  * Implementation of lang.query:CreateImmutableType().
@@ -26,7 +26,7 @@ public class CreateImmutableType {
 
     public static BTable createImmutableTable(BTable tbl, BArray arr) {
         Type type =  tbl.getType();
-        TableType tableType = unwrap(TypeUtils.getImpliedType(type));
+        TableType tableType = toBType(TypeUtils.getImpliedType(type));
         BTable immutableTable = new TableValueImpl(type,
                 new ArrayValueImpl(arr.getValues(), TypeUtils.getImpliedType(arr.getType())),
                 new ArrayValueImpl(tableType.getFieldNames(), true));
@@ -35,10 +35,10 @@ public class CreateImmutableType {
     }
 
     public static BTable createTableWithKeySpecifier(BTable immutableTable, BTypedesc tableType) {
-        TableType type = unwrap(TypeUtils.getImpliedType(tableType.getDescribingType()));
+        TableType type = toBType(TypeUtils.getImpliedType(tableType.getDescribingType()));
         BTable tbl = new TableValueImpl(type,
                 new ArrayValueImpl(
-                        ((TableType) unwrap(TypeUtils.getImpliedType(immutableTable.getType()))).getFieldNames(),
+                        ((TableType) toBType(TypeUtils.getImpliedType(immutableTable.getType()))).getFieldNames(),
                         false));
         return tbl;
     }

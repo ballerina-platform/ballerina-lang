@@ -34,7 +34,7 @@ import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
@@ -58,7 +58,7 @@ public class Filter {
                 constraint = TypeHelper.typeConstraint(mapType);
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                constraint = MapLibUtils.getCommonTypeForRecordField(unwrap(mapType));
+                constraint = MapLibUtils.getCommonTypeForRecordField(toBType(mapType));
                 break;
             default:
                 throw createOpNotSupportedError(mapType, "filter()");

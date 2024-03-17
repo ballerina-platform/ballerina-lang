@@ -31,7 +31,7 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.Optional;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 
 /**
  * {@code BArrayType} represents a type of an arrays in Ballerina.
@@ -160,7 +160,7 @@ public class BArrayType extends BType implements ArrayType, MaybeRoType {
         Type tempElementType = elementType;
         sb.append(getSizeString());
         while (tempElementType.getTag() == TypeTags.ARRAY_TAG) {
-            sb.append(((BArrayType) unwrap(tempElementType)).getSizeString());
+            sb.append(((BArrayType) toBType(tempElementType)).getSizeString());
             tempElementType = TypeHelper.listRestType(tempElementType);
         }
         sb.insert(0, tempElementType);

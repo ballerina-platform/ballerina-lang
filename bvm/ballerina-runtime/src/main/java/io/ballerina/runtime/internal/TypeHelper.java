@@ -57,7 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.internal.types.semtype.Core.containsSimple;
 import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
@@ -72,7 +72,7 @@ import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicType
 public class TypeHelper {
 
     public static Type typeConstraint(Type type) {
-        Type unwrappedType = unwrap(type);
+        Type unwrappedType = toBType(type);
         if (unwrappedType instanceof BXmlType xmlType) {
             return xmlType.constraint;
         } else if (unwrappedType instanceof BMapType mapType) {
@@ -94,32 +94,32 @@ public class TypeHelper {
     }
 
     public static String[] tableFieldNames(Type type) {
-        BTableType tableType = unwrap(type);
+        BTableType tableType = toBType(type);
         return tableType.getFieldNames();
     }
 
     public static Map<String, Field> mappingRequiredFields(Type type) {
-        BRecordType recordType = unwrap(type);
+        BRecordType recordType = toBType(type);
         return recordType.getFields();
     }
 
     static boolean mappingTypeSealed(Type type) {
-        BRecordType recordType = unwrap(type);
+        BRecordType recordType = toBType(type);
         return recordType.sealed;
     }
 
     static Type mappingRestFieldType(Type type) {
-        BRecordType recordType = unwrap(type);
+        BRecordType recordType = toBType(type);
         return recordType.restFieldType;
     }
 
     public static List<Type> listMemberTypes(Type type) {
-        BTupleType tupleType = unwrap(type);
+        BTupleType tupleType = toBType(type);
         return tupleType.getTupleTypes();
     }
 
     public static Type listRestType(Type type) {
-        Type unwrappedType = unwrap(type);
+        Type unwrappedType = toBType(type);
         if (unwrappedType instanceof ArrayType arrayType) {
             return arrayType.getElementType();
         } else if (unwrappedType instanceof TupleType tupleType) {
@@ -133,7 +133,7 @@ public class TypeHelper {
     }
 
     public static ArrayType.ArrayState arrayState(Type type) {
-        Type unwrappedType = unwrap(type);
+        Type unwrappedType = toBType(type);
         if (unwrappedType instanceof ArrayType arrayType) {
             return arrayType.getState();
         } else if (unwrappedType instanceof BTypeReferenceType referenceType) {
@@ -145,12 +145,12 @@ public class TypeHelper {
     }
 
     public static boolean hasFillerValue(Type type) {
-        BArrayType arrayType = unwrap(type);
+        BArrayType arrayType = toBType(type);
         return arrayType.hasFillerValue();
     }
 
     public static int listFixedSize(Type type) {
-        BArrayType arrayType = unwrap(type);
+        BArrayType arrayType = toBType(type);
         return arrayType.getSize();
     }
 
@@ -208,7 +208,7 @@ public class TypeHelper {
             }
             return members;
         }
-        Type unwrappedType = unwrap(type);
+        Type unwrappedType = toBType(type);
         if (unwrappedType instanceof BUnionType unionType) {
             return memberList(unionType);
         } else if (unwrappedType instanceof BIntersectionType intersectionType) {
@@ -231,12 +231,12 @@ public class TypeHelper {
     }
 
     public static Type referredType(Type type) {
-        BTypeReferenceType referenceType = unwrap(type);
+        BTypeReferenceType referenceType = toBType(type);
         return referenceType.getReferredType();
     }
 
     static Type paramValueType(Type type) {
-        BParameterizedType parameterizedType = unwrap(type);
+        BParameterizedType parameterizedType = toBType(type);
         return parameterizedType.getParamValueType();
     }
 
@@ -246,8 +246,8 @@ public class TypeHelper {
         if (sourceType == targetType) {
             return true;
         }
-        Type sourceUnwrapped = unwrap(sourceType);
-        Type targetUnwrapped = unwrap(targetType);
+        Type sourceUnwrapped = toBType(sourceType);
+        Type targetUnwrapped = toBType(targetType);
         return sourceUnwrapped.equals(targetUnwrapped);
     }
 
@@ -321,7 +321,7 @@ public class TypeHelper {
     }
 
     public static void setAnnotations(Type describingType, MapValue annotations) {
-        BAnnotatableType annotatableType = TypeBuilder.unwrap(describingType);
+        BAnnotatableType annotatableType = TypeBuilder.toBType(describingType);
         annotatableType.setAnnotations(annotations);
     }
 }

@@ -151,7 +151,7 @@ public class UnionTypeStampInbuiltFunctionTest {
         BAssertUtil.assertTypeClass(getType(employee0), BMapType.class);
         Type constrainedType = TypeUtils.getImpliedType(TypeHelper.typeConstraint(employee0.getType()));
         BAssertUtil.assertTypeClass(constrainedType, BRecordType.class);
-        Assert.assertEquals(TypeBuilder.unwrap(constrainedType).getName(), "Teacher");
+        Assert.assertEquals(TypeBuilder.toBType(constrainedType).getName(), "Teacher");
 
         Assert.assertEquals(getType(employee0.get(StringUtils.fromString("a"))).getName(), "Teacher");
         Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(

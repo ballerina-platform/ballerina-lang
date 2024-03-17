@@ -62,7 +62,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -120,7 +120,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     public TableValueImpl(Type type, ArrayValue data, ArrayValue fieldNames) {
-        this(unwrap(TypeUtils.getImpliedType(type)), data, fieldNames);
+        this(toBType(TypeUtils.getImpliedType(type)), data, fieldNames);
         this.type = type;
     }
 
@@ -357,7 +357,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return;
         }
 
-        this.tableType = unwrap(ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.tableType));
+        this.tableType = toBType(ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.tableType));
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
 
         //we know that values are always BRefValues
@@ -729,11 +729,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 List<Type> keyTypes = new ArrayList<>();
                 Type constraintType = TypeUtils.getImpliedType(tableType.getConstrainedType());
                 if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                    BRecordType recordType = unwrap(constraintType);
+                    BRecordType recordType = toBType(constraintType);
                     Arrays.stream(fieldNames)
                             .forEach(field -> keyTypes.add(recordType.getFields().get(field).getFieldType()));
                 } else if (constraintType.getTag() == TypeTags.MAP_TAG) {
-                    BMapType mapType = unwrap(constraintType);
+                    BMapType mapType = toBType(constraintType);
                     Arrays.stream(fieldNames).forEach(field -> keyTypes.add(mapType.getConstrainedType()));
                 }
                 keyType = new BTupleType(keyTypes);
@@ -741,7 +741,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
             public K wrapKey(MapValue data) {
                 TupleValueImpl arr = (TupleValueImpl) ValueCreator
-                        .createTupleValue(unwrap(keyType));
+                        .createTupleValue(toBType(keyType));
                 for (int i = 0; i < fieldNames.length; i++) {
                     arr.add(i, data.get(StringUtils.fromString(fieldNames[i])));
                 }

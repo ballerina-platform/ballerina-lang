@@ -74,7 +74,7 @@ public class InstanceMethodTest {
         Object returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrows", args);
 
         Assert.assertNotNull(returns);
-        Assert.assertTrue(TypeBuilder.unwrap(getType(returns)) instanceof BErrorType);
+        Assert.assertTrue(TypeBuilder.toBType(getType(returns)) instanceof BErrorType);
         Assert.assertEquals(((BError) returns).getMessage(), "java.lang.InterruptedException");
 
         returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrowsReturn", args);
@@ -88,7 +88,7 @@ public class InstanceMethodTest {
         args[0] = new HandleValue(testIns);
 
         Object returns = BRunUtil.invoke(result, "testHandleOrErrorReturn", args);
-        Assert.assertTrue(TypeBuilder.unwrap(getType(returns)) instanceof BHandleType);
+        Assert.assertTrue(TypeBuilder.toBType(getType(returns)) instanceof BHandleType);
         Assert.assertEquals(((HandleValue) returns).getValue(), 70);
 
         returns = BRunUtil.invoke(result, "testHandleOrErrorReturnThrows", args);

@@ -41,7 +41,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 
 /**
  * {@code BUnionType} represents a union type in Ballerina.
@@ -493,7 +493,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
                 uniqueTypes.add(type);
                 continue;
             }
-            BUnionType unionMemType = unwrap(type);
+            BUnionType unionMemType = toBType(type);
             String typeName = unionMemType.typeName;
             if (typeName != null && !typeName.isEmpty()) {
                 uniqueTypes.add(type);

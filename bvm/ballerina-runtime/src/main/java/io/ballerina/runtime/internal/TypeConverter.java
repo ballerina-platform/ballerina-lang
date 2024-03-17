@@ -60,7 +60,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned16;
@@ -275,31 +275,31 @@ public class TypeConverter {
                 return getConvertibleTypeInTargetUnionType(inputValue, targetType, varName,
                         errors, unresolvedValues, allowNumericConversion);
             case TypeTags.ARRAY_TAG:
-                if (isConvertibleToArrayType(inputValue, unwrap(targetType), unresolvedValues, varName, errors,
+                if (isConvertibleToArrayType(inputValue, toBType(targetType), unresolvedValues, varName, errors,
                         allowNumericConversion)) {
                     return targetType;
                 }
                 break;
             case TypeTags.TUPLE_TAG:
-                if (isConvertibleToTupleType(inputValue, unwrap(targetType), unresolvedValues, varName, errors,
+                if (isConvertibleToTupleType(inputValue, toBType(targetType), unresolvedValues, varName, errors,
                         allowNumericConversion)) {
                     return targetType;
                 }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                if (isConvertibleToRecordType(inputValue, unwrap(targetType), varName,
+                if (isConvertibleToRecordType(inputValue, toBType(targetType), varName,
                         unresolvedValues, errors, allowNumericConversion)) {
                     return targetType;
                 }
                 break;
             case TypeTags.MAP_TAG:
-                if (isConvertibleToMapType(inputValue, unwrap(targetType), unresolvedValues, varName, errors,
+                if (isConvertibleToMapType(inputValue, toBType(targetType), unresolvedValues, varName, errors,
                         allowNumericConversion)) {
                     return targetType;
                 }
                 break;
             case TypeTags.TABLE_TAG:
-                if (isConvertibleToTableType(inputValue, unwrap(targetType), unresolvedValues, varName,
+                if (isConvertibleToTableType(inputValue, toBType(targetType), unresolvedValues, varName,
                         errors, allowNumericConversion)) {
                     return targetType;
                 }
@@ -644,7 +644,7 @@ public class TypeConverter {
         Type targetTypeElementType = TypeUtils.getImpliedType(targetType.getElementType());
         Type sourceType = source.getType();
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            Type sourceElementType = TypeUtils.getImpliedType(((BArrayType) unwrap(sourceType)).getElementType());
+            Type sourceElementType = TypeUtils.getImpliedType(((BArrayType) toBType(sourceType)).getElementType());
             if (isNumericType(sourceElementType) && isNumericType(targetTypeElementType)) {
                 return true;
             }

@@ -57,7 +57,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
 
@@ -208,7 +208,7 @@ public class ValueConverter {
             Object newValue = convertRecordEntry(unresolvedValues, restFieldType, targetTypeField, entry);
             valueMap.put(entry.getKey().toString(), newValue);
         }
-        Optional<IntersectionType> intersectionType = ((BRecordType) unwrap(TypeUtils.getImpliedType(recordRefType)))
+        Optional<IntersectionType> intersectionType = ((BRecordType) toBType(TypeUtils.getImpliedType(recordRefType)))
                 .getIntersectionType();
         if (recordRefType.isReadOnly() && intersectionType.isPresent() && !map.getType().isReadOnly()) {
             Type mutableType = ReadOnlyUtils.getMutableType(intersectionType.get());
@@ -265,7 +265,7 @@ public class ValueConverter {
 
     private static Object convertTable(BTable<?, ?> bTable, Type targetType,
                                        Type targetRefType, Set<TypeValuePair> unresolvedValues) {
-        TableType tableType = unwrap(targetType);
+        TableType tableType = toBType(targetType);
         Optional<IntersectionType> intersectionType = tableType.getIntersectionType();
         if (targetRefType.isReadOnly() && intersectionType.isPresent() && !bTable.getType().isReadOnly()) {
             tableType = (TableType) ReadOnlyUtils.getMutableType(intersectionType.get());

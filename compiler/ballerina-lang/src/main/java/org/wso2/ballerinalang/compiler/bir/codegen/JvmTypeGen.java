@@ -95,7 +95,6 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
@@ -113,7 +112,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getStringConstantsClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BASIC_TYPE_BUILDER_DESCRIPTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINARY_TYPE_OPERATION_DESCRIPTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINARY_TYPE_OPERATION_WITH_IDENTIFIER_DESCRIPTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
@@ -130,7 +128,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_SUBTYPE_BUILDER_DESCRIPTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
@@ -152,6 +149,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_SU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_SUBTYPE_DATA_BUILDER_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TO_SEMTYPE_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
@@ -364,9 +362,11 @@ public class JvmTypeGen {
     //              Type loading methods
     // -------------------------------------------------------
 
+    // TODO: as we implement more and more runtime types using semtypes extend update TypeBuilder and this to create
+    //   those types using the new API. (When eventually this method handles all types replace loadType with this)
     public void loadTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
         if (type == null || type.tag == TypeTags.NIL) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "nilType", BASIC_TYPE_BUILDER_DESCRIPTOR, false);
+            mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NULL", GET_TYPE);
             return;
         }
         // NOTE: don't fully remove this until we unconditionally support xml
@@ -391,61 +391,58 @@ public class JvmTypeGen {
             loadUnionTypeUsingTypeBuilder(mv, type);
             return;
         }
-        if (tag == TypeTags.CHAR_STRING) {
-            loadStringSubTypeUsingTypeBuilder(mv, type);
-            return;
-        }
         if (tag == TypeTags.FINITE) {
             loadFiniteTypeUsingTypeBuilder(mv, type);
             return;
         }
-        String methodName = switch (tag) {
-            case TypeTags.BOOLEAN -> "booleanType";
-            case TypeTags.DECIMAL -> "decimalType";
-            case TypeTags.FLOAT -> "floatType";
-            case TypeTags.INT -> "intType";
-            case TypeTags.NEVER -> "neverType";
-            case TypeTags.STRING -> "stringType";
-            case TypeTags.XML -> "xmlType";
-            case TypeTags.ERROR -> "errorType";
+        String fieldName = "TYPE_" + switch (tag) {
+            case TypeTags.BOOLEAN -> "BOOLEAN";
+            case TypeTags.DECIMAL -> "DECIMAL";
+            case TypeTags.FLOAT -> "FLOAT";
+            case TypeTags.INT -> "INT";
+            case TypeTags.NEVER -> "NEVER";
+            case TypeTags.STRING -> "STRING";
+            case TypeTags.XML -> "XML";
+            case TypeTags.ERROR -> "ERROR";
+            case TypeTags.CHAR_STRING -> "STRING_CHAR";
             default -> throw new UnsupportedOperationException("Unexpected type: " + type);
         };
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, methodName, BASIC_TYPE_BUILDER_DESCRIPTOR, false);
+        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, fieldName, GET_TYPE);
     }
 
     private static void loadFiniteTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
         // TODO: this don't properly handle cases where
         BFiniteType finiteType = (BFiniteType) type;
+        int numberOfTypesOnStack = 0;
         for (int i = 0; i < finiteType.valueSpace.length; i++) {
             SemType semType = finiteType.valueSpace[i].semType();
             SubtypeData subtypeData = Core.stringSubtype(semType);
             // Create singleton string
+            // TODO: create other type singletons here as well
             if (subtypeData instanceof StringSubtype stringSubtype) {
                 CharStringSubtype chars = stringSubtype.getChar();
                 NonCharStringSubtype nonChars = stringSubtype.getNonChar();
-                loadStringSubTypeUsingTypeBuilderInner(
+                loadStringSubTypeUsingTypeBuilder(
                         mv,
                         chars.allowed,
                         Arrays.stream(chars.values).map(each -> each.value).toList(),
                         nonChars.allowed,
                         Arrays.stream(nonChars.values).map(each -> each.value).toList());
+                numberOfTypesOnStack++;
             } else {
                 throw new IllegalStateException("Unexpected subtype data: " + subtypeData);
             }
-            if (i > 0) {
-                if (i < finiteType.valueSpace.length - 1) {
-                    mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union", BINARY_TYPE_OPERATION_DESCRIPTOR, false);
-                } else {
-                    if (hasIdentifier(type)) {
-                        loadTypeBuilderIdentifier(mv, type);
-                        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union",
-                                BINARY_TYPE_OPERATION_WITH_IDENTIFIER_DESCRIPTOR, false);
-                    } else {
-                        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union", BINARY_TYPE_OPERATION_DESCRIPTOR,
-                                false);
-                    }
-                }
+        }
+        boolean needToSetIdentifier = hasIdentifier(type);
+        while (numberOfTypesOnStack > 1) {
+            if (needToSetIdentifier && numberOfTypesOnStack == 2) {
+                loadTypeBuilderIdentifier(mv, type);
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union",
+                        BINARY_TYPE_OPERATION_WITH_IDENTIFIER_DESCRIPTOR, false);
+            } else {
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union", BINARY_TYPE_OPERATION_DESCRIPTOR, false);
             }
+            numberOfTypesOnStack--;
         }
     }
 
@@ -468,13 +465,8 @@ public class JvmTypeGen {
         String org = packageID.orgName.value;
         String pkgName = packageID.pkgName.value;
         String version = packageID.version.value;
-        // TODO: get the name using utils
-        String name;
-        if (type.tsymbol.name != null) {
-            name = Utils.decodeIdentifier(type.tsymbol.name.getValue());
-        } else {
-            name = Utils.decodeIdentifier(type.name.getValue());
-        }
+        String name = type.tsymbol.name != null ? Utils.decodeIdentifier(type.tsymbol.name.getValue()) :
+                Utils.decodeIdentifier(type.name.getValue());
         mv.visitTypeInsn(NEW, TYPE_BUILDER_IDENTIFIER);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(name);
@@ -581,18 +573,22 @@ public class JvmTypeGen {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "listSubType", LIST_SUBTYPE_BUILDER_DESCRIPTOR, false);
     }
 
-    // TODO: to better
     private static void loadNeverType(MethodVisitor mv) {
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "neverType", BASIC_TYPE_BUILDER_DESCRIPTOR, false);
+        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NEVER", GET_TYPE);
     }
 
     private static boolean isMayBeReadonlyType(BType type) {
-        return type.tag == TypeTags.ANY || type.tag == TypeTags.ANYDATA || type.tag == TypeTags.JSON ||
-                isStructureType(type);
+        return switch (type.tag) {
+            case TypeTags.ANY, TypeTags.ANYDATA, TypeTags.JSON -> true;
+            default -> isStructureType(type);
+        };
     }
 
     private static boolean isStructureType(BType type) {
-        return type.tag == TypeTags.ARRAY || type.tag == TypeTags.TUPLE;
+        return switch (type.tag) {
+            case TypeTags.ARRAY, TypeTags.TUPLE -> true;
+            default -> false;
+        };
     }
 
     // TODO: ideally we should handle xml here as well
@@ -600,59 +596,39 @@ public class JvmTypeGen {
         if (isStructureType(type)) {
             loadStructureTypeUsingTypeBuilder(mv, type);
         } else {
-            String baseTypeBuilderName = switch (type.tag) {
-                case TypeTags.ANY -> "anyType";
-                case TypeTags.ANYDATA -> "anydataType";
-                case TypeTags.JSON -> "jsonType";
+            String fieldName = "TYPE_" + switch (type.tag) {
+                case TypeTags.ANY -> "ANY";
+                case TypeTags.ANYDATA -> "ANYDATA";
+                case TypeTags.JSON -> "JSON";
                 default -> throw new UnsupportedOperationException("Unexpected maybe readonly type: " + type);
             };
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, baseTypeBuilderName, BASIC_TYPE_BUILDER_DESCRIPTOR, false);
+            mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, fieldName, GET_TYPE);
         }
         if (!Symbols.isFlagOn(type.flags, Flags.READONLY)) {
             return;
         }
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "readonlyType", BASIC_TYPE_BUILDER_DESCRIPTOR, false);
+        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_READONLY", GET_TYPE);
         mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "intersect", BINARY_TYPE_OPERATION_DESCRIPTOR, false);
     }
 
     private static void loadIntSubTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
-        int tag = type.tag;
         // TODO: BTypeHack: this is because we a separate BByte type that is treated
-        // different from BIntegerType
-        if (tag == TypeTags.BYTE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "byteType", BASIC_TYPE_BUILDER_DESCRIPTOR, false);
-            return;
-        }
-        long min = switch (tag) {
-            case TypeTags.UNSIGNED8_INT, TypeTags.UNSIGNED16_INT, TypeTags.UNSIGNED32_INT -> 0;
-            case TypeTags.SIGNED8_INT -> -128;
-            case TypeTags.SIGNED16_INT -> -32768;
-            case TypeTags.SIGNED32_INT -> -2147483648;
-            default -> throw new UnsupportedOperationException("Unexpected Int subtype" + type);
+        //  different from BIntegerType
+        String fieldName = "TYPE_" + switch (type.tag) {
+            case TypeTags.BYTE -> "BYTE";
+            case TypeTags.UNSIGNED8_INT -> "INT_UNSIGNED_8";
+            case TypeTags.UNSIGNED16_INT -> "INT_UNSIGNED_16";
+            case TypeTags.UNSIGNED32_INT -> "INT_UNSIGNED_32";
+            case TypeTags.SIGNED8_INT -> "INT_SIGNED_8";
+            case TypeTags.SIGNED16_INT -> "INT_SIGNED_16";
+            case TypeTags.SIGNED32_INT -> "INT_SIGNED_32";
+            default -> throw new IllegalStateException("Unexpected Int subtype" + type);
         };
-        long max = switch (tag) {
-            case TypeTags.UNSIGNED8_INT -> 255;
-            case TypeTags.UNSIGNED16_INT -> 65535;
-            case TypeTags.UNSIGNED32_INT -> 4294967295L;
-            case TypeTags.SIGNED8_INT -> 127;
-            case TypeTags.SIGNED16_INT -> 32767;
-            case TypeTags.SIGNED32_INT -> 2147483647;
-            default -> throw new UnsupportedOperationException("Unexpected Int subtype" + type);
-        };
-        mv.visitLdcInsn(min);
-        mv.visitLdcInsn(max);
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "intSubType", INT_SUBTYPE_BUILDER_DESCRIPTOR, false);
+        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, fieldName, GET_TYPE);
     }
 
-    private static void loadStringSubTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
-        if (type.tag != TypeTags.CHAR_STRING) {
-            throw new UnsupportedOperationException("Type loading is not supported for type: " + type);
-        }
-        loadStringSubTypeUsingTypeBuilderInner(mv, false, List.of(), true, List.of());
-    }
-
-    private static void loadStringSubTypeUsingTypeBuilderInner(MethodVisitor mv, boolean allowChars, List<String> chars,
-                                                               boolean allowNonChars, List<String> nonChars) {
+    private static void loadStringSubTypeUsingTypeBuilder(MethodVisitor mv, boolean allowChars, List<String> chars,
+                                                          boolean allowNonChars, List<String> nonChars) {
         mv.visitTypeInsn(NEW, STRING_SUBTYPE_DATA);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, STRING_SUBTYPE_DATA, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
@@ -725,10 +701,7 @@ public class JvmTypeGen {
                         yield false;
                     }
                 }
-                if (!canBeHandledByTypeBuilder(tupleType.restType, seen)) {
-                    yield false;
-                }
-                yield true;
+                yield canBeHandledByTypeBuilder(tupleType.restType, seen);
             }
             case TypeTags.INTERSECTION -> {
                 BIntersectionType intersectionType = (BIntersectionType) type;
@@ -760,155 +733,97 @@ public class JvmTypeGen {
      * @param bType type to load
      */
     public void loadType(MethodVisitor mv, BType bType) {
-        String typeFieldName;
         if (canBeHandledByTypeBuilder(bType, new HashSet<>())) {
             loadTypeUsingTypeBuilder(mv, bType);
             return;
-        } else {
-            switch (bType.tag) {
-                case TypeTags.REGEXP:
-                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_ANYDATA"
-                            : "TYPE_ANYDATA";
-                    break;
-                case TypeTags.XML:
-                    loadXmlType(mv, (BXMLType) bType);
-                    return;
-                case TypeTags.TYPEDESC:
-                    loadTypedescType(mv, (BTypedescType) bType);
-                    return;
-                case TypeTags.OBJECT:
-                case TypeTags.RECORD:
+        }
+        String typeFieldName;
+        switch (bType.tag) {
+            case TypeTags.REGEXP:
+                typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "TYPE_READONLY_ANYDATA"
+                        : "TYPE_ANYDATA";
+                break;
+            case TypeTags.XML:
+                loadXmlType(mv, (BXMLType) bType);
+                return;
+            case TypeTags.TYPEDESC:
+                loadTypedescType(mv, (BTypedescType) bType);
+                return;
+            case TypeTags.OBJECT:
+            case TypeTags.RECORD:
+                loadUserDefinedType(mv, bType);
+                return;
+            case TypeTags.HANDLE:
+                typeFieldName = "TYPE_HANDLE";
+                break;
+            case TypeTags.ARRAY:
+                // NOTE: this is to handle cases where we still can't generate the element using
+                // type builder
+                jvmConstantsGen.generateGetBArrayType(mv, jvmConstantsGen.getTypeConstantsVar(bType, symbolTable));
+                return;
+            case TypeTags.MAP:
+                loadMapType(mv, (BMapType) bType);
+                return;
+            case TypeTags.STREAM:
+                loadStreamType(mv, (BStreamType) bType);
+                return;
+            case TypeTags.TABLE:
+                loadTableType(mv, (BTableType) bType);
+                return;
+            case TypeTags.ERROR:
+                loadErrorType(mv, (BErrorType) bType);
+                return;
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) bType;
+                if (unionType.isCyclic) {
                     loadUserDefinedType(mv, bType);
-                    return;
-                case TypeTags.HANDLE:
-                    typeFieldName = "TYPE_HANDLE";
-                    break;
-                case TypeTags.ARRAY:
-                    // NOTE: this is to handle cases where we still can't generate the element using
-                    // type builder
-                    jvmConstantsGen.generateGetBArrayType(mv, jvmConstantsGen.getTypeConstantsVar(bType, symbolTable));
-                    return;
-                case TypeTags.MAP:
-                    loadMapType(mv, (BMapType) bType);
-                    return;
-                case TypeTags.STREAM:
-                    loadStreamType(mv, (BStreamType) bType);
-                    return;
-                case TypeTags.TABLE:
-                    loadTableType(mv, (BTableType) bType);
-                    return;
-                case TypeTags.ERROR:
-                    loadErrorType(mv, (BErrorType) bType);
-                    return;
-                case TypeTags.UNION:
-                    BUnionType unionType = (BUnionType) bType;
-                    if (unionType.isCyclic) {
-                        loadUserDefinedType(mv, bType);
-                    } else {
-                        jvmConstantsGen.generateGetBUnionType(mv,
-                                jvmConstantsGen.getTypeConstantsVar(bType, symbolTable));
-                    }
-                    return;
-                case TypeTags.INTERSECTION:
-                    loadIntersectionType(mv, (BIntersectionType) bType);
-                    return;
-                case TypeTags.INVOKABLE:
-                    loadInvokableType(mv, (BInvokableType) bType);
-                    return;
-                case TypeTags.NONE:
-                    mv.visitInsn(ACONST_NULL);
-                    return;
-                case TypeTags.TUPLE:
-                    BTupleType tupleType = (BTupleType) bType;
-                    if (tupleType.isCyclic) {
-                        loadUserDefinedType(mv, bType);
-                    } else {
-                        jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTypeConstantsVar(tupleType,
-                                symbolTable));
-                    }
-                    return;
-                case TypeTags.FINITE:
-                    loadFiniteType(mv, (BFiniteType) bType);
-                    return;
-                case TypeTags.FUTURE:
-                    loadFutureType(mv, (BFutureType) bType);
-                    return;
-                case TypeTags.READONLY:
-                    typeFieldName = "TYPE_READONLY";
-                    break;
-                case TypeTags.PARAMETERIZED_TYPE:
-                    loadParameterizedType(mv, (BParameterizedType) bType);
-                    return;
-                case TypeTags.TYPEREFDESC:
-                    String typeOwner = getModuleLevelClassName(bType.tsymbol.pkgID,
-                            JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
-                    mv.visitFieldInsn(GETSTATIC, typeOwner,
-                            JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) bType), GET_TYPE_REF_TYPE_IMPL);
-                    return;
-                default:
-                    return;
-            }
+                } else {
+                    jvmConstantsGen.generateGetBUnionType(mv,
+                            jvmConstantsGen.getTypeConstantsVar(bType, symbolTable));
+                }
+                return;
+            case TypeTags.INTERSECTION:
+                loadIntersectionType(mv, (BIntersectionType) bType);
+                return;
+            case TypeTags.INVOKABLE:
+                loadInvokableType(mv, (BInvokableType) bType);
+                return;
+            case TypeTags.NONE:
+                mv.visitInsn(ACONST_NULL);
+                return;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) bType;
+                if (tupleType.isCyclic) {
+                    loadUserDefinedType(mv, bType);
+                } else {
+                    jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTypeConstantsVar(tupleType,
+                            symbolTable));
+                }
+                return;
+            case TypeTags.FINITE:
+                loadFiniteType(mv, (BFiniteType) bType);
+                return;
+            case TypeTags.FUTURE:
+                loadFutureType(mv, (BFutureType) bType);
+                return;
+            case TypeTags.READONLY:
+                typeFieldName = "TYPE_READONLY";
+                break;
+            case TypeTags.PARAMETERIZED_TYPE:
+                loadParameterizedType(mv, (BParameterizedType) bType);
+                return;
+            case TypeTags.TYPEREFDESC:
+                String typeOwner = getModuleLevelClassName(bType.tsymbol.pkgID,
+                        JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
+                mv.visitFieldInsn(GETSTATIC, typeOwner,
+                        JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) bType), GET_TYPE_REF_TYPE_IMPL);
+                return;
+            default:
+                return;
         }
 
         mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, typeFieldName, LOAD_TYPE);
     }
-
-    // private String loadTypeClass(BType bType) {
-    // bType = JvmCodeGenUtil.getImpliedType(bType);
-    // if (bType == null || bType.tag == TypeTags.NIL) {
-    // return LOAD_NULL_TYPE;
-    // } else {
-    // switch (bType.tag) {
-    // case TypeTags.NEVER:
-    // return LOAD_NEVER_TYPE;
-    // case TypeTags.INT:
-    // case TypeTags.UNSIGNED8_INT:
-    // case TypeTags.UNSIGNED16_INT:
-    // case TypeTags.UNSIGNED32_INT:
-    // case TypeTags.SIGNED8_INT:
-    // case TypeTags.SIGNED16_INT:
-    // case TypeTags.SIGNED32_INT:
-    // return LOAD_INTEGER_TYPE;
-    // case TypeTags.FLOAT:
-    // return LOAD_FLOAT_TYPE;
-    // case TypeTags.STRING:
-    // case TypeTags.CHAR_STRING:
-    // return LOAD_STRING_TYPE;
-    // case TypeTags.DECIMAL:
-    // return LOAD_DECIMAL_TYPE;
-    // case TypeTags.BOOLEAN:
-    // return LOAD_BOOLEAN_TYPE;
-    // case TypeTags.BYTE:
-    // return LOAD_BYTE_TYPE;
-    // case TypeTags.ANY:
-    // return LOAD_ANY_TYPE;
-    // case TypeTags.ANYDATA:
-    // case TypeTags.REGEXP:
-    // return LOAD_ANYDATA_TYPE;
-    // case TypeTags.JSON:
-    // return LOAD_JSON_TYPE;
-    // case TypeTags.XML:
-    // case TypeTags.XML_TEXT:
-    // return LOAD_XML_TYPE;
-    // case TypeTags.XML_ELEMENT:
-    // case TypeTags.XML_PI:
-    // case TypeTags.XML_COMMENT:
-    // return Symbols.isFlagOn(bType.flags, Flags.READONLY) ? LOAD_TYPE :
-    // LOAD_XML_TYPE;
-    // case TypeTags.OBJECT:
-    // return Symbols.isService(bType.tsymbol) ? LOAD_SERVICE_TYPE :
-    // LOAD_OBJECT_TYPE;
-    // case TypeTags.HANDLE:
-    // return LOAD_HANDLE_TYPE;
-    // case TypeTags.READONLY:
-    // return LOAD_READONLY_TYPE;
-    // case TypeTags.UNION:
-    // return LOAD_UNION_TYPE;
-    // default:
-    // return LOAD_TYPE;
-    // }
-    // }
-    // }
 
     /**
      * Generate code to load an instance of the given typedesc type
@@ -1583,21 +1498,10 @@ public class JvmTypeGen {
         mv.visitInsn(POP);
     }
 
-    public static void unwrapType(MethodVisitor mv, String targetType) {
-        // Initialize mv
-        String owner = "io/ballerina/runtime/api/TypeBuilder";
-        String name = "unwrap";
-        String descriptor = "(Lio/ballerina/runtime/api/types/Type;)Lio/ballerina/runtime/api/types/Type;";
-        mv.visitMethodInsn(INVOKESTATIC, owner, name, descriptor, false);
-        mv.visitTypeInsn(CHECKCAST, targetType);
-    }
-
+    // TODO: ideally instead of this we should instead build the type using the TypeBuilder. As we convert more and
+    //   more types to semtypes that should happen naturally
+    @Deprecated
     public static void wrapType(MethodVisitor mv) {
-        // Initialize mv
-        String owner = "io/ballerina/runtime/api/TypeBuilder";
-        String name = "wrap";
-        String descriptor =
-                "(Lio/ballerina/runtime/api/types/Type;)Lio/ballerina/runtime/internal/types/semtype/BSemType;";
-        mv.visitMethodInsn(INVOKESTATIC, owner, name, descriptor, false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "toSemType", TO_SEMTYPE_DESC, false);
     }
 }

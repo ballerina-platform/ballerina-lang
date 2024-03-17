@@ -31,7 +31,7 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.values.MapValue;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
@@ -142,11 +142,11 @@ public class MapUtils {
 
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                handleInherentTypeViolatingMapUpdate(value, unwrap(mapType));
+                handleInherentTypeViolatingMapUpdate(value, toBType(mapType));
                 mapValue.put(fieldName, value);
                 return;
             case TypeTags.RECORD_TYPE_TAG:
-                if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, unwrap(mapType), false)) {
+                if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, toBType(mapType), false)) {
                     mapValue.put(fieldName, value);
                     return;
                 }

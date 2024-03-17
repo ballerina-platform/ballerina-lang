@@ -37,7 +37,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
@@ -56,7 +56,7 @@ public class MapLibUtils {
             case TypeTags.MAP_TAG:
                 return TypeHelper.typeConstraint(mapType);
             case TypeTags.RECORD_TYPE_TAG:
-                return getCommonTypeForRecordField(unwrap(mapType));
+                return getCommonTypeForRecordField(toBType(mapType));
             default:
                 throw createOpNotSupportedError(mapType, funcName);
         }

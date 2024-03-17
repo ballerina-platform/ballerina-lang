@@ -111,6 +111,10 @@ public class JvmConstants {
     public static final String BASIC_TYPE_BUILDER_DESCRIPTOR = "()L" + TYPE + ";";
     public static final String BINARY_TYPE_OPERATION_DESCRIPTOR = "(L" + TYPE + ";L" + TYPE + ";)L" + TYPE + ";";
     public static final String TYPE_BUILDER = "io/ballerina/runtime/api/TypeBuilder";
+    public static final String TO_B_TYPE_DESC =
+            "(Lio/ballerina/runtime/api/types/Type;)Lio/ballerina/runtime/api/types/Type;";
+    public static final String TO_SEMTYPE_DESC =
+            "(Lio/ballerina/runtime/api/types/Type;)Lio/ballerina/runtime/internal/types/semtype/BSemType;";
     public static final String STRING_SUBTYPE_DATA =
             TYPE_BUILDER + "$StringSubtypeData";
     public static final String TYPE_BUILDER_IDENTIFIER = TYPE_BUILDER + "$Identifier";

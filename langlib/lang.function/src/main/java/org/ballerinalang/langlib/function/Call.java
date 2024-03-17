@@ -36,7 +36,7 @@ import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import java.util.LinkedList;
 import java.util.List;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FUNCTION_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INCOMPATIBLE_ARGUMENTS;
@@ -61,7 +61,7 @@ public class Call {
         if (checkIsValidPositionalArgs(args, argsList, functionType, paramTypes, argTypes) ||
                  checkIsValidRestArgs(args, argsList, functionType, paramTypes, argTypes)) {
             Type restType =
-                    functionType.restType != null ? ((BArrayType) unwrap(functionType.restType)).getElementType() :
+                    functionType.restType != null ? ((BArrayType) toBType(functionType.restType)).getElementType() :
                             null;
             throw ErrorCreator.createError(
                         getModulePrefixedReason(FUNCTION_LANG_LIB, INCOMPATIBLE_ARGUMENTS),
@@ -107,7 +107,7 @@ public class Call {
         boolean errored = false;
         int numOfArgs = args.length;
         int numOfRestArgs = Math.max(numOfArgs - functionType.parameters.length, 0);
-        BArrayType restType = unwrap(functionType.restType);
+        BArrayType restType = toBType(functionType.restType);
         if (restType != null) {
             ListInitialValueEntry.ExpressionEntry[] initialValues =
                                                     new ListInitialValueEntry.ExpressionEntry[numOfRestArgs];

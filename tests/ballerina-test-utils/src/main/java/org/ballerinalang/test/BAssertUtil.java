@@ -165,6 +165,6 @@ public class BAssertUtil {
     // To check if a value belong to a class we should use a proper type checker instead of this
     @Deprecated
     public static <T extends Type> void assertTypeClass(T actual, Class<?> expected) {
-        Assert.assertEquals(TypeBuilder.unwrap(actual).getClass(), expected);
+        Assert.assertEquals(TypeBuilder.toBType(actual).getClass(), expected);
     }
 }

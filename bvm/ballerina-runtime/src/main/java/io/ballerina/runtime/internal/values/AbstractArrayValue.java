@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
@@ -168,7 +168,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         if (type.getTag() == TypeTags.ARRAY_TAG) {
             type = getElementType();
         } else {
-            BTupleType tupleType = unwrap(type);
+            BTupleType tupleType = toBType(type);
             LinkedHashSet<Type> types = new LinkedHashSet<>(tupleType.getTupleTypes());
             if (tupleType.getRestType() != null) {
                 types.add(tupleType.getRestType());

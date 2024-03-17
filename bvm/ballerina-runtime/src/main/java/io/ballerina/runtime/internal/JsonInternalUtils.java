@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.TypeChecker.isByteLiteral;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -346,7 +346,7 @@ public class JsonInternalUtils {
                 }
                 return convertJSON(jsonValue, matchingType);
             case TypeTags.FINITE_TYPE_TAG:
-                matchingType = TypeConverter.getConvertibleFiniteType(jsonValue, unwrap(targetType),
+                matchingType = TypeConverter.getConvertibleFiniteType(jsonValue, toBType(targetType),
                         null, new ArrayList<>(), new HashSet<>(), true);
                 if (matchingType == null) {
                     throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE, targetType,
@@ -355,11 +355,11 @@ public class JsonInternalUtils {
                 return convertJSON(jsonValue, matchingType);
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return convertJSONToRecord(jsonValue, unwrap(targetType));
+                return convertJSONToRecord(jsonValue, toBType(targetType));
             case TypeTags.ARRAY_TAG:
-                return convertJSONToBArray(jsonValue, unwrap(targetType));
+                return convertJSONToBArray(jsonValue, toBType(targetType));
             case TypeTags.MAP_TAG:
-                return jsonToMap(jsonValue, unwrap(targetType));
+                return jsonToMap(jsonValue, toBType(targetType));
             case TypeTags.NULL_TAG:
                 if (jsonValue == null) {
                     return null;
@@ -717,7 +717,7 @@ public class JsonInternalUtils {
                 case TypeTags.RECORD_TYPE_TAG:
                 case TypeTags.OBJECT_TYPE_TAG:
                     json.append(convertMapToJSON((MapValueImpl<BString, ?>) value,
-                            unwrap(PredefinedTypes.TYPE_JSON)));
+                            toBType(PredefinedTypes.TYPE_JSON)));
                     break;
                 case TypeTags.ARRAY_TAG:
                     json.append(convertArrayToJSON((ArrayValue) value));

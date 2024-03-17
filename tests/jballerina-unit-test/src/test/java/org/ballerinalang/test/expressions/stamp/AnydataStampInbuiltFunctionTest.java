@@ -88,7 +88,7 @@ public class AnydataStampInbuiltFunctionTest {
         Object results = BRunUtil.invoke(compileResult, "stampAnydataToJSONV2");
         BMap<String, Object> mapValue0 = (BMap<String, Object>) results;
 
-        Assert.assertTrue(TypeBuilder.unwrap(getType(mapValue0)) instanceof BMapType);
+        Assert.assertTrue(TypeBuilder.toBType(getType(mapValue0)) instanceof BMapType);
         Assert.assertTrue(
                 TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(mapValue0)), PredefinedTypes.TYPE_JSON));
 
@@ -107,7 +107,7 @@ public class AnydataStampInbuiltFunctionTest {
         Object anydataValue = results;
 
         Assert.assertEquals(anydataValue.toString(), "<book>The Lost World</book>");
-        Assert.assertTrue(TypeBuilder.unwrap(getType(anydataValue)) instanceof BXmlType);
+        Assert.assertTrue(TypeBuilder.toBType(getType(anydataValue)) instanceof BXmlType);
     }
 
     @Test
@@ -152,7 +152,7 @@ public class AnydataStampInbuiltFunctionTest {
         Assert.assertEquals(tupleValue1.toString(), "Mohan");
         TypeChecker.checkIsType(getType(tupleValue1), PredefinedTypes.TYPE_STRING);
 
-        Assert.assertTrue(TypeBuilder.unwrap(getType(tupleValue2)) instanceof BRecordType);
+        Assert.assertTrue(TypeBuilder.toBType(getType(tupleValue2)) instanceof BRecordType);
         Assert.assertEquals(getType(tupleValue2).getName(), "Teacher");
 
         Assert.assertEquals(((BMap) tupleValue2).size(), 5);
@@ -189,7 +189,7 @@ public class AnydataStampInbuiltFunctionTest {
         Object results = BRunUtil.invoke(compileResult, "stampAnydataToAnydata");
         BMap<String, Object> mapValue = (BMap<String, Object>) results;
 
-        Assert.assertTrue(TypeBuilder.unwrap(getType(mapValue)) instanceof BMapType);
+        Assert.assertTrue(TypeBuilder.toBType(getType(mapValue)) instanceof BMapType);
         Assert.assertTrue(
                 TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(mapValue)), PredefinedTypes.TYPE_ANYDATA));
     }
@@ -202,7 +202,7 @@ public class AnydataStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.size(), 5);
 
-        Assert.assertTrue(TypeBuilder.unwrap(getType(mapValue)) instanceof BMapType);
+        Assert.assertTrue(TypeBuilder.toBType(getType(mapValue)) instanceof BMapType);
         Assert.assertTrue(
                 TypeChecker.checkIsType(TypeHelper.typeConstraint(getType(mapValue)), PredefinedTypes.TYPE_JSON));
 

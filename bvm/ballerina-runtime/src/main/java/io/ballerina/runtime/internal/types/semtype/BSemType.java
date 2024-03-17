@@ -364,9 +364,13 @@ public class BSemType implements Type {
             if (addPrefix) {
                 sb.append("|");
             }
-            if (memberStr.length() > 2 && memberStr.charAt(0) == '(' &&
-                    memberStr.charAt(memberStr.length() - 1) == ')') {
-                sb.append(memberStr, 1, memberStr.length() - 1);
+            if (memberStr.length() > 2 && memberStr.charAt(0) == '(') {
+                if (memberStr.charAt((memberStr.length() - 1)) == ')') {
+                    sb.append(memberStr, 1, memberStr.length() - 1);
+                } else {
+                    sb.append(memberStr, 1, memberStr.length() - 2);
+                    containsNull = true;
+                }
             } else {
                 sb.append(memberStr);
             }
@@ -389,6 +393,10 @@ public class BSemType implements Type {
         bTypeComponent.addCyclicMembers(members);
     }
 
+    // TODO: This is to ensure we give the correct type tag as byte, which is important because at runtime we
+    //  represent byte as Integer while integers (include those in the same range) as Long. Need think about a way to
+    //  avoid needing set explicitly set this tag
+    @Deprecated
     public void setByteClass() {
         if (isSet(some, BT_INT)) {
             IntSubType intSubType = (IntSubType) subTypeData[BT_INT];

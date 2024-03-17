@@ -28,7 +28,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.TypeHelper;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 
 /**
  * Native implementation of lang.internal:getElementType(typedesc).
@@ -56,7 +56,7 @@ public class GetElementType {
             case TypeTags.FINITE_TYPE_TAG:
                 // this is reached only for immutable values
                 return getElementTypeDescValue(
-                        ((BValue) (((FiniteType) unwrap(type)).getValueSpace().iterator().next())).getType());
+                        ((BValue) (((FiniteType) toBType(type)).getValueSpace().iterator().next())).getType());
             default:
                 return ValueCreator.createTypedescValue(TypeHelper.typeConstraint(type));
         }

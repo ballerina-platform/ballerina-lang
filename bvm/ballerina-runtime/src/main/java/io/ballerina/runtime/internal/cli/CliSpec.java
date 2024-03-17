@@ -81,7 +81,7 @@ public class CliSpec {
             Operand curOperand = operands[opIndex++];
             Type typeOp = curOperand.type;
             if (TypeUtils.getImpliedType(typeOp).getTag() == TypeTags.ARRAY_TAG) {
-                ArrayType arrayType = TypeBuilder.unwrap(typeOp);
+                ArrayType arrayType = TypeBuilder.toBType(typeOp);
                 BArray bArray = ValueCreator.createArrayValue(arrayType);
                 Type elementType = TypeUtils.getImpliedType(arrayType.getElementType());
                 int elementCount = getElementCount(operands, opIndex);
@@ -112,7 +112,7 @@ public class CliSpec {
             if (operand.hasDefaultable || CliUtil.isUnionWithNil(opType)) {
                 mainArgs.add(null);
             } else if (isSupportedArrayType(opType)) {
-                mainArgs.add(ValueCreator.createArrayValue(TypeBuilder.unwrap(opType)));
+                mainArgs.add(ValueCreator.createArrayValue(TypeBuilder.toBType(opType)));
             } else {
                 throw ErrorCreator.createError(StringUtils.fromString(
                         "missing operand arguments for parameter '" + operand.name + "' of type '" + opType + "'"));

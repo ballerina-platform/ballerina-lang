@@ -31,8 +31,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -94,7 +92,6 @@ public class JvmSemTypeConstantsGen {
             mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_SEMTYPE_TYPE_INIT_METHOD + methodCount++, VOID_METHOD_DESC,
                     null, null);
         }
-        // TODO: if the number of semtypes is too large create a new method
         createSemTypeField(varName);
         if (type instanceof BUnionType unionType) {
             loadBUnionType(unionType);
@@ -106,28 +103,22 @@ public class JvmSemTypeConstantsGen {
     }
 
     private void loadBUnionType(BUnionType unionType) {
-        List<BType> memberTypes = new ArrayList<>(unionType.getMemberTypes());
-        jvmTypeGen.loadTypeUsingTypeBuilder(mv, memberTypes.get(0));
-        jvmTypeGen.loadTypeUsingTypeBuilder(mv, memberTypes.get(1));
-        // TODO: refactor this to make things clean: load all the types to the stack and
-        // repeatedly call union
-        // operation until just a single type remains on the stack
-        if (memberTypes.size() == 2 && hasIdentifier(unionType)) {
-            loadTypeBuilderIdentifier(mv, unionType);
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union", BINARY_TYPE_OPERATION_WITH_IDENTIFIER_DESCRIPTOR,
-                    false);
-        } else {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union", BINARY_TYPE_OPERATION_DESCRIPTOR, false);
+        int numberOfTypesOnStack = 0;
+        for (BType member : unionType.getMemberTypes()) {
+            jvmTypeGen.loadTypeUsingTypeBuilder(mv, member);
+            numberOfTypesOnStack++;
         }
-        for (int i = 2; i < memberTypes.size(); i++) {
-            jvmTypeGen.loadTypeUsingTypeBuilder(mv, memberTypes.get(i));
-            if (i == memberTypes.size() - 1 && hasIdentifier(unionType)) {
+        boolean needToSetIdentifier = hasIdentifier(unionType);
+        while (numberOfTypesOnStack > 1) {
+            if (needToSetIdentifier && numberOfTypesOnStack == 2) {
                 loadTypeBuilderIdentifier(mv, unionType);
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union",
-                        BINARY_TYPE_OPERATION_WITH_IDENTIFIER_DESCRIPTOR, false);
+                        BINARY_TYPE_OPERATION_WITH_IDENTIFIER_DESCRIPTOR,
+                        false);
             } else {
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union", BINARY_TYPE_OPERATION_DESCRIPTOR, false);
             }
+            numberOfTypesOnStack--;
         }
     }
 

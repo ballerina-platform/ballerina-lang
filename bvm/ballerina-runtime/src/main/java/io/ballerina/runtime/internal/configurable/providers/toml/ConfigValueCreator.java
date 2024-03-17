@@ -63,7 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getValueFromKeyValueNode;
@@ -95,11 +95,11 @@ public class ConfigValueCreator {
         }
         switch (type.getTag()) {
             case TypeTags.ARRAY_TAG:
-                return createArrayValue(tomlValue, unwrap(type));
+                return createArrayValue(tomlValue, toBType(type));
             case TypeTags.RECORD_TYPE_TAG:
                 return createRecordValue(tomlValue, type);
             case TypeTags.MAP_TAG:
-                return createMapValue(tomlValue, unwrap(type));
+                return createMapValue(tomlValue, toBType(type));
             case TypeTags.TABLE_TAG:
                 return createTableValue(tomlValue, type);
             case TypeTags.ANYDATA_TAG:
@@ -114,7 +114,7 @@ public class ConfigValueCreator {
             case TypeTags.XML_TEXT_TAG:
                 return createBalValue(type, ((TomlKeyValueNode) tomlValue).value());
             case TypeTags.TUPLE_TAG:
-                return createTupleValue(tomlValue, unwrap(type));
+                return createTupleValue(tomlValue, toBType(type));
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return createValue(tomlValue, TypeHelper.referredType(type));
             default:
@@ -227,7 +227,7 @@ public class ConfigValueCreator {
         Type refElementType = TypeUtils.getImpliedType(elementType);
         switch (refElementType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                ArrayType arrayType = unwrap(refElementType);
+                ArrayType arrayType = toBType(refElementType);
                 balValue = createArrayFromSimpleTomlValue(
                         (TomlArrayValueNode) tomlValueNode, arrayType,
                         TypeUtils.getImpliedType(arrayType.getElementType()));
@@ -248,7 +248,8 @@ public class ConfigValueCreator {
 
     private BMap<BString, Object> createRecordValue(TomlNode tomlNode, Type type) {
         RecordType mutableType;
-        Optional<IntersectionType> intersectionType = ((IntersectableReferenceType) unwrap(type)).getIntersectionType();
+        Optional<IntersectionType> intersectionType =
+                ((IntersectableReferenceType) toBType(type)).getIntersectionType();
         // Creating a record value with mutable type and freezing it.
         if (intersectionType.isPresent()) {
             mutableType = (RecordType) ReadOnlyUtils.getMutableType(intersectionType.get());
@@ -280,7 +281,7 @@ public class ConfigValueCreator {
         TableType tableType;
         Type constraintType;
         if (type.getTag() == TypeTags.INTERSECTION_TAG) {
-            tableType = unwrap(TypeHelper.effectiveType(type));
+            tableType = toBType(TypeHelper.effectiveType(type));
             constraintType = tableType.getConstrainedType();
             if (constraintType.getTag() == TypeTags.INTERSECTION_TAG) {
                 constraintType = TypeHelper.effectiveType(constraintType);

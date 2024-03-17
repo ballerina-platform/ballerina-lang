@@ -51,7 +51,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
@@ -254,7 +254,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public ArrayValueImpl(Type type, BListInitialValueEntry[] initialValues) {
-        this(type, ((BArrayType) unwrap(TypeUtils.getImpliedType(type))).getSize(), initialValues, null);
+        this(type, ((BArrayType) toBType(TypeUtils.getImpliedType(type))).getSize(), initialValues, null);
     }
 
     public ArrayValueImpl(ArrayType type, long size, BListInitialValueEntry[] initialValues) {
@@ -262,12 +262,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public ArrayValueImpl(Type type, BListInitialValueEntry[] initialValues, TypedescValue typedescValue) {
-        this(type, ((ArrayType) unwrap(TypeUtils.getImpliedType(type))).getSize(), initialValues, typedescValue);
+        this(type, ((ArrayType) toBType(TypeUtils.getImpliedType(type))).getSize(), initialValues, typedescValue);
     }
 
     public ArrayValueImpl(Type type, long size, BListInitialValueEntry[] initialValues, TypedescValue typedescValue) {
         this.type = type;
-        this.arrayType = unwrap(TypeUtils.getImpliedType(type));
+        this.arrayType = toBType(TypeUtils.getImpliedType(type));
         this.elementType = TypeHelper.listRestType(type);
         this.elementReferredType = TypeUtils.getImpliedType(this.elementType);
         this.elementTypedescValue = typedescValue;
@@ -973,7 +973,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
 
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
-        this.arrayType = unwrap(TypeUtils.getImpliedType(type));
+        this.arrayType = toBType(TypeUtils.getImpliedType(type));
 
         if (this.elementType == null || this.elementReferredType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {

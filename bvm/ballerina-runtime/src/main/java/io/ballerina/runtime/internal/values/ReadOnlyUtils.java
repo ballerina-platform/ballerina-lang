@@ -60,7 +60,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.api.constants.TypeConstants.READONLY_XML_TNAME;
@@ -91,7 +91,7 @@ public class ReadOnlyUtils {
         if (type instanceof BSemType semType) {
             return bTypeReadonlyUtilDriver(semType, BTypeReadOnlyUtils::getReadOnlyType);
         }
-        return BTypeReadOnlyUtils.getReadOnlyType(unwrap(type));
+        return BTypeReadOnlyUtils.getReadOnlyType(toBType(type));
     }
 
     // TODO: these needs to be fixed when we can have non readonly semtypes
@@ -102,11 +102,11 @@ public class ReadOnlyUtils {
         if (isNever(bTypePart)) {
             return semTypePart;
         }
-        Type readonlyBTypePart = fn.apply(unwrap(bTypePart));
+        Type readonlyBTypePart = fn.apply(toBType(bTypePart));
         if (readonlyBTypePart == null) {
             return isNever(semType) ? PredefinedTypes.TYPE_NEVER : semTypePart;
         }
-        BSemType lhs = TypeBuilder.wrap(readonlyBTypePart);
+        BSemType lhs = TypeBuilder.toSemType(readonlyBTypePart);
         return Core.union(lhs, semTypePart);
     }
 
@@ -115,14 +115,14 @@ public class ReadOnlyUtils {
             return bTypeReadonlyUtilDriver(semType,
                     bType -> BTypeReadOnlyUtils.getReadOnlyType(bType, unresolvedTypes));
         }
-        return BTypeReadOnlyUtils.getReadOnlyType(unwrap(type), unresolvedTypes);
+        return BTypeReadOnlyUtils.getReadOnlyType(toBType(type), unresolvedTypes);
     }
 
     public static Type setImmutableTypeAndGetEffectiveType(Type type) {
         if (type instanceof BSemType semType) {
             return bTypeReadonlyUtilDriver(semType, BTypeReadOnlyUtils::setImmutableTypeAndGetEffectiveType);
         }
-        return BTypeReadOnlyUtils.setImmutableTypeAndGetEffectiveType(unwrap(type));
+        return BTypeReadOnlyUtils.setImmutableTypeAndGetEffectiveType(toBType(type));
     }
 
     public static Type setImmutableTypeAndGetEffectiveType(Type type, Set<Type> unresolvedTypes) {
@@ -130,14 +130,14 @@ public class ReadOnlyUtils {
             return bTypeReadonlyUtilDriver(semType,
                     bType -> BTypeReadOnlyUtils.setImmutableTypeAndGetEffectiveType(bType, unresolvedTypes));
         }
-        return BTypeReadOnlyUtils.setImmutableTypeAndGetEffectiveType(unwrap(type), unresolvedTypes);
+        return BTypeReadOnlyUtils.setImmutableTypeAndGetEffectiveType(toBType(type), unresolvedTypes);
     }
 
     private static Type getAvailableImmutableType(Type type) {
         if (type instanceof BSemType semType) {
             return bTypeReadonlyUtilDriver(semType, BTypeReadOnlyUtils::getAvailableImmutableType);
         }
-        return BTypeReadOnlyUtils.getAvailableImmutableType(unwrap(type));
+        return BTypeReadOnlyUtils.getAvailableImmutableType(toBType(type));
     }
 
 
@@ -146,11 +146,11 @@ public class ReadOnlyUtils {
             return bTypeReadonlyUtilDriver(semType,
                     bType -> BTypeReadOnlyUtils.getImmutableType(bType, unresolvedTypes));
         }
-        return BTypeReadOnlyUtils.getImmutableType(unwrap(type), unresolvedTypes);
+        return BTypeReadOnlyUtils.getImmutableType(toBType(type), unresolvedTypes);
     }
 
     private static Type setImmutableIntersectionType(Type type, Set<Type> unresolvedTypes) {
-        return BTypeReadOnlyUtils.setImmutableIntersectionType(unwrap(type), unresolvedTypes);
+        return BTypeReadOnlyUtils.setImmutableIntersectionType(toBType(type), unresolvedTypes);
     }
 
     private static Type createAndSetImmutableIntersectionType(Type originalType, Type effectiveType) {
@@ -159,8 +159,8 @@ public class ReadOnlyUtils {
 
     private static Type createAndSetImmutableIntersectionType(Module pkg, Type originalType,
                                                                            Type effectiveType) {
-        return BTypeReadOnlyUtils.createAndSetImmutableIntersectionType(pkg, unwrap(originalType),
-                unwrap(effectiveType));
+        return BTypeReadOnlyUtils.createAndSetImmutableIntersectionType(pkg, toBType(originalType),
+                toBType(effectiveType));
     }
 
     /**
@@ -169,7 +169,7 @@ public class ReadOnlyUtils {
      * @return mutable type
      */
     public static Type getMutableType(Type intersectionType) {
-        return BTypeReadOnlyUtils.getMutableType(unwrap(intersectionType));
+        return BTypeReadOnlyUtils.getMutableType(toBType(intersectionType));
     }
 
     private ReadOnlyUtils() {
@@ -465,8 +465,8 @@ public class ReadOnlyUtils {
             BIntersectionType intersectionType = new BIntersectionType(pkg, // TODO: 6/3/20 Fix to use current package
                     // for records and objects
                     new Type[]{originalType,
-                            TypeBuilder.readonlyType()},
-                    unwrap(effectiveType),
+                            PredefinedTypes.TYPE_READONLY},
+                    toBType(effectiveType),
                     typeFlags, true);
             originalType.setImmutableType(intersectionType);
             return intersectionType;
@@ -482,7 +482,7 @@ public class ReadOnlyUtils {
             for (Type type : intersectionType.getConstituentTypes()) {
                 Type referredType = TypeUtils.getImpliedType(type);
                 if (TypeUtils.getImpliedType(intersectionType.getEffectiveType()).getTag() == referredType.getTag()) {
-                    return unwrap(referredType);
+                    return toBType(referredType);
                 }
             }
             throw new IllegalStateException("Unsupported intersection type found: " + intersectionType);

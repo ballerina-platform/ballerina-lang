@@ -41,8 +41,8 @@ import java.util.Set;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.TypeBuilder.booleanSubType;
-import static io.ballerina.runtime.api.TypeBuilder.unwrap;
-import static io.ballerina.runtime.api.TypeBuilder.wrap;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
+import static io.ballerina.runtime.api.TypeBuilder.toSemType;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.internal.types.semtype.Core.belongToBasicType;
 import static io.ballerina.runtime.internal.types.semtype.Core.containsNil;
@@ -68,7 +68,7 @@ class SemanticTypeEngine {
 
     static boolean checkIsType(Object sourceVal, Type targetType) {
         int tag = getTypeTag(sourceVal);
-        BSemType targetSemType = wrap(targetType);
+        BSemType targetSemType = toSemType(targetType);
         int bits = targetSemType.all | targetSemType.some;
         if ((tag & bits) == 0) {
             return false;
@@ -77,12 +77,12 @@ class SemanticTypeEngine {
     }
 
     static <T extends BType> T getBTypePart(BSemType semType) {
-        return unwrap(intersect(semType, SemTypeUtils.ALL_BTYPE));
+        return toBType(intersect(semType, SemTypeUtils.ALL_BTYPE));
     }
 
     static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
-        BSemType sourceSemType = wrap(sourceType);
-        BSemType targetSemType = wrap(targetType);
+        BSemType sourceSemType = toSemType(sourceType);
+        BSemType targetSemType = toSemType(targetType);
         return switch (isSubType(sourceSemType, targetSemType)) {
             case TRUE -> true;
             case FALSE -> false;
@@ -93,8 +93,8 @@ class SemanticTypeEngine {
 
     static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,
                                List<TypeChecker.TypePair> unresolvedTypes) {
-        BSemType sourceSemType = wrap(getImpliedType(sourceType));
-        BSemType targetSemType = wrap(getImpliedType(targetType));
+        BSemType sourceSemType = toSemType(getImpliedType(sourceType));
+        BSemType targetSemType = toSemType(getImpliedType(targetType));
         return switch (isSubType(sourceSemType, targetSemType)) {
             case TRUE -> true;
             case FALSE -> false;
@@ -108,8 +108,8 @@ class SemanticTypeEngine {
     }
 
     static boolean checkIsType(Type sourceType, Type targetType, List<TypeChecker.TypePair> unresolvedTypes) {
-        BSemType sourceSemType = wrap(sourceType);
-        BSemType targetSemType = wrap(targetType);
+        BSemType sourceSemType = toSemType(sourceType);
+        BSemType targetSemType = toSemType(targetType);
         return switch (isSubType(sourceSemType, targetSemType)) {
             case TRUE -> true;
             case FALSE -> false;
@@ -119,8 +119,8 @@ class SemanticTypeEngine {
     }
 
     static boolean isSameType(Type sourceType, Type targetType) {
-        BSemType sourceSemType = wrap(sourceType);
-        BSemType targetSemType = wrap(targetType);
+        BSemType sourceSemType = toSemType(sourceType);
+        BSemType targetSemType = toSemType(targetType);
         return switch (isSubType(sourceSemType, targetSemType)) {
             // if we got a boolean once we can't get undefined other way round
             case TRUE -> isSubType(targetSemType, sourceSemType) == SubTypeCheckResult.TRUE;
@@ -206,7 +206,7 @@ class SemanticTypeEngine {
         if ((tag & bits) == 0) {
             return SubTypeCheckResult.FALSE;
         }
-        BSemType sourceType = wrap(getType(sourceValue));
+        BSemType sourceType = toSemType(getType(sourceValue));
         return isSubType(sourceType, targetType);
     }
 
@@ -218,11 +218,11 @@ class SemanticTypeEngine {
     static boolean checkIsLikeUnionType(List<String> errors, Object sourceValue, Type targetType,
                                         List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
                                         String varName) {
-        BSemType targetSemType = wrap(targetType);
+        BSemType targetSemType = toSemType(targetType);
         return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
             case TRUE -> true;
             case FALSE -> allowNumericConversion &&
-                    numericConvertPossible(sourceValue, wrap(getType(sourceValue)), targetSemType);
+                    numericConvertPossible(sourceValue, toSemType(getType(sourceValue)), targetSemType);
             default -> {
                 // NOTE: we have do this since BType part may just a single type
                 BType bTypePart = getBTypePart(targetSemType);
@@ -246,11 +246,11 @@ class SemanticTypeEngine {
     static boolean checkIsLikeType(List<String> errors, Object sourceValue, Type targetType,
                                    List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
                                    String varName) {
-        BSemType targetSemType = wrap(targetType);
+        BSemType targetSemType = toSemType(targetType);
         return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
             case TRUE -> true;
             case FALSE -> allowNumericConversion &&
-                    numericConvertPossible(sourceValue, wrap(getType(sourceValue)), targetSemType);
+                    numericConvertPossible(sourceValue, toSemType(getType(sourceValue)), targetSemType);
             default -> {
                 // NOTE: bTypePart could be a single type
                 BType bTypePart = getBTypePart(targetSemType);
@@ -271,11 +271,11 @@ class SemanticTypeEngine {
 
     static boolean checkIsLikeType(Object sourceValue, Type targetType, List<TypeValuePair> unresolvedValues,
                                    boolean allowNumericConversion) {
-        BSemType targetSemType = wrap(targetType);
+        BSemType targetSemType = toSemType(targetType);
         return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
             case TRUE -> true;
             case FALSE -> allowNumericConversion &&
-                    numericConvertPossible(sourceValue, wrap(getType(sourceValue)), targetSemType);
+                    numericConvertPossible(sourceValue, toSemType(getType(sourceValue)), targetSemType);
             default -> switch (targetType.getTag()) {
                 case TypeTags.TABLE_TAG -> SyntacticTypeEngine.TableTypeChecker.checkIsLikeTableType(
                         sourceValue, getBTypePart(targetSemType), unresolvedValues, allowNumericConversion);
@@ -294,11 +294,11 @@ class SemanticTypeEngine {
 
     static boolean checkIsLikeType(Object sourceValue, Type targetType, List<TypeValuePair> unresolvedValues,
                                    boolean allowNumericConversion, String varName, List<String> errors) {
-        BSemType targetSemType = wrap(targetType);
+        BSemType targetSemType = toSemType(targetType);
         return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
             case TRUE -> true;
             case FALSE -> allowNumericConversion &&
-                    numericConvertPossible(sourceValue, wrap(getType(sourceValue)), targetSemType);
+                    numericConvertPossible(sourceValue, toSemType(getType(sourceValue)), targetSemType);
             default -> switch (targetType.getTag()) {
                 case TypeTags.RECORD_TYPE_TAG -> SyntacticTypeEngine.MapTypeChecker.checkIsLikeRecordType(
                         sourceValue, getBTypePart(targetSemType), unresolvedValues, allowNumericConversion, varName,
@@ -310,16 +310,16 @@ class SemanticTypeEngine {
 
     static boolean checkIsLikeType(Object sourceValue, Type sourceType, Type targetType,
                                    List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        BSemType targetSemType = wrap(targetType);
+        BSemType targetSemType = toSemType(targetType);
         if (targetType.getTag() == TypeTags.JSON_TAG) {
             targetSemType.setBTypeClass(BSubType.BTypeClass.BJson);
         }
         // TODO: see if can use the sourceType here
-        BSemType sourceSemType = wrap(getType(sourceValue));
+        BSemType sourceSemType = toSemType(getType(sourceValue));
         return switch (isSubType(sourceSemType, targetSemType)) {
             case TRUE -> true;
             case FALSE -> allowNumericConversion &&
-                    numericConvertPossible(sourceValue, wrap(getType(sourceValue)), targetSemType);
+                    numericConvertPossible(sourceValue, toSemType(getType(sourceValue)), targetSemType);
             default -> switch (targetType.getTag()) {
                 case TypeTags.JSON_TAG -> SyntacticTypeEngine.MapTypeChecker.checkIsLikeJSONType(
                         sourceValue, getBTypePart(sourceSemType), getBTypePart(targetSemType), unresolvedValues,
@@ -330,7 +330,7 @@ class SemanticTypeEngine {
     }
 
     static boolean checkIsLikeType(Object sourceValue, Type targetType) {
-        BSemType targetSemType = wrap(targetType);
+        BSemType targetSemType = toSemType(targetType);
         return switch (checkIsLikeTypeInner(sourceValue, targetSemType)) {
             case TRUE -> true;
             case FALSE -> false;
@@ -344,12 +344,12 @@ class SemanticTypeEngine {
 
     static boolean checkFiniteTypeAssignable(Object sourceValue, Type sourceType, Type targetType,
                                              List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        return SyntacticTypeEngine.checkFiniteTypeAssignable(sourceValue, unwrap(sourceType), unwrap(targetType),
+        return SyntacticTypeEngine.checkFiniteTypeAssignable(sourceValue, toBType(sourceType), toBType(targetType),
                 unresolvedValues, allowNumericConversion);
     }
 
     public static boolean isInherentlyImmutableType(Type type) {
-        BSemType semType = wrap(type);
+        BSemType semType = toSemType(type);
         if (containsSimple(semType, BT_BTYPE)) {
             return SyntacticTypeEngine.isInherentlyImmutableType(getBTypePart(semType));
         }
@@ -367,7 +367,7 @@ class SemanticTypeEngine {
             }
             return isSubTypeSimple(semType, BASIC_TYPE_BIT_SET);
         }
-        return SyntacticTypeEngine.isSimpleBasicType(unwrap(type));
+        return SyntacticTypeEngine.isSimpleBasicType(toBType(type));
     }
 
     static boolean isFiniteTypeValue(Object sourceValue, Type sourceType, Object valueSpaceItem,
@@ -378,7 +378,7 @@ class SemanticTypeEngine {
     private static final int NUMERIC_TYPE_UNION = (1 << BT_INT) | (1 << BT_FLOAT) | (1 << BT_DECIMAL);
 
     protected static boolean isNumericType(Type type) {
-        BSemType semType = wrap(type);
+        BSemType semType = toSemType(type);
         return isSubTypeSimple(semType, NUMERIC_TYPE_UNION);
     }
 
@@ -389,21 +389,21 @@ class SemanticTypeEngine {
             }
             return false;
         }
-        return SyntacticTypeEngine.isSelectivelyImmutableType(unwrap(type), unresolvedTypes);
+        return SyntacticTypeEngine.isSelectivelyImmutableType(toBType(type), unresolvedTypes);
     }
 
     static boolean checkIsUnionType(Type sourceType, Type targetType,
                                     List<TypeChecker.TypePair> unresolvedTypes) {
-        return SyntacticTypeEngine.checkIsUnionType(unwrap(sourceType), unwrap(targetType), unresolvedTypes);
+        return SyntacticTypeEngine.checkIsUnionType(toBType(sourceType), toBType(targetType), unresolvedTypes);
     }
 
     static boolean isUnionTypeMatch(Type sourceType, Type targetType,
                                     List<TypeChecker.TypePair> unresolvedTypes) {
-        return SyntacticTypeEngine.isUnionTypeMatch(unwrap(sourceType), unwrap(targetType), unresolvedTypes);
+        return SyntacticTypeEngine.isUnionTypeMatch(toBType(sourceType), toBType(targetType), unresolvedTypes);
     }
 
     static boolean checkIsJSONType(Type sourceType, List<TypeChecker.TypePair> unresolvedTypes) {
-        BSemType sourceSemType = wrap(sourceType);
+        BSemType sourceSemType = toSemType(sourceType);
         BSemType targetSemType = (BSemType) PredefinedTypes.TYPE_JSON;
         return switch (isSubType(sourceSemType, targetSemType)) {
             case TRUE -> true;
@@ -414,8 +414,8 @@ class SemanticTypeEngine {
     }
 
     static boolean isFiniteTypeMatch(Type sourceType, Type targetType) {
-        BSemType sourceSemType = wrap(sourceType);
-        BSemType targetSemType = wrap(targetType);
+        BSemType sourceSemType = toSemType(sourceType);
+        BSemType targetSemType = toSemType(targetType);
         return switch (isSubType(sourceSemType, targetSemType)) {
             case TRUE -> true;
             case FALSE -> false;
@@ -425,7 +425,7 @@ class SemanticTypeEngine {
     }
 
     static boolean hasFillerValue(Type type, List<Type> unanalyzedTypes) {
-        BSemType semType = wrap(type);
+        BSemType semType = toSemType(type);
         Optional<Boolean> result = semtypeHasFillerValue(semType);
         if (result.isPresent()) {
             return result.get();
@@ -463,7 +463,7 @@ class SemanticTypeEngine {
     }
 
     static boolean hasFillerValue(Type type) {
-        BSemType semType = wrap(type);
+        BSemType semType = toSemType(type);
         Optional<Boolean> result = semtypeHasFillerValue(semType);
         if (result.isPresent()) {
             return result.get();
