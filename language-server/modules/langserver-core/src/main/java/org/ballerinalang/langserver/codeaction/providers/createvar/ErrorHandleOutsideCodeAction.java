@@ -92,7 +92,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         }
         UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol.get();
         List<TypeSymbol> errorMemberTypes = CommonUtil.extractErrorTypesFromUnion(unionTypeDesc);
-        Path path = Path.of(URI.create(uri).getPath());
+        Path path = Path.of(URI.create(uri.replace("expr:///", "file:///")));
         Optional<Module> module = context.workspace().module(path);
         if (module.isPresent() &&
                 containsModuleLevelPrivateTypes(module.get().moduleName().toString(), errorMemberTypes)) {
