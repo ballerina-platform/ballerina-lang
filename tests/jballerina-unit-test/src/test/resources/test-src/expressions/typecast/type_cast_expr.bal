@@ -987,7 +987,7 @@ function testFiniteTypeArrayNegative() {
     (1|2.0|3.0d|true|"Hello"|()|NIL|Interger|String|Float|Decimal|Byte|Boolean)[] a = [];
     any c = a;
     // TODO: string fix
-    assertTypeCastFailureWithMessage(trap <int>c, "incompatible types: '(()|1|string|2.3f|4.5d|5|true|(1|2.0f|3.0d|true|\"Hello\"))?[]' cannot be cast to 'int'");
+    assertTypeCastFailureWithMessage(trap <int>c, "incompatible types: '(()|int|string|2.3f|4.5d|int|true|(1|2.0f|3.0d|true|\"Hello\"))?[]' cannot be cast to 'int'");
 }
 
 class Obj {

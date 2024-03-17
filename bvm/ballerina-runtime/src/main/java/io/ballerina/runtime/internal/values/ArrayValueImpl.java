@@ -150,6 +150,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
                 this.intValues = new long[initialArraySize];
+                long defaultValue = elementReferredType.getZeroValue();
+                if (defaultValue != 0L) {
+                    Arrays.fill(intValues, defaultValue);
+                }
                 break;
             case TypeTags.FLOAT_TAG:
                 this.floatValues = new double[initialArraySize];
@@ -1054,6 +1058,11 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.UNSIGNED32_INT_TAG:
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
+                long defaultValue = elementReferredType.getZeroValue();
+                if (defaultValue != 0L) {
+                    Arrays.fill(intValues, size, index, defaultValue);
+                }
+                return;
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.BOOLEAN_TAG:

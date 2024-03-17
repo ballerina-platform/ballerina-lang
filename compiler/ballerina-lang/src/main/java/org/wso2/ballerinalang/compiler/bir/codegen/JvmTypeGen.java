@@ -23,12 +23,14 @@ import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
+import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 import io.ballerina.types.subtypedata.CharStringSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.NonCharStringSubtype;
+import io.ballerina.types.subtypedata.Range;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.XmlSubtype;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -416,21 +418,47 @@ public class JvmTypeGen {
         int numberOfTypesOnStack = 0;
         for (int i = 0; i < finiteType.valueSpace.length; i++) {
             SemType semType = finiteType.valueSpace[i].semType();
-            SubtypeData subtypeData = Core.stringSubtype(semType);
-            // Create singleton string
-            // TODO: create other type singletons here as well
-            if (subtypeData instanceof StringSubtype stringSubtype) {
-                CharStringSubtype chars = stringSubtype.getChar();
-                NonCharStringSubtype nonChars = stringSubtype.getNonChar();
-                loadStringSubTypeUsingTypeBuilder(
-                        mv,
-                        chars.allowed,
-                        Arrays.stream(chars.values).map(each -> each.value).toList(),
-                        nonChars.allowed,
-                        Arrays.stream(nonChars.values).map(each -> each.value).toList());
-                numberOfTypesOnStack++;
+            if (Core.isSubtypeSimple(semType, PredefinedType.STRING)) {
+                SubtypeData subtypeData = Core.stringSubtype(semType);
+                // TODO: create other type singletons here as well
+                if (subtypeData instanceof StringSubtype stringSubtype) {
+                    CharStringSubtype chars = stringSubtype.getChar();
+                    NonCharStringSubtype nonChars = stringSubtype.getNonChar();
+                    loadStringSubTypeUsingTypeBuilder(
+                            mv,
+                            chars.allowed,
+                            Arrays.stream(chars.values).map(each -> each.value).toList(),
+                            nonChars.allowed,
+                            Arrays.stream(nonChars.values).map(each -> each.value).toList());
+                    numberOfTypesOnStack++;
+                } else if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
+                    // TODO: refactor this such that it takes the all field type name
+                    if (allOrNothing.isAllSubtype()) {
+                        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_STRING", GET_TYPE);
+                    } else {
+                        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NEVER", GET_TYPE);
+                    }
+                } else {
+                    throw new IllegalStateException("Unexpected string subtype data " + subtypeData);
+                }
+            } else if (Core.isSubtypeSimple(semType, PredefinedType.INT)) {
+                SubtypeData subtypeData = Core.intSubtype(semType);
+                if (subtypeData instanceof IntSubtype intSubType) {
+                    for (Range range : intSubType.ranges) {
+                        loadIntSubTypeUsingTypeBuilder(mv, range.min, range.max);
+                        numberOfTypesOnStack++;
+                    }
+                } else if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
+                    if (allOrNothing.isAllSubtype()) {
+                        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_INT", GET_TYPE);
+                    } else {
+                        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NEVER", GET_TYPE);
+                    }
+                } else {
+                    throw new IllegalStateException("Unexpected int subtype data " + subtypeData);
+                }
             } else {
-                throw new IllegalStateException("Unexpected subtype data: " + subtypeData);
+                throw new IllegalStateException("Unexpected finite type value type " + semType);
             }
         }
         boolean needToSetIdentifier = hasIdentifier(type);
@@ -611,6 +639,14 @@ public class JvmTypeGen {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "intersect", BINARY_TYPE_OPERATION_DESCRIPTOR, false);
     }
 
+    private static void loadIntSubTypeUsingTypeBuilder(MethodVisitor mv, long min, long max) {
+        mv.visitLdcInsn(min);
+        mv.visitLdcInsn(max);
+        // TODO: move descriptor to constants
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "intSubType", "(JJ)" + GET_TYPE, false);
+    }
+
+    // TODO: inline this
     private static void loadIntSubTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
         // TODO: BTypeHack: this is because we a separate BByte type that is treated
         //  different from BIntegerType
@@ -710,8 +746,9 @@ public class JvmTypeGen {
             case TypeTags.FINITE -> {
                 BFiniteType finiteType = (BFiniteType) type;
                 for (SemNamedType valueType : finiteType.valueSpace) {
-                    // TODO: also do numbers
-                    if (!Core.isSubtypeSimple(valueType.semType(), PredefinedType.STRING)) {
+                    SemType semType = valueType.semType();
+                    if (!Core.isSubtypeSimple(semType, PredefinedType.STRING) &&
+                            !Core.isSubtypeSimple(semType, PredefinedType.INT)) {
                         yield false;
                     }
                 }

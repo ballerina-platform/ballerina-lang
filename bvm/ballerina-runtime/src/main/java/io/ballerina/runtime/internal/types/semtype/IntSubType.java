@@ -72,6 +72,38 @@ public class IntSubType implements SubType {
         return new IntSubType(new IntSubTypeData(ranges.toArray(new IntSubType.Range[0])));
     }
 
+    protected long defaultValue() {
+        if (data instanceof AllOrNothing) {
+            if (data == AllOrNothing.ALL) {
+                return 0;
+            } else {
+                throw new UnsupportedOperationException("Cannot get default value for nothing");
+            }
+        } else if (data instanceof IntSubTypeData intSubTypeData) {
+            long absMin = intSubTypeData.ranges[0].min;
+            long absMax = intSubTypeData.ranges[0].max;
+            for (int i = 1; i < intSubTypeData.ranges.length; i++) {
+                Range range = intSubTypeData.ranges[i];
+                if (range.min < absMin) {
+                    absMin = range.min;
+                }
+                if (range.max > absMax) {
+                    absMax = range.max;
+                }
+            }
+            if (absMin == absMax) { // We have a singleton
+                return absMin;
+            } else if (absMin <= 0 && absMax >= 0) {
+                return 0;
+            } else {
+                // TODO: is this correct?
+                return 0;
+            }
+        } else {
+            throw new IllegalStateException("Unexpected subtype data for int subtype " + data);
+        }
+    }
+
     public static IntSubType createIntSubType(Range[] ranges) {
         return new IntSubType(new IntSubTypeData(ranges));
     }
@@ -178,7 +210,7 @@ public class IntSubType implements SubType {
         if (r.min == SIGNED32_MIN_VALUE && r.max == SIGNED32_MAX_VALUE) {
             return Optional.of(TypeTags.SIGNED32_INT_TAG);
         }
-        return Optional.empty();
+        return Optional.of(TypeTags.INT_TAG);
     }
 
     record Range(long min, long max) {

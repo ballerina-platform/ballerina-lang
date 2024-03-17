@@ -398,8 +398,7 @@ public final class SemTypeUtils {
     }
 
     static <V> V calculateDefaultValue(BSemType semType) {
-        // TODO: for string type if we don't consider subtyping we get and error but if we do consider subtyping for
-        //  float we get an error. Need to check if this is the expected behavior
+        // TODO: subtypes we need to properly calculate default values (similar to how we do for int)
         if (belongToBasicType(semType, BT_BTYPE)) {
             return semType.getBType().getZeroValue();
         }
@@ -419,8 +418,11 @@ public final class SemTypeUtils {
         } else if (belongToBasicType(semType, BT_INT)) {
             if (isSet(semType.some, BT_INT)) {
                 IntSubType intSubType = getSubType(semType, BT_INT);
+                long defaultValue = intSubType.defaultValue();
                 if (intSubType.isByte) {
                     return (V) new Integer(0);
+                } else {
+                    return (V) new Long(defaultValue);
                 }
             }
             return (V) new Long(0);

@@ -44,6 +44,8 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.semtype.BSemType;
+import io.ballerina.runtime.internal.types.semtype.Core;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -61,6 +63,7 @@ import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.TypeBuilder.toBType;
+import static io.ballerina.runtime.api.TypeBuilder.toSemType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned16;
@@ -80,6 +83,8 @@ import static io.ballerina.runtime.internal.TypeChecker.isSimpleBasicType;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned8LiteralValue;
+import static io.ballerina.runtime.internal.types.semtype.Core.widenToBasicType;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
 import static io.ballerina.runtime.internal.values.DecimalValue.isDecimalWithinIntRange;
 
 /**
@@ -134,6 +139,18 @@ public class TypeConverter {
     }
 
     public static Object castValues(Type targetType, Object inputValue) {
+        // TODO: this is just a hack to make sure singleton types correctly throw an error. Need to revisit this and
+        //  properly implement cast value with semtypes
+        if (targetType instanceof BSemType semType) {
+            if (!Core.containsSimple(semType, BT_BTYPE)) {
+                Type valueType = TypeChecker.getType(inputValue);
+                if (TypeChecker.checkIsType(widenToBasicType(semType), widenToBasicType(toSemType(valueType))) &&
+                        !TypeChecker.checkIsType(valueType, targetType)) {
+                    // TODO: throw the proper error here
+                    throw ErrorUtils.createTypeCastError(inputValue, targetType);
+                }
+            }
+        }
         switch (targetType.getTag()) {
             case TypeTags.SIGNED32_INT_TAG:
                 return anyToSigned32(inputValue);
