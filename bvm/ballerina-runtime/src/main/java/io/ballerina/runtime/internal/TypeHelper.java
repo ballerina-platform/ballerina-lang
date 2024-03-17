@@ -58,10 +58,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
-import static io.ballerina.runtime.api.TypeBuilder.wrap;
 import static io.ballerina.runtime.internal.types.semtype.Core.containsSimple;
-import static io.ballerina.runtime.internal.types.semtype.Core.intersect;
-import static io.ballerina.runtime.internal.types.semtype.Core.union;
 import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
 import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
 import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;

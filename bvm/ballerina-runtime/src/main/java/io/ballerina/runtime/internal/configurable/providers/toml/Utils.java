@@ -26,8 +26,6 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FiniteType;
-import io.ballerina.runtime.api.types.IntersectableReferenceType;
-import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TupleType;
@@ -36,11 +34,11 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
@@ -82,7 +80,7 @@ public class Utils {
 
     private static final Type TYPE_READONLY_ANYDATA_INTERSECTION =
             new BIntersectionType(null, new Type[]{TYPE_READONLY_ANYDATA},
-                    (IntersectableReferenceType) TYPE_READONLY_ANYDATA, 0, true);
+                    TYPE_READONLY_ANYDATA, 0, true);
 
     private Utils() {
     }
@@ -111,7 +109,7 @@ public class Utils {
         }
     }
 
-    static Object getBalValueFromToml(TomlNode tomlNode, Set<TomlNode> visitedNodes, BUnionType unionType,
+    static Object getBalValueFromToml(TomlNode tomlNode, Set<TomlNode> visitedNodes, Type unionType,
                                       Set<LineRange> invalidTomlLines, String variableName) {
         visitedNodes.add(tomlNode);
         switch (tomlNode.kind()) {
@@ -149,7 +147,7 @@ public class Utils {
         int count = 0;
         for (Map.Entry<String, TopLevelNode> entry : tomlNode.entries().entrySet()) {
             initialValues[count++] = ValueCreator.createKeyFieldEntry(StringUtils.fromString(entry.getKey()),
-                    getBalValueFromToml(entry.getValue(), visitedNodes, (BAnydataType) TYPE_READONLY_ANYDATA,
+                    getBalValueFromToml(entry.getValue(), visitedNodes, TYPE_READONLY_ANYDATA,
                             invalidTomlLines, variableName));
         }
         return ValueCreator.createMapValue(TypeCreator.createMapType(TYPE_READONLY_ANYDATA_INTERSECTION, true),
@@ -175,7 +173,7 @@ public class Utils {
         int count = 0;
         for (TomlTableNode tomlValueNode : elements) {
             arrayValues[count++] = new ListInitialValueEntry.ExpressionEntry(getBalValueFromToml(tomlValueNode,
-                    visitedNodes, (BAnydataType) TYPE_READONLY_ANYDATA, invalidTomlLines, variableName));
+                    visitedNodes, TYPE_READONLY_ANYDATA, invalidTomlLines, variableName));
         }
         return new ArrayValueImpl(
                 TypeCreator.createArrayType(TypeCreator.createMapType(TYPE_READONLY_ANYDATA_INTERSECTION), true),
@@ -210,7 +208,7 @@ public class Utils {
             case TypeTags.TABLE_TAG:
                 return kind == TomlType.TABLE_ARRAY || kind == TomlType.ARRAY;
             case TypeTags.INTERSECTION_TAG:
-                Type effectiveType = ((IntersectionType) expectedType).getEffectiveType();
+                Type effectiveType = TypeHelper.effectiveType(expectedType);
                 return checkEffectiveTomlType(kind, effectiveType, variableName);
             default:
                 throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, expectedType.toString());
@@ -286,7 +284,7 @@ public class Utils {
         }
     }
 
-    private static Object validateAndGetDoubleValue(TomlDoubleValueNodeNode tomlNode, BUnionType unionType,
+    private static Object validateAndGetDoubleValue(TomlDoubleValueNodeNode tomlNode, Type unionType,
                                                     Set<LineRange> invalidTomlLines, String variableName) {
         boolean hasDecimal = containsType(unionType, TypeTags.DECIMAL_TAG);
         boolean hasFloat = containsType(unionType, TypeTags.FLOAT_TAG);
@@ -327,7 +325,7 @@ public class Utils {
         return false;
     }
 
-    private static Object validateAndGetStringValue(TomlStringValueNode tomlNode, BUnionType unionType,
+    private static Object validateAndGetStringValue(TomlStringValueNode tomlNode, Type unionType,
                                                     Set<LineRange> invalidTomlLines, String variableName) {
         boolean hasString = containsType(unionType, TypeTags.STRING_TAG);
         boolean hasXml = containsXMLType(unionType);
@@ -349,8 +347,8 @@ public class Utils {
                 decodeIdentifier(type.toString()));
     }
 
-    private static boolean containsType(BUnionType unionType, int tag) {
-        for (Type type : unionType.getMemberTypes()) {
+    private static boolean containsType(Type unionType, int tag) {
+        for (Type type : TypeHelper.members(unionType)) {
             Type effectiveType = getEffectiveType(type);
             int typeTag = effectiveType.getTag();
             if (typeTag == TypeTags.FINITE_TYPE_TAG) {
@@ -367,8 +365,8 @@ public class Utils {
         return false;
     }
 
-    private static boolean containsXMLType(BUnionType unionType) {
-        for (Type type : unionType.getMemberTypes()) {
+    private static boolean containsXMLType(Type unionType) {
+        for (Type type : TypeHelper.members(unionType)) {
             if (isXMLType(type)) {
                 return true;
             }
@@ -387,7 +385,7 @@ public class Utils {
     static Type getEffectiveType(Type type) {
         switch (type.getTag()) {
             case TypeTags.INTERSECTION_TAG:
-                return ((IntersectionType) type).getEffectiveType();
+                return TypeHelper.effectiveType(type);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return getEffectiveType(((ReferenceType) type).getReferredType());
             default:
