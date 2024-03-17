@@ -7,7 +7,7 @@
     "description": "Execute the function with start with a variable assignment",
     "code": "var futureResult = start name()",
     "stderr": [
-      "Actions not allowed with a 'var' TypeDescriptor.",
+      "Actions not allowed with a 'var' TypeDescriptor",
       "Compilation aborted due to invalid input."
     ]
   }

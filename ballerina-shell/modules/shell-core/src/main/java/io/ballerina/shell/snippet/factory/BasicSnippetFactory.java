@@ -155,12 +155,15 @@ public class BasicSnippetFactory extends SnippetFactory {
                 qualifiers = NodeFactory.createNodeList(varNode.finalKeyword().get());
             }
 
-            Optional<ExpressionNode> varInitNode = varNode.initializer();
-            if (varInitNode.isEmpty()) {
+            Optional<ExpressionNode> optVarInitNode = varNode.initializer();
+            if (optVarInitNode.isEmpty()) {
+                assert false : "This line is unreachable as the error is captured before.";
+                addErrorDiagnostic("Variable declaration without an initializer is not allowed");
                 return null;
             }
 
-            SyntaxKind nodeKind = varInitNode.get().kind();
+            ExpressionNode varInitNode = optVarInitNode.get();
+            SyntaxKind nodeKind = varInitNode.kind();
             if (isSupportedAction(nodeKind)) {
                 TypedBindingPatternNode typedBindingPatternNode = varNode.typedBindingPattern();
                 TypeDescriptorNode typeDescriptorNode = typedBindingPatternNode.typeDescriptor();
@@ -168,12 +171,12 @@ public class BasicSnippetFactory extends SnippetFactory {
 
                 // Check if the type descriptor of the variable is 'var' as it is not yet supported.
                 if (typeDescriptorNode.kind() == SyntaxKind.VAR_TYPE_DESC) {
-                    addErrorDiagnostic("Actions not allowed with a 'var' TypeDescriptor.");
+                    addErrorDiagnostic("Actions not allowed with a 'var' TypeDescriptor");
                     return null;
                 }
 
                 boolean hasCheck = nodeKind == SyntaxKind.CHECK_ACTION;
-                String functionBody = varInitNode.get().toString();
+                String functionBody = varInitNode.toSourceCode();
                 String functionDefinition = (hasCheck ? "function() returns error|" :
                         "function() returns ") + typeDescriptorNode;
                 String functionName = ParserConstants.WRAPPER_PREFIX + varFunctionCount;
