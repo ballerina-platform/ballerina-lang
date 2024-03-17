@@ -96,7 +96,7 @@ public class TypeChecker {
     public static Object checkCast(Object sourceVal, Type targetType) {
 
         List<String> errors = new ArrayList<>();
-        // FIXME:
+        // TODO: use the early failure mechanism here as well
         Type sourceType = getImpliedType(getType(sourceVal));
         if (checkIsType(errors, sourceVal, sourceType, targetType)) {
             return sourceVal;
@@ -1046,7 +1046,6 @@ public class TypeChecker {
     // Needed for Syntactic TypeEngine
 
     static boolean isByteLiteral(long longValue) {
-        // FIXME: don't deligate
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 

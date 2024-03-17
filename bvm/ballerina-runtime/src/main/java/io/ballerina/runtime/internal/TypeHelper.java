@@ -43,10 +43,10 @@ import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
-import io.ballerina.runtime.internal.types.semType.BSemType;
-import io.ballerina.runtime.internal.types.semType.BTypeComponent;
-import io.ballerina.runtime.internal.types.semType.Core;
-import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
+import io.ballerina.runtime.internal.types.semtype.BSemType;
+import io.ballerina.runtime.internal.types.semtype.BTypeComponent;
+import io.ballerina.runtime.internal.types.semtype.Core;
+import io.ballerina.runtime.internal.types.semtype.SemTypeUtils;
 import io.ballerina.runtime.internal.values.MapValue;
 
 import java.util.ArrayList;
@@ -58,15 +58,18 @@ import java.util.Map;
 import java.util.Queue;
 
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
-import static io.ballerina.runtime.internal.types.semType.Core.containsSimple;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_INT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NEVER;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NIL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_STRING;
+import static io.ballerina.runtime.api.TypeBuilder.wrap;
+import static io.ballerina.runtime.internal.types.semtype.Core.containsSimple;
+import static io.ballerina.runtime.internal.types.semtype.Core.intersect;
+import static io.ballerina.runtime.internal.types.semtype.Core.union;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_INT;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_NEVER;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_NIL;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_STRING;
 
 // TODO: type utils factor these to a separate protected class
 public class TypeHelper {
@@ -103,7 +106,6 @@ public class TypeHelper {
         return recordType.getFields();
     }
 
-    // FIXME: is this the same not having a rest type (if so return a optional type for rest)
     static boolean mappingTypeSealed(Type type) {
         BRecordType recordType = unwrap(type);
         return recordType.sealed;
@@ -172,45 +174,14 @@ public class TypeHelper {
             return intersectionType.getEffectiveType();
         }
         // TODO: figure out a better workaround for this currently this is exploiting the fact that BType component is
-        // the original intersection type
+        //  the original intersection type
         BSemType semType = (BSemType) type;
         BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[BT_BTYPE];
         BIntersectionType intersectionType = (BIntersectionType) bTypeComponent.getBTypeComponent();
         return intersectionType.getEffectiveType();
-        // This causes an stack overflow (TODO: fix this)
-//        List<Type> members = new ArrayList<>(N_TYPES);
-//        for (int i = 0; i < N_TYPES; i++) {
-//            if (semType.all.get(i)) {
-//                members.add(fromUniformType(i));
-//            }
-//            if (semType.some.get(i)) {
-//                // FIXME: when we have proper subtypes we should handle it here
-//                // I think it is best to introduce an interface that convert type component to a Type
-//                BTypeComponent bTypeComponent = (BTypeComponent) semType.subTypeData[i];
-//                members.add(bTypeComponent.getBTypeComponent());
-//            }
-//        }
-//        Iterator<Type> it = members.iterator();
-//        if (!it.hasNext()) {
-//            return PredefinedTypes.TYPE_NEVER;
-//        }
-//        Type t1 = it.next();
-//        if (!it.hasNext()) {
-//            return t1;
-//        }
-//        Type t2 = it.next();
-//        Type[] rest = it.hasNext() ? members.subList(1, members.size()).toArray(new Type[0]) : new Type[0];
-//        return TypeBuilder.union(t1, t2, rest);
     }
 
     public static List<Type> constituentTypes(Type type) {
-        // SemType don't have a concept of "constituent types". For union types how ever this simply translate to
-        // all the positive subtypes (TODO: haven't think about negative). However we can't breakup BIntesection type
-        // the same way Instead we are going to simulate the same behaviour as BInterSection Type using fallowing
-        // invariants (enforced by how we create SemType in SemTypeUtils)
-        // 1. Any member that is implemented by the semtypes will be now properly represented as either a some or all
-        // 2. Whole intersection will be the BIntersection type (TODO: ideally we should create a new object with just
-        // the remining parts, so far haven't caused problems)
         if (type instanceof BSemType semType) {
             List<Type> members = new ArrayList<>();
             for (int i = 0; i < SemTypeUtils.BasicTypeCodes.N_TYPES; i++) {

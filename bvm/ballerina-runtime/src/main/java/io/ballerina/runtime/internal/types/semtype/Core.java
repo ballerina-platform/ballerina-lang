@@ -17,12 +17,12 @@
  *
  */
 
-package io.ballerina.runtime.internal.types.semType;
+package io.ballerina.runtime.internal.types.semtype;
 
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NIL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.N_TYPES;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.isSet;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_NIL;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.N_TYPES;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.isSet;
 
 public class Core {
 
@@ -150,8 +150,8 @@ public class Core {
         some &= ~all;
 
         for (int i = 0; i < N_TYPES; i++) {
-            // TODO: this don't lift the some to all, (I think each subtype needs to provide a method similar to empty to
-            //  check this)
+            // TODO: this don't lift the some to all, (I think each subtype needs to provide a method similar to
+            //  empty to check this)
             boolean t1Has = isSet(t1.some, i);
             boolean t2Has = isSet(t2.some, i);
             if (t1Has && t2Has) {

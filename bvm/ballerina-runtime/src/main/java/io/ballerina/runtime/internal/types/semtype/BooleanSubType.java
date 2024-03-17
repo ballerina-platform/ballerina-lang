@@ -16,7 +16,7 @@
  *   under the License.
  */
 
-package io.ballerina.runtime.internal.types.semType;
+package io.ballerina.runtime.internal.types.semtype;
 
 public class BooleanSubType implements SubType {
 

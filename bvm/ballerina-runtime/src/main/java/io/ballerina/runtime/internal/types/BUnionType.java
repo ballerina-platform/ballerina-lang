@@ -28,7 +28,7 @@ import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeHelper;
-import io.ballerina.runtime.internal.types.semType.BSemType;
+import io.ballerina.runtime.internal.types.semtype.BSemType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.ArrayList;
@@ -493,7 +493,6 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
                 uniqueTypes.add(type);
                 continue;
             }
-            // FIXME: this should never happen
             BUnionType unionMemType = unwrap(type);
             String typeName = unionMemType.typeName;
             if (typeName != null && !typeName.isEmpty()) {

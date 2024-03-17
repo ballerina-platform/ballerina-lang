@@ -361,7 +361,6 @@ public class JsonUtils {
     }
 
     private static Object convertMapConstrainedTableToJson(BTable value, List<TypeValuePair> unresolvedValues) {
-        // FIXME:
         BArray membersArray = ValueCreator.createArrayValue(PredefinedTypes.TYPE_JSON_ARRAY);
         BIterator itr = value.getIterator();
         while (itr.hasNext()) {

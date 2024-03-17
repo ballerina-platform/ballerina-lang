@@ -17,7 +17,7 @@
  *
  */
 
-package io.ballerina.runtime.internal.types.semType;
+package io.ballerina.runtime.internal.types.semtype;
 
 import io.ballerina.runtime.api.TypeTags;
 
@@ -50,8 +50,8 @@ public class IntSubType implements SubType {
         this.data = data;
     }
 
-    private final static IntSubType ALL = new IntSubType(AllOrNothing.ALL);
-    private final static IntSubType NOTHING = new IntSubType(AllOrNothing.NOTHING);
+    private static final IntSubType ALL = new IntSubType(AllOrNothing.ALL);
+    private static final IntSubType NOTHING = new IntSubType(AllOrNothing.NOTHING);
 
     public static IntSubType createIntSubType(List<Long> values) {
         Collections.sort(values);

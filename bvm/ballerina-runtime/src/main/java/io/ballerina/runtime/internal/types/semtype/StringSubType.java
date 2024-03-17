@@ -19,7 +19,7 @@
  *
  */
 
-package io.ballerina.runtime.internal.types.semType;
+package io.ballerina.runtime.internal.types.semtype;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -177,9 +177,9 @@ public class StringSubType implements SubType {
         private final boolean allowed;
         private final String[] values;
 
+        // NOTE: this assumes values are sorted
         public ValueData(boolean allowed, String[] values) {
             this.allowed = allowed;
-            // FIXME: sort values
             this.values = values;
         }
 

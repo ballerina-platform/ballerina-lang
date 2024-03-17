@@ -28,10 +28,10 @@ import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.types.semType.BSemType;
-import io.ballerina.runtime.internal.types.semType.BSubType;
-import io.ballerina.runtime.internal.types.semType.Core;
-import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
+import io.ballerina.runtime.internal.types.semtype.BSemType;
+import io.ballerina.runtime.internal.types.semtype.BSubType;
+import io.ballerina.runtime.internal.types.semtype.Core;
+import io.ballerina.runtime.internal.types.semtype.SemTypeUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -44,20 +44,20 @@ import static io.ballerina.runtime.api.TypeBuilder.booleanSubType;
 import static io.ballerina.runtime.api.TypeBuilder.unwrap;
 import static io.ballerina.runtime.api.TypeBuilder.wrap;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
-import static io.ballerina.runtime.internal.types.semType.Core.containsNil;
-import static io.ballerina.runtime.internal.types.semType.Core.containsSimple;
-import static io.ballerina.runtime.internal.types.semType.Core.intersect;
-import static io.ballerina.runtime.internal.types.semType.Core.belongToBasicType;
-import static io.ballerina.runtime.internal.types.semType.Core.isSubTypeSimple;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_INT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NIL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_STRING;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.cardinality;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.isSet;
+import static io.ballerina.runtime.internal.types.semtype.Core.belongToBasicType;
+import static io.ballerina.runtime.internal.types.semtype.Core.containsNil;
+import static io.ballerina.runtime.internal.types.semtype.Core.containsSimple;
+import static io.ballerina.runtime.internal.types.semtype.Core.intersect;
+import static io.ballerina.runtime.internal.types.semtype.Core.isSubTypeSimple;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_INT;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_NIL;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_STRING;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.cardinality;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.isSet;
 
 // TODO: once we have properly implemented semtypes we can inline this again in to TypeChecker
 class SemanticTypeEngine {
@@ -224,7 +224,7 @@ class SemanticTypeEngine {
             case FALSE -> allowNumericConversion &&
                     numericConvertPossible(sourceValue, wrap(getType(sourceValue)), targetSemType);
             default -> {
-                // FIXME: we have do this since BType part may just a single type
+                // NOTE: we have do this since BType part may just a single type
                 BType bTypePart = getBTypePart(targetSemType);
                 if (bTypePart.getTag() == TypeTags.UNION_TAG) {
                     yield SyntacticTypeEngine.checkIsLikeUnionType(
@@ -252,7 +252,7 @@ class SemanticTypeEngine {
             case FALSE -> allowNumericConversion &&
                     numericConvertPossible(sourceValue, wrap(getType(sourceValue)), targetSemType);
             default -> {
-                // FIXME:
+                // NOTE: bTypePart could be a single type
                 BType bTypePart = getBTypePart(targetSemType);
                 if (bTypePart.getTag() == TypeTags.UNION_TAG) {
                     yield SyntacticTypeEngine.checkIsLikeUnionType(

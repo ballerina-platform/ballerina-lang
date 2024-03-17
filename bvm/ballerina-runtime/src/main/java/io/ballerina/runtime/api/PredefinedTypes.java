@@ -59,7 +59,6 @@ public class PredefinedTypes {
     public static final Type TYPE_XML = TypeBuilder.xmlType();
 
     public static final Type TYPE_READONLY_XML = TypeBuilder.TypeCache.TYPE_READONLY_XML;
-    // FIXME:
     public static final Type TYPE_XML_ELEMENT_SEQUENCE = TypeBuilder.TypeCache.TYPE_XML_ELEMENT_SEQUENCE;
     public static final Type TYPE_XML_COMMENT_SEQUENCE = TypeBuilder.TypeCache.TYPE_XML_COMMENT_SEQUENCE;
     public static final Type TYPE_XML_PI_SEQUENCE = TypeBuilder.TypeCache.TYPE_XML_PI_SEQUENCE;

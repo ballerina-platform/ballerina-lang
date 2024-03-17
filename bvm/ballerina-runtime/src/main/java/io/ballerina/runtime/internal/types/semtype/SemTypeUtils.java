@@ -19,7 +19,7 @@
  *
  */
 
-package io.ballerina.runtime.internal.types.semType;
+package io.ballerina.runtime.internal.types.semtype;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
@@ -45,18 +45,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.internal.types.semType.Core.belongToBasicType;
-import static io.ballerina.runtime.internal.types.semType.Core.intersect;
-import static io.ballerina.runtime.internal.types.semType.Core.union;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_INT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NEVER;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NIL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_STRING;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.N_TYPES;
+import static io.ballerina.runtime.internal.types.semtype.Core.belongToBasicType;
+import static io.ballerina.runtime.internal.types.semtype.Core.intersect;
+import static io.ballerina.runtime.internal.types.semtype.Core.union;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_INT;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_NEVER;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_NIL;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_STRING;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.N_TYPES;
 
 public final class SemTypeUtils {
 
@@ -67,15 +67,15 @@ public final class SemTypeUtils {
     public static final class BasicTypeCodes {
 
         // TODO: eventually these codes need to match with the compiler side
-        public final static int BT_NEVER = 0;
-        public final static int BT_NIL = 0x01;
-        public final static int BT_BOOLEAN = 0x02;
-        public final static int BT_STRING = 0x03;
-        public final static int BT_DECIMAL = 0x04;
-        public final static int BT_FLOAT = 0x05;
-        public final static int BT_INT = 0x06;
-        public final static int BT_BTYPE = 0x07;
-        public final static int N_TYPES = 8;
+        public static final int BT_NEVER = 0;
+        public static final int BT_NIL = 0x01;
+        public static final int BT_BOOLEAN = 0x02;
+        public static final int BT_STRING = 0x03;
+        public static final int BT_DECIMAL = 0x04;
+        public static final int BT_FLOAT = 0x05;
+        public static final int BT_INT = 0x06;
+        public static final int BT_BTYPE = 0x07;
+        public static final int N_TYPES = 8;
     }
 
     public static final class SemTypeBuilder {
@@ -283,11 +283,11 @@ public final class SemTypeUtils {
         private static class ValueAccumulator<E> {
 
             final Set<E> values = new HashSet<>();
-            final int BASIC_TYPE_CODE;
+            final int basicTypeCode;
             final Function<ValueAccumulator<E>, SubType> semTypeBuilder;
 
             ValueAccumulator(int basicTypeCode, Function<ValueAccumulator<E>, SubType> semTypeBuilder) {
-                BASIC_TYPE_CODE = basicTypeCode;
+                this.basicTypeCode = basicTypeCode;
                 this.semTypeBuilder = semTypeBuilder;
             }
 
@@ -299,7 +299,7 @@ public final class SemTypeUtils {
                 if (values.isEmpty()) {
                     return false;
                 }
-                subTypeData[BASIC_TYPE_CODE] = semTypeBuilder.apply(this);
+                subTypeData[basicTypeCode] = semTypeBuilder.apply(this);
                 return true;
             }
         }
@@ -366,7 +366,7 @@ public final class SemTypeUtils {
             }
             for (var acc : accumulators) {
                 if (acc.applyTo(subTypeData)) {
-                    some |= 1 << acc.BASIC_TYPE_CODE;
+                    some |= 1 << acc.basicTypeCode;
                 }
             }
             return new BSemType(all, some, subTypeData);

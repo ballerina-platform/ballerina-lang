@@ -46,10 +46,10 @@ import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlAttributesType;
 import io.ballerina.runtime.internal.types.BXmlType;
-import io.ballerina.runtime.internal.types.semType.BSemType;
-import io.ballerina.runtime.internal.types.semType.BSubType;
-import io.ballerina.runtime.internal.types.semType.Core;
-import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
+import io.ballerina.runtime.internal.types.semtype.BSemType;
+import io.ballerina.runtime.internal.types.semtype.BSubType;
+import io.ballerina.runtime.internal.types.semtype.Core;
+import io.ballerina.runtime.internal.types.semtype.SemTypeUtils;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.math.BigDecimal;
@@ -70,12 +70,12 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.VALUE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_INT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NEVER;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_STRING;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_INT;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_NEVER;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_STRING;
 
 // TODO: merge this with type creator
 public final class TypeBuilder {
@@ -294,10 +294,6 @@ public final class TypeBuilder {
         return result;
     }
 
-    // TODO: we need to do intersection before doing json and xml (represent them as intersection of their non readonly
-    // type and readonly type)
-    // FIXME: this is a hack to support byte since it has a different BType. Once we wrap it in SemType this too can
-    // use intSubType
     @Deprecated
     public static Type byteType() {
         return TypeCache.TYPE_BYTE;
@@ -325,7 +321,7 @@ public final class TypeBuilder {
         boolean isReadonly = true;
         for (int primitive : XML_PRIMITIVES) {
             if ((primitives & primitive) != 0) {
-                constraints.add(XmlPrimitiveType(primitive));
+                constraints.add(xmlPrimitiveType(primitive));
                 if (primitive >= XML_PRIMITIVE_ELEMENT_RW) {
                     isReadonly = false;
                 }
@@ -338,7 +334,7 @@ public final class TypeBuilder {
         return wrap(new BXmlType(unionFrom(constraints), isReadonly));
     }
 
-    private static Type XmlPrimitiveType(int primitive) {
+    private static Type xmlPrimitiveType(int primitive) {
         return switch (primitive) {
             case XML_PRIMITIVE_ELEMENT_RO -> TypeCache.TYPE_READONLY_ELEMENT;
             case XML_PRIMITIVE_PI_RO -> TypeCache.TYPE_READONLY_PROCESSING_INSTRUCTION;
@@ -485,13 +481,11 @@ public final class TypeBuilder {
                 data.nonChars);
     }
 
-    // TODO: consider
-    // 1. Passing in a full module (we are any way have to create one every time this is used)
-    // 2. Create an instance of Type builder for each module (again not sure good we are creating far too many instances)
     public record Identifier(String name, String org, String pkgName, String version) {
 
     }
 
+    // TODO: inline these in predefined types
     protected static class TypeCache {
 
         private static final Module EMPTY_MODULE = new Module(null, null, null);
@@ -649,8 +643,6 @@ public final class TypeBuilder {
             jsonType.addCyclicMembers(List.of(internalJsonArray, internalJsonMap));
             TYPE_JSON = wrap(jsonType);
             TYPE_JSON_ARRAY = wrap(new BArrayType(TYPE_JSON));
-//            TYPE_READONLY_JSON = wrap(new BJsonType(unwrap(jsonType), TypeConstants.READONLY_JSON_TNAME, true));
-            // FIXME: this is not setting the readonly properly
             BSemType jsonROType = unionFrom(TypeConstants.READONLY_JSON_TNAME, EMPTY_MODULE, members);
             jsonROType.setBTypeClass(BSubType.BTypeClass.BJson);
             jsonROType.setReadonly(true);
@@ -703,7 +695,6 @@ public final class TypeBuilder {
             members.add(TYPE_BOOLEAN);
             members.add(TYPE_STRING);
             members.add(TYPE_FLOAT);
-            // FIXME:
             var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
             BUnionType jsonFloat = new BUnionType(TypeConstants.JSON_FLOAT_TNAME, valueModule, members, false);
             jsonFloat.isCyclic = true;
@@ -714,7 +705,7 @@ public final class TypeBuilder {
         }
     }
 
-    public final static class StringSubtypeData {
+    public static final class StringSubtypeData {
 
         private boolean charsAllowed;
         private boolean nonCharsAllowed;

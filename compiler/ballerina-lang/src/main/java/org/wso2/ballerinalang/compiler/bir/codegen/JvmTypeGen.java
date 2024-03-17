@@ -737,7 +737,7 @@ public class JvmTypeGen {
             case TypeTags.FINITE -> {
                 BFiniteType finiteType = (BFiniteType) type;
                 for (SemNamedType valueType : finiteType.valueSpace) {
-                    // FIXME:
+                    // TODO: also do numbers
                     if (!Core.isSubtypeSimple(valueType.semType(), PredefinedType.STRING)) {
                         yield false;
                     }
@@ -746,10 +746,8 @@ public class JvmTypeGen {
             }
             case TypeTags.XML -> {
                 BXMLType xmlType = (BXMLType) type;
-                // FIXME: handle intersections
                 yield xmlType.constraint == null || canBeHandledByTypeBuilder(xmlType.constraint, seen);
             }
-            // TODO: handle unions
             default -> false;
         };
     }
@@ -1599,7 +1597,7 @@ public class JvmTypeGen {
         String owner = "io/ballerina/runtime/api/TypeBuilder";
         String name = "wrap";
         String descriptor =
-                "(Lio/ballerina/runtime/api/types/Type;)Lio/ballerina/runtime/internal/types/semType/BSemType;";
+                "(Lio/ballerina/runtime/api/types/Type;)Lio/ballerina/runtime/internal/types/semtype/BSemType;";
         mv.visitMethodInsn(INVOKESTATIC, owner, name, descriptor, false);
     }
 }

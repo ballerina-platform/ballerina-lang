@@ -49,9 +49,9 @@ import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
-import io.ballerina.runtime.internal.types.semType.BSemType;
-import io.ballerina.runtime.internal.types.semType.Core;
-import io.ballerina.runtime.internal.types.semType.SemTypeUtils;
+import io.ballerina.runtime.internal.types.semtype.BSemType;
+import io.ballerina.runtime.internal.types.semtype.Core;
+import io.ballerina.runtime.internal.types.semtype.SemTypeUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,8 +68,8 @@ import static io.ballerina.runtime.api.constants.TypeConstants.READONLY_XML_TNAM
 import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.types.semType.Core.intersect;
-import static io.ballerina.runtime.internal.types.semType.Core.isNever;
+import static io.ballerina.runtime.internal.types.semtype.Core.intersect;
+import static io.ballerina.runtime.internal.types.semtype.Core.isNever;
 
 /**
  * Util class for readonly-typed value related operations.
@@ -483,7 +483,6 @@ public class ReadOnlyUtils {
             for (Type type : intersectionType.getConstituentTypes()) {
                 Type referredType = TypeUtils.getImpliedType(type);
                 if (TypeUtils.getImpliedType(intersectionType.getEffectiveType()).getTag() == referredType.getTag()) {
-                    // FIXME:
                     return unwrap(referredType);
                 }
             }

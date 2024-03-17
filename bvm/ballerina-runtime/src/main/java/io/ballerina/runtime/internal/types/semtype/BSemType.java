@@ -17,7 +17,7 @@
  *
  */
 
-package io.ballerina.runtime.internal.types.semType;
+package io.ballerina.runtime.internal.types.semtype;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
@@ -30,20 +30,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.runtime.internal.types.semType.Core.belongToBasicType;
-import static io.ballerina.runtime.internal.types.semType.Core.containsSimple;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_INT;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_NIL;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.BT_STRING;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.BasicTypeCodes.N_TYPES;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.calculateDefaultValue;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.calculateTag;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.cardinality;
-import static io.ballerina.runtime.internal.types.semType.SemTypeUtils.isSet;
+import static io.ballerina.runtime.internal.types.semtype.Core.belongToBasicType;
+import static io.ballerina.runtime.internal.types.semtype.Core.containsSimple;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_DECIMAL;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_INT;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_NIL;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_STRING;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.N_TYPES;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.calculateDefaultValue;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.calculateTag;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.cardinality;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.isSet;
 
 public class BSemType implements Type {
 
@@ -159,7 +159,6 @@ public class BSemType implements Type {
 
     @Override
     public boolean isPublic() {
-        // FIXME:
         if (belongToBasicType(this, BT_BTYPE)) {
             return getBType().isPublic();
         }

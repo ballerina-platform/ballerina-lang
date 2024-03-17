@@ -46,7 +46,6 @@ public class BAnydataType extends BUnionType implements AnydataType {
                                                        immutableAnydataType, TypeFlags.asMask(TypeFlags.NILABLE,
                                                         TypeFlags.ANYDATA, TypeFlags.PURETYPE), true);
         }
-        // FIXME:
         this.mergeUnionType((BUnionType) TypeBuilder.anydataType());
     }
 

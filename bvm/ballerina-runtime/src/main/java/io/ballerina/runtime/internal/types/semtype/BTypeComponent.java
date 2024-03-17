@@ -1,4 +1,5 @@
 /*
+ *
  *   Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
  *
  *   WSO2 LLC. licenses this file to you under the Apache License,
@@ -14,21 +15,26 @@
  *   KIND, either express or implied.  See the License for the
  *   specific language governing permissions and limitations
  *   under the License.
+ * /
+ *
  */
 
-package io.ballerina.runtime.internal.types.semType;
+package io.ballerina.runtime.internal.types.semtype;
 
-public interface SubType {
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.types.BType;
 
-    SubType union(SubType other);
+import java.util.List;
 
-    SubType intersect(SubType other);
+public interface BTypeComponent {
 
-    default SubType diff(SubType other) {
-        return this.intersect(other.complement());
-    }
+    @Deprecated
+    BType getBTypeComponent();
 
-    SubType complement();
+    @Deprecated
+    BType getBTypeComponent(String name, Module module);
 
-    boolean isEmpty();
+    @Deprecated
+    void addCyclicMembers(List<Type> members);
 }

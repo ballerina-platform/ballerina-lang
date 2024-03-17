@@ -127,7 +127,6 @@ public class JvmConstants {
     public static final String STRING_SUBTYPE_DATA_BUILDER_DESC =
             "([L" + STRING_VALUE + ";)L" + STRING_SUBTYPE_DATA + ";";
 
-    // FIXME: give a descrptor
     public static final String PREDEFINED_TYPES = "io/ballerina/runtime/api/PredefinedTypes";
 
     public static final String ARRAY_TYPE = "io/ballerina/runtime/api/types/ArrayType";

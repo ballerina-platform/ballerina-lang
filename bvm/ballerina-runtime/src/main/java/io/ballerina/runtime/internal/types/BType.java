@@ -24,9 +24,9 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.types.semType.BSubType;
-import io.ballerina.runtime.internal.types.semType.BTypeComponent;
-import io.ballerina.runtime.internal.types.semType.SubType;
+import io.ballerina.runtime.internal.types.semtype.BSubType;
+import io.ballerina.runtime.internal.types.semtype.BTypeComponent;
+import io.ballerina.runtime.internal.types.semtype.SubType;
 
 import java.util.List;
 import java.util.Objects;

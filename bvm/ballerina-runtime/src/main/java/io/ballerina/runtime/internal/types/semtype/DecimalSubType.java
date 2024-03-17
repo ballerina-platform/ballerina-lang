@@ -17,24 +17,25 @@
  *
  */
 
-package io.ballerina.runtime.internal.types.semType;
+package io.ballerina.runtime.internal.types.semtype;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class FloatSubType implements SubType {
+public class DecimalSubType implements SubType {
 
     final SubTypeData data;
 
-    private FloatSubType(SubTypeData data) {
+    private DecimalSubType(SubTypeData data) {
         this.data = data;
     }
 
-    private final static FloatSubType ALL = new FloatSubType(AllOrNothing.ALL);
-    private final static FloatSubType NOTHING = new FloatSubType(AllOrNothing.NOTHING);
+    private static final DecimalSubType ALL = new DecimalSubType(AllOrNothing.ALL);
+    private static final DecimalSubType NOTHING = new DecimalSubType(AllOrNothing.NOTHING);
 
-    public static FloatSubType createFloatSubType(boolean allowed, Double[] values) {
+    public static DecimalSubType createDecimalSubType(boolean allowed, BigDecimal[] values) {
         if (values.length == 0) {
             if (!allowed) {
                 return ALL;
@@ -43,12 +44,12 @@ public class FloatSubType implements SubType {
             }
         }
         Arrays.sort(values);
-        return new FloatSubType(new FloatSubTypeData(allowed, values));
+        return new DecimalSubType(new DecimalSubTypeData(allowed, values));
     }
 
     @Override
     public SubType union(SubType otherSubtype) {
-        FloatSubType other = (FloatSubType) otherSubtype;
+        DecimalSubType other = (DecimalSubType) otherSubtype;
         if (data instanceof AllOrNothing) {
             if (data == AllOrNothing.ALL) {
                 return this;
@@ -62,16 +63,16 @@ public class FloatSubType implements SubType {
                 return this;
             }
         }
-        List<Double> values = new ArrayList<>();
-        FloatSubTypeData data = (FloatSubTypeData) this.data;
-        FloatSubTypeData otherData = (FloatSubTypeData) other.data;
+        List<BigDecimal> values = new ArrayList<>();
+        DecimalSubTypeData data = (DecimalSubTypeData) this.data;
+        DecimalSubTypeData otherData = (DecimalSubTypeData) other.data;
         boolean allowed = data.union(otherData, values);
-        return createFloatSubType(allowed, values.toArray(new Double[0]));
+        return createDecimalSubType(allowed, values.toArray(new BigDecimal[0]));
     }
 
     @Override
     public SubType intersect(SubType otherSubtype) {
-        FloatSubType other = (FloatSubType) otherSubtype;
+        DecimalSubType other = (DecimalSubType) otherSubtype;
         if (data instanceof AllOrNothing) {
             if (data == AllOrNothing.ALL) {
                 return other;
@@ -85,11 +86,11 @@ public class FloatSubType implements SubType {
                 return NOTHING;
             }
         }
-        List<Double> values = new ArrayList<>();
-        FloatSubTypeData data = (FloatSubTypeData) this.data;
-        FloatSubTypeData otherData = (FloatSubTypeData) other.data;
+        List<BigDecimal> values = new ArrayList<>();
+        DecimalSubTypeData data = (DecimalSubTypeData) this.data;
+        DecimalSubTypeData otherData = (DecimalSubTypeData) other.data;
         boolean allowed = data.intersect(otherData, values);
-        return createFloatSubType(allowed, values.toArray(new Double[0]));
+        return createDecimalSubType(allowed, values.toArray(new BigDecimal[0]));
     }
 
     @Override
@@ -99,8 +100,8 @@ public class FloatSubType implements SubType {
         } else if (data == AllOrNothing.NOTHING) {
             return ALL;
         }
-        FloatSubTypeData data = (FloatSubTypeData) this.data;
-        return createFloatSubType(!data.allowed, data.values);
+        DecimalSubTypeData data = (DecimalSubTypeData) this.data;
+        return createDecimalSubType(!data.allowed, data.values);
     }
 
     @Override
@@ -108,19 +109,34 @@ public class FloatSubType implements SubType {
         return data == AllOrNothing.NOTHING;
     }
 
-    public Double defaultValue() {
-        if (data instanceof FloatSubTypeData subTypeData && subTypeData.allowed && subTypeData.values.length > 0) {
+    public BigDecimal defaultValue() {
+        if (data instanceof DecimalSubTypeData subTypeData && subTypeData.allowed && subTypeData.values.length == 1) {
             return subTypeData.values[0];
         }
         return null;
     }
 
-    static class FloatSubTypeData extends EnumerableSubtypeData<Double> implements SubTypeData {
+    @Override
+    public String toString() {
+        if (data instanceof DecimalSubTypeData subTypeData && subTypeData.allowed) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < subTypeData.values.length; i++) {
+                if (i > 0) {
+                    sb.append(", ");
+                }
+                sb.append(subTypeData.values[i]);
+            }
+            return sb.toString();
+        }
+        return "decimal";
+    }
+
+    static class DecimalSubTypeData extends EnumerableSubtypeData<BigDecimal> implements SubTypeData {
 
         private final boolean allowed;
-        private final Double[] values;
+        private final BigDecimal[] values;
 
-        FloatSubTypeData(boolean allowed, Double[] values) {
+        DecimalSubTypeData(boolean allowed, BigDecimal[] values) {
             this.allowed = allowed;
             this.values = values;
         }
@@ -131,7 +147,7 @@ public class FloatSubType implements SubType {
         }
 
         @Override
-        Double[] values() {
+        BigDecimal[] values() {
             return values;
         }
     }

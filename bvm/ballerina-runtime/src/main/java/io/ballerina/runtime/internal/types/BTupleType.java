@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MaybeRoType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.types.semType.BSemType;
+import io.ballerina.runtime.internal.types.semtype.BSemType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
@@ -35,7 +35,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.ballerina.runtime.internal.types.semType.Core.isNever;
+import static io.ballerina.runtime.internal.types.semtype.Core.isNever;
 
 /**
  * {@code {@link BTupleType}} represents a tuple type in Ballerina.
