@@ -29,9 +29,7 @@ function testXMLNSUsage() {
 xmlns "http://exampleA3.com" as ns3;
 
 function assert(anydata actual, anydata expected) {
-    if (expected != actual) {
-        string reason = "expected `" + expected.toString() + "`, but found `" + actual.toString() + "`";
-        error e = error(reason);
-        panic e;
+    if expected != actual {
+        panic error(string `expected ${expected.toString()}, but found ${actual.toString()};`);
     }
 }

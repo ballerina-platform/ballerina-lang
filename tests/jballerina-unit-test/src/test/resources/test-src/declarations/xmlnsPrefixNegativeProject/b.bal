@@ -15,5 +15,7 @@
 // under the License.
 
 function testXMLNSUsageInAnotherFileNegative() {
-    string _ = ns:doc;
+    _ = ns0:doc;
+    _ = ns1:doc;
+    _ = ns2:doc;
 }

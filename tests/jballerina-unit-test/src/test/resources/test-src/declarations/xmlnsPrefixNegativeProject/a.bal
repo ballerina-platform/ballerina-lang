@@ -14,8 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-xmlns "http://example1.com" as ns;
+xmlns "http://example1.com" as ns0;
 
 function testXMLNSUsage() {
-    string _ = ns:doc;
+    xmlns "http://example2.com" as ns1;
+    string _ = ns0:doc;
+    string _ = ns1:doc;
+    {
+        xmlns "http://example3.com" as ns2;
+        string _ = ns2:foo;
+    }
 }
