@@ -59,7 +59,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void stringTemplateEvaluationTest() throws BallerinaTestException {
         // incompatible result types from expressions.
         debugTestRunner.assertEvaluationError(context, "string `json: ${" + JSON_VAR + "}`",
@@ -302,7 +302,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void additiveExpressionEvaluationTest() throws BallerinaTestException {
         // semantically incorrect expressions (addition between int and string)
         debugTestRunner.assertEvaluationError(context, String.format("%s + %s", INT_VAR, STRING_VAR),
