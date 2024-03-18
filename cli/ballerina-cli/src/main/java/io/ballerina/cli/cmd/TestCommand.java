@@ -330,7 +330,9 @@ public class TestCommand implements BLauncherCmd {
                     "flag is not set");
         }
 
-        // Run pre build tasks to have project reloaded
+        // Run pre-build tasks to have the project reloaded.
+        // The project will be reloaded with newly generated code in the RunBallerinaPreBuildToolsTask task.
+        // Hence, below tasks are executed before extracting the module map from the project.
         TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
                 .addTask(new RunBallerinaPreBuildToolsTask(outStream), isSingleFile) // run build tools
