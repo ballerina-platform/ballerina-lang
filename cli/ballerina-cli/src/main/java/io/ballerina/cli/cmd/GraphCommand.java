@@ -110,7 +110,7 @@ public class GraphCommand implements BLauncherCmd {
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(true, false), isSingleFileProject())
-                .addTask(new RunBallerinaPreBuildToolsTask(outStream))
+                .addTask(new RunBallerinaPreBuildToolsTask(outStream), isSingleFileProject())
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 .addTask(new CreateDependencyGraphTask(outStream, errStream))
                 .build();
