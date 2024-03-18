@@ -330,6 +330,13 @@ public class TestCommand implements BLauncherCmd {
                     "flag is not set");
         }
 
+        // Run pre build tasks to have project reloaded
+        TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
+                .addTask(new RunBallerinaPreBuildToolsTask(outStream), isSingleFile) // run build tools
+                .build();
+        preBuildTaskExecutor.executeTasks(project);
+
         Iterable<Module> originalModules = project.currentPackage().modules();
         Map<String, Module> moduleMap = new HashMap<>();
 
@@ -341,8 +348,6 @@ public class TestCommand implements BLauncherCmd {
         boolean isPackageModified = isProjectUpdated(project);
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
-                .addTask(new RunBallerinaPreBuildToolsTask(outStream), isSingleFile) // run build tools
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
