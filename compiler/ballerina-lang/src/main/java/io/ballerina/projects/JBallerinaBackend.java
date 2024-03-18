@@ -39,8 +39,6 @@ import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
-import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Lists;
@@ -133,12 +131,6 @@ public class JBallerinaBackend extends CompilerBackend {
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.interopValidator = InteropValidator.getInstance(compilerContext);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
-        // TODO: Move to a compiler extension once Compiler revamp is complete
-        if (packageContext.compilationOptions().observabilityIncluded()) {
-            ObservabilitySymbolCollector observabilitySymbolCollector
-                    = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
-            observabilitySymbolCollector.process(packageContext.project());
-        }
         this.conflictedJars = new ArrayList<>();
         performCodeGen();
     }
@@ -205,12 +197,11 @@ public class JBallerinaBackend extends CompilerBackend {
         return diagnosticResult;
     }
 
-    // TODO EmitResult should not contain compilation diagnostics.
     public EmitResult emit(OutputType outputType, Path filePath) {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
-            return new EmitResult(false, diagnosticResult, generatedArtifact);
+            return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), generatedArtifact);
         }
 
         switch (outputType) {
@@ -227,19 +218,23 @@ public class JBallerinaBackend extends CompilerBackend {
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
 
-        ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
+        ArrayList<Diagnostic> allDiagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
+        List<Diagnostic> emitResultDiagnostics = new ArrayList<>();
+        // Add lifecycle plugin diagnostics.
         List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion(filePath);
         if (!pluginDiagnostics.isEmpty()) {
-            diagnostics.addAll(pluginDiagnostics);
+            emitResultDiagnostics.addAll(pluginDiagnostics);
         }
-        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
-
-        List<Diagnostic> allDiagnostics = new ArrayList<>(diagnostics);
+        // Add jar resolver diagnostics.
         jarResolver().diagnosticResult().diagnostics().stream().forEach(
-                diagnostic -> allDiagnostics.add(diagnostic));
+                diagnostic -> emitResultDiagnostics.add(diagnostic));
+        allDiagnostics.addAll(emitResultDiagnostics);
+        // JBallerinaBackend diagnostics contains all diagnostics.
+        // EmitResult will only contain diagnostics related to emitting the executable.
+        diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
 
         // TODO handle the EmitResult properly
-        return new EmitResult(true, new DefaultDiagnosticResult(allDiagnostics), generatedArtifact);
+        return new EmitResult(true, new DefaultDiagnosticResult(emitResultDiagnostics), generatedArtifact);
     }
 
     private Path emitBala(Path filePath) {

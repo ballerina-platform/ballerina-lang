@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -566,7 +567,7 @@ public class JvmPackageGen {
             // link the bir function for lookup
             String birFuncName = birFunc.name.value;
             String balFileName;
-            if (birFunc.pos == null) {
+            if (birFunc.pos == null || birFunc.pos == symbolTable.builtinPos) {
                 balFileName = MODULE_INIT_CLASS_NAME;
             } else {
                 balFileName = birFunc.pos.lineRange().fileName();
@@ -810,7 +811,14 @@ public class JvmPackageGen {
     }
 
     private boolean listenerDeclarationFound(BPackageSymbol packageSymbol) {
-        if (packageSymbol.bir != null && packageSymbol.bir.isListenerAvailable) {
+        if (packageSymbol.bir == null) {
+            for (Scope.ScopeEntry entry : packageSymbol.scope.entries.values()) {
+                BSymbol symbol = entry.symbol;
+                if (symbol != null && Symbols.isFlagOn(symbol.flags, Flags.LISTENER)) {
+                    return true;
+                }
+            }
+        } else if (packageSymbol.bir.isListenerAvailable) {
             return true;
         }
         for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {

@@ -17,25 +17,21 @@ package org.ballerinalang.langserver;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.extensions.ballerina.connector.CentralPackageListResult;
-import org.eclipse.lsp4j.ProgressParams;
-import org.eclipse.lsp4j.WorkDoneProgressBegin;
-import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
-import org.eclipse.lsp4j.WorkDoneProgressEnd;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -46,8 +42,10 @@ import java.util.concurrent.CompletableFuture;
 public class CentralPackageDescriptorLoader {
     public static final LanguageServerContext.Key<CentralPackageDescriptorLoader> CENTRAL_PACKAGE_HOLDER_KEY =
             new LanguageServerContext.Key<>();
-    private final List<Package> centralPackages = new ArrayList<>();
+    private final List<LSPackageLoader.ModuleInfo> centralPackages = new ArrayList<>();
     private boolean isLoaded = false;
+
+    private final LSClientLogger clientLogger;
 
     public static CentralPackageDescriptorLoader getInstance(LanguageServerContext context) {
         CentralPackageDescriptorLoader centralPackageDescriptorLoader = context.get(CENTRAL_PACKAGE_HOLDER_KEY);
@@ -59,38 +57,25 @@ public class CentralPackageDescriptorLoader {
 
     private CentralPackageDescriptorLoader(LanguageServerContext context) {
         context.put(CENTRAL_PACKAGE_HOLDER_KEY, this);
+        this.clientLogger = LSClientLogger.getInstance(context);
     }
 
-    public void loadBallerinaxPackagesFromCentral(LanguageServerContext lsContext) {
-        String taskId = UUID.randomUUID().toString();
-        ExtendedLanguageClient languageClient = lsContext.get(ExtendedLanguageClient.class);
-        CompletableFuture.runAsync(() -> {
-            WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
-            workDoneProgressCreateParams.setToken(taskId);
-            languageClient.createProgress(workDoneProgressCreateParams);
-
-            WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
-            beginNotification.setTitle("Ballerina Central Packages");
-            beginNotification.setCancellable(false);
-            beginNotification.setMessage("Loading...");
-            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
-                    Either.forLeft(beginNotification)));
-        }).thenRunAsync(() -> {
-            centralPackages.addAll(CentralPackageDescriptorLoader.getInstance(lsContext).getPackagesFromCentral());
-        }).thenRunAsync(() -> {
-            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
-            endNotification.setMessage("Loaded Successfully!");
-            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
-                    Either.forLeft(endNotification)));
+    public CompletableFuture<List<LSPackageLoader.ModuleInfo>> getCentralPackages() {
+        return CompletableFuture.supplyAsync(() -> {
+            if (!isLoaded) {
+                //Load packages from central
+                clientLogger.logTrace("Loading packages from Ballerina Central");
+                this.getPackagesFromCentral().forEach(packageInfo -> {
+                    PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
+                    PackageName packageName = PackageName.from(packageInfo.getName());
+                    PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());
+                    centralPackages.add(new LSPackageLoader.ModuleInfo(packageOrg, packageName, packageVersion, null));
+                });
+                clientLogger.logTrace("Successfully loaded packages from Ballerina Central");
+            }
+            isLoaded = true;
+            return this.centralPackages;
         });
-        isLoaded = true;
-    }
-
-    public List<Package> getCentralPackages(LanguageServerContext context) {
-        if (!isLoaded) {
-            loadBallerinaxPackagesFromCentral(context);
-        }
-        return centralPackages;
     }
 
     private List<Package> getPackagesFromCentral() {
@@ -162,6 +147,7 @@ public class CentralPackageDescriptorLoader {
 
         public Map<String, String> getQueryMap() {
             Map<String, String> params = new HashMap();
+            params.put("readme", "false");
 
             if (getOrganization() != null) {
                 params.put("org", getOrganization());

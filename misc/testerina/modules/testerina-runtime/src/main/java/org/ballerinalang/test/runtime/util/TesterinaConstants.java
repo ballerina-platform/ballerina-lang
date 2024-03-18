@@ -25,7 +25,7 @@ package org.ballerinalang.test.runtime.util;
  */
 public class TesterinaConstants {
 
-    public static final String DOT_REPLACER = "$0046";
+    public static final String DOT_REPLACER = "&0046";
     public static final String BALLERINA_SOURCE_ROOT = "ballerina.source.root";
     public static final String TESTERINA_TEMP_DIR = ".testerina";
     public static final String TESTERINA_TEST_SUITE = "test_suit.json";
@@ -100,5 +100,5 @@ public class TesterinaConstants {
 
     public static final int IDENTIFIER_START_INDEX = 1;
     public static final int IDENTIFIER_END_INDEX = 5;
-
+    public static final int DEFAULT_TEST_WORKERS = 1;
 }

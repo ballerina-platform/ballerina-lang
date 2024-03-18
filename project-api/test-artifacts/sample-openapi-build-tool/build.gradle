@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0.0'
+
+repositories {
+    mavenLocal()
+    maven {
+        url = 'https://maven.wso2.org/nexus/content/repositories/releases/'
+    }
+
+    maven {
+        url = 'https://maven.wso2.org/nexus/content/groups/wso2-public/'
+    }
+
+    maven {
+        url = 'https://repo.maven.apache.org/maven2'
+    }
+    maven {
+        url = 'https://maven.pkg.github.com/ballerina-platform/*'
+        credentials {
+            username System.getenv("publishUser")
+            password System.getenv("publishPAT")
+        }
+    }
+}
+
+dependencies {
+    implementation project(':ballerina-cli')
+    implementation project(':toml-parser')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-tools-api')
+
+    implementation 'info.picocli:picocli:4.0.1'
+    implementation group: 'org.talend.sdk.component', name: 'sample', version: '10.57.0'
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -245,6 +245,7 @@ import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1461,7 +1462,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public ComputedNameFieldNode transform(ComputedNameFieldNode computedNameFieldNode) {
         Token openBracket = formatToken(computedNameFieldNode.openBracket(), 0, 0);
         ExpressionNode fieldNameExpr = formatNode(computedNameFieldNode.fieldNameExpr(), 0, 0);
-        Token closeBracket = formatToken(computedNameFieldNode.closeBracket(), 1, 0);
+        Token closeBracket = formatToken(computedNameFieldNode.closeBracket(), 0, 0);
         Token colonToken = formatToken(computedNameFieldNode.colonToken(), 1, 0);
         ExpressionNode valueExpr = formatNode(computedNameFieldNode.valueExpr(), env.trailingWS, env.trailingNL);
 
@@ -4234,10 +4235,12 @@ public class FormattingTreeModifier extends TreeModifier {
             // Therefore, increase the 'consecutiveNewlines' count
             consecutiveNewlines++;
 
-            for (int i = 0; i < env.leadingNL; i++) {
-                prevMinutiae = getNewline();
-                leadingMinutiae.add(prevMinutiae);
-                consecutiveNewlines++;
+            if (!token.isMissing()) {
+                for (int i = 0; i < env.leadingNL; i++) {
+                    prevMinutiae = getNewline();
+                    leadingMinutiae.add(prevMinutiae);
+                    consecutiveNewlines++;
+                }
             }
         }
 
@@ -4257,7 +4260,8 @@ public class FormattingTreeModifier extends TreeModifier {
                         // Shouldn't update the prevMinutiae
                         continue;
                     }
-                    if (env.preserveIndentation) {
+                    if (env.preserveIndentation &&
+                            (prevMinutiae == null || prevMinutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE)) {
                         addWhitespace(getPreservedIndentation(token), leadingMinutiae);
                     } else {
                         addWhitespace(1, leadingMinutiae);
@@ -4355,7 +4359,9 @@ public class FormattingTreeModifier extends TreeModifier {
 
         // Preserve the necessary trailing minutiae coming from the original token
         int consecutiveNewlines = 0;
-        for (Minutiae minutiae : token.trailingMinutiae()) {
+        int size = token.trailingMinutiae().size();
+        for (int i = 0; i < size; i++) {
+            Minutiae minutiae = token.trailingMinutiae().get(i);
             switch (minutiae.kind()) {
                 case END_OF_LINE_MINUTIAE:
                     preserveIndentation(true);
@@ -4369,16 +4375,26 @@ public class FormattingTreeModifier extends TreeModifier {
                         continue;
                     }
 
-                    addWhitespace(env.trailingWS, trailingMinutiae);
+                    // We reach here when the prevMinutiae is an invalid node/token
+                    if (i == size - 1) {
+                        addWhitespace(env.trailingWS, trailingMinutiae);
+                    } else {
+                        addWhitespace(1, trailingMinutiae);
+                    }
                     break;
                 case COMMENT_MINUTIAE:
-                    addWhitespace(1, trailingMinutiae);
+                    if (!matchesMinutiaeKind(prevMinutiae, SyntaxKind.WHITESPACE_MINUTIAE)) {
+                        addWhitespace(1, trailingMinutiae);
+                    }
                     trailingMinutiae.add(minutiae);
                     consecutiveNewlines = 0;
                     break;
                 case INVALID_TOKEN_MINUTIAE_NODE:
                 case INVALID_NODE_MINUTIAE:
                 default:
+                    if (matchesMinutiaeKind(prevMinutiae, SyntaxKind.END_OF_LINE_MINUTIAE)) {
+                        addWhitespace(env.currentIndentation, trailingMinutiae);
+                    }
                     trailingMinutiae.add(minutiae);
                     consecutiveNewlines = 0;
                     break;
@@ -4480,18 +4496,23 @@ public class FormattingTreeModifier extends TreeModifier {
      * @param token token of which the indentation is required.
      */
     private int getPreservedIndentation(Token token) {
-        int position = token.lineRange().startLine().offset();
+        LinePosition startLinePos = token.lineRange().startLine();
+        int position = startLinePos.offset();
+        int startLine = startLinePos.line();
+        for (Token invalidToken : token.leadingInvalidTokens()) {
+            LinePosition invalidTokenStartLinePos = invalidToken.lineRange().startLine();
+            if (invalidTokenStartLinePos.line() == startLine) {
+                position = invalidTokenStartLinePos.offset();
+                break;
+            }
+        }
         int tabSize = options.getTabSize();
-        int offset = position % tabSize;
         if (env.currentIndentation % tabSize == 0 && env.currentIndentation > position) {
             return env.currentIndentation;
         }
+        int offset = position % tabSize;
         if (offset != 0) {
-            if (offset > 2) {
-                position = position + tabSize - offset;
-            } else {
-                position = position - offset;
-            }
+            return offset > 2 ? position + tabSize - offset : position - offset;
         }
         return position;
     }
@@ -4685,6 +4706,10 @@ public class FormattingTreeModifier extends TreeModifier {
             }
         }
         return false;
+    }
+
+    private boolean matchesMinutiaeKind(Minutiae minutiae, SyntaxKind kind) {
+        return minutiae != null && minutiae.kind() == kind;
     }
 
     private NodeList<ImportDeclarationNode> sortAndGroupImportDeclarationNodes(

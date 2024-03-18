@@ -123,7 +123,6 @@ dependencies {
     dist project(':syntax-api-calls-gen')
     dist project(':language-server:language-server-commons')
     dist project(':docerina')
-    dist project(':observability-symbol-collector')
     dist project(':testerina:testerina-runtime')
     dist project(':toml-parser')
     docerina project(':docerina-gradle-plugin')
@@ -332,6 +331,13 @@ def copyCompletionFile = {
     }
 }
 
+def copyProfilerTools = {
+    path -> copySpec {
+        from('resources/profiler')
+        into(path + 'resources/profiler')
+    }
+}
+
 def copyDebugAdapterLibsSpec = {
     path -> copySpec {
         from configurations.debugAdapterLib
@@ -430,6 +436,7 @@ task createZip(type: Zip) {
     with copyBallerinaZipSpec(basePath)
     with copyDebugAdapterLibsSpec(basePath)
     with copyCompletionFile(basePath)
+    with copyProfilerTools(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
     with copyDocerinaUi(basePath)
@@ -452,6 +459,7 @@ task updateBalHome(type: Copy) {
     with copyBallerinaZipSpec(installDir)
     with copyDebugAdapterLibsSpec(installDir)
     with copyCompletionFile(installDir)
+    with copyProfilerTools(installDir)
     with apiDocsSpec(installDir)
     with copyStaticSpec(installDir)
     with copyDocerinaUi(installDir)
@@ -476,6 +484,7 @@ task createDistribution(type: Copy) {
     with copyBallerinaZipSpec("")
     with copyDebugAdapterLibsSpec("")
     with copyCompletionFile("")
+    with copyProfilerTools("")
     with apiDocsSpec("")
     with copyStaticSpec("")
     with copyDocerinaUi("")
@@ -523,4 +532,3 @@ tasks.createZip.dependsOn(':ballerina-io-internal:jar')
 tasks.createZip.dependsOn(':ballerina-io-internal:copyInteropImports')
 tasks.createDistribution.dependsOn(':ballerina-io-internal:jar')
 tasks.createDistribution.dependsOn(':ballerina-io-internal:copyInteropImports')
-

@@ -55,7 +55,7 @@ public class ProfilerMethodWrapper extends ClassLoader {
     public void invokeMethods(String debugArg) throws IOException, InterruptedException {
         String balJarArgs = Main.getBalJarArgs();
         List<String> commands = new ArrayList<>();
-        commands.add("java");
+        commands.add(System.getenv("java.command"));
         commands.add("-jar");
         if (debugArg != null) {
             commands.add(debugArg);
@@ -69,8 +69,8 @@ public class ProfilerMethodWrapper extends ClassLoader {
         processBuilder.directory(new File(System.getenv(CURRENT_DIR_KEY)));
         Process process = processBuilder.start();
         OUT_STREAM.printf(Constants.ANSI_CYAN + "[5/6] Running executable..." + Constants.ANSI_RESET + "%n");
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(),
-                StandardCharsets.UTF_8))) {
+        try (InputStreamReader streamReader = new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8);
+                BufferedReader reader = new BufferedReader(streamReader)) {
             reader.lines().forEach(OUT_STREAM::println);
         }
         process.waitFor();

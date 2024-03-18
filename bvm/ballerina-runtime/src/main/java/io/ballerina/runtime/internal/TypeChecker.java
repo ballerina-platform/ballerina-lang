@@ -1953,6 +1953,7 @@ public class TypeChecker {
             case TypeTags.TYPEDESC_TAG:
             case TypeTags.FUNCTION_POINTER_TAG:
             case TypeTags.HANDLE_TAG:
+            case TypeTags.REG_EXP_TYPE_TAG:    
                 return true;
             case TypeTags.XML_TAG:
                 return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
@@ -2980,8 +2981,8 @@ public class TypeChecker {
                 return checkDecimalEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue);
             case TypeTags.XML_TAG:
                 // Instance of xml never
-                if (lhsValue instanceof XmlText) {
-                    return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlText) lhsValue, (XmlValue) rhsValue);
+                if (lhsValue instanceof XmlText xmlText) {
+                    return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual(xmlText, (XmlValue) rhsValue);
                 }
                 return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlSequence) lhsValue, (XmlValue) rhsValue);
             case TypeTags.XML_ELEMENT_TAG:
@@ -3397,6 +3398,7 @@ public class TypeChecker {
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFillerValue((BFiniteType) type);
             case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.SERVICE_TAG:
                 return checkFillerValue((BObjectType) type);
             case TypeTags.RECORD_TYPE_TAG:
                 return checkFillerValue((BRecordType) type, unanalyzedTypes);
@@ -3556,20 +3558,16 @@ public class TypeChecker {
     }
 
     private static boolean checkFillerValue(BObjectType type) {
-        if (type.getTag() == TypeTags.SERVICE_TAG) {
+        MethodType generatedInitMethod = type.getGeneratedInitMethod();
+        if (generatedInitMethod == null) {
+            // abstract objects doesn't have a filler value.
             return false;
-        } else {
-            MethodType generatedInitMethod = type.getGeneratedInitMethod();
-            if (generatedInitMethod == null) {
-                // abstract objects doesn't have a filler value.
-                return false;
-            }
-            FunctionType initFuncType = generatedInitMethod.getType();
-            // Todo: check defaultable params of the init func as well
-            boolean noParams = initFuncType.getParameters().length == 0;
-            boolean nilReturn = getImpliedType(initFuncType.getReturnType()).getTag() == TypeTags.NULL_TAG;
-            return noParams && nilReturn;
         }
+        FunctionType initFuncType = generatedInitMethod.getType();
+        boolean noParams = initFuncType.getParameters().length == 0;
+        boolean nilReturn = getImpliedType(initFuncType.getReturnType()).getTag() == TypeTags.NULL_TAG;
+        return noParams && nilReturn;
+
     }
 
     private static boolean checkFillerValue(BFiniteType type) {

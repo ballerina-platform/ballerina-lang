@@ -28,7 +28,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  */
 public class TestArguments {
 
-    private static final int ARGUMENTS_NUMBER = 10;
+    private static final int ARGUMENTS_NUMBER = 11;
 
     private final Class<?>[] argTypes;
     private final Object[] argValues;
@@ -49,6 +49,7 @@ public class TestArguments {
         assignValues(7, args[7]);
         assignValues(8, args[8]);
         assignValues(9, args[9]);
+        assignValues(10, args[10]);
     }
 
     public Object[] getArgValues() {

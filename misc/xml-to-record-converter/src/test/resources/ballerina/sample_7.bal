@@ -1,5 +1,5 @@
 type Book record {
-    string title;
+    (int|string) title;
     string author;
     string genre;
     int published_year;

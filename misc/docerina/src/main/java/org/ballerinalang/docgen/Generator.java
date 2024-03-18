@@ -108,6 +108,7 @@ public class Generator {
     public static final String LISTENER_DETACH_METHOD_NAME = "detach";
     public static final String LISTENER_IMMEDIATE_STOP_METHOD_NAME = "immediateStop";
     public static final String LISTENER_GRACEFUL_STOP_METHOD_NAME = "gracefulStop";
+    public static final String DOC_HEADER_PREFIX = "# ";
 
     /**
      * Generate/Set the module constructs model(docerina model) when the syntax tree for the module is given.
@@ -167,8 +168,14 @@ public class Generator {
                         ((ModuleVariableDeclarationNode) node).visibilityQualifier().isPresent() &&
                         ((ModuleVariableDeclarationNode) node).visibilityQualifier().get().kind()
                                 .equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                    module.variables.add(getModuleVariable((ModuleVariableDeclarationNode) node, semanticModel,
-                            module));
+                    DefaultableVariable defaultableVariable = getModuleVariable((ModuleVariableDeclarationNode) node,
+                            semanticModel, module);
+                    if (containsToken(((ModuleVariableDeclarationNode) node).qualifiers(),
+                            SyntaxKind.CONFIGURABLE_KEYWORD)) {
+                        module.configurables.add(defaultableVariable);
+                    } else {
+                        module.variables.add(defaultableVariable);
+                    }
                 }
             }
         }
@@ -201,7 +208,8 @@ public class Generator {
                     (type.category != null && type.category.equals("errors")) ||
                             (type.category != null && type.category.equals("builtin")) &&
                                     type.name.equals("error"))) {
-                module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
+                module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode),
+                        getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode),
                         Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module)));
             } else {
                 module.unionTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(),
@@ -211,8 +219,8 @@ public class Generator {
                 syntaxKind.equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
             Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module);
             if (refType.category.equals("errors")) {
-                module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
-                        refType));
+                module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode),
+                        getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), refType));
             } else {
                 module.simpleNameReferenceTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName,
                         metaDataNode, semanticModel, module));
@@ -227,7 +235,8 @@ public class Generator {
                 detailType = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(), semanticModel,
                         module);
             }
-            Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), detailType);
+            Error err = new Error(typeName, getDocFromMetadata(metaDataNode),
+                    getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), detailType);
             err.isDistinct = true;
             module.errors.add(err);
         } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
@@ -250,7 +259,8 @@ public class Generator {
             ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode = (ParenthesisedTypeDescriptorNode)
                     ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor();
             Type detailType = Type.fromNode(parenthesisedTypeDescriptorNode, semanticModel, module);
-            Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), detailType);
+            Error err = new Error(typeName, getDocFromMetadata(metaDataNode),
+                    getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), detailType);
             err.isDistinct = true;
             module.errors.add(err);
         } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
@@ -259,14 +269,15 @@ public class Generator {
             Type refType = Type.fromNode(((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor()))
                     .typeDescriptor(), semanticModel, module);
             if (refType.category.equals("errors")) {
-                Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), refType);
+                Error err = new Error(typeName, getDocFromMetadata(metaDataNode),
+                        getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), refType);
                 err.isDistinct = true;
                 module.errors.add(err);
             } else {
                 List<Type> memberTypes = new ArrayList<>();
                 memberTypes.add(refType);
-                BType bType = new BType(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
-                        memberTypes);
+                BType bType = new BType(typeName, getDocFromMetadata(metaDataNode),
+                        getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), memberTypes);
                 bType.isAnonymousUnionType = true;
                 module.types.add(bType);
             }
@@ -278,7 +289,8 @@ public class Generator {
                 type = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(),
                         semanticModel, module);
             }
-            module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), type));
+            module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode),
+                    getDescSectionsDocFromMetaDataList(metaDataNode), isDeprecated(metaDataNode), type));
         } else if (syntaxKind.equals(SyntaxKind.TUPLE_TYPE_DESC)) {
             module.tupleTypes.add(getTupleTypeModel((TupleTypeDescriptorNode) typeDefinition.typeDescriptor(),
                     typeName, metaDataNode, semanticModel, module));
@@ -360,10 +372,12 @@ public class Generator {
                 if (doc.equals("")) {
                     doc = getParameterDocFromMetadataList(memberName, enumDeclaration.metadata());
                 }
-                members.add(new Construct(memberName, doc, false));
+                List<String> descSections = getDescSectionsDocFromMetaDataList(enumDeclaration.metadata());
+                members.add(new Construct(memberName, doc, descSections, false));
             }
         });
         return new Enum(enumName, getDocFromMetadata(enumDeclaration.metadata()),
+                getDescSectionsDocFromMetaDataList(enumDeclaration.metadata()),
                 isDeprecated(enumDeclaration.metadata()), members);
     }
 
@@ -380,6 +394,7 @@ public class Generator {
         Type dataType = annotationDeclaration.typeDescriptor().isPresent() ? Type.fromNode(annotationDeclaration.
                 typeDescriptor().get(), semanticModel, module) : null;
         return new Annotation(annotationName, getDocFromMetadata(annotationDeclaration.metadata()),
+                getDescSectionsDocFromMetaDataList(annotationDeclaration.metadata()),
                 isDeprecated(annotationDeclaration.metadata()), dataType, attachPointJoiner.toString());
     }
 
@@ -388,6 +403,7 @@ public class Generator {
         String constantName = constantNode.variableName().text();
         String value = constantNode.initializer().toString();
         String desc = getDocFromMetadata(constantNode.metadata());
+        List<String> descriptionSections = getDescSectionsDocFromMetaDataList(constantNode.metadata());
         Type type;
         if (constantNode.typeDescriptor().isPresent()) {
             type = Type.fromNode(constantNode.typeDescriptor().get(), semanticModel, module);
@@ -408,7 +424,8 @@ public class Generator {
             }
             type = new Type(dataType);
         }
-        return new Constant(constantName, desc, isDeprecated(constantNode.metadata()), type, value);
+        return new Constant(constantName, desc, descriptionSections, isDeprecated(constantNode.metadata()), type,
+                value);
     }
 
     private static void addIntersectionTypeModel(IntersectionTypeDescriptorNode typeDescriptor, String typeName,
@@ -436,7 +453,8 @@ public class Generator {
         List<Type> memberTypes = new ArrayList<>();
         Type.addIntersectionMemberTypes(typeDescriptor, semanticModel, memberTypes, module);
         BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode),
-                isDeprecated(optionalMetadataNode), memberTypes);
+                getDescSectionsDocFromMetaDataList(optionalMetadataNode), isDeprecated(optionalMetadataNode),
+                memberTypes);
         bType.isIntersectionType = true;
         module.intersectionTypes.add(bType);
     }
@@ -448,7 +466,8 @@ public class Generator {
         memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(type ->
                 Type.fromNode(type, semanticModel, module)).collect(Collectors.toList()));
         BType bType = new BType(tupleTypeName, getDocFromMetadata(optionalMetadataNode),
-                isDeprecated(optionalMetadataNode), memberTypes);
+                getDescSectionsDocFromMetaDataList(optionalMetadataNode), isDeprecated(optionalMetadataNode),
+                memberTypes);
         bType.isTuple = true;
         return bType;
     }
@@ -460,8 +479,8 @@ public class Generator {
         if (typeDescriptor.typeParamNode().isPresent()) {
             type = Type.fromNode(typeDescriptor.typeParamNode().get().typeNode(), semanticModel, module);
         }
-        BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode), isDeprecated(optionalMetadataNode),
-                null);
+        BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode),
+                getDescSectionsDocFromMetaDataList(optionalMetadataNode), isDeprecated(optionalMetadataNode), null);
         bType.isTypeDesc = true;
         bType.version = BallerinaDocGenerator.getBallerinaShortVersion();
         bType.elementType = type;
@@ -474,6 +493,7 @@ public class Generator {
         List<Type> memberTypes = new ArrayList<>();
         Type.addUnionMemberTypes(unionTypeDescriptor, semanticModel, memberTypes, module);
         BType bType = new BType(unionName, getDocFromMetadata(optionalMetadataNode),
+                                getDescSectionsDocFromMetaDataList(optionalMetadataNode),
                                 isDeprecated(optionalMetadataNode), memberTypes);
         bType.isAnonymousUnionType = true;
         return bType;
@@ -486,7 +506,7 @@ public class Generator {
                 ? null : Type.fromNode(typeDescriptor, semanticModel, module);
 
         return new MapType(typeName, getDocFromMetadata(optionalMetadataNode),
-                isDeprecated(optionalMetadataNode), type);
+                getDescSectionsDocFromMetaDataList(optionalMetadataNode), isDeprecated(optionalMetadataNode), type);
     }
 
     private static TableType getTableTypeModel(TableTypeDescriptorNode typeDescriptor, String typeName,
@@ -498,7 +518,8 @@ public class Generator {
                 ? null : Type.fromNode(typeDescriptor.keyConstraintNode().get(), semanticModel, module);
 
         return new TableType(typeName, getDocFromMetadata(optionalMetadataNode),
-                isDeprecated(optionalMetadataNode), rowParameterType, keyConstraintType);
+                getDescSectionsDocFromMetaDataList(optionalMetadataNode), isDeprecated(optionalMetadataNode),
+                rowParameterType, keyConstraintType);
     }
 
     private static BClass getClassModel(ClassDefinitionNode classDefinitionNode, SemanticModel semanticModel,
@@ -507,6 +528,7 @@ public class Generator {
         List<Function> includedFunctions = new ArrayList<>();
         String name = classDefinitionNode.className().text();
         String description = getDocFromMetadata(classDefinitionNode.metadata());
+        List<String> descriptionSections = getDescSectionsDocFromMetaDataList(classDefinitionNode.metadata());
         boolean isDeprecated = isDeprecated(classDefinitionNode.metadata());
         boolean isReadOnly = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.READONLY_KEYWORD);
         boolean isIsolated = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.ISOLATED_KEYWORD);
@@ -540,12 +562,15 @@ public class Generator {
         functions.addAll(classFunctions);
 
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
-            return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
+            return new Client(name, description, descriptionSections, isDeprecated, fields, functions, isReadOnly,
+                    isIsolated, isService);
         } else if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.LISTENER_KEYWORD)
                 || isListenerModel(functions)) {
-            return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
+            return new Listener(name, description, descriptionSections, isDeprecated, fields, functions, isReadOnly,
+                    isIsolated, isService);
         } else {
-            return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
+            return new BClass(name, description, descriptionSections, isDeprecated, fields, functions, isReadOnly,
+                    isIsolated, isService);
         }
     }
 
@@ -581,6 +606,7 @@ public class Generator {
         List<Function> includedFunctions = new ArrayList<>();
 
         String description = getDocFromMetadata(optionalMetadataNode);
+        List<String> descriptionSections = getDescSectionsDocFromMetaDataList(optionalMetadataNode);
         boolean isDeprecated = isDeprecated(optionalMetadataNode);
 
         List<DefaultableVariable> fields = getDefaultableVariableList(typeDescriptorNode.members(),
@@ -630,7 +656,8 @@ public class Generator {
                     }
 
                     objectFunctions.add(new Function(methodName, accessor, resourcePath,
-                            getDocFromMetadata(methodNode.metadata()), functionKind, false,
+                            getDocFromMetadata(methodNode.metadata()),
+                            getDescSectionsDocFromMetaDataList(methodNode.metadata()), functionKind, false,
                             isDeprecated(methodNode.metadata()), containsToken(methodNode.qualifierList(),
                             SyntaxKind.ISOLATED_KEYWORD), parameters, returnParams));
                 }
@@ -652,7 +679,7 @@ public class Generator {
 
         functions.addAll(objectFunctions);
 
-        return new BObjectType(objectName, description, isDeprecated, fields, functions);
+        return new BObjectType(objectName, description, descriptionSections, isDeprecated, fields, functions);
     }
 
     private static List<Function> mapFunctionTypesToFunctions(List<FunctionType> functionTypes, Type originType) {
@@ -669,8 +696,9 @@ public class Generator {
             }
 
             Function function = new Function(functionType.name, functionType.accessor, functionType.resourcePath,
-                    functionType.description, functionType.functionKind, functionType.isExtern,
-                    functionType.isDeprecated, functionType.isIsolated, parameters, returnParameters);
+                    functionType.description, functionType.descriptionSections, functionType.functionKind,
+                    functionType.isExtern, functionType.isDeprecated, functionType.isIsolated, parameters,
+                    returnParameters);
             function.inclusionType = originType.isPublic ? originType : null;
             functions.add(function);
         }
@@ -720,6 +748,7 @@ public class Generator {
         }
 
         return new Function(functionName, accessor, resourcePath, getDocFromMetadata(functionDefinitionNode.metadata()),
+                getDescSectionsDocFromMetaDataList(functionDefinitionNode.metadata()),
                 functionKind, isExtern, isDeprecated(functionDefinitionNode.metadata()),
                 containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.ISOLATED_KEYWORD), parameters,
                 returnParams, annotationAttachments);
@@ -739,6 +768,7 @@ public class Generator {
             fields.add(restVariable);
         }
         return new Record(recordName, getDocFromMetadata(optionalMetadataNode),
+                          getDescSectionsDocFromMetaDataList(optionalMetadataNode),
                           isDeprecated(optionalMetadataNode), isClosed, fields);
     }
 
@@ -860,7 +890,7 @@ public class Generator {
             }
             final ModuleID id = symbol.getModule().get().id();
             annotationAttachments.add(
-                    new AnnotationAttachment(symbol.getName().orElse(""), "", false,
+                    new AnnotationAttachment(symbol.getName().orElse(""), "", null, false,
                             id.orgName(), id.moduleName(), id.version()));
         }));
         return annotationAttachments;
@@ -876,7 +906,7 @@ public class Generator {
             }
             final ModuleID id = symbol.getModule().get().id();
             annotationAttachments.add(
-                    new AnnotationAttachment(symbol.getName().orElse(""), "", false,
+                    new AnnotationAttachment(symbol.getName().orElse(""), "", null, false,
                             id.orgName(), id.moduleName(), id.version()));
         });
         return annotationAttachments;
@@ -923,6 +953,11 @@ public class Generator {
         if (docLines != null) {
             for (Node docLine : docLines.documentationLines()) {
                 if (docLine instanceof MarkdownDocumentationLineNode) {
+                    String docLineString = getDocLineString(((MarkdownDocumentationLineNode) docLine).
+                            documentElements());
+                    if (docLineString.startsWith(DOC_HEADER_PREFIX)) {
+                        break;
+                    }
                     doc.append(!((MarkdownDocumentationLineNode) docLine).documentElements().isEmpty() ?
                             getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()) : "\n");
                 } else if (docLine instanceof MarkdownCodeBlockNode) {
@@ -957,12 +992,64 @@ public class Generator {
                         lookForMoreLines = false;
                     }
                 } else if (lookForMoreLines && docLine instanceof MarkdownDocumentationLineNode) {
-                    parameterDoc.append(getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()));
+                    String docLineString = getDocLineString(((MarkdownDocumentationLineNode) docLine)
+                            .documentElements());
+                    if (!docLineString.isEmpty()) {
+                        parameterDoc.append(docLineString);
+                    } else {
+                        lookForMoreLines = false;
+                    }
                 }
             }
         }
 
         return parameterDoc.toString();
+    }
+
+    private static List<String> getDescSectionsDocFromMetaDataList(Optional<MetadataNode> optionalMetadataNode) {
+        if (optionalMetadataNode.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<String> descSections = new ArrayList<>();
+        MarkdownDocumentationNode docLines = optionalMetadataNode.get().documentationString().isPresent() ?
+                (MarkdownDocumentationNode) optionalMetadataNode.get().documentationString().get() : null;
+        if (docLines != null) {
+            StringBuilder sectionDoc = new StringBuilder();
+            boolean lookForMoreLines = false;
+            for (Node docLine : docLines.documentationLines()) {
+                if (docLine instanceof MarkdownDocumentationLineNode) {
+                    String docLineString = getDocLineString(((MarkdownDocumentationLineNode) docLine)
+                            .documentElements());
+                    if (!docLineString.isEmpty()) {
+                        if (docLineString.startsWith(DOC_HEADER_PREFIX)) {
+                            sectionDoc = new StringBuilder();
+                            sectionDoc.append(docLineString);
+                            lookForMoreLines = true;
+                        } else if (lookForMoreLines) {
+                            sectionDoc.append(docLineString);
+                        }
+                    } else {
+                        if (sectionDoc != null && !sectionDoc.toString().isEmpty()) {
+                            descSections.add(sectionDoc.toString());
+                            sectionDoc = null;
+                        }
+                        lookForMoreLines = false;
+                    }
+                } else {
+                    if (sectionDoc != null && !sectionDoc.toString().isEmpty()) {
+                        descSections.add(sectionDoc.toString());
+                        sectionDoc = null;
+                    }
+                    lookForMoreLines = false;
+                }
+            }
+            if (sectionDoc != null && !sectionDoc.toString().isEmpty()) {
+                descSections.add(sectionDoc.toString());
+            }
+        }
+
+        return descSections;
     }
 
     private static String getDocLineString(NodeList<Node> documentElements) {
