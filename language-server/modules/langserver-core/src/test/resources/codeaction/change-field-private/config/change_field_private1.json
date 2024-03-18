@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 1,
+    "character": 11
+  },
+  "source": "change_field_private1.bal",
+  "description": "Change the isolated field to private for a structured type",
+  "expected": [
+    {
+      "title": "Change the field to private",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 5,
+              "character": 6
+            }
+          },
+          "newText": "private map<string> isolatedField = {\n        a: \"1\",\n        b: \"2\",\n        c: \"3\"\n    };\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

@@ -120,6 +120,8 @@ public class CommandConstants {
 
     public static final String CHANGE_PARAM_TYPE_TITLE = "Change parameter '%s' type to '%s'";
 
+    public static final String CHANGE_ISOLATED_FIELD_PRIVATE = "Change the field to private";
+
     public static final String CREATE_VAR_TYPE_GUARD_TITLE = "Create variable and type guard";
 
     public static final String TYPE_GUARD_TITLE = "Type guard variable '%s'";
