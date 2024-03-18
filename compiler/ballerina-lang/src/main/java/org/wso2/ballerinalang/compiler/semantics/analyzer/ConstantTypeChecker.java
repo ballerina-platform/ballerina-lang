@@ -2059,7 +2059,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         SymbolEnv env = data.env;
         Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID,
                 data.anonTypeNameSuffixes));
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.PUBLIC, genName,
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(data.constantSymbol.flags, genName,
                         pkgID, null, env.scope.owner, location, origin);
         recordSymbol.scope = new Scope(recordSymbol);
         return recordSymbol;
