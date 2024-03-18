@@ -30,7 +30,7 @@ function testInvalidUpdates() {
     b.push("l7");
 }
 
-function testUndefinedMemberAccess() {
+function testUndefinedSymbolAccess() {
     _ = foo:l13;
     _ = foo:l14;
 }

@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.test.bala.constant;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -56,6 +58,37 @@ public class ListConstantInBalaTest {
                 "testArrayWithRestAccess",
                 "test2DUnionArrayAccess"
         };
+    }
+
+    @Test
+    public void testNegativeConstantListAccess() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/bala/test_bala/constant/list_constant_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(compileResult, i++,
+                "incompatible types: expected '[string,string,int...]', found '[\"a\",\"b\",\"c\"] & readonly'", 20,
+                34);
+        BAssertUtil.validateError(compileResult, i++,
+                "incompatible types: expected 'int[]', found '[true,false,true] & readonly'", 21, 15);
+        BAssertUtil.validateError(compileResult, i++,
+                "cannot update 'readonly' value of type '[\"a\",\"b\",\"c\"] & readonly'", 26, 5);
+        BAssertUtil.validateError(compileResult, i++,
+                "cannot update 'readonly' value of type '[\"a\",\"b\",\"c\"] & readonly'", 27, 5);
+        BAssertUtil.validateError(compileResult, i++,
+                "incompatible types: expected '(\"a\"|\"b\"|\"c\")', found 'string:Char'", 27, 12);
+        BAssertUtil.validateError(compileResult, i++,
+                "cannot update 'readonly' value of type '[1,\"f\",\"g\"] & readonly'", 30, 5);
+        BAssertUtil.validateError(compileResult, i++, "incompatible types: expected '(1|\"f\"|\"g\")', found 'string'",
+                30, 12);
+        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l13'", 34, 9);
+        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l14'", 35, 9);
+        BAssertUtil.validateError(compileResult, i++, "attempt to refer to non-accessible symbol 'l10'", 39, 9);
+        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l10'", 39, 9);
+        BAssertUtil.validateError(compileResult, i++, "attempt to refer to non-accessible symbol 'l11'", 40, 9);
+        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l11'", 40, 9);
+        BAssertUtil.validateError(compileResult, i++, "attempt to refer to non-accessible symbol 'l12'", 41, 9);
+        BAssertUtil.validateError(compileResult, i++, "undefined symbol 'l12'", 41, 9);
+        Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 
     @AfterClass
