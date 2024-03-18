@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.types.Atom;
 import io.ballerina.types.AtomicType;
+import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.EnumerableCharString;
@@ -34,7 +35,6 @@ import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
 import io.ballerina.types.TypeAtom;
-import io.ballerina.types.UniformTypeBitSet;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.BooleanSubtype;
@@ -44,7 +44,6 @@ import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.NonCharStringSubtype;
 import io.ballerina.types.subtypedata.Range;
-import io.ballerina.types.subtypedata.RwTableSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.XmlSubtype;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -1890,7 +1889,7 @@ public class BIRPackageSymbolEnter {
 
             if (inputStream.readBoolean()) {
                 int bitset = inputStream.readInt();
-                return UniformTypeBitSet.from(bitset);
+                return BasicTypeBitSet.from(bitset);
             }
 
             int all = inputStream.readInt();
@@ -1900,7 +1899,7 @@ public class BIRPackageSymbolEnter {
             for (int i = 0; i < subtypeDataListLength; i++) {
                 subtypeList[i] = readProperSubtypeData();
             }
-            return new ComplexSemType(UniformTypeBitSet.from(all), UniformTypeBitSet.from(some), subtypeList);
+            return new ComplexSemType(BasicTypeBitSet.from(all), BasicTypeBitSet.from(some), subtypeList);
         }
 
         private ProperSubtypeData readProperSubtypeData() throws IOException {
@@ -1918,8 +1917,6 @@ public class BIRPackageSymbolEnter {
                 case 6:
                     return readStringSubtype();
                 case 7:
-                    return readRwTableSubtype();
-                case 8:
                     return readXmlSubtype();
                 default:
                     throw new IllegalStateException("Unexpected ProperSubtypeData kind");
@@ -2067,12 +2064,6 @@ public class BIRPackageSymbolEnter {
                 values[i] = EnumerableString.from(getStringCPEntryValue(inputStream));
             }
             return NonCharStringSubtype.from(allowed, values);
-        }
-
-        private ProperSubtypeData readRwTableSubtype() throws IOException {
-            Bdd ro = readBdd();
-            Bdd rw = readBdd();
-            return RwTableSubtype.createRwTableSubtype(ro, rw);
         }
 
         private XmlSubtype readXmlSubtype() throws IOException {

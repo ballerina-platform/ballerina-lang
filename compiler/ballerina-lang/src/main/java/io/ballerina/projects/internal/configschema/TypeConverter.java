@@ -52,11 +52,11 @@ import java.util.Map;
 
 import static io.ballerina.types.Core.getComplexSubtypeData;
 import static io.ballerina.types.SemTypes.isSubtypeSimple;
-import static io.ballerina.types.UniformTypeCode.UT_BOOLEAN;
-import static io.ballerina.types.UniformTypeCode.UT_DECIMAL;
-import static io.ballerina.types.UniformTypeCode.UT_FLOAT;
-import static io.ballerina.types.UniformTypeCode.UT_INT;
-import static io.ballerina.types.UniformTypeCode.UT_STRING;
+import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
+import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
+import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
+import static io.ballerina.types.BasicTypeCode.BT_INT;
+import static io.ballerina.types.BasicTypeCode.BT_STRING;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.DECIMAL;
@@ -293,19 +293,19 @@ public class TypeConverter {
 
             ComplexSemType cs = (ComplexSemType) s;
             if (isSubtypeSimple(s, PredefinedType.BOOLEAN)) {
-                boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, UT_BOOLEAN)).get();
+                boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, BT_BOOLEAN)).get();
                 enumArray.add(boolVal ? Names.TRUE.value : Names.FALSE.value);
             } else if (isSubtypeSimple(s, PredefinedType.INT)) {
-                long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, UT_INT)).get();
+                long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, BT_INT)).get();
                 enumArray.add(longVal);
             } else if (isSubtypeSimple(s, PredefinedType.FLOAT)) {
-                double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, UT_FLOAT)).get();
+                double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, BT_FLOAT)).get();
                 enumArray.add(doubleVal);
             } else if (isSubtypeSimple(s, PredefinedType.DECIMAL)) {
-                BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, UT_DECIMAL)).get();
+                BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, BT_DECIMAL)).get();
                 enumArray.add(bVal.toString());
             } else if (isSubtypeSimple(s, PredefinedType.STRING)) {
-                String stringVal = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, UT_STRING)).get();
+                String stringVal = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, BT_STRING)).get();
                 enumArray.add(stringVal);
             } else {
                 throw new IllegalStateException("Unexpected value space type: " + s);

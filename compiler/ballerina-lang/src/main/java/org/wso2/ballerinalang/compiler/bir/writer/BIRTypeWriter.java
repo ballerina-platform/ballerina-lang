@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.ballerina.types.Atom;
 import io.ballerina.types.AtomicType;
+import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.EnumerableCharString;
@@ -33,7 +34,6 @@ import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
 import io.ballerina.types.TypeAtom;
-import io.ballerina.types.UniformTypeBitSet;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.BooleanSubtype;
@@ -43,7 +43,6 @@ import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.NonCharStringSubtype;
 import io.ballerina.types.subtypedata.Range;
-import io.ballerina.types.subtypedata.RwTableSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.XmlSubtype;
 import io.netty.buffer.ByteBuf;
@@ -596,11 +595,11 @@ public class BIRTypeWriter extends TypeVisitor {
             return;
         }
 
-        boolean isUniformTypeBitSet = semType instanceof UniformTypeBitSet;
+        boolean isUniformTypeBitSet = semType instanceof BasicTypeBitSet;
         buff.writeBoolean(isUniformTypeBitSet);
 
         if (isUniformTypeBitSet) {
-            buff.writeInt(((UniformTypeBitSet) semType).bitset);
+            buff.writeInt(((BasicTypeBitSet) semType).bitset);
             return;
         }
 
@@ -616,34 +615,28 @@ public class BIRTypeWriter extends TypeVisitor {
     }
 
     private void writeProperSubtypeData(ProperSubtypeData psd) {
-        if (psd instanceof Bdd) {
+        if (psd instanceof Bdd bdd) {
             buff.writeByte(1);
-            writeBdd((Bdd) psd);
-        } else if (psd instanceof IntSubtype) {
+            writeBdd(bdd);
+        } else if (psd instanceof IntSubtype intSubtype) {
             buff.writeByte(2);
-            writeIntSubtype((IntSubtype) psd);
-        } else if (psd instanceof BooleanSubtype) {
+            writeIntSubtype(intSubtype);
+        } else if (psd instanceof BooleanSubtype booleanSubtype) {
             buff.writeByte(3);
-            buff.writeBoolean(((BooleanSubtype) psd).value);
-        } else if (psd instanceof FloatSubtype) {
+            buff.writeBoolean(booleanSubtype.value);
+        } else if (psd instanceof FloatSubtype floatSubtype) {
             buff.writeByte(4);
-            writeFloatSubtype((FloatSubtype) psd);
-        } else if (psd instanceof DecimalSubtype) {
+            writeFloatSubtype(floatSubtype);
+        } else if (psd instanceof DecimalSubtype decimalSubtype) {
             buff.writeByte(5);
-            writeDecimalSubtype((DecimalSubtype) psd);
-        } else if (psd instanceof StringSubtype) {
+            writeDecimalSubtype(decimalSubtype);
+        } else if (psd instanceof StringSubtype stringSubtype) {
             buff.writeByte(6);
-            writeStringSubtype((StringSubtype) psd);
-        } else if (psd instanceof RwTableSubtype) {
+            writeStringSubtype(stringSubtype);
+        } else if (psd instanceof XmlSubtype xmlSubtype) {
             buff.writeByte(7);
-            RwTableSubtype rts = (RwTableSubtype) psd;
-            writeBdd(rts.ro);
-            writeBdd(rts.rw);
-        } else if (psd instanceof XmlSubtype) {
-            buff.writeByte(8);
-            XmlSubtype xs = (XmlSubtype) psd;
-            buff.writeInt(xs.primitives);
-            writeBdd(xs.sequence);
+            buff.writeInt(xmlSubtype.primitives);
+            writeBdd(xmlSubtype.sequence);
         } else {
             throw new IllegalStateException("Unknown ProperSubtypeData");
         }
@@ -651,8 +644,7 @@ public class BIRTypeWriter extends TypeVisitor {
 
     private void writeBdd(Bdd bdd) {
         buff.writeBoolean(bdd instanceof BddNode);
-        if (bdd instanceof BddNode) {
-            BddNode bddNode = (BddNode) bdd;
+        if (bdd instanceof BddNode bddNode) {
             writeBddNode(bddNode);
         } else {
             BddAllOrNothing bddAllOrNothing = (BddAllOrNothing) bdd;
@@ -671,12 +663,12 @@ public class BIRTypeWriter extends TypeVisitor {
             TypeAtom typeAtom = (TypeAtom) atom;
             buff.writeLong(typeAtom.index);
             AtomicType atomicType = typeAtom.atomicType;
-            if (atomicType instanceof MappingAtomicType) {
+            if (atomicType instanceof MappingAtomicType mappingAtomicType) {
                 buff.writeByte(1);
-                writeMappingAtomicType((MappingAtomicType) atomicType);
-            } else if (atomicType instanceof ListAtomicType) {
+                writeMappingAtomicType(mappingAtomicType);
+            } else if (atomicType instanceof ListAtomicType listAtomicType) {
                 buff.writeByte(2);
-                writeListAtomicType((ListAtomicType) atomicType);
+                writeListAtomicType(listAtomicType);
             } else {
                 buff.writeByte(3);
                 FunctionAtomicType fat = (FunctionAtomicType) atomicType;

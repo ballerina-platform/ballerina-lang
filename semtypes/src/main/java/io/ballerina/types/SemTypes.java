@@ -108,7 +108,7 @@ public class SemTypes {
         return Core.isSubtype(context, t1, t2);
     }
 
-    public static boolean isSubtypeSimple(SemType t1, UniformTypeBitSet t2) {
+    public static boolean isSubtypeSimple(SemType t1, BasicTypeBitSet t2) {
         return Core.isSubtypeSimple(t1, t2);
     }
 

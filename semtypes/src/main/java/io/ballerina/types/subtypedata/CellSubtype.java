@@ -17,6 +17,7 @@
  */
 package io.ballerina.types.subtypedata;
 
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.CellAtomicType;
 import io.ballerina.types.CellSemType;
 import io.ballerina.types.ComplexSemType;
@@ -24,7 +25,6 @@ import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.TypeAtom;
-import io.ballerina.types.UniformTypeCode;
 
 import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
 
@@ -39,7 +39,7 @@ public class CellSubtype {
         CellAtomicType atomicCell = CellAtomicType.from(ty, mut);
         TypeAtom atom = env.cellAtom(atomicCell);
         BddNode bdd = bddAtom(atom);
-        ComplexSemType complexSemType = (ComplexSemType) PredefinedType.uniformSubtype(UniformTypeCode.BT_CELL, bdd);
+        ComplexSemType complexSemType = (ComplexSemType) PredefinedType.basicSubtype(BasicTypeCode.BT_CELL, bdd);
         return new CellSemType(complexSemType.subtypeDataList);
     }
 }

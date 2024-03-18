@@ -17,13 +17,13 @@
  */
 package io.ballerina.types.subtypedata;
 
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.EnumerableCharString;
 import io.ballerina.types.EnumerableString;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeCode;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -56,17 +56,16 @@ public class StringSubtype implements ProperSubtypeData {
     }
 
     public static boolean stringSubtypeContains(SubtypeData d, String s) {
-        if (d instanceof AllOrNothingSubtype) {
-            return ((AllOrNothingSubtype) d).isAllSubtype();
+        if (d instanceof AllOrNothingSubtype allOrNothingSubtype) {
+            return allOrNothingSubtype.isAllSubtype();
         }
         StringSubtype st = (StringSubtype) d;
         CharStringSubtype chara = st.charData;
         NonCharStringSubtype nonChar = st.nonCharData;
         if (s.length() == 1) {
-            return Arrays.asList(chara.values).contains(EnumerableCharString.from(s)) ?
-                    chara.allowed : !chara.allowed;
+            return Arrays.asList(chara.values).contains(EnumerableCharString.from(s)) == chara.allowed;
         }
-        return Arrays.asList(nonChar.values).contains(EnumerableString.from(s)) ? nonChar.allowed : !nonChar.allowed;
+        return Arrays.asList(nonChar.values).contains(EnumerableString.from(s)) == nonChar.allowed;
     }
 
     public static SubtypeData createStringSubtype(CharStringSubtype chara, NonCharStringSubtype nonChar) {
@@ -107,14 +106,14 @@ public class StringSubtype implements ProperSubtypeData {
             chara = CharStringSubtype.from(true, new EnumerableCharString[]{});
             nonChar = NonCharStringSubtype.from(true, new EnumerableString[]{EnumerableString.from(value)});
         }
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_STRING, new StringSubtype(chara, nonChar));
+        return PredefinedType.basicSubtype(BasicTypeCode.BT_STRING, new StringSubtype(chara, nonChar));
     }
 
     public static SemType stringChar() {
         StringSubtype st = new StringSubtype(
                 CharStringSubtype.from(false, new EnumerableCharString[]{}),
                 NonCharStringSubtype.from(true, new EnumerableString[]{}));
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_STRING, st);
+        return PredefinedType.basicSubtype(BasicTypeCode.BT_STRING, st);
     }
 
     /**

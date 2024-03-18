@@ -63,8 +63,8 @@ public class BddAllOrNothing implements Bdd {
             return true;
         }
 
-        if (obj instanceof BddAllOrNothing) {
-            return this.isAll == ((BddAllOrNothing) obj).isAll;
+        if (obj instanceof BddAllOrNothing allOrNothing) {
+            return this.isAll == allOrNothing.isAll;
         }
 
         return false;

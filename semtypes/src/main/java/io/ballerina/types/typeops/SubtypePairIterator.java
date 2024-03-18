@@ -17,12 +17,12 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.BasicSubtype;
+import io.ballerina.types.BasicTypeBitSet;
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
-import io.ballerina.types.UniformSubtype;
-import io.ballerina.types.UniformTypeBitSet;
-import io.ballerina.types.UniformTypeCode;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,38 +37,38 @@ import java.util.NoSuchElementException;
 public class SubtypePairIterator implements Iterator<SubtypePair> {
     private int i1;
     private int i2;
-    private final List<UniformSubtype> t1;
-    private final List<UniformSubtype> t2;
-    private final UniformTypeBitSet bits;
+    private final List<BasicSubtype> t1;
+    private final List<BasicSubtype> t2;
+    private final BasicTypeBitSet bits;
 
     private boolean doneIteration = false;
     private boolean shouldCalculate = true;
     private SubtypePair cache = null;
 
-    public SubtypePairIterator(SemType t1, SemType t2, UniformTypeBitSet bits) {
+    public SubtypePairIterator(SemType t1, SemType t2, BasicTypeBitSet bits) {
         this.i1 = 0;
         this.i2 = 0;
-        this.t1 = unpackToUniformSubtypes(t1);
-        this.t2 = unpackToUniformSubtypes(t2);
+        this.t1 = unpackToBasicSubtypes(t1);
+        this.t2 = unpackToBasicSubtypes(t2);
         this.bits = bits;
     }
 
-    private List<UniformSubtype> unpackToUniformSubtypes(SemType type) {
-        if (type instanceof UniformTypeBitSet) {
+    private List<BasicSubtype> unpackToBasicSubtypes(SemType type) {
+        if (type instanceof BasicTypeBitSet) {
             return new ArrayList<>();
         }
         return UnpackComplexSemType.unpack((ComplexSemType) type);
     }
 
-    private boolean include(UniformTypeCode code) {
+    private boolean include(BasicTypeCode code) {
         return (this.bits.bitset & (1 << code.code)) != 0;
     }
 
-    private UniformSubtype get1() {
+    private BasicSubtype get1() {
         return this.t1.get(this.i1);
     }
 
-    private UniformSubtype get2() {
+    private BasicSubtype get2() {
         return this.t2.get(this.i2);
     }
 
@@ -115,28 +115,28 @@ public class SubtypePairIterator implements Iterator<SubtypePair> {
                 if (this.i2 >= this.t2.size()) {
                     break;
                 }
-                UniformSubtype t = get2();
-                UniformTypeCode code = t.uniformTypeCode;
+                BasicSubtype t = get2();
+                BasicTypeCode code = t.basicTypeCode;
                 ProperSubtypeData data2 = t.subtypeData;
                 this.i2 += 1;
                 if (include(code)) {
                     return SubtypePair.create(code, null, data2);
                 }
             } else if (this.i2 >= this.t2.size()) {
-                UniformSubtype t = this.get1();
+                BasicSubtype t = this.get1();
                 this.i1 += 1;
-                UniformTypeCode code = t.uniformTypeCode;
+                BasicTypeCode code = t.basicTypeCode;
                 ProperSubtypeData data1 = t.subtypeData;
                 if (include(code)) {
                     return SubtypePair.create(code, data1, null);
                 }
             } else {
-                UniformSubtype t1 = get1();
-                UniformTypeCode code1 = t1.uniformTypeCode;
+                BasicSubtype t1 = get1();
+                BasicTypeCode code1 = t1.basicTypeCode;
                 ProperSubtypeData data1 = t1.subtypeData;
 
-                UniformSubtype t2 = get2();
-                UniformTypeCode code2 = t2.uniformTypeCode;
+                BasicSubtype t2 = get2();
+                BasicTypeCode code2 = t2.basicTypeCode;
                 ProperSubtypeData data2 = t2.subtypeData;
 
                 if (code1.code == code2.code) {

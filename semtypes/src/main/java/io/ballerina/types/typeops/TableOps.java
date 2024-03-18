@@ -17,37 +17,40 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Bdd;
-import io.ballerina.types.Common;
-import io.ballerina.types.Conjunction;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.subtypedata.XmlSubtype;
 
 /**
- * xml read/write specific methods.
+ * Basic type ops for table type.
  *
  * @since 2201.8.0
  */
-public class XmlRwOps extends XmlCommonOps {
+public class TableOps implements BasicTypeOps {
 
     @Override
-    public SubtypeData union(SubtypeData t1, SubtypeData t2) {
-        return commonUnion(false, t1, t2);
+    public SubtypeData union(SubtypeData d1, SubtypeData d2) {
+        return BddCommonOps.bddUnion((Bdd) d1, (Bdd) d2);
     }
 
     @Override
-    public SubtypeData complement(SubtypeData t) {
-        return commonComplement(false, t);
+    public SubtypeData intersect(SubtypeData d1, SubtypeData d2) {
+        return BddCommonOps.bddIntersect((Bdd) d1, (Bdd) d2);
     }
 
-
-    boolean xmlBddEmpty(Context cx, Bdd bdd) {
-        return Common.bddEvery(cx, bdd, null, null, XmlRwOps::xmlFormulaIsEmpty);
+    @Override
+    public SubtypeData diff(SubtypeData d1, SubtypeData d2) {
+        return BddCommonOps.bddDiff((Bdd) d1, (Bdd) d2);
     }
 
-    private static boolean xmlFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
-        int rwOnlyBits = collectAllBits(pos) & XmlSubtype.XML_PRIMITIVE_RW_MASK;
-        return hasTotalNegative(rwOnlyBits, neg);
+    @Override
+    public SubtypeData complement(SubtypeData d) {
+        return BddCommonOps.bddComplement((Bdd) d);
+    }
+
+    @Override
+    public boolean isEmpty(Context cx, SubtypeData d) {
+        return MappingOps.mappingSubtypeIsEmpty(cx, d);
     }
 }

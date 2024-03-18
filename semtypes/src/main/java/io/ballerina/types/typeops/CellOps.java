@@ -18,6 +18,7 @@
 package io.ballerina.types.typeops;
 
 import io.ballerina.types.Atom;
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.CellAtomicType;
 import io.ballerina.types.Common;
@@ -28,7 +29,6 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeOps;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 
 import java.util.Collections;
@@ -48,7 +48,7 @@ import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
  *
  * @since 2201.10.0
  */
-public class CellOps extends CommonOps implements UniformTypeOps {
+public class CellOps extends CommonOps implements BasicTypeOps {
 
     private static boolean cellFormulaIsEmpty(Context cx, SubtypeData t) {
         return Common.bddEvery(cx, (Bdd) t, null, null, CellOps::cellFormulaIsEmpty);

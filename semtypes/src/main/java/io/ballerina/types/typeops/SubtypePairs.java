@@ -17,8 +17,8 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.SemType;
-import io.ballerina.types.UniformTypeBitSet;
 
 import java.util.Iterator;
 
@@ -32,9 +32,9 @@ public class SubtypePairs implements Iterable<SubtypePair> {
 
     private final SemType t1;
     private final SemType t2;
-    private final UniformTypeBitSet bits;
+    private final BasicTypeBitSet bits;
 
-    public SubtypePairs(SemType t1, SemType t2, UniformTypeBitSet bits) {
+    public SubtypePairs(SemType t1, SemType t2, BasicTypeBitSet bits) {
         this.t1 = t1;
         this.t2 = t2;
         this.bits = bits;

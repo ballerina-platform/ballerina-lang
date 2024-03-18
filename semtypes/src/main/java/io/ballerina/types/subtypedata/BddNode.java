@@ -54,8 +54,7 @@ public class BddNode implements Bdd {
             return true;
         }
 
-        if (obj instanceof BddNode) {
-            BddNode that = (BddNode) obj;
+        if (obj instanceof BddNode that) {
             return Objects.equals(this.atom, that.atom)
                     && Objects.equals(this.left, that.left)
                     && Objects.equals(this.middle, that.middle)

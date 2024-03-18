@@ -17,13 +17,13 @@
  */
 package io.ballerina.types.definition;
 
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.Definition;
 import io.ballerina.types.Env;
 import io.ballerina.types.FunctionAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
-import io.ballerina.types.UniformTypeCode;
 import io.ballerina.types.typeops.BddCommonOps;
 
 /**
@@ -39,7 +39,7 @@ public class FunctionDefinition implements Definition {
     public FunctionDefinition(Env env) {
         FunctionAtomicType dummy = FunctionAtomicType.from(PredefinedType.NEVER, PredefinedType.NEVER);
         this.atom = env.recFunctionAtom();
-        this.semType = PredefinedType.uniformSubtype(UniformTypeCode.UT_FUNCTION, BddCommonOps.bddAtom(this.atom));
+        this.semType = PredefinedType.basicSubtype(BasicTypeCode.BT_FUNCTION, BddCommonOps.bddAtom(this.atom));
     }
 
     @Override

@@ -48,8 +48,8 @@ public class BddPath {
     }
 
     public static void bddPaths(Bdd b, List<BddPath> paths, BddPath accum) {
-        if (b instanceof BddAllOrNothing) {
-            if (((BddAllOrNothing) b).isAll()) {
+        if (b instanceof BddAllOrNothing allOrNothing) {
+            if (allOrNothing.isAll()) {
                 paths.add(accum);
             }
         } else {

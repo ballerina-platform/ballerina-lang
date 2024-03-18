@@ -17,6 +17,7 @@
  */
 package io.ballerina.types.subtypedata;
 
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.EnumerableDecimal;
 import io.ballerina.types.EnumerableSubtype;
 import io.ballerina.types.EnumerableType;
@@ -24,7 +25,6 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeCode;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -49,7 +49,7 @@ public class DecimalSubtype extends EnumerableSubtype implements ProperSubtypeDa
     }
 
     public static SemType decimalConst(BigDecimal value) {
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_DECIMAL,
+        return PredefinedType.basicSubtype(BasicTypeCode.BT_DECIMAL,
                 new DecimalSubtype(true, EnumerableDecimal.from(value)));
     }
 
@@ -71,8 +71,8 @@ public class DecimalSubtype extends EnumerableSubtype implements ProperSubtypeDa
     }
 
     public static boolean decimalSubtypeContains(SubtypeData d, EnumerableDecimal f) {
-        if (d instanceof AllOrNothingSubtype) {
-            return ((AllOrNothingSubtype) d).isAllSubtype();
+        if (d instanceof AllOrNothingSubtype allOrNothingSubtype) {
+            return allOrNothingSubtype.isAllSubtype();
         }
 
         DecimalSubtype v = (DecimalSubtype) d;

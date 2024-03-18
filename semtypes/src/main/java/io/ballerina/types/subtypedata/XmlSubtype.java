@@ -17,8 +17,9 @@
  */
 package io.ballerina.types.subtypedata;
 
+import io.ballerina.types.BasicTypeBitSet;
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.Bdd;
-import io.ballerina.types.Common;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
@@ -26,12 +27,7 @@ import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformSubtype;
-import io.ballerina.types.UniformTypeBitSet;
-import io.ballerina.types.UniformTypeCode;
 import io.ballerina.types.typeops.BddCommonOps;
-
-import java.util.ArrayList;
 
 /**
  * Implementation specific to basic type xml.
@@ -39,7 +35,15 @@ import java.util.ArrayList;
  * @since 2201.8.0
  */
 public class XmlSubtype implements ProperSubtypeData {
+    // This is the bitwise-or of above XML_PRIMITIVE_* fields.
+    // If the XML_PRIMITIVE_NEVER bit is set, then the empty XML sequence belongs to the type.
+    // If one of the other XML_PRIMITVE_* bits is set, then the type contains the
+    // corresponding singleton type.
     public final int primitives;
+    // This is a logical combination of the allowed sequences types. The `atom` field of
+    // the `BddNode` is a bitwise-or of XML_PRIMTIVE_* (except for XML_PRIMITIVE_NEVER).
+    // It represents a sequence of two or more singletons, where the allowed singletons
+    // are those whose bit is set in the `atom` field.
     public final Bdd sequence;
 
     public static final int XML_PRIMITIVE_NEVER      = 1;
@@ -57,6 +61,7 @@ public class XmlSubtype implements ProperSubtypeData {
     public static final int XML_PRIMITIVE_RW_MASK = XML_PRIMITIVE_ELEMENT_RW | XML_PRIMITIVE_PI_RW
             | XML_PRIMITIVE_COMMENT_RW;
     public static final int XML_PRIMITIVE_SINGLETON = XML_PRIMITIVE_RO_SINGLETON | XML_PRIMITIVE_RW_MASK;
+    public static final int XML_PRIMITIVE_ALL_MASK = XML_PRIMITIVE_RO_MASK | XML_PRIMITIVE_RW_MASK;
 
     private XmlSubtype(int primitives, Bdd sequence) {
         this.primitives = primitives;
@@ -68,69 +73,53 @@ public class XmlSubtype implements ProperSubtypeData {
     }
 
     public static SemType xmlSingleton(int primitives) {
-        return createXmlSemtype(
-                createXmlSubtype(true, primitives, BddAllOrNothing.bddNothing()),
-                createXmlSubtype(false, primitives, BddAllOrNothing.bddNothing())
-        );
+        return createXmlSemtype(createXmlSubtype(primitives, BddAllOrNothing.bddNothing()));
     }
 
     public static SemType xmlSequence(SemType constituentType) {
+        // It is a precondition that constituentType is a subtype of XML
+        assert Core.isSubtypeSimple(constituentType, PredefinedType.XML);
+
         if (constituentType == PredefinedType.NEVER) {
             return xmlSequence(xmlSingleton(XML_PRIMITIVE_NEVER));
         }
-        if (constituentType instanceof UniformTypeBitSet) {
+        if (constituentType instanceof BasicTypeBitSet) {
             return constituentType;
         } else {
             ComplexSemType cct = (ComplexSemType) constituentType;
-            SubtypeData ro = Core.getComplexSubtypeData(cct, UniformTypeCode.UT_XML_RO);
-            ro = (ro instanceof AllOrNothingSubtype) ? ro : makeSequence(true, (XmlSubtype) ro);
-
-            SubtypeData rw = Core.getComplexSubtypeData(cct, UniformTypeCode.UT_XML_RW);
-            rw = (rw instanceof AllOrNothingSubtype) ? rw : makeSequence(false, (XmlSubtype) rw);
-
-            return createXmlSemtype(ro, rw);
+            SubtypeData xmlSubtype = Core.getComplexSubtypeData(cct, BasicTypeCode.BT_XML);
+            xmlSubtype = (xmlSubtype instanceof AllOrNothingSubtype) ?
+                    xmlSubtype : makeXmlSequence((XmlSubtype) xmlSubtype);
+            return createXmlSemtype(xmlSubtype);
         }
     }
 
-    private static SubtypeData makeSequence(boolean roPart, XmlSubtype d) {
+    private static SubtypeData makeXmlSequence(XmlSubtype d) {
         int primitives = XML_PRIMITIVE_NEVER | d.primitives;
-        int atom = d.primitives &
-                (roPart ? XML_PRIMITIVE_RO_SINGLETON : XML_PRIMITIVE_SINGLETON);
+        int atom = d.primitives & XML_PRIMITIVE_SINGLETON;
         Bdd sequence = BddCommonOps.bddUnion(BddCommonOps.bddAtom(RecAtom.createRecAtom(atom)), d.sequence);
-        return createXmlSubtype(roPart, primitives, sequence);
+        return createXmlSubtype(primitives, sequence);
     }
 
-    public static ComplexSemType createXmlSemtype(SubtypeData ro, SubtypeData rw) {
-        ArrayList<UniformSubtype> subtypes = new ArrayList<>();
-        int all = 0;
-        if (ro instanceof AllOrNothingSubtype) {
-            if (Common.isAllSubtype(ro)) {
-                all = 1 << UniformTypeCode.UT_XML_RO.code;
-            }
+    public static SemType createXmlSemtype(SubtypeData xmlSubtype) {
+        if (xmlSubtype instanceof AllOrNothingSubtype allOrNothingSubtype) {
+            return allOrNothingSubtype.isAllSubtype() ? PredefinedType.XML : PredefinedType.NEVER;
         } else {
-            subtypes.add(UniformSubtype.from(UniformTypeCode.UT_XML_RO, (XmlSubtype) ro));
+            return PredefinedType.basicSubtype(BasicTypeCode.BT_XML, (ProperSubtypeData) xmlSubtype);
         }
-        if (rw instanceof AllOrNothingSubtype) {
-            if (Common.isAllSubtype(rw)) {
-                all |= 1 << UniformTypeCode.UT_XML_RO.code;
-            }
-        } else {
-            subtypes.add(UniformSubtype.from(UniformTypeCode.UT_XML_RW, (XmlSubtype) rw));
-        }
-        return ComplexSemType.createComplexSemType(all, subtypes);
     }
 
-    public static SubtypeData createXmlSubtype(boolean isRo, int primitives, Bdd sequence) {
-        int mask = isRo ? XML_PRIMITIVE_RO_MASK : XML_PRIMITIVE_RW_MASK;
-        int p = primitives & mask;
-        if (sequence instanceof BddAllOrNothing && ((BddAllOrNothing) sequence).isAll() && p == mask) {
+    public static SubtypeData createXmlSubtype(int primitives, Bdd sequence) {
+        int p = primitives & XML_PRIMITIVE_ALL_MASK;
+        if (sequence instanceof BddAllOrNothing allOrNothing && allOrNothing.isAll() &&
+                p == XML_PRIMITIVE_ALL_MASK) {
             return AllOrNothingSubtype.createAll();
         }
         return createXmlSubtypeOrEmpty(p, sequence);
     }
 
     public static SubtypeData createXmlSubtypeOrEmpty(int primitives, Bdd sequence) {
-        if (sequence instanceof BddAllOrNothing  && ((BddAllOrNothing) sequence).isNothing() && primitives == 0) {
+        if (sequence instanceof BddAllOrNothing allOrNothing && allOrNothing.isNothing() && primitives == 0) {
             return AllOrNothingSubtype.createNothing();
         }
         return from(primitives, sequence);

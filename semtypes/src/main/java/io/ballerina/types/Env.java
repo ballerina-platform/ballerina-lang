@@ -38,13 +38,8 @@ public class Env {
 
     public Env() {
         this.atomTable = new HashMap<>();
-        // Set up index 0 for use by bddFixReadOnly
         this.recListAtoms = new ArrayList<>();
-        this.recListAtoms.add(ListAtomicType.LIST_SUBTYPE_RO);
-
         this.recMappingAtoms = new ArrayList<>();
-        this.recMappingAtoms.add(MappingAtomicType.MAPPING_SUBTYPE_RO);
-
         this.recFunctionAtoms = new ArrayList<>();
         types = new LinkedHashMap<>();
     }
@@ -96,16 +91,16 @@ public class Env {
     }
 
     public ListAtomicType listAtomType(Atom atom) {
-        if (atom instanceof RecAtom) {
-            return getRecListAtomType((RecAtom) atom);
+        if (atom instanceof RecAtom recAtom) {
+            return getRecListAtomType(recAtom);
         } else {
             return (ListAtomicType) ((TypeAtom) atom).atomicType;
         }
     }
 
     public MappingAtomicType mappingAtomType(Atom atom) {
-        if (atom instanceof RecAtom) {
-            return getRecMappingAtomType((RecAtom) atom);
+        if (atom instanceof RecAtom recAtom) {
+            return getRecMappingAtomType(recAtom);
         } else {
             return (MappingAtomicType) ((TypeAtom) atom).atomicType;
         }

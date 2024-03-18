@@ -55,16 +55,16 @@ public class Context {
     }
 
     public ListAtomicType listAtomType(Atom atom) {
-        if (atom instanceof RecAtom) {
-            return this.env.getRecListAtomType((RecAtom) atom);
+        if (atom instanceof RecAtom recAtom) {
+            return this.env.getRecListAtomType(recAtom);
         } else {
             return (ListAtomicType) ((TypeAtom) atom).atomicType;
         }
     }
 
     public MappingAtomicType mappingAtomType(Atom atom) {
-        if (atom instanceof RecAtom) {
-            return this.env.getRecMappingAtomType((RecAtom) atom);
+        if (atom instanceof RecAtom recAtom) {
+            return this.env.getRecMappingAtomType(recAtom);
         } else {
             return (MappingAtomicType) ((TypeAtom) atom).atomicType;
         }

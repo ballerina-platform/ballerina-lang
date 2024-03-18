@@ -25,7 +25,7 @@ package io.ballerina.types;
 public class CellSemType extends ComplexSemType {
 
     public CellSemType(ProperSubtypeData[] subtypeDataList) {
-        super(UniformTypeBitSet.from(0), PredefinedType.CELL, subtypeDataList);
+        super(BasicTypeBitSet.from(0), PredefinedType.CELL, subtypeDataList);
         assert subtypeDataList.length == 1;
     }
 }

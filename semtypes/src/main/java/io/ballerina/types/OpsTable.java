@@ -17,6 +17,7 @@
  */
 package io.ballerina.types;
 
+import io.ballerina.types.typeops.BasicTypeOpsPanicImpl;
 import io.ballerina.types.typeops.BooleanOps;
 import io.ballerina.types.typeops.CellOps;
 import io.ballerina.types.typeops.DecimalOps;
@@ -24,50 +25,41 @@ import io.ballerina.types.typeops.ErrorOps;
 import io.ballerina.types.typeops.FloatOps;
 import io.ballerina.types.typeops.FunctionOps;
 import io.ballerina.types.typeops.IntOps;
-import io.ballerina.types.typeops.ListTypeRoOps;
-import io.ballerina.types.typeops.ListTypeRwOps;
-import io.ballerina.types.typeops.MappingRoOps;
-import io.ballerina.types.typeops.MappingRwOps;
+import io.ballerina.types.typeops.ListOps;
+import io.ballerina.types.typeops.MappingOps;
 import io.ballerina.types.typeops.StringOps;
-import io.ballerina.types.typeops.TableRwOps;
-import io.ballerina.types.typeops.UniformTypeOpsPanicImpl;
-import io.ballerina.types.typeops.XmlRoOps;
-import io.ballerina.types.typeops.XmlRwOps;
+import io.ballerina.types.typeops.TableOps;
+import io.ballerina.types.typeops.XmlOps;
 
 /**
- * Lookup table containing subtype ops for each uniform type indexed by uniform type code.
+ * Lookup table containing subtype ops for each basic type indexed by basic type code.
  *
  * @since 2201.8.0
  */
 public class OpsTable {
-    private static final UniformTypeOpsPanicImpl PANIC_IMPL = new UniformTypeOpsPanicImpl();
-    static final UniformTypeOps[] OPS;
+    private static final BasicTypeOpsPanicImpl PANIC_IMPL = new BasicTypeOpsPanicImpl();
+    static final BasicTypeOps[] OPS;
 
     static {
         int i = 0;
-        OPS = new UniformTypeOps[23];
+        OPS = new BasicTypeOps[18];
         OPS[i++] = PANIC_IMPL;          // nil
         OPS[i++] = new BooleanOps();    // boolean
-        OPS[i++] = new ListTypeRoOps(); // RO list
-        OPS[i++] = new MappingRoOps();  // RO mapping
-        OPS[i++] = new MappingRoOps();  // RO table
-        OPS[i++] = new XmlRoOps();      // RO xml
-        OPS[i++] = PANIC_IMPL;          // RO object
         OPS[i++] = new IntOps();        // int
         OPS[i++] = new FloatOps();      // float
         OPS[i++] = new DecimalOps();    // decimal
         OPS[i++] = new StringOps();     // string
         OPS[i++] = new ErrorOps();      // error
-        OPS[i++] = new FunctionOps();   // function
         OPS[i++] = PANIC_IMPL;          // typedesc
         OPS[i++] = PANIC_IMPL;          // handle
-        OPS[i++] = new CellOps();       // cell
-        OPS[i++] = PANIC_IMPL;          // RW future
-        OPS[i++] = PANIC_IMPL;          // RW stream
-        OPS[i++] = new ListTypeRwOps(); // RW list
-        OPS[i++] = new MappingRwOps();  // RW mapping
-        OPS[i++] = new TableRwOps();    // RW table
-        OPS[i++] = new XmlRwOps();      // RW xml
-        OPS[i] = PANIC_IMPL;            // RW object
+        OPS[i++] = new FunctionOps();   // function
+        OPS[i++] = PANIC_IMPL;          // future
+        OPS[i++] = PANIC_IMPL;          // stream
+        OPS[i++] = new ListOps();       // list
+        OPS[i++] = new MappingOps();    // mapping
+        OPS[i++] = new TableOps();      // table
+        OPS[i++] = new XmlOps();        // xml
+        OPS[i++] = PANIC_IMPL;          // object
+        OPS[i] = new CellOps();         // cell
     }
 }

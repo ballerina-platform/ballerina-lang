@@ -17,16 +17,16 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeOps;
 
 /**
- * Default implementation for uniform subtypes that does not need type-ops.
+ * Default implementation for basic subtypes that does not need type-ops.
  *
  * @since 2201.8.0
  */
-public class UniformTypeOpsPanicImpl implements UniformTypeOps {
+public class BasicTypeOpsPanicImpl implements BasicTypeOps {
     @Override
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {
         throw new IllegalStateException("Binary operation should not be called");

@@ -18,20 +18,39 @@
 package io.ballerina.types;
 
 /**
- * UniformSubtype node.
+ * BasicTypeBitSet node.
  *
  * @since 2201.8.0
  */
-public class UniformSubtype {
-    public final UniformTypeCode uniformTypeCode;
-    public final ProperSubtypeData subtypeData;
+public class BasicTypeBitSet implements SemType {
+    public final int bitset;
 
-    private UniformSubtype(UniformTypeCode uniformTypeCode, ProperSubtypeData properSubtypeData) {
-        this.uniformTypeCode = uniformTypeCode;
-        this.subtypeData = properSubtypeData;
+    private BasicTypeBitSet(int bitset) {
+        this.bitset = bitset;
     }
 
-    public static UniformSubtype from(UniformTypeCode typeCode, ProperSubtypeData data) {
-        return new UniformSubtype(typeCode, data);
+    public static BasicTypeBitSet from(int bitset) {
+        return new BasicTypeBitSet(bitset);
+    }
+
+    @Override
+    public String toString() {
+        return PredefinedType.toString(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o instanceof BasicTypeBitSet b) {
+            return b.bitset == this.bitset;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return bitset;
     }
 }

@@ -41,11 +41,11 @@ import java.util.StringJoiner;
 import static io.ballerina.types.Core.getComplexSubtypeData;
 import static io.ballerina.types.Core.singleShape;
 import static io.ballerina.types.SemTypes.isSubtypeSimple;
-import static io.ballerina.types.UniformTypeCode.UT_BOOLEAN;
-import static io.ballerina.types.UniformTypeCode.UT_DECIMAL;
-import static io.ballerina.types.UniformTypeCode.UT_FLOAT;
-import static io.ballerina.types.UniformTypeCode.UT_INT;
-import static io.ballerina.types.UniformTypeCode.UT_STRING;
+import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
+import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
+import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
+import static io.ballerina.types.BasicTypeCode.BT_INT;
+import static io.ballerina.types.BasicTypeCode.BT_STRING;
 
 /**
  * {@code BFiniteType} represents the finite type in Ballerina.
@@ -124,25 +124,25 @@ public class BFiniteType extends BType implements ReferenceType {
             ComplexSemType cs = (ComplexSemType) semType;
             if (isSubtypeSimple(semType, PredefinedType.BOOLEAN)) {
                 joiner.add(name.orElse(
-                        BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, UT_BOOLEAN)).get() ?
+                        BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, BT_BOOLEAN)).get() ?
                                 Names.TRUE.value : Names.FALSE.value
                 ));
             } else if (isSubtypeSimple(semType, PredefinedType.INT)) {
                 joiner.add(name.orElse(
-                        Long.toString(IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, UT_INT)).get())
+                        Long.toString(IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, BT_INT)).get())
                 ));
             } else if (isSubtypeSimple(semType, PredefinedType.FLOAT)) {
                 joiner.add(name.orElse(
-                        Double.toString(FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, UT_FLOAT)).get())
+                        Double.toString(FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, BT_FLOAT)).get())
                 ) + "f");
             } else if (isSubtypeSimple(semType, PredefinedType.DECIMAL)) {
                 joiner.add(name.orElse(
-                        DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, UT_DECIMAL)).get()
+                        DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, BT_DECIMAL)).get()
                                 .toPlainString()
                 ) + "d");
             } else if (isSubtypeSimple(semType, PredefinedType.STRING)) {
                 joiner.add("\"" + name.orElse(
-                        StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, UT_STRING)).get()
+                        StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, BT_STRING)).get()
                 ) + "\"");
             } else {
                 throw new IllegalStateException("Unexpected value space type in BFiniteType: " + semType);

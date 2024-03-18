@@ -18,7 +18,7 @@
 package io.ballerina.types.typeops;
 
 import io.ballerina.types.Bdd;
-import io.ballerina.types.CommonUniformTypeOps;
+import io.ballerina.types.CommonBasicTypeOps;
 import io.ballerina.types.SubtypeData;
 
 /**
@@ -26,7 +26,7 @@ import io.ballerina.types.SubtypeData;
  *
  * @since 2201.8.0
  */
-public abstract class CommonOps implements CommonUniformTypeOps {
+public abstract class CommonOps implements CommonBasicTypeOps {
     @Override
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {
         return BddCommonOps.bddUnion((Bdd) t1, (Bdd) t2);

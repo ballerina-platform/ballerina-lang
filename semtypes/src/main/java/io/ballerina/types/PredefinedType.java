@@ -38,50 +38,46 @@ import static io.ballerina.types.subtypedata.XmlSubtype.xmlSingleton;
  * @since 2201.8.0
  */
 public class PredefinedType {
-    public static final UniformTypeBitSet NEVER = uniformTypeUnion(0);
-    public static final UniformTypeBitSet NIL = uniformType(UniformTypeCode.UT_NIL);
-    public static final UniformTypeBitSet BOOLEAN = uniformType(UniformTypeCode.UT_BOOLEAN);
-    public static final UniformTypeBitSet INT = uniformType(UniformTypeCode.UT_INT);
-    public static final UniformTypeBitSet FLOAT = uniformType(UniformTypeCode.UT_FLOAT);
-    public static final UniformTypeBitSet DECIMAL = uniformType(UniformTypeCode.UT_DECIMAL);
-    public static final UniformTypeBitSet STRING = uniformType(UniformTypeCode.UT_STRING);
-    public static final UniformTypeBitSet ERROR = uniformType(UniformTypeCode.UT_ERROR);
-    public static final UniformTypeBitSet LIST_RW = uniformType(UniformTypeCode.UT_LIST_RW);
-    public static final UniformTypeBitSet LIST =
-            uniformTypeUnion((1 << UniformTypeCode.UT_LIST_RO.code) | (1 << UniformTypeCode.UT_LIST_RW.code));
-    public static final UniformTypeBitSet MAPPING_RW = uniformType(UniformTypeCode.UT_MAPPING_RW);
-    public static final UniformTypeBitSet MAPPING =
-            uniformTypeUnion((1 << UniformTypeCode.UT_MAPPING_RO.code) | (1 << UniformTypeCode.UT_MAPPING_RW.code));
+    public static final BasicTypeBitSet NEVER = basicTypeUnion(0);
+    public static final BasicTypeBitSet NIL = basicType(BasicTypeCode.BT_NIL);
+    public static final BasicTypeBitSet BOOLEAN = basicType(BasicTypeCode.BT_BOOLEAN);
+    public static final BasicTypeBitSet INT = basicType(BasicTypeCode.BT_INT);
+    public static final BasicTypeBitSet FLOAT = basicType(BasicTypeCode.BT_FLOAT);
+    public static final BasicTypeBitSet DECIMAL = basicType(BasicTypeCode.BT_DECIMAL);
+    public static final BasicTypeBitSet STRING = basicType(BasicTypeCode.BT_STRING);
+    public static final BasicTypeBitSet ERROR = basicType(BasicTypeCode.BT_ERROR);
+    public static final BasicTypeBitSet LIST = basicType(BasicTypeCode.BT_LIST);
+    public static final BasicTypeBitSet MAPPING = basicType(BasicTypeCode.BT_MAPPING);
+    public static final BasicTypeBitSet TABLE = basicType(BasicTypeCode.BT_TABLE);
+    public static final BasicTypeBitSet CELL = basicType(BasicTypeCode.BT_CELL);
 
     // matches all functions
-    public static final UniformTypeBitSet FUNCTION = uniformType(UniformTypeCode.UT_FUNCTION);
-    public static final UniformTypeBitSet TYPEDESC = uniformType(UniformTypeCode.UT_TYPEDESC);
-    public static final UniformTypeBitSet HANDLE = uniformType(UniformTypeCode.UT_HANDLE);
+    public static final BasicTypeBitSet FUNCTION = basicType(BasicTypeCode.BT_FUNCTION);
+    public static final BasicTypeBitSet TYPEDESC = basicType(BasicTypeCode.BT_TYPEDESC);
+    public static final BasicTypeBitSet HANDLE = basicType(BasicTypeCode.BT_HANDLE);
 
-    public static final UniformTypeBitSet XML =
-            uniformTypeUnion((1 << UniformTypeCode.UT_XML_RO.code) | (1 << UniformTypeCode.UT_XML_RW.code));
-    public static final UniformTypeBitSet STREAM = uniformType(UniformTypeCode.UT_STREAM);
-    public static final UniformTypeBitSet FUTURE = uniformType(UniformTypeCode.UT_FUTURE);
-
-    public static final UniformTypeBitSet CELL = uniformType(UniformTypeCode.BT_CELL);
+    public static final BasicTypeBitSet XML = basicType(BasicTypeCode.BT_XML);
+    public static final BasicTypeBitSet OBJECT = basicType(BasicTypeCode.BT_OBJECT);
+    public static final BasicTypeBitSet STREAM = basicType(BasicTypeCode.BT_STREAM);
+    public static final BasicTypeBitSet FUTURE = basicType(BasicTypeCode.BT_FUTURE);
 
     // this is SubtypeData|error
-    public static final UniformTypeBitSet TOP = uniformTypeUnion(UniformTypeCode.UT_MASK);
-    public static final UniformTypeBitSet ANY =
-            uniformTypeUnion(UniformTypeCode.UT_MASK & ~(1 << UniformTypeCode.UT_ERROR.code));
-    public static final UniformTypeBitSet READONLY = uniformTypeUnion(UniformTypeCode.UT_READONLY);
-    public static final UniformTypeBitSet SIMPLE_OR_STRING =
-            uniformTypeUnion((1 << UniformTypeCode.UT_NIL.code)
-                    | (1 << UniformTypeCode.UT_BOOLEAN.code)
-                    | (1 << UniformTypeCode.UT_INT.code)
-                    | (1 << UniformTypeCode.UT_FLOAT.code)
-                    | (1 << UniformTypeCode.UT_DECIMAL.code)
-                    | (1 << UniformTypeCode.UT_STRING.code));
+    // public final BasicTypeBitSet VAL = basicTypeUnion(BasicTypeCode.VT_MASK);
+    public static final BasicTypeBitSet TOP = basicTypeUnion(BasicTypeCode.VT_MASK);
+    public static final BasicTypeBitSet ANY =
+            basicTypeUnion(BasicTypeCode.VT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code));
+    public static final BasicTypeBitSet SIMPLE_OR_STRING =
+            basicTypeUnion((1 << BasicTypeCode.BT_NIL.code)
+                    | (1 << BasicTypeCode.BT_BOOLEAN.code)
+                    | (1 << BasicTypeCode.BT_INT.code)
+                    | (1 << BasicTypeCode.BT_FLOAT.code)
+                    | (1 << BasicTypeCode.BT_DECIMAL.code)
+                    | (1 << BasicTypeCode.BT_STRING.code));
 
-    public static final UniformTypeBitSet NUMBER =
-            uniformTypeUnion((1 << UniformTypeCode.UT_INT.code)
-                    | (1 << UniformTypeCode.UT_FLOAT.code)
-                    | (1 << UniformTypeCode.UT_DECIMAL.code));
+    public static final BasicTypeBitSet NUMBER =
+            basicTypeUnion((1 << BasicTypeCode.BT_INT.code)
+                    | (1 << BasicTypeCode.BT_FLOAT.code)
+                    | (1 << BasicTypeCode.BT_DECIMAL.code));
     public static final SemType BYTE = IntSubtype.intWidthUnsigned(8);
     public static final SemType STRING_CHAR = StringSubtype.stringChar();
 
@@ -93,23 +89,23 @@ public class PredefinedType {
     private PredefinedType() {
     }
 
-    // Union of complete uniform types
-    // bits is bit vecor indexed by UniformTypeCode
+    // Union of complete basic types
+    // bits is bit vector indexed by BasicTypeCode
     // I would like to make the arg int:Unsigned32
     // but are language/impl bugs that make this not work well
-    static UniformTypeBitSet uniformTypeUnion(int bitset) {
-        return UniformTypeBitSet.from(bitset);
+    static BasicTypeBitSet basicTypeUnion(int bitset) {
+        return BasicTypeBitSet.from(bitset);
     }
 
-    public static UniformTypeBitSet uniformType(UniformTypeCode code) {
-        return UniformTypeBitSet.from(1 << code.code);
+    public static BasicTypeBitSet basicType(BasicTypeCode code) {
+        return BasicTypeBitSet.from(1 << code.code);
     }
 
-    public static SemType uniformSubtype(UniformTypeCode code, ProperSubtypeData data) {
-        return ComplexSemType.createComplexSemType(0, UniformSubtype.from(code, data));
+    public static ComplexSemType basicSubtype(BasicTypeCode code, ProperSubtypeData data) {
+        return ComplexSemType.createComplexSemType(0, BasicSubtype.from(code, data));
     }
 
-    static String toString(UniformTypeBitSet ut) {
+    static String toString(BasicTypeBitSet ut) {
         StringJoiner sb = new StringJoiner("|", Integer.toBinaryString(ut.bitset) + "[", "]");
         if ((ut.bitset & NEVER.bitset) != 0) {
             sb.add("never");
@@ -147,7 +143,7 @@ public class PredefinedType {
         if ((ut.bitset & HANDLE.bitset) != 0) {
             sb.add("handle");
         }
-        if ((ut.bitset & UniformTypeCode.UT_READONLY) != 0) {
+        if ((ut.bitset & BasicTypeCode.VT_INHERENTLY_IMMUTABLE) != 0) { // TODO: fix when porting readonly
             sb.add("readonly");
         }
         if ((ut.bitset & MAPPING.bitset) != 0) {

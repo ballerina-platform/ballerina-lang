@@ -15,20 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.types.typeops;
-
-import io.ballerina.types.Context;
-import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeOps;
+package io.ballerina.types;
 
 /**
- * List read/write specific methods operate on SubtypeData.
+ * BasicSubtype node.
  *
  * @since 2201.8.0
  */
-public class ListTypeRwOps extends CommonOps implements UniformTypeOps {
-    @Override
-    public boolean isEmpty(Context cx, SubtypeData t) {
-        return ListCommonOps.listSubtypeIsEmpty(cx, t);
+public class BasicSubtype {
+    public final BasicTypeCode basicTypeCode;
+    public final ProperSubtypeData subtypeData;
+
+    private BasicSubtype(BasicTypeCode basicTypeCode, ProperSubtypeData properSubtypeData) {
+        this.basicTypeCode = basicTypeCode;
+        this.subtypeData = properSubtypeData;
+    }
+
+    public static BasicSubtype from(BasicTypeCode typeCode, ProperSubtypeData data) {
+        return new BasicSubtype(typeCode, data);
     }
 }

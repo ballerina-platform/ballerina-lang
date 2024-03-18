@@ -18,9 +18,8 @@
 package io.ballerina.types.definition;
 
 import io.ballerina.types.Atom;
-import io.ballerina.types.Common;
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.ComplexSemType;
-import io.ballerina.types.Core;
 import io.ballerina.types.Definition;
 import io.ballerina.types.Env;
 import io.ballerina.types.FixedLengthArray;
@@ -28,8 +27,6 @@ import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
-import io.ballerina.types.UniformSubtype;
-import io.ballerina.types.UniformTypeCode;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.typeops.BddCommonOps;
 
@@ -42,22 +39,17 @@ import java.util.List;
  * @since 2201.8.0
  */
 public class ListDefinition implements Definition {
-    private RecAtom roRec = null;
-    private RecAtom rwRec = null;
 
-    // The SemType is created lazily so that we have the possibility
-    // to share the Bdd between the RO and RW cases.
+    private RecAtom rec = null;
     private ComplexSemType semType = null;
 
     @Override
     public SemType getSemType(Env env) {
         ComplexSemType s = this.semType;
         if (s == null) {
-            RecAtom ro = env.recListAtom();
-            RecAtom rw = env.recListAtom();
-            this.roRec = ro;
-            this.rwRec = rw;
-            return this.createSemType(env, ro, rw);
+            RecAtom rec = env.recListAtom();
+            this.rec = rec;
+            return this.createSemType(env, rec);
         } else {
             return s;
         }
@@ -93,50 +85,18 @@ public class ListDefinition implements Definition {
         return define(env, initial, initial.size(), rest);
     }
 
-    public ComplexSemType define(Env env, List<SemType> initial, int fixedLength , SemType rest) {
+    public ComplexSemType define(Env env, List<SemType> initial, int fixedLength, SemType rest) {
         FixedLengthArray members = fixedLengthNormalize(FixedLengthArray.from(initial, fixedLength));
-        ListAtomicType rwType = ListAtomicType.from(members, rest);
-        Atom rw;
-        RecAtom rwRec = this.rwRec;
-        if (rwRec != null) {
-            rw = rwRec;
-            env.setRecListAtomType(rwRec, rwType);
+        ListAtomicType atomicType = ListAtomicType.from(members, rest);
+        Atom atom;
+        RecAtom rec = this.rec;
+        if (rec != null) {
+            atom = rec;
+            env.setRecListAtomType(rec, atomicType);
         } else {
-            rw = env.listAtom(rwType);
+            atom = env.listAtom(atomicType);
         }
-
-        Atom ro;
-        ListAtomicType roType = readOnlyListAtomicType(rwType);
-        // Represents `===` exact equality in ballerina
-        if (roType == rwType) {
-            RecAtom roRec = this.roRec;
-            if (roRec == null) {
-                // share the definitions
-                ro = rw;
-            } else {
-                ro = roRec;
-                env.setRecListAtomType(roRec, rwType);
-            }
-        } else {
-            ro = env.listAtom(roType);
-            RecAtom roRec = this.roRec;
-            if (roRec != null) {
-                env.setRecListAtomType(roRec, roType);
-            }
-        }
-        return this.createSemType(env, ro, rw);
-    }
-
-    private ListAtomicType readOnlyListAtomicType(ListAtomicType ty) {
-        if (Common.typeListIsReadOnly(ty.members.initial)
-                && Core.isReadOnly(ty.rest)) {
-            return ty;
-        }
-        return ListAtomicType.from(
-                FixedLengthArray.from(
-                        List.of(Common.readOnlyTypeList(ty.members.initial)),
-                        ty.members.fixedLength),
-                Core.intersect(ty.rest, PredefinedType.READONLY));
+        return this.createSemType(env, atom);
     }
 
     private FixedLengthArray fixedLengthNormalize(FixedLengthArray array) {
@@ -156,19 +116,9 @@ public class ListDefinition implements Definition {
         return FixedLengthArray.from(initial.subList(0, i + 2), array.fixedLength);
     }
 
-    private ComplexSemType createSemType(Env env, Atom ro, Atom rw) {
-        BddNode roBdd = BddCommonOps.bddAtom(ro);
-        BddNode rwBdd;
-        if (BddCommonOps.atomCmp(ro, rw) == 0) {
-            // share the BDD
-            rwBdd = roBdd;
-        } else {
-            rwBdd = BddCommonOps.bddAtom(rw);
-        }
-
-        ComplexSemType s = ComplexSemType.createComplexSemType(0,
-                UniformSubtype.from(UniformTypeCode.UT_LIST_RO, roBdd),
-                UniformSubtype.from(UniformTypeCode.UT_LIST_RW, rwBdd));
+    private ComplexSemType createSemType(Env env, Atom atom) {
+        BddNode bdd = BddCommonOps.bddAtom(atom);
+        ComplexSemType s = PredefinedType.basicSubtype(BasicTypeCode.BT_LIST, bdd);
         this.semType = s;
         return s;
     }
@@ -177,4 +127,5 @@ public class ListDefinition implements Definition {
         ListDefinition def = new ListDefinition();
         return def.define(env, List.of(members));
     }
+
 }

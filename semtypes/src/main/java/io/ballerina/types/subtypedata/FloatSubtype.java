@@ -17,6 +17,7 @@
  */
 package io.ballerina.types.subtypedata;
 
+import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.EnumerableFloat;
 import io.ballerina.types.EnumerableSubtype;
 import io.ballerina.types.EnumerableType;
@@ -24,7 +25,6 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformTypeCode;
 
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -48,7 +48,7 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
     }
 
     public static SemType floatConst(double value) {
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_FLOAT, new FloatSubtype(true,
+        return PredefinedType.basicSubtype(BasicTypeCode.BT_FLOAT, new FloatSubtype(true,
                 EnumerableFloat.from(value)));
     }
 
@@ -70,8 +70,8 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
     }
 
     public static boolean floatSubtypeContains(SubtypeData d, EnumerableFloat f) {
-        if (d instanceof AllOrNothingSubtype) {
-            return ((AllOrNothingSubtype) d).isAllSubtype();
+        if (d instanceof AllOrNothingSubtype allOrNothingSubtype) {
+            return allOrNothingSubtype.isAllSubtype();
         }
 
         FloatSubtype v = (FloatSubtype) d;
