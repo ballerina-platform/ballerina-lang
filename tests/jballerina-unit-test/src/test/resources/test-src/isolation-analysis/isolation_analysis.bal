@@ -610,3 +610,11 @@ isolated function assertEquality(any|error expected, any|error actual) {
 }
 
 type IsolatedFunction isolated function () returns int;
+
+isolated function func() {
+    _ = start process(getMutableIntArray());
+}
+
+isolated function process(int[] array) {
+
+}
