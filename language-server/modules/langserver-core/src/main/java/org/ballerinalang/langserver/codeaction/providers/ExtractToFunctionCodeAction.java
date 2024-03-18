@@ -47,7 +47,6 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
-import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -156,8 +155,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         String returnTypeDescriptor = "";
         if (updatedVar.isPresent()) {
-            Optional<String> posType =
-                    CodeActionUtil.getPossibleType(updatedVar.get().typeDescriptor(), new ArrayList<>(), context);
+            Optional<String> posType = CodeActionUtil.getPossibleType(updatedVar.get().typeDescriptor(), context);
             if (posType.isEmpty()) {
                 return Collections.emptyList();
             }
@@ -450,14 +448,9 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     }
 
     private String getFunctionName(CodeActionContext context, Node matchedNode) {
-        Set<String> visibleSymbolNames = getVisibleSymbols(context,
-                PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
-                .map(Symbol::getName)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
-
-        return NameUtil.generateTypeName(EXTRACTED_PREFIX, visibleSymbolNames);
+        List<Symbol> visibleSymbols = getVisibleSymbols(context,
+                PositionUtil.toPosition(matchedNode.lineRange().endLine()));
+        return FunctionGenerator.generateFunctionName(EXTRACTED_PREFIX, visibleSymbols);
     }
 
     private List<NonTerminalNode> getPossibleExpressionNodes(NonTerminalNode node) {
@@ -588,8 +581,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             if (typeSymbol.isEmpty()) {
                 return Optional.empty();
             }
-            Optional<String> possibleType =
-                    CodeActionUtil.getPossibleType(typeSymbol.get(), new ArrayList<>(), context);
+            Optional<String> possibleType = CodeActionUtil.getPossibleType(typeSymbol.get(), context);
             if (possibleType.isEmpty()) {
                 return Optional.empty();
             }

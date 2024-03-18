@@ -1,0 +1,60 @@
+{
+  "range": {
+    "start": {
+      "line": 40,
+      "character": 14
+    },
+    "end": {
+      "line": 40,
+      "character": 36
+    }
+  },
+  "source": "extract_to_transform_function20.bal",
+  "description": "Extract to transform function for a type cast expression with mismatching types",
+  "expected": [
+    {
+      "title": "Extract to transform function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 41,
+              "character": 2
+            },
+            "end": {
+              "line": 41,
+              "character": 2
+            }
+          },
+          "newText": "\n\nfunction transform1(Address address) returns Location => {\n    country: \"\",\n    city: \"\"\n};\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 40,
+              "character": 14
+            },
+            "end": {
+              "line": 40,
+              "character": 37
+            }
+          },
+          "newText": "transform1(<Address>person.address)"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_transform_function20.bal",
+          {
+            "line": 40,
+            "character": 14
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}
