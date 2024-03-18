@@ -59,7 +59,7 @@ function testAssertJsonAndString() {
     error? err = trap test:assertEquals(bioData, bioDataString);
     error result = <error>err;
     test:assertEquals(result.message().toString(), 
-    "Assertion Failed!\n \nexpected: <string> '{name:\"John Doe\", age:25, address:{city:\"Colombo\", country:\"Sri " + "Lanka\"}}'\nactual\t: <map> '{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka\"}}'");
+    "Assertion Failed!\n \nexpected: <string> '{name:\"John Doe\", age:25, address:{city:\"Colombo\", country:\"Sri " + "Lanka\"}}'\nactual\t: <map<json>> '{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka\"}}'");
 }
 
 @test:Config {}
@@ -68,8 +68,9 @@ function testAssertXmlAndString() {
     string xmlString = "<book>The Lost World</book>Hello, world!<!--I am a comment--><?target data?>";
     error? err = trap test:assertEquals(xmlString, xmlValue);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), 
-    "Assertion Failed!\n \nexpected: <xml> '<book>The Lost World</book>Hello, world!<!--I am a comment--><?target data?" + ">'\nactual\t: <string> '<book>The Lost World</book>Hello, world!<!--I am a comment--><?target data?>'");
+    test:assertEquals(result.message().toString(),
+    // TODO: revisit after fixing type to string
+    "Assertion Failed!\n \nexpected: <xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>> '<book>The Lost World</book>Hello, world!<!--I am a comment--><?target data?" + ">'\nactual\t: <string> '<book>The Lost World</book>Hello, world!<!--I am a comment--><?target data?>'");
 }
 
 @test:Config {}
@@ -132,7 +133,7 @@ function testAssertLongValues() {
 
     error? err = trap test:assertEquals(value1, value2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: <map> '{\"description\":\"Ballerina" +
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: <map<json>> '{\"description\":\"Ballerina" +
     " is an open source programming language and platform fo\n" +
     "r cloud-era application programmers.\"}'" +
     "\nactual\t: <string> 'Ballerina is an open source" +

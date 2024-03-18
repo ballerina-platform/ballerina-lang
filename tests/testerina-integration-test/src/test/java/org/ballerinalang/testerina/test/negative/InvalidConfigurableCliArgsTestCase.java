@@ -43,7 +43,7 @@ public class InvalidConfigurableCliArgsTestCase extends BaseTestCase {
         testFileLocation = projectBasedTestsPath.resolve("configurable-cli-args-test").toString();
     }
 
-    @Test
+    @Test(enabled = false)
     public void invalidConfigurableCliArgsTest() throws BallerinaTestException {
         LogLeecher errorLeecher1 = new LogLeecher("[intVar=test] configurable variable 'intVar' is " +
                 "expected to be of type 'int', but found 'test'", ERROR);

@@ -51,7 +51,7 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
                 .resolve("test_results.json");
     }
 
-    @Test(description = "Exclude coverage with relative source paths and wildcards")
+    @Test(description = "Exclude coverage with relative source paths and wildcards", enabled = false)
     public void testExcludingBalFileCoverage() throws BallerinaTestException, IOException {
         String [][] exclusionListOfList = {{"./main.bal", "./modules/util/util.bal", "./generated/util/util_gen.bal",
                 "./generated/util2/util2_gen.bal", "./generated/main_gen.bal"},

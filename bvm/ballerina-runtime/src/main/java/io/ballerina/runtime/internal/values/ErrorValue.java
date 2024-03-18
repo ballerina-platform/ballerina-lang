@@ -46,6 +46,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
@@ -109,7 +110,7 @@ public class ErrorValue extends BError implements RefValue {
         this.details = details;
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
-        ((BErrorType) TypeUtils.getImpliedType(type)).setTypeIdSet(typeIdSet);
+        ((BErrorType) toBType(TypeUtils.getImpliedType(type))).setTypeIdSet(typeIdSet);
     }
 
     @Override
@@ -195,11 +196,12 @@ public class ErrorValue extends BError implements RefValue {
 
     private String getModuleNameToBalString() {
         Type type = TypeUtils.getImpliedType(this.type);
-        if (((BErrorType) type).typeIdSet == null) {
+        BErrorType errorType = toBType(type);
+        if (errorType.typeIdSet == null) {
             return "";
         }
         StringJoiner sj = new StringJoiner("&");
-        List<TypeId> typeIds = ((BErrorType) type).typeIdSet.getIds();
+        List<TypeId> typeIds = errorType.typeIdSet.getIds();
         for (TypeId typeId : typeIds) {
             String pkg = typeId.getPkg().toString();
             if (DOT.equals(pkg)) {
