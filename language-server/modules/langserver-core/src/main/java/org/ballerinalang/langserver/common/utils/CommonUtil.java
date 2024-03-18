@@ -347,16 +347,16 @@ public class CommonUtil {
     }
 
     /**
-     * Remove error types from the given type
+     * Remove error types from the given type.
      *
      * @param typeSymbol type descriptor to evaluate
      * @param types instance of the Types
      * @return {@link TypeSymbol} type symbol without error types
      */
-    public static TypeSymbol removeErrorTypes(TypeSymbol typeSymbol, Types types) {
+    public static Optional<TypeSymbol> removeErrorTypes(TypeSymbol typeSymbol, Types types) {
         TypeDescKind kind = typeSymbol.typeKind();
         if (kind == TypeDescKind.ERROR) {
-            return null;
+            return Optional.empty();
         }
         if (kind == TypeDescKind.TYPE_REFERENCE) {
             return removeErrorTypes(getRawType(typeSymbol), types);
@@ -365,19 +365,18 @@ public class CommonUtil {
             List<TypeSymbol> memberTypes = ((UnionTypeSymbol) typeSymbol).userSpecifiedMemberTypes();
             List<TypeSymbol> noErrorMembers = new ArrayList<>();
             for (TypeSymbol memberType : memberTypes) {
-                TypeSymbol newMemberType = removeErrorTypes(memberType, types);
-                if (newMemberType != null) {
-                    noErrorMembers.add(newMemberType);
-                }
+                Optional<TypeSymbol> newMemberType = removeErrorTypes(memberType, types);
+                newMemberType.ifPresent(noErrorMembers::add);
             }
             if (noErrorMembers.size() == memberTypes.size()) {
-                return typeSymbol;
+                return Optional.of(typeSymbol);
             } else if (noErrorMembers.size() == 1) {
-                return noErrorMembers.get(0);
+                return Optional.of(noErrorMembers.get(0));
             }
-            return types.builder().UNION_TYPE.withMemberTypes(noErrorMembers.toArray(new TypeSymbol[0])).build();
+            return Optional.of(types.builder().
+                    UNION_TYPE.withMemberTypes(noErrorMembers.toArray(new TypeSymbol[0])).build());
         }
-        return typeSymbol;
+        return Optional.of(typeSymbol);
     }
 
     /**

@@ -176,14 +176,14 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
                     combinedTypes.add(Collections.singletonList("(" + CodeActionUtil.getPossibleTypes(typeSymbol,
                             importEdits, context).get(0) + ")"));
                 } else {
-                    TypeSymbol tSymbol = typeSymbol;
                     if (containCheckExprNode) {
-                        tSymbol = CommonUtil.removeErrorTypes(typeSymbol, semanticModel.types());
-                        if (tSymbol == null) {
+                        Optional<TypeSymbol> tSymbol = CommonUtil.removeErrorTypes(typeSymbol, semanticModel.types());
+                        if (tSymbol.isPresent()) {
+                            combinedTypes.add(CodeActionUtil.getPossibleTypes(tSymbol.get(), importEdits, context));
                             continue;
                         }
                     }
-                    combinedTypes.add(CodeActionUtil.getPossibleTypes(tSymbol, importEdits, context));
+                    combinedTypes.add(CodeActionUtil.getPossibleTypes(typeSymbol, importEdits, context));
                 }
             }
             
