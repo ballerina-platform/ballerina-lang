@@ -668,14 +668,15 @@ public function testWorkerWithQuery() {
 }
 
 function testBindingPatternVariablesInWorker() {
-    record {|string name;|} rec = {name: "name"};
+    record {|string name;|} rec = {name: "workerName"};
     [string] [colon] = [";"];
     var {name} = rec;
 
     worker A returns string {
         return name + colon;
     }
-    string _ = wait A;
+    string result = wait A;
+    assertEquals("workerName;", result);
 }
 
 public function sleep(int millis) = @java:Method {

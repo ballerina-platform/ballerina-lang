@@ -24,6 +24,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -272,29 +273,20 @@ public class ClosureTest {
         BRunUtil.invoke(compileResult, "test30");
     }
 
-    @Test(description = "Test closure with a referenced param of structured binding type")
-    public void testClosureWithStructuredBindingTypeParams() {
-        BRunUtil.invoke(compileResult, "testClosureWithStructuredBindingTypeParams");
+    @Test(description = "Test closure with binding type param", dataProvider = "closureWithBindingPatternTypeParam")
+    public void testClosureWithBindingPatternTypeParam(String functionName) {
+        BRunUtil.invoke(compileResult, functionName);
     }
 
-    @Test(description = "Test closure with a referenced param of tuple binding type")
-    public void testClosureWithTupleBindingTypeParams() {
-        BRunUtil.invoke(compileResult, "testClosureWithTupleBindingTypeParams");
-    }
-
-    @Test(description = "Test closure with a param having a default value of a binding type")
-    public void testClosureWithBindingPatternDefaultValues() {
-        BRunUtil.invoke(compileResult, "testClosureWithBindingPatternDefaultValues");
-    }
-
-    @Test(description = "Test closure with a referenced variable of error binding type")
-    public void testClosureWithErrorBindingPatterns() {
-        BRunUtil.invoke(compileResult, "testClosureWithErrorBindingPatterns");
-    }
-
-    @Test(description = "Test closure with closure variable of binding patterns of foreach loop")
-    public void testClosureWithBindingPatternsInForEach() {
-        BRunUtil.invoke(compileResult, "testClosureWithBindingPatternsInForEach");
+    @DataProvider(name = "closureWithBindingPatternTypeParam")
+    private Object[] closureWithBindingPatternTypeParam() {
+        return new String[]{
+                "testClosureWithStructuredBindingTypeParams",
+                "testClosureWithTupleBindingTypeParams",
+                "testClosureWithBindingPatternDefaultValues",
+                "testClosureWithErrorBindingPatterns",
+                "testClosureWithBindingPatternsInForEach"
+        };
     }
 
     @AfterClass

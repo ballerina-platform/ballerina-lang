@@ -135,13 +135,8 @@ function testLimitClauseAndQueryExprWithBindingVar() {
     assertEquality(topList, [{"name": "Alex", "grade": 85.0}, {"name": "Ranjan", "grade": 95.0}]);
 }
 
-const ASSERTION_ERROR_REASON = "AssertionError";
-
 function assertEquality(anydata actual, anydata expected) {
-    if expected == actual {
-        return;
+    if expected != actual {
+        panic error(string `expected '${expected.toBalString()}', found '${actual.toBalString()}'`);
     }
-
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
