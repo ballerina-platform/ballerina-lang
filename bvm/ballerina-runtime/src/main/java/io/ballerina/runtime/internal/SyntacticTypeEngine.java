@@ -1,5 +1,4 @@
 /*
- *
  *   Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
  *
  *   WSO2 LLC. licenses this file to you under the Apache License,
@@ -15,8 +14,6 @@
  *   KIND, either express or implied.  See the License for the
  *   specific language governing permissions and limitations
  *   under the License.
- * /
- *
  */
 
 package io.ballerina.runtime.internal;
@@ -109,6 +106,7 @@ import static io.ballerina.runtime.internal.TypeHelper.typeConstraint;
 import static io.ballerina.runtime.internal.types.semtype.Core.belongToBasicType;
 import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BTYPE;
 
+// TODO: once we have properly implemented semtypes get rid of this class
 public class SyntacticTypeEngine {
 
     static boolean checkIsType(List<String> errors, Object sourceVal, BType sourceType, BType targetType) {

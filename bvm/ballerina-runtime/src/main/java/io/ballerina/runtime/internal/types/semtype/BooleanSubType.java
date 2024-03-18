@@ -18,6 +18,11 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
+/**
+ * Runtime representation of BooleanSubType.
+ *
+ * @since 2201.10.0
+ */
 public class BooleanSubType implements SubType {
 
     final SubTypeData data;

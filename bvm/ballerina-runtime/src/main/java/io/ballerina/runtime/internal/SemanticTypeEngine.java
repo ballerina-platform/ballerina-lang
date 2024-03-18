@@ -67,13 +67,17 @@ class SemanticTypeEngine {
                     (1 << BT_BOOLEAN);
 
     static boolean checkIsType(Object sourceVal, Type targetType) {
+        if (cantBelongToType(sourceVal, targetType)) {
+            return false;
+        }
+        return checkIsType(null, sourceVal, getType(sourceVal), toSemType(targetType));
+    }
+
+    static boolean cantBelongToType(Object sourceVal, Type targetType) {
         int tag = getTypeTag(sourceVal);
         BSemType targetSemType = toSemType(targetType);
         int bits = targetSemType.all | targetSemType.some;
-        if ((tag & bits) == 0) {
-            return false;
-        }
-        return checkIsType(null, sourceVal, getType(sourceVal), targetSemType);
+        return (tag & bits) == 0;
     }
 
     static <T extends BType> T getBTypePart(BSemType semType) {
@@ -175,8 +179,8 @@ class SemanticTypeEngine {
             return SemTypeUtils.SemTypeBuilder.decimalSubType(valueBigDecimal);
         } else if (value instanceof Boolean booleanValue) {
             return booleanSubType(booleanValue);
-        } else if (value instanceof BObject) {
-            return ((BObject) value).getOriginalType();
+        } else if (value instanceof BObject bObject) {
+            return bObject.getOriginalType();
         }
 
         return ((BValue) value).getType();
@@ -201,9 +205,7 @@ class SemanticTypeEngine {
     }
 
     static SubTypeCheckResult checkIsLikeTypeInner(Object sourceValue, BSemType targetType) {
-        int tag = getTypeTag(sourceValue);
-        int bits = targetType.all | targetType.some;
-        if ((tag & bits) == 0) {
+        if (cantBelongToType(sourceValue, targetType)) {
             return SubTypeCheckResult.FALSE;
         }
         BSemType sourceType = toSemType(getType(sourceValue));

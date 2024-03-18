@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
@@ -327,26 +326,8 @@ public class JvmSignatures {
     public static final String LAMBDA_STOP_DYNAMIC = "([L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String LINKED_HASH_SET_OP = "(L" + LINKED_HASH_SET + ";)V";
     public static final String LOAD_JOBJECT_TYPE = "L" + OBJECT + ";";
-    //    public static final String LOAD_ANY_TYPE = "L" + ANY_TYPE + ";";
-//    public static final String LOAD_ANYDATA_TYPE = "L" + ANYDATA_TYPE + ";";
-    public static final String LOAD_ARRAY_TYPE = "L" + ARRAY_TYPE + ";";
     public static final String INIT_ANYDATA_ARRAY = "([L" + OBJECT + ";L" + TYPE + ";)V";
-    //    public static final String LOAD_BOOLEAN_TYPE = "L" + BOOLEAN_TYPE + ";";
-//    public static final String LOAD_BYTE_TYPE = "L" + BYTE_TYPE + ";";
-//    public static final String LOAD_DECIMAL_TYPE = "L" + DECIMAL_TYPE + ";";
-//    public static final String LOAD_FLOAT_TYPE = "L" + FLOAT_TYPE + ";";
-//    public static final String LOAD_HANDLE_TYPE = "L" + HANDLE_TYPE + ";";
-//    public static final String LOAD_INTEGER_TYPE = "L" + INTEGER_TYPE + ";";
-//    public static final String LOAD_JSON_TYPE = "L" + JSON_TYPE + ";";
-//    public static final String LOAD_NEVER_TYPE = "L" + NEVER_TYPE + ";";
-//    public static final String LOAD_NULL_TYPE = "L" + NULL_TYPE + ";";
-//    public static final String LOAD_OBJECT_TYPE = "L" + OBJECT_TYPE + ";";
-//    public static final String LOAD_READONLY_TYPE = "L" + READONLY_TYPE + ";";
-//    public static final String LOAD_SERVICE_TYPE = "L" + SERVICE_TYPE + ";";
-//    public static final String LOAD_STRING_TYPE = "L" + STRING_TYPE + ";";
     public static final String LOAD_TYPE = "L" + TYPE + ";";
-    //    public static final String LOAD_UNION_TYPE = "L" + UNION_TYPE + ";";
-//    public static final String LOAD_XML_TYPE = "L" + XML_TYPE + ";";
     public static final String LOCK = "(L" + STRAND_CLASS + ";)Z";
     public static final String LONG_STREAM_RANGE_CLOSED = "(JJ)L" + LONG_STREAM + ";";
     public static final String LONG_TO_STRING = "(J)L" + STRING_VALUE + ";";

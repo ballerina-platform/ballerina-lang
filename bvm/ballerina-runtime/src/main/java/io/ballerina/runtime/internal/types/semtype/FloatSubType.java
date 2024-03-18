@@ -23,6 +23,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Runtime representation of FloatSubType.
+ *
+ * @since 2201.10.0
+ */
 public class FloatSubType implements SubType {
 
     final SubTypeData data;

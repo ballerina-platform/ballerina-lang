@@ -1,5 +1,4 @@
 /*
- *
  *   Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
  *
  *   WSO2 LLC. licenses this file to you under the Apache License,
@@ -15,8 +14,6 @@
  *   KIND, either express or implied.  See the License for the
  *   specific language governing permissions and limitations
  *   under the License.
- * /
- *
  */
 
 package io.ballerina.runtime.internal;
@@ -68,7 +65,8 @@ import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicType
 import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_NIL;
 import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_STRING;
 
-// TODO: type utils factor these to a separate protected class
+// TODO: Revisit this when we have properly implemented semtypes. I expect we don't need most these methods by then.
+//   Probably move anything that is still needed to core as well
 public class TypeHelper {
 
     public static Type typeConstraint(Type type) {

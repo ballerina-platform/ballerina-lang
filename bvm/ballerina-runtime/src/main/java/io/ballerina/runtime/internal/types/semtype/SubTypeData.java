@@ -14,10 +14,14 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
 package io.ballerina.runtime.internal.types.semtype;
 
+/**
+ * Marker interface for SubTypeData.
+ *
+ * @since 2201.10.0
+ */
 public interface SubTypeData {
 }

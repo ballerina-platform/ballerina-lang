@@ -1,5 +1,4 @@
 /*
- *
  *   Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
  *
  *   WSO2 LLC. licenses this file to you under the Apache License,
@@ -15,8 +14,6 @@
  *   KIND, either express or implied.  See the License for the
  *   specific language governing permissions and limitations
  *   under the License.
- * /
- *
  */
 
 package io.ballerina.runtime.internal.types.semtype;
@@ -34,8 +31,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// TODO: document
-// A common interface to represent a union of BTypes, will create the compatible BType on demand
+// A more convenient alternative for repeatedly making BUnionTypes. Will convert to BType on demand
+// TODO: get rid of this when we have properly implemented semtypes
 public class BSubType implements BTypeComponent, SubType {
 
     private final List<Type> members;

@@ -51,6 +51,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadTypeBui
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
 
+// TODO: eventually this should replace all other *TypeConstantsGen classes
+
+/**
+ * Generates Jvm class for the SemTypes of a given module.
+ *
+ * @since 2201.10.0
+ */
 public class JvmSemTypeConstantsGen {
 
     private final String semTypeConstantsClass;

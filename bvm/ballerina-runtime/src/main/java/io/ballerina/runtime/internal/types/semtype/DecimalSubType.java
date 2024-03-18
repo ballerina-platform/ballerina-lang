@@ -24,6 +24,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Runtime representation of DecimalSubType.
+ *
+ * @since 2201.10.0
+ */
 public class DecimalSubType implements SubType {
 
     final SubTypeData data;

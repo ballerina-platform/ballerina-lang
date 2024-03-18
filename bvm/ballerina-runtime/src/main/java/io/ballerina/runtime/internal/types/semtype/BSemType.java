@@ -45,14 +45,20 @@ import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.calculate
 import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.cardinality;
 import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.isSet;
 
+/**
+ * Runtime representation to a type.
+ *
+ * @since 2201.10.0
+ */
 public class BSemType implements Type {
 
-    // TODO: make these final
+    // TODO: make these final (currently we need to mutate this to support various hacks to make BTypes work)
     public int all;
     public int some;
+    // TODO: this is a workaround to make intersection work when the effective type is filled in later
     public boolean poisoned = false;
     // TODO: for the time being we are using a sparse array (acutally extra sparse where 0 is alway null), unlike
-    // nballerina to make things easier to implement. Consider using a compact array
+    //  nballerina to make things easier to implement. Consider using a compact array
     public final SubType[] subTypeData;
     private String name;
     private Module module;
@@ -81,7 +87,6 @@ public class BSemType implements Type {
         return getBTypePart();
     }
 
-    // TODO: replace this with intersect with BALLType and unwrap
     private BType getBTypePart() {
         BTypeComponent bTypeComponent = (BTypeComponent) subTypeData[SemTypeUtils.BasicTypeCodes.BT_BTYPE];
         if (this.name != null || this.module != null) {
@@ -102,6 +107,7 @@ public class BSemType implements Type {
         return calculateDefaultValue(this);
     }
 
+    // TODO: eventually we need to get rid of dependency on tags since they overlap (ex:int subtypes and int singleton)
     @Override
     public int getTag() {
         if (tag == -1) {
@@ -175,7 +181,7 @@ public class BSemType implements Type {
 
     @Override
     public boolean isAnydata() {
-        // Error type is always a BType
+        // TODO: revisit this when we have error type as a semtype (Currently it is always a BType)
         if (!isSet(some, BT_BTYPE)) {
             return true;
         }
@@ -200,6 +206,7 @@ public class BSemType implements Type {
         return false;
     }
 
+    // TODO: revisit this when we have proper semtypes (ideally we should simply check isEmpty(T & readonly))
     @Override
     public boolean isReadOnly() {
         // If we have only basic types for the subset we have implmented it is always readonly
@@ -379,6 +386,8 @@ public class BSemType implements Type {
         return containsNull ? "(" + sb + ")?" : "(" + sb + ")";
     }
 
+    // Hacks to make BType work
+    @Deprecated
     public void addCyclicMembers(List<Type> members) {
         if (!isSet(some, BT_BTYPE)) {
             some |= 1 << BT_BTYPE;
@@ -406,6 +415,7 @@ public class BSemType implements Type {
         throw new IllegalStateException("Trying to set byte class to a non int type");
     }
 
+    @Deprecated
     public void setBTypeClass(BSubType.BTypeClass typeClass) {
         if (!isSet(some, BT_BTYPE)) {
             some |= 1 << BT_BTYPE;
@@ -417,6 +427,7 @@ public class BSemType implements Type {
         bTypeComponent.setBTypeClass(typeClass);
     }
 
+    @Deprecated
     public void setReadonly(boolean readonly) {
         SubType subTypeData = this.subTypeData[BT_BTYPE];
         if (subTypeData instanceof BSubType bTypeComponent) {

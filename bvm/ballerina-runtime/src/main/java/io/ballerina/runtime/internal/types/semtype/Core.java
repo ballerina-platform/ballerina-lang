@@ -25,6 +25,11 @@ import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicType
 import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.cardinality;
 import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.isSet;
 
+/**
+ * Utility class with semtype operations.
+ *
+ * @since 2201.10.0
+ */
 public class Core {
 
     // TODO: move to builder

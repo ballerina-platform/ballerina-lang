@@ -1,5 +1,4 @@
 /*
- *
  *   Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
  *
  *   WSO2 LLC. licenses this file to you under the Apache License,
@@ -15,8 +14,6 @@
  *   KIND, either express or implied.  See the License for the
  *   specific language governing permissions and limitations
  *   under the License.
- * /
- *
  */
 
 package io.ballerina.runtime.internal.types.semtype;
@@ -25,6 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Runtime representation of StringSubType.
+ *
+ * @since 2201.10.0
+ */
 public class StringSubType implements SubType {
 
     final SubTypeData data;

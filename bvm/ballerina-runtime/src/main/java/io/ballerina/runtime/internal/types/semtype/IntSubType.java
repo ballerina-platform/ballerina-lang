@@ -14,7 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
 package io.ballerina.runtime.internal.types.semtype;
@@ -38,6 +37,11 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED16_MAX
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
 
+/**
+ * Runtime representation of IntSubType.
+ *
+ * @since 2201.10.0
+ */
 public class IntSubType implements SubType {
 
     final SubTypeData data;

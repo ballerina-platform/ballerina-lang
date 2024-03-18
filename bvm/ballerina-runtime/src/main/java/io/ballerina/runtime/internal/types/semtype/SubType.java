@@ -18,6 +18,12 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
+/**
+ * Describe set of operation that are supported by SubType's in a SemType. All basic types must implement their own
+ * version of this interface.
+ *
+ * @since 2201.10.0
+ */
 public interface SubType {
 
     SubType union(SubType other);

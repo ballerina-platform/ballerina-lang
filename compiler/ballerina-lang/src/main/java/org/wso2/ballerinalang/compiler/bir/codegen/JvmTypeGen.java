@@ -364,7 +364,7 @@ public class JvmTypeGen {
     //              Type loading methods
     // -------------------------------------------------------
 
-    // TODO: as we implement more and more runtime types using semtypes extend update TypeBuilder and this to create
+    // TODO: as we implement more and more runtime types using semtypes update TypeBuilder and this to create
     //   those types using the new API. (When eventually this method handles all types replace loadType with this)
     public void loadTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
         if (type == null || type.tag == TypeTags.NIL) {
@@ -413,7 +413,6 @@ public class JvmTypeGen {
     }
 
     private static void loadFiniteTypeUsingTypeBuilder(MethodVisitor mv, BType type) {
-        // TODO: this don't properly handle cases where
         BFiniteType finiteType = (BFiniteType) type;
         int numberOfTypesOnStack = 0;
         for (int i = 0; i < finiteType.valueSpace.length; i++) {
@@ -432,12 +431,7 @@ public class JvmTypeGen {
                             Arrays.stream(nonChars.values).map(each -> each.value).toList());
                     numberOfTypesOnStack++;
                 } else if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
-                    // TODO: refactor this such that it takes the all field type name
-                    if (allOrNothing.isAllSubtype()) {
-                        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_STRING", GET_TYPE);
-                    } else {
-                        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NEVER", GET_TYPE);
-                    }
+                    loadAllOrNothingType(mv, allOrNothing, "TYPE_STRING");
                 } else {
                     throw new IllegalStateException("Unexpected string subtype data " + subtypeData);
                 }
@@ -449,11 +443,7 @@ public class JvmTypeGen {
                         numberOfTypesOnStack++;
                     }
                 } else if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
-                    if (allOrNothing.isAllSubtype()) {
-                        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_INT", GET_TYPE);
-                    } else {
-                        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NEVER", GET_TYPE);
-                    }
+                    loadAllOrNothingType(mv, allOrNothing, "TYPE_INT");
                 } else {
                     throw new IllegalStateException("Unexpected int subtype data " + subtypeData);
                 }
@@ -471,6 +461,14 @@ public class JvmTypeGen {
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_BUILDER, "union", BINARY_TYPE_OPERATION_DESCRIPTOR, false);
             }
             numberOfTypesOnStack--;
+        }
+    }
+
+    private static void loadAllOrNothingType(MethodVisitor mv, AllOrNothingSubtype allOrNothing, String allTypeName) {
+        if (allOrNothing.isAllSubtype()) {
+            mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, allTypeName, GET_TYPE);
+        } else {
+            mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NEVER", GET_TYPE);
         }
     }
 
