@@ -1,2 +1,2 @@
 [format]
-configPath = "src/test/resources/configurations/options/functionCall/source/chopDown"
+configPath = "Format.toml"

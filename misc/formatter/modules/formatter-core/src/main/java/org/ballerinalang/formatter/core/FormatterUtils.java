@@ -107,23 +107,25 @@ public class FormatterUtils {
         return Files.exists(defaultFile) ? defaultFile.toString() : null;
     }
 
-    public static Map<String, Object> getFormattingConfigurations(Path root, String path) throws FormatterException {
+    public static Map<String, Object> getFormattingConfigurations(Path root, String sPath) throws FormatterException {
         String content;
-        if (isLocalFile(path)) {
+        Path path = Path.of(sPath);
+        Path absPath = path.isAbsolute() || !root.isAbsolute() ? path : root.resolve(sPath);
+        if (isLocalFile(absPath)) {
             try {
-                content = Files.readString(Path.of(path), StandardCharsets.UTF_8);
+                content = Files.readString(absPath, StandardCharsets.UTF_8);
             } catch (IOException e) {
                 throw new FormatterException("Failed to retrieve local formatting configuration file");
             }
         } else {
-            content = readRemoteFormatFile(root, path);
+            content = readRemoteFormatFile(root, sPath);
         }
 
-        return parseConfigurationToml(TomlDocument.from(path, content));
+        return parseConfigurationToml(TomlDocument.from(sPath, content));
     }
 
-    private static boolean isLocalFile(String path) {
-        return new File(path).exists();
+    private static boolean isLocalFile(Path path) {
+        return new File(path.toString()).exists();
     }
 
     static String readRemoteFormatFile(Path root, String fileUrl) throws FormatterException {
