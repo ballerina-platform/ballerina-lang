@@ -331,7 +331,9 @@ public class TestCommand implements BLauncherCmd {
         }
 
         // Run pre-build tasks to have the project reloaded.
-        // The project will be reloaded with newly generated code in the RunBallerinaPreBuildToolsTask task.
+        // In code coverage generation, the module map is duplicated.
+        // Therefore, the project needs to be reloaded beforehand to provide the latest project instance
+        // which has the newly generated code for code coverage calculation.
         // Hence, below tasks are executed before extracting the module map from the project.
         TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
