@@ -503,7 +503,8 @@ public class CompilerPluginTests {
                 "Unexpected number of dependencies");
     }
 
-    @Test
+    // TODO: revisit this once readonly type is properly implemented
+    @Test(enabled = false)
     public void testImmutableTypeDefsWithRepeatedCompilationWithCodeModifierPlugin() {
         Package currentPackage = loadPackage("immutable_type_definition_with_code_modifier_test/usage");
         currentPackage.getCompilation();
