@@ -151,7 +151,8 @@ class FormatterUtils {
         ArrayList<Minutiae> currentChunk = new ArrayList<>();
         int consecutiveNLs = 0;
         boolean hasNonNLMinutiae = false;
-        int index = minutiaeList.size() - 1;
+        int size = minutiaeList.size();
+        int index = size - 1;
         for (int i = index; i > -1; i--) {
             Minutiae minutiae = minutiaeList.get(i);
             if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
@@ -167,7 +168,7 @@ class FormatterUtils {
                 currentChunk.remove(0);
                 minutiaeLists.add(NodeFactory.createMinutiaeList(currentChunk));
                 currentChunk.clear();
-                index = i;
+                index = i + 1;
                 break;
             }
             currentChunk.add(0, minutiae);
@@ -176,6 +177,7 @@ class FormatterUtils {
             minutiaeLists.add(NodeFactory.createMinutiaeList(currentChunk));
         } else if (index > 0) {
             consecutiveNLs = 0;
+            index = index >= size ? size : index;
             hasNonNLMinutiae = false;
             for (int i = 0; i < index; i++) {
                 Minutiae minutiae = minutiaeList.get(i);
@@ -210,9 +212,6 @@ class FormatterUtils {
 
     private static boolean hasEmptyLine(MinutiaeList minutiaeList) {
         int size = minutiaeList.size();
-        if (size < 2) {
-            return false;
-        }
         return minutiaeList.get(size - 1).kind() == SyntaxKind.END_OF_LINE_MINUTIAE &&
                 minutiaeList.get(size - 2).kind() == SyntaxKind.END_OF_LINE_MINUTIAE;
     }
