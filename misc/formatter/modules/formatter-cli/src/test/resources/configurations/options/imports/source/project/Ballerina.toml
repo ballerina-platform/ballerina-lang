@@ -1,2 +1,2 @@
 [format]
-configPath = "src/test/resources/configurations/options/imports/source/project"
+configPath = "Format.toml"
