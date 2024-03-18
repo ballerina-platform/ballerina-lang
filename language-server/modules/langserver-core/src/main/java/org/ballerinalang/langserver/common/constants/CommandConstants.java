@@ -122,6 +122,8 @@ public class CommandConstants {
 
     public static final String CHANGE_ISOLATED_FIELD_PRIVATE = "Change the field to private";
 
+    public static final String CHANGE_VARIABLE_TO_IMMUTABLE = "Add %s to the variable";
+
     public static final String CREATE_VAR_TYPE_GUARD_TITLE = "Create variable and type guard";
 
     public static final String TYPE_GUARD_TITLE = "Type guard variable '%s'";

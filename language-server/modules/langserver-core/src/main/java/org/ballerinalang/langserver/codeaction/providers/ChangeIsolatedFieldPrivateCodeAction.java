@@ -19,6 +19,7 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -60,12 +61,11 @@ public class ChangeIsolatedFieldPrivateCodeAction implements DiagnosticBasedCode
     public List<CodeAction> getCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
         Node cursorNode = positionDetails.matchedNode();
-        LinePosition startLinePosition = cursorNode.lineRange().startLine();
-        Position startPosition = PositionUtil.toPosition(startLinePosition);
-        Position endPosition = PositionUtil.toPosition(cursorNode.lineRange().endLine());
+        LinePosition linePosition = cursorNode.lineRange().startLine();
+        Position position = PositionUtil.toPosition(linePosition);
 
-        String editText = "private " + cursorNode.toSourceCode().substring(startLinePosition.offset());
-        TextEdit makePrivateTextEdit = new TextEdit(new Range(startPosition, endPosition), editText);
+        String editText = SyntaxKind.PRIVATE_KEYWORD.stringValue() + " ";
+        TextEdit makePrivateTextEdit = new TextEdit(new Range(position, position), editText);
 
         return Collections.singletonList(CodeActionUtil.createCodeAction(
                 CommandConstants.CHANGE_ISOLATED_FIELD_PRIVATE,
