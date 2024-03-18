@@ -24,9 +24,12 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.validator.TomlValidator;
@@ -36,6 +39,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.ballerinalang.formatter.core.options.FormatSection;
+import org.ballerinalang.formatter.core.options.FormattingOptions;
 import org.ballerinalang.formatter.core.options.WrappingFormattingOptions;
 
 import java.io.BufferedReader;
@@ -54,6 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -75,42 +80,106 @@ public class FormatterUtils {
     private FormatterUtils() {
     }
 
+    /**
+     * Build the formatting options given the build project.
+     *
+     * @param project the build project
+     * @return the FormattingOptions
+     */
+    public static FormattingOptions buildFormattingOptions(BuildProject project) throws FormatterException {
+        return FormattingOptions.builder()
+                .build(project.sourceRoot(), loadFormatSection(project.currentPackage().manifest()));
+    }
+
+    /**
+     * Checks whether the module is a build project.
+     *
+     * @param module Current module
+     * @return whether module is a build project
+     */
+    public static boolean isBuildProject(Optional<Module> module) {
+        return module.isPresent() && module.get().project().kind() != ProjectKind.SINGLE_FILE_PROJECT;
+    }
+
+    /**
+     * Retrieves the default boolean value for the format option in the given format section.
+     *
+     * @param section the format section
+     * @param key     the format option
+     * @return the default boolean value
+     */
     public static boolean getDefaultBoolean(FormatSection section, String key) {
         return Boolean.parseBoolean(getDefaultString(section, key));
     }
 
+    /**
+     * Retrieves the default integer value for the format option in the given format section.
+     *
+     * @param section the format section
+     * @param key     the format option
+     * @return the default integer value
+     */
     public static int getDefaultInt(FormatSection section, String key) {
         return Integer.parseInt(getDefaultString(section, key));
     }
 
+    /**
+     * Retrieves the default string value for the format option in the given format section.
+     *
+     * @param section the format section
+     * @param key     the format option
+     * @return the default string value
+     */
     public static String getDefaultString(FormatSection section, String key) {
         return DEFAULTS.getString(section.getStringValue() + "." + key);
     }
 
+    /**
+     * Loads the format section in the Ballerina.toml .
+     *
+     * @param manifest the package manifest
+     * @return the format section
+     */
     public static Object loadFormatSection(PackageManifest manifest) {
         return manifest.getValue(FORMAT);
     }
 
-    public static String getFormattingFilePath(Object formatSection, String root) {
+    /**
+     * Retrieves the formatting file path.
+     *
+     * @param formatSection the format section loaded from Ballerina.toml
+     * @param root          the root path of the project
+     * @return the formatting file path
+     */
+    public static Optional<String> getFormattingFilePath(Object formatSection, String root) {
         if (formatSection != null) {
             Object path = ((Map<String, Object>) formatSection).get(FORMAT_FILE_FIELD);
             if (path != null) {
                 String str = path.toString();
                 if (str.endsWith(FORMAT_OPTION_FILE_EXT)) {
-                    return str;
+                    return Optional.of(str);
                 }
-                return Path.of(str, DEFAULT_FORMAT_OPTION_FILE).toString();
+                return Optional.of(Path.of(str, DEFAULT_FORMAT_OPTION_FILE).toString());
             }
         }
 
         Path defaultFile = Path.of(root, DEFAULT_FORMAT_OPTION_FILE);
-        return Files.exists(defaultFile) ? defaultFile.toString() : null;
+        return Files.exists(defaultFile) ? Optional.of(defaultFile.toString()) : Optional.empty();
     }
 
-    public static Map<String, Object> getFormattingConfigurations(Path root, String sPath) throws FormatterException {
+    /**
+     * Retrieves the formatting configurations.
+     *
+     * @param root the root path of the project
+     * @param configurationFilePath the path of configuration file
+     * @return the formatting configurations
+     * @throws FormatterException if the file resolution fails
+     */
+    public static Map<String, Object> getFormattingConfigurations(Path root, String configurationFilePath)
+            throws FormatterException {
         String content;
-        Path path = Path.of(sPath);
-        Path absPath = path.isAbsolute() || !root.isAbsolute() ? path : root.resolve(sPath);
+        Path path = Path.of(configurationFilePath);
+        Path absPath = path.isAbsolute() || !root.isAbsolute() ? path : root.resolve(configurationFilePath);
         if (isLocalFile(absPath)) {
             try {
                 content = Files.readString(absPath, StandardCharsets.UTF_8);
@@ -118,17 +187,17 @@ public class FormatterUtils {
                 throw new FormatterException("Failed to retrieve local formatting configuration file");
             }
         } else {
-            content = readRemoteFormatFile(root, sPath);
+            content = readRemoteFormatFile(root, configurationFilePath);
         }
 
-        return parseConfigurationToml(TomlDocument.from(sPath, content));
+        return parseConfigurationToml(TomlDocument.from(configurationFilePath, content));
     }
 
     private static boolean isLocalFile(Path path) {
         return new File(path.toString()).exists();
     }
 
-    static String readRemoteFormatFile(Path root, String fileUrl) throws FormatterException {
+    private static String readRemoteFormatFile(Path root, String fileUrl) throws FormatterException {
         Path cachePath = root.resolve(TARGET_DIR).resolve(FORMAT).resolve(DEFAULT_FORMAT_OPTION_FILE);
         if (Files.exists(cachePath)) {
             try {
@@ -184,6 +253,13 @@ public class FormatterUtils {
         }
     }
 
+    /**
+     * Retrieves the formatting configurations.
+     *
+     * @param document formatting configuration toml file
+     * @return the formatting options
+     * @throws FormatterException if the configuration file validation fails
+     */
     public static Map<String, Object> parseConfigurationToml(TomlDocument document) throws FormatterException {
         Toml toml = document.toml();
         if (toml.rootNode().entries().isEmpty()) {
@@ -199,9 +275,9 @@ public class FormatterUtils {
 
         List<Diagnostic> diagnostics = toml.diagnostics();
         boolean hasErrors = false;
-        for (Diagnostic d: diagnostics) {
-            if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                errStream.println(d.message());
+        for (Diagnostic diagnostic: diagnostics) {
+            if (diagnostic.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
+                errStream.println(diagnostic.message());
                 hasErrors = true;
             }
         }

@@ -387,11 +387,11 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, parenTrailingNL);
 
-        boolean oneArgPerLine = funcOptions.parametersWrap() == WrappingMethod.ChopDown;
         int closeParenLeadingNL = funcOptions.rightParenOnNewLine() ? 1 : 0;
+        int separatorTrailingWS = funcOptions.parametersWrap() == WrappingMethod.ChopDown ? 0 : 1;
         SeparatedNodeList<ParameterNode> parameters =
-                formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, oneArgPerLine ? 0 : 1,
-                        oneArgPerLine ? 1 : 0, 0, closeParenLeadingNL, true);
+                formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, separatorTrailingWS,
+                        invert(separatorTrailingWS), 0, closeParenLeadingNL, true);
         unalignOrUnindent(paranAlign, options.indentFormattingOptions().continuationIndentSize());
 
         Token closePara;
@@ -545,9 +545,8 @@ public class FormattingTreeModifier extends TreeModifier {
         BlockStatementNode ifBody;
         Node elseBody = null;
         if (ifElseStatementNode.elseBody().isPresent()) {
-            boolean needNL = options.ifStatementFormattingOptions().elseOnNewLine();
-            ifBody = formatNode(ifElseStatementNode.ifBody(), needNL ? 0 : 1,
-                    needNL ? 1 : 0);
+            int trailingWS = options.ifStatementFormattingOptions().elseOnNewLine() ? 0 : 1;
+            ifBody = formatNode(ifElseStatementNode.ifBody(), trailingWS, invert(trailingWS));
             preserveIndentation(!hasTrailingNL(ifElseStatementNode.ifBody().closeBraceToken()));
             elseBody = formatNode(ifElseStatementNode.elseBody().orElse(null), env.trailingWS, env.trailingNL);
             preserveIndentation(prevPreservedNewLine);
@@ -1100,11 +1099,11 @@ public class FormattingTreeModifier extends TreeModifier {
         Token functionCallOpenPara = formatToken(functionCallExpressionNode.openParenToken(), 0,
                 callOptions.newLineAfterLeftParen() ? 1 : 0);
 
-        boolean oneArgPerLine = callOptions.parametersWrap() == WrappingMethod.ChopDown;
         int closeParenLeadingNL = callOptions.rightParenOnNewLine() ? 1 : 0;
+        int separatorTrailingWS = callOptions.parametersWrap() == WrappingMethod.ChopDown ? 0 : 1;
         SeparatedNodeList<FunctionArgumentNode> arguments =
-                formatSeparatedNodeList(functionCallExpressionNode.arguments(), 0, 0, oneArgPerLine ? 0 : 1,
-                        oneArgPerLine ? 1 : 0, 0, closeParenLeadingNL, true);
+                formatSeparatedNodeList(functionCallExpressionNode.arguments(), 0, 0, separatorTrailingWS,
+                        invert(separatorTrailingWS), 0, closeParenLeadingNL, true);
         setIndentation(prevIndentation);
         Token functionCallClosePara = formatToken(functionCallExpressionNode.closeParenToken(),
                 env.trailingWS, env.trailingNL);

@@ -18,12 +18,12 @@ package org.ballerinalang.langserver;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
+import org.ballerinalang.formatter.core.FormatterUtils;
 import org.ballerinalang.formatter.core.options.FormattingOptions;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
@@ -116,7 +116,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.formatter.core.FormatterUtils.loadFormatSection;
+import static org.ballerinalang.formatter.core.FormatterUtils.buildFormattingOptions;
 
 /**
  * Text document service implementation for ballerina.
@@ -446,14 +446,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     return Collections.emptyList();
                 }
                 String formattedSource;
-                Optional<Module> currentModule = context.currentModule();
-                if (currentModule.isPresent() &&
-                        currentModule.get().project().kind() != ProjectKind.SINGLE_FILE_PROJECT) {
+                if (FormatterUtils.isBuildProject(context.currentModule())) {
                     Path rootPath = context.workspace().projectRoot(context.filePath());
                     BuildProject project = BuildProject.load(rootPath, BuildOptions.builder().build());
-                    FormattingOptions options = FormattingOptions.builder()
-                            .build(project.sourceRoot(),
-                                    loadFormatSection(project.currentPackage().manifest()));
+                    FormattingOptions options = buildFormattingOptions(project);
                     formattedSource = Formatter.format(syntaxTree.get(), options).toSourceCode();
                 } else {
                     formattedSource = Formatter.format(syntaxTree.get()).toSourceCode();
