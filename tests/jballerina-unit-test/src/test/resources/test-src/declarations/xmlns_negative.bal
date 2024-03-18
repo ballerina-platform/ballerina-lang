@@ -35,3 +35,6 @@ type G record {|
 
 const X = G;
 xmlns X as ns;
+
+const Z = K;
+xmlns Z as ns6;

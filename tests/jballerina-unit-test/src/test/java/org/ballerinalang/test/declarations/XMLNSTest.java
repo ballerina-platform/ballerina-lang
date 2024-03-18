@@ -37,10 +37,13 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 public class XMLNSTest {
 
     private CompileResult result;
+    private CompileResult prefixCompileResult;
+
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/declarations/xmlns.bal");
+        prefixCompileResult = BCompileUtil.compile("test-src/declarations/xmlnsPrefixProject");
     }
 
     @Test (dataProvider = "xmlnsDeclFunctions")
@@ -69,24 +72,38 @@ public class XMLNSTest {
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'F'", 29, 11);
         BAssertUtil.validateError(negativeResult, i++, "expression is not a constant expression", 36, 11);
         BAssertUtil.validateError(negativeResult, i++, "cannot bind prefix 'ns' to the empty namespace name", 37, 1);
+        BAssertUtil.validateError(negativeResult, i++, "expression is not a constant expression", 39, 11);
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'K'", 39, 11);
+        BAssertUtil.validateError(negativeResult, i++, "cannot bind prefix 'ns6' to the empty namespace name", 40, 1);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
-    @Test
-    public void testXMLNSPrefixUsage() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/declarations/xmlnsPrefixProject");
-        BRunUtil.invoke(compileResult, "testXMLNSUsage");
-        BRunUtil.invoke(compileResult, "testXMLNSUsageInAnotherFile");
+    @Test (dataProvider = "xmlnsPrefixUsageFunctions")
+    public void testXMLNSPrefixUsage(String functionName) {
+        BRunUtil.invoke(prefixCompileResult, functionName);
+    }
+
+    @DataProvider(name = "xmlnsPrefixUsageFunctions")
+    private Object[] xmlnsPrefixUsageFunctions() {
+        return new String[]{
+                "testXMLNSUsage",
+                "testXMLNSUsageInAnotherFile"
+        };
     }
 
     @Test
     public void testXMLNSPrefixUsageNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/declarations/xmlnsPrefixNegativeProject");
-        validateError(compileResult, 0, "undefined module 'ns'", 18, 16);
+        int i = 0;
+        validateError(compileResult, i++, "undefined module 'ns0'", 18, 9);
+        validateError(compileResult, i++, "undefined module 'ns1'", 19, 9);
+        validateError(compileResult, i++, "undefined module 'ns2'", 20, 9);
+        Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 
     @AfterClass
     public void tearDown() {
         result = null;
+        prefixCompileResult = null;
     }
 }

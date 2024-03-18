@@ -550,6 +550,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     boolean inCollectContext = false;
 
     private  HashSet<String> constantSet = new HashSet<String>();
+    private Location modulePartPos;
+
 
     public BLangNodeBuilder(CompilerContext context,
                             PackageID packageID, String entryName) {
@@ -654,11 +656,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         this.currentCompilationUnit = compilationUnit;
         compilationUnit.name = currentCompUnitName;
         compilationUnit.setPackageID(packageID);
-        Location pos = getPosition(modulePart);
+        modulePartPos = getPosition(modulePart);
         // Generate import declarations
         for (ImportDeclarationNode importDecl : modulePart.imports()) {
             BLangImportPackage bLangImport = (BLangImportPackage) importDecl.apply(this);
-            bLangImport.compUnit = this.createIdentifier(pos, compilationUnit.getName());
+            bLangImport.compUnit = this.createIdentifier(modulePartPos, compilationUnit.getName());
             compilationUnit.addTopLevelNode(bLangImport);
         }
 
@@ -667,7 +669,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
         }
 
-        Location newLocation = new BLangDiagnosticLocation(pos.lineRange().fileName(), 0, 0, 0, 0, 0, 0);
+        Location newLocation = new BLangDiagnosticLocation(modulePartPos.lineRange().fileName(), 0, 0, 0, 0, 0, 0);
 
         compilationUnit.pos = newLocation;
         compilationUnit.setPackageID(packageID);
@@ -3687,7 +3689,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
-        xmlns.compUnit = this.createIdentifier(xmlns.pos, currentCompUnitName);
+        xmlns.compUnit = this.createIdentifier(modulePartPos, currentCompUnitName);
 
         BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
         xmlnsStmt.xmlnsDecl = xmlns;
@@ -3703,8 +3705,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
-        xmlns.compUnit = this.createIdentifier(xmlns.pos, currentCompUnitName);
-
+        xmlns.compUnit = this.createIdentifier(modulePartPos, currentCompUnitName);
         return xmlns;
     }
 
