@@ -165,7 +165,7 @@ public class PackageResolutionTestCaseBuilder {
 
     private static PackageManifest getPackageManifest(Path balTomlPath, PackageDescriptor rootPkgDesc) {
         if (balTomlPath == null) {
-            return PackageManifest.from(rootPkgDesc, null, Collections.emptyMap(),
+            return PackageManifest.from(rootPkgDesc, null, null, Collections.emptyMap(),
                     Collections.emptyList());
         }
 
@@ -187,7 +187,7 @@ public class PackageResolutionTestCaseBuilder {
                     pkgDesc.org(), pkgDesc.version(), repo, new NullLocation()));
         }
 
-        return PackageManifest.from(rootPkgDesc, null, Collections.emptyMap(), dependencies);
+        return PackageManifest.from(rootPkgDesc, null, null, Collections.emptyMap(), dependencies);
     }
 
     private static PackageDescWrapper getRootPkgDescWrapper(Path appDotFilePath) {

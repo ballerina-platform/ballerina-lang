@@ -695,6 +695,8 @@ public class Package {
             ManifestBuilder manifestBuilder = ManifestBuilder.from(this.ballerinaTomlContext.tomlDocument(),
                     Optional.ofNullable(this.compilerPluginTomlContext)
                             .map(TomlDocumentContext::tomlDocument).orElse(null),
+                    Optional.ofNullable(this.balToolTomlContext)
+                            .map(TomlDocumentContext::tomlDocument).orElse(null),
                     this.project.sourceRoot());
             this.packageManifest = manifestBuilder.packageManifest();
             BuildOptions newBuildOptions;

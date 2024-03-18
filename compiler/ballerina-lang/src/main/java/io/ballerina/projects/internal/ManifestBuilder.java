@@ -29,6 +29,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.model.BalToolDescriptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectUtils;
@@ -81,6 +82,7 @@ public class ManifestBuilder {
 
     private final TomlDocument ballerinaToml;
     private final TomlDocument compilerPluginToml;
+    private final TomlDocument balToolToml;
     private DiagnosticResult diagnostics;
     private final List<Diagnostic> diagnosticList;
     private final PackageManifest packageManifest;
@@ -117,10 +119,12 @@ public class ManifestBuilder {
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
+                            TomlDocument balToolToml,
                             Path projectPath) {
         this.projectPath = projectPath;
         this.ballerinaToml = ballerinaToml;
         this.compilerPluginToml = compilerPluginToml;
+        this.balToolToml = balToolToml;
         this.diagnosticList = new ArrayList<>();
         this.packageManifest = parseAsPackageManifest();
         this.buildOptions = parseBuildOptions();
@@ -128,8 +132,9 @@ public class ManifestBuilder {
 
     public static ManifestBuilder from(TomlDocument ballerinaToml,
                                        TomlDocument compilerPluginToml,
+                                       TomlDocument balToolToml,
                                        Path projectPath) {
-        return new ManifestBuilder(ballerinaToml, compilerPluginToml, projectPath);
+        return new ManifestBuilder(ballerinaToml, compilerPluginToml, balToolToml, projectPath);
     }
 
     public DiagnosticResult diagnostics() {
@@ -235,9 +240,14 @@ public class ManifestBuilder {
             pluginDescriptor = CompilerPluginDescriptor.from(this.compilerPluginToml);
         }
 
-        return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
-                diagnostics(), license, authors, keywords, exported, includes, repository, ballerinaVersion, visibility,
-                template, icon, tools);
+        // BalTool descriptor
+        BalToolDescriptor balToolDescriptor = null;
+        if (this.balToolToml != null) {
+            balToolDescriptor = BalToolDescriptor.from(this.balToolToml, this.projectPath);
+        }
+        return PackageManifest.from(packageDescriptor, pluginDescriptor, balToolDescriptor, platforms,
+                localRepoDependencies, otherEntries, diagnostics(), license, authors, keywords, exported, includes,
+                repository, ballerinaVersion, visibility, template, icon, tools);
     }
 
     private List<PackageManifest.Tool> getTools() {
