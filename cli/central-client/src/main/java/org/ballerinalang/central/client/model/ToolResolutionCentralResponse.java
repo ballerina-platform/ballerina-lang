@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -41,7 +41,6 @@ public class ToolResolutionCentralResponse {
 
     /**
      * Tool resolution response unresolved tool model.
-     *
      */
     public static class UnresolvedTool {
         private String id;
@@ -71,7 +70,6 @@ public class ToolResolutionCentralResponse {
 
     /**
      * Tool resolution response resolved tool model.
-     *
      */
     public static class ResolvedTool {
         private String id;

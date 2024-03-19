@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -48,12 +48,12 @@ import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CAC
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 
 /**
- * Utility methods required for tools.
+ * Utility methods required for build tools.
  *
  * @since 2201.9.0
  */
-public class ToolUtils {
-    private ToolUtils() {}
+public class BuildToolUtils {
+    private BuildToolUtils() {}
 
     /**
      * Report a package diagnostic for tool command not found.
@@ -76,19 +76,6 @@ public class ToolUtils {
      */
     public static PackageDiagnostic getCannotResolveBuildToolDiagnostic(String toolId) {
         String message = "Build tool '" + toolId + "' cannot be resolved";
-        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(), message, DiagnosticSeverity.ERROR);
-        return new PackageDiagnostic(diagnosticInfo, toolId);
-    }
-
-    /**
-     * Report a package diagnostic for tool not found.
-     *
-     * @param toolId tool id of the build tool
-     * @return diagnostic
-     */
-    public static PackageDiagnostic getBuildToolOfflineResolveDiagnostic(String toolId) {
-        String message = "Build tool '" + toolId + "' cannot be resolved. Please try again without '--offline' flag";
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                 ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(), message, DiagnosticSeverity.ERROR);
         return new PackageDiagnostic(diagnosticInfo, toolId);

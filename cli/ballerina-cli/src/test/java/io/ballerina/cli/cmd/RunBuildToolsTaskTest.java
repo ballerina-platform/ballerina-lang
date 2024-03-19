@@ -1,10 +1,28 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.util.ToolUtils;
+import io.ballerina.projects.util.BuildToolUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -54,8 +72,9 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
         Path projectPath = buildToolResources.resolve(projectName);
         Project project = BuildProject.load(projectPath, BuildOptions.builder().setOffline(true).build());
         RunBuildToolsTask runBuildToolsTask = new RunBuildToolsTask(printStream);
-        try (MockedStatic<ToolUtils> repoUtils = Mockito.mockStatic(ToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(ToolUtils::getCentralBalaDirPath).thenReturn(mockCentralBalaDirPath);
+        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
+                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(mockCentralBalaDirPath);
             runBuildToolsTask.execute(project);
         }
         String buildLog = readOutput(true);
@@ -67,8 +86,9 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
         Path projectPath = buildToolResources.resolve("project-with-generate-file-tool");
         Project project = BuildProject.load(projectPath, BuildOptions.builder().setOffline(true).build());
         RunBuildToolsTask runBuildToolsTask = new RunBuildToolsTask(printStream);
-        try (MockedStatic<ToolUtils> repoUtils = Mockito.mockStatic(ToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(ToolUtils::getCentralBalaDirPath).thenReturn(mockCentralBalaDirPath);
+        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
+                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(mockCentralBalaDirPath);
             runBuildToolsTask.execute(project);
         }
         String buildLog = readOutput(true);

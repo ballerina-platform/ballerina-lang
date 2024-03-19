@@ -1,4 +1,4 @@
 
 Executing Build Tools
-ERROR [dummy_tool] Build tool 'dummy_tool' cannot be resolved. Please try again without '--offline' flag
+ERROR [dummy_tool] Build tool 'dummy_tool' cannot be resolved
 

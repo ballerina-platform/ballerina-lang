@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -25,7 +25,7 @@ import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ToolResolutionRequest;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.model.BuildJson;
-import io.ballerina.projects.util.ToolUtils;
+import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -73,10 +73,20 @@ public class BuildToolResolution {
         return new BuildToolResolution(packageContext);
     }
 
+    /**
+     * Return a list of all build-tool resolution diagnostics.
+     *
+     * @return the list of diagnostics
+     */
     public List<Diagnostic> getDiagnosticList() {
         return diagnosticList;
     }
 
+    /**
+     * Get all tools that were resolved during the tool resolution process.
+     *
+     * @return the list of resolved tools
+     */
     public List<BuildTool> getResolvedTools() {
         return resolvedTools;
     }
@@ -103,7 +113,7 @@ public class BuildToolResolution {
         // Find tools which need resolution
         List<BuildTool> resolutionRequiredTools = new ArrayList<>();
         for (BuildTool tool : buildTools) {
-            Optional<CodeGeneratorTool> targetTool = ToolUtils.getTargetTool(tool.id().value(), toolServiceLoader);
+            Optional<CodeGeneratorTool> targetTool = BuildToolUtils.getTargetTool(tool.id().value(), toolServiceLoader);
             if (targetTool.isEmpty()) {
                 resolutionRequiredTools.add(tool);
             } else {
@@ -170,17 +180,17 @@ public class BuildToolResolution {
             PackageName name = tool.name();
             PackageVersion version = tool.version();
             if (tool.org() == null || tool.name() == null) {
-                PackageDiagnostic diagnostic = ToolUtils.getBuildToolOfflineResolveDiagnostic(tool.id().value());
+                PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id().value());
                 diagnosticList.add(diagnostic);
                 continue;
             }
-            List<SemanticVersion> versions = ToolUtils.getCompatibleToolVersionsInLocalCache(org, name);
+            List<SemanticVersion> versions = BuildToolUtils.getCompatibleToolVersionsInLocalCache(org, name);
             Optional<SemanticVersion> latestCompVersion =
-                    ToolUtils.getLatestCompatibleVersion(version.value(), versions, packageLockingMode);
+                    BuildToolUtils.getLatestCompatibleVersion(version.value(), versions, packageLockingMode);
             if (latestCompVersion.isEmpty()) {
                 String toolIdAndVersionOpt = tool.id().value()
                         + (tool.version() == null ? "" : ":" + tool.version().toString());
-                PackageDiagnostic diagnostic = ToolUtils.getBuildToolOfflineResolveDiagnostic(toolIdAndVersionOpt);
+                PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(toolIdAndVersionOpt);
                 diagnosticList.add(diagnostic);
                 continue;
             }
@@ -235,20 +245,20 @@ public class BuildToolResolution {
         List<ToolResolutionCentralResponse.ResolvedTool> resolved = packageResolutionResponse.resolved();
         List<ToolResolutionCentralResponse.UnresolvedTool> unresolved = packageResolutionResponse.unresolved();
         for (ToolResolutionCentralResponse.UnresolvedTool tool : unresolved) {
-            PackageDiagnostic diagnostic = ToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
+            PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
             diagnosticList.add(diagnostic);
         }
         List<BuildTool> resolvedTools = new ArrayList<>();
         for (ToolResolutionCentralResponse.ResolvedTool tool : resolved) {
             if (tool.id() == null || tool.version() == null || tool.name() == null || tool.org() == null) {
-                PackageDiagnostic diagnostic = ToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
+                PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
                 diagnosticList.add(diagnostic);
                 continue;
             }
             try {
                 PackageVersion.from(tool.version());
             } catch (ProjectException ignore) {
-                PackageDiagnostic diagnostic = ToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
+                PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
                 diagnosticList.add(diagnostic);
                 continue;
             }

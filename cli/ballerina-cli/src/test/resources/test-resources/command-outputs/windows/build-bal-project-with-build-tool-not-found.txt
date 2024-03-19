@@ -1,6 +1,6 @@
 
 Executing Build Tools
-ERROR [grpc] Build tool 'grpc' cannot be resolved. Please try again without '--offline' flag
+ERROR [grpc] Build tool 'grpc' cannot be resolved
 
 Compiling source
 	foo/winery:0.1.0

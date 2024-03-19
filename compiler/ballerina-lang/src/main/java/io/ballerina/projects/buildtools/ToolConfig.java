@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -25,6 +25,8 @@ import java.lang.annotation.Target;
 
 /**
  * Annotate a CodeGeneratorTool class with ToolConfig to provide the command name and the list of subcommands.
+ *
+ * @since 2201.9.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -32,12 +34,14 @@ public @interface ToolConfig {
 
     /**
      * Set the command name.
+     *
      * @return the name of the command
      */
     String name();
 
     /**
      * Set the subcommands belonging to the command.
+     *
      * @return Array of subcommands
      */
     Class<? extends CodeGeneratorTool>[] subcommands() default {};

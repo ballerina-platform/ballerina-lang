@@ -1,4 +1,4 @@
 
 Executing Build Tools
-ERROR [nonexistent:1.4.0] Build tool 'nonexistent:1.4.0' cannot be resolved. Please try again without '--offline' flag
+ERROR [nonexistent:1.4.0] Build tool 'nonexistent:1.4.0' cannot be resolved
 

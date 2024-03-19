@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -35,7 +35,7 @@ import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
-import io.ballerina.projects.util.ToolUtils;
+import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -143,10 +143,10 @@ public class RunBuildToolsTask implements Task {
         for (Tool toolEntry : resolvedToolEntries) {
             String commandName = toolEntry.type();
             ToolContext toolContext = toolContextMap.get(toolEntry.id());
-            Optional<CodeGeneratorTool> targetTool = ToolUtils.getTargetTool(commandName, toolServiceLoader);
+            Optional<CodeGeneratorTool> targetTool = BuildToolUtils.getTargetTool(commandName, toolServiceLoader);
             if (targetTool.isEmpty()) {
                 // If the tool is not found, we skip the execution and report a diagnostic
-                PackageDiagnostic diagnostic = ToolUtils.getBuildToolCommandNotFoundDiagnostic(commandName);
+                PackageDiagnostic diagnostic = BuildToolUtils.getBuildToolCommandNotFoundDiagnostic(commandName);
                 toolContext.reportDiagnostic(diagnostic);
                 this.outStream.println(diagnostic);
                 printToolSkipWarning(toolEntry);
@@ -155,7 +155,8 @@ public class RunBuildToolsTask implements Task {
             // Here, we can safely pass the tool type value given in Ballerina.toml instead of
             // the aggregation of the ToolConfig annotation name fields of a command/ subcommand field
             // since we have verified that those two are identical in the ToolUtils.getTargetTool method
-            Optional<PackageDiagnostic> cmdNameDiagnostic = ToolUtils.getDiagnosticIfInvalidCommandName(commandName);
+            Optional<PackageDiagnostic> cmdNameDiagnostic = BuildToolUtils
+                    .getDiagnosticIfInvalidCommandName(commandName);
             if (cmdNameDiagnostic.isPresent()) {
                 toolContext.reportDiagnostic(cmdNameDiagnostic.get());
                 this.outStream.println(cmdNameDiagnostic.get());
@@ -272,7 +273,7 @@ public class RunBuildToolsTask implements Task {
     }
 
     private boolean isToolLocallyAvailable(String org, String name, String version) {
-        Path toolCacheDir = ToolUtils.getCentralBalaDirPath().resolve(org).resolve(name);
+        Path toolCacheDir = BuildToolUtils.getCentralBalaDirPath().resolve(org).resolve(name);
         if (toolCacheDir.toFile().isDirectory()) {
             try (Stream<Path> versions = Files.list(toolCacheDir)) {
                 return versions.anyMatch(path ->
@@ -289,7 +290,7 @@ public class RunBuildToolsTask implements Task {
         String supportedPlatform = Arrays.stream(JvmTarget.values())
                 .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
-        Path balaCacheDirPath = ToolUtils.getCentralBalaDirPath();
+        Path balaCacheDirPath = BuildToolUtils.getCentralBalaDirPath();
         Settings settings;
         try {
             settings = RepoUtils.readSettings();
@@ -343,7 +344,7 @@ public class RunBuildToolsTask implements Task {
     }
 
     private static List<File> getToolCommandJarAndDependencyJars(List<BuildTool> resolvedTools) {
-        Path centralBalaDirPath = ToolUtils.getCentralBalaDirPath();
+        Path centralBalaDirPath = BuildToolUtils.getCentralBalaDirPath();
         return resolvedTools.stream()
                 .map(tool -> findJarFiles(CommandUtil.getPlatformSpecificBalaPath(
                                 tool.org().value(),
