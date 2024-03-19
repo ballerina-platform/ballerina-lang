@@ -224,11 +224,6 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         // Add jar resolver diagnostics.
         emitResultDiagnostics.addAll(jarResolver().diagnosticResult().diagnostics());
-
-        // Add warning for provided platform dependencies
-        if (OutputType.EXEC.equals(outputType) || OutputType.GRAAL_EXEC.equals(outputType)) {
-            addProvidedDependencyWarning(emitResultDiagnostics);
-        }
         // JBallerinaBackend diagnostics contains all diagnostics.
         // EmitResult will only contain diagnostics related to emitting the executable.
         allDiagnostics.addAll(emitResultDiagnostics);
@@ -718,7 +713,7 @@ public class JBallerinaBackend extends CompilerBackend {
         PackageManifest.Platform currentPlatform = this.packageContext().packageManifest().platform(platform);
         if (currentPlatform != null) {
             for (Map<String, Object> platformDep :
-                    this.packageContext().packageManifest().platform(platform).dependencies()) {
+                    currentPlatform.dependencies()) {
                 String depArtifactId = (String) platformDep.get(JarLibrary.KEY_ARTIFACT_ID);
                 String depVersion = (String) platformDep.get(JarLibrary.KEY_VERSION);
                 String depGroupId = (String) platformDep.get(JarLibrary.KEY_GROUP_ID);
@@ -827,26 +822,5 @@ public class JBallerinaBackend extends CompilerBackend {
             }
         }
         return null;
-    }
-
-    private void addProvidedDependencyWarning(List<Diagnostic> emitResultDiagnostics) {
-        Map<String, PackageManifest.Platform> platforms = this.packageContext().packageManifest().platforms();
-        for (PackageManifest.Platform javaPlatform : platforms.values()) {
-            if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
-                continue;
-            }
-            for (Map<String, Object> dependency : javaPlatform.dependencies()) {
-                if (Objects.equals(getPlatformLibraryScope(dependency), PlatformLibraryScope.PROVIDED)) {
-                    DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                            ProjectDiagnosticErrorCode.PROVIDED_PLATFORM_JAR_IN_EXECUTABLE.diagnosticId(),
-                            "Detected platform dependencies with provided scope in the executable. " +
-                                    "Please avoid redistributing the created executable\n",
-                            DiagnosticSeverity.WARNING);
-                    emitResultDiagnostics.add(new PackageDiagnostic(diagnosticInfo,
-                            this.packageContext().descriptor().name().toString()));
-                    return;
-                }
-            }
-        }
     }
 }
