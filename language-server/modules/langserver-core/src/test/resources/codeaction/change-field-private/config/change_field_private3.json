@@ -17,11 +17,11 @@
               "character": 4
             },
             "end": {
-              "line": 4,
-              "character": 19
+              "line": 1,
+              "character": 4
             }
           },
-          "newText": "private record {|\n        int i;\n        string val;\n    |} isolatedRec;\n"
+          "newText": "private "
         }
       ],
       "resolvable": false

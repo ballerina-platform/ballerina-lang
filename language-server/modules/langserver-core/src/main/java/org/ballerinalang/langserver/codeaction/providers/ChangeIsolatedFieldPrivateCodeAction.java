@@ -19,9 +19,11 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -38,6 +40,7 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Code Action for changing isolated field to private.
@@ -61,18 +64,38 @@ public class ChangeIsolatedFieldPrivateCodeAction implements DiagnosticBasedCode
     public List<CodeAction> getCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
         Node cursorNode = positionDetails.matchedNode();
-        LinePosition linePosition = cursorNode.lineRange().startLine();
-        Position position = PositionUtil.toPosition(linePosition);
-
-        String editText = SyntaxKind.PRIVATE_KEYWORD.stringValue() + " ";
-        TextEdit makePrivateTextEdit = new TextEdit(new Range(position, position), editText);
+        if (cursorNode.kind() != SyntaxKind.OBJECT_FIELD) {
+            return Collections.emptyList();
+        }
 
         return Collections.singletonList(CodeActionUtil.createCodeAction(
                 CommandConstants.CHANGE_ISOLATED_FIELD_PRIVATE,
-                List.of(makePrivateTextEdit),
+                List.of(getTextEdit((ObjectFieldNode) cursorNode)),
                 context.fileUri(),
                 CodeActionKind.QuickFix
         ));
+    }
+
+    private static TextEdit getTextEdit(ObjectFieldNode node) {
+        String privateKeyword = SyntaxKind.PRIVATE_KEYWORD.stringValue();
+
+        // Get the line range of the existing visibility qualifier
+        Optional<Token> visibilityQualifier = node.visibilityQualifier();
+        if (visibilityQualifier.isPresent()) {
+            return new TextEdit(PositionUtil.toRange(visibilityQualifier.get().lineRange()), privateKeyword);
+        }
+        privateKeyword += " ";
+
+        // Get the start position of the qualifier list
+        NodeList<Token> qualifiers = node.qualifierList();
+        if (qualifiers.size() > 0) {
+            Position position = PositionUtil.toPosition(qualifiers.get(0).lineRange().startLine());
+            return new TextEdit(new Range(position, position), privateKeyword);
+        }
+
+        // Get the start position of the type name
+        Position position = PositionUtil.toPosition(node.typeName().lineRange().startLine());
+        return new TextEdit(new Range(position, position), privateKeyword);
     }
 
     @Override

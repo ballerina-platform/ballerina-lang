@@ -43,7 +43,10 @@ public class ChangeIsolatedFieldPrivateCodeActionTest extends AbstractCodeAction
         return new Object[][]{
                 {"change_field_private1.json"},
                 {"change_field_private2.json"},
-                {"change_field_private3.json"}
+                {"change_field_private3.json"},
+                {"change_field_private4.json"},
+                {"change_field_private5.json"},
+                {"change_field_private6.json"},
         };
     }
 

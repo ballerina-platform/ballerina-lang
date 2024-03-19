@@ -1,10 +1,10 @@
 {
   "position": {
     "line": 1,
-    "character": 11
+    "character": 10
   },
-  "source": "change_field_private1.bal",
-  "description": "Change the isolated field to private for a structured type",
+  "source": "change_field_private5.bal",
+  "description": "Change the isolated field to private for a final type",
   "expected": [
     {
       "title": "Change the field to private",
