@@ -449,6 +449,9 @@ public class JsonParser {
         }
 
         protected State initNewObject() throws ParserException {
+            if (charBuffIndex != 0) {
+                throw new ParserException(UNRECOGNIZED_TOKEN +  "{'");
+            }
             if (this.currentJsonNode != null) {
                 handleCurrentJsonNodeForObject();
             }
@@ -535,6 +538,9 @@ public class JsonParser {
         }
 
         protected State initNewArray() throws ParserException {
+            if (charBuffIndex != 0) {
+                throw new ParserException(UNRECOGNIZED_TOKEN +  "['");
+            }
             if (this.currentJsonNode != null) {
                 handleCurrentJsonNodeForArray();
             }

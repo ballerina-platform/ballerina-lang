@@ -40,6 +40,8 @@ type type7 record {|
     int value;
 |};
 
+type type8 map<int>[][];
+
 type mapIntArray map<int[]>;
 
 type jsonType json;
@@ -249,6 +251,8 @@ type Employee record {|
 
 type TableType1 table<Employee> key(name);
 
+type TableType2 table<record{readonly string name;}> key(name);
+
 type anydataType anydata;
 
 type Union1Decimal Union1|decimal;
@@ -385,7 +389,14 @@ function testParsingCharacterStreamToTypes() {
         ["[{\"id\": 12, \"age\": 24}, {\"id\": 12, \"age\": 24}]", tupleClosedWithRest],
         [string `{"regex1": "Hello*"}`, UnionWithMapRegexp],
         [string `{"gain": null, "age": 130}`, Union2],
-        [string `{"gain": 122, "age": 130}`, Union1Sub2]
+        [string `{"gain": 122, "age": 130}`, Union1Sub2],
+        [jsonString, jsonType],
+        ["   [12, 13]", intArray],
+        ["[[]]", intArray2d],
+        ["{\"a\": \"\\u1234\"}", jsonType],
+        ["[ \"\\u1234\"]", jsonType],
+        ["\"\\u1234\"", jsonType],
+        ["{\"\\u1234\": \"abc\"}", jsonType]
     ];
 
     [string, typedesc<anydata>][] negativeCases = [
@@ -461,7 +472,23 @@ function testParsingCharacterStreamToTypes() {
         ["-2147483660", intSigned32],
         [string `{"val": [[122, [122]]}`, CyclicUnion],
         ["{\"regex1\": \"abc|${xyz}\"}", UnionWithMapRegexp],
-        [string `null`, Union1]
+        [string `null`, Union1],
+        ["", intArray],
+        [string `[{"name": "John", "salary": 100 }, { }]`, TableType2],
+        [string `[{"name": "John", "salary": 100 }, { abc]`, TableType2],
+        ["{\"id\": false,age: true}", type3],
+        ["{\"id\": false, \"age\"}", type3],
+        ["{\"id\": {}, \"age\": tr{}", type4],
+        ["{\"id\": {}, \"age\": tr{}}", type4],
+        ["{\"id\": {}, \"age\": tr[}", type4],
+        ["{\"id\": {}, \"age\": tr", type4],
+        [string `[[aaa{}, {}]]`, type8],
+        [string `[[aaa[, {}]]`, type8],
+        [string `[[aaa`, type8],
+        [string `[[ aa  a", {}]]`, type8],
+        [string `{"val" : [12, 13.4]a`, RecUnion1],
+        ["{\"a\": \"\\u123Z\"}", jsonType],
+        ["[\\u123Z\"]", jsonType]
     ];
 
     foreach [string, typedesc<anydata>] [givenStr, targetType] in positiveCases {

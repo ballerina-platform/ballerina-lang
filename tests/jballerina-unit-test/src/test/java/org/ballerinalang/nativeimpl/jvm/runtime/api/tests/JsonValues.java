@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 
 import static io.ballerina.runtime.api.utils.JsonUtils.convertJSON;
@@ -74,7 +75,7 @@ public class JsonValues {
         return JsonUtils.parse(str.getValue(), JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
     }
 
-    public static Object testBStringParsingWithProcessingMode(BString str) {
+    public static Object testStringParsingWithProcessingMode(BString str) {
         return JsonUtils.parse(str.getValue(), JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
     }
 
@@ -89,5 +90,13 @@ public class JsonValues {
         return JsonUtils.parse(stream, "UTF-8");
     }
 
+    public static Object testParsingNullString(BString str) {
+        StringReader reader = new StringReader(str.getValue());
+        reader.close();
+        return JsonUtils.parse(reader, JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
+    }
 
+    public static Object testBStringParsingWithProcessingMode(BString str) {
+        return JsonUtils.parse(str, JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
+    }
 }

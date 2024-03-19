@@ -831,11 +831,8 @@ public abstract class StateMachine {
                             state = STRING_VALUE_UNICODE_HEX_PROCESSING_STATE;
                         } else if (this.getSourceState(sm) == sm.fieldNameState) {
                             state = FIELD_NAME_UNICODE_HEX_PROCESSING_STATE;
-                        } else if (this.getSourceState(sm) == sm.stringArrayElementState) {
-                            state = STRING_AE_PROCESSING_STATE;
                         } else {
-                            throw new ParserException("unknown source '" + this.getSourceState(sm) + "' in escape " +
-                                                      "char processing state");
+                            state = STRING_AE_PROCESSING_STATE;
                         }
                         break;
                     default:
