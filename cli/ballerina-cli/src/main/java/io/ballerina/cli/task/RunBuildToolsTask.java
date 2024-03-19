@@ -22,15 +22,17 @@ import io.ballerina.cli.cmd.CommandUtil;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildTool;
+import io.ballerina.projects.BuildToolResolution;
 import io.ballerina.projects.Diagnostics;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
-import io.ballerina.projects.BuildToolResolution;
 import io.ballerina.projects.buildtools.CodeGeneratorTool;
 import io.ballerina.projects.buildtools.ToolContext;
+import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectConstants;
@@ -202,6 +204,8 @@ public class RunBuildToolsTask implements Task {
                 throw createLauncherException(e.getMessage());
             }
         }
+        // Reload the project to load the generated code
+        reloadProject(project);
         this.outStream.println();
     }
 
@@ -338,6 +342,12 @@ public class RunBuildToolsTask implements Task {
     private void printToolSkipWarning(PackageManifest.Tool toolEntry) {
         outStream.printf("WARNING: Execution of the build tool '%s' for '%s' is skipped due to errors%n", toolEntry
                 .type(), toolEntry.id() != null ? toolEntry.id() : "");
+    }
+
+    private void reloadProject(Project project) {
+        PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(project.sourceRoot(),
+                project.buildOptions().disableSyntaxTree());
+        project.addPackage(packageConfig);
     }
 
     private static List<File> getToolCommandJarAndDependencyJars(List<BuildTool> resolvedTools) {
