@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Attempts to capture a module member declaration.
@@ -44,8 +43,6 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class ModuleMemberTrial extends TreeParserTrial {
-
-    private static final Set<String> RESTRICTED_FUNCTION_NAMES = ParserConstants.RESTRICTED_FUNCTION_NAMES;
 
     public ModuleMemberTrial(TrialTreeParser parentParser) {
         super(parentParser);
