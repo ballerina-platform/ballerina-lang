@@ -57,8 +57,7 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
 
         List<LSPackageLoader.ModuleInfo> packages;
         if (orgName.equals("ballerinax")) {
-            packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getCentralPackages(
-                    ctx.languageServercontext());
+            packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getCentralPackages();
         } else {
             packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
         }

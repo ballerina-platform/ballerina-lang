@@ -279,7 +279,7 @@ public class BuildCommand implements BLauncherCmd {
                 // clean the target directory(projects only)
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 // Run build tools
-                .addTask(new RunBuildToolsTask(outStream))
+                .addTask(new RunBuildToolsTask(outStream), isSingleFileBuild)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules

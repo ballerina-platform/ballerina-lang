@@ -1,0 +1,4 @@
+[package]
+org="test"
+name="local_project1"
+version="0.0.1"
