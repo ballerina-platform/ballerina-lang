@@ -32,6 +32,7 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     INVALID_PATH("BCE5002", "error.invalid.path"),
     INVALID_ICON("BCE5003", "error.invalid.icon"),
     INVALID_PROVIDED_DEPENDENCY("BCE5004", "invalid.provided.dependency"),
+    INVALID_PROVIDED_SCOPE_IN_BUILD("BCE5005", "invalid.provided.scope"),
 
     // Error codes used in DependencyManifestBuilder.
     OLD_DEPENDENCIES_TOML("BCE5101", "old.dependencies.toml"),
