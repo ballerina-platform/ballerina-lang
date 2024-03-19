@@ -75,7 +75,6 @@ import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned8;
 import static io.ballerina.runtime.internal.TypeChecker.checkIsLikeType;
 import static io.ballerina.runtime.internal.TypeChecker.getType;
 import static io.ballerina.runtime.internal.TypeChecker.isCharLiteralValue;
-import static io.ballerina.runtime.internal.TypeChecker.isNumericType;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned8LiteralValue;
@@ -659,13 +658,6 @@ public class TypeConverter {
             return false;
         }
         Type targetTypeElementType = TypeUtils.getImpliedType(targetType.getElementType());
-        Type sourceType = source.getType();
-        if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            Type sourceElementType = TypeUtils.getImpliedType(((BArrayType) toBType(sourceType)).getElementType());
-            if (isNumericType(sourceElementType) && isNumericType(targetTypeElementType)) {
-                return true;
-            }
-        }
         if (!TypeChecker.hasFillerValue(targetType) && sourceSize < targetSize) {
             addErrorMessage(0, errors, "array cannot be expanded to size '" + targetSize + "' because, the target " +
                     "type '" + targetType + "' does not have a filler value");

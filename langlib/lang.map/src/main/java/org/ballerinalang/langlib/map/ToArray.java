@@ -21,13 +21,13 @@ package org.ballerinalang.langlib.map;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeHelper;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.Collection;
@@ -53,7 +53,7 @@ public class ToArray {
         Type arrElemType;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                arrElemType = ((MapType) mapType).getConstrainedType();
+                arrElemType = TypeHelper.typeConstraint(mapType);
                 break;
             case TypeTags.RECORD_TYPE_TAG:
                 arrElemType = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);

@@ -364,10 +364,10 @@ public final class SemTypeUtils {
                     }
                 } else if (value instanceof BString bString) {
                     String stringValue = bString.getValue();
-                    if (stringValue.length() > 1) {
-                        nonCharValues.add(stringValue);
-                    } else {
+                    if (stringValue.codePoints().count() == 1) {
                         charValues.add(stringValue);
+                    } else {
+                        nonCharValues.add(stringValue);
                     }
                 } else if (value instanceof DecimalValue decimal) {
                     decimalAcc.addValue(decimal.decimalValue());
@@ -404,13 +404,21 @@ public final class SemTypeUtils {
             return semType.getBType().getZeroValue();
         }
         if (belongToBasicType(semType, BT_BOOLEAN)) {
-            return (V) Boolean.valueOf(false);
+            if (isSet(semType.all, BT_BOOLEAN)) {
+                return (V) Boolean.valueOf(false);
+            }
+            BooleanSubType booleanSubType = getSubType(semType, BT_BOOLEAN);
+            return (V) Boolean.valueOf(booleanSubType.defaultValue());
         } else if (belongToBasicType(semType, BT_STRING)) {
             if (isSet(semType.all, BT_STRING)) {
                 return (V) RuntimeConstants.STRING_EMPTY_VALUE;
             } else {
                 StringSubType stringSubType = getSubType(semType, BT_STRING);
-                return (V) StringUtils.fromString(stringSubType.defaultValue());
+                Optional<String> defaultValue = stringSubType.defaultValue();
+                if (defaultValue.isPresent()) {
+                    return (V) StringUtils.fromString(defaultValue.get());
+                }
+                return null;
             }
         } else if (belongToBasicType(semType, BT_DECIMAL)) {
             return (V) new DecimalValue(BigDecimal.ZERO);

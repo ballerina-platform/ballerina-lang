@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -41,6 +42,8 @@ import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.semtype.BSemType;
+import io.ballerina.runtime.internal.types.semtype.Core;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -52,11 +55,16 @@ import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.TypeBuilder.toBType;
+import static io.ballerina.runtime.api.TypeBuilder.toSemType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_BOOLEAN;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_FLOAT;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_INT;
+import static io.ballerina.runtime.internal.types.semtype.SemTypeUtils.BasicTypeCodes.BT_STRING;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 
@@ -88,11 +96,28 @@ public class ArrayValueImpl extends AbstractArrayValue {
     // ------------------------ Constructors -------------------------------------------------------------------
 
     public ArrayValueImpl(Object[] values, Type type) {
-        this.refValues = values;
         this.type = this.arrayType = type;
         this.size = values.length;
-        this.elementType = TypeHelper.listRestType(type);
-        this.elementReferredType = TypeUtils.getImpliedType(this.elementType);
+        this.elementType = TypeBuilder.toSemType(TypeHelper.listRestType(type));
+        setValueArray(values, (BSemType) this.elementType);
+        this.elementReferredType = TypeBuilder.toSemType(TypeUtils.getImpliedType(this.elementType));
+    }
+
+    private void setValueArray(Object[] values, BSemType elementType) {
+        if (Core.belongToBasicType(elementType, BT_INT)) {
+            this.intValues = Arrays.stream(values).mapToLong(value -> (Long) value).toArray();
+        } else if (Core.belongToBasicType(elementType, BT_FLOAT)) {
+            this.floatValues = Arrays.stream(values).mapToDouble(value -> (Double) value).toArray();
+        } else if (Core.belongToBasicType(elementType, BT_STRING)) {
+            this.bStringValues = Arrays.stream(values).map(value -> (BString) value).toArray(BString[]::new);
+        } else if (Core.belongToBasicType(elementType, BT_BOOLEAN)) {
+            this.booleanValues = new boolean[values.length];
+            for (int i = 0; i < values.length; i++) {
+                booleanValues[i] = (Boolean) values[i];
+            }
+        } else {
+            this.refValues = values;
+        }
     }
 
     public ArrayValueImpl(long[] values, boolean readonly) {
@@ -576,7 +601,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     public void addInt(long index, long value) {
         if (intValues != null) {
-            prepareForAdd(index, value, PredefinedTypes.TYPE_INT, intValues.length);
+            prepareForAdd(index, value, TypeChecker.getType(value), intValues.length);
             intValues[(int) index] = value;
             return;
         }
@@ -1081,8 +1106,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private Object getElementZeroValue() {
-        return this.elementTypedescValue == null ? this.elementType.getZeroValue() :
-                this.elementTypedescValue.getDescribingType().getZeroValue();
+        return this.elementTypedescValue == null ? toSemType(this.elementType).getZeroValue() :
+                toSemType(this.elementTypedescValue.getDescribingType()).getZeroValue();
     }
 
     @Override
@@ -1170,7 +1195,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     private void prepareForAdd(long index, Object value, Type sourceType, int currentArraySize) {
         // check types
-        if (!TypeChecker.checkIsType(null, value, sourceType, this.elementType)) {
+        if (!TypeChecker.checkIsType(value, this.elementType)) {
             throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
                     INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorHelper.getErrorDetails(
                             ErrorCodes.INCOMPATIBLE_TYPE, this.elementType, sourceType));

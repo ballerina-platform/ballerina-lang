@@ -162,14 +162,17 @@ class SemanticTypeEngine {
             if (value instanceof Double floatVal) {
                 return SemTypeUtils.SemTypeBuilder.floatSubType(floatVal);
             }
-            BSemType intSingletonType = (BSemType) SemTypeUtils.SemTypeBuilder.intSubType(number.longValue());
+            // Since java bytes are unsigned otherwise we will get negative numbers, this shouldn't be a problem for
+            //  other int subtypes since they are stored as Longs
+            long numberValue = number instanceof Byte byteValue ? Byte.toUnsignedLong(byteValue) : number.longValue();
+            BSemType intSingletonType = SemTypeUtils.SemTypeBuilder.intSubType(numberValue);
             if (value instanceof Byte || value instanceof Integer) {
                 intSingletonType.setByteClass();
             }
             return intSingletonType;
         } else if (value instanceof BString bString) {
             String stringValue = bString.getValue();
-            if (stringValue.length() == 1) {
+            if (stringValue.codePoints().count() == 1) {
                 return SemTypeUtils.SemTypeBuilder.charSubType(stringValue);
             } else {
                 return SemTypeUtils.SemTypeBuilder.stringSubType(stringValue);
@@ -242,7 +245,36 @@ class SemanticTypeEngine {
 
     static boolean numericConvertPossible(Object sourceValue, BSemType sourceType, BSemType targetType) {
         // TODO: check the conversion possible if the source is int?
-        return isNumericType(sourceType) && isNumericType(targetType);
+        if (!isNumericType(sourceType) || !isNumericType(targetType)) {
+            return false;
+        }
+        // Non int target types don't throw errors
+        if (!belongToBasicType(targetType, BT_INT)) {
+            return true;
+        }
+        if (sourceValue instanceof BDecimal bDecimal) {
+            BigDecimal value = bDecimal.value();
+            BigDecimal maxLong = BigDecimal.valueOf(Long.MAX_VALUE);
+            BigDecimal minLong = BigDecimal.valueOf(Long.MIN_VALUE);
+            if ((value.compareTo(minLong) >= 0) && (value.compareTo(maxLong) <= 0)) {
+                long intValue = value.longValue();
+                BSemType intType = SemTypeUtils.SemTypeBuilder.intSubType(intValue);
+                return isSubType(intType, targetType) == SubTypeCheckResult.TRUE;
+            }
+            return false;
+        } else if (sourceValue instanceof Double doubleValue) {
+            if (Double.isFinite(doubleValue) && doubleValue >= Long.MIN_VALUE && doubleValue <= Long.MAX_VALUE) {
+                long intValue = doubleValue.longValue();
+                BSemType intType = SemTypeUtils.SemTypeBuilder.intSubType(intValue);
+                return isSubType(intType, targetType) == SubTypeCheckResult.TRUE;
+            }
+            return false;
+        } else if (sourceValue instanceof Number intValue) {
+            BSemType intType = SemTypeUtils.SemTypeBuilder.intSubType(intValue.longValue());
+            return isSubType(intType, targetType) == SubTypeCheckResult.TRUE;
+        } else {
+            throw new IllegalStateException("Unexpected target value " + sourceValue);
+        }
     }
 
     static boolean checkIsLikeType(List<String> errors, Object sourceValue, Type targetType,

@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.types.semtype;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Runtime representation of StringSubType.
@@ -55,19 +56,31 @@ public class StringSubType implements SubType {
     }
 
     // TODO: returning the "correct" default value break some tests investigate
-    String defaultValue() {
+    Optional<String> defaultValue() {
         if (data instanceof AllOrNothing) {
-            return "";
+            return Optional.of("");
         }
         StringSubTypeData stringData = (StringSubTypeData) data;
         ValueData chars = stringData.chars;
         ValueData nonChars = stringData.nonChars;
         if (chars.allowed && chars.values.length == 1 && nonChars.allowed && nonChars.values.length == 0) {
-            return chars.values[0];
+            return Optional.of(chars.values[0]);
         } else if (nonChars.allowed && nonChars.values.length == 1 && chars.allowed && chars.values.length == 0) {
-            return nonChars.values[0];
+            return Optional.of(nonChars.values[0]);
+        } else if (includeEmptyString()) {
+            return Optional.of("");
         }
-        return "";
+        return Optional.empty();
+    }
+
+    private boolean includeEmptyString() {
+        if (data instanceof AllOrNothing) {
+            return data == AllOrNothing.ALL;
+        }
+        StringSubTypeData stringData = (StringSubTypeData) data;
+        ValueData nonChars = stringData.nonChars;
+        List<String> nonCharValues = List.of(nonChars.values);
+        return (nonChars.allowed && nonCharValues.contains("")) || (!nonChars.allowed && !nonCharValues.contains(""));
     }
 
     @Override

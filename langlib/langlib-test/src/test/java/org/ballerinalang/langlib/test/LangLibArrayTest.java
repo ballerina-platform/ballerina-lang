@@ -18,9 +18,12 @@
 
 package org.ballerinalang.langlib.test;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeHelper;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -185,7 +188,7 @@ public class LangLibArrayTest {
         assertEquals(getType(result.get(1)).getTag(), TypeTags.ARRAY_TAG);
         BArray arr = (BArray) result.get(1);
 
-        assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.STRING_TAG);
+        assertTrue(TypeChecker.checkIsType(TypeHelper.listRestType(arr.getType()), PredefinedTypes.TYPE_STRING));
         assertEquals(arr.size(), 3);
         assertEquals(arr.getString(0), "Foo");
         assertEquals(arr.getString(1), "Bar");

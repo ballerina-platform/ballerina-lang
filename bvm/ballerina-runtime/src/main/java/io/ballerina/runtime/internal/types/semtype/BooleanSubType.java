@@ -65,6 +65,17 @@ public class BooleanSubType implements SubType {
         throw new UnsupportedOperationException("union of different subtypes");
     }
 
+    boolean defaultValue() {
+        if (data instanceof AllOrNothing allOrNothing) {
+            if (allOrNothing == AllOrNothing.ALL) {
+                return false;
+            } else {
+                throw new IllegalStateException("default value of nothing");
+            }
+        }
+        return ((BooleanSubTypeData) data).value;
+    }
+
     // TODO: refactor
     @Override
     public SubType intersect(SubType other) {
