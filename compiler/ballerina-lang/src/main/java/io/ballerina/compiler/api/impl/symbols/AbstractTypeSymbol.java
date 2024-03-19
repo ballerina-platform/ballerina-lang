@@ -24,7 +24,6 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -157,10 +156,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         List<FunctionSymbol> filteredFunctions = new ArrayList<>();
 
         for (FunctionSymbol function : functions) {
-            if (function instanceof BallerinaFunctionSymbol &&
-                    ((BallerinaFunctionSymbol) function).getInternalSymbol().getOrigin() == SymbolOrigin.VIRTUAL) {
-                continue;
-            }
+
             List<ParameterSymbol> functionParams = function.typeDescriptor().params().get();
 
             if (functionParams.isEmpty()) {
