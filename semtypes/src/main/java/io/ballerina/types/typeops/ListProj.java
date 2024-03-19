@@ -36,8 +36,9 @@ import io.ballerina.types.subtypedata.Range;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import static io.ballerina.types.BasicTypeCode.BT_LIST;
 import static io.ballerina.types.Common.isNothingSubtype;
@@ -136,13 +137,12 @@ public class ListProj {
         }
         // return listProjExclude(cx, k, members, rest, listConjunction(cx, neg));
         List<Integer> indices = ListOps.listSamples(cx, members, rest, neg);
-        int[] keyIndices;
-        TwoTuple projSamples = listProjSamples(indices, k);
-        TwoTuple sampleTypes = ListOps.listSampleTypes(cx, members, rest, indices);
-        return listProjExclude(cx, ((List<Integer>) projSamples.item1).toArray(new Integer[0]),
-                ((List<Integer>) projSamples.item2).toArray(new Integer[0]),
-                ((List<SemType>) sampleTypes.item1).toArray(new SemType[0]),
-                ((int) sampleTypes.item2), neg);
+        TwoTuple<List<Integer>, List<Integer>> projSamples = listProjSamples(indices, k);
+        TwoTuple<List<CellSemType>, Integer> sampleTypes = ListOps.listSampleTypes(cx, members, rest, indices);
+        return listProjExclude(cx, projSamples.item1.toArray(new Integer[0]),
+                projSamples.item2.toArray(new Integer[0]),
+                sampleTypes.item1.toArray(new SemType[0]),
+                sampleTypes.item2, neg);
     }
 
     // In order to adapt listInhabited to do projection, we need
@@ -152,8 +152,8 @@ public class ListProj {
     // Here we add samples for both ends of each range. This doesn't handle the
     // case where the key is properly within a partition: but that is handled
     // because we already have a sample of the end of the partition.
-    private static TwoTuple listProjSamples(List<Integer> indices, SubtypeData k) {
-        List<TwoTuple> v = new ArrayList<>();
+    private static TwoTuple<List<Integer>, List<Integer>> listProjSamples(List<Integer> indices, SubtypeData k) {
+        List<TwoTuple<Integer, Boolean>> v = new ArrayList<>();
         for (int i : indices) {
             v.add(TwoTuple.from(i, intSubtypeContains(k, i)));
         }
@@ -169,15 +169,15 @@ public class ListProj {
                 }
             }
         }
-        Collections.sort(v, (p1, p2) -> (int) p1.item1 - (int) p2.item2);
+        v.sort(Comparator.comparingInt(p -> p.item1));
         List<Integer> indices1 = new ArrayList<>();
         List<Integer> keyIndices = new ArrayList<>();
         for (var ib : v) {
-            if (indices1.size() == 0 || ib.item1 != indices1.get(indices1.size() - 1)) {
-                if ((boolean) ib.item2) {
+            if (indices1.isEmpty() || !Objects.equals(ib.item1, indices1.get(indices1.size() - 1))) {
+                if (ib.item2) {
                     keyIndices.add(indices1.size());
                 }
-                indices1.add((Integer) ib.item1);
+                indices1.add(ib.item1);
             }
         }
         return TwoTuple.from(indices1, keyIndices);

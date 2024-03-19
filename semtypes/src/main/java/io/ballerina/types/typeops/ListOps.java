@@ -121,29 +121,27 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             }
         }
         List<Integer> indices = listSamples(cx, members, rest, neg);
-        TwoTuple sampleTypes = listSampleTypes(cx, members, rest, indices);
+        TwoTuple<List<CellSemType>, Integer> sampleTypes = listSampleTypes(cx, members, rest, indices);
         return !listInhabited(cx, indices.toArray(new Integer[0]),
-                ((List<SemType>) sampleTypes.item1).toArray(new SemType[0]),
-                ((int) sampleTypes.item2), neg);
+                sampleTypes.item1.toArray(new SemType[0]),
+                sampleTypes.item2, neg);
     }
 
-    public static TwoTuple listSampleTypes(Context cx, FixedLengthArray members, CellSemType rest,
-                                           List<Integer> indices) {
-        List<CellSemType> memberTypes = new ArrayList<>();
-        int nRequired = 0;
-        for (int i = 0; i < indices.size(); i++) {
-            int index = indices.get(i);
-            CellSemType t = listMemberAt(members, rest, index);
-            if (Core.isEmpty(cx, t)) {
-                break;
-            }
-            memberTypes.add(t);
-            if (index < members.fixedLength) {
-                nRequired = i + 1;
-            }
+    static TwoTuple<FixedLengthArray, SemType> listIntersectWith(Env env, FixedLengthArray members1, CellSemType rest1,
+                                                                 FixedLengthArray members2, CellSemType rest2) {
+        if (listLengthsDisjoint(members1, rest1, members2, rest2)) {
+            return null;
         }
-        // Note that indices may be longer
-        return TwoTuple.from(memberTypes, nRequired);
+        int max = Integer.max(members1.initial.size(), members2.initial.size());
+        List<CellSemType> initial =
+                IntStream.range(0, max)
+                        .mapToObj(i -> Core.intersectMemberSemType(env, listMemberAt(members1, rest1, i),
+                                listMemberAt(members2, rest2, i)))
+                        .collect(Collectors.toList());
+        return TwoTuple.from(FixedLengthArray.from(initial,
+                        Integer.max(members1.fixedLength,
+                                members2.fixedLength)),
+                Core.intersect(rest1, rest2));
     }
 
     // Return a list of sample indices for use as second argument of `listInhabited`.
@@ -308,21 +306,23 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         return false;
     }
 
-    static TwoTuple listIntersectWith(Env env, FixedLengthArray members1, CellSemType rest1, FixedLengthArray members2,
-                                      CellSemType rest2) {
-        if (listLengthsDisjoint(members1, rest1, members2, rest2)) {
-            return null;
+    public static TwoTuple<List<CellSemType>, Integer> listSampleTypes(Context cx, FixedLengthArray members,
+                                                                       CellSemType rest, List<Integer> indices) {
+        List<CellSemType> memberTypes = new ArrayList<>();
+        int nRequired = 0;
+        for (int i = 0; i < indices.size(); i++) {
+            int index = indices.get(i);
+            CellSemType t = listMemberAt(members, rest, index);
+            if (Core.isEmpty(cx, t)) {
+                break;
+            }
+            memberTypes.add(t);
+            if (index < members.fixedLength) {
+                nRequired = i + 1;
+            }
         }
-        int max = Integer.max(members1.initial.size(), members2.initial.size());
-        List<CellSemType> initial =
-                IntStream.range(0, max)
-                        .mapToObj(i -> Core.intersectMemberSemType(env, listMemberAt(members1, rest1, i),
-                                listMemberAt(members2, rest2, i)))
-                        .collect(Collectors.toList());
-        return TwoTuple.from(FixedLengthArray.from(initial,
-                        Integer.max(members1.fixedLength,
-                                members2.fixedLength)),
-                Core.intersect(rest1, rest2));
+        // Note that indices may be longer
+        return TwoTuple.from(memberTypes, nRequired);
     }
 
     static boolean fixedArrayAnyEmpty(Context cx, FixedLengthArray array) {
