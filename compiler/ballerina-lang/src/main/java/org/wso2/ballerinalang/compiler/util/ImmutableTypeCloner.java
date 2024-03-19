@@ -363,7 +363,7 @@ public class ImmutableTypeCloner {
             return immutableType.get();
         } else {
             Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
-                    originalType, new BArrayType(null, immutableArrayTSymbol, type.size, type.state,
+                    originalType, new BArrayType(symTable.typeEnv(), null, immutableArrayTSymbol, type.size, type.state,
                             type.flags | Flags.READONLY), symTable));
         }
 
@@ -706,7 +706,7 @@ public class ImmutableTypeCloner {
         if (immutableTypeOptional.isPresent()) {
             return immutableTypeOptional.get();
         } else {
-            BUnionType immutableUnionType = BUnionType.create(origUnionTypeSymbol);
+            BUnionType immutableUnionType = BUnionType.create(symTable.typeEnv(), origUnionTypeSymbol);
             Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
                                       originalType, immutableUnionType, symTable));
         }
@@ -765,13 +765,13 @@ public class ImmutableTypeCloner {
 
         if (immutableAnydataTSymbol != null) {
             BAnydataType immutableAnydataType =
-                    new BAnydataType(immutableAnydataTSymbol,
+                    new BAnydataType(type.env, immutableAnydataTSymbol,
                                      immutableAnydataTSymbol.name, type.flags | Flags.READONLY,
                                      type.isNullable());
             immutableAnydataTSymbol.type = immutableAnydataType;
             return immutableAnydataType;
         }
-         return new BAnydataType(immutableAnydataTSymbol,
+        return new BAnydataType(type.env, immutableAnydataTSymbol,
                                  getImmutableTypeName(names, TypeKind.ANYDATA.typeName()),
                                  type.flags | Flags.READONLY, type.isNullable());
     }
@@ -779,7 +779,7 @@ public class ImmutableTypeCloner {
     private static BJSONType defineImmutableJsonType(SymbolEnv env, PackageID pkgId, BSymbol owner, Names names,
                                                      BJSONType type) {
         BTypeSymbol immutableJsonTSymbol = getReadonlyTSymbol(names, type.tsymbol, env, pkgId, owner);
-        BJSONType immutableJsonType = new BJSONType(immutableJsonTSymbol,
+        BJSONType immutableJsonType = new BJSONType(type.env, immutableJsonTSymbol,
                                                     type.isNullable(),
                                                     type.flags | Flags.READONLY);
         if (immutableJsonTSymbol != null) {

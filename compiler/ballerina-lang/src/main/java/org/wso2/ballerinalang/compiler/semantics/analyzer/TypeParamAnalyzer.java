@@ -308,7 +308,8 @@ public class TypeParamAnalyzer {
                 return new BReadonlyType(null, name, flags);
             case TypeTags.UNION:
                 if (types.isCloneableType((BUnionType) refType)) {
-                    BUnionType cloneableType = BUnionType.create(null, symTable.readonlyType, symTable.xmlType);
+                    BUnionType cloneableType =
+                            BUnionType.create(symTable.typeEnv(), null, symTable.readonlyType, symTable.xmlType);
                     addCyclicArrayMapTableOfMapMembers(cloneableType);
                     cloneableType.flags = flags;
 
@@ -338,7 +339,7 @@ public class TypeParamAnalyzer {
     }
 
     private void addCyclicArrayMapTableOfMapMembers(BUnionType unionType) {
-        BArrayType arrayCloneableType = new BArrayType(unionType);
+        BArrayType arrayCloneableType = new BArrayType(symTable.typeEnv(), unionType);
         BMapType mapCloneableType = new BMapType(TypeTags.MAP, unionType, null);
         BType tableMapCloneableType = new BTableType(TypeTags.TABLE, mapCloneableType, null);
         unionType.add(arrayCloneableType);
@@ -597,10 +598,10 @@ public class TypeParamAnalyzer {
             }
         }
 
-        BUnionType cUnionType = BUnionType.create(null, constraintTypes);
+        BUnionType cUnionType = BUnionType.create(symTable.typeEnv(), null, constraintTypes);
         findTypeParam(loc, expType.constraint, cUnionType, env, resolvedTypes, result);
         if (!completionTypes.isEmpty()) {
-            BUnionType eUnionType = BUnionType.create(null, completionTypes);
+            BUnionType eUnionType = BUnionType.create(symTable.typeEnv(), null, completionTypes);
             findTypeParam(loc, expType.completionType, eUnionType, env, resolvedTypes, result);
         } else {
             findTypeParam(loc, expType.completionType, symTable.nilType, env, resolvedTypes, result);
@@ -639,7 +640,7 @@ public class TypeParamAnalyzer {
 
         int size = tupleTypes.size();
         BType type = size == 0 ? symTable.neverType :
-                (size == 1 ? tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes));
+                (size == 1 ? tupleTypes.iterator().next() : BUnionType.create(symTable.typeEnv(), null, tupleTypes));
         findTypeParam(loc, expType.eType, type, env, resolvedTypes, result);
     }
 
@@ -669,7 +670,7 @@ public class TypeParamAnalyzer {
                 ((BTupleType) referredType).getTupleTypes().forEach(member -> members.add(member));
             }
         }
-        BUnionType tupleElementType = BUnionType.create(null, members);
+        BUnionType tupleElementType = BUnionType.create(symTable.typeEnv(), null, members);
         findTypeParam(loc, expType, tupleElementType, env, resolvedTypes, result);
     }
 
@@ -709,7 +710,7 @@ public class TypeParamAnalyzer {
         if (reducedTypeSet.size() == 1) {
             commonFieldType = reducedTypeSet.iterator().next();
         } else {
-            commonFieldType = BUnionType.create(null, reducedTypeSet);
+            commonFieldType = BUnionType.create(symTable.typeEnv(), null, reducedTypeSet);
         }
 
         findTypeParam(loc, expType.constraint, commonFieldType, env, resolvedTypes, result);
@@ -781,7 +782,7 @@ public class TypeParamAnalyzer {
                 BType member = Types.getImpliedType(errorType);
                 errorDetailTypes.add(((BErrorType) member).detailType);
             }
-            BUnionType errorDetailUnionType = BUnionType.create(null, errorDetailTypes);
+            BUnionType errorDetailUnionType = BUnionType.create(symTable.typeEnv(), null, errorDetailTypes);
             findTypeParam(loc, expType.detailType, errorDetailUnionType, env, resolvedTypes, result);
         }
     }
@@ -808,7 +809,7 @@ public class TypeParamAnalyzer {
                 if (!isDifferentTypes(elementType, matchingBoundElementType)) {
                     return expType;
                 }
-                return new BArrayType(matchingBoundElementType);
+                return new BArrayType(symTable.typeEnv(), matchingBoundElementType);
             case TypeTags.MAP:
                 BType constraint = ((BMapType) expType).constraint;
                 BType matchingBoundMapConstraintType = getMatchingBoundType(constraint, env, resolvedTypes);
@@ -1141,7 +1142,7 @@ public class TypeParamAnalyzer {
             return expType;
         }
 
-        return BUnionType.create(null, members);
+        return BUnionType.create(symTable.typeEnv(), null, members);
     }
 
     private BType getMatchingErrorBoundType(BErrorType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {

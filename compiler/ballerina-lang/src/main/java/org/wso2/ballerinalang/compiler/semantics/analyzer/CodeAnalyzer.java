@@ -2082,7 +2082,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         BType sendTypeWithNoMsgIgnored;
         if (returnTypeAndSendType.size() > 1) {
-            sendTypeWithNoMsgIgnored = BUnionType.create(null, returnTypeAndSendType);
+            sendTypeWithNoMsgIgnored = BUnionType.create(symTable.typeEnv(), null, returnTypeAndSendType);
         } else {
             sendTypeWithNoMsgIgnored = exprType;
         }
@@ -2095,7 +2095,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     lookup(Names.fromString(NO_MESSAGE_ERROR_TYPE)).symbol;
             returnTypeAndSendType.add(noMsgErrSymbol.getType());
             if (returnTypeAndSendType.size() > 1) {
-                sendType = BUnionType.create(null, returnTypeAndSendType);
+                sendType = BUnionType.create(symTable.typeEnv(), null, returnTypeAndSendType);
             } else {
                 sendType = exprType;
             }
@@ -2140,7 +2140,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        syncSendExpr.setBType(BUnionType.create(null, symTable.nilType, symTable.errorType));
+        syncSendExpr.setBType(BUnionType.create(symTable.typeEnv(), null, symTable.nilType, symTable.errorType));
         boolean withinIfOrOnFail = !invalidSendPos && withinIfOrOnFail(data.env.enclInvokable.body, data.env.node);
         setWorkerSendSendTypeDetails(syncSendExpr, syncSendExpr.expr.getBType(), withinIfOrOnFail, data);
         was.addWorkerAction(syncSendExpr);
@@ -2251,7 +2251,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         returnTypeAndSendType.add(symTable.nilType);
         if (returnTypeAndSendType.size() > 1) {
-            return BUnionType.create(null, returnTypeAndSendType);
+            return BUnionType.create(symTable.typeEnv(), null, returnTypeAndSendType);
         } else {
             return symTable.nilType;
         }
@@ -3810,7 +3810,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         BType actualType;
         if (altTypes.size() > 1) {
-            actualType = BUnionType.create(null, altTypes);
+            actualType = BUnionType.create(symTable.typeEnv(), null, altTypes);
         } else {
             actualType = altTypes.iterator().next();
         }

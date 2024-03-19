@@ -211,12 +211,13 @@ public class Types {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
-        this.expandedXMLBuiltinSubtypes = BUnionType.create(null,
+        Env typeEnv = new Env();
+        this.expandedXMLBuiltinSubtypes = BUnionType.create(typeEnv, null,
                                                             symTable.xmlElementType, symTable.xmlCommentType,
                                                             symTable.xmlPIType, symTable.xmlTextType);
         this.unifier = new Unifier();
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-        this.semTypeCtx = Context.from(new Env());
+        this.semTypeCtx = Context.from(typeEnv);
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -241,7 +242,7 @@ public class Types {
             return actualType;
         }
 
-        return BUnionType.create(null, actualType, symTable.nilType);
+        return BUnionType.create(typeEnv(), null, actualType, symTable.nilType);
     }
 
     public BType checkType(BLangExpression expr,
@@ -300,7 +301,8 @@ public class Types {
             return errorType;
         }
 
-        return errTypes.size() == 1 ? errTypes.iterator().next() : BUnionType.create(null, errTypes);
+        return errTypes.size() == 1 ? errTypes.iterator().next() :
+                BUnionType.create(symTable.typeEnv(), null, errTypes);
     }
 
     public BType checkType(Location pos,
@@ -792,7 +794,7 @@ public class Types {
         if (isSameBasicType(typeFirst, typeSecond)) {
             return typeFirst;
         }
-        return BUnionType.create(null, typeFirst, typeSecond);
+        return BUnionType.create(typeEnv(), null, typeFirst, typeSecond);
     }
 
     public boolean isSubTypeOfMapping(BType bType) {
@@ -1981,7 +1983,7 @@ public class Types {
                 varType = streamType.constraint;
                 List<BType> completionType = getAllTypes(streamType.completionType, true);
                 if (completionType.stream().anyMatch(type -> getImpliedType(type).tag != TypeTags.NIL)) {
-                    BType actualType = BUnionType.create(null, varType, streamType.completionType);
+                    BType actualType = BUnionType.create(typeEnv(), null, varType, streamType.completionType);
                     dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             varType, actualType);
                 }
@@ -1995,7 +1997,7 @@ public class Types {
                             ? ((BRecordType) foreachNode.resultType).fields.get("value").type : null;
                     BType errorType = getErrorType(nextMethodReturnType);
                     if (errorType != null) {
-                        BType actualType = BUnionType.create(null, valueType, errorType);
+                        BType actualType = BUnionType.create(typeEnv(), null, valueType, errorType);
                         dlog.error(foreachNode.collection.pos,
                                 DiagnosticErrorCode.INVALID_ITERABLE_COMPLETION_TYPE_IN_FOREACH_NEXT_FUNCTION,
                                 actualType, errorType);
@@ -2069,7 +2071,8 @@ public class Types {
                 Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
                         ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
                 return collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes) ?
-                        collectionType : BUnionType.create(null, (LinkedHashSet<BType>) collectionTypes);
+                        collectionType :
+                        BUnionType.create(symTable.typeEnv(), null, (LinkedHashSet<BType>) collectionTypes);
             default:
                 return null;
         }
@@ -2149,7 +2152,7 @@ public class Types {
             return symTable.neverType;
         }
         return tupleTypesSize == 1 ?
-                tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
+                tupleTypes.iterator().next() : BUnionType.create(symTable.typeEnv(), null, tupleTypes);
     }
 
     public BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
@@ -2288,7 +2291,7 @@ public class Types {
 
     public BType inferRecordFieldType(BRecordType recordType) {
         Map<String, BField> fields = recordType.fields;
-        BUnionType unionType = BUnionType.create(null);
+        BUnionType unionType = BUnionType.create(typeEnv(), null);
 
         if (!recordType.sealed) {
             unionType.add(recordType.restFieldType);
@@ -2302,7 +2305,7 @@ public class Types {
             }
 
             if (isAssignable(unionType, field.type)) {
-                unionType = BUnionType.create(null);
+                unionType = BUnionType.create(typeEnv(), null);
             }
 
             unionType.add(field.type);
@@ -2345,7 +2348,7 @@ public class Types {
         }
 
         if (hasDifferentMember) {
-            return BUnionType.create(null, members);
+            return BUnionType.create(symTable.typeEnv(), null, members);
         }
         return bType;
     }
@@ -3771,7 +3774,7 @@ public class Types {
         if (s.tag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) s;
             if (arrayType.eType == source) {
-                return new BArrayType(target, arrayType.tsymbol, arrayType.size,
+                return new BArrayType(symTable.typeEnv(), target, arrayType.tsymbol, arrayType.size,
                         arrayType.state, arrayType.flags);
             }
         }
@@ -3801,7 +3804,8 @@ public class Types {
             var arrayType = (BArrayType) originalMemberType;
             if (origUnionType == arrayType.eType) {
                 if (sameMember) {
-                    BArrayType newArrayType = new BArrayType(newImmutableUnion, arrayType.tsymbol, arrayType.size,
+                    BArrayType newArrayType =
+                            new BArrayType(arrayType.env, newImmutableUnion, arrayType.tsymbol, arrayType.size,
                             arrayType.state, arrayType.flags);
                     readOnlyMemTypes.add(newArrayType);
                 } else {
@@ -4143,7 +4147,7 @@ public class Types {
         if (intersection.size() == 1) {
             return intersection.get(0);
         } else {
-            return BUnionType.create(null, new LinkedHashSet<>(intersection));
+            return BUnionType.create(symTable.typeEnv(), null, new LinkedHashSet<>(intersection));
         }
     }
 
@@ -4362,13 +4366,13 @@ public class Types {
                 // add an unsealed array to allow comparison between closed and open arrays
                 // TODO: 10/16/18 improve this, since it will allow comparison between sealed arrays of different sizes
                 if (((BArrayType) referredType).getSize() != -1) {
-                    memberTypes.add(new BArrayType(arrayElementType));
+                    memberTypes.add(new BArrayType(symTable.typeEnv(), arrayElementType));
                 }
 
                 if (getImpliedType(arrayElementType).tag == TypeTags.UNION) {
                     Set<BType> elementUnionTypes = expandAndGetMemberTypesRecursiveHelper(arrayElementType, visited);
                     elementUnionTypes.forEach(elementUnionType -> {
-                        memberTypes.add(new BArrayType(elementUnionType));
+                        memberTypes.add(new BArrayType(symTable.typeEnv(), elementUnionType));
                     });
                 }
                 memberTypes.add(bType);
@@ -4874,7 +4878,7 @@ public class Types {
         LinkedHashSet<BType> mutableRemainingTypes =
                 filterMutableMembers(((BUnionType) referredRemainingType).getMemberTypes(), env);
         remainingType = mutableRemainingTypes.size() == 1 ? mutableRemainingTypes.iterator().next() :
-                BUnionType.create(null, mutableRemainingTypes);
+                BUnionType.create(symTable.typeEnv(), null, mutableRemainingTypes);
 
         BType referredTypeToRemove = getImpliedType(typeToRemove);
 
@@ -4882,7 +4886,7 @@ public class Types {
             LinkedHashSet<BType> mutableTypesToRemove =
                     filterMutableMembers(((BUnionType) referredTypeToRemove).getMemberTypes(), env);
             typeToRemove = mutableTypesToRemove.size() == 1 ? mutableTypesToRemove.iterator().next() :
-                    BUnionType.create(null, mutableTypesToRemove);
+                    BUnionType.create(symTable.typeEnv(), null, mutableTypesToRemove);
         } else {
             typeToRemove = referredTypeToRemove;
         }
@@ -4940,7 +4944,7 @@ public class Types {
         if (intersection.size() == 1) {
             return intersection.toArray(new BType[0])[0];
         } else {
-            return BUnionType.create(null, intersection);
+            return BUnionType.create(symTable.typeEnv(), null, intersection);
         }
     }
 
@@ -5105,14 +5109,14 @@ public class Types {
             if (elementIntersection == null) {
                 return elementIntersection;
             }
-            return new BArrayType(elementIntersection);
+            return new BArrayType(symTable.typeEnv(), elementIntersection);
         } else if (referredType.tag == TypeTags.ARRAY && isAnydataOrJson(referredLhsType)) {
             BType elementIntersection = getIntersection(intersectionContext, lhsType, env,
                     ((BArrayType) referredType).eType, visitedTypes);
             if (elementIntersection == null) {
                 return elementIntersection;
             }
-            return new BArrayType(elementIntersection);
+            return new BArrayType(symTable.typeEnv(), elementIntersection);
         } else if (referredType.tag == TypeTags.NULL_SET) {
             return type;
         }
@@ -5660,7 +5664,7 @@ public class Types {
             return symTable.nullSet;
         }
 
-        return BUnionType.create(null, new LinkedHashSet<>(remainingTypes));
+        return BUnionType.create(symTable.typeEnv(), null, new LinkedHashSet<>(remainingTypes));
     }
 
     private BType getRemainingType(BFiniteType originalType, List<BType> removeTypes) {
@@ -5717,7 +5721,7 @@ public class Types {
 
         BUnionType unionType = (BUnionType) type;
         LinkedHashSet<BType> memTypes = new LinkedHashSet<>(unionType.getMemberTypes());
-        BUnionType errorLiftedType = BUnionType.create(null, memTypes);
+        BUnionType errorLiftedType = BUnionType.create(symTable.typeEnv(), null, memTypes);
 
         if (liftNil) {
             errorLiftedType.remove(symTable.nilType);
@@ -5731,7 +5735,7 @@ public class Types {
                 }
             }
             memTypes = bTypes;
-            errorLiftedType = BUnionType.create(null, memTypes);
+            errorLiftedType = BUnionType.create(symTable.typeEnv(), null, memTypes);
         }
 
         if (errorLiftedType.getMemberTypes().size() == 1) {
@@ -6225,7 +6229,7 @@ public class Types {
 
     public boolean isSubTypeOfSimpleBasicTypeOrString(BType bType) {
         return isAssignable(getImpliedType(bType),
-                            BUnionType.create(null, symTable.nilType, symTable.booleanType, symTable.intType,
+                BUnionType.create(symTable.typeEnv(), null, symTable.nilType, symTable.booleanType, symTable.intType,
                                               symTable.floatType, symTable.decimalType, symTable.stringType));
     }
 
@@ -6337,7 +6341,7 @@ public class Types {
             return nonNilTypes.get(0);
         }
 
-        return BUnionType.create(null, new LinkedHashSet<>(nonNilTypes));
+        return BUnionType.create(symTable.typeEnv(), null, new LinkedHashSet<>(nonNilTypes));
     }
 
     public boolean isFixedLengthTuple(BTupleType bTupleType) {
@@ -6485,7 +6489,8 @@ public class Types {
             this.types = types;
             this.symtable = symTable;
             this.serviceNameType =
-                    BUnionType.create(null, symtable.stringType, symtable.arrayStringType, symtable.nilType);
+                    BUnionType.create(symTable.typeEnv(), null, symtable.stringType, symtable.arrayStringType,
+                            symtable.nilType);
         }
 
         boolean isValidListener() {
@@ -7037,5 +7042,11 @@ public class Types {
     public boolean isMappingConstructorCompatibleType(BType type) {
         int tag = getImpliedType(type).tag;
         return tag == TypeTags.RECORD || tag == TypeTags.MAP;
+    }
+
+    // Maybe it is a better idea to directly make Env accessible via the CompilerContext but that means SemType module
+    //  will have a dependency on compiler
+    public Env typeEnv() {
+        return semTypeCtx.env;
     }
 }

@@ -164,8 +164,8 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BArrayType(boundElemType, typeInSymbol.tsymbol, typeInSymbol.size, typeInSymbol.state,
-                              typeInSymbol.flags);
+        return new BArrayType(typeInSymbol.env, boundElemType, typeInSymbol.tsymbol, typeInSymbol.size,
+                typeInSymbol.state, typeInSymbol.flags);
     }
 
     @Override
@@ -336,7 +336,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return BUnionType.create(typeInSymbol.tsymbol, newMembers);
+        return BUnionType.create(types.typeEnv(), typeInSymbol.tsymbol, newMembers);
     }
 
     @Override

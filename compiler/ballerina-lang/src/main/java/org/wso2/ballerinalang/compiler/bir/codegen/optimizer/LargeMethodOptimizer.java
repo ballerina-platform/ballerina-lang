@@ -1516,7 +1516,7 @@ public class LargeMethodOptimizer {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(2);
         memberTypes.add(newFuncReturnType);
         memberTypes.add(symbolTable.errorType);
-        return new BUnionType(null, memberTypes, false, false);
+        return new BUnionType(symbolTable.typeEnv(), null, memberTypes, false, false);
     }
 
     private BIRBasicBlock handleNewFuncReturnVal(BIRFunction function, BIROperand splitFuncCallResultOp,

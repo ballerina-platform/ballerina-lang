@@ -1192,7 +1192,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         if (isListenerDecl) {
             BType rhsType = typeChecker.checkExpr(rhsExpr, varInitEnv,
-                    BUnionType.create(null, lhsType, symTable.errorType), data.prevEnvs,
+                    BUnionType.create(symTable.typeEnv(), null, lhsType, symTable.errorType), data.prevEnvs,
                     data.commonAnalyzerData);
             validateListenerCompatibility(varNode, rhsType);
         } else {
@@ -2013,7 +2013,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         } else if (compatibleTypes.size() == 1) {
             return compatibleTypes.iterator().next();
         } else {
-            return BUnionType.create(null, compatibleTypes);
+            return BUnionType.create(symTable.typeEnv(), null, compatibleTypes);
         }
     }
 
@@ -2708,7 +2708,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private BType interpolateWideType(BRecordType rhsDetailType, List<BLangNamedArgsExpression> detailType) {
         Set<String> extractedKeys = detailType.stream().map(detail -> detail.name.value).collect(Collectors.toSet());
 
-        BUnionType wideType = BUnionType.create(null);
+        BUnionType wideType = BUnionType.create(symTable.typeEnv(), null);
         for (BField field : rhsDetailType.fields.values()) {
             // avoid fields extracted from binding pattern
             if (!extractedKeys.contains(field.name.value)) {
@@ -2829,7 +2829,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 if (existingNarrowedTypeInfo.containsKey(key)) {
                     BType.NarrowedTypes existingNarrowTypes = existingNarrowedTypeInfo.get(key);
                     BUnionType unionType =
-                            BUnionType.create(null, existingNarrowTypes.trueType, existingNarrowTypes.falseType);
+                            BUnionType.create(symTable.typeEnv(), null, existingNarrowTypes.trueType,
+                                    existingNarrowTypes.falseType);
                     BType.NarrowedTypes newPair = new BType.NarrowedTypes(existingNarrowTypes.trueType, unionType);
                     falseTypesOfNarrowedTypes.put(key, newPair);
                 }
@@ -3210,9 +3211,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             return restTupleType;
         } else {
             if (patternRestType != null) {
-                return new BArrayType(patternRestType);
+                return new BArrayType(symTable.typeEnv(), patternRestType);
             } else {
-                return new BArrayType(symTable.anyOrErrorType);
+                return new BArrayType(symTable.typeEnv(), symTable.anyOrErrorType);
             }
         }
     }
@@ -3323,7 +3324,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangRestBindingPattern restBindingPattern = listBindingPattern.restBindingPattern;
             BType restBindingPatternType = restBindingPattern.getBType();
             BType restType = restBindingPatternType != null ? restBindingPatternType : symTable.anyOrErrorType;
-            restBindingPattern.setBType(new BArrayType(restType));
+            restBindingPattern.setBType(new BArrayType(symTable.typeEnv(), restType));
             restBindingPattern.accept(this, data);
             listBindingPattern.declaredVars.put(restBindingPattern.variableName.value, restBindingPattern.symbol);
             listBindingPatternType.restType = restType;
@@ -3662,7 +3663,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangRestMatchPattern restMatchPattern = (BLangRestMatchPattern) listMatchPattern.getRestMatchPattern();
             BType restBindingPatternType = restMatchPattern.getBType();
             BType restType = restBindingPatternType != null ? restBindingPatternType : symTable.anyOrErrorType;
-            restMatchPattern.setBType(new BArrayType(restType));
+            restMatchPattern.setBType(new BArrayType(symTable.typeEnv(), restType));
             restMatchPattern.accept(this, data);
             checkForSimilarVars(listMatchPattern.declaredVars, restMatchPattern.declaredVars, restMatchPattern.pos);
             listMatchPattern.declaredVars.put(restMatchPattern.variableName.value, restMatchPattern.symbol);
@@ -3872,7 +3873,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             if (currentOnFailErrTypes.size() == 1) {
                 failErrorType = currentOnFailErrTypes.iterator().next();
             } else if (currentOnFailErrTypes.size() > 1) {
-                failErrorType = BUnionType.create(null, currentOnFailErrTypes);
+                failErrorType = BUnionType.create(symTable.typeEnv(), null, currentOnFailErrTypes);
             } else {
                 failErrorType = symTable.neverType;
             }
@@ -4094,7 +4095,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             for (BType attachType : listenerTypes) {
                 typeIdSet.add(getTypeIds(attachType));
             }
-            inferred = BUnionType.create(null, listenerTypes);
+            inferred = BUnionType.create(symTable.typeEnv(), null, listenerTypes);
         }
 
         serviceNode.inferredServiceType = inferred;
@@ -4217,7 +4218,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangRollback rollbackNode, AnalyzerData data) {
         if (rollbackNode.expr != null) {
-            BType expectedType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+            BType expectedType = BUnionType.create(symTable.typeEnv(), null, symTable.errorType, symTable.nilType);
             this.typeChecker.checkExpr(rollbackNode.expr, data.env, expectedType, data.prevEnvs,
                     data.commonAnalyzerData);
         }

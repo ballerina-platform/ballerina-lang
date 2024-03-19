@@ -561,9 +561,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 BUnionType unionType = (BUnionType) refType;
                 unionType.add(symTable.nilType);
             } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
-                resultType = BUnionType.create(null, resultType, symTable.nilType);
+                resultType = BUnionType.create(symTable.typeEnv(), null, resultType, symTable.nilType);
             } else if (typeNode.nullable && refType.tag != TypeTags.JSON && refType.tag != TypeTags.ANY) {
-                resultType = BUnionType.create(null, resultType, symTable.nilType);
+                resultType = BUnionType.create(symTable.typeEnv(), null, resultType, symTable.nilType);
             }
         }
 
@@ -1027,7 +1027,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             if (immutableType.isPresent()) {
                 Types.addImmutableType(symTable, PackageID.ANNOTATIONS, symTable.anydataType, immutableType.get());
             }
-            symTable.anydataOrReadonly = BUnionType.create(null, symTable.anydataType, symTable.readonlyType);
+            symTable.anydataOrReadonly =
+                    BUnionType.create(symTable.typeEnv(), null, symTable.anydataType, symTable.readonlyType);
             entry.symbol.type = symTable.anydataType;
             entry.symbol.origin = BUILTIN;
 
@@ -1080,15 +1081,18 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                         symTable.rootPkgSymbol.pkgID, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos
                         , BUILTIN);
 
-                symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
-                symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
+                symTable.errorOrNilType =
+                        BUnionType.create(symTable.typeEnv(), null, symTable.errorType, symTable.nilType);
+                symTable.anyOrErrorType =
+                        BUnionType.create(symTable.typeEnv(), null, symTable.anyType, symTable.errorType);
 
                 symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
-                symTable.arrayAllType = new BArrayType(symTable.anyOrErrorType);
+                symTable.arrayAllType = new BArrayType(symTable.typeEnv(), symTable.anyOrErrorType);
                 symTable.typeDesc.constraint = symTable.anyOrErrorType;
                 symTable.futureType.constraint = symTable.anyOrErrorType;
 
-                symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
+                symTable.pureType =
+                        BUnionType.create(symTable.typeEnv(), null, symTable.anydataType, symTable.errorType);
                 return;
             }
             throw new IllegalStateException("built-in 'lang.value:Cloneable' type not found");
@@ -1174,7 +1178,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner, arrayTypeNode.pos, SOURCE);
             BArrayType arrType;
             if (arrayTypeNode.sizes.size() == 0) {
-                arrType = new BArrayType(resultType, arrayTypeSymbol);
+                arrType = new BArrayType(symTable.typeEnv(), resultType, arrayTypeSymbol);
             } else {
                 BLangExpression size = arrayTypeNode.sizes.get(i);
                 if (size.getKind() == NodeKind.LITERAL || size.getKind() == NodeKind.NUMERIC_LITERAL) {
@@ -1187,7 +1191,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     } else {
                         arrayState = BArrayState.CLOSED;
                     }
-                    arrType = new BArrayType(resultType, arrayTypeSymbol, sizeIndicator, arrayState);
+                    arrType =
+                            new BArrayType(symTable.typeEnv(), resultType, arrayTypeSymbol, sizeIndicator, arrayState);
                 } else {
                     if (size.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
                         dlog.error(size.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.intType,
@@ -1237,7 +1242,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     } else {
                         length = (int) lengthCheck;
                     }
-                    arrType = new BArrayType(resultType, arrayTypeSymbol, length, BArrayState.CLOSED);
+                    arrType =
+                            new BArrayType(symTable.typeEnv(), resultType, arrayTypeSymbol, length, BArrayState.CLOSED);
                 }
             }
             arrayTypeSymbol.type = arrType;
@@ -1267,7 +1273,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
                 data.env.scope.owner, unionTypeNode.pos, SOURCE);
 
-        BUnionType unionType = BUnionType.create(unionTypeSymbol, memberTypes);
+        BUnionType unionType = BUnionType.create(symTable.typeEnv(), unionTypeSymbol, memberTypes);
         unionTypeSymbol.type = unionType;
 
         markParameterizedType(unionType, memberTypes);
@@ -1916,7 +1922,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     private BSymbol createShiftOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
         if (lhsType.isNullable() || rhsType.isNullable()) {
-            BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
+            BType intOptional = BUnionType.create(symTable.typeEnv(), null, symTable.intType, symTable.nilType);
             return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
         }
         return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
@@ -1964,7 +1970,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
             BType returnType = compatibleType1.tag < compatibleType2.tag ? compatibleType2 : compatibleType1;
             if (lhsType.isNullable() || rhsType.isNullable()) {
-                returnType = BUnionType.create(null, returnType, symTable.nilType);
+                returnType = BUnionType.create(symTable.typeEnv(), null, returnType, symTable.nilType);
             }
 
             return createBinaryOperator(opKind, lhsType, rhsType, returnType);
@@ -2008,7 +2014,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
         if (type.isNullable()) {
             BType compatibleType = types.findCompatibleType(types.getSafeType(type, true, false));
-            return createUnaryOperator(opKind, type, BUnionType.create(null, compatibleType, symTable.nilType));
+            return createUnaryOperator(opKind, type,
+                    BUnionType.create(symTable.typeEnv(), null, compatibleType, symTable.nilType));
         }
         return createUnaryOperator(opKind, type, types.findCompatibleType(type));
     }
@@ -2047,14 +2054,16 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     }
 
                     if (referredLhsType.isNullable() || referredRhsType.isNullable()) {
-                        BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
+                        BType intOptional =
+                                BUnionType.create(symTable.typeEnv(), null, symTable.intType, symTable.nilType);
                         return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
                     }
                     return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
                 case BITWISE_OR:
                 case BITWISE_XOR:
                     if (referredLhsType.isNullable() || referredRhsType.isNullable()) {
-                        BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);
+                        BType intOptional =
+                                BUnionType.create(symTable.typeEnv(), null, symTable.intType, symTable.nilType);
                         return createBinaryOperator(opKind, lhsType, rhsType, intOptional);
                     }
                     return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);

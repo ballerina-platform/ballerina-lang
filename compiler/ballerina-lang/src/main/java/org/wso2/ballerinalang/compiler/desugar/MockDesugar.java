@@ -383,7 +383,7 @@ public class MockDesugar {
     // This function synthesizes the Ballerina equivalent of : `= [(class1), (class2)]`
     private BLangListConstructorExpr generateClassListConstructorExpr() {
         List<BLangCompilationUnit> compUnitList = this.bLangPackage.getTestablePkg().getCompilationUnits();
-        BArrayType bArrayType = new BArrayType(symTable.stringType, null, -1, BArrayState.OPEN);
+        BArrayType bArrayType = new BArrayType(symTable.typeEnv(), symTable.stringType, null, -1, BArrayState.OPEN);
 
         List<BLangCompilationUnit> modifiedcompUnitList = new ArrayList<>();
         for (BLangCompilationUnit compUnit : compUnitList) {

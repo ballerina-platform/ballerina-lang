@@ -113,7 +113,8 @@ public class InitMethodGen {
 
     public InitMethodGen(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
-        this.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
+        this.errorOrNilType =
+                BUnionType.create(symbolTable.typeEnv(), null, symbolTable.errorType, symbolTable.nilType);
     }
 
     /**

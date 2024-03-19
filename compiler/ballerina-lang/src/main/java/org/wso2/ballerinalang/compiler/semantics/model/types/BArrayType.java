@@ -17,6 +17,9 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Env;
+import io.ballerina.types.SemType;
+import io.ballerina.types.definition.ListDefinition;
 import org.ballerinalang.model.types.ArrayType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -26,40 +29,72 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.List;
+
 /**
  * @since 0.94
  */
 public class BArrayType extends BType implements ArrayType {
+
+    private static final int NO_FIXED_SIZE = -1;
     public BType eType;
 
-    public int size = -1;
+    public int size;
+    private final SemType semType;
 
     public BArrayState state = BArrayState.OPEN;
 
     public BArrayType mutableType;
+    public final Env env;
 
-    public BArrayType(BType elementType) {
+    public BArrayType(Env env, BType elementType) {
         super(TypeTags.ARRAY, null);
         this.eType = elementType;
+        this.size = NO_FIXED_SIZE;
+        this.env = env;
+        this.semType = resolveSemType(env, elementType, NO_FIXED_SIZE);
     }
 
-    public BArrayType(BType elementType, BTypeSymbol tsymbol) {
+    public BArrayType(Env env, BType elementType, BTypeSymbol tsymbol) {
         super(TypeTags.ARRAY, tsymbol);
         this.eType = elementType;
+        this.size = NO_FIXED_SIZE;
+        this.env = env;
+        this.semType = resolveSemType(env, elementType, NO_FIXED_SIZE);
     }
 
-    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state) {
+    public BArrayType(Env env, BType elementType, BTypeSymbol tsymbol, int size, BArrayState state) {
         super(TypeTags.ARRAY, tsymbol);
         this.eType = elementType;
         this.size = size;
         this.state = state;
+        this.env = env;
+        this.semType = resolveSemType(env, elementType, size);
     }
 
-    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state, long flags) {
+    public BArrayType(Env env, BType elementType, BTypeSymbol tsymbol, int size, BArrayState state, long flags) {
         super(TypeTags.ARRAY, tsymbol, flags);
         this.eType = elementType;
         this.size = size;
         this.state = state;
+        this.env = env;
+        this.semType = resolveSemType(env, elementType, size);
+    }
+
+    private static SemType resolveSemType(Env env, BType elementType, int size) {
+        if (elementType == null) {
+            return null;
+        }
+        ListDefinition ld = new ListDefinition();
+        SemType elementTypeSemType = elementType.semType();
+        if (elementTypeSemType == null) {
+            return null;
+        }
+        if (size != NO_FIXED_SIZE) {
+            return ld.define(env, List.of(elementTypeSemType), size);
+        } else {
+            return ld.define(env, elementTypeSemType);
+        }
     }
 
     @Override

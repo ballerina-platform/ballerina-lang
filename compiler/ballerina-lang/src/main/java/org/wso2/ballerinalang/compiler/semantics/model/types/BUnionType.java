@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.types.Core;
+import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
@@ -68,23 +69,25 @@ public class BUnionType extends BType implements UnionType {
     private static final String CLONEABLE_TYPE = "CloneableType";
     private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE);
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
+    public final Env env;
 
-    public BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
-        this(tsymbol, memberTypes, memberTypes, nullable, readonly, false);
+    public BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable,
+                      boolean readonly) {
+        this(env, tsymbol, memberTypes, memberTypes, nullable, readonly, false);
     }
 
-    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> originalMemberTypes, LinkedHashSet<BType> memberTypes,
-                       boolean nullable, boolean readonly) {
-        this(tsymbol, originalMemberTypes, memberTypes, nullable, readonly, false);
+    private BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> originalMemberTypes,
+                       LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
+        this(env, tsymbol, originalMemberTypes, memberTypes, nullable, readonly, false);
     }
 
-    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly,
-                       boolean isCyclic) {
-        this(tsymbol, null, memberTypes, nullable, readonly, isCyclic);
+    private BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable,
+                       boolean readonly, boolean isCyclic) {
+        this(env, tsymbol, null, memberTypes, nullable, readonly, isCyclic);
     }
 
-    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> originalMemberTypes, LinkedHashSet<BType> memberTypes,
-                       boolean nullable, boolean readonly, boolean isCyclic) {
+    private BUnionType(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> originalMemberTypes,
+                       LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly, boolean isCyclic) {
         super(TypeTags.UNION, tsymbol);
 
         if (readonly) {
@@ -98,6 +101,7 @@ public class BUnionType extends BType implements UnionType {
         this.originalMemberTypes = originalMemberTypes;
         this.memberTypes = memberTypes;
         this.isCyclic = isCyclic;
+        this.env = env;
         populateMemberSemTypesAndNonSemTypes();
     }
 
@@ -151,31 +155,33 @@ public class BUnionType extends BType implements UnionType {
     /**
      * Creates an empty union for cyclic union types.
      *
+     * @param env     The environment to be used to create the union type.
      * @param tsymbol Type symbol for the union.
      * @param types   The types to be used to define the union.
      * @param isCyclic The cyclic indicator.
      * @return The created union type.
      */
-    public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types, boolean isCyclic) {
+    public static BUnionType create(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> types, boolean isCyclic) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.size());
         boolean isImmutable = true;
         boolean hasNilableType = false;
-        return new BUnionType(tsymbol, memberTypes, hasNilableType, isImmutable, isCyclic);
+        return new BUnionType(env, tsymbol, memberTypes, hasNilableType, isImmutable, isCyclic);
     }
 
     /**
      * Creates a union type using the types specified in the `types` set. The created union will not have union types in
      * its member types set. If the set contains the nil type, calling isNullable() will return true.
      *
+     * @param env     The environment to be used to create the union type.
      * @param tsymbol Type symbol for the union.
      * @param types   The types to be used to define the union.
      * @return The created union type.
      */
-    public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
+    public static BUnionType create(Env env, BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.size());
 
         if (types.isEmpty()) {
-            return new BUnionType(tsymbol, memberTypes, false, true);
+            return new BUnionType(env, tsymbol, memberTypes, false, true);
         }
 
         boolean isImmutable = true;
@@ -190,7 +196,7 @@ public class BUnionType extends BType implements UnionType {
         }
         if (memberTypes.isEmpty()) {
             memberTypes.add(BType.createNeverType());
-            return new BUnionType(tsymbol, memberTypes, false, isImmutable);
+            return new BUnionType(env, tsymbol, memberTypes, false, isImmutable);
         }
 
         boolean hasNilableType = false;
@@ -213,25 +219,26 @@ public class BUnionType extends BType implements UnionType {
 
         for (BType memberType : memberTypes) {
             if (memberType.isNullable()) {
-                return new BUnionType(tsymbol, types, memberTypes, true, isImmutable);
+                return new BUnionType(env, tsymbol, types, memberTypes, true, isImmutable);
             }
         }
 
-        return new BUnionType(tsymbol, types, memberTypes, false, isImmutable);
+        return new BUnionType(env, tsymbol, types, memberTypes, false, isImmutable);
     }
 
     /**
      * Creates a union type using the provided types. If the set contains the nil type, calling isNullable() will return
      * true.
      *
+     * @param env     The environment to be used to create the union type.
      * @param tsymbol Type symbol for the union.
      * @param types   The types to be used to define the union.
      * @return The created union type.
      */
-    public static BUnionType create(BTypeSymbol tsymbol, BType... types) {
+    public static BUnionType create(Env env, BTypeSymbol tsymbol, BType... types) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.length);
         memberTypes.addAll(Arrays.asList(types));
-        return create(tsymbol, memberTypes);
+        return create(env, tsymbol, memberTypes);
     }
 
     /**
@@ -347,7 +354,7 @@ public class BUnionType extends BType implements UnionType {
             if (member instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) member;
                 if (getImpliedType(arrayType.eType) == unionType) {
-                    BArrayType newArrayType = new BArrayType(this, arrayType.tsymbol, arrayType.size,
+                    BArrayType newArrayType = new BArrayType(env, this, arrayType.tsymbol, arrayType.size,
                             arrayType.state, arrayType.flags);
                     this.add(newArrayType);
                     continue;

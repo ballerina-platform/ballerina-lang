@@ -383,7 +383,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BSymbol infoRecordSymbol = symResolver.
                 lookupSymbolInMainSpace(symTable.pkgEnvMap.get(symTable.langTransactionModuleSymbol),
                 TRANSACTION_INFO_RECORD);
-        BType infoRecordType = BUnionType.create(null, infoRecordSymbol.type, symTable.nilType);
+        BType infoRecordType = BUnionType.create(symTable.typeEnv(), null, infoRecordSymbol.type, symTable.nilType);
         BVarSymbol prevAttemptVarSymbol = new BVarSymbol(0, new Name("prevAttempt" + uniqueId),
                 env.scope.owner.pkgID, infoRecordType, env.scope.owner, pos, VIRTUAL);
         prevAttemptVarSymbol.closure = true;
@@ -563,7 +563,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 createInvocationExprForMethod(pos, commitTransactionInvokableSymbol, args, symResolver);
         commitTransactionInvocation.argExprs = args;
 
-        BType commitReturnType = BUnionType.create(null, symTable.stringType, symTable.errorType);
+        BType commitReturnType = BUnionType.create(symTable.typeEnv(), null, symTable.stringType, symTable.errorType);
 
         BVarSymbol commitTransactionVarSymbol = new BVarSymbol(0, new Name("commitResult"),
                 env.scope.owner.pkgID, commitReturnType, env.scope.owner, pos, VIRTUAL);

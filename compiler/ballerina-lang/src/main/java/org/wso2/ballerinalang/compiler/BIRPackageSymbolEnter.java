@@ -1473,7 +1473,8 @@ public class BIRPackageSymbolEnter {
                                                                            Names.EMPTY, env.pkgSymbol.pkgID, null,
                                                                            env.pkgSymbol.owner, symTable.builtinPos,
                                                                            COMPILED_SOURCE);
-                    BArrayType bArrayType = new BArrayType(null, arrayTypeSymbol, size, BArrayState.valueOf(state),
+                    BArrayType bArrayType =
+                            new BArrayType(symTable.typeEnv(), null, arrayTypeSymbol, size, BArrayState.valueOf(state),
                             flags);
                     bArrayType.eType = readTypeFromCp();
                     return bArrayType;
@@ -1493,7 +1494,8 @@ public class BIRPackageSymbolEnter {
                             null, env.pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
 
                     int unionMemberCount = inputStream.readInt();
-                    BUnionType unionType = BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(unionMemberCount));
+                    BUnionType unionType =
+                            BUnionType.create(types.typeEnv(), unionTypeSymbol, new LinkedHashSet<>(unionMemberCount));
                     unionType.name = unionName;
 
                     addShapeCP(unionType, cpI);

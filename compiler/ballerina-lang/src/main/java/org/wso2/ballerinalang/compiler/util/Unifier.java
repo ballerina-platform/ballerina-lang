@@ -197,7 +197,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BArrayType newArrayType = new BArrayType(newElemType, null, originalType.size, originalType.state);
+        BArrayType newArrayType =
+                new BArrayType(originalType.env, newElemType, null, originalType.size, originalType.state);
         setFlags(newArrayType, originalType.flags);
         return newArrayType;
     }
@@ -466,7 +467,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return originalType;
         }
 
-        BUnionType type = BUnionType.create(null, newMemberTypes);
+        BUnionType type = BUnionType.create(originalType.env, null, newMemberTypes);
         setFlags(type, originalType.flags);
         return type;
     }
@@ -1184,7 +1185,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return expectedTypesSet.iterator().next();
         }
 
-        return BUnionType.create(null, expectedTypesSet);
+        return BUnionType.create(symbolTable.typeEnv(), null, expectedTypesSet);
     }
 
     private boolean isSameTypeOrError(BType newType, BType originalType) {

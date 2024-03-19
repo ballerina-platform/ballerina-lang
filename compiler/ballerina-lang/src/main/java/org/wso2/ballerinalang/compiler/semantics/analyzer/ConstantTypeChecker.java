@@ -1803,7 +1803,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, broadTypes.iterator().next());
                 }
 
-                BUnionType unionType = new BUnionType(null, new LinkedHashSet<>(broadTypes), false, false);
+                BUnionType unionType =
+                        new BUnionType(types.typeEnv(), null, new LinkedHashSet<>(broadTypes), false, false);
                 return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, unionType);
             case TypeTags.UNION:
                 BUnionType expectedUnionType = (BUnionType) expectedType;
@@ -2030,7 +2031,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             lhsType.remove(memberTypeLhs);
         }
         if (memberTypes.size() != 1) {
-            data.resultType = BUnionType.create(null, memberTypes);
+            data.resultType = BUnionType.create(symTable.typeEnv(), null, memberTypes);
         } else {
             data.resultType = memberTypes.iterator().next();
         }
@@ -2066,7 +2067,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             lhsType.remove(memberTypeLhs);
         }
         if (memberTypes.size() != 1) {
-            data.resultType = BUnionType.create(null, memberTypes);
+            data.resultType = BUnionType.create(symTable.typeEnv(), null, memberTypes);
         } else {
             data.resultType = memberTypes.iterator().next();
         }

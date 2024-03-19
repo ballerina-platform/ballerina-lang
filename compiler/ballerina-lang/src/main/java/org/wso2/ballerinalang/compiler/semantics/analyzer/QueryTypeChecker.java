@@ -195,7 +195,7 @@ public class QueryTypeChecker extends TypeChecker {
             List<BType> collectionTypes = getCollectionTypes(clauses);
             BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.DEFAULT, data);
             if (completionType != null) {
-                queryType = BUnionType.create(null, queryType, completionType);
+                queryType = BUnionType.create(symTable.typeEnv(), null, queryType, completionType);
             }
             queryExpr.setDeterminedType(queryType);
             actualType = types.checkType(finalClauseExpr.pos, queryType, data.expType,
@@ -320,7 +320,8 @@ public class QueryTypeChecker extends TypeChecker {
             }
 
             if (completionType != null && completionType.tag != TypeTags.NIL) {
-                return BUnionType.create(null, actualType, types.getSafeType(completionType, true, false));
+                return BUnionType.create(symTable.typeEnv(), null, actualType,
+                        types.getSafeType(completionType, true, false));
             } else {
                 return actualType;
             }
@@ -349,7 +350,7 @@ public class QueryTypeChecker extends TypeChecker {
                         errorTypes.add(elementType);
                         continue;
                     }
-                    BType queryResultType = new BArrayType(selectType);
+                    BType queryResultType = new BArrayType(symTable.typeEnv(), selectType);
                     resolvedType = getResolvedType(queryResultType, type, isReadonly, env);
                     break;
                 case TypeTags.TABLE:
@@ -472,7 +473,7 @@ public class QueryTypeChecker extends TypeChecker {
                 BType actualQueryType = silentTypeCheckExpr(queryExpr, symTable.noType, data);
                 if (actualQueryType != symTable.semanticError) {
                     types.checkType(queryExpr, actualQueryType,
-                            BUnionType.create(null, new LinkedHashSet<>(expTypes)));
+                            BUnionType.create(symTable.typeEnv(), null, new LinkedHashSet<>(expTypes)));
                     errorTypes.forEach(expType -> {
                         if (expType.tag == TypeTags.UNION) {
                             checkExpr(nodeCloner.cloneNode(selectExp), env, expType, data);
@@ -549,7 +550,7 @@ public class QueryTypeChecker extends TypeChecker {
                 }
                 memberTypes.add(mapType);
             }
-            return new BUnionType(null, memberTypes, false, false);
+            return new BUnionType(types.typeEnv(), null, memberTypes, false, false);
         } else {
             return getQueryMapConstraintType(referredType, pos);
         }
@@ -632,7 +633,7 @@ public class QueryTypeChecker extends TypeChecker {
             if (completionTypes.size() == 1) {
                 completionType = completionTypes.iterator().next();
             } else {
-                completionType = BUnionType.create(null, completionTypes.toArray(new BType[0]));
+                completionType = BUnionType.create(symTable.typeEnv(), null, completionTypes.toArray(new BType[0]));
             }
         }
         return completionType;
@@ -682,7 +683,7 @@ public class QueryTypeChecker extends TypeChecker {
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
             case TypeTags.OBJECT:
-                return new BArrayType(constraintType);
+                return new BArrayType(symTable.typeEnv(), constraintType);
             default:
                 return symTable.semanticError;
         }
@@ -890,7 +891,7 @@ public class QueryTypeChecker extends TypeChecker {
             if (data.queryData.completeEarlyErrorList != null) {
                 BType possibleErrorType = type.tag == TypeTags.UNION ?
                         types.getErrorType((BUnionType) type) :
-                        types.getErrorType(BUnionType.create(null, type));
+                        types.getErrorType(BUnionType.create(symTable.typeEnv(), null, type));
                 data.queryData.completeEarlyErrorList.add(possibleErrorType);
             }
         }
@@ -1078,7 +1079,7 @@ public class QueryTypeChecker extends TypeChecker {
         BLangInvocation invocation = collectContextInvocation.invocation;
         data.resultType = checkExpr(invocation, data.env, data);
         if (isNilReturnInvocationInCollectClause(invocation, data)) {
-            data.resultType = BUnionType.create(null, data.resultType, symTable.nilType);
+            data.resultType = BUnionType.create(symTable.typeEnv(), null, data.resultType, symTable.nilType);
         }
         collectContextInvocation.setBType(data.resultType);
     }
