@@ -85,6 +85,7 @@ isolated function testInvalidNonIsolatedFuncArgAsMappingsInFixedLengthArrayRestA
     };
     _ = marks.filter(...rec);
     _ = marks.filter(...<Rec>{...rec});
+    _ = marks.filter(...(<Rec>{...rec}));
     _ = marks.filter(...<Rec>{func});
     _ = marks.filter(...<Rec>{func: func});
     _ = marks.filter(...<Rec>{...<Rec>{...rec}});

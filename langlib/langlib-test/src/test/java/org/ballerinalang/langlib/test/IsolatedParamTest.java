@@ -83,6 +83,7 @@ public class IsolatedParamTest {
         validateError(result, index++, NON_ISOLATED_ARG_FOR_ISOLATED_PARAM_ERROR, 88, 22);
         validateError(result, index++, NON_ISOLATED_ARG_FOR_ISOLATED_PARAM_ERROR, 89, 22);
         validateError(result, index++, NON_ISOLATED_ARG_FOR_ISOLATED_PARAM_ERROR, 90, 22);
+        validateError(result, index++, NON_ISOLATED_ARG_FOR_ISOLATED_PARAM_ERROR, 91, 22);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
