@@ -250,7 +250,7 @@ public class PackCommand implements BLauncherCmd {
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 .addTask(new RunBuildToolsTask(outStream), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream, true, isPackageModified, buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, true, false, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateBalaTask(outStream))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
