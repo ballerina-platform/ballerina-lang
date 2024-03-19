@@ -95,7 +95,7 @@ public class ToolUtils {
     }
 
     /**
-     * Selects the class matching the name from the ServiceLoader.
+     * Select the class matching the name from the ServiceLoader.
      *
      * @param commandName name of the tool (tool type)
      * @param buildRunners service loader of CodeGeneratorTool interface
@@ -170,9 +170,7 @@ public class ToolUtils {
         List<SemanticVersion> availableVersions = new ArrayList<>();
         List<Path> versions = new ArrayList<>();
         try {
-            Path userHomeDirPath = RepoUtils.createAndGetHomeReposPath();
-            Path centralBalaDirPath = userHomeDirPath.resolve(
-                    Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
+            Path centralBalaDirPath = getCentralBalaDirPath();
             Path balaPackagePath = centralBalaDirPath.resolve(org.value()).resolve(name.value());
             if (Files.exists(balaPackagePath)) {
                 try (Stream<Path> versionFiles = Files.list(balaPackagePath)) {
@@ -182,7 +180,7 @@ public class ToolUtils {
         } catch (IOException e) {
             throw new ProjectException("Error while accessing Distribution cache: " + e.getMessage());
         }
-        versions.removeAll(getIncompatibleVersion(versions, org, name));
+        versions.removeAll(getIncompatibleVersions(versions, org, name));
         versions.stream().map(path -> Optional.ofNullable(path)
                 .map(Path::getFileName)
                 .map(Path::toString)
@@ -236,7 +234,18 @@ public class ToolUtils {
         return status;
     }
 
-    private static List<Path> getIncompatibleVersion(List<Path> versions, PackageOrg org, PackageName name) {
+    /**
+     * Get the path to the central bala directory.
+     *
+     * @return path to the central bala directory
+     */
+    public static Path getCentralBalaDirPath() {
+        Path userHomeDirPath = RepoUtils.createAndGetHomeReposPath();
+        return userHomeDirPath.resolve(
+                Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
+    }
+
+    private static List<Path> getIncompatibleVersions(List<Path> versions, PackageOrg org, PackageName name) {
         List<Path> incompatibleVersions = new ArrayList<>();
         if (!versions.isEmpty()) {
             for (Path ver : versions) {
@@ -295,9 +304,7 @@ public class ToolUtils {
     }
 
     private static Path getPackagePath(String org, String name, String version) {
-        Path userHomeDirPath = RepoUtils.createAndGetHomeReposPath();
-        Path centralBalaDirPath = userHomeDirPath.resolve(
-                Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
+        Path centralBalaDirPath = getCentralBalaDirPath();
         Path balaPath = centralBalaDirPath.resolve(
                 ProjectUtils.getRelativeBalaPath(org, name, version, null));
         if (!Files.exists(balaPath)) {

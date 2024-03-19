@@ -35,7 +35,6 @@ import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
-import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ToolUtils;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.validator.schema.Schema;
@@ -71,9 +70,6 @@ import static io.ballerina.cli.launcher.util.BalToolsUtil.findJarFiles;
 import static io.ballerina.projects.JBallerinaBalaWriter.LIBS;
 import static io.ballerina.projects.JBallerinaBalaWriter.TOOL;
 import static io.ballerina.projects.PackageManifest.Tool;
-import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
-import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
-import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_PREFIX;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -276,9 +272,7 @@ public class RunBuildToolsTask implements Task {
     }
 
     private boolean isToolLocallyAvailable(String org, String name, String version) {
-        Path toolCacheDir = RepoUtils.createAndGetHomeReposPath()
-                .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(org).resolve(name);
+        Path toolCacheDir = ToolUtils.getCentralBalaDirPath().resolve(org).resolve(name);
         if (toolCacheDir.toFile().isDirectory()) {
             try (Stream<Path> versions = Files.list(toolCacheDir)) {
                 return versions.anyMatch(path ->
@@ -295,9 +289,7 @@ public class RunBuildToolsTask implements Task {
         String supportedPlatform = Arrays.stream(JvmTarget.values())
                 .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
-        Path balaCacheDirPath = RepoUtils.createAndGetHomeReposPath()
-                .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME);
+        Path balaCacheDirPath = ToolUtils.getCentralBalaDirPath();
         Settings settings;
         try {
             settings = RepoUtils.readSettings();
@@ -351,9 +343,7 @@ public class RunBuildToolsTask implements Task {
     }
 
     private static List<File> getToolCommandJarAndDependencyJars(List<BuildTool> resolvedTools) {
-        Path userHomeDirPath = RepoUtils.createAndGetHomeReposPath();
-        Path centralBalaDirPath = userHomeDirPath.resolve(
-                Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
+        Path centralBalaDirPath = ToolUtils.getCentralBalaDirPath();
         return resolvedTools.stream()
                 .map(tool -> findJarFiles(CommandUtil.getPlatformSpecificBalaPath(
                                 tool.org().value(),
