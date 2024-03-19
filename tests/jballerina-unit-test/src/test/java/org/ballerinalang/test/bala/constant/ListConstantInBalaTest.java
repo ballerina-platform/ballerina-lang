@@ -42,13 +42,13 @@ public class ListConstantInBalaTest {
         compileResult = BCompileUtil.compile("test-src/bala/test_bala/constant/list_literal_constant.bal");
     }
 
-    @Test(dataProvider = "listAccessTestDataProvider")
+    @Test(dataProvider = "constantListAccessTestDataProvider")
     public void testConstantListAccess(String testCase) {
         BRunUtil.invoke(compileResult, testCase);
     }
 
-    @DataProvider(name = "listAccessTestDataProvider")
-    public Object[] listAccessTestDataProvider() {
+    @DataProvider(name = "constantListAccessTestDataProvider")
+    public Object[] constantListAccessTestDataProvider() {
         return new Object[]{
                 "testSimpleArrayAccess",
                 "testSimpleTupleAccess",
@@ -61,7 +61,7 @@ public class ListConstantInBalaTest {
     }
 
     @Test
-    public void testNegativeConstantListAccess() {
+    public void testConstantListAccessNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/bala/test_bala/constant/list_constant_negative.bal");
         int i = 0;
