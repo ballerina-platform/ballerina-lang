@@ -208,15 +208,15 @@ public class JBallerinaBackend extends CompilerBackend {
             return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), generatedArtifact);
         }
 
+        List<Diagnostic> emitResultDiagnostics = new ArrayList<>();
         generatedArtifact = switch (outputType) {
-            case GRAAL_EXEC -> emitGraalExecutable(filePath);
-            case EXEC -> emitExecutable(filePath);
+            case GRAAL_EXEC -> emitGraalExecutable(filePath, emitResultDiagnostics);
+            case EXEC -> emitExecutable(filePath, emitResultDiagnostics);
             case BALA -> emitBala(filePath);
             default -> throw new RuntimeException("Unexpected output type: " + outputType);
         };
 
         ArrayList<Diagnostic> allDiagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
-        List<Diagnostic> emitResultDiagnostics = new ArrayList<>();
         // Add lifecycle plugin diagnostics.
         List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion(filePath);
         if (!pluginDiagnostics.isEmpty()) {
@@ -541,10 +541,11 @@ public class JBallerinaBackend extends CompilerBackend {
                 scope);
     }
 
-    private Path emitExecutable(Path executableFilePath) {
+    private Path emitExecutable(Path executableFilePath, List<Diagnostic> emitResultDiagnostics) {
         Manifest manifest = createManifest();
         Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
-
+        // Add warning when provided platform dependencies are found
+        addProvidedDependencyWarning(emitResultDiagnostics);
         try {
             assembleExecutableJar(executableFilePath, manifest, jarLibraries);
         } catch (IOException e) {
@@ -554,9 +555,9 @@ public class JBallerinaBackend extends CompilerBackend {
         return executableFilePath;
     }
 
-    private Path emitGraalExecutable(Path executableFilePath) {
+    private Path emitGraalExecutable(Path executableFilePath, List<Diagnostic> emitResultDiagnostics) {
         // Run create executable
-        emitExecutable(executableFilePath);
+        emitExecutable(executableFilePath, emitResultDiagnostics);
 
         String nativeImageName;
         String[] command;
@@ -822,5 +823,17 @@ public class JBallerinaBackend extends CompilerBackend {
             }
         }
         return null;
+    }
+
+    private void addProvidedDependencyWarning(List<Diagnostic> emitResultDiagnostics) {
+        if (!jarResolver.providedPlatformLibs().isEmpty()) {
+            DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                    ProjectDiagnosticErrorCode.PROVIDED_PLATFORM_JAR_IN_EXECUTABLE.diagnosticId(),
+                    "Detected platform dependencies with provided scope in the executable. " +
+                            "Please avoid redistributing the created executable\n",
+                    DiagnosticSeverity.WARNING);
+            emitResultDiagnostics.add(new PackageDiagnostic(diagnosticInfo,
+                    this.packageContext().descriptor().name().toString()));
+        }
     }
 }
