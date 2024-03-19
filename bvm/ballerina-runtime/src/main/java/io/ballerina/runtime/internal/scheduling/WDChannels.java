@@ -48,7 +48,6 @@ public class WDChannels {
     }
 
     //TODO try to generalize this to a normal data channel, in that case we won't need these classes.
-
     public synchronized WorkerDataChannel getWorkerDataChannel(String name) {
         if (this.wDChannels == null) {
             this.wDChannels = new HashMap<>();
