@@ -77,6 +77,30 @@
       "sortText": "BL",
       "insertText": "ClientError",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E1",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "BL",
+      "insertText": "E1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E2",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "BL",
+      "insertText": "E2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E3",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "BL",
+      "insertText": "E3",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

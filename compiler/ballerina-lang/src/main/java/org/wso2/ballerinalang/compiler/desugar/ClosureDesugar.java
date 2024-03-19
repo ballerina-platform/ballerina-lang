@@ -746,8 +746,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
      * @return assignment statement created
      */
     private BLangAssignment createAssignmentToClosureMap(BLangSimpleVariableDef varDefNode) {
-        BVarSymbol mapSymbol = createMapSymbolIfAbsent(env.node, blockClosureMapCount);
-
+        int absoluteLevel = findResolvedLevel(env, varDefNode.var.symbol);
+        BVarSymbol mapSymbol = findClosureMapSymbol(absoluteLevel);
         // Add the variable to the created map.
         BLangIndexBasedAccess accessExpr =
                 ASTBuilderUtil.createIndexBasesAccessExpr(varDefNode.pos, varDefNode.getBType(), mapSymbol,
@@ -758,6 +758,17 @@ public class ClosureDesugar extends BLangNodeVisitor {
         accessExpr.isLValue = true;
         // Written to: 'map["x"] = 8'.
         return ASTBuilderUtil.createAssignmentStmt(varDefNode.pos, accessExpr, varDefNode.var.expr);
+    }
+
+    private BVarSymbol findClosureMapSymbol(int absoluteLevel) {
+        SymbolEnv symbolEnv = env;
+        while (symbolEnv.node.getKind() != NodeKind.PACKAGE) {
+            if (symbolEnv.envCount == absoluteLevel) {
+                return createMapSymbolIfAbsent(symbolEnv.node, symbolEnv.envCount);
+            }
+            symbolEnv = symbolEnv.enclEnv;
+        }
+        throw new IllegalStateException("Failed to find the closure symbol defined scope");
     }
 
     private BVarSymbol createMapSymbolIfAbsent(BLangNode node, int closureMapCount) {
@@ -1528,26 +1539,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // selfRelativeCount >= selfAbsoluteLevel - absoluteLevel ==> resolved within the same function.
         if (selfRelativeCount >= selfAbsoluteLevel - absoluteLevel) {
-
-            // Go up within the block node
-            SymbolEnv symbolEnv = env;
-            NodeKind nodeKind = symbolEnv.node.getKind();
-            while (symbolEnv != null && nodeKind != NodeKind.PACKAGE) {
-                // Check if the node is a sequence statement
-                if (symbolEnv.envCount == absoluteLevel) {
-                    BVarSymbol mapSym = createMapSymbolIfAbsent(symbolEnv.node, symbolEnv.envCount);
-
-                    // `mapSym` will not be null for block function bodies, block stmts, functions and classes. And we
-                    // only need to update closure vars for those nodes.
-                    if (mapSym != null) {
-                        updateClosureVars(localVarRef, mapSym);
-                        return;
-                    }
-                }
-
-                symbolEnv = symbolEnv.enclEnv;
-                nodeKind = symbolEnv.node.getKind();
-            }
+            BVarSymbol mapSym = findClosureMapSymbol(absoluteLevel);
+            updateClosureVars(localVarRef, mapSym);
         } else {
             // It is resolved from a parameter map.
             // Add parameter map symbol if one is not added.
@@ -1572,10 +1565,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
                         PARAMETER_MAP_NAME + absoluteLevel, env));
                 updateClosureVars(localVarRef, ((BLangFunction) env.enclInvokable).paramClosureMap.get(absoluteLevel));
             }
-        }
 
-        // 3) Add the resolved level of the closure variable to the preceding function maps.
-        updatePrecedingFunc(env, absoluteLevel);
+            // 3) Add the resolved level of the closure variable to the preceding function maps.
+            updatePrecedingFunc(env, absoluteLevel);
+        }
     }
 
     @Override
