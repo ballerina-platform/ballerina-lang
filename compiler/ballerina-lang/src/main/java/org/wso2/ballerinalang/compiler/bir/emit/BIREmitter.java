@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitBasicBlockRef;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitFlags;
@@ -101,7 +102,7 @@ public class BIREmitter {
         return modStr;
     }
 
-    private static String emitImports(List<BIRNode.BIRImportModule> impMods) {
+    private static String emitImports(Set<BIRNode.BIRImportModule> impMods) {
 
         StringBuilder impStr = new StringBuilder();
         for (BIRNode.BIRImportModule mod : impMods) {
