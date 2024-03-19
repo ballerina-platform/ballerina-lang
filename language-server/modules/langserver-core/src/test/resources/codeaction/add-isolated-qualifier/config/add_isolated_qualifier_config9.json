@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 32,
+    "character": 29
+  },
+  "source": "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source2.bal",
+  "expected": [
+    {
+      "title": "Add isolated qualifier to 'init'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 1,
+              "character": 4
+            }
+          },
+          "newText": "isolated "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
