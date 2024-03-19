@@ -565,3 +565,88 @@ function testKeyConstraint() {
     var ids = from var {id} in keylessTable select {id};
     _ = ids.remove(0); // error
 }
+
+string strValue = "abc";
+type Row6 record {
+    readonly string k;
+    int value;
+};
+
+table<Row6> key(k) tbl5 = table [
+    {k: string `A${idValue}C${strValue}`, value: 17}
+];
+
+type Row7 record {
+    readonly int[] k;
+    int value;
+};
+int[] intArr = [12, 12];
+
+table<Row7> key(k) tbl7 = table [
+    {k: [12, 12, intVal], value: 5},
+    {k: [intVal, intVal], value: 17},
+    {k: [12, ...intArr], value: 17}
+];
+
+type Row8 record {
+    readonly table<Row6> key(k) k;
+    int value;
+};
+table<Row8> key(k) tbl8 = table [
+    {k: table key(k) [{k: strValue, value: 17}], value: 17}
+];
+
+type Row9 record {
+    readonly map<anydata> k;
+    int value;
+};
+Row9 mapVal = {k: {idValue, "C": [13.5, 24.3]}, value: 17};
+table<Row9> key(k) tbl9 = table [
+    {k: {"A": strValue, "B": idValue, "C": [13.5, 24.3]}, value: 17},
+    {k: {strValue, "B": "idValue", "C": [13.5, 24.3]}, value: 17},
+    {k: {[strValue]: "a", "B": "idValue", "C": [13.5, 24.3]}, value: 17},
+    {...mapVal}
+];
+
+type Row10 record {
+    readonly float k;
+    int value;
+};
+table<Row10> key(k) tbl10 = table [
+    {k: <float>idValue, value: 17}
+];
+
+int? intOrNull = 12;
+type Row11 record {
+    readonly int k;
+    int value;
+};
+table<Row11> key(k) tbl11 = table [
+    {k: +idValue, value: 17},
+    {k: idValue * 12, value: 19},
+    {k: idValue + 12, value: 11},
+    {k: idValue >> 13, value: 11},
+    {k: idValue | 13, value: 11},
+    {k: idValue & 13, value: 11},
+    {k: idValue is int ? 12 : 1, value: 11},
+    {k: idValue, value: 11},
+    {k: intOrNull ?: 1, value: 11},
+    {k: (idValue is int ? (<int> 10.5) : 20), value: 11}
+];
+
+type Row12 record {
+    readonly boolean k;
+    int value;
+};
+table<Row12> key(k) tbl12 = table [
+    {k: 5 < idValue, value: 17},
+    {k: idValue is int, value: 19},
+    {k: idValue !is int, value: 11},
+    {k: idValue == 15, value: 11},
+    {k: idValue != 15, value: 11},
+    {k: idValue === 15, value: 11},
+    {k: idValue !== 15, value: 11},
+    {k: idValue == 15 || false, value: 11},
+    {k: idValue == 15 && true, value: 11},
+    {k: !(idValue == 15 && true), value: 11}
+];

@@ -42,6 +42,8 @@ public abstract class BType implements Type {
     protected Module pkg;
     protected Class<? extends Object> valueClass;
     private int hashCode;
+    private Type cachedReferredType = null;
+    private Type cachedImpliedType = null;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -195,4 +197,19 @@ public abstract class BType implements Type {
         return 0;
     }
 
+    public void setCachedReferredType(Type type) {
+        this.cachedReferredType = type;
+    }
+
+    public Type getCachedReferredType() {
+        return this.cachedReferredType;
+    }
+
+    public void setCachedImpliedType(Type type) {
+        this.cachedImpliedType = type;
+    }
+
+    public Type getCachedImpliedType() {
+        return this.cachedImpliedType;
+    }
 }

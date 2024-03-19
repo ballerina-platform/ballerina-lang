@@ -1,0 +1,8 @@
+[plugin]
+class = "io.samjs.plugins.remove.codemodify.CodeModifyFunctionPlugin"
+
+[[dependency]]
+path = "../../compiler-plugin-jars/remove-function-code-modify-compiler-plugin-1.0.0.jar"
+
+[[dependency]]
+path = "../../compiler-plugin-jars/diagnostic-utils-lib-1.0.0.jar"

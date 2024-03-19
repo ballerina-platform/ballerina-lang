@@ -1522,26 +1522,74 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         switch(expression.getKind()) {
             case LITERAL:
             case NUMERIC_LITERAL:
-            case STRING_TEMPLATE_LITERAL:
             case XML_ELEMENT_LITERAL:
             case XML_TEXT_LITERAL:
-            case LIST_CONSTRUCTOR_EXPR:
             case TABLE_CONSTRUCTOR_EXPR:
-            case RECORD_LITERAL_EXPR:
-            case TYPE_CONVERSION_EXPR:
-            case UNARY_EXPR:
-            case BINARY_EXPR:
-            case TYPE_TEST_EXPR:
-            case TERNARY_EXPR:
             case REG_EXP_TEMPLATE_LITERAL:
                 return true;
             case SIMPLE_VARIABLE_REF:
-                return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+                BSymbol varSymbol = ((BLangSimpleVarRef) expression).symbol;
+                return varSymbol == null || (varSymbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+            case STRING_TEMPLATE_LITERAL:
+                return checkNestedConstExpr(((BLangStringTemplateLiteral) expression).exprs);
+            case TERNARY_EXPR:
+                BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) expression;
+                return isConstExpression(ternaryExpr.expr) && isConstExpression(ternaryExpr.thenExpr) &&
+                        isConstExpression(ternaryExpr.elseExpr);
+            case UNARY_EXPR:
+                return isConstExpression(((BLangUnaryExpr) expression).expr);
+            case BINARY_EXPR:
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expression;
+                return isConstExpression(binaryExpr.lhsExpr) && isConstExpression(binaryExpr.rhsExpr);
             case GROUP_EXPR:
                 return isConstExpression(((BLangGroupExpr) expression).expression);
+            case TYPE_CONVERSION_EXPR:
+                return isConstExpression(((BLangTypeConversionExpr) expression).expr);
+            case TYPE_TEST_EXPR:
+                return isConstExpression(((BLangTypeTestExpr) expression).expr);
+            case LIST_CONSTRUCTOR_EXPR:
+                return checkNestedConstExpr(((BLangListConstructorExpr) expression).exprs);
+            case LIST_CONSTRUCTOR_SPREAD_OP:
+                return isConstExpression(((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expression).expr);
+            case RECORD_LITERAL_EXPR:
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
+                List<RecordLiteralNode.RecordField> fields = recordLiteral.getFields();
+                for (RecordLiteralNode.RecordField field : fields) {
+                    switch (field.getKind()) {
+                        case RECORD_LITERAL_KEY_VALUE -> {
+                            if (!isConstExpression(((BLangRecordKeyValueField) field).valueExpr) ||
+                                    !isConstExpression(((BLangRecordKeyValueField) field).key.expr)) {
+                                return false;
+                            }
+                        }
+                        case RECORD_LITERAL_SPREAD_OP -> {
+                            if (!isConstExpression(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr)) {
+                                return false;
+                            }
+                        }
+                        case SIMPLE_VARIABLE_REF -> {
+                            if (!isConstExpression(((BLangRecordVarNameField) field))) {
+                                return false;
+                            }
+                        }
+                        default -> {
+                            // Ignore the default case
+                        }
+                    }
+                }
+                return true;
             default:
                 return false;
         }
+    }
+
+    private boolean checkNestedConstExpr(List<? extends BLangExpression> expressions) {
+        for (BLangExpression expr : expressions) {
+            if (!isConstExpression(expr)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private BLangExpression getRecordKeyValueField(BLangRecordLiteral recordLiteral,
@@ -1559,7 +1607,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
         }
-
         return null;
     }
 
@@ -5013,30 +5060,37 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return true;
     }
 
-
     public void visit(BLangTernaryExpr ternaryExpr, AnalyzerData data) {
         BType condExprType = checkExpr(ternaryExpr.expr, this.symTable.booleanType, data);
 
         SymbolEnv thenEnv = typeNarrower.evaluateTruth(ternaryExpr.expr, ternaryExpr.thenExpr, data.env);
+        BType thenActualType = silentTypeCheckExpr(ternaryExpr.thenExpr, symTable.noType, data);
         BType thenType = checkExpr(ternaryExpr.thenExpr, thenEnv, data.expType, data);
 
         SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ternaryExpr.expr, ternaryExpr.elseExpr, data.env, false);
+        BType elseActualType = silentTypeCheckExpr(ternaryExpr.elseExpr, symTable.noType, data);
         BType elseType = checkExpr(ternaryExpr.elseExpr, elseEnv, data.expType, data);
 
         if (condExprType == symTable.semanticError || thenType == symTable.semanticError ||
                 elseType == symTable.semanticError) {
             data.resultType = symTable.semanticError;
         } else if (data.expType == symTable.noType) {
-            if (types.isAssignable(elseType, thenType)) {
-                data.resultType = thenType;
-            } else if (types.isAssignable(thenType, elseType)) {
-                data.resultType = elseType;
-            } else {
-                data.resultType = BUnionType.create(null, thenType, elseType);
-            }
+            data.resultType = getConditionalExprType(thenType, elseType);
         } else {
             data.resultType = data.expType;
         }
+
+        ternaryExpr.setDeterminedType(getConditionalExprType(thenActualType, elseActualType));
+    }
+
+    private BType getConditionalExprType(BType lhsType, BType rhsType) {
+        if (types.isAssignable(rhsType, lhsType)) {
+            return lhsType;
+        }
+        if (types.isAssignable(lhsType, rhsType)) {
+            return rhsType;
+        }
+        return BUnionType.create(null, lhsType, rhsType);
     }
 
     public void visit(BLangWaitExpr waitExpr, AnalyzerData data) {
@@ -5286,24 +5340,21 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     public void visit(BLangElvisExpr elvisExpr, AnalyzerData data) {
         BType lhsType = checkExpr(elvisExpr.lhsExpr, data);
-        BType actualType = lhsType == symTable.semanticError ?
+        BType lhsActualType = lhsType == symTable.semanticError ?
                 symTable.semanticError : validateElvisExprLhsExpr(elvisExpr, lhsType);
+        BType rhsActualType = silentTypeCheckExpr(elvisExpr.rhsExpr, symTable.noType, data);
         BType rhsReturnType = checkExpr(elvisExpr.rhsExpr, data.expType, data);
-        BType lhsReturnType = types.checkType(elvisExpr.lhsExpr.pos, actualType, data.expType,
+        BType lhsReturnType = types.checkType(elvisExpr.lhsExpr.pos, lhsActualType, data.expType,
                 DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         if (rhsReturnType == symTable.semanticError || lhsReturnType == symTable.semanticError) {
             data.resultType = symTable.semanticError;
         } else if (data.expType == symTable.noType) {
-            if (types.isAssignable(rhsReturnType, lhsReturnType)) {
-                data.resultType = lhsReturnType;
-            } else if (types.isAssignable(lhsReturnType, rhsReturnType)) {
-                data.resultType = rhsReturnType;
-            } else {
-                data.resultType = BUnionType.create(null, lhsReturnType, rhsReturnType);
-            }
+            data.resultType = getConditionalExprType(lhsReturnType, rhsReturnType);
         } else {
             data.resultType = data.expType;
         }
+
+        elvisExpr.setDeterminedType(getConditionalExprType(lhsActualType, rhsActualType));
     }
 
     @Override
@@ -7618,10 +7669,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     BLangExpression spreadExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
                     checkExpr(spreadExpr, data);
 
+                    BRecordType mappingRecordType = (BRecordType) mappingType;
                     BType spreadExprType = Types.getImpliedType(spreadExpr.getBType());
                     if (spreadExprType.tag == TypeTags.MAP) {
                         return types.checkType(spreadExpr.pos, ((BMapType) spreadExprType).constraint,
-                                getAllFieldType((BRecordType) mappingType),
+                                getAllFieldType(mappingRecordType),
                                 DiagnosticErrorCode.INCOMPATIBLE_TYPES);
                     }
 
@@ -7631,8 +7683,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         return symTable.semanticError;
                     }
 
+                    BRecordType spreadRecordType = (BRecordType) spreadExprType;
                     boolean errored = false;
-                    for (BField bField : ((BRecordType) spreadExprType).fields.values()) {
+                    for (BField bField : spreadRecordType.fields.values()) {
                         BType specFieldType = bField.type;
                         if (types.isNeverTypeOrStructureTypeWithARequiredNeverMember(specFieldType)) {
                             continue;
@@ -7640,7 +7693,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         BSymbol fieldSymbol = symResolver.resolveStructField(spreadExpr.pos, data.env, bField.name,
                                                                              mappingType.tsymbol);
                         BType expectedFieldType = checkRecordLiteralKeyByName(spreadExpr.pos, fieldSymbol, bField.name,
-                                                                              (BRecordType) mappingType);
+                                mappingRecordType);
                         if (expectedFieldType != symTable.semanticError &&
                                 !types.isAssignable(specFieldType, expectedFieldType)) {
                             dlog.error(spreadExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES_FIELD,
@@ -7649,6 +7702,21 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                 errored = true;
                             }
                         }
+                    }
+                    if (!spreadRecordType.sealed) {
+                         if (mappingRecordType.sealed) {
+                             dlog.error(spreadExpr.pos,
+                                     DiagnosticErrorCode.INVALID_SPREAD_FIELD_TO_CREATE_CLOSED_RECORD_FROM_OPEN_RECORD,
+                                     spreadRecordType);
+                             errored = true;
+                         } else if (!types.isAssignable(spreadRecordType.restFieldType,
+                                 mappingRecordType.restFieldType)) {
+                             dlog.error(spreadExpr.pos,
+                                     DiagnosticErrorCode.INVALID_SPREAD_FIELD_REST_FIELD_MISMATCH,
+                                     spreadRecordType, spreadRecordType.restFieldType,
+                                     mappingRecordType.restFieldType);
+                             errored = true;
+                         }
                     }
                     return errored ? symTable.semanticError : symTable.noType;
                 } else {

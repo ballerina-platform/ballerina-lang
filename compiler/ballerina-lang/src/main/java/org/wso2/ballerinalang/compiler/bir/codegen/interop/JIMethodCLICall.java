@@ -34,6 +34,7 @@ public class JIMethodCLICall extends JTerminator {
     public String jClassName;
     public String jMethodVMSig;
     public String name;
+    public List<BIROperand> defaultFunctionArgs;
 
     public JIMethodCLICall(Location pos) {
         super(pos);

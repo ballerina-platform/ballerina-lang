@@ -52,6 +52,7 @@ class PackageContext {
 
     private final CompilationOptions compilationOptions;
     private ModuleContext defaultModuleContext;
+
     /**
      * This variable holds the dependency graph cached in a project.
      * At the moment, we cache the dependency graph in a bala file.
@@ -96,7 +97,6 @@ class PackageContext {
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
         this.pkgDescDependencyGraph = pkgDescDependencyGraph;
-
     }
 
     static PackageContext from(Project project, PackageConfig packageConfig, CompilationOptions compilationOptions) {
@@ -257,6 +257,14 @@ class PackageContext {
         packageResolution = PackageResolution.from(this, compilationOptions);
         return packageResolution;
     }
+
+    PackageResolution getResolution(CompilationOptions compilationOptions, boolean isCacheEnabled) {
+        if (!isCacheEnabled || packageResolution == null) {
+                packageResolution = PackageResolution.from(this, compilationOptions);
+        }
+        return packageResolution;
+    }
+
     Collection<PackageDependency> packageDependencies() {
         return packageDependencies;
     }
