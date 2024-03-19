@@ -38,7 +38,13 @@ public final class CellAtomicType implements AtomicType {
         this.mut = mut;
     }
 
+    public static CellAtomicType from(SemType ty) {
+        // TODO: is mutability correct?
+        return from(ty, CellMutability.CELL_MUT_LIMITED);
+    }
+
     public static CellAtomicType from(SemType ty, CellMutability mut) {
+        // TODO: return final fields where applicable
         return new CellAtomicType(ty, mut);
     }
 

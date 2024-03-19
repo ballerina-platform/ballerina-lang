@@ -20,6 +20,7 @@ package io.ballerina.types.typeops;
 import io.ballerina.types.Atom;
 import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.Bdd;
+import io.ballerina.types.CellSemType;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Conjunction;
 import io.ballerina.types.Context;
@@ -41,6 +42,7 @@ import java.util.List;
 import static io.ballerina.types.BasicTypeCode.BT_LIST;
 import static io.ballerina.types.Common.isNothingSubtype;
 import static io.ballerina.types.Conjunction.and;
+import static io.ballerina.types.Core.cellInnerVal;
 import static io.ballerina.types.Core.diff;
 import static io.ballerina.types.Core.getComplexSubtypeData;
 import static io.ballerina.types.Core.isEmpty;
@@ -49,6 +51,8 @@ import static io.ballerina.types.Core.union;
 import static io.ballerina.types.PredefinedType.LIST;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.VAL;
+import static io.ballerina.types.PredefinedType.UNDEF;
+import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 import static io.ballerina.types.subtypedata.IntSubtype.intSubtypeContains;
 import static io.ballerina.types.typeops.ListOps.fixedArrayAnyEmpty;
 import static io.ballerina.types.typeops.ListOps.fixedArrayShallowCopy;
@@ -91,10 +95,10 @@ public class ListProj {
     // Based on listFormulaIsEmpty
     static SemType listProjPath(Context cx, SubtypeData k, Conjunction pos, Conjunction neg) {
         FixedLengthArray members;
-        SemType rest;
+        CellSemType rest;
         if (pos == null) {
             members = FixedLengthArray.empty();
-            rest = VAL;
+            rest = cellContaining(cx.env, union(VAL, UNDEF));
         } else {
             // combine all the positive tuples using intersection
             ListAtomicType lt = cx.listAtomType(pos.atom);
@@ -113,21 +117,21 @@ public class ListProj {
                     Atom d = p.atom;
                     p = p.next;
                     lt = cx.listAtomType(d);
-                    TwoTuple intersected = listIntersectWith(members, rest,
+                    TwoTuple intersected = listIntersectWith(cx.env, members, rest,
                             lt.members, lt.rest);
                     if (intersected == null) {
                         return NEVER;
                     }
                     members = (FixedLengthArray) intersected.item1;
-                    rest = (SemType) intersected.item2;
+                    rest = (CellSemType) intersected.item2;
                 }
             }
             if (fixedArrayAnyEmpty(cx, members)) {
                 return NEVER;
             }
             // Ensure that we can use isNever on rest in listInhabited
-            if (rest != NEVER && isEmpty(cx, rest)) {
-                rest = NEVER;
+            if (cellInnerVal(rest) != NEVER && isEmpty(cx, rest)) {
+                rest = cellContaining(cx.env, NEVER);
             }
         }
         // return listProjExclude(cx, k, members, rest, listConjunction(cx, neg));

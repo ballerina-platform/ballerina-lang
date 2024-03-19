@@ -29,16 +29,17 @@ import java.util.List;
  *
  * @since 2201.8.0
  */
-public class FixedLengthArray {
-    public List<SemType> initial;
+public final class FixedLengthArray {
+
+    public List<CellSemType> initial;
     public int fixedLength;
 
-    private FixedLengthArray(List<SemType> initial, int fixedLength) {
+    private FixedLengthArray(List<CellSemType> initial, int fixedLength) {
         this.initial = initial;
         this.fixedLength = fixedLength;
     }
 
-    public static FixedLengthArray from(List<SemType> initial, int fixedLength) {
+    public static FixedLengthArray from(List<CellSemType> initial, int fixedLength) {
         return new FixedLengthArray(initial, fixedLength);
     }
 

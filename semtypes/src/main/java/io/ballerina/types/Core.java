@@ -28,7 +28,6 @@ import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.TableSubtype;
-import io.ballerina.types.typeops.CellOps;
 import io.ballerina.types.typeops.SubtypePair;
 import io.ballerina.types.typeops.SubtypePairs;
 
@@ -37,8 +36,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
 import static io.ballerina.types.BasicTypeCode.BT_CELL;
+import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
+import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
+import static io.ballerina.types.BasicTypeCode.BT_INT;
+import static io.ballerina.types.BasicTypeCode.BT_LIST;
+import static io.ballerina.types.BasicTypeCode.BT_MAPPING;
+import static io.ballerina.types.BasicTypeCode.BT_NIL;
+import static io.ballerina.types.BasicTypeCode.BT_STRING;
 import static io.ballerina.types.BasicTypeCode.BT_TABLE;
+import static io.ballerina.types.BasicTypeCode.VT_MASK;
 import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_VAL;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.types.Common.isNothingSubtype;
@@ -47,18 +55,12 @@ import static io.ballerina.types.PredefinedType.INNER;
 import static io.ballerina.types.PredefinedType.LIST;
 import static io.ballerina.types.PredefinedType.MAPPING;
 import static io.ballerina.types.PredefinedType.NEVER;
-import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
-import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
-import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
-import static io.ballerina.types.BasicTypeCode.BT_INT;
-import static io.ballerina.types.BasicTypeCode.BT_LIST;
-import static io.ballerina.types.BasicTypeCode.BT_MAPPING;
-import static io.ballerina.types.BasicTypeCode.BT_STRING;
 import static io.ballerina.types.PredefinedType.SIMPLE_OR_STRING;
 import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.PredefinedType.VAL;
 import static io.ballerina.types.PredefinedType.XML;
 import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
+import static io.ballerina.types.typeops.CellOps.intersectCellAtomicType;
 import static io.ballerina.types.typeops.ListOps.bddListMemberType;
 import static io.ballerina.types.typeops.MappingOps.bddMappingMemberTypeInner;
 
@@ -71,6 +73,11 @@ public final class Core {
 
     public static CellAtomicType cellAtomType(Atom atom) {
         return (CellAtomicType) ((TypeAtom) atom).atomicType;
+    }
+
+    public static SemType diff(SemType t1, SemType t2) {
+        // FIXME: this should do the correct diff we have now
+        return maybeRoDiff(t1, t2, null);
     }
 
     public static List<BasicSubtype> unpackComplexSemType(ComplexSemType t) {
@@ -178,7 +185,7 @@ public final class Core {
                 if (b1.bitset == 0) {
                     return t1;
                 }
-                if (b1.bitset == BasicTypeCode.VT_MASK) {
+                if (b1.bitset == VT_MASK) {
                     return t2;
                 }
                 ComplexSemType complexT2 = (ComplexSemType) t2;
@@ -195,7 +202,7 @@ public final class Core {
                 if (b2.bitset == 0) {
                     return t2;
                 }
-                if (b2.bitset == BasicTypeCode.VT_MASK) {
+                if (b2.bitset == VT_MASK) {
                     return t1;
                 }
                 all2 = b2;
@@ -243,7 +250,7 @@ public final class Core {
         CellAtomicType c1 = cellAtomicType(t1);
         CellAtomicType c2 = cellAtomicType(t2);
         assert c1 != null && c2 != null;
-        CellAtomicType atomicType = CellOps.intersectCellAtomicType(c1, c2);
+        CellAtomicType atomicType = intersectCellAtomicType(c1, c2);
         return cellContaining(env, atomicType.ty, UNDEF.equals(atomicType.ty) ? CELL_MUT_NONE : atomicType.mut);
     }
 
@@ -251,8 +258,11 @@ public final class Core {
         return maybeRoDiff(t1, t2, cx);
     }
 
-    public static SemType diff(SemType t1, SemType t2) {
-        return maybeRoDiff(t1, t2, null);
+    public static CellSemType intersectMemberSemType(Env env, CellSemType t1, CellSemType t2) {
+        CellAtomicType atom = intersectCellAtomicType(CellAtomicType.from(t1), CellAtomicType.from(t2));
+        SemType ty = atom.ty;
+        CellAtomicType.CellMutability mut = atom.mut;
+        return cellContaining(env, ty, ty == UNDEF ? CELL_MUT_NONE : mut);
     }
 
     public static SemType maybeRoDiff(SemType t1, SemType t2, Context cx) {
@@ -279,7 +289,7 @@ public final class Core {
             all1 = complexT1.all;
             some1 = complexT1.some;
             if (t2 instanceof BasicTypeBitSet b2) {
-                if (b2.bitset == BasicTypeCode.VT_MASK) {
+                if (b2.bitset == VT_MASK) {
                     return BasicTypeBitSet.from(0);
                 }
                 all2 = (BasicTypeBitSet) t2;
@@ -614,11 +624,11 @@ public final class Core {
 
     public static boolean containsNil(SemType t) {
         if (t instanceof BasicTypeBitSet b) {
-            return (b.bitset & (1 << BasicTypeCode.BT_NIL.code)) != 0;
+            return (b.bitset & (1 << BT_NIL.code)) != 0;
         } else {
             // todo: Need to verify this behavior
             AllOrNothingSubtype complexSubtypeData =
-                    (AllOrNothingSubtype) getComplexSubtypeData((ComplexSemType) t, BasicTypeCode.BT_NIL);
+                    (AllOrNothingSubtype) getComplexSubtypeData((ComplexSemType) t, BT_NIL);
             return complexSubtypeData.isAllSubtype();
         }
     }
@@ -713,7 +723,7 @@ public final class Core {
         ListDefinition listDef = new ListDefinition();
         MappingDefinition mapDef = new MappingDefinition();
         SemType j = union(PredefinedType.SIMPLE_OR_STRING, union(listDef.getSemType(env), mapDef.getSemType(env)));
-        listDef.define(env, new ArrayList<>(), 0,  j);
+        listDef.define(env, j);
         MappingDefinition.defineMappingTypeWrapped(mapDef, env, new ArrayList<>(), j);
         return j;
     }

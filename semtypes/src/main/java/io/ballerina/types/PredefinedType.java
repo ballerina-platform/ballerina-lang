@@ -22,6 +22,8 @@ import io.ballerina.types.subtypedata.StringSubtype;
 
 import java.util.StringJoiner;
 
+import static io.ballerina.types.BasicTypeCode.BT_CELL;
+import static io.ballerina.types.TypeAtom.ATOM_CELL_INNER;
 import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_COMMENT_RO;
 import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_COMMENT_RW;
 import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_ELEMENT_RO;
@@ -31,6 +33,7 @@ import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_PI_RW;
 import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_TEXT;
 import static io.ballerina.types.subtypedata.XmlSubtype.xmlSequence;
 import static io.ballerina.types.subtypedata.XmlSubtype.xmlSingleton;
+import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
 
 /**
  * Contain predefined types used for constructing other types.
@@ -87,6 +90,9 @@ public class PredefinedType {
     public static final SemType XML_TEXT = xmlSequence(xmlSingleton(XML_PRIMITIVE_TEXT));
     public static final SemType XML_PI = xmlSingleton(XML_PRIMITIVE_PI_RO | XML_PRIMITIVE_PI_RW);
 
+    public static final CellSemType CELL_SEMTYPE_INNER =
+            (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_INNER));
+
     private PredefinedType() {
     }
 
@@ -103,6 +109,10 @@ public class PredefinedType {
     }
 
     public static ComplexSemType basicSubtype(BasicTypeCode code, ProperSubtypeData data) {
+        // TODO: We need a more efficient way to do this
+        if (code.equals(BT_CELL)) {
+            return CellSemType.from(new ProperSubtypeData[]{data});
+        }
         return ComplexSemType.createComplexSemType(0, BasicSubtype.from(code, data));
     }
 

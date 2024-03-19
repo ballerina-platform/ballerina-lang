@@ -698,7 +698,7 @@ public class BIRTypeWriter extends TypeVisitor {
 
     private void writeListAtomicType(ListAtomicType lat) {
         FixedLengthArray fla = lat.members;
-        List<SemType> initial = fla.initial;
+        List<CellSemType> initial = fla.initial;
         buff.writeInt(initial.size());
         for (SemType type : initial) {
             writeSemType(type);

@@ -17,12 +17,14 @@
  */
 package io.ballerina.types.typeops;
 
+// TODO: introduce some sort of generic here
 /**
- * Used to return [int[], int[]].
+ * Used to return two values from a method.
  *
  * @since 2201.8.0
  */
-public class TwoTuple {
+public final class TwoTuple {
+
     Object item1;
     Object item2;
 

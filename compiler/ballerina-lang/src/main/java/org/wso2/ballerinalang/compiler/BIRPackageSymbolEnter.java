@@ -163,6 +163,8 @@ import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
  * @since 0.995.0
  */
 public class BIRPackageSymbolEnter {
+
+    public static final int SOME_CELL = 1 << 0x11;
     private final PackageCache packageCache;
     private final SymbolResolver symbolResolver;
     private final SymbolTable symTable;
@@ -1884,28 +1886,18 @@ public class BIRPackageSymbolEnter {
 
         // --------------------------------------- Read SemType ----------------------------------------------
 
-        private SemType readSemType() throws IOException {
-            if (!inputStream.readBoolean()) {
-                return null;
+        private ListAtomicType readListAtomicType() throws IOException {
+            int initialLength = inputStream.readInt();
+            List<CellSemType> initial = new ArrayList<>(initialLength);
+            for (int i = 0; i < initialLength; i++) {
+                initial.add((CellSemType) readSemType());
             }
 
-            if (inputStream.readBoolean()) {
-                int bitset = inputStream.readInt();
-                return BasicTypeBitSet.from(bitset);
-            }
+            int fixedLength = inputStream.readInt();
+            FixedLengthArray members = FixedLengthArray.from(initial, fixedLength);
 
-            int all = inputStream.readInt();
-            int some = inputStream.readInt();
-            byte subtypeDataListLength = inputStream.readByte();
-            ProperSubtypeData[] subtypeList = new ProperSubtypeData[subtypeDataListLength];
-            for (int i = 0; i < subtypeDataListLength; i++) {
-                subtypeList[i] = readProperSubtypeData();
-            }
-
-            if (some == PredefinedType.CELL.bitset && all == 0) {
-                return CellSemType.from(subtypeList);
-            }
-            return new ComplexSemType(BasicTypeBitSet.from(all), BasicTypeBitSet.from(some), subtypeList);
+            CellSemType rest = (CellSemType) readSemType();
+            return ListAtomicType.from(members, rest);
         }
 
         private ProperSubtypeData readProperSubtypeData() throws IOException {
@@ -1989,18 +1981,33 @@ public class BIRPackageSymbolEnter {
             return MappingAtomicType.from(names, types, rest);
         }
 
-        private ListAtomicType readListAtomicType() throws IOException {
-            int initialLength = inputStream.readInt();
-            List<SemType> initial = new ArrayList<>(initialLength);
-            for (int i = 0; i < initialLength; i++) {
-                initial.add(readSemType());
+        // FIXME: this should create the correct subtype
+        private SemType readSemType() throws IOException {
+            if (!inputStream.readBoolean()) {
+                return null;
             }
 
-            int fixedLength = inputStream.readInt();
-            FixedLengthArray members = FixedLengthArray.from(initial, fixedLength);
+            if (inputStream.readBoolean()) {
+                int bitset = inputStream.readInt();
+                return BasicTypeBitSet.from(bitset);
+            }
 
-            SemType rest = readSemType();
-            return ListAtomicType.from(members, rest);
+            int all = inputStream.readInt();
+            int some = inputStream.readInt();
+            byte subtypeDataListLength = inputStream.readByte();
+            ProperSubtypeData[] subtypeList = new ProperSubtypeData[subtypeDataListLength];
+            for (int i = 0; i < subtypeDataListLength; i++) {
+                subtypeList[i] = readProperSubtypeData();
+            }
+            return createSemType(all, some, subtypeList);
+        }
+
+        private static ComplexSemType createSemType(int all, int some, ProperSubtypeData[] subtypeList) {
+            if (some == PredefinedType.CELL.bitset && all == 0) {
+                return CellSemType.from(subtypeList);
+            }
+            // TODO: I think this still has a problem where we can never create BasicTypeBitSets
+            return new ComplexSemType(BasicTypeBitSet.from(all), BasicTypeBitSet.from(some), subtypeList);
         }
 
         private FunctionAtomicType readFunctionAtomicType() throws IOException {
