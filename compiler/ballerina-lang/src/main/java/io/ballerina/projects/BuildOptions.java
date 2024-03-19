@@ -103,6 +103,10 @@ public class BuildOptions {
         return this.compilationOptions.getCloud();
     }
 
+    public boolean managementServiceIncluded() {
+        return this.compilationOptions.managementServiceIncluded();
+    }
+
     CompilationOptions compilationOptions() {
         return this.compilationOptions;
     }
