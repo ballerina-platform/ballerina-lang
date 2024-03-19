@@ -77,7 +77,7 @@ public class AnonymousClosedRecordTest {
 
     @Test(description = "Test record type with binding pattern var in default value")
     public void testRecordWithDefaultsFromBindingPatternVar() {
-        BRunUtil.invoke(compileResult, "recordWithDefaultsFromBindingPatternVar");
+        BRunUtil.invoke(compileResult, "testRecordWithDefaultsFromBindingPatternVar");
     }
 
     @AfterClass

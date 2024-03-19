@@ -100,7 +100,7 @@ public function anonymousRecordWithTypeInclusion() {
     assertEquality(3, rec.x);
 }
 
-function recordWithDefaultsFromBindingPatternVar() {
+function testRecordWithDefaultsFromBindingPatternVar() {
     final record {|readonly int y;|} r = {y: 20};
     final var {y} = r;
     record {
