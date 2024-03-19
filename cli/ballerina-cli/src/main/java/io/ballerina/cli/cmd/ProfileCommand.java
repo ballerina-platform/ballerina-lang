@@ -195,7 +195,7 @@ public class ProfileCommand implements BLauncherCmd {
                                             boolean isSingleFileBuild) {
         return new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
-                .addTask(new RunBallerinaPreBuildToolsTask(outStream))
+                .addTask(new RunBallerinaPreBuildToolsTask(outStream), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified,
                         buildOptions.enableCache()))
