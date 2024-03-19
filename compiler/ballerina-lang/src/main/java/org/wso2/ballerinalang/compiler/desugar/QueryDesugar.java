@@ -302,26 +302,20 @@ public class QueryDesugar extends BLangNodeVisitor {
             resultType = streamRef.getBType();
         } else if (queryExpr.isTable) {
             BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
-            if (onConflictExpr == null) {
-                result = getStreamFunctionVariableRef(queryBlock,
-                        QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, isReadonly), pos);
-            } else {
-                result = getStreamFunctionVariableRef(queryBlock,
-                        QUERY_ADD_TO_TABLE_FOR_ON_CONFLICT_FUNCTION, Lists.of(streamRef, tableRef, isReadonly), pos);
-            }
+            Name internalFuncName = onConflictExpr == null ? QUERY_ADD_TO_TABLE_FUNCTION
+                    : QUERY_ADD_TO_TABLE_FOR_ON_CONFLICT_FUNCTION;
+            result = getStreamFunctionVariableRef(queryBlock,
+                        internalFuncName, Lists.of(streamRef, tableRef, isReadonly), pos);
             resultType = tableRef.getBType();
             onConflictExpr = null;
         } else if (queryExpr.isMap) {
             BMapType mapType = getMapType(queryExpr.getBType());
             BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
                     mapType, new ArrayList<>());
-            if (onConflictExpr == null) {
-                result = getStreamFunctionVariableRef(queryBlock,
-                        QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, isReadonly), pos);
-            } else {
-                result = getStreamFunctionVariableRef(queryBlock,
-                        QUERY_ADD_TO_MAP_FOR_ON_CONFLICT_FUNCTION, Lists.of(streamRef, mapLiteral, isReadonly), pos);
-            }
+            Name internalFuncName = onConflictExpr == null ? QUERY_ADD_TO_MAP_FUNCTION
+                    : QUERY_ADD_TO_MAP_FOR_ON_CONFLICT_FUNCTION;
+            result = getStreamFunctionVariableRef(queryBlock,
+                        internalFuncName, Lists.of(streamRef, mapLiteral, isReadonly), pos);
             onConflictExpr = null;
         } else if (queryExpr.getFinalClause().getKind() == NodeKind.COLLECT) {
             result = getStreamFunctionVariableRef(queryBlock, COLLECT_QUERY_FUNCTION, Lists.of(streamRef), pos);
@@ -940,10 +934,10 @@ public class QueryDesugar extends BLangNodeVisitor {
     /**
      * Desugar onConflictClause to below and return a reference to created onConflict _StreamFunction.
      * _StreamFunction onConflictFunc = createOnConflictFunction
-     * @param blockStmt
-     * @param onConflictClause
-     * @param stmtsToBePropagated
-     * @return
+     * @param blockStmt parent block to write to.
+     * @param onConflictClause  to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
+     * @return variableReference to created onConflict _StreamFunction.
      */
     BLangVariableReference addOnConflictFunction(BLangBlockStmt blockStmt, BLangOnConflictClause onConflictClause,
                                                  List<BLangStatement> stmtsToBePropagated) {

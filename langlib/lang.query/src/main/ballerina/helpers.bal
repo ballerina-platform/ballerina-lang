@@ -74,9 +74,7 @@ function createSelectFunction(function(_Frame _frame) returns _Frame|error? sele
 }
 
 function createOnConflictFunction(function(_Frame _frame) returns _Frame|error? onConflictFunc)
-        returns _StreamFunction {
-    return new _OnConflictFunction(onConflictFunc);
-}
+        returns _StreamFunction => new _OnConflictFunction(onConflictFunc);
 
 function createCollectFunction(string[] nonGroupingKeys, function(_Frame _frame) returns _Frame|error? collectFunc) returns _StreamFunction {
     return new _CollectFunction(nonGroupingKeys, collectFunc);
@@ -98,9 +96,8 @@ function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, Co
     return pipeline.getStream();
 }
 
-function getStreamForOnConflictFromPipeline(_StreamPipeline pipeline) returns stream<Type, CompletionType> {
-    return pipeline.getStreamForOnConflict();
-}
+function getStreamForOnConflictFromPipeline(_StreamPipeline pipeline) returns stream<Type, CompletionType>
+    => pipeline.getStreamForOnConflict();
 
 function toArray(stream<Type, CompletionType> strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
     if isReadOnly {
@@ -208,9 +205,9 @@ function addToTableForOnConflict(stream<Type, CompletionType> strm, table<map<Ty
         // original table variable (tbl). Then the newly created table variable will be populated using createTable()
         // and make it immutable with createImmutableTable().
         table<map<Type>> tempTbl = table [];
-        table<map<Type>> tbl2 = createTableWithKeySpecifier(tbl, typeof(tempTbl));
-        table<map<Type>> tempTable = check createTableForOnConflict(strm, tbl2);
-        return createImmutableTable(tbl, tempTable.toArray());
+        table<map<Type>> mutableTableRef = createTableWithKeySpecifier(tbl, typeof(tempTbl));
+        _ = check createTableForOnConflict(strm, mutableTableRef);
+        return createImmutableTable(tbl, mutableTableRef.toArray());
     }
     return createTableForOnConflict(strm, tbl);
 }
@@ -219,11 +216,12 @@ function createTableForOnConflict(stream<Type, CompletionType> strm, table<map<T
     returns table<map<Type>>|error {
     record {| Type value; |}|CompletionType v = strm.next();
     while v is record {| Type value; |} {
-        record {|Type v; error? err;|}|error value = trap (<record {|Type v; error? err;|}> checkpanic v.value);
+        record {|Type v; error? err;|}|error value = v.value.ensureType();
         if value is error {
             return value;
         }
-        error? e = trap tbl.add(<map<Type>> checkpanic value.v);
+        map<Type> tblValue = check value.v.ensureType();
+        error? e = trap tbl.add(tblValue);
         error? err = value.err;
         if e is error && err is error {
             return err;
@@ -233,10 +231,7 @@ function createTableForOnConflict(stream<Type, CompletionType> strm, table<map<T
         }
         v = strm.next();
     }
-    if (v is error) {
-        return v;
-    }
-    return tbl;
+    return v is error ? v : tbl;
 }
 
 function addToMap(stream<Type, CompletionType> strm, map<Type> mp, boolean isReadOnly) returns map<Type>|error {
@@ -286,11 +281,11 @@ function addToMapForOnConflict(stream<Type, CompletionType> strm, map<Type> mp, 
 function createMapForOnConflict(stream<Type, CompletionType> strm, map<Type> mp) returns map<Type>|error {
     record {| Type value; |}|CompletionType v = strm.next();
     while v is record {| Type value; |} {
-        record {|Type v; error? err;|}|error value = trap (<record {|Type v; error? err;|}> checkpanic v.value);
+        record {|Type v; error? err;|}|error value = v.value.ensureType();
         if value is error {
             return value;
         }
-        [string, Type]|error keyValue = trap (<[string, Type]> checkpanic value.v);
+        [string, Type]|error keyValue = value.v.ensureType();
         if keyValue is error {
             return keyValue;
         }
@@ -302,10 +297,7 @@ function createMapForOnConflict(stream<Type, CompletionType> strm, map<Type> mp)
         mp[key] = keyValue[1];
         v = strm.next();
     }
-    if (v is error) {
-        return v;
-    }
-    return mp;
+    return v is error ? v : mp;
 }
 
 function consumeStream(stream<Type, CompletionType> strm) returns any|error {
