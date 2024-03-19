@@ -35,8 +35,8 @@ public class ParserConstants {
     /**
      * Checks if the given function name is restricted.
      *
-     * @param functionName Function name to check.
-     * @return True if the function name is restricted.
+     * @param functionName function name to check
+     * @return <code>true</code> if the function name is restricted. <code>false</code> otherwise
      */
     public static boolean isFunctionNameRestricted(String functionName) {
         return RESTRICTED_FUNCTION_NAMES.contains(functionName) || functionName.startsWith(WRAPPER_PREFIX);

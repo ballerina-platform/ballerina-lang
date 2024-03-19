@@ -171,22 +171,22 @@ public class BasicSnippetFactory extends SnippetFactory {
 
                 // Check if the type descriptor of the variable is 'var' as it is not yet supported.
                 if (typeDescriptorNode.kind() == SyntaxKind.VAR_TYPE_DESC) {
-                    addErrorDiagnostic("Actions not allowed with a 'var' TypeDescriptor");
+                    addErrorDiagnostic("'var' type is not yet supported for actions. Please specify the exact type.");
                     return null;
                 }
 
-                boolean hasCheck = nodeKind == SyntaxKind.CHECK_ACTION;
-                String functionBody = varInitNode.toSourceCode();
-                String functionDefinition = (hasCheck ? "function() returns error|" :
+                boolean isCheckAction = nodeKind == SyntaxKind.CHECK_ACTION;
+                String initAction = varInitNode.toSourceCode();
+                String functionTypeDesc = (isCheckAction ? "function() returns error|" :
                         "function() returns ") + typeDescriptorNode;
                 String functionName = ParserConstants.WRAPPER_PREFIX + varFunctionCount;
-                String functionString = String.format("%s %s = %s {%s %s = %s; return %s;};", functionDefinition,
-                        functionName, functionDefinition, typeDescriptorNode, bindingPatternNode, functionBody,
+                String functionVarDecl = String.format("%s %s = %s {%s %s = %s; return %s;};", functionTypeDesc,
+                        functionName, functionTypeDesc, typeDescriptorNode, bindingPatternNode, initAction,
                         bindingPatternNode);
-                varNode = (VariableDeclarationNode) NodeParser.parseStatement(functionString);
+                varNode = (VariableDeclarationNode) NodeParser.parseStatement(functionVarDecl);
                 newNode = (VariableDeclarationNode) NodeParser.parseStatement(
                         String.format("%s %s = %s %s();", typeDescriptorNode, bindingPatternNode,
-                                (hasCheck ? "check " : ""), functionName));
+                                (isCheckAction ? "check " : ""), functionName));
             }
 
             varFunctionCount += 1;
