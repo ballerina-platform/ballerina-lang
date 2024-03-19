@@ -15,9 +15,15 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.createvar;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Qualifiable;
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.projects.Module;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
@@ -34,6 +40,8 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
+import java.net.URI;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -83,9 +91,13 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
             return Collections.emptyList();
         }
         UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol.get();
-        List<TypeSymbol> errorMemberTypes = unionTypeDesc.memberTypeDescriptors().stream()
-                .filter(member -> CommonUtil.getRawType(member).typeKind() == TypeDescKind.ERROR)
-                .collect(Collectors.toList());
+        List<TypeSymbol> errorMemberTypes = CommonUtil.extractErrorTypesFromUnion(unionTypeDesc);
+        Path path = Path.of(URI.create(uri.replace("expr:///", "file:///")));
+        Optional<Module> module = context.workspace().module(path);
+        if (module.isPresent() &&
+                containsModuleLevelPrivateTypes(module.get().moduleName().toString(), errorMemberTypes)) {
+            return Collections.emptyList();
+        }
         long nonErrorNonNilMemberCount = unionTypeDesc.memberTypeDescriptors().stream()
                 .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR
                         && member.typeKind() != TypeDescKind.NIL)
@@ -108,6 +120,23 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         addRenamePopup(context, codeAction, modifiedTextEdits.varRenamePosition.get(0),
                 modifiedTextEdits.imports.size());
         return Collections.singletonList(codeAction);
+    }
+    
+    private static boolean containsModuleLevelPrivateTypes(String currentModule, List<TypeSymbol> errorMemberTypes) {
+        for (TypeSymbol errorMemType : errorMemberTypes) {
+            if (errorMemType.typeKind() != TypeDescKind.TYPE_REFERENCE) {
+                continue;
+            }
+            Optional<ModuleSymbol> module = errorMemType.getModule();
+            if (module.isEmpty() || currentModule.equals(module.get().id().moduleName())) {
+                continue;
+            }
+            Symbol typeDef = ((TypeReferenceTypeSymbol) errorMemType).definition();
+            if (typeDef instanceof Qualifiable qualifiable && !qualifiable.qualifiers().contains(Qualifier.PUBLIC)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
