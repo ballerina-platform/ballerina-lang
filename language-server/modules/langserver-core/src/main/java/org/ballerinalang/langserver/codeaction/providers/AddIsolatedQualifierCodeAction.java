@@ -75,8 +75,9 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
     public List<CodeAction> getCodeActions(Diagnostic diagnostic,
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
-        // isPresent() check is done in the validator
         NonTerminalNode nonTerminalNode = positionDetails.matchedNode();
+
+        // Check if the diagnostic is for an anonymous function expression
         if (nonTerminalNode.kind() == SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION) {
             ExplicitAnonymousFunctionExpressionNode functionExpressionNode =
                     (ExplicitAnonymousFunctionExpressionNode) nonTerminalNode;
@@ -84,7 +85,7 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
                     context.fileUri());
         }
 
-        // Check if there are multiple diagnostics for the same node
+        // Check if there are multiple diagnostics of the considered category
         List<Diagnostic> diagnostics = context.diagnostics(context.filePath());
         if (diagnostics.size() > 1 && hasMultipleDiagnostics(nonTerminalNode, diagnostic, diagnostics)) {
             return Collections.emptyList();
@@ -129,6 +130,7 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
                 ClassSymbol definition = (ClassSymbol) typeSymbol.definition();
                 return Optional.of(definition.initMethod().orElseThrow());
             } catch (RuntimeException e) {
+                assert false : "This line is unreachable because the diagnostic is not produced otherwise.";
                 return Optional.empty();
             }
         }
@@ -139,13 +141,11 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
                                                   String expressionName,
                                                   String filePath) {
         Position position = PositionUtil.toPosition(functionKeyword.lineRange().startLine());
-        Range range = new Range(position, position);
         String editText = SyntaxKind.ISOLATED_KEYWORD.stringValue() + " ";
-        TextEdit textEdit = new TextEdit(range, editText);
-        List<TextEdit> editList = List.of(textEdit);
+        TextEdit textEdit = new TextEdit(new Range(position, position), editText);
         String commandTitle = String.format(CommandConstants.MAKE_FUNCTION_ISOLATE, expressionName);
         return Collections.singletonList(
-                CodeActionUtil.createCodeAction(commandTitle, editList, filePath, CodeActionKind.QuickFix));
+                CodeActionUtil.createCodeAction(commandTitle, List.of(textEdit), filePath, CodeActionKind.QuickFix));
     }
 
     private static boolean isUnsupportedSyntaxKind(SyntaxKind kind) {
