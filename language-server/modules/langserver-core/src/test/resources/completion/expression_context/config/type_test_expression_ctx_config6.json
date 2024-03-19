@@ -295,6 +295,54 @@
       "sortText": "BBN",
       "insertText": "TargetType",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E1",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "BBL",
+      "insertText": "E1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E2",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "BBL",
+      "insertText": "E2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error1",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "BBN",
+      "insertText": "Error1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E3",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "BBL",
+      "insertText": "E3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error2",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "BBI",
+      "insertText": "Error2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "BBI",
+      "insertText": "Error",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

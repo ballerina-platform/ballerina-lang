@@ -667,6 +667,18 @@ public function testWorkerWithQuery() {
     assertEquals(4, sum);
 }
 
+function testBindingPatternVariablesInWorker() {
+    record {|string name;|} rec = {name: "workerName"};
+    [string] [colon] = [";"];
+    var {name} = rec;
+
+    worker A returns string {
+        return name + colon;
+    }
+    string result = wait A;
+    assertEquals("workerName;", result);
+}
+
 public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

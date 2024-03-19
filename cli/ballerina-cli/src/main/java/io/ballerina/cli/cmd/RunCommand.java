@@ -235,7 +235,7 @@ public class RunCommand implements BLauncherCmd {
                 // clean target dir for projects
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 // Run build tools
-                .addTask(new RunBallerinaPreBuildToolsTask(outStream))
+                .addTask(new RunBallerinaPreBuildToolsTask(outStream), isSingleFileBuild)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
