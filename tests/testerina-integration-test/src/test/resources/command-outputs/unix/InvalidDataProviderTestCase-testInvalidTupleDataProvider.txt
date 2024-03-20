@@ -40,5 +40,5 @@ Running Tests
 		1 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 error: there are test failures

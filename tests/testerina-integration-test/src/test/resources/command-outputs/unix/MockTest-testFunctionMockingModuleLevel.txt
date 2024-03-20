@@ -57,7 +57,7 @@ Running Tests with Coverage
 		3 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 
 	function_mocking.mock2
 		[pass] test1
@@ -69,7 +69,7 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 
 Generating Test Report
 	function-mocking-tests/target/report/test_results.json

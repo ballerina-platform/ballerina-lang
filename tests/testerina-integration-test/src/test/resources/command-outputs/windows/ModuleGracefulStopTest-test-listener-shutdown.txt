@@ -46,7 +46,7 @@ Calling start for default module listener
 		2 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 Calling stop for default module listener
 Calling stop for moduleA listener
 
@@ -75,6 +75,6 @@ Calling start for moduleA listener
 		1 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 Calling stop for moduleA listener
-error: there are test failures
+error: there are test failures

@@ -57,7 +57,7 @@ public function startSuite() returns int {
             }
             executeAfterSuiteFunctions();
             reportGenerators.forEach(reportGen => reportGen(reportData));
-            println(string `${"\n"}${"\t"}${"\t"}Test execution time : ${executionTime}ms`);
+            println(string `${"\n"}${"\t"}${"\t"}Test execution time : ${executionTime / 1000}s`);
         }
     }
     lock {

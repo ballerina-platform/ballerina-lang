@@ -10,4 +10,4 @@ Running Tests
 
 		No tests found
 
-		Test execution time :*****ms
+		Test execution time :*****s

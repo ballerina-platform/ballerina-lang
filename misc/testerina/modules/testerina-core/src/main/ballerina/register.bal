@@ -48,7 +48,7 @@ type TestFunctionMetaData record {|
     TestCompletionStatus executionCompletionStatus = YET_TO_COMPLETE;
 |};
 
-//This class manages the execution of the tests
+// This class manages the execution of the tests
 isolated class ExecutionManager {
     private final TestFunction[] parallelTestExecutionList = [];
     private final TestFunction[] serialTestExecutionList = [];
@@ -218,8 +218,8 @@ isolated class ExecutionManager {
                 }
                 executionCompletionStatus = inProgressTestMetaData.executionCompletionStatus;
                 if executionCompletionStatus == COMPLETED {
-                    inProgressTestMetaData.dependents.reverse().forEach(dependent =>
-                    self.checkExecutionReadiness(dependent));
+                    inProgressTestMetaData.dependents.reverse().forEach(
+                        dependent => self.checkExecutionReadiness(dependent));
                     _ = self.testsInExecution.remove(i);
                 } else if executionCompletionStatus == SUSPENDED {
                     _ = self.testsInExecution.remove(i);

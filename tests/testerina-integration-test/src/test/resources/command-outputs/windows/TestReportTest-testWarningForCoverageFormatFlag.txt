@@ -25,7 +25,7 @@ Running Tests
 		1 failing
 		1 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 
 	foo.bar.tests
 		[pass] testBarAdd
@@ -35,7 +35,7 @@ Running Tests
 		0 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 
 	foo.math
 		[pass] testFunction1
@@ -46,5 +46,5 @@ Running Tests
 		0 failing
 		0 skipped
 
-		Test execution time :*****ms
-error: there are test failures
+		Test execution time :*****s
+error: there are test failures

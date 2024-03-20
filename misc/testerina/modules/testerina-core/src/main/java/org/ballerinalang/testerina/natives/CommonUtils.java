@@ -32,6 +32,7 @@ public class CommonUtils {
 
     /**
      * Get the current time in milliseconds.
+     *
      * @return The current time in milliseconds
      */
     public static BDecimal currentTimeInMillis() {
@@ -40,6 +41,7 @@ public class CommonUtils {
 
     /**
      * Check whether the parameters of a function are concurrency safe.
+     *
      * @param func The function pointer
      * @return Whether the parameters are concurrency safe
      */

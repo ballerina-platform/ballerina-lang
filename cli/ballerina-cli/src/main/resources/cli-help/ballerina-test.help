@@ -99,6 +99,7 @@ OPTIONS
                     - Test function parameters should be read-only type.
                 - Respective set-up, and tear-down functions (before, after, before-each, after-each, before-groups,
                   after-groups) of the test function should be isolated.
+            Parallel test execution is an experimental feature which supports only a limited set of functionality.
 
 
 ARGUMENTS

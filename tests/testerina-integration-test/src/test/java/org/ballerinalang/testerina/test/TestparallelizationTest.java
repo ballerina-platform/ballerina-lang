@@ -326,7 +326,7 @@ public class TestparallelizationTest extends BaseTestCase {
 
     private float getTimeForTestExecution(String output) {
         int firstPos = output.indexOf("Test execution time :") + ("Test execution time :").length();
-        int lastPos = output.indexOf("ms", firstPos);
+        int lastPos = output.indexOf("s", firstPos);
         String executionTime = output.substring(firstPos, lastPos);
         return Float.parseFloat(executionTime);
     }

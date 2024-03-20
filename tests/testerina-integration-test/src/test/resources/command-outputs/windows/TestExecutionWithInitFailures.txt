@@ -11,7 +11,7 @@ Running Tests
 		0 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 
 	testExecutionWithModuleInitFailure
 error: {ballerina}DivisionByZero {"message":" / by zero"}
@@ -27,8 +27,8 @@ error: {ballerina}DivisionByZero {"message":" / by zero"}
 		0 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 
 	testExecutionWithModuleInitFailure.moduleB
 error: {ballerina}DivisionByZero {"message":" / by zero"}
-error: there are test failures
+error: there are test failures

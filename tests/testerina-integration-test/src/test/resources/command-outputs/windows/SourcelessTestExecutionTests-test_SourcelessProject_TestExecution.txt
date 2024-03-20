@@ -11,7 +11,7 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 
 	sourcelessProjectTest.module1
 		[pass] test5
@@ -21,7 +21,7 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 
 	sourcelessProjectTest.module2
 		[pass] test6
@@ -31,8 +31,8 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 
 Generating Test Report
 	sourceless-project-test\target\report\test_results.json
-
+

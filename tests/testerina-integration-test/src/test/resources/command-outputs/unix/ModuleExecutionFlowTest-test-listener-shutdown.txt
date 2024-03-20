@@ -15,7 +15,7 @@ Calling start for 'current module listener'
 		0 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 Calling stop for 'current module listener'
 Calling stop for 'moduleA listener'
 
@@ -29,5 +29,5 @@ Calling start for 'moduleA listener'
 		0 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
 Calling stop for 'moduleA listener'

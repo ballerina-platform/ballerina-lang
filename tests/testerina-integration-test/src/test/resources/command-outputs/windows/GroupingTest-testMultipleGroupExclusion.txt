@@ -13,4 +13,4 @@ Running Tests
 		0 failing
 		0 skipped
 
-		Test execution time :*****ms
+		Test execution time :*****s
