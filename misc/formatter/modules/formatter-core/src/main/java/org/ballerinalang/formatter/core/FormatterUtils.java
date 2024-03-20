@@ -53,7 +53,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -178,11 +180,12 @@ public class FormatterUtils {
     public static Map<String, Object> getFormattingConfigurations(Path root, String configurationFilePath)
             throws FormatterException {
         String content;
-        Path path = Path.of(configurationFilePath);
-        Path absPath = path.isAbsolute() || !root.isAbsolute() ? path : root.resolve(configurationFilePath);
+        Optional<Path> path = convertConfigurationPath(configurationFilePath);
+        Optional<Path> absPath = path.isEmpty() || path.get().isAbsolute() || !root.isAbsolute() ? path :
+                Optional.of(root.resolve(configurationFilePath));
         if (isLocalFile(absPath)) {
             try {
-                content = Files.readString(absPath, StandardCharsets.UTF_8);
+                content = Files.readString(absPath.get(), StandardCharsets.UTF_8);
             } catch (IOException e) {
                 throw new FormatterException("Failed to retrieve local formatting configuration file");
             }
@@ -193,8 +196,16 @@ public class FormatterUtils {
         return parseConfigurationToml(TomlDocument.from(configurationFilePath, content));
     }
 
-    private static boolean isLocalFile(Path path) {
-        return new File(path.toString()).exists();
+    private static Optional<Path> convertConfigurationPath(String path) {
+        try {
+            return Optional.of(Paths.get(path));
+        } catch (InvalidPathException ex) {
+            return Optional.empty();
+        }
+    }
+
+    private static boolean isLocalFile(Optional<Path> path) throws InvalidPathException {
+        return !path.isEmpty() && new File(path.get().toString()).exists();
     }
 
     private static String readRemoteFormatFile(Path root, String fileUrl) throws FormatterException {
