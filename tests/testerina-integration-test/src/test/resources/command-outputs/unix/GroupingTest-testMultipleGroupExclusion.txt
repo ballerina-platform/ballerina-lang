@@ -6,6 +6,9 @@ Compiling source
 Running Tests
 
 	groups-test.bal
+
+		Test execution time :*****ms
+
 		[pass] testFunc6
 
 

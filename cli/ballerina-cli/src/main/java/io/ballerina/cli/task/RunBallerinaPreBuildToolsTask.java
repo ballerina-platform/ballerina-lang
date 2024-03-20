@@ -20,9 +20,11 @@ package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Diagnostics;
+import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.buildtools.CodeGeneratorTool;
 import io.ballerina.projects.buildtools.ToolContext;
+import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.toml.api.Toml;
@@ -88,8 +90,8 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                     toolContextMap.put(tool.id(), toolContext);
                 }
             } catch (IOException e) {
-                outStream.println(String.format("WARNING: Skipping validation of tool options for tool %s(%s) " +
-                        "due to: %s", tool.type(), tool.id(), e.getMessage()));
+                outStream.printf("WARNING: Skipping validation of tool options for tool %s(%s) " +
+                        "due to: %s%n", tool.type(), tool.id(), e.getMessage());
             }
             if (!tool.hasErrorDiagnostic() && !hasOptionErrors) {
                 try {
@@ -107,7 +109,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                         toolContextMap.put(tool.id(), toolContext);
                         continue;
                     }
-                    this.outStream.println(String.format("\t%s(%s)%n", tool.type(), tool.id()));
+                    this.outStream.printf("\t%s(%s)%n%n", tool.type(), tool.id());
                     targetTool.execute(toolContext);
                     for (Diagnostic d : toolContext.diagnostics()) {
                         if (d.toString().contains("(1:1,1:1)")) {
@@ -121,11 +123,19 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                     throw createLauncherException(e.getMessage());
                 }
             } else {
-                outStream.println(String.format("WARNING: Skipping execution of build tool %s(%s) as Ballerina.toml " +
-                        "contains errors%n", tool.type(), tool.id() != null ? tool.id() : ""));
+                outStream.printf("WARNING: Skipping execution of build tool %s(%s) as Ballerina.toml " +
+                        "contains errors%n%n", tool.type(), tool.id() != null ? tool.id() : "");
             }
         }
+        // Reload the project to load the generated code
+        reloadProject(project);
         project.setToolContextMap(toolContextMap);
+    }
+
+    private void reloadProject(Project project) {
+        PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(project.sourceRoot(),
+                project.buildOptions().disableSyntaxTree());
+        project.addPackage(packageConfig);
     }
 
     private CodeGeneratorTool getTargetTool(String commandName, ServiceLoader<CodeGeneratorTool> buildRunners) {
@@ -162,8 +172,8 @@ public class RunBallerinaPreBuildToolsTask implements Task {
             }
             return true;
         }
-        this.outStream.println(String.format("WARNING: Skipping validation of tool options for tool %s due to: " +
-                "No tool options found for", toolName));
+        this.outStream.printf("WARNING: Skipping validation of tool options for tool %s due to: " +
+                "No tool options found for%n", toolName);
         return false;
     }
 }

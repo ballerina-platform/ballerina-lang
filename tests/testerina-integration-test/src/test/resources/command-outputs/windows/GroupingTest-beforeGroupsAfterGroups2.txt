@@ -6,6 +6,9 @@ Compiling source
 Running Tests
 
 	before-groups-after-groups-test2.bal
+
+		Test execution time :*****ms
+
 		[pass] testFunction
 		[pass] testFunction2
 		[pass] testFunction3
@@ -15,4 +18,4 @@ Running Tests
 
 		5 passing
 		0 failing
-		0 skipped
+		0 skipped

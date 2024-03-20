@@ -163,6 +163,11 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
                 Boolean.parseBoolean(String.valueOf(inlayHintsSupport));
         initializationOptions.setEnableInlayHints(enableInlayHintsSupport);
 
+        //Enable indexing user home by default
+        Object indexPackages = initOptions.get(InitializationOptions.KEY_ENABLE_INDEX_PACKAGES);
+        boolean enableIndexPackages = indexPackages == null || Boolean.parseBoolean(String.valueOf(indexPackages));
+        initializationOptions.setEnableIndexPackages(enableIndexPackages);
+
         Object memoryUsageMonitor = initOptions.get(InitializationOptions.KEY_ENABLE_MEMORY_USAGE_MONITOR);
         boolean enableMemoryUsageMonitor = memoryUsageMonitor != null &&
                 Boolean.parseBoolean(String.valueOf(memoryUsageMonitor));
@@ -219,8 +224,9 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         private boolean enableLSLightWeightMode = false;
         private boolean supportPositionalRenamePopup = false;
         private boolean enableInlayHints = false;
+        private boolean enableIndexPackages = false;
         private boolean enableMemoryUsageMonitor = false;
-        
+
         @Override
         public boolean isBalaSchemeSupported() {
             return supportBalaScheme;
@@ -272,6 +278,14 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         public void setEnableInlayHints(boolean enableInlayHints) {
             this.enableInlayHints = enableInlayHints;
+        }
+
+        @Override
+        public boolean isEnableIndexPackages() {
+            return enableIndexPackages;
+        }
+        public void setEnableIndexPackages(boolean enableIndexPackages) {
+            this.enableIndexPackages = enableIndexPackages;
         }
 
         @Override

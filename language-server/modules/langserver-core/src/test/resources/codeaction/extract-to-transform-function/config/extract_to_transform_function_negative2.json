@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 40,
+    "character": 20
+  },
+  "source": "extract_to_transform_function_negative2.bal",
+  "expected": [
+    {
+      "title": "Extract to transform function"
+    }
+  ]
+}

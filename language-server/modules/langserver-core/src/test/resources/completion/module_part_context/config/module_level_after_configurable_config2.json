@@ -162,6 +162,54 @@
       "sortText": "B",
       "insertText": "TargetType",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E1",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "B",
+      "insertText": "E1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E2",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "B",
+      "insertText": "E2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error1",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "B",
+      "insertText": "Error1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E3",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "B",
+      "insertText": "E3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error2",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "B",
+      "insertText": "Error2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "B",
+      "insertText": "Error",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

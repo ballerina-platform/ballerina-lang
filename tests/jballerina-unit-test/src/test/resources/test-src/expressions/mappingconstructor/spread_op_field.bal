@@ -183,7 +183,7 @@ function testSpreadFieldWithRecordTypeHavingNeverField() {
     assertEquality("Main Street", location["street"]);
 
     Candidate candidate = {name: "Jack"};
-    record {|string name;|} candidateInLine = {...candidate};
+    record {string name;} candidateInLine = {...candidate};
     assertEquality ("Jack", candidateInLine.name);
 
     record {|int i; string s; never n?;|} bar1InLine = {i: 1, s: "s"};
@@ -244,6 +244,58 @@ function testSpreadFieldWithRecordTypeHavingNeverField() {
     Bar bar8 = {...rec5, ...rec6};
     assertEquality("g", bar8.s);
     assertEquality(8, bar8.i);
+}
+
+type Vehicle record {|
+    int year;
+    string manufacturer;
+    string model;
+    anydata...;
+|};
+
+type Truck record {
+    int year;
+    string manufacturer;
+    string model;
+    int loadCapacity;
+};
+
+type RecA record {|
+    int i;
+    string s;
+    string m;
+    any|error...;
+|};
+
+type RecB record {
+    int i;
+    string s;
+    string m;
+    error e;
+};
+
+function testSpreadFieldWithRecordTypeHavingRestDescriptor() {
+    Truck truck = {year: 2023, manufacturer: "Tesla", model: "Cybertruck", loadCapacity: 15000};
+    Vehicle vehicle = {...truck};
+    assertEquality("Cybertruck", vehicle.model);
+    assertEquality("Tesla", vehicle.manufacturer);
+    assertEquality(2023, vehicle.year);
+    assertEquality(15000, vehicle["loadCapacity"]);
+
+    RecB recB = {i: 1, s: "s", m: "m", e: error("e")};
+    RecA recA = {...recB};
+    assertEquality(1, recA.i);
+    assertEquality("s", recA.s);
+    assertEquality("m", recA.m);
+    assertEquality("e", (<error>recA["e"]).message());
+
+    record {|int i; int...;|} r1 = {i: 1};
+    record {|int i; string|int...;|} r2 = {...r1};
+    assertEquality(1, r2.i);
+
+    record {|string s; never...;|} r3 = {s: "s"};
+    record {|string s; int...;|} r4 = {...r3};
+    assertEquality("s", r4.s);
 }
 
 function assertEquality(any|error expected, any|error actual) {

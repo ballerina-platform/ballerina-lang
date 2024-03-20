@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	isolated_functions
+
+		Test execution time :*****ms
+
 		[pass] testCallingIsolatedFunction
 		[pass] testFunc
 		[pass] testIsolatedTestFunction

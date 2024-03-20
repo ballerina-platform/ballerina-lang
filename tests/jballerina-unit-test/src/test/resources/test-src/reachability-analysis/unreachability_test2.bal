@@ -1194,6 +1194,200 @@ function testUnreachabilityInsideMatchBlockWithWhileStmt() {
 
 // }
 
+function testUnreachabilityAfterTerminatedIfBlock1(int a) returns int {
+    if a > 10 {
+        return a + 1;
+    } else if a > 12 {
+        return a - 1;
+    } else {
+        return -a;
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedIfBlock2(int a) returns int {
+    if a > 10 {
+        if a > 12 {
+            return a;
+        }
+        return a - 1;
+    } else {
+        return -a;
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedIfBlock3(int a) returns int {
+    if a > 10 {
+        return a;
+    }
+    return -a;
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedMatchBlock1(int a) returns int {
+    match a {
+        1 => {
+            return a + 1;
+        }
+        _ => {
+            return a - 1;
+        }
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedMatchBlock2(int a) returns int {
+    match a {
+        var x if a > 10 => {
+            if x % 2 == 0 {
+                return a * 2;
+            }
+            return x + 1;
+        }
+        _ => {
+            return a - 1;
+        }
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedMatchBlock3(int a) returns int {
+    match a {
+        2|3 => {
+            check functionReturnsNilOrError();
+            return a + 1;
+        }
+        _ => {
+            return a - 1;
+        }
+    } on fail {
+    	return -1;
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedDoBlock1() returns int {
+    do {
+        return 10;
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedDoBlock2(int a) returns int {
+    do {
+        if a > 10 {
+            if a > 12 {
+                return a + 1;
+            }
+            return a - 1;
+        } else {
+            return -a;
+        }
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedDoBlock3(int a) returns int {
+    do {
+        check functionReturnsNilOrError();
+        return 10;
+    } on fail {
+        return -1;
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedWhileBlock1() returns int {
+    while true {
+        
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedWhileBlock2() returns int {
+    while true {
+        int|string a = 12;
+        if a is int {
+            return -1;
+        }
+        string _ = a;
+        panic error("Error");
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedLockBlock1(int a) returns int {
+    lock {
+        return 1;
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedLockBlock2(int a) returns int {
+    lock {
+        do {
+            if a > 10 {
+                if a > 12 {
+                    check functionReturnsNilOrError();
+                    return 10;
+                }
+                return a - 1;
+            } else {
+                return -a;
+            }
+        } on fail {
+            return -1;
+        }
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedBlock1() returns int {
+    {
+        return 1;
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedBlock2() returns int {
+    {
+        int|string a = 12;
+        if a is int {
+            return -1;
+        }
+        string _ = a;
+        panic error("Error");
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
+function testUnreachabilityAfterTerminatedBlock3(int a) returns int {
+    if a > 10 {
+        return a;
+    }
+    {
+        return -a;
+    }
+    int _ = 1; // unreachable code
+    int _ = 2;
+}
+
 function trapFuc() returns never {
     panic error("Timeout");
 }

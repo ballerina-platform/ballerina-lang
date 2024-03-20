@@ -12,6 +12,9 @@ Running Tests
 			callableName: afterGroupsFunc1  fileName: failed-after-groups-test.bal lineNumber: 37
 			callableName: afterGroupsFunc1$lambda3$  fileName: failed-after-groups-test.bal lineNumber: 80
 		
+
+		Test execution time :*****ms
+
 		[pass] testFunction
 		[pass] testFunction2
 		[pass] testFunction3
@@ -22,4 +25,4 @@ Running Tests
 		5 passing
 		0 failing
 		0 skipped
-error: there are test failures
+error: there are test failures

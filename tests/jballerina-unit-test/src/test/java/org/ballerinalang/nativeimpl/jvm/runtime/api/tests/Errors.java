@@ -130,4 +130,8 @@ public class Errors {
         ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
         return ErrorCreator.createError(bErrorType, msg, null, null);
     }
+
+    public static BError getNullDetailError(BString msg) {
+        return ErrorCreator.createError(msg, new NullPointerException("cause for the error"));
+    }
 }

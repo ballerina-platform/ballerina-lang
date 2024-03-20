@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	function_mocking_legacy
+
+		Test execution time :*****ms
+
 		[pass] testIntAdd
 		[pass] testIntMul
 
@@ -14,4 +17,4 @@ Running Tests with Coverage
 
 Generating Test Report
 	legacy-function-mocking-tests\target\report\test_results.json
-
+

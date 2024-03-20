@@ -22,10 +22,8 @@ import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
@@ -47,7 +45,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -181,7 +178,7 @@ public class InitMethodGen {
             methodDesc = JvmCodeGenUtil.getMethodDesc(paramTypes, returnType);
         }
 
-        mv.visitMethodInsn(INVOKESTATIC, initClass, JvmConstants.MODULE_EXECUTE_METHOD, methodDesc, false);
+        mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_EXECUTE_METHOD, methodDesc, false);
         jvmCastGen.addBoxInsn(mv, errorOrNilType);
         MethodGenUtils.visitReturn(mv, lambdaFuncName, initClass);
     }
@@ -193,7 +190,7 @@ public class InitMethodGen {
     }
 
     private MethodVisitor visitFunction(ClassWriter cw, String funcName) {
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, funcName, LAMBDA_STOP_DYNAMIC, null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, funcName, LAMBDA_STOP_DYNAMIC, null, null);
         mv.visitCode();
         return mv;
     }
@@ -214,7 +211,7 @@ public class InitMethodGen {
                                           String moduleTypeClass) {
         // Using object return type since this is similar to a ballerina function without a return.
         // A ballerina function with no returns is equivalent to a function with nil-return.
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_INIT,
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_INIT,
                                           RETURN_OBJECT, null, null);
         mv.visitCode();
 
@@ -281,7 +278,9 @@ public class InitMethodGen {
         List<BIRNode.BIRFunctionParameter> parameters = new ArrayList<>();
         List<BIRNode.BIRParameter> requiredParameters = new ArrayList<>();
         int argsCount = 0;
-        BIRNode.BIRFunctionParameter cliArgVar = null;
+        int defaultParamCount = 0;
+        BIRNode.BIRFunctionParameter cliArgVar;
+        List<BIROperand> defaultableArgRefs = new ArrayList<>();
 
         if (mainFunc != null) {
             List<BIRNode.BIRFunctionParameter> mainParameters = mainFunc.parameters;
@@ -300,6 +299,16 @@ public class InitMethodGen {
                 BIROperand varRef = new BIROperand(paramVar);
                 modExecFunc.localVars.add(paramVar);
                 functionArgs.add(varRef);
+
+                // Create temporary variables for main args if they have default expr
+                if (param.hasDefaultExpr) {
+                    BIRNode.BIRVariableDcl tempParamVar = new BIRNode.BIRVariableDcl(null, symbolTable.anyType,
+                            new Name("%tempVar" + param.jvmVarName), VarScope.FUNCTION, VarKind.TEMP, null);
+                    BIROperand tempVarRef = new BIROperand(tempParamVar);
+                    modExecFunc.localVars.add(tempParamVar);
+                    defaultableArgRefs.add(tempVarRef);
+                    defaultParamCount += 1;
+                }
             }
         }
 
@@ -329,8 +338,9 @@ public class InitMethodGen {
         addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_INIT_METHOD, retVarRef, boolRef);
 
         if (mainFunc != null) {
-            injectCLIArgInvocation(modExecFunc, cliArgVar, functionArgs);
-            injectDefaultArgs(functionArgs, mainFunc, modExecFunc, boolRef, pkg.globalVars);
+            injectCLIArgInvocation(modExecFunc, functionArgs, defaultableArgRefs);
+            injectDefaultArgs(functionArgs, mainFunc, modExecFunc, boolRef, pkg.globalVars, defaultableArgRefs,
+                    defaultParamCount);
             addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, MAIN_METHOD, retVarRef, boolRef,
                     functionArgs, mainFunc.annotAttachments);
         }
@@ -348,66 +358,45 @@ public class InitMethodGen {
         return modExecFunc;
     }
 
-    private void injectCLIArgInvocation(BIRNode.BIRFunction modExecFunc, BIRNode.BIRFunctionParameter cliArgVar,
-                                        List<BIROperand> functionArgs) {
+    private void injectCLIArgInvocation(BIRNode.BIRFunction modExecFunc, List<BIROperand> functionArgs,
+                                        List<BIROperand> tempFuncArgs) {
         BIRNode.BIRBasicBlock lastBB = modExecFunc.basicBlocks.get(modExecFunc.basicBlocks.size() - 1);
         JIMethodCLICall jiMethodCall = new JIMethodCLICall(null);
-        BIROperand argVarRef = new BIROperand(cliArgVar);
         jiMethodCall.lhsArgs = functionArgs;
         jiMethodCall.jClassName = CLI_SPEC;
         jiMethodCall.jMethodVMSig = GET_MAIN_ARGS;
         jiMethodCall.name = "getMainArgs";
         jiMethodCall.thenBB = addAndGetNextBasicBlock(modExecFunc);
+        jiMethodCall.defaultFunctionArgs = tempFuncArgs;
         lastBB.terminator = jiMethodCall;
     }
 
     private void injectDefaultArgs(List<BIROperand> mainArgs, BIRNode.BIRFunction mainFunc,
                                    BIRNode.BIRFunction modExecFunc, BIROperand boolRef,
-                                   List<BIRNode.BIRGlobalVariableDcl> globalVars) {
-        for (int i = 0; i < mainFunc.parameters.size(); i++) {
-            BIRNode.BIRFunctionParameter parameter = mainFunc.parameters.get(i);
-            if (parameter.hasDefaultExpr) {
-                BIRNode.BIRBasicBlock lastBB = modExecFunc.basicBlocks.get(modExecFunc.basicBlocks.size() - 1);
-                BIROperand argOperand = mainArgs.get(i);
-                switch (parameter.type.tag) {
-                    case TypeTags.INT:
-                    case TypeTags.SIGNED32_INT:
-                    case TypeTags.SIGNED16_INT:
-                    case TypeTags.SIGNED8_INT:
-                    case TypeTags.UNSIGNED32_INT:
-                    case TypeTags.UNSIGNED16_INT:
-                    case TypeTags.UNSIGNED8_INT:
-                    case TypeTags.FLOAT:
-                    case TypeTags.DECIMAL:
-                    case TypeTags.BYTE:
-                        injectEqualsCheck(modExecFunc, boolRef, parameter.type, lastBB, argOperand);
-                        break;
-                    default:
-                        BIRNonTerminator.TypeTest typeTest =
-                                new BIRNonTerminator.TypeTest(null, symbolTable.nilType, boolRef, argOperand);
-                        lastBB.instructions.add(typeTest);
-                }
-                BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(modExecFunc);
-                BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(modExecFunc);
-                lastBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
-                BInvokableSymbol defaultFunc =
-                        ((BInvokableTypeSymbol) mainFunc.type.tsymbol).defaultValues.get(parameter.metaVarName);
-                trueBB.terminator = getFPCallForDefaultParameter(defaultFunc, argOperand, falseBB, globalVars,
-                        mainArgs.subList(0, i));
-            }
+                                   List<BIRNode.BIRGlobalVariableDcl> globalVars, List<BIROperand> tempFuncArgs,
+                                   int defaultParamCount) {
+        for (int i = 0; i < tempFuncArgs.size(); i++) {
+            int mainFuncParamIndex = mainFunc.parameters.size() - defaultParamCount + i;
+            BIRNode.BIRFunctionParameter parameter = mainFunc.parameters.get(mainFuncParamIndex);
+            BIRNode.BIRBasicBlock lastBB = modExecFunc.basicBlocks.get(modExecFunc.basicBlocks.size() - 1);
+            BIROperand argOperand = mainArgs.get(mainFuncParamIndex);
+            BIROperand tempArgOperand = tempFuncArgs.get(i);
+            BIRNonTerminator.TypeTest typeTest =
+                    new BIRNonTerminator.TypeTest(null, symbolTable.nilType, boolRef, tempArgOperand);
+            lastBB.instructions.add(typeTest);
+            BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(modExecFunc);
+            BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(modExecFunc);
+            BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(modExecFunc);
+            lastBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
+            BIRNonTerminator.TypeCast typeCast = new BIRNonTerminator.TypeCast(null, argOperand,
+                    tempArgOperand, argOperand.variableDcl.type, false);
+            BInvokableSymbol defaultFunc =
+                    ((BInvokableTypeSymbol) mainFunc.type.tsymbol).defaultValues.get(parameter.metaVarName);
+            trueBB.terminator = getFPCallForDefaultParameter(defaultFunc, argOperand, nextBB, globalVars,
+                    mainArgs.subList(0, mainFuncParamIndex));
+            falseBB.instructions.add(typeCast);
+            falseBB.terminator = new BIRTerminator.GOTO(null, nextBB);
         }
-    }
-
-    private void injectEqualsCheck(BIRNode.BIRFunction modExecFunc, BIROperand boolRef, BType type,
-                                   BIRNode.BIRBasicBlock lastBB, BIROperand argOperand) {
-        BIRNode.BIRVariableDcl defaultVal = addAndGetNextVar(modExecFunc, type);
-        BIROperand defaultRef = new BIROperand(defaultVal);
-        BIRNonTerminator.ConstantLoad constantLoad = new BIRNonTerminator.ConstantLoad(null, 0, type, defaultRef);
-        BIRNonTerminator.BinaryOp equals =
-                new BIRNonTerminator.BinaryOp(null, InstructionKind.EQUAL, null, boolRef, argOperand,
-                        defaultRef);
-        lastBB.instructions.add(constantLoad);
-        lastBB.instructions.add(equals);
     }
 
     private BIRTerminator.FPCall getFPCallForDefaultParameter(BInvokableSymbol defaultFunc, BIROperand argOperand,

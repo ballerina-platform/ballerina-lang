@@ -4,6 +4,15 @@ Compiling source
 Running Tests with Coverage
 
 	rerun_failed
+
+testFunctionFail1: has failed.
+
+
+testFunctionFail2: has failed.
+
+
+		Test execution time :*****ms
+
 		[pass] testFunctionPass1
 		[pass] testFunctionPass2
 

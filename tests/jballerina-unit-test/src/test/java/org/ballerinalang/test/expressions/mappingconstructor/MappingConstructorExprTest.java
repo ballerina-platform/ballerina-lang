@@ -148,6 +148,12 @@ public class MappingConstructorExprTest {
         validateError(result, i++, "incompatible types: expected 'int' for field 'i', found 'float'", 41, 17);
         validateError(result, i++, "incompatible types: expected 'string' for field 's', found 'int'", 41, 17);
         validateError(result, i++, "incompatible types: expected 'int' for field 'i', found 'boolean'", 41, 29);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| boolean i; anydata...; |}', that " +
+                        "may have rest fields, to construct a closed record", 41, 29);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| int i; boolean x; anydata...; |}'," +
+                        " that may have rest fields, to construct a closed record", 49, 29);
         validateError(result, i++, "undefined field 'x' in record 'Foo'", 49, 29);
         validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 53, 26);
         validateError(result, i++, "undefined symbol 'b'", 53, 26);
@@ -156,19 +162,63 @@ public class MappingConstructorExprTest {
         validateError(result, i++, "missing non-defaultable required record field 'i'", 64, 13);
         validateError(result, i++, "missing non-defaultable required record field 'i'", 67, 13);
         validateError(result, i++, "missing non-defaultable required record field 'i'", 71, 13);
-        validateError(result, i++, "incompatible types: expected a map or a record, found 'int'", 78, 28);
-        validateError(result, i++, "incompatible types: expected 'string', found '(int|float)'", 86, 25);
-        validateError(result, i++, "incompatible types: expected 'string', found 'anydata'", 86, 39);
-        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 90, 38);
-        validateError(result, i++, "undefined symbol 'b'", 90, 38);
-        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 90, 44);
-        validateError(result, i++, "undefined function 'getFoo'", 90, 44);
-        validateError(result, i++, "incompatible types: expected 'json', found 'any'", 100, 18);
-        validateError(result, i++, "incompatible types: expected 'json', found 'anydata'", 100, 30);
-        validateError(result, i++, "incompatible types: expected 'json', found 'any'", 101, 30);
-        validateError(result, i++, "incompatible types: expected 'json', found 'anydata'", 101, 36);
-        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 114, 18);
-        validateError(result, i++, "incompatible types: expected '(int|float)', found 'string'", 115, 32);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'Address', that may have rest fields, to " +
+                        "construct a closed record", 92, 39);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'Address', that may have rest fields, to " +
+                        "construct a closed record", 95, 20);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string street; anydata...; |}', " +
+                        "that may have rest fields, to construct a closed record", 98, 20);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string s; anydata...; |}', that " +
+                        "may have rest fields, to construct a closed record", 102, 17);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| int i; anydata...; |}', that may " +
+                        "have rest fields, to construct a closed record", 102, 26);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| int j; anydata...; |}', that may " +
+                        "have rest fields of type 'anydata', to construct a record that allows only 'string' rest " +
+                        "fields", 108, 36);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| boolean b; anydata...; |}', that " +
+                        "may have rest fields of type 'anydata', to construct a record that allows only 'string' rest" +
+                        " fields", 108, 45);
+        validateError(result, i++,
+                "incompatible types: expected 'string' for field 'population', found 'int'", 119, 21);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; string continent; int" +
+                        " population; anydata...; |}', that may have rest fields of type 'anydata', to construct a " +
+                        "record that allows only 'string' rest fields", 119, 21);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; string continent; " +
+                        "anydata...; |}', that may have rest fields of type 'anydata', to construct a record that " +
+                        "allows only 'string' rest fields", 122, 21);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; anydata...; |}', that" +
+                        " may have rest fields of type 'anydata', to construct a record that allows only 'string' " +
+                        "rest fields", 125, 40);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; string continent; " +
+                        "string...; |}', that may have rest fields of type 'string', to construct a record that " +
+                        "allows only 'int' rest fields", 128, 64);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; string continent; " +
+                        "error...; |}', that may have rest fields, to construct a closed record", 131, 56);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'int'", 138, 28);
+        validateError(result, i++, "incompatible types: expected 'string', found '(int|float)'", 146, 25);
+        validateError(result, i++, "incompatible types: expected 'string', found 'anydata'", 146, 39);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 150, 38);
+        validateError(result, i++, "undefined symbol 'b'", 150, 38);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 150, 44);
+        validateError(result, i++, "undefined function 'getFoo'", 150, 44);
+        validateError(result, i++, "incompatible types: expected 'json', found 'any'", 160, 18);
+        validateError(result, i++, "incompatible types: expected 'json', found 'anydata'", 160, 30);
+        validateError(result, i++, "incompatible types: expected 'json', found 'any'", 161, 30);
+        validateError(result, i++, "incompatible types: expected 'json', found 'anydata'", 161, 36);
+        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 174, 18);
+        validateError(result, i++, "incompatible types: expected '(int|float)', found 'string'", 175, 32);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -248,7 +298,8 @@ public class MappingConstructorExprTest {
                 { "testSpreadOpInConstMap" },
                 { "testSpreadOpInGlobalMap" },
                 { "testMappingConstrExprAsSpreadExpr" },
-                { "testSpreadFieldWithRecordTypeHavingNeverField" }
+                { "testSpreadFieldWithRecordTypeHavingNeverField" },
+                { "testSpreadFieldWithRecordTypeHavingRestDescriptor" }
         };
     }
 

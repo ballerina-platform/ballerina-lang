@@ -304,6 +304,54 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "E1",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "E1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E2",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "E2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error1",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Error1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E3",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "E3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error2",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "I",
+      "insertText": "Error2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "I",
+      "insertText": "Error",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

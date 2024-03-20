@@ -28,7 +28,6 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang:value');
     implementation project(':ballerina-lang:regexp');
-    implementation project(':observability-symbol-collector');
 
     testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
     testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"

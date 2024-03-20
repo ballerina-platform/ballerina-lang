@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	assertions
+
+		Test execution time :*****ms
+
 		[pass] testAssertStringEquals
 		[pass] testAssertStringEqualsNegative
 		[pass] testAssertStringNotEquals

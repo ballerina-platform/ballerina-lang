@@ -100,5 +100,5 @@ public class TesterinaConstants {
 
     public static final int IDENTIFIER_START_INDEX = 1;
     public static final int IDENTIFIER_END_INDEX = 5;
-
+    public static final int DEFAULT_TEST_WORKERS = 1;
 }

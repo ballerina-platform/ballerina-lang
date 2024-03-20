@@ -7,6 +7,12 @@ Running Tests with Coverage
 
 	object_mocking
 
+testDefaultMockWrongAction has failed.
+
+
+		Test execution time :*****ms
+
+
 		[fail] testDefaultMockWrongAction:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("return value provided does not match the return type of function 'get()'")
@@ -23,4 +29,4 @@ Running Tests with Coverage
 
 Generating Test Report*****project-based-tests\object-mocking-tests\target\report\test_results.json
 
-error: there are test failures
+error: there are test failures

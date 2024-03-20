@@ -7,6 +7,9 @@ WARNING [tests\assert-test-structural-types.bal:(24:5,24:18)] undocumented field
 Running Tests with Coverage
 
 	assertions
+
+		Test execution time :*****ms
+
 		[pass] testAssertByteArrayEquals
 		[pass] testAssertByteArrayEqualsNegative
 		[pass] testAssertByteArrayNotEquals

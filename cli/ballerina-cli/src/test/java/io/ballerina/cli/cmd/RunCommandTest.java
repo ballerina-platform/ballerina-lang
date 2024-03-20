@@ -27,6 +27,7 @@ import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 
 /**
  * Run command tests.
@@ -165,6 +166,18 @@ public class RunCommandTest extends BaseCommandTest {
         Assert.assertTrue(tempFile.toFile().exists());
 
         Files.delete(tempFile);
+    }
+
+    @Test(description = "Run a project with a build tool execution")
+    public void testRunProjectWithBuildTool() throws IOException {
+        Path projectPath = this.testResources.resolve("proper-build-tool");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("run-project-with-build-tool.txt"));
     }
 
     @Test(description = "Run a valid ballerina project with invalid argument")

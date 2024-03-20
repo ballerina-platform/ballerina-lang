@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -34,7 +35,7 @@ import java.util.Optional;
  */
 public class BErrorType extends BAnnotatableType implements ErrorType {
 
-    public Type detailType;
+    public Type detailType = PredefinedTypes.TYPE_ERROR_DETAIL;
     public BTypeIdSet typeIdSet;
     private IntersectionType intersectionType = null;
 

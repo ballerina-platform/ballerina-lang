@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	function_mocking_legacy
+
+		Test execution time :*****ms
+
 		[pass] testIntAdd
 		[pass] testIntMul
 

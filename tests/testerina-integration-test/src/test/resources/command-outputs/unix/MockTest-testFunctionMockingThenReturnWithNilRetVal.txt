@@ -4,6 +4,12 @@ Compiling source
 Running Tests with Coverage
 
 	function_mocking
+
+testFunctionMock3 has failed.
+
+
+		Test execution time :*****ms
+
 		[pass] testFunctionMock
 		[pass] testFunctionMock2
 

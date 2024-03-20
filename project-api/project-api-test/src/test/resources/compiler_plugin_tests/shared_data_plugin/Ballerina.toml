@@ -1,0 +1,4 @@
+[package]
+org = "shared_data"
+name = "combined_plugin"
+version = "0.1.0"

@@ -19,6 +19,8 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.List;
+
 /**
  * Represents Ballerina Map Type.
  */
@@ -26,8 +28,9 @@ public class MapType extends Construct {
     @Expose
     public Type mapParameterType;
 
-    public MapType(String name, String description, boolean isDeprecated, Type mapParameterType) {
-        super(name, description, isDeprecated);
+    public MapType(String name, String description, List<String> descriptionSections, boolean isDeprecated,
+                   Type mapParameterType) {
+        super(name, description, descriptionSections, isDeprecated);
         this.mapParameterType = mapParameterType;
     }
 }

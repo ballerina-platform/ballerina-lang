@@ -7,6 +7,12 @@ Running Tests with Coverage
 
 	object_mocking
 
+testMockInvalidStream has failed.
+
+
+		Test execution time :*****ms
+
+
 		[fail] testMockInvalidStream:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("return value provided does not match the return type of function 'get_stream()'")

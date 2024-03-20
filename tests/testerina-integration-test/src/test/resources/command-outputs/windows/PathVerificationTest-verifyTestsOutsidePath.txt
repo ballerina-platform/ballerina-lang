@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	path_verification
+
+		Test execution time :*****ms
+
 		[pass] testFunction
 		[pass] testFunction2
 

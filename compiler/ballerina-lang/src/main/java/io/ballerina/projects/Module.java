@@ -365,7 +365,7 @@ public class Module {
             CompilationOptions offlineCompOptions = CompilationOptions.builder().setOffline(true).build();
             offlineCompOptions = offlineCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
             // this will build the dependency graph if it is not built yet
-            packageInstance.getResolution(offlineCompOptions);
+            packageInstance.packageContext().getResolution(offlineCompOptions, true);
             return getAllDependants(updatedModuleDescriptor, new HashSet<>(), new HashSet<>());
         }
 

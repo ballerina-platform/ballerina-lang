@@ -1,0 +1,60 @@
+{
+  "range": {
+    "start": {
+      "line": 30,
+      "character": 13
+    },
+    "end": {
+      "line": 30,
+      "character": 33
+    }
+  },
+  "source": "extract_to_transform_function11.bal",
+  "description": "Extract to transform function for a checked field access expression",
+  "expected": [
+    {
+      "title": "Extract to transform function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 31,
+              "character": 2
+            },
+            "end": {
+              "line": 31,
+              "character": 2
+            }
+          },
+          "newText": "\n\nfunction transform1(Address address) returns Address => {\n    country: \"\",\n    city: \"\",\n    houseNo: \"\",\n    line2: \"\",\n    line1: \"\"\n};\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 30,
+              "character": 13
+            },
+            "end": {
+              "line": 30,
+              "character": 33
+            }
+          },
+          "newText": "transform1(check person.address)"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_transform_function11.bal",
+          {
+            "line": 30,
+            "character": 13
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

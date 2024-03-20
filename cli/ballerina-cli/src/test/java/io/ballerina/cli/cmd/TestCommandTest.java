@@ -57,6 +57,7 @@ import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 
 /**
  * Test command tests.
@@ -182,6 +183,18 @@ public class TestCommandTest extends BaseCommandTest {
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("test-project.txt"));
+    }
+
+    @Test(description = "Test a project with a build tool execution")
+    public void testTestProjectWithBuildTool() throws IOException {
+        Path projectPath = this.testResources.resolve("proper-build-tool-with-tests");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs();
+        testCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("test-project-with-build-tool.txt"));
     }
 
     @Test(description = "Test the heap dump generation for a project with an OOM error")

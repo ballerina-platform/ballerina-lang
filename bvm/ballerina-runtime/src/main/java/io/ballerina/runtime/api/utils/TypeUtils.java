@@ -152,10 +152,17 @@ public class TypeUtils {
      * @return the referred type if provided with a type reference type, else returns the original type
      */
     public static Type getReferredType(Type type) {
-        if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            return getReferredType(((ReferenceType) type).getReferredType());
+        Type referredType = type.getCachedReferredType();
+        if (referredType != null) {
+            return referredType;
         }
-        return type;
+        if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            referredType = getReferredType(((ReferenceType) type).getReferredType());
+        } else {
+            referredType = type;
+        }
+        type.setCachedReferredType(referredType);
+        return referredType;
     }
 
     /**
@@ -167,12 +174,18 @@ public class TypeUtils {
      * else returns the original type
      */
     public static Type getImpliedType(Type type) {
+        Type impliedType = type.getCachedImpliedType();
+        if (impliedType != null) {
+            return impliedType;
+        }
         type = getReferredType(type);
 
         if (type.getTag() == TypeTags.INTERSECTION_TAG) {
-            return getImpliedType(((IntersectionType) type).getEffectiveType());
+            impliedType = getImpliedType(((IntersectionType) type).getEffectiveType());
+        } else {
+            impliedType = type;
         }
-
-        return type;
+        type.setCachedImpliedType(impliedType);
+        return impliedType;
     }
 }

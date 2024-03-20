@@ -47,13 +47,12 @@ import java.util.Objects;
  */
 public class GraphCommandTest extends BaseCommandTest {
     private Path testResources;
-    private Path projectsWithDependencyConflicts;
 
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
         this.testResources = super.tmpDir.resolve("build-test-resources");
-        projectsWithDependencyConflicts = this.testResources.resolve("projectsWithDependencyConflicts")
+        Path projectsWithDependencyConflicts = this.testResources.resolve("projectsWithDependencyConflicts")
                 .resolve("package_p");
         try {
             copyTestResourcesToTmpDir();
@@ -102,6 +101,19 @@ public class GraphCommandTest extends BaseCommandTest {
 
         String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-project-with-no-dependencies.txt");
+        Assert.assertEquals(actualLog, expectedLog);
+    }
+
+    @Test(description = "Print the dependency graph of a ballerina project with build tools")
+    public void testPrintGraphForBalProjectWithBuildTools() throws IOException {
+        Path balProjectPath = this.testResources.resolve("proper-build-tool");
+
+        GraphCommand graphCommand = new GraphCommand(balProjectPath, printStream, printStream, false);
+        new CommandLine(graphCommand).parseArgs(balProjectPath.toString());
+        graphCommand.execute();
+
+        String actualLog = readFormattedOutput();
+        String expectedLog = CommandOutputUtils.getOutput("graph-with-build-tool.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
 

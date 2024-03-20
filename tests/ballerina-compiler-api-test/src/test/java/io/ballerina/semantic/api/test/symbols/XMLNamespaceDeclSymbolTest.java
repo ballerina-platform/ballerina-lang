@@ -65,7 +65,7 @@ public class XMLNamespaceDeclSymbolTest {
                 {16, 31, "b7a", "http://ballerina.io"},
                 {18, 16, "b7a", "http://ballerina.io"},
                 {20, 31, "blang", "http://ballerina.io"},
-                {26, 13, "ex", ""},
+                {26, 13, "ex", "http://example.com"},
         };
     }
 

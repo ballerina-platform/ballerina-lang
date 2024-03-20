@@ -2,16 +2,16 @@ Ballerina Strand Dump \[\d*/\d*/\d* \d*:\d*:\d*\]
 ===========================================
 
 Total strand group count \t:\t3
-Total strand count       \t:\t8
+Total strand count       \t:\t9
 Active strand group count\t:\t1
 Active strand count      \t:\t8
 
 group \d* \[QUEUED\]: \[8\]
 \tstrand \d* "main" \[testOrg.testPackageWithModules.0:main\] \[BLOCKED\]:
 \t\tat\tballerina.lang.function.\d*.\d*.\d*:call\(function.bal:\d*\)
-\t\t  \tballerina.test.\d*.\d*.\d*:executeTestFunction\(execute.bal:\d*\)
-\t\t  \tballerina.test.\d*.\d*.\d*:executeNonDataDrivenTest\(execute.bal:\d*\)
-\t\t  \tballerina.test.\d*.\d*.\d*:executeTest\(execute.bal:\d*\)
+\t\t  \tballerina.test.\d*.\d*.\d*:executeTestFunction\(serialExecuter.bal:\d*\)
+\t\t  \tballerina.test.\d*.\d*.\d*:executeNonDataDrivenTest\(serialExecuter.bal:\d*\)
+\t\t  \tballerina.test.\d*.\d*.\d*:executeTest\(serialExecuter.bal:\d*\)
 \t\t  \tballerina.test.\d*.\d*.\d*:executeTests\(execute.bal:\d*\)
 \t\t  \tballerina.test.\d*.\d*.\d*:startSuite\(execute.bal:\d*\)
 \t\t  \ttestOrg.testPackageWithModules.0.1.0:__execute__\(tests/test_execute-generated_1.bal:\d*\)
@@ -51,5 +51,3 @@ group \d* \[QUEUED\]: \[8\]
 
 \tstrand \d* "w2" \[testOrg.testPackageWithModules.anotherutils.0:func3\]\[\d*\] \[BLOCKED ON WORKER MESSAGE RECEIVE\]:
 \t\tat\ttestOrg.testPackageWithModules.anotherutils.0.1.0:\$lambda\$_1\(anotherutils.bal:42\)
-
-===========================================

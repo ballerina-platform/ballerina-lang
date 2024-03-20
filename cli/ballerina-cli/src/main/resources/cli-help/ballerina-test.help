@@ -90,6 +90,8 @@ OPTIONS
        --graalvm-build-options
             Additional build options to be passed to the GraalVM native image.
 
+       --parallel
+            Enable parallel execution of tests.
 
 ARGUMENTS
        (-Ckey=value)...

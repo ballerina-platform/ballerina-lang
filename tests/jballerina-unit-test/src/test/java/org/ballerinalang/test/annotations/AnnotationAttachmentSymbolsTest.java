@@ -394,6 +394,16 @@ public class AnnotationAttachmentSymbolsTest {
         assertAttachmentSymbol(attachmentsF4.get(0), "v29", true, "increment", -2L);
     }
 
+    @Test
+    public void testAnnotWithServiceRemoteMethodAttachmentPoint() {
+        BLangFunction function = getFunction("ServiceClass.serviceRemoteFn1");
+        List<? extends AnnotationAttachmentSymbol> attachments = function.symbol.getAnnotations();
+        Assert.assertEquals(attachments.size(), 2);
+
+        assertAttachmentSymbol(attachments.get(0), "v31");
+        assertAttachmentSymbol(attachments.get(1), "v32", true, "increment", 1112L);
+    }
+
     private BLangTypeDefinition getTypeDefinition(List<? extends TypeDefinition> typeDefinitions, String name) {
         for (TypeDefinition typeDefinition : typeDefinitions) {
             BLangTypeDefinition bLangTypeDefinition = (BLangTypeDefinition) typeDefinition;

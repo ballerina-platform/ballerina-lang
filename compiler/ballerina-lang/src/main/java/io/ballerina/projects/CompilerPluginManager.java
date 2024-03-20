@@ -60,7 +60,7 @@ class CompilerPluginManager {
         List<CompilerPluginInfo> compilerPlugins = loadEngagedCompilerPlugins(directDependencies);
         List<CompilerPluginInfo> inBuiltCompilerPlugins = loadInBuiltCompilerPlugins(rootPkgNode.packageInstance());
         compilerPlugins.addAll(inBuiltCompilerPlugins);
-        List<CompilerPluginContextIml> compilerPluginContexts = initializePlugins(compilerPlugins);
+        List<CompilerPluginContextIml> compilerPluginContexts = initializePlugins(compilerPlugins, compilation);
         return new CompilerPluginManager(compilation, compilerPluginContexts);
     }
 
@@ -189,12 +189,23 @@ class CompilerPluginManager {
                 .collect(Collectors.toList());
     }
 
-    private static List<CompilerPluginContextIml> initializePlugins(List<CompilerPluginInfo> compilerPlugins) {
+    private static List<CompilerPluginContextIml> initializePlugins(List<CompilerPluginInfo> compilerPlugins,
+                                                                    PackageCompilation compilation) {
+        // Skip initialization if the compiler plugins are already initialized for the project
+        if (!compilation.packageContext().project().compilerPluginContexts().isEmpty()) {
+            return compilation.packageContext().project().compilerPluginContexts();
+        }
         List<CompilerPluginContextIml> compilerPluginContexts = new ArrayList<>(compilerPlugins.size());
         for (CompilerPluginInfo compilerPluginInfo : compilerPlugins) {
-            CompilerPluginContextIml pluginContext = new CompilerPluginContextIml(compilerPluginInfo);
+            CompilerPluginCache pluginCache =
+                    compilation.packageContext().project().projectEnvironmentContext().environment().getService(
+                            CompilerPluginCache.class);
+            CompilerPluginContextIml pluginContext = new CompilerPluginContextIml(compilerPluginInfo,
+                    pluginCache.getData(compilerPluginInfo.compilerPlugin().getClass().getCanonicalName()));
             initializePlugin(compilerPluginInfo, pluginContext);
             compilerPluginContexts.add(pluginContext);
+            // Add the plugin context to context list in project
+            compilation.packageContext().project().compilerPluginContexts().add(pluginContext);
         }
         return compilerPluginContexts;
     }

@@ -7,6 +7,12 @@ WARNING [dependson-skip-test.bal:(34:5,34:18)] unused variable 'i'
 Running Tests
 
 	dependson-skip-test.bal
+
+test2 has failed.
+
+
+		Test execution time :*****ms
+
 		[pass] test1
 		[pass] test5
 

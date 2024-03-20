@@ -67,7 +67,6 @@ public class DoStmtsTest {
         BAssertUtil.validateWarning(negativeRes, index++, "unused variable 'e'", 57, 12);
         BAssertUtil.validateError(negativeRes, index++, "unreachable code", 60, 7);
         BAssertUtil.validateError(negativeRes, index++, "unreachable code", 72, 3);
-        BAssertUtil.validateError(negativeRes, index++, "this function must return a result", 73, 1);
         Assert.assertEquals(negativeRes.getDiagnostics().length, index);
     }
 

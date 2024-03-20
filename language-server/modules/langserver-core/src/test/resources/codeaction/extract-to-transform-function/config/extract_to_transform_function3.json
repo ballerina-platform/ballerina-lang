@@ -1,0 +1,60 @@
+{
+  "range": {
+    "start": {
+      "line": 32,
+      "character": 14
+    },
+    "end": {
+      "line": 32,
+      "character": 28
+    }
+  },
+  "source": "extract_to_transform_function3.bal",
+  "description": "Extract to transform function for an empty record",
+  "expected": [
+    {
+      "title": "Extract to transform function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 33,
+              "character": 2
+            },
+            "end": {
+              "line": 33,
+              "character": 2
+            }
+          },
+          "newText": "\n\nfunction transform1(Address address) returns Location => {\n\n};\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 32,
+              "character": 14
+            },
+            "end": {
+              "line": 32,
+              "character": 28
+            }
+          },
+          "newText": "transform1(person.address)"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_transform_function3.bal",
+          {
+            "line": 32,
+            "character": 14
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

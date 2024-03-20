@@ -49,8 +49,8 @@ public class Main {
     private static final String MISSING_REQUIRED_PARAMETER_PREFIX = "Missing required parameter";
     private static final String COMPILATION_ERROR_MESSAGE = "compilation contains errors";
 
-    private static PrintStream errStream = System.err;
-    private static PrintStream outStream = System.out;
+    private static final PrintStream errStream = System.err;
+    private static final PrintStream outStream = System.out;
 
     public static void main(String... args) {
         try {

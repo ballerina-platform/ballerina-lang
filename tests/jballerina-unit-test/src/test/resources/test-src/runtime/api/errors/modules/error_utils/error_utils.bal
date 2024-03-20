@@ -73,3 +73,7 @@ public function getDistinctErrorWithEmptyDetailNegative2(string msg) returns err
 public function getDistinctErrorWithNullDetailNegative2(string msg) returns error = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
 } external;
+
+public function getNullDetailError(string msg) returns error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
+} external;

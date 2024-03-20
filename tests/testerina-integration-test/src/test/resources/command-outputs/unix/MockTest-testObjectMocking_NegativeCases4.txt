@@ -7,6 +7,12 @@ Running Tests with Coverage
 
 	object_mocking
 
+testDefaultMockInvalidReturnValue has failed.
+
+
+		Test execution time :*****ms
+
+
 		[fail] testDefaultMockInvalidReturnValue:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("return value provided does not match the return type of function 'get()'")

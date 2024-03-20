@@ -59,6 +59,8 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.eclipse.lsp4j.services.LanguageServer;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -420,7 +422,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<List<PublishDiagnosticsParams>> diagnostics(BallerinaProjectParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            String fileUri = params.getDocumentIdentifier().getUri();
+            String fileUri = URLDecoder.decode(params.getDocumentIdentifier().getUri(), StandardCharsets.UTF_8);
             try {
                 DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
                         this.workspaceManagerProxy.get(fileUri),

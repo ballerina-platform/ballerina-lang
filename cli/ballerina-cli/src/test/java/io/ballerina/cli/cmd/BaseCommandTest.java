@@ -49,6 +49,7 @@ public abstract class BaseCommandTest {
     private ByteArrayOutputStream console;
     protected PrintStream printStream;
     protected Path homeCache;
+    private final String userDir = System.getProperty("user.dir");
     
     @BeforeClass
     public void setup() throws IOException {
@@ -137,7 +138,8 @@ public abstract class BaseCommandTest {
     }
 
     @AfterClass (alwaysRun = true)
-    public void cleanup() throws IOException {
+    public void cleanup() {
         ProjectUtils.deleteDirectory(this.tmpDir);
+        System.setProperty("user.dir", userDir);
     }
 }

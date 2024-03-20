@@ -932,6 +932,8 @@ public class TestUtil {
             initializationOptions.put(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, true);
             if (!initOptions.isEmpty()) {
                 initializationOptions.putAll(initOptions);
+            } else {
+                initializationOptions.put(InitializationOptions.KEY_ENABLE_INDEX_PACKAGES, false);
             }
             initializeParams.setInitializationOptions(GSON.toJsonTree(initializationOptions));
 

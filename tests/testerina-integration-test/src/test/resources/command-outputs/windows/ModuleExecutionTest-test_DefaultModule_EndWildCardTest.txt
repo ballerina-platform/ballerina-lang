@@ -5,10 +5,16 @@ Running Tests with Coverage
 
 	moduleExecution.Module1
 
+		Test execution time :*****ms
+
+
 
 		No tests found
 
 	moduleExecution
+
+		Test execution time :*****ms
+
 		[pass] main_test1
 		[pass] main_test2
 		[pass] main_test3

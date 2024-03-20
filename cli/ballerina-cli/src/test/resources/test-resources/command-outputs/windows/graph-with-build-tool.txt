@@ -1,0 +1,11 @@
+Executing Build Tools
+	openapi(generate-delivery-client)
+
+
+digraph "foo/winery:0.1.0" {
+	node [shape=record]
+	"foo/winery" [label="<0.1.0> foo/winery:0.1.0"];
+
+	// Edges
+
+}

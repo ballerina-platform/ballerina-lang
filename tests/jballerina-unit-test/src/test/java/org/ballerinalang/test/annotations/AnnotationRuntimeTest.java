@@ -210,6 +210,12 @@ public class AnnotationRuntimeTest {
         BRunUtil.invoke(resultOne, "testListExprInConstAnnot");
     }
 
+    @Test
+    public void testServiceRemoteMethodAnnotations() {
+        CompileResult result = BCompileUtil.compile("test-src/annotations/service_remote_method_annotations.bal");
+        BRunUtil.invoke(result, "testServiceRemoteMethodAnnotations");
+    }
+
     @AfterClass
     public void tearDown() {
         resultOne = null;

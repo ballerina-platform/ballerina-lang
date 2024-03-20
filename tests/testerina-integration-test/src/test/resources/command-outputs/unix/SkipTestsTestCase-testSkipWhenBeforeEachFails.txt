@@ -13,6 +13,9 @@ Running Tests
 			callableName: beforeEach$lambda1$  fileName: skip-when-beforeEach-fails.bal lineNumber: 54
 		
 
+		Test execution time :*****ms
+
+
 
 		0 passing
 		0 failing

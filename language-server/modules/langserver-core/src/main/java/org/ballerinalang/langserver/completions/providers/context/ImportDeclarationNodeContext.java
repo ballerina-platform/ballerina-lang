@@ -327,7 +327,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                     .map(IdentifierToken::text)
                     .collect(Collectors.joining("."));
 
-            moduleList = LSPackageLoader.getInstance(serverContext).getCentralPackages(serverContext);
+            moduleList = LSPackageLoader.getInstance(serverContext).getCentralPackages();
             moduleList.forEach(ballerinaPackage -> packageList.add(ballerinaPackage.packageName().value()));
             List<String> filteredPackageNames = getFilteredPackages(packageList, prefix, context);
             for (String filteredPackage : filteredPackageNames) {

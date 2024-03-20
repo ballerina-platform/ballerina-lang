@@ -19,6 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.utils.PrintUtils;
@@ -495,7 +496,11 @@ public class ToolCommand implements BLauncherCmd {
         }
         try (BufferedReader bufferedReader = Files.newBufferedReader(localToolJsonPath, StandardCharsets.UTF_8)) {
             localToolJson = gson.fromJson(bufferedReader, JsonObject.class);
-            JsonObject pkgDesc = localToolJson.get(toolId).getAsJsonObject();
+            JsonElement localTool = localToolJson.get(toolId);
+            if (localTool == null) {
+                return false;
+            }
+            JsonObject pkgDesc = localTool.getAsJsonObject();
             if (pkgDesc.isEmpty()) {
                 return false;
             }

@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Module;
@@ -27,8 +28,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Function generator utilities.
@@ -233,6 +236,23 @@ public class FunctionGenerator {
         }
 
         return fnBuilder.toString();
+    }
+
+    /**
+     * Generates a unique function name based on the provided function prefix and the list of visible symbols.
+     * The function name is generated in such a way that it does not conflict with any of the visible symbol names.
+     *
+     * @param functionPrefix The prefix to be used for the function name.
+     * @param visibleSymbols The list of visible symbols in the current scope.
+     * @return A unique function name.
+     */
+    public static String generateFunctionName(String functionPrefix, List<Symbol> visibleSymbols) {
+        Set<String> visibleSymbolNames = visibleSymbols.stream()
+                .map(Symbol::getName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+        return NameUtil.generateTypeName(functionPrefix, visibleSymbolNames);
     }
 
     /**

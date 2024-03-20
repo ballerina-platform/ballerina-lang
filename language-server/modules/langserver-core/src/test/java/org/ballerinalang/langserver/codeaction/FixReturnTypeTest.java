@@ -76,6 +76,7 @@ public class FixReturnTypeTest extends AbstractCodeActionTest {
                 {"fixReturnTypeForConditionalExpr6.json"},
                 {"fixReturnTypeForConditionalExpr7.json"},
                 {"fixReturnTypeForConditionalExpr8.json"},
+                {"fixReturnTypeForConditionalExpr9.json"},
                 {"fixReturnTypeForQueryExpr1.json"},
                 {"fixReturnTypeForQueryExpr2.json"},
                 {"fixReturnTypeForQueryExpr3.json"},

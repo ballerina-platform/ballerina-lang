@@ -221,7 +221,6 @@ public class ReachabilityAnalysisTest {
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 268, 16);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 285, 12);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 289, 5);
-        validateError(result, i++, ERROR_MUST_RETURN_A_RESULT, 290, 1);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 294, 5);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 307, 12);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 311, 9);
@@ -653,7 +652,23 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1142, 17);
         validateHint(result, i++, ALWAYS_FALSE_CONDITION, 1152, 19);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1153, 17);
-        
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1205, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1218, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1227, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1240, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1256, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1272, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1280, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1295, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1306, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1314, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1327, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1335, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1355, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1363, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1376, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1387, 5);
+
         Assert.assertEquals(result.getErrorCount(), i - 24);
         Assert.assertEquals(result.getHintCount(), 24);
     }

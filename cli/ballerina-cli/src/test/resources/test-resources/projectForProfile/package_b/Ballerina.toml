@@ -1,0 +1,10 @@
+[package]
+org = "foo"
+name = "package_b"
+version = "0.1.0"
+
+[[tool.openapi]]
+id = "generate-delivery-client"
+filePath = "delivery.json"
+targetModule = "delivery"
+options.mode = "client"

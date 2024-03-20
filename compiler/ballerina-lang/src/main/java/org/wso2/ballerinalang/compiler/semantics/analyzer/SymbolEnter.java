@@ -1166,20 +1166,16 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
-        String nsURI;
+        String nsURI = "";
         if (xmlnsNode.namespaceURI.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) xmlnsNode.namespaceURI;
-            if (missingNodesHelper.isMissingNode(varRef.variableName.value)) {
-                nsURI = "";
-            } else {
-                // TODO: handle const-ref (#24911)
-                nsURI = "";
+            if (Symbols.isFlagOn(varRef.symbol.flags, Flags.CONSTANT)) {
+                nsURI = ((BConstantSymbol) varRef.symbol).value.toString();
+                checkInvalidNameSpaceDeclaration(xmlnsNode.pos, xmlnsNode.prefix, nsURI);
             }
         } else {
             nsURI = (String) ((BLangLiteral) xmlnsNode.namespaceURI).value;
-            if (!nullOrEmpty(xmlnsNode.prefix.value) && nsURI.isEmpty()) {
-                dlog.error(xmlnsNode.pos, DiagnosticErrorCode.INVALID_NAMESPACE_DECLARATION, xmlnsNode.prefix);
-            }
+            checkInvalidNameSpaceDeclaration(xmlnsNode.pos, xmlnsNode.prefix, nsURI);
         }
 
         // set the prefix of the default namespace
@@ -1208,6 +1204,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define it in the enclosing scope. Here we check for the owner equality,
         // to support overriding of namespace declarations defined at package level.
         defineSymbol(xmlnsNode.prefix.pos, xmlnsSymbol);
+    }
+
+    private void checkInvalidNameSpaceDeclaration(Location pos, BLangIdentifier prefix, String nsURI) {
+        if (!nullOrEmpty(prefix.value) && nsURI.isEmpty()) {
+            dlog.error(pos, DiagnosticErrorCode.INVALID_NAMESPACE_DECLARATION, prefix);
+        }
     }
 
     private boolean nullOrEmpty(String value) {

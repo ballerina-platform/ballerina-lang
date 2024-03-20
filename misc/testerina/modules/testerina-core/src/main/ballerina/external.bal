@@ -13,10 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.` `
-
 import ballerina/jballerina.java;
 
-handle outStreamObj = outStream();
+final handle outStreamObj = outStream();
 
 isolated function print(handle printStream, any|error obj) = @java:Method {
     name: "print",
@@ -24,11 +23,13 @@ isolated function print(handle printStream, any|error obj) = @java:Method {
     paramTypes: ["java.lang.Object"]
 } external;
 
-function println(any|error... objs) {
-    foreach var obj in objs {
-        print(outStreamObj, obj);
+isolated function println(anydata|error... objs) {
+    lock {
+        foreach var obj in objs.clone() {
+            print(outStreamObj, obj);
+        }
+        print(outStreamObj, "\n");
     }
-    print(outStreamObj, "\n");
 }
 
 isolated function outStream() returns handle = @java:FieldGet {
@@ -48,56 +49,55 @@ isolated function splitExternal(handle receiver, handle delimiter) returns handl
 } external;
 
 isolated function getBallerinaStringArray(handle h) returns string[] = @java:Method {
-    'class:"io.ballerina.runtime.api.utils.StringUtils",
-    name:"fromStringArray",
-    paramTypes:["[Ljava.lang.String;"]
+    'class: "io.ballerina.runtime.api.utils.StringUtils",
+    name: "fromStringArray",
+    paramTypes: ["[Ljava.lang.String;"]
 } external;
 
 isolated function writeContent(string filePath, string content) returns error? = @java:Method {
-    'class:"org.ballerinalang.testerina.natives.io.FileUtils",
-    name:"writeContent"
+    'class: "org.ballerinalang.testerina.natives.io.FileUtils",
+    name: "writeContent"
 } external;
 
 isolated function readContent(string filePath) returns string = @java:Method {
-    'class:"org.ballerinalang.testerina.natives.io.FileUtils",
-    name:"readContent"
+    'class: "org.ballerinalang.testerina.natives.io.FileUtils",
+    name: "readContent"
 } external;
 
 isolated function fileExists(string filePath) returns boolean = @java:Method {
-    'class:"org.ballerinalang.testerina.natives.io.FileUtils",
-    name:"fileExists"
+    'class: "org.ballerinalang.testerina.natives.io.FileUtils",
+    name: "fileExists"
 } external;
 
 isolated function isSystemConsole() returns boolean = @java:Method {
-    'class:"org.ballerinalang.testerina.natives.io.StringUtils",
-    name:"isSystemConsole"
+    'class: "org.ballerinalang.testerina.natives.io.StringUtils",
+    name: "isSystemConsole"
 } external;
 
 isolated function sprintf(string format, (any|error)... args) returns string = @java:Method {
-    name : "sprintf",
-    'class : "org.ballerinalang.testerina.natives.io.StringUtils"
+    name: "sprintf",
+    'class: "org.ballerinalang.testerina.natives.io.StringUtils"
 } external;
 
 isolated function matchWildcard(string functionName, string functionPattern) returns boolean|error = @java:Method {
-    name : "matchWildcard",
-    'class : "org.ballerinalang.testerina.natives.io.StringUtils"
+    name: "matchWildcard",
+    'class: "org.ballerinalang.testerina.natives.io.StringUtils"
 } external;
 
 isolated function decode(string str, string charset) returns string|error = @java:Method {
-    name : "decode",
-    'class : "org.ballerinalang.testerina.natives.io.StringUtils"
+    name: "decode",
+    'class: "org.ballerinalang.testerina.natives.io.StringUtils"
 } external;
 
 isolated function getBallerinaType((any|error) value) returns string = @java:Method {
-    name : "getBallerinaType",
-    'class : "org.ballerinalang.testerina.core.BallerinaTypeCheck"
+    name: "getBallerinaType",
+    'class: "org.ballerinalang.testerina.core.BallerinaTypeCheck"
 } external;
 
 isolated function getStringDiff(string actual, string expected) returns string = @java:Method {
-     name : "getStringDiff",
-     'class : "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
- } external;
-
+    name: "getStringDiff",
+    'class: "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
+} external;
 
 isolated function getKeysDiff(string[] actualKeys, string[] expectedKeys) returns string = @java:Method {
     name: "getKeysDiff",
@@ -107,4 +107,14 @@ isolated function getKeysDiff(string[] actualKeys, string[] expectedKeys) return
 isolated function escapeSpecialCharacters(string key) returns string|error = @java:Method {
     name: "escapeSpecialCharacters",
     'class: "org.ballerinalang.testerina.natives.io.StringUtils"
+} external;
+
+isolated function currentTimeInMillis() returns decimal = @java:Method {
+    name: "currentTimeInMillis",
+    'class: "org.ballerinalang.testerina.natives.CommonUtils"
+} external;
+
+isolated function isFunctionParamConcurrencySafe(function func) returns boolean = @java:Method {
+    name: "isFunctionParamConcurrencySafe",
+    'class: "org.ballerinalang.testerina.natives.CommonUtils"
 } external;

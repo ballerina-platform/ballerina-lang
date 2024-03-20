@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	annotations
+
+		Test execution time :*****ms
+
 		[pass] jsonDataProviderTest#0
 		[pass] stringDataProviderTest#0
 		[pass] stringDataProviderTest#1

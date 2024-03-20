@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	interops
+
+		Test execution time :*****ms
+
 		[pass] testInteropWithRestArgs
 
 

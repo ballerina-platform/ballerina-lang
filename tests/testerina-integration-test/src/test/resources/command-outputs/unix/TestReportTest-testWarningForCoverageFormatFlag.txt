@@ -6,6 +6,12 @@ WARNING [main.bal:(36:5,36:19)] unused variable 'b'
 Running Tests
 
 	foo
+
+testMain: has failed.
+
+
+		Test execution time :*****ms
+
 		[pass] testFunc
 
 		[fail] testMain:
@@ -23,6 +29,9 @@ Running Tests
 		1 skipped
 
 	foo.bar.tests
+
+		Test execution time :*****ms
+
 		[pass] testBarAdd
 
 
@@ -31,6 +40,9 @@ Running Tests
 		0 skipped
 
 	foo.math
+
+		Test execution time :*****ms
+
 		[pass] testFunction1
 		[pass] testFunction2
 
