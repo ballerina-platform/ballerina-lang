@@ -17,12 +17,23 @@
  */
 package io.ballerina.types;
 
+import static io.ballerina.types.TypeAtom.ATOM_CELL_INNER;
+import static io.ballerina.types.TypeAtom.ATOM_CELL_INNER_MAPPING;
+import static io.ballerina.types.TypeAtom.ATOM_CELL_VAL;
+import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
+
 /**
  * This is to represent a SemType belonging to cell basic type.
  *
  * @since 2201.10.0
  */
 public class CellSemType extends ComplexSemType {
+
+    public static final CellSemType CELL_SEMTYPE_VAL = new CellSemType(new ProperSubtypeData[]{bddAtom(ATOM_CELL_VAL)});
+    public static final CellSemType CELL_SEMTYPE_INNER =
+            new CellSemType(new ProperSubtypeData[]{bddAtom(ATOM_CELL_INNER)});
+    public static final CellSemType CELL_SEMTYPE_INNER_MAPPING =
+            new CellSemType(new ProperSubtypeData[]{bddAtom(ATOM_CELL_INNER_MAPPING)});
 
     public CellSemType(ProperSubtypeData[] subtypeDataList) {
         super(BasicTypeBitSet.from(0), PredefinedType.CELL, subtypeDataList);

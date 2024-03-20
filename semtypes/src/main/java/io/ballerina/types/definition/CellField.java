@@ -19,23 +19,21 @@ package io.ballerina.types.definition;
 
 import io.ballerina.types.CellSemType;
 
-import java.util.List;
-
 /**
- * Holds the [string[], CellSemType[]] return type.
+ * Represent a record field in a type-descriptor.
  *
  * @since 2201.10.0
  */
-public class SplitField {
-    public final List<String> names;
-    public final List<CellSemType> types;
+public class CellField {
+    public final String name;
+    public final CellSemType type;
 
-    private SplitField(List<String> strings, List<CellSemType> semTypes) {
-        this.names = strings;
-        this.types = semTypes;
+    private CellField(String name, CellSemType type) {
+        this.name = name;
+        this.type = type;
     }
 
-    public static SplitField from(List<String> strings, List<CellSemType> semTypes) {
-        return new SplitField(strings, semTypes);
+    public static CellField from(String name, CellSemType type) {
+        return new CellField(name, type);
     }
 }

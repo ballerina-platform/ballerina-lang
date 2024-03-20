@@ -19,6 +19,8 @@ package io.ballerina.types.definition;
 
 import io.ballerina.types.Atom;
 import io.ballerina.types.BasicTypeCode;
+import io.ballerina.types.CellAtomicType;
+import io.ballerina.types.CellSemType;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Definition;
 import io.ballerina.types.Env;
@@ -33,6 +35,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+
+import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.types.Core.union;
+import static io.ballerina.types.PredefinedType.NEVER;
+import static io.ballerina.types.PredefinedType.UNDEF;
+import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 
 /**
  * Represent mapping type desc.
@@ -56,10 +65,10 @@ public class MappingDefinition implements Definition {
         }
     }
 
-    public SemType define(Env env, List<Field> fields, SemType rest) {
+    public SemType define(Env env, List<CellField> fields, CellSemType rest) {
         SplitField sfh = splitFields(fields);
         MappingAtomicType atomicType = MappingAtomicType.from(sfh.names.toArray(new String[]{}),
-                sfh.types.toArray(new SemType[]{}), rest);
+                sfh.types.toArray(new CellSemType[]{}), rest);
         Atom atom;
         RecAtom rec = this.rec;
         if (rec != null) {
@@ -71,6 +80,31 @@ public class MappingDefinition implements Definition {
         return this.createSemType(env, atom);
     }
 
+    public static SemType defineMappingTypeWrapped(MappingDefinition md, Env env, List<Field> fields, SemType rest) {
+        return defineMappingTypeWrapped(md, env, fields, rest, CELL_MUT_LIMITED);
+    }
+
+    public static SemType defineMappingTypeWrapped(MappingDefinition md, Env env, List<Field> fields, SemType rest,
+                                                   CellAtomicType.CellMutability mut) {
+        List<CellField> cellFields = new ArrayList<>(fields.size());
+        for (Field field : fields) {
+            SemType ty = field.ty();
+            cellFields.add(
+                    CellField.from(field.name(), cellContaining(
+                            env,
+                            field.opt() ? union(ty, UNDEF) : ty,
+                            field.ro() ? CELL_MUT_NONE : mut
+                    ))
+            );
+        }
+        CellSemType restCell = cellContaining(
+                env,
+                union(rest, UNDEF),
+                NEVER.equals(rest) ? CELL_MUT_NONE : mut
+        );
+        return md.define(env, cellFields, restCell);
+    }
+
     private SemType createSemType(Env env, Atom atom) {
         BddNode bdd = BddCommonOps.bddAtom(atom);
         ComplexSemType s = PredefinedType.basicSubtype(BasicTypeCode.BT_MAPPING, bdd);
@@ -78,19 +112,19 @@ public class MappingDefinition implements Definition {
         return s;
     }
 
-    private SplitField splitFields(List<Field> fields) {
-        Field[] sortedFields = fields.toArray(new Field[]{});
+    private SplitField splitFields(List<CellField> fields) {
+        CellField[] sortedFields = fields.toArray(new CellField[]{});
         Arrays.sort(sortedFields, Comparator.comparing(MappingDefinition::fieldName));
         List<String> names = new ArrayList<>();
-        List<SemType> types = new ArrayList<>();
-        for (Field field : sortedFields) {
+        List<CellSemType> types = new ArrayList<>();
+        for (CellField field : sortedFields) {
             names.add(field.name);
             types.add(field.type);
         }
         return SplitField.from(names, types);
     }
 
-    private static String fieldName(Field f) {
+    private static String fieldName(CellField f) {
         return f.name;
     }
 }

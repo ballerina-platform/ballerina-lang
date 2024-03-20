@@ -32,7 +32,9 @@ public class Context {
     public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
 
     private static volatile Context instance;
-    public SemType anydataMemo;
+
+    public SemType anydataMemo; // TODO: make this private?
+    public SemType jsonMemo;
 
     private Context(Env env) {
         this.env = env;

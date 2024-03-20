@@ -44,8 +44,8 @@ public class SemTypeCoreTest {
     @Test
     public void testSubtypeSimple() {
         Assert.assertTrue(Core.isSubtypeSimple(PredefinedType.NIL, PredefinedType.ANY));
-        Assert.assertTrue(Core.isSubtypeSimple(PredefinedType.INT, PredefinedType.TOP));
-        Assert.assertTrue(Core.isSubtypeSimple(PredefinedType.ANY, PredefinedType.TOP));
+        Assert.assertTrue(Core.isSubtypeSimple(PredefinedType.INT, PredefinedType.VAL));
+        Assert.assertTrue(Core.isSubtypeSimple(PredefinedType.ANY, PredefinedType.VAL));
         Assert.assertFalse(Core.isSubtypeSimple(PredefinedType.INT, PredefinedType.BOOLEAN));
         Assert.assertFalse(Core.isSubtypeSimple(PredefinedType.ERROR, PredefinedType.ANY));
     }
@@ -91,7 +91,7 @@ public class SemTypeCoreTest {
 
     @Test
     public void test2() {
-        Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(new Env()), PredefinedType.INT, PredefinedType.TOP));
+        Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(new Env()), PredefinedType.INT, PredefinedType.VAL));
     }
     
     @Test
@@ -113,10 +113,10 @@ public class SemTypeCoreTest {
     public void test4() {
         Env env = new Env();
         SemType isT = ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.STRING);
-        SemType itT = ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.TOP);
-        SemType tsT = ListDefinition.tuple(env, PredefinedType.TOP, PredefinedType.STRING);
+        SemType itT = ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.VAL);
+        SemType tsT = ListDefinition.tuple(env, PredefinedType.VAL, PredefinedType.STRING);
         SemType iiT = ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.INT);
-        SemType ttT = ListDefinition.tuple(env, PredefinedType.TOP, PredefinedType.TOP);
+        SemType ttT = ListDefinition.tuple(env, PredefinedType.VAL, PredefinedType.VAL);
         Context cx = Core.typeCheckContext(env);
         Assert.assertTrue(Core.isSubtype(cx, isT, itT));
         Assert.assertTrue(Core.isSubtype(cx, isT, tsT));
@@ -138,7 +138,7 @@ public class SemTypeCoreTest {
     public void tupleTest1() {
         Env env = new Env();
         SemType s = ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.STRING, PredefinedType.NIL);
-        SemType t = ListDefinition.tuple(env, PredefinedType.TOP, PredefinedType.TOP, PredefinedType.TOP);
+        SemType t = ListDefinition.tuple(env, PredefinedType.VAL, PredefinedType.VAL, PredefinedType.VAL);
         Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(env), s, t));
         Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), t, s));
     }
@@ -147,7 +147,7 @@ public class SemTypeCoreTest {
     public void tupleTest2() {
         Env env = new Env();
         SemType s = ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.STRING, PredefinedType.NIL);
-        SemType t = ListDefinition.tuple(env, PredefinedType.TOP, PredefinedType.TOP);
+        SemType t = ListDefinition.tuple(env, PredefinedType.VAL, PredefinedType.VAL);
         Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), s, t));
         Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), t, s));
     }
@@ -253,7 +253,7 @@ public class SemTypeCoreTest {
         SemType t1 = PredefinedType.basicType(BasicTypeCode.BT_LIST); // TODO: type should be LIST_RO
         Env env = new Env();
         ListDefinition ld = new ListDefinition();
-        SemType t2 = ld.define(env, new ArrayList<>(), 0, PredefinedType.TOP);
+        SemType t2 = ld.define(env, new ArrayList<>(), 0, PredefinedType.VAL);
         SemType t = Core.diff(t1, t2);
         Context cx = Core.typeCheckContext(env);
         boolean b = Core.isEmpty(cx, t);

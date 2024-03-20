@@ -45,7 +45,7 @@ import static io.ballerina.types.Common.bddSubtypeIntersect;
 import static io.ballerina.types.Common.bddSubtypeUnion;
 import static io.ballerina.types.Common.shallowCopyTypes;
 import static io.ballerina.types.PredefinedType.NEVER;
-import static io.ballerina.types.PredefinedType.TOP;
+import static io.ballerina.types.PredefinedType.VAL;
 import static io.ballerina.types.subtypedata.IntSubtype.intSubtypeContains;
 import static io.ballerina.types.typeops.IntOps.intSubtypeMax;
 import static io.ballerina.types.typeops.IntOps.intSubtypeOverlapRange;
@@ -85,7 +85,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         SemType rest;
         if (pos == null) {
             members = FixedLengthArray.from(new ArrayList<>(), 0);
-            rest = TOP;
+            rest = VAL;
         } else {
             // combine all the positive tuples using intersection
             ListAtomicType lt = cx.listAtomType(pos.atom);

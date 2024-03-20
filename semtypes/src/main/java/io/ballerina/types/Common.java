@@ -97,6 +97,10 @@ public class Common {
         return Arrays.copyOf(v, v.length);
     }
 
+    public static CellSemType[] shallowCopyCellTypes(CellSemType[] v) {
+        return Arrays.copyOf(v, v.length);
+    }
+
     public static List<SemType> shallowCopyTypes(List<SemType> v) {
         return new ArrayList<>(v);
     }

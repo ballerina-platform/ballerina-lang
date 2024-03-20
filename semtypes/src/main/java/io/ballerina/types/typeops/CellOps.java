@@ -38,7 +38,7 @@ import static io.ballerina.types.Common.bddSubtypeComplement;
 import static io.ballerina.types.Common.bddSubtypeDiff;
 import static io.ballerina.types.Common.bddSubtypeIntersect;
 import static io.ballerina.types.Common.bddSubtypeUnion;
-import static io.ballerina.types.Env.cellAtomType;
+import static io.ballerina.types.Core.cellAtomType;
 import static io.ballerina.types.TypeAtom.ATOM_CELL_NEVER;
 import static io.ballerina.types.TypeAtom.ATOM_CELL_VAL;
 import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
@@ -57,7 +57,7 @@ public class CellOps extends CommonOps implements BasicTypeOps {
     private static boolean cellFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
         CellAtomicType combined;
         if (posList == null) {
-            combined = CellAtomicType.from(PredefinedType.TOP, CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
+            combined = CellAtomicType.from(PredefinedType.VAL, CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
         } else {
             combined = cellAtomType(posList.atom);
             Conjunction p = posList.next;
@@ -85,7 +85,7 @@ public class CellOps extends CommonOps implements BasicTypeOps {
         SemType negListUnionResult = cellNegListUnion(negList);
         // We expect `isNever` condition to be `true` when there are no negative atoms.
         // Otherwise, we do `isEmpty` to conclude on the inhabitance.
-        return negListUnionResult == PredefinedType.NEVER || !Core.isEmpty(cx, Core.diff(pos, negListUnionResult));
+        return PredefinedType.NEVER.equals(negListUnionResult) || !Core.isEmpty(cx, Core.diff(pos, negListUnionResult));
     }
 
     private static SemType cellNegListUnion(Conjunction negList) {
@@ -114,7 +114,7 @@ public class CellOps extends CommonOps implements BasicTypeOps {
         Conjunction neg = negList;
         while (neg != null) {
             if (cellAtomType(neg.atom).mut == CellAtomicType.CellMutability.CELL_MUT_LIMITED &&
-                    Core.isSameType(cx, PredefinedType.TOP, cellAtomType(neg.atom).ty)) {
+                    Core.isSameType(cx, PredefinedType.VAL, cellAtomType(neg.atom).ty)) {
                 return false;
             }
             neg = neg.next;
@@ -137,7 +137,7 @@ public class CellOps extends CommonOps implements BasicTypeOps {
         return negUnion;
     }
 
-    private static CellAtomicType intersectCellAtomicType(CellAtomicType c1, CellAtomicType c2) {
+    public static CellAtomicType intersectCellAtomicType(CellAtomicType c1, CellAtomicType c2) {
         SemType ty = Core.intersect(c1.ty, c2.ty);
         CellAtomicType.CellMutability mut = Collections.min(EnumSet.of(c1.mut, c2.mut));
         return CellAtomicType.from(ty, mut);

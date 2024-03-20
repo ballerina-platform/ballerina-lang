@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -19,21 +19,72 @@ package io.ballerina.types.definition;
 
 import io.ballerina.types.SemType;
 
+import java.util.Objects;
+
 /**
  * Represent a record field in a type-descriptor.
  *
- * @since 2201.8.0
+ * @since 2201.10.0
  */
-public class Field {
-    public final String name;
-    public final SemType type;
+public final class Field {
+    private final String name;
+    private final SemType ty;
+    private final boolean ro;
+    private final boolean opt;
 
-    private Field(String name, SemType type) {
+    /**
+     *
+     */
+    public Field(String name, SemType ty, boolean ro, boolean opt) {
         this.name = name;
-        this.type = type;
+        this.ty = ty;
+        this.ro = ro;
+        this.opt = opt;
     }
 
-    public static Field from(String name, SemType type) {
-        return new Field(name, type);
+    public String name() {
+        return name;
     }
+
+    public SemType ty() {
+        return ty;
+    }
+
+    public boolean ro() {
+        return ro;
+    }
+
+    public boolean opt() {
+        return opt;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        var that = (Field) obj;
+        return Objects.equals(this.name, that.name) &&
+                Objects.equals(this.ty, that.ty) &&
+                this.ro == that.ro &&
+                this.opt == that.opt;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, ty, ro, opt);
+    }
+
+    @Override
+    public String toString() {
+        return "Field[" +
+                "name=" + name + ", " +
+                "ty=" + ty + ", " +
+                "ro=" + ro + ", " +
+                "opt=" + opt + ']';
+    }
+
 }

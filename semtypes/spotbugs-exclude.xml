@@ -60,7 +60,7 @@
     <Match>
         <Or>
             <Class name="io.ballerina.types.ComplexSemType"/>
-            <Class name="io.ballerina.types.definition.Field"/>
+            <Class name="io.ballerina.types.definition.CellField"/>
         </Or>
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
     </Match>
@@ -79,7 +79,7 @@
             <Class name="io.ballerina.types.FunctionAtomicType"/>
             <Class name="io.ballerina.types.subtypedata.BddNode"/>
             <Class name="io.ballerina.types.typeops.SubtypePair"/>
-            <Class name="io.ballerina.types.definition.Field"/>
+            <Class name="io.ballerina.types.definition.CellField"/>
             <Class name="io.ballerina.types.Value"/>
             <Class name="io.ballerina.types.TypeAtom"/>
             <Class name="io.ballerina.types.IntSubtypeConstraints"/>
