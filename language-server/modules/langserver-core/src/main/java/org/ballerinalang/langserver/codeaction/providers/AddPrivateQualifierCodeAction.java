@@ -43,14 +43,14 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Code Action for changing isolated field to private.
+ * Code Action for adding the private visibility qualifier ƒor an object field.
  *
  * @since 2201.9.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ChangeIsolatedFieldPrivateCodeAction implements DiagnosticBasedCodeActionProvider {
+public class AddPrivateQualifierCodeAction implements DiagnosticBasedCodeActionProvider {
 
-    private static final String NAME = "Change isolated field to private";
+    private static final String NAME = "Add private visibility qualifier";
     private static final String DIAGNOSTIC_CODE = "BCE3956";
 
     @Override
@@ -69,7 +69,7 @@ public class ChangeIsolatedFieldPrivateCodeAction implements DiagnosticBasedCode
         }
 
         return Collections.singletonList(CodeActionUtil.createCodeAction(
-                CommandConstants.CHANGE_ISOLATED_FIELD_PRIVATE,
+                CommandConstants.ADD_PRIVATE_QUALIFIER,
                 List.of(getTextEdit((ObjectFieldNode) cursorNode)),
                 context.fileUri(),
                 CodeActionKind.QuickFix

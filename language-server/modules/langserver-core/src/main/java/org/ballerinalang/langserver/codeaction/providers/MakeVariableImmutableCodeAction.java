@@ -47,7 +47,6 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -73,7 +72,7 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
                                            CodeActionContext context) {
         NonTerminalNode cursorNode = positionDetails.matchedNode();
 
-        // The current implementation of the CA only supports object fields.
+        // The current implementation of the CA only supports object fields
         if (cursorNode.kind() != SyntaxKind.OBJECT_FIELD) {
             return Collections.emptyList();
         }
@@ -111,7 +110,7 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
 
         // Generate and return the code action
         return Collections.singletonList(CodeActionUtil.createCodeAction(
-                String.format(CommandConstants.CHANGE_VARIABLE_TO_IMMUTABLE, getTitleText(isFinal, isReadonly)),
+                String.format(CommandConstants.MAKE_VARIABLE_IMMUTABLE, getTitleText(isFinal, isReadonly)),
                 textEdits,
                 context.fileUri(),
                 CodeActionKind.QuickFix));
@@ -119,7 +118,7 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
 
     private static Optional<TypeSymbol> getTypeSymbol(Symbol symbol) {
         TypeSymbol typeSymbol;
-        if (Objects.requireNonNull(symbol.kind()) == SymbolKind.CLASS_FIELD) {
+        if (symbol.kind() == SymbolKind.CLASS_FIELD) {
             typeSymbol = ((ClassFieldSymbol) symbol).typeDescriptor();
         } else {
             assert false : "Unconsidered symbol type found: " + symbol.kind();
@@ -142,12 +141,14 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
 
         if (isUnion) {
             Position startPosition = PositionUtil.toPosition(startLinePosition);
-            TextEdit startTextEdit = new TextEdit(new Range(startPosition, startPosition), "(");
+            TextEdit startTextEdit = new TextEdit(new Range(startPosition, startPosition),
+                    SyntaxKind.OPEN_PAREN_TOKEN.stringValue());
             textEdits.add(startTextEdit);
         }
 
         Position endPosition = PositionUtil.toPosition(endLinePosition);
-        String editText = (isUnion ? ")" : "") + " & " + SyntaxKind.READONLY_KEYWORD.stringValue();
+        String editText = (isUnion ? SyntaxKind.CLOSE_PAREN_TOKEN.stringValue() : "") + " & " +
+                SyntaxKind.READONLY_KEYWORD.stringValue();
         TextEdit endTextEdit = new TextEdit(new Range(endPosition, endPosition), editText);
         textEdits.add(endTextEdit);
 

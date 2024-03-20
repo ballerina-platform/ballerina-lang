@@ -29,7 +29,7 @@ import java.io.IOException;
  *
  * @since 2201.9.0
  */
-public class ChangeIsolatedFieldPrivateCodeActionTest extends AbstractCodeActionTest {
+public class AddPrivateQualifierCodeActionTest extends AbstractCodeActionTest {
 
     @Test(dataProvider = "codeaction-data-provider")
     @Override

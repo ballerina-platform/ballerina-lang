@@ -7,7 +7,7 @@
   "description": "Change the isolated field to private for a simple type",
   "expected": [
     {
-      "title": "Change the field to private",
+      "title": "Add private qualifier",
       "kind": "quickfix",
       "edits": [
         {
