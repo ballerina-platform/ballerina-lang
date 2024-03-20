@@ -295,6 +295,54 @@
       "sortText": "DN",
       "insertText": "TargetType",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E1",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "DL",
+      "insertText": "E1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E2",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "DL",
+      "insertText": "E2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error1",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "CN",
+      "insertText": "Error1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "E3",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "DL",
+      "insertText": "E3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error2",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "CI",
+      "insertText": "Error2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "CI",
+      "insertText": "Error",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

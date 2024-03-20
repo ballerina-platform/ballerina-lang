@@ -24,9 +24,6 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
-import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
-
-import java.util.List;
 
 /**
  * Updates the package map in LSPackage loader.
@@ -46,10 +43,7 @@ public class PullModuleSubscriber implements EventSubscriber {
     @Override
     public void onEvent(ExtendedLanguageClient client, DocumentServiceContext context,
                         LanguageServerContext languageServerContext) {
-        List<LSPackageLoader.ModuleInfo> moduleInfos =
-                LSPackageLoader.getInstance(languageServerContext).updatePackageMap(context);
-        ServiceTemplateGenerator.getInstance(context.languageServercontext())
-                .updateListenerMetaDataMap(moduleInfos, context.languageServercontext());
+        LSPackageLoader.getInstance(languageServerContext).updatePackageMap(context);
     }
 
     @Override

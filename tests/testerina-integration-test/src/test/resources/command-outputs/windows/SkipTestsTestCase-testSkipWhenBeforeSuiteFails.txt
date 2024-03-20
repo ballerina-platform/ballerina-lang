@@ -13,8 +13,11 @@ Running Tests
 			callableName: beforeSuite$lambda1$  fileName: skip-when-beforeSuite-fails.bal lineNumber: 76
 		
 
+		Test execution time :*****ms
+
+
 
 		0 passing
 		0 failing
 		3 skipped
-error: there are test failures
+error: there are test failures

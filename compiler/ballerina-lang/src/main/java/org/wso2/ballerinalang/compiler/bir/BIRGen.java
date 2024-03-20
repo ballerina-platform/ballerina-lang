@@ -747,6 +747,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
         this.env.enclLoopEndBB = endLoopEndBB;
         this.currentBlock = prevBlock;
+        addReturnBB(astBody.pos);
     }
 
     private BIRBasicBlock beginBreakableBlock(BLangBlockStmt.FailureBreakMode mode) {
@@ -1392,15 +1393,9 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand retVarRef = new BIROperand(this.env.enclFunc.returnVariable);
         setScopeAndEmit(new Move(astReturnStmt.pos, this.env.targetOperand, retVarRef));
 
-        // Check whether this function already has a returnBB.
+        // Check and add a returnBB if the function does not have a returnBB.
         // A given function can have only one BB that has a return instruction.
-        if (this.env.returnBB == null) {
-            // If not create one
-            BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId());
-            addToTrapStack(returnBB);
-            returnBB.terminator = new BIRTerminator.Return(getFunctionLastLinePos());
-            this.env.returnBB = returnBB;
-        }
+        addReturnBB(getFunctionLastLinePos());
         if (this.env.enclBB.terminator == null) {
             this.env.unlockVars.forEach(s -> {
                 int i = s.size();
@@ -1438,12 +1433,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangPanic panicNode) {
         panicNode.expr.accept(this);
         // Some functions will only have panic but we need to add return for them to make current algorithm work.
-        if (this.env.returnBB == null) {
-            BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId());
-            addToTrapStack(returnBB);
-            returnBB.terminator = new BIRTerminator.Return(panicNode.pos);
-            this.env.returnBB = returnBB;
-        }
+        addReturnBB(panicNode.pos);
         this.env.enclBB.terminator = new BIRTerminator.Panic(panicNode.pos, this.env.targetOperand, this.currentScope);
 
         // This basic block will contain statement that comes right after this 'if' statement.
@@ -3058,5 +3048,14 @@ public class BIRGen extends BLangNodeVisitor {
             return env.symbolVarMap.get(annotations);
         }
         return globalVarMap.get(annotations);
+    }
+
+    private void addReturnBB(Location pos) {
+        if (this.env.returnBB == null) {
+            BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId());
+            addToTrapStack(returnBB);
+            returnBB.terminator = new BIRTerminator.Return(pos);
+            this.env.returnBB = returnBB;
+        }
     }
 }

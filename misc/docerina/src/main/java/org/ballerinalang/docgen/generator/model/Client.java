@@ -30,9 +30,10 @@ public class Client extends BClass {
     @Expose
     public List<Function> resourceMethods;
 
-    public Client(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-            List<Function> methods, boolean isReadOnly, boolean isIsolated, boolean isService) {
-        super(name, description, isDeprecated, fields, methods, isReadOnly, isIsolated, isService);
+    public Client(String name, String description, List<String> descriptionSections, boolean isDeprecated,
+                  List<DefaultableVariable> fields, List<Function> methods, boolean isReadOnly, boolean isIsolated,
+                  boolean isService) {
+        super(name, description, descriptionSections, isDeprecated, fields, methods, isReadOnly, isIsolated, isService);
         this.remoteMethods = getRemoteMethods();
         this.resourceMethods = getResourceMethods();
         this.otherMethods = getOtherMethods(methods);

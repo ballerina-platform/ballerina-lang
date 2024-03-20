@@ -30,6 +30,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+
 /**
  * Doc command tests.
  *
@@ -80,5 +82,23 @@ public class DocCommandTest extends BaseCommandTest {
 
         Files.delete(customTargetPath.resolve("apidocs").resolve("foo").resolve("winery").resolve("0.1.0")
                 .resolve("index.html"));
+    }
+
+    @Test(description = "Test doc command on a ballerina project with build tool execution.")
+    public void testDocCommandWithBuildTool() throws IOException {
+        Path projectPath = this.testResources.resolve("doc_project_with_build_tool");
+        System.setProperty("user.dir", projectPath.toString());
+        DocCommand docCommand = new DocCommand(this.printStream, this.printStream, false);
+        docCommand.execute();
+
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("doc-with-build-tool.txt"));
+
+        Assert.assertTrue(Files.exists(this.testResources.resolve("doc_project_with_build_tool").resolve("target")
+                .resolve("apidocs").resolve("foo").resolve("winery").resolve("0.1.0").resolve("index.html")));
+
+        Files.delete(this.testResources.resolve("doc_project_with_build_tool").resolve("target")
+                .resolve("apidocs").resolve("foo").resolve("winery").resolve("0.1.0").resolve("index.html"));
     }
 }

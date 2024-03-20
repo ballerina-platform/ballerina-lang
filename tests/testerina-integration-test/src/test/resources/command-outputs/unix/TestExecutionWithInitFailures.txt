@@ -4,6 +4,9 @@ Compiling source
 Running Tests
 
 	testExecutionWithModuleInitFailure.moduleD
+
+		Test execution time :*****ms
+
 		[pass] testFunc
 
 
@@ -18,6 +21,9 @@ error: {ballerina}DivisionByZero {"message":" / by zero"}
 error: {ballerina}DivisionByZero {"message":" / by zero"}
 
 	testExecutionWithModuleInitFailure.moduleC
+
+		Test execution time :*****ms
+
 		[pass] testFunc
 
 
