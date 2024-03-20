@@ -820,8 +820,8 @@ public class JBallerinaBackend extends CompilerBackend {
         if (!jarResolver.providedPlatformLibs().isEmpty()) {
             DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                     ProjectDiagnosticErrorCode.PROVIDED_PLATFORM_JAR_IN_EXECUTABLE.diagnosticId(),
-                    "Detected platform dependencies with provided scope in the executable. " +
-                            "Please avoid redistributing the created executable\n",
+                    "Detected platform dependencies with provided scope; redistribution is not " +
+                            "recommended due to potential license restrictions\n",
                     DiagnosticSeverity.WARNING);
             emitResultDiagnostics.add(new PackageDiagnostic(diagnosticInfo,
                     this.packageContext().descriptor().name().toString()));

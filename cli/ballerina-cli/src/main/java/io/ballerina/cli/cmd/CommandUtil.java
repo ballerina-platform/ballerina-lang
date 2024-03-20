@@ -23,10 +23,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.bala.BalaProject;
@@ -67,10 +69,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1182,13 +1186,17 @@ public class CommandUtil {
         if (packageCompilation.getResolution().diagnosticResult().hasErrors()) {
             return true;
         }
-
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
-        Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
-        if (!backendDiagnostics.isEmpty()) {
-            printDiagnostics(backendDiagnostics);
+        if (!hasProvidedPlatformDeps(packageCompilation)) {
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+            Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
+            if (!backendDiagnostics.isEmpty()) {
+                printDiagnostics(backendDiagnostics);
+            }
+            return jBallerinaBackend.diagnosticResult().hasErrors();
         }
-        return jBallerinaBackend.diagnosticResult().hasErrors();
+        errStream.println("Warning: Compilation of the pulled packages could not be completed due to 'provided' " +
+                "platform dependencies found");
+        return false;
     }
 
     private static void printDiagnostics(Collection<Diagnostic> diagnostics) {
@@ -1196,4 +1204,21 @@ public class CommandUtil {
             CommandUtil.printError(errStream, diagnostic.toString(), null, false);
         }
     }
+
+    private static boolean hasProvidedPlatformDeps(PackageCompilation packageCompilation) {
+        Set<Object> providedDeps = new HashSet<>();
+        packageCompilation.getResolution().allDependencies()
+                .stream()
+                .map(ResolvedPackageDependency::packageInstance)
+                .map(Package::manifest)
+                .flatMap(pkgManifest -> pkgManifest.platforms().values().stream())
+                .filter(Objects::nonNull)
+                .flatMap(pkgPlatform -> pkgPlatform.dependencies().stream())
+                .filter(dependency -> "provided".equals(dependency.get("scope")))
+                .forEach(providedDeps::add);
+
+        return !providedDeps.isEmpty();
+    }
+
+
 }
