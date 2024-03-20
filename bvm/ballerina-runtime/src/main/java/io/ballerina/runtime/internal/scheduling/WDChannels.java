@@ -170,7 +170,7 @@ public class WDChannels {
         if (this.wDChannels != null) {
             WorkerDataChannel channel = this.wDChannels.get(channelName);
             // callCount is incremented to 2 when the message passing is completed.
-            if (channel != null && (channel.callCount == 2)) {
+            if (channel != null && channel.callCount == 2) {
                 this.wDChannels.remove(channelName);
                 strand.channelDetails.remove(new ChannelDetails(channelName, true, false));
             }
