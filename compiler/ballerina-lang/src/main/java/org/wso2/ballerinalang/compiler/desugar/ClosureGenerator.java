@@ -596,13 +596,13 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private void updateFunctionParams(BLangFunction funcNode, List<BVarSymbol> params, String paramName) {
         // Add params to the required param list if there are any.
         BInvokableSymbol funcSymbol = funcNode.symbol;
+        Location pos = funcSymbol.pos;
         for (BVarSymbol symbol : params) {
             Name symbolName = symbol.name;
             if (paramName.equals(symbolName.value)) {
                 break;
             }
             BType type = symbol.type;
-            Location pos = funcSymbol.pos;
             BVarSymbol varSymbol = new BVarSymbol(Flags.REQUIRED_PARAM, symbolName, symbol.pkgID, type, funcSymbol, pos,
                                                   VIRTUAL);
             funcSymbol.scope.define(symbolName, varSymbol);
