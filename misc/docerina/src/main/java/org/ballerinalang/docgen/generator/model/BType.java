@@ -21,8 +21,9 @@ import java.util.List;
  * Represents ballerina types.
  */
 public class BType extends Type {
-    public BType(String name, String description, boolean isDeprecated, List<Type> memberTypes) {
-        super(name, description, isDeprecated);
+    public BType(String name, String description, List<String> descriptionSections, boolean isDeprecated,
+                 List<Type> memberTypes) {
+        super(name, description, descriptionSections, isDeprecated);
         this.memberTypes = memberTypes;
     }
 }

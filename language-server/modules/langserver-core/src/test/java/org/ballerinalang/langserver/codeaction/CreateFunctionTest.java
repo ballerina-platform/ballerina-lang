@@ -197,7 +197,12 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"create_function_in_explicit_anonymous_function2.json"},
                 {"create_function_in_explicit_anonymous_function3.json"},
                 {"create_function_in_explicit_anonymous_function4.json"},
-                {"create_function_in_explicit_anonymous_function5.json"}
+                {"create_function_in_explicit_anonymous_function5.json"},
+
+                // compound assignment
+                {"createUndefinedFunctionInCompoundStatement1.json"},
+                {"createUndefinedFunctionInCompoundStatement2.json"},
+                {"createUndefinedFunctionInCompoundStatement3.json"},
         };
     }
 

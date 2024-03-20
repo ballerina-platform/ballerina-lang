@@ -24,7 +24,8 @@ public class Variable extends Construct {
     @Expose
     public Type type;
 
-    public Variable(String name, String description, boolean isDeprecated, Type type) {
+    public Variable(String name, String description, boolean isDeprecated,
+                    Type type) {
         super(name, description, isDeprecated);
         this.type = type;
     }
