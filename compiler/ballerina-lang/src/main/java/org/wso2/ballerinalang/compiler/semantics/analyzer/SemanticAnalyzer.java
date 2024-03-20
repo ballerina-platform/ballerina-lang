@@ -242,6 +242,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.FUNCTION;
 import static org.ballerinalang.model.tree.NodeKind.LIST_CONSTRUCTOR_EXPR;
+import static org.ballerinalang.model.tree.NodeKind.LIST_CONSTRUCTOR_SPREAD_OP;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
@@ -1676,7 +1677,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangListConstructorExpr listExpr = (BLangListConstructorExpr) expr;
             for (int i = 0; i < listExpr.exprs.size(); i++) {
                 BLangExpression expression = listExpr.exprs.get(i);
-                if (expression.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                if (expression.getKind() == LIST_CONSTRUCTOR_SPREAD_OP) {
                     expression = ((BLangListConstructorSpreadOpExpr) expression).expr;
                 }
                 checkSelfReferences(expression, varInitEnv);
@@ -2365,6 +2366,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
+    // TODO: This is temporary. Remove this once #42352 gets fixed
     private void analyzeDestructuringWithListBindingPattern(BLangTupleVarRef tupleVarRef,
                                                             BLangListConstructorExpr listExpr) {
         List<BLangExpression> exprs = listExpr.exprs;
@@ -2374,13 +2376,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         int noOfNonRestVars = tupleVars.size();
 
         for (BLangExpression expr: exprs) {
+            NodeKind exprKind = expr.getKind();
             int remainingNonRestVars = noOfNonRestVars - nonRestTupleVarIndex;
 
             if (remainingNonRestVars == 0) {
                 return;
             }
 
-            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+            if (exprKind == LIST_CONSTRUCTOR_SPREAD_OP) {
                 BType spreadOpType = ((BLangListConstructorSpreadOpExpr) expr).expr.getBType();
                 int noOfSpreadMembers = switch (spreadOpType.tag) {
                     case TypeTags.ARRAY -> {
@@ -2401,13 +2404,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
 
             BLangExpression tupleMemberVar = tupleVars.get(nonRestTupleVarIndex++);
-            if (expr.getKind() == LIST_CONSTRUCTOR_EXPR && tupleMemberVar.getKind() == TUPLE_VARIABLE_REF) {
+            NodeKind tupleMemberKind = tupleMemberVar.getKind();
+            if (exprKind == LIST_CONSTRUCTOR_EXPR && tupleMemberKind == TUPLE_VARIABLE_REF) {
                 analyzeDestructuringWithListBindingPattern(
                         (BLangTupleVarRef) tupleMemberVar, (BLangListConstructorExpr) expr);
                 continue;
             }
 
-            if (expr.getKind() == RECORD_LITERAL_EXPR && tupleMemberVar.getKind() == RECORD_VARIABLE_REF) {
+            if (exprKind == RECORD_LITERAL_EXPR && tupleMemberKind == RECORD_VARIABLE_REF) {
                 dlog.error(expr.getPosition(), DiagnosticErrorCode.INVALID_RECORD_LITERAL_BINDING_PATTERN);
             }
         }

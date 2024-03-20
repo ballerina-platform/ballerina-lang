@@ -88,7 +88,13 @@ public class TupleDestructureTest {
         Assert.assertEquals(returns.get(1).toString(), "string value");
         Assert.assertEquals(returns.get(2).toString(), "[25,12.5]");
 
-        BRunUtil.invoke(result, "tupleDestructureTest10");
+        // TODO: This is temporary. Remove this once #42352 gets fixed
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest10");
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertEquals(returns.get(0).toString(), "true");
+        Assert.assertEquals(returns.get(1).toString(), "true");
+        Assert.assertEquals(returns.get(2).toString(), "false");
+        Assert.assertEquals(returns.get(3).toString(), "false");
     }
 
     @Test(description = "Test positive tuple destructure scenarios")
