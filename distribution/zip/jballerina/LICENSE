@@ -77,10 +77,10 @@ ballerina-xmlutils-1.1.0.jar                                                    
 amqp-client-5.20.0.jar                                                                              bundle         apache2 + mpl11
 ballerina-client-generator-1.1.0.jar                                                                jar            apache2
 jnats-2.6.0.jar                                                                                     bundle         apache2
-jackson-core-2.15.2.jar                                                                              bundle         apache2
+jackson-core-2.16.2.jar                                                                              bundle         apache2
 socket.jar                                                                                          jar            apache2
 stax2-api-3.1.1.jar                                                                                 bundle         bsd
-jackson-databind-2.15.2.jar                                                                          bundle         apache2
+jackson-databind-2.16.2.jar                                                                          bundle         apache2
 oauth2.jar                                                                                          jar            apache2
 module_push.jar                                                                                     jar            apache2
 openapi-to-ballerina-generator-1.1.0.jar                                                            jar            apache2
@@ -156,7 +156,7 @@ map-1.1.0.jar                                                                   
 websub.jar                                                                                          jar            apache2
 ballerina-streams-1.1.0.jar                                                                         jar            apache2
 ballerina-packerina-1.1.0.jar                                                                       jar            apache2
-jackson-dataformat-yaml-2.15.2.jar                                                                   bundle         apache2
+jackson-dataformat-yaml-2.16.2.jar                                                                   bundle         apache2
 config.jar                                                                                          jar            apache2
 task.jar                                                                                            jar            apache2
 picocli-4.0.1.jar                                                                                   bundle         apache2
@@ -191,11 +191,11 @@ broker-common-0.970.0.jar                                                       
 integer-1.1.0.jar                                                                                   jar            apache2
 openapi-validator-1.1.0.jar                                                                         jar            apache2
 lang.array.jar                                                                                      jar            apache2
-jackson-datatype-jsr310-2.15.2.jar                                                                   bundle         apache2
+jackson-datatype-jsr310-2.16.2.jar                                                                   bundle         apache2
 array-1.1.0.jar                                                                                     jar            apache2
 crypto.jar                                                                                          jar            apache2
 ballerina-crypto-1.1.0.jar                                                                          jar            apache2
-jackson-annotations-2.15.2.jar                                                                       bundle         apache2
+jackson-annotations-2.16.2.jar                                                                       bundle         apache2
 ballerina-backend-jvm-1.1.0.jar                                                                     jar            apache2
 org.wso2.carbon.core-5.1.0.jar                                                                      bundle         apache2
 transactions.jar                                                                                    jar            apache2

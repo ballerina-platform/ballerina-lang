@@ -69,11 +69,11 @@ configurations {
 
 dependencies {
     dist 'org.bytedeco:javacpp:1.4.2'
-    dist 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-    dist 'com.fasterxml.jackson.core:jackson-core:2.15.2'
-    dist 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
-    dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2'
-    dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
+    dist 'com.fasterxml.jackson.core:jackson-databind:2.16.2'
+    dist 'com.fasterxml.jackson.core:jackson-core:2.16.2'
+    dist 'com.fasterxml.jackson.core:jackson-annotations:2.16.2'
+    dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.16.2'
+    dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.2'
     // dist 'org.ow2.asm:asm:6.2.1'
     dist 'com.fasterxml.woodstox:woodstox-core:6.5.0'
     dist 'org.codehaus.woodstox:stax2-api:4.2.1'
