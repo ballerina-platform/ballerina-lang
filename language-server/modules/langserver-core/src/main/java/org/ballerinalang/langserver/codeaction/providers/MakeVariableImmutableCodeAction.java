@@ -72,6 +72,8 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
     public List<CodeAction> getCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
         NonTerminalNode cursorNode = positionDetails.matchedNode();
+
+        // The current implementation of the CA only supports object fields.
         if (cursorNode.kind() != SyntaxKind.OBJECT_FIELD) {
             return Collections.emptyList();
         }
@@ -94,7 +96,7 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
             readonlyType = semanticModel.types().READONLY;
             Symbol symbol = semanticModel.symbol(cursorNode).orElseThrow();
             typeSymbol = getTypeSymbol(symbol).orElseThrow();
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             return Collections.emptyList();
         }
         boolean isReadonly = typeSymbol.subtypeOf(readonlyType);
