@@ -126,9 +126,6 @@ public class TypeConverter {
                 return anyToFloat(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_FLOAT));
             case TypeTags.STRING_TAG:
-                if (inputValue instanceof BString) {
-                    return inputValue;
-                }
                 return StringUtils.fromString(anyToString(inputValue));
             case TypeTags.BOOLEAN_TAG:
                 return anyToBoolean(inputValue, () ->

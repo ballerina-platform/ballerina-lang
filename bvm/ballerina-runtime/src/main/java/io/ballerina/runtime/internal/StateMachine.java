@@ -186,7 +186,6 @@ public abstract class StateMachine {
          * @return the new resulting state
          */
         State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException;
-
     }
 
     /**
@@ -225,7 +224,6 @@ public abstract class StateMachine {
             }
             return state;
         }
-
     }
 
     /**
@@ -249,7 +247,6 @@ public abstract class StateMachine {
             sm.index = i + 1;
             return state;
         }
-
     }
 
     /**
@@ -280,7 +277,6 @@ public abstract class StateMachine {
             sm.index = i + 1;
             return state;
         }
-
     }
 
     /**
@@ -347,7 +343,6 @@ public abstract class StateMachine {
             sm.index = i + 1;
             return state;
         }
-
     }
 
     /**
@@ -386,7 +381,6 @@ public abstract class StateMachine {
             }
             return state;
         }
-
     }
 
     String value() {
@@ -424,7 +418,6 @@ public abstract class StateMachine {
             sm.index = i + 1;
             return state;
         }
-
     }
 
     /**
@@ -463,7 +456,6 @@ public abstract class StateMachine {
             }
             return state;
         }
-
     }
 
     /**
@@ -503,7 +495,6 @@ public abstract class StateMachine {
             sm.index = i + 1;
             return state;
         }
-
     }
 
     /**
@@ -543,7 +534,6 @@ public abstract class StateMachine {
             sm.index = i + 1;
             return state;
         }
-
     }
 
     /**
@@ -572,7 +562,6 @@ public abstract class StateMachine {
             sm.index = i + 1;
             return state;
         }
-
     }
 
     /**
@@ -602,7 +591,6 @@ public abstract class StateMachine {
             sm.index = i + 1;
             return state;
         }
-
     }
 
     /**
@@ -632,7 +620,6 @@ public abstract class StateMachine {
             sm.index = i + 1;
             return state;
         }
-
     }
 
     /**
@@ -645,7 +632,6 @@ public abstract class StateMachine {
         protected State getSourceState(StateMachine sm) {
             return sm.stringFieldValueState;
         }
-
     }
 
     /**
@@ -658,7 +644,6 @@ public abstract class StateMachine {
         protected State getSourceState(StateMachine sm) {
             return sm.stringArrayElementState;
         }
-
     }
 
     /**
@@ -671,7 +656,6 @@ public abstract class StateMachine {
         protected State getSourceState(StateMachine sm) {
             return sm.stringValueState;
         }
-
     }
 
     /**
@@ -684,7 +668,6 @@ public abstract class StateMachine {
         protected State getSourceState(StateMachine sm) {
             return sm.fieldNameState;
         }
-
     }
 
     /**
@@ -726,7 +709,6 @@ public abstract class StateMachine {
         private char extractUnicodeChar(StateMachine sm) {
             return StringEscapeUtils.unescapeJava("\\u" + sm.hexBuilder).charAt(0);
         }
-
     }
 
     /**
@@ -738,7 +720,6 @@ public abstract class StateMachine {
         protected State getSourceState(StateMachine sm) {
             return sm.stringFieldValueState;
         }
-
     }
 
     /**
@@ -750,7 +731,6 @@ public abstract class StateMachine {
         protected State getSourceState(StateMachine sm) {
             return sm.stringArrayElementState;
         }
-
     }
 
     /**
@@ -762,7 +742,6 @@ public abstract class StateMachine {
         protected State getSourceState(StateMachine sm) {
             return sm.stringValueState;
         }
-
     }
 
     /**
@@ -774,7 +753,6 @@ public abstract class StateMachine {
         protected State getSourceState(StateMachine sm) {
             return sm.fieldNameState;
         }
-
     }
 
     /**
@@ -842,7 +820,6 @@ public abstract class StateMachine {
             sm.index = i + 1;
             return state;
         }
-
     }
 
     enum ValueType {

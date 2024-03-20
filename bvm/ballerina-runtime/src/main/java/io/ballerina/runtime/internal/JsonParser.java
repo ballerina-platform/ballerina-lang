@@ -1062,7 +1062,6 @@ public class JsonParser {
 
         private static Object handleDefaultConversion(Object value, Type targetType, Type sourceType,
                                                       Type matchingType) {
-            Object newValue;
             if (TypeChecker.isRegExpType(targetType) && matchingType.getTag() == TypeTags.STRING_TAG) {
                 try {
                     return RegExpFactory.parse(((BString) value).getValue());
@@ -1123,10 +1122,9 @@ public class JsonParser {
                     BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
                     return new TableValueImpl<>(targetRefType, array, (ArrayValue) fieldNames);
                 default:
-                    break;
+                    // should never reach here
+                    throw createConversionError(array, targetType);
             }
-            // should never reach here
-            throw createConversionError(array, targetType);
         }
 
         private static Object convertMap(MapValueImpl<BString, Object> map, Type targetType, Type targetRefType,
@@ -1164,12 +1162,10 @@ public class JsonParser {
                     }
                     return ValueUtils.createRecordValue(targetRefType.getPackage(), targetRefType.getName(), map);
                 default:
-                    break;
+                    // should never reach here
+                    throw createConversionError(map, targetType);
             }
-            // should never reach here
-            throw createConversionError(map, targetType);
         }
-
     }
 
 
