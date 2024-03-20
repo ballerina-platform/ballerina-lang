@@ -415,7 +415,7 @@ public class ImmutableTypeCloner {
             return immutableType.get();
         } else {
             Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
-                    originalType, new BTupleType(origTupleTypeSymbol), symTable));
+                    originalType, new BTupleType(symTable.typeEnv(), origTupleTypeSymbol), symTable));
         }
 
         List<BTupleMember> immutableMemTypes = new ArrayList<>(origTupleMembers.size());

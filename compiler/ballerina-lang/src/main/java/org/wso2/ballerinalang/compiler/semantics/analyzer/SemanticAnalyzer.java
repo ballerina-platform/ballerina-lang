@@ -1694,10 +1694,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         BLangVariable restVariable = varNode.restVariable;
         if (restVariable == null) {
-            return new BTupleType(members);
+            return new BTupleType(symTable.typeEnv(), members);
         }
 
-        return new BTupleType(null, members, getTupleMemberType(restVariable), 0);
+        return new BTupleType(symTable.typeEnv(), null, members, getTupleMemberType(restVariable), 0);
     }
 
     private BType getTupleMemberType(BLangVariable memberVariable) {
@@ -3003,7 +3003,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
                     members.add(new BTupleMember(type, varSymbol));
                 }
-                BTupleType matchPatternType = new BTupleType(members);
+                BTupleType matchPatternType = new BTupleType(symTable.typeEnv(), members);
 
                 if (listMatchPattern.restMatchPattern != null) {
                     evaluateMatchPatternsTypeAccordingToMatchGuard(listMatchPattern.restMatchPattern, env);
@@ -3142,7 +3142,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                             type, null, null, null);
                     newMembers.add(new BTupleMember(type, varSymbol));
                 }
-                BTupleType tupleType = new BTupleType(newMembers);
+                BTupleType tupleType = new BTupleType(symTable.typeEnv(), newMembers);
 
                 if (listMatchPattern.restMatchPattern == null) {
                     listMatchPattern.setBType(tupleType);
@@ -3195,7 +3195,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     private BTupleType createTupleForClosedArray(int noOfElements, BTupleMember elementType) {
         List<BTupleMember> members = Collections.nCopies(noOfElements, elementType);
-        return new BTupleType(members);
+        return new BTupleType(symTable.typeEnv(), members);
     }
 
     private BType createTypeForTupleRestType(int startIndex, List<BTupleMember> members, BType patternRestType) {
@@ -3204,7 +3204,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             remainingMembers.add(members.get(i));
         }
         if (!remainingMembers.isEmpty()) {
-            BTupleType restTupleType = new BTupleType(remainingMembers);
+            BTupleType restTupleType = new BTupleType(symTable.typeEnv(), remainingMembers);
             if (patternRestType != null) {
                 restTupleType.restType = patternRestType;
             }
@@ -3318,7 +3318,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             listMembers.add(new BTupleMember(type, varSymbol));
             listBindingPattern.declaredVars.putAll(bindingPattern.declaredVars);
         }
-        BTupleType listBindingPatternType = new BTupleType(listMembers);
+        BTupleType listBindingPatternType = new BTupleType(symTable.typeEnv(), listMembers);
 
         if (listBindingPattern.restBindingPattern != null) {
             BLangRestBindingPattern restBindingPattern = listBindingPattern.restBindingPattern;
@@ -3657,7 +3657,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             checkForSimilarVars(listMatchPattern.declaredVars, memberMatchPattern.declaredVars, memberMatchPattern.pos);
             listMatchPattern.declaredVars.putAll(memberMatchPattern.declaredVars);
         }
-        BTupleType matchPatternType = new BTupleType(members);
+        BTupleType matchPatternType = new BTupleType(symTable.typeEnv(), members);
 
         if (listMatchPattern.getRestMatchPattern() != null) {
             BLangRestMatchPattern restMatchPattern = (BLangRestMatchPattern) listMatchPattern.getRestMatchPattern();
@@ -3747,7 +3747,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
                     members.add(new BTupleMember(type, varSymbol));
                 }
-                BTupleType tupleType = new BTupleType(members);
+                BTupleType tupleType = new BTupleType(symTable.typeEnv(), members);
 
                 if (listBindingPattern.restBindingPattern == null) {
                     bindingPattern.setBType(tupleType);

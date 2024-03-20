@@ -17,10 +17,11 @@
  */
 package io.ballerina.types.typeops;
 
-// TODO: introduce some sort of generic here
 /**
  * Used to return two values from a method.
  *
+ * @param <E1> Type of first item
+ * @param <E2> Type of second item
  * @since 2201.8.0
  */
 public final class TwoTuple<E1, E2> {

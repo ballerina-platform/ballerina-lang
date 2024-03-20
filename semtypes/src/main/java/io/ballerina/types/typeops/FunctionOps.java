@@ -19,7 +19,6 @@ package io.ballerina.types.typeops;
 
 import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Bdd;
-import io.ballerina.types.BddMemo;
 import io.ballerina.types.Common;
 import io.ballerina.types.Conjunction;
 import io.ballerina.types.Context;
@@ -30,6 +29,8 @@ import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
 
 import java.io.PrintStream;
+
+import static io.ballerina.types.Common.memoSubtypeIsEmpty;
 
 /**
  * Function specific methods operate on SubtypeData.
@@ -42,34 +43,9 @@ public class FunctionOps extends CommonOps implements BasicTypeOps {
 
     @Override
     public boolean isEmpty(Context cx, SubtypeData t) {
-        Bdd b = (Bdd) t;
-        BddMemo mm = cx.functionMemo.get(b);
-        BddMemo m;
-        if (mm == null) {
-            m = new BddMemo(b);
-            cx.functionMemo.put(b, m);
-        } else {
-            m = mm;
-            BddMemo.MemoStatus res = m.isEmpty;
-            switch (res) {
-                case NOT_SET:
-                    // we've got a loop
-                    console.println("got a function loop");
-                    return true;
-                case TRUE:
-                    return true;
-                case FALSE:
-                    return false;
-            }
-        }
-
-        boolean isEmpty = Common.bddEvery(cx, b, null, null, FunctionOps::functionFormulaIsEmpty);
-        if (isEmpty) {
-            m.isEmpty = BddMemo.MemoStatus.TRUE;
-        } else {
-            m.isEmpty = BddMemo.MemoStatus.FALSE;
-        }
-        return isEmpty;
+        return memoSubtypeIsEmpty(cx, cx.functionMemo,
+                (context, bdd) -> Common.bddEvery(context, bdd, null, null, FunctionOps::functionFormulaIsEmpty),
+                (Bdd) t);
     }
 
     private static boolean functionFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {

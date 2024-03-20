@@ -18,6 +18,7 @@
 package io.ballerina.types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,11 +32,11 @@ import java.util.List;
  */
 public final class FixedLengthArray {
 
-    public List<CellSemType> initial;
-    public int fixedLength;
+    public final List<CellSemType> initial;
+    public final int fixedLength;
 
     private FixedLengthArray(List<CellSemType> initial, int fixedLength) {
-        this.initial = initial;
+        this.initial = Collections.unmodifiableList(initial);
         this.fixedLength = fixedLength;
     }
 
@@ -45,5 +46,10 @@ public final class FixedLengthArray {
 
     public static FixedLengthArray empty() {
         return from(new ArrayList<>(), 0);
+    }
+
+    @Override
+    public String toString() {
+        return "FixedLengthArray{initial=" + initial + ", fixedLength=" + fixedLength + '}';
     }
 }

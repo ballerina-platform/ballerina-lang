@@ -623,7 +623,7 @@ public class TypeParamAnalyzer {
                 if (members.size() == 1) {
                     findTypeParam(loc, expType.keyTypeConstraint, members.get(0).type, env, resolvedTypes, result);
                 } else {
-                    BTupleType tupleType = new BTupleType(members);
+                    BTupleType tupleType = new BTupleType(symTable.typeEnv(), members);
                     findTypeParam(loc, expType.keyTypeConstraint, tupleType, env, resolvedTypes, result);
                 }
             }
@@ -954,7 +954,7 @@ public class TypeParamAnalyzer {
             return expType;
         }
 
-        return new BTupleType(members);
+        return new BTupleType(symTable.typeEnv(), members);
     }
 
     private BRecordType getMatchingRecordBoundType(BRecordType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {

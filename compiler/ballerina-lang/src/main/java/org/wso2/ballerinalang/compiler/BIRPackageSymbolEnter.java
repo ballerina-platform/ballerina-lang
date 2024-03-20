@@ -22,12 +22,14 @@ import io.ballerina.types.Atom;
 import io.ballerina.types.AtomicType;
 import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.Bdd;
+import io.ballerina.types.CellAtomicType;
 import io.ballerina.types.CellSemType;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.EnumerableCharString;
 import io.ballerina.types.EnumerableDecimal;
 import io.ballerina.types.EnumerableFloat;
 import io.ballerina.types.EnumerableString;
+import io.ballerina.types.Env;
 import io.ballerina.types.FixedLengthArray;
 import io.ballerina.types.FunctionAtomicType;
 import io.ballerina.types.ListAtomicType;
@@ -149,6 +151,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static io.ballerina.types.PredefinedType.BDD_REC_ATOM_READONLY;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
@@ -164,7 +167,7 @@ import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
  */
 public class BIRPackageSymbolEnter {
 
-    public static final int SOME_CELL = 1 << 0x11;
+    private static final int SOME_CELL = 1 << 0x11;
     private final PackageCache packageCache;
     private final SymbolResolver symbolResolver;
     private final SymbolTable symTable;
@@ -177,6 +180,8 @@ public class BIRPackageSymbolEnter {
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
     private BStructureTypeSymbol currentStructure = null;
     private LinkedList<Object> compositeStack = new LinkedList<>();
+    private final Env typeEnv;
+    private AtomOffsets offsets;
 
     private static final int SERVICE_TYPE_TAG = 54;
 
@@ -203,6 +208,8 @@ public class BIRPackageSymbolEnter {
         this.names = Names.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.types = Types.getInstance(context);
+        this.typeEnv = symTable.typeEnv();
+        this.offsets = null;
     }
 
     public BPackageSymbol definePackage(PackageID packageId, byte[] packageBinaryContent) {
@@ -266,6 +273,7 @@ public class BIRPackageSymbolEnter {
 
         PackageID pkgId = createPackageID(orgName, pkgName, moduleName, pkgVersion);
         this.env.pkgSymbol = Symbols.createPackageSymbol(pkgId, this.symTable, COMPILED_SOURCE);
+        this.offsets = AtomOffsets.from(typeEnv);
 
         // TODO Validate this pkdID with the requestedPackageID available in the env.
 
@@ -296,6 +304,7 @@ public class BIRPackageSymbolEnter {
         populateReferencedFunctions();
 
         this.typeReader = null;
+        this.offsets = null;
         return this.env.pkgSymbol;
     }
 
@@ -1625,7 +1634,7 @@ public class BIRPackageSymbolEnter {
 
                         tupleMembers.add(new BTupleMember(memberType, varSymbol));
                     }
-                    BTupleType bTupleType = new BTupleType(tupleTypeSymbol, tupleMembers);
+                    BTupleType bTupleType = new BTupleType(symTable.typeEnv(), tupleTypeSymbol, tupleMembers);
                     bTupleType.flags = flags;
 
                     if (inputStream.readBoolean()) {
@@ -1888,6 +1897,26 @@ public class BIRPackageSymbolEnter {
 
         // --------------------------------------- Read SemType ----------------------------------------------
 
+        private SemType readSemType() throws IOException {
+            if (!inputStream.readBoolean()) {
+                return null;
+            }
+
+            if (inputStream.readBoolean()) {
+                int bitset = inputStream.readInt();
+                return BasicTypeBitSet.from(bitset);
+            }
+
+            int all = inputStream.readInt();
+            int some = inputStream.readInt();
+            byte subtypeDataListLength = inputStream.readByte();
+            ProperSubtypeData[] subtypeList = new ProperSubtypeData[subtypeDataListLength];
+            for (int i = 0; i < subtypeDataListLength; i++) {
+                subtypeList[i] = readProperSubtypeData();
+            }
+            return createSemType(all, some, subtypeList);
+        }
+
         private ListAtomicType readListAtomicType() throws IOException {
             int initialLength = inputStream.readInt();
             List<CellSemType> initial = new ArrayList<>(initialLength);
@@ -1938,24 +1967,47 @@ public class BIRPackageSymbolEnter {
             boolean isRecAtom = inputStream.readBoolean();
             if (isRecAtom) {
                 int index = inputStream.readInt();
-                atom = RecAtom.createRecAtom(index);
+                if (index != BDD_REC_ATOM_READONLY) {
+                    int kindOrdinal = inputStream.readInt();
+                    RecAtom.TargetKind kind = RecAtom.TargetKind.values()[kindOrdinal];
+                    int offset = switch (kind) {
+                        case LIST_ATOM -> offsets.listOffset();
+                        case FUNCTION_ATOM -> offsets.functionOffset();
+                        case MAPPING_ATOM -> offsets.mappingOffset();
+                    };
+                    index += offset;
+                    RecAtom recAtom = RecAtom.createRecAtom(index);
+                    recAtom.setTargetKind(kind);
+                    atom = recAtom;
+                } else { // BDD_REC_ATOM_READONLY is unique and every environment will have the same one
+                    atom = RecAtom.createRecAtom(BDD_REC_ATOM_READONLY);
+                }
             } else {
-                long index = inputStream.readLong();
+                int index = inputStream.readInt();
                 AtomicType atomicType;
                 switch (inputStream.readByte()) {
                     case 1: {
                         atomicType = readMappingAtomicType();
+                        index += offsets.mappingOffset();
                         break;
                     }
                     case 2: {
                         atomicType = readListAtomicType();
+                        index += offsets.listOffset();
                         break;
                     }
                     case 3:
                         atomicType = readFunctionAtomicType();
+                        index += offsets.functionOffset();
+                        break;
+                    case 4:
+                        atomicType = readCellAtomicType();
                         break;
                     default:
-                        throw new IllegalStateException("Unexpected atomicType kind");
+                        throw new IllegalStateException("Unexpected atomicType kind ");
+                }
+                if (!(atomicType instanceof CellAtomicType)) {
+                    typeEnv.insertAtomAtIndex(index, atomicType);
                 }
                 atom = TypeAtom.createTypeAtom(index, atomicType);
             }
@@ -1964,6 +2016,13 @@ public class BIRPackageSymbolEnter {
             Bdd middle = readBdd();
             Bdd right = readBdd();
             return BddNode.create(atom, left, middle, right);
+        }
+
+        private CellAtomicType readCellAtomicType() throws IOException {
+            SemType ty = readSemType();
+            byte ordinal = inputStream.readByte();
+            CellAtomicType.CellMutability mut = CellAtomicType.CellMutability.values()[ordinal];
+            return CellAtomicType.from(ty, mut);
         }
 
         private MappingAtomicType readMappingAtomicType() throws IOException {
@@ -1983,33 +2042,11 @@ public class BIRPackageSymbolEnter {
             return MappingAtomicType.from(names, types, rest);
         }
 
-        // FIXME: this should create the correct subtype
-        private SemType readSemType() throws IOException {
-            if (!inputStream.readBoolean()) {
-                return null;
-            }
-
-            if (inputStream.readBoolean()) {
-                int bitset = inputStream.readInt();
-                return BasicTypeBitSet.from(bitset);
-            }
-
-            int all = inputStream.readInt();
-            int some = inputStream.readInt();
-            byte subtypeDataListLength = inputStream.readByte();
-            ProperSubtypeData[] subtypeList = new ProperSubtypeData[subtypeDataListLength];
-            for (int i = 0; i < subtypeDataListLength; i++) {
-                subtypeList[i] = readProperSubtypeData();
-            }
-            return createSemType(all, some, subtypeList);
-        }
-
         private static ComplexSemType createSemType(int all, int some, ProperSubtypeData[] subtypeList) {
             if (some == PredefinedType.CELL.bitset && all == 0) {
                 return CellSemType.from(subtypeList);
             }
-            // TODO: I think this still has a problem where we can never create BasicTypeBitSets
-            return new ComplexSemType(BasicTypeBitSet.from(all), BasicTypeBitSet.from(some), subtypeList);
+            return ComplexSemType.createComplexSemType(all, some, subtypeList);
         }
 
         private FunctionAtomicType readFunctionAtomicType() throws IOException {
@@ -2162,5 +2199,12 @@ public class BIRPackageSymbolEnter {
     private BType getEffectiveImmutableType(BType type, PackageID pkgID, BSymbol owner) {
         return ImmutableTypeCloner.getEffectiveImmutableType(null, types, type, pkgID, owner, symTable,
                 null, names);
+    }
+
+    private record AtomOffsets(int listOffset, int functionOffset, int mappingOffset) {
+
+        static AtomOffsets from(Env env) {
+            return new AtomOffsets(env.recListAtomCount(), env.recFunctionAtomCount(), env.recMappingAtomCount());
+        }
     }
 }

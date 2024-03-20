@@ -207,17 +207,17 @@ public class Types {
     public Types(CompilerContext context) {
         context.put(TYPES_KEY, this);
 
+        Env typeEnv = new Env();
+        this.semTypeCtx = Context.from(typeEnv);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
-        Env typeEnv = new Env();
         this.expandedXMLBuiltinSubtypes = BUnionType.create(typeEnv, null,
                                                             symTable.xmlElementType, symTable.xmlCommentType,
                                                             symTable.xmlPIType, symTable.xmlTextType);
         this.unifier = new Unifier();
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-        this.semTypeCtx = Context.from(typeEnv);
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -302,7 +302,7 @@ public class Types {
         }
 
         return errTypes.size() == 1 ? errTypes.iterator().next() :
-                BUnionType.create(symTable.typeEnv(), null, errTypes);
+                BUnionType.create(typeEnv(), null, errTypes);
     }
 
     public BType checkType(Location pos,
@@ -1163,7 +1163,7 @@ public class Types {
                 return isAssignable(fieldTypes.get(0).type, targetTableType.keyTypeConstraint, unresolvedTypes);
             }
 
-            BTupleType tupleType = new BTupleType(fieldTypes);
+            BTupleType tupleType = new BTupleType(typeEnv(), fieldTypes);
             return isAssignable(tupleType, targetTableType.keyTypeConstraint, unresolvedTypes);
         }
 
@@ -1366,6 +1366,12 @@ public class Types {
                 && (source.restType != null || source.getMembers().size() != target.size)) {
             return false;
         }
+
+        TypePair pair = new TypePair(source, target);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
 
         List<BType> sourceTypes = new ArrayList<>(source.getTupleTypes());
         if (source.restType != null) {
@@ -2072,7 +2078,7 @@ public class Types {
                         ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
                 return collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes) ?
                         collectionType :
-                        BUnionType.create(symTable.typeEnv(), null, (LinkedHashSet<BType>) collectionTypes);
+                        BUnionType.create(typeEnv(), null, (LinkedHashSet<BType>) collectionTypes);
             default:
                 return null;
         }
@@ -2152,7 +2158,7 @@ public class Types {
             return symTable.neverType;
         }
         return tupleTypesSize == 1 ?
-                tupleTypes.iterator().next() : BUnionType.create(symTable.typeEnv(), null, tupleTypes);
+                tupleTypes.iterator().next() : BUnionType.create(typeEnv(), null, tupleTypes);
     }
 
     public BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
@@ -2348,7 +2354,7 @@ public class Types {
         }
 
         if (hasDifferentMember) {
-            return BUnionType.create(symTable.typeEnv(), null, members);
+            return BUnionType.create(typeEnv(), null, members);
         }
         return bType;
     }
@@ -3621,6 +3627,11 @@ public class Types {
         }
     }
 
+    private static boolean maybeRecursiveTypeCheck(BType source, BType target) {
+        return (isJsonAnydataOrUserDefinedUnion(source) && ((BUnionType) source).isCyclic) ||
+                (source.tag == TypeTags.TUPLE && ((BTupleType) source).isCyclic);
+    }
+
     private boolean isAssignableToUnionType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         TypePair pair = new TypePair(source, target);
         if (unresolvedTypes.contains(pair)) {
@@ -3629,7 +3640,7 @@ public class Types {
 
         source = getImpliedType(source);
         target = getImpliedType(target);
-        if (isJsonAnydataOrUserDefinedUnion(source) && ((BUnionType) source).isCyclic) {
+        if (maybeRecursiveTypeCheck(source, target)) {
             // add cyclic source to target pair to avoid recursive calls
             unresolvedTypes.add(pair);
         }
@@ -3747,7 +3758,7 @@ public class Types {
         return true;
     }
 
-    private boolean isJsonAnydataOrUserDefinedUnion(BType type) {
+    private static boolean isJsonAnydataOrUserDefinedUnion(BType type) {
         int tag = type.tag;
         return tag == TypeTags.UNION || tag == TypeTags.JSON || tag == TypeTags.ANYDATA;
     }
@@ -3774,7 +3785,7 @@ public class Types {
         if (s.tag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) s;
             if (arrayType.eType == source) {
-                return new BArrayType(symTable.typeEnv(), target, arrayType.tsymbol, arrayType.size,
+                return new BArrayType(typeEnv(), target, arrayType.tsymbol, arrayType.size,
                         arrayType.state, arrayType.flags);
             }
         }
@@ -4147,7 +4158,7 @@ public class Types {
         if (intersection.size() == 1) {
             return intersection.get(0);
         } else {
-            return BUnionType.create(symTable.typeEnv(), null, new LinkedHashSet<>(intersection));
+            return BUnionType.create(typeEnv(), null, new LinkedHashSet<>(intersection));
         }
     }
 
@@ -4366,13 +4377,13 @@ public class Types {
                 // add an unsealed array to allow comparison between closed and open arrays
                 // TODO: 10/16/18 improve this, since it will allow comparison between sealed arrays of different sizes
                 if (((BArrayType) referredType).getSize() != -1) {
-                    memberTypes.add(new BArrayType(symTable.typeEnv(), arrayElementType));
+                    memberTypes.add(new BArrayType(typeEnv(), arrayElementType));
                 }
 
                 if (getImpliedType(arrayElementType).tag == TypeTags.UNION) {
                     Set<BType> elementUnionTypes = expandAndGetMemberTypesRecursiveHelper(arrayElementType, visited);
                     elementUnionTypes.forEach(elementUnionType -> {
-                        memberTypes.add(new BArrayType(symTable.typeEnv(), elementUnionType));
+                        memberTypes.add(new BArrayType(typeEnv(), elementUnionType));
                     });
                 }
                 memberTypes.add(bType);
@@ -4666,7 +4677,7 @@ public class Types {
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         if (typeToRemove.restType == null) {
-            return new BTupleType(tupleTypes);
+            return new BTupleType(typeEnv(), tupleTypes);
         }
         if (originalTupleTypes.size() == typesToRemove.size()) {
             return originalType;
@@ -4676,7 +4687,7 @@ public class Types {
             BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
-        return new BTupleType(tupleTypes);
+        return new BTupleType(typeEnv(), tupleTypes);
     }
 
     private BType getRemainingType(BTupleType originalType, BArrayType typeToRemove, SymbolEnv env) {
@@ -4687,7 +4698,7 @@ public class Types {
             BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
-        BTupleType remainingType = new BTupleType(tupleTypes);
+        BTupleType remainingType = new BTupleType(typeEnv(), tupleTypes);
         if (originalType.restType != null) {
             remainingType.restType = getRemainingMatchExprType(originalType.restType, eType, env);
         }
@@ -4878,7 +4889,7 @@ public class Types {
         LinkedHashSet<BType> mutableRemainingTypes =
                 filterMutableMembers(((BUnionType) referredRemainingType).getMemberTypes(), env);
         remainingType = mutableRemainingTypes.size() == 1 ? mutableRemainingTypes.iterator().next() :
-                BUnionType.create(symTable.typeEnv(), null, mutableRemainingTypes);
+                BUnionType.create(typeEnv(), null, mutableRemainingTypes);
 
         BType referredTypeToRemove = getImpliedType(typeToRemove);
 
@@ -4886,7 +4897,7 @@ public class Types {
             LinkedHashSet<BType> mutableTypesToRemove =
                     filterMutableMembers(((BUnionType) referredTypeToRemove).getMemberTypes(), env);
             typeToRemove = mutableTypesToRemove.size() == 1 ? mutableTypesToRemove.iterator().next() :
-                    BUnionType.create(symTable.typeEnv(), null, mutableTypesToRemove);
+                    BUnionType.create(typeEnv(), null, mutableTypesToRemove);
         } else {
             typeToRemove = referredTypeToRemove;
         }
@@ -4944,7 +4955,7 @@ public class Types {
         if (intersection.size() == 1) {
             return intersection.toArray(new BType[0])[0];
         } else {
-            return BUnionType.create(symTable.typeEnv(), null, intersection);
+            return BUnionType.create(typeEnv(), null, intersection);
         }
     }
 
@@ -5109,14 +5120,14 @@ public class Types {
             if (elementIntersection == null) {
                 return elementIntersection;
             }
-            return new BArrayType(symTable.typeEnv(), elementIntersection);
+            return new BArrayType(typeEnv(), elementIntersection);
         } else if (referredType.tag == TypeTags.ARRAY && isAnydataOrJson(referredLhsType)) {
             BType elementIntersection = getIntersection(intersectionContext, lhsType, env,
                     ((BArrayType) referredType).eType, visitedTypes);
             if (elementIntersection == null) {
                 return elementIntersection;
             }
-            return new BArrayType(symTable.typeEnv(), elementIntersection);
+            return new BArrayType(typeEnv(), elementIntersection);
         } else if (referredType.tag == TypeTags.NULL_SET) {
             return type;
         }
@@ -5184,15 +5195,15 @@ public class Types {
         }
 
         if (tupleType.restType == null) {
-            return new BTupleType(null, tupleMemberTypes);
+            return new BTupleType(tupleType.env, tupleMemberTypes);
         }
 
         BType restIntersectionType = getTypeIntersection(intersectionContext, tupleType.restType, eType, env,
                 visitedTypes);
         if (restIntersectionType == symTable.semanticError) {
-            return new BTupleType(null, tupleMemberTypes);
+            return new BTupleType(typeEnv(), tupleMemberTypes);
         }
-        return new BTupleType(null, tupleMemberTypes, restIntersectionType, 0);
+        return new BTupleType(typeEnv(), null, tupleMemberTypes, restIntersectionType, 0);
     }
 
     private BType createTupleAndTupleIntersection(IntersectionContext intersectionContext,
@@ -5231,12 +5242,12 @@ public class Types {
             BType restIntersectionType = getTypeIntersection(intersectionContext, tupleType.restType,
                     lhsTupleType.restType, env, visitedTypes);
             if (restIntersectionType == symTable.semanticError) {
-                return new BTupleType(null, tupleMemberTypes);
+                return new BTupleType(typeEnv(), tupleMemberTypes);
             }
-            return new BTupleType(null, tupleMemberTypes, restIntersectionType, 0);
+            return new BTupleType(typeEnv(), null, tupleMemberTypes, restIntersectionType, 0);
         }
 
-        return new BTupleType(null, tupleMemberTypes);
+        return new BTupleType(typeEnv(), tupleMemberTypes);
     }
 
     private BType getIntersectionForErrorTypes(IntersectionContext intersectionContext,
@@ -5664,7 +5675,7 @@ public class Types {
             return symTable.nullSet;
         }
 
-        return BUnionType.create(symTable.typeEnv(), null, new LinkedHashSet<>(remainingTypes));
+        return BUnionType.create(typeEnv(), null, new LinkedHashSet<>(remainingTypes));
     }
 
     private BType getRemainingType(BFiniteType originalType, List<BType> removeTypes) {
@@ -5721,7 +5732,7 @@ public class Types {
 
         BUnionType unionType = (BUnionType) type;
         LinkedHashSet<BType> memTypes = new LinkedHashSet<>(unionType.getMemberTypes());
-        BUnionType errorLiftedType = BUnionType.create(symTable.typeEnv(), null, memTypes);
+        BUnionType errorLiftedType = BUnionType.create(typeEnv(), null, memTypes);
 
         if (liftNil) {
             errorLiftedType.remove(symTable.nilType);
@@ -5735,7 +5746,7 @@ public class Types {
                 }
             }
             memTypes = bTypes;
-            errorLiftedType = BUnionType.create(symTable.typeEnv(), null, memTypes);
+            errorLiftedType = BUnionType.create(typeEnv(), null, memTypes);
         }
 
         if (errorLiftedType.getMemberTypes().size() == 1) {
@@ -6229,7 +6240,7 @@ public class Types {
 
     public boolean isSubTypeOfSimpleBasicTypeOrString(BType bType) {
         return isAssignable(getImpliedType(bType),
-                BUnionType.create(symTable.typeEnv(), null, symTable.nilType, symTable.booleanType, symTable.intType,
+                BUnionType.create(typeEnv(), null, symTable.nilType, symTable.booleanType, symTable.intType,
                                               symTable.floatType, symTable.decimalType, symTable.stringType));
     }
 
@@ -6341,7 +6352,7 @@ public class Types {
             return nonNilTypes.get(0);
         }
 
-        return BUnionType.create(symTable.typeEnv(), null, new LinkedHashSet<>(nonNilTypes));
+        return BUnionType.create(typeEnv(), null, new LinkedHashSet<>(nonNilTypes));
     }
 
     public boolean isFixedLengthTuple(BTupleType bTupleType) {

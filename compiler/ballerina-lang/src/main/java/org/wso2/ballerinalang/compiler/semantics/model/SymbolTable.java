@@ -133,12 +133,13 @@ public class SymbolTable {
     public final BArrayType arrayStringType;
     BVarSymbol varSymbol = new BVarSymbol(0, null, null,
             noType, null, null, SymbolOrigin.VIRTUAL);
-    public final BType tupleType = new BTupleType(Lists.of(new BTupleMember(noType, varSymbol)));
+    public final BType tupleType;
     public final BType recordType = new BRecordType(null);
     public final BType stringArrayType;
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
     public final BType readonlyType = new BReadonlyType(null);
+    public final BType pathParamAllowedType;
     public final BIntersectionType anyAndReadonly;
     public BUnionType anyAndReadonlyOrError;
 
@@ -178,6 +179,8 @@ public class SymbolTable {
     public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY);
     public final BRegexpType regExpType = new BRegexpType(TypeTags.REGEXP, Names.REGEXP_TYPE);
     public final BType xmlNeverType = new BXMLType(neverType,  null);
+
+    public final BType xmlType;
     public final BType xmlElementSeqType = new BXMLType(xmlElementType, null);
 
     public BAnydataType anydataType;
@@ -224,10 +227,6 @@ public class SymbolTable {
     private Names names;
     private final Types types;
 
-    public final BType pathParamAllowedType;
-
-    public final BType xmlType;
-
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
     public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
     public Map<String, Map<SelectivelyImmutableReferenceType, BIntersectionType>> immutableTypeMaps = new HashMap<>();
@@ -247,7 +246,7 @@ public class SymbolTable {
         this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
 
-        this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
+        this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode(types.typeEnv());
         this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null, null, BUILTIN);
         this.builtinPos = new BLangDiagnosticLocation(Names.EMPTY.value, -1, -1,
                                             -1, -1);
@@ -305,7 +304,7 @@ public class SymbolTable {
                 intType, stringType, floatType, booleanType, decimalType);
         xmlType = new BXMLType(BUnionType.create(types.typeEnv(), null, xmlElementType, xmlCommentType,
                 xmlPIType, xmlTextType), null);
-
+        tupleType = new BTupleType(types.typeEnv(), Lists.of(new BTupleMember(noType, varSymbol)));
         initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
         defineCyclicUnionBasedInternalTypes();
 
@@ -334,7 +333,6 @@ public class SymbolTable {
         this.invokableType.tsymbol = tSymbol;
 
         defineReadonlyCompoundType();
-
     }
 
     private void defineReadonlyCompoundType() {

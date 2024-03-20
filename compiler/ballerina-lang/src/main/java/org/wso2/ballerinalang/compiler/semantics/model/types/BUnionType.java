@@ -102,7 +102,6 @@ public class BUnionType extends BType implements UnionType {
         this.memberTypes = memberTypes;
         this.isCyclic = isCyclic;
         this.env = env;
-        populateMemberSemTypesAndNonSemTypes();
     }
 
     @Override
@@ -119,7 +118,6 @@ public class BUnionType extends BType implements UnionType {
         assert memberTypes.size() == 0;
         this.memberTypes = memberTypes;
         this.originalMemberTypes = new LinkedHashSet<>(memberTypes);
-        populateMemberSemTypesAndNonSemTypes();
     }
 
     public void setOriginalMemberTypes(LinkedHashSet<BType> memberTypes) {
@@ -268,7 +266,6 @@ public class BUnionType extends BType implements UnionType {
         }
 
         setCyclicFlag(type);
-        populateMemberSemTypesAndNonSemTypes(type, this.memberSemTypes, this.memberNonSemTypes);
         this.semType = null; // reset cached sem-type if exists
     }
 
@@ -339,7 +336,6 @@ public class BUnionType extends BType implements UnionType {
         if (isImmutable) {
             this.flags |= Flags.READONLY;
         }
-        populateMemberSemTypesAndNonSemTypes();
     }
 
     public void mergeUnionType(BUnionType unionType) {
@@ -561,6 +557,7 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public SemType semType() {
         if (this.semType == null) {
+            populateMemberSemTypesAndNonSemTypes();
             this.semType = computeResultantUnion(memberSemTypes);
         }
         return this.semType;

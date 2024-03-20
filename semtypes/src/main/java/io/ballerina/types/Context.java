@@ -17,7 +17,9 @@
  */
 package io.ballerina.types;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,10 +28,14 @@ import java.util.Map;
  * @since 2201.8.0
  */
 public class Context {
+
     public final Env env;
     public final Map<Bdd, BddMemo> functionMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
+
+    // Contains all BddMemo entries with isEmpty == PROVISIONAL
+    public final List<BddMemo> memoStack = new ArrayList<>();
 
     private static volatile Context instance;
 

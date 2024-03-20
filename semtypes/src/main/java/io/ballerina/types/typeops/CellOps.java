@@ -39,8 +39,8 @@ import static io.ballerina.types.Common.bddSubtypeDiff;
 import static io.ballerina.types.Common.bddSubtypeIntersect;
 import static io.ballerina.types.Common.bddSubtypeUnion;
 import static io.ballerina.types.Core.cellAtomType;
-import static io.ballerina.types.TypeAtom.ATOM_CELL_NEVER;
-import static io.ballerina.types.TypeAtom.ATOM_CELL_VAL;
+import static io.ballerina.types.PredefinedType.ATOM_CELL_NEVER;
+import static io.ballerina.types.PredefinedType.ATOM_CELL_VAL;
 import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
 
 /**

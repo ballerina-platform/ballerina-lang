@@ -21,12 +21,14 @@ import io.ballerina.types.Atom;
 import io.ballerina.types.AtomicType;
 import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.Bdd;
+import io.ballerina.types.CellAtomicType;
 import io.ballerina.types.CellSemType;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.EnumerableCharString;
 import io.ballerina.types.EnumerableDecimal;
 import io.ballerina.types.EnumerableFloat;
 import io.ballerina.types.EnumerableString;
+import io.ballerina.types.Env;
 import io.ballerina.types.FixedLengthArray;
 import io.ballerina.types.FunctionAtomicType;
 import io.ballerina.types.ListAtomicType;
@@ -100,10 +102,12 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static io.ballerina.types.PredefinedType.BDD_REC_ATOM_READONLY;
 import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRAnnotAttachments;
 
 /**
@@ -116,10 +120,13 @@ public class BIRTypeWriter extends TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
+    private final Set<Integer> visitedAtoms = new HashSet<>();
+    private final Env typeEnv;
 
-    public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
+    public BIRTypeWriter(ByteBuf buff, ConstantPool cp, Env typeEnv) {
         this.buff = buff;
         this.cp = cp;
+        this.typeEnv = typeEnv;
     }
 
     public void visitType(BType type) {
@@ -656,30 +663,64 @@ public class BIRTypeWriter extends TypeVisitor {
     private void writeBddNode(BddNode bddNode) {
         Atom atom = bddNode.atom;
         boolean isRecAtom = atom instanceof RecAtom;
-        buff.writeBoolean(isRecAtom);
         if (isRecAtom) {
             RecAtom recAtom = (RecAtom) atom;
-            buff.writeInt(recAtom.index);
-        } else {
-            TypeAtom typeAtom = (TypeAtom) atom;
-            buff.writeLong(typeAtom.index);
-            AtomicType atomicType = typeAtom.atomicType;
-            if (atomicType instanceof MappingAtomicType mappingAtomicType) {
-                buff.writeByte(1);
-                writeMappingAtomicType(mappingAtomicType);
-            } else if (atomicType instanceof ListAtomicType listAtomicType) {
-                buff.writeByte(2);
-                writeListAtomicType(listAtomicType);
+            int index = recAtom.index;
+            // We can have cases where none of the BDDs have the actual BDD node in them just reference to it using
+            // RecAtoms. But when we deserialize the nodes we need to get the actual BDD node somehow. Currently, we
+            // "inline" the actual node first time we see it in the tree. Exception to this rule BDD_REC_ATOM_READONLY
+            // which is unique and every environment has the same node.
+            // TODO: need to think of a better way to serialize information about the actual node without "inlining"
+            //  the node
+            if (index == BDD_REC_ATOM_READONLY) {
+                buff.writeBoolean(true);
+                buff.writeInt(BDD_REC_ATOM_READONLY);
+            } else if (visitedAtoms.contains(index)) {
+                buff.writeBoolean(true);
+                buff.writeInt(index);
+                buff.writeInt(recAtom.getTargetKind().ordinal());
             } else {
-                buff.writeByte(3);
-                FunctionAtomicType fat = (FunctionAtomicType) atomicType;
-                writeSemType(fat.paramType);
-                writeSemType(fat.retType);
+                visitedAtoms.add(index);
+                buff.writeBoolean(false);
+                AtomicType atomicType = switch (recAtom.getTargetKind()) {
+                    case LIST_ATOM -> typeEnv.listAtomType(recAtom);
+                    case FUNCTION_ATOM -> typeEnv.functionAtomType(recAtom);
+                    case MAPPING_ATOM -> typeEnv.mappingAtomType(recAtom);
+                };
+                buff.writeInt(index);
+                writeAtomicType(atomicType);
             }
+        } else {
+            buff.writeBoolean(false);
+            TypeAtom typeAtom = (TypeAtom) atom;
+            visitedAtoms.add(typeAtom.index);
+            buff.writeInt(typeAtom.index);
+            AtomicType atomicType = typeAtom.atomicType;
+            writeAtomicType(atomicType);
         }
         writeBdd(bddNode.left);
         writeBdd(bddNode.middle);
         writeBdd(bddNode.right);
+    }
+
+    private void writeAtomicType(AtomicType atomicType) {
+        if (atomicType instanceof MappingAtomicType mappingAtomicType) {
+            buff.writeByte(1);
+            writeMappingAtomicType(mappingAtomicType);
+        } else if (atomicType instanceof ListAtomicType listAtomicType) {
+            buff.writeByte(2);
+            writeListAtomicType(listAtomicType);
+        } else if (atomicType instanceof FunctionAtomicType functionAtomicType) {
+            buff.writeByte(3);
+            writeSemType(functionAtomicType.paramType);
+            writeSemType(functionAtomicType.retType);
+        } else if (atomicType instanceof CellAtomicType cellAtomicType) {
+            buff.writeByte(4);
+            writeSemType(cellAtomicType.ty);
+            buff.writeByte(cellAtomicType.mut.ordinal());
+        } else {
+            throw new UnsupportedOperationException("Unexpected atomic type " + atomicType);
+        }
     }
 
     private void writeMappingAtomicType(MappingAtomicType mat) {

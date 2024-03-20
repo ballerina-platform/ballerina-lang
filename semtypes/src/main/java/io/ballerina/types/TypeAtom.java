@@ -17,31 +17,41 @@
  */
 package io.ballerina.types;
 
-import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_INNER;
-import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_INNER_MAPPING;
-import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_NEVER;
-import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_VAL;
-
 /**
  * Represent a TypeAtom.
  *
  * @since 2201.8.0
  */
 public class TypeAtom implements Atom {
-    public final long index;
+
+    public final int index;
     public final AtomicType atomicType;
 
-    public static final TypeAtom ATOM_CELL_VAL = createTypeAtom(0, CELL_ATOMIC_VAL);
-    public static final TypeAtom ATOM_CELL_NEVER = createTypeAtom(1, CELL_ATOMIC_NEVER);
-    public static final TypeAtom ATOM_CELL_INNER = createTypeAtom(2, CELL_ATOMIC_INNER);
-    public static final TypeAtom ATOM_CELL_INNER_MAPPING = createTypeAtom(3, CELL_ATOMIC_INNER_MAPPING);
-
-    private TypeAtom(long index, AtomicType atomicType) {
+    private TypeAtom(int index, AtomicType atomicType) {
         this.index = index;
         this.atomicType = atomicType;
     }
 
-    public static TypeAtom createTypeAtom(long index, AtomicType atomicType) {
+    public static TypeAtom createTypeAtom(int index, AtomicType atomicType) {
         return new TypeAtom(index, atomicType);
+    }
+
+    @Override
+    public int hashCode() {
+        return index;
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof TypeAtom typeAtom) {
+            return typeAtom.index == this.index;
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "TypeAtom{" + "index=" + index + ", atomicType=" + atomicType + '}';
     }
 }

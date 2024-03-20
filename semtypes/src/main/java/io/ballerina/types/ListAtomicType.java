@@ -18,6 +18,7 @@
 package io.ballerina.types;
 
 import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER;
+import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER_RO;
 
 /**
  * ListAtomicType node.
@@ -27,6 +28,7 @@ import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER;
 public final class ListAtomicType implements AtomicType {
 
     public static final ListAtomicType LIST_ATOMIC_INNER = from(FixedLengthArray.empty(), CELL_SEMTYPE_INNER);
+    static final ListAtomicType LIST_ATOMIC_RO = from(FixedLengthArray.empty(), CELL_SEMTYPE_INNER_RO);
     public final FixedLengthArray members;
     public final CellSemType rest;
 
@@ -37,5 +39,10 @@ public final class ListAtomicType implements AtomicType {
 
     public static ListAtomicType from(FixedLengthArray members, CellSemType rest) {
         return new ListAtomicType(members, rest);
+    }
+
+    @Override
+    public String toString() {
+        return "ListAtomicType{members=" + members + ", rest=" + rest + '}';
     }
 }

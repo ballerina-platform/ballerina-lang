@@ -76,4 +76,18 @@ public class BddNode implements Bdd {
     public int bddGetCount() {
         return bddCount.get();
     }
+
+    @Override
+    public String toString() {
+        return "{ atom: " + atom + ", left: " + left + ", middle: " + middle +
+                ", right: " + right + " }";
+    }
+
+    public boolean isSimpleBddNode() {
+        if (left instanceof BddAllOrNothing leftNode && middle instanceof BddAllOrNothing middleNode &&
+                right instanceof BddAllOrNothing rightNode) {
+            return leftNode.isAll() && middleNode.isNothing() && rightNode.isNothing();
+        }
+        return false;
+    }
 }

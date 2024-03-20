@@ -44,6 +44,7 @@ import static io.ballerina.types.Common.bddSubtypeIntersect;
 import static io.ballerina.types.Common.bddSubtypeUnion;
 import static io.ballerina.types.Common.isAllSubtype;
 import static io.ballerina.types.MappingAtomicType.MAPPING_ATOMIC_INNER;
+import static io.ballerina.types.Common.memoSubtypeIsEmpty;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.typeops.StringOps.stringSubtypeListCoverage;
@@ -154,28 +155,9 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
     }
 
     public static boolean mappingSubtypeIsEmpty(Context cx, SubtypeData t) {
-        Bdd b = (Bdd) t;
-        BddMemo mm = cx.mappingMemo.get(b);
-        BddMemo m;
-        if (mm == null) {
-            m = BddMemo.from(b);
-            cx.mappingMemo.put(b, m);
-        } else {
-            m = mm;
-            BddMemo.MemoStatus res = m.isEmpty;
-            switch (res) {
-                case NOT_SET:
-                    // we've got a loop
-                    return true;
-                case TRUE:
-                    return true;
-                case FALSE:
-                    return false;
-            }
-        }
-        boolean isEmpty = Common.bddEvery(cx, b, null, null, MappingOps::mappingFormulaIsEmpty);
-        m.setIsEmpty(isEmpty);
-        return isEmpty;
+        return memoSubtypeIsEmpty(cx, cx.mappingMemo,
+                (context, bdd) -> Common.bddEvery(context, bdd, null, null, MappingOps::mappingFormulaIsEmpty),
+                (Bdd) t);
     }
 
     public static SemType bddMappingMemberTypeInner(Context cx, Bdd b, SubtypeData key, SemType accum)  {

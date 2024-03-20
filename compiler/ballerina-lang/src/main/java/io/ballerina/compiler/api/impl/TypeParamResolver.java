@@ -244,7 +244,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BTupleType(typeInSymbol.tsymbol, newTupleMembers, newRestType, typeInSymbol.flags,
+        return new BTupleType(typeInSymbol.env, typeInSymbol.tsymbol, newTupleMembers, newRestType, typeInSymbol.flags,
                               typeInSymbol.isCyclic);
     }
 

@@ -17,6 +17,12 @@
  */
 package io.ballerina.types;
 
+import io.ballerina.types.subtypedata.AllOrNothingSubtype;
+import io.ballerina.types.subtypedata.BddNode;
+
+import static io.ballerina.types.Core.getComplexSubtypeData;
+import static io.ballerina.types.SemTypes.isSubtypeSimple;
+
 /**
  * CellAtomicType node.
  *
@@ -26,21 +32,39 @@ public final class CellAtomicType implements AtomicType {
     public final SemType ty;
     public final CellMutability mut;
 
-    public static final CellAtomicType CELL_ATOMIC_VAL = from(PredefinedType.VAL, CellMutability.CELL_MUT_LIMITED);
-    public static final CellAtomicType CELL_ATOMIC_INNER = from(PredefinedType.INNER, CellMutability.CELL_MUT_LIMITED);
-    public static final CellAtomicType CELL_ATOMIC_NEVER = from(PredefinedType.NEVER, CellMutability.CELL_MUT_LIMITED);
-    public static final CellAtomicType CELL_ATOMIC_INNER_MAPPING = from(
-            Core.union(PredefinedType.MAPPING, PredefinedType.UNDEF), CellMutability.CELL_MUT_LIMITED
-    );
-
     private CellAtomicType(SemType ty, CellMutability mut) {
         this.ty = ty;
         this.mut = mut;
     }
 
     public static CellAtomicType from(SemType ty) {
-        // TODO: is mutability correct?
-        return from(ty, CellMutability.CELL_MUT_LIMITED);
+        if (ty instanceof BasicTypeBitSet bitSet) {
+            return bitSet.bitset == PredefinedType.CELL.bitset ? PredefinedType.CELL_ATOMIC_VAL : null;
+        }
+        assert ty instanceof ComplexSemType;
+        if (!isSubtypeSimple(ty, PredefinedType.CELL)) {
+            return null;
+        }
+        return bddCellAtomicType((Bdd) getComplexSubtypeData((ComplexSemType) ty, BasicTypeCode.BT_CELL),
+                PredefinedType.CELL_ATOMIC_VAL);
+    }
+
+    private static CellAtomicType bddCellAtomicType(Bdd bdd, CellAtomicType top) {
+        if (bdd instanceof AllOrNothingSubtype allOrNothingSubtype) {
+            if (allOrNothingSubtype.isAllSubtype()) {
+                return top;
+            }
+            return null;
+        }
+        BddNode bddNode = (BddNode) bdd;
+        if (bddNode.isSimpleBddNode()) {
+            return cellAtom(bddNode.atom);
+        }
+        return null;
+    }
+
+    private static CellAtomicType cellAtom(Atom atom) {
+        return (CellAtomicType) ((TypeAtom) atom).atomicType;
     }
 
     public static CellAtomicType from(SemType ty, CellMutability mut) {
@@ -51,6 +75,11 @@ public final class CellAtomicType implements AtomicType {
     public enum CellMutability {
         CELL_MUT_NONE,
         CELL_MUT_LIMITED,
-        CELL_MUT_UNLIMITED;
+        CELL_MUT_UNLIMITED
+    }
+
+    @Override
+    public String toString() {
+        return "CellAtomicType{ty=" + ty + ", mut=" + mut + "}";
     }
 }

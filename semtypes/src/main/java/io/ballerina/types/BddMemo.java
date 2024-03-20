@@ -28,7 +28,7 @@ public class BddMemo {
 
     public BddMemo(Bdd bdd) {
         this.bdd = bdd;
-        this.isEmpty = MemoStatus.NOT_SET;
+        this.isEmpty = MemoStatus.NULL;
     }
 
     public static BddMemo from(Bdd bdd) {
@@ -48,6 +48,6 @@ public class BddMemo {
      * @since 3.0.0
      */
     public enum MemoStatus {
-        NOT_SET, TRUE, FALSE;
+        LOOP, TRUE, FALSE, CYCLIC, PROVISIONAL, NULL;
     }
 }

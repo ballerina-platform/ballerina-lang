@@ -1008,7 +1008,7 @@ public class TypeResolver {
                 Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
         List<BTupleMember> memberTypes = new ArrayList<>();
-        BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
+        BTupleType tupleType = new BTupleType(symTable.typeEnv(), tupleTypeSymbol, memberTypes);
         tupleTypeSymbol.type = tupleType;
         td.setBType(tupleType);
         resolvingTypes.push(tupleType);
@@ -1393,7 +1393,6 @@ public class TypeResolver {
         type.setOriginalMemberTypes(memberTypes);
         memberTypes.clear();
         memberTypes.addAll(flattenMemberTypes);
-        type.populateMemberSemTypesAndNonSemTypes();
     }
 
     private BType resolveTypeDesc(BLangIntersectionTypeNode td, ResolverData data, boolean anonymous) {

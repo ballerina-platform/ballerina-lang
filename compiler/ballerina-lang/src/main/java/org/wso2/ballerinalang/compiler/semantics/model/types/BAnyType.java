@@ -23,12 +23,14 @@ import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
+
+import static io.ballerina.types.PredefinedType.IMPLEMENTED_TYPES;
+import static io.ballerina.types.PredefinedType.VAL_READONLY;
 
 /**
  * @since 0.94
@@ -36,7 +38,7 @@ import org.wso2.ballerinalang.util.Flags;
 public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
     public BAnyType(BTypeSymbol tsymbol) {
-        this(tsymbol, SemTypeHelper.READONLY_SEMTYPE);
+        this(tsymbol, VAL_READONLY);
     }
 
     private BAnyType(BTypeSymbol tsymbol, SemType semType) {
@@ -44,17 +46,17 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     }
 
     public BAnyType(BTypeSymbol tsymbol, Name name, long flag) {
-        this(tsymbol, name, flag, SemTypeHelper.READONLY_SEMTYPE);
+        this(tsymbol, name, flag, VAL_READONLY);
     }
 
     public BAnyType(BTypeSymbol tsymbol, Name name, long flags, SemType semType) {
-        super(TypeTags.ANY, tsymbol, SemTypeHelper.READONLY_SEMTYPE);
+        super(TypeTags.ANY, tsymbol, VAL_READONLY);
         this.name = name;
         this.flags = flags;
     }
 
     public static BAnyType newNilLiftedBAnyType(BTypeSymbol tsymbol) {
-        return new BAnyType(tsymbol, Core.diff(SemTypeHelper.READONLY_SEMTYPE, PredefinedType.NIL));
+        return new BAnyType(tsymbol, Core.diff(VAL_READONLY, PredefinedType.NIL));
     }
 
     @Override
@@ -76,5 +78,14 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     public String toString() {
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
+    }
+
+    @Override
+    public SemType semType() {
+        SemType implementedAnyType = Core.intersect(PredefinedType.ANY, IMPLEMENTED_TYPES);
+        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
+            return Core.intersect(implementedAnyType, VAL_READONLY);
+        }
+        return implementedAnyType;
     }
 }

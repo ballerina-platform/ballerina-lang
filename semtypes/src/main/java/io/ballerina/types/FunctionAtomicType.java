@@ -31,6 +31,11 @@ public class FunctionAtomicType implements AtomicType {
         this.retType = retType;
     }
 
+    @Override
+    public String toString() {
+        return "FunctionAtomicType{paramType=" + paramType + ", retType=" + retType + '}';
+    }
+
     public static FunctionAtomicType from(SemType paramType , SemType rest) {
         return new FunctionAtomicType(paramType, rest);
     }

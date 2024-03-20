@@ -17,6 +17,8 @@
  */
 package io.ballerina.types;
 
+import static io.ballerina.types.PredefinedType.BDD_REC_ATOM_READONLY;
+
 /**
  * Represent a recursive type atom.
  *
@@ -24,16 +26,52 @@ package io.ballerina.types;
  */
 public class RecAtom implements Atom {
     public final int index;
-    private static final RecAtom zero = new RecAtom(0);
+    private TargetKind targetKind = null;
+    public static final RecAtom zero = new RecAtom(BDD_REC_ATOM_READONLY);
 
     private RecAtom(int index) {
         this.index = index;
     }
 
     public static RecAtom createRecAtom(int index) {
-        if (index == 0) {
+        if (index == BDD_REC_ATOM_READONLY) {
             return zero;
         }
         return new RecAtom(index);
+    }
+
+    public TargetKind getTargetKind() {
+        if (targetKind == null) {
+            throw new IllegalStateException("Target kind is not set for the recursive type atom");
+        }
+        return targetKind;
+    }
+
+    public void setTargetKind(TargetKind targetKind) {
+        this.targetKind = targetKind;
+    }
+
+    public enum TargetKind {
+        LIST_ATOM,
+        FUNCTION_ATOM,
+        MAPPING_ATOM
+    }
+
+    @Override
+    public int hashCode() {
+        return index;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof RecAtom recAtom) {
+            return recAtom.index == this.index;
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "RecAtom{ index=" + index + ", targetKind=" + targetKind + '}';
     }
 }

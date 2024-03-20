@@ -285,7 +285,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return expType != null ? expType : originalType;
         }
 
-        BTupleType type = new BTupleType(null, members);
+        BTupleType type = new BTupleType(originalType.env, members);
         type.restType = newRestType;
         setFlags(type, originalType.flags);
         return type;

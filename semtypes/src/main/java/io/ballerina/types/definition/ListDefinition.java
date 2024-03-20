@@ -31,11 +31,11 @@ import io.ballerina.types.SemType;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.typeops.BddCommonOps;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.types.Core.isNever;
 import static io.ballerina.types.Core.union;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.UNDEF;
@@ -71,18 +71,19 @@ public class ListDefinition implements Definition {
 
     // Overload define method for commonly used default parameter values
 
-    /***
-     * Define a fixed length array type.
-     */
     public SemType define(Env env, List<SemType> initial, int size) {
         return define(env, initial, size, NEVER, CELL_MUT_LIMITED);
+    }
+
+    public SemType define(Env env, List<SemType> initial, int fixedLength, SemType rest) {
+        return define(env, initial, fixedLength, rest, CELL_MUT_LIMITED);
     }
 
     public SemType define(Env env, List<SemType> initial, int fixedLength, SemType rest,
                           CellAtomicType.CellMutability mut) {
         List<CellSemType> initialCells = initial.stream().map(t -> cellContaining(env, t, mut))
                 .toList();
-        CellSemType restCell = cellContaining(env, union(rest, UNDEF), rest == NEVER ? CELL_MUT_NONE : mut);
+        CellSemType restCell = cellContaining(env, union(rest, UNDEF), isNever(rest) ? CELL_MUT_NONE : mut);
         return defineInner(env, initialCells, fixedLength, restCell);
     }
 
@@ -125,15 +126,15 @@ public class ListDefinition implements Definition {
     }
 
     public SemType define(Env env, List<CellSemType> initial) {
-        return defineInner(env, initial, initial.size(), cellContaining(env, NEVER));
+        return defineInner(env, initial, initial.size(), cellContaining(env, union(NEVER, UNDEF)));
     }
 
     public SemType define(Env env, SemType rest) {
-        return defineInner(env, new ArrayList<>(), 0, cellContaining(env, rest));
+        return defineInner(env, List.of(), 0,
+                cellContaining(env, union(rest, UNDEF), isNever(rest) ? CELL_MUT_NONE : CELL_MUT_LIMITED));
     }
 
     public SemType define(Env env, List<SemType> initial, SemType rest) {
         return define(env, initial, initial.size(), rest, CELL_MUT_LIMITED);
     }
-
 }

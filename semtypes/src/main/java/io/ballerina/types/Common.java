@@ -24,6 +24,9 @@ import io.ballerina.types.subtypedata.BddNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiFunction;
 
 import static io.ballerina.types.Conjunction.and;
 import static io.ballerina.types.typeops.BddCommonOps.bddComplement;
@@ -153,6 +156,67 @@ public class Common {
      */
     public interface BddPredicate {
         boolean apply(Context cx, Conjunction posList, Conjunction negList);
+    }
+
+    public interface BddIsEmptyPredicate extends BiFunction<Context, Bdd, Boolean> {
+
+    }
+
+    public static boolean memoSubtypeIsEmpty(Context cx, Map<Bdd, BddMemo> memoTable,
+                                             BddIsEmptyPredicate isEmptyPredicate, Bdd b) {
+        BddMemo mm = memoTable.get(b);
+        BddMemo m;
+        if (mm != null) {
+            BddMemo.MemoStatus res = mm.isEmpty;
+            switch (res) {
+                case CYCLIC:
+                    // Since we define types inductively we consider these to be empty
+                    return true;
+                case TRUE, FALSE:
+                    // We know whether b is empty or not for certain
+                    return res == BddMemo.MemoStatus.TRUE;
+                case NULL:
+                    // this is same as not having memo so fall through
+                    m = mm;
+                    break;
+                case LOOP, PROVISIONAL:
+                    // We've got a loop.
+                    mm.isEmpty = BddMemo.MemoStatus.LOOP;
+                    return true;
+                default:
+                    throw new AssertionError("Unexpected memo status: " + res);
+            }
+        } else {
+            m = BddMemo.from(b);
+            cx.listMemo.put(b, m);
+        }
+        m.isEmpty = BddMemo.MemoStatus.PROVISIONAL;
+        int initStackDepth = cx.memoStack.size();
+        cx.memoStack.add(m);
+        boolean isEmpty = isEmptyPredicate.apply(cx, b);
+        boolean isLoop = m.isEmpty == BddMemo.MemoStatus.LOOP;
+        if (!isEmpty || initStackDepth == 0) {
+            for (int i = initStackDepth + 1; i < cx.memoStack.size(); i++) {
+                BddMemo.MemoStatus memoStatus = cx.memoStack.get(i).isEmpty;
+                if (Objects.requireNonNull(memoStatus) == BddMemo.MemoStatus.PROVISIONAL ||
+                        memoStatus == BddMemo.MemoStatus.LOOP || memoStatus == BddMemo.MemoStatus.CYCLIC) {
+                    cx.memoStack.get(i).isEmpty = isEmpty ? BddMemo.MemoStatus.TRUE : BddMemo.MemoStatus.NULL;
+                }
+            }
+            // TODO: think of a more efficient way to do this
+            while (cx.memoStack.size() > initStackDepth) {
+                cx.memoStack.remove(cx.memoStack.size() - 1);
+            }
+            // The only way that we have found that this can be empty is by going through a loop.
+            // This means that the shapes in the type would all be infinite.
+            // But we define types inductively, which means we only consider finite shapes.
+            if (isLoop && isEmpty) {
+                m.isEmpty = BddMemo.MemoStatus.CYCLIC;
+            } else {
+                m.isEmpty = isEmpty ? BddMemo.MemoStatus.TRUE : BddMemo.MemoStatus.FALSE;
+            }
+        }
+        return isEmpty;
     }
 
     public static boolean isAllSubtype(SubtypeData d) {

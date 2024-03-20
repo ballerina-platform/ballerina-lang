@@ -381,7 +381,7 @@ public class QueryTypeChecker extends TypeChecker {
                     BType memberType = ((BMapType) type).getConstraint();
                     BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(memberType);
                     memberTypeList.add(new BTupleMember(memberType, varSymbol));
-                    BTupleType newExpType = new BTupleType(null, memberTypeList);
+                    BTupleType newExpType = new BTupleType(symTable.typeEnv(), memberTypeList);
                     selectType = checkExprSilent(selectExp, env, newExpType, data);
                     if (selectType == symTable.semanticError) {
                         errorTypes.add(newExpType);
@@ -1197,7 +1197,8 @@ public class QueryTypeChecker extends TypeChecker {
                     checkExpr(expr, data.env, symTable.noType, data);
                     data.queryData.withinSequenceContext = false;
                     data.resultType = types.checkType(listConstructor.pos,
-                            new BTupleType(null, new ArrayList<>(0), ((BSequenceType) type).elementType, 0),
+                            new BTupleType(symTable.typeEnv(), null, new ArrayList<>(0),
+                                    ((BSequenceType) type).elementType, 0),
                             expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
                     listConstructor.setBType(data.resultType);
                     return;

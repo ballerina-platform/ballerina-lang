@@ -20,7 +20,6 @@ package io.ballerina.types.typeops;
 import io.ballerina.types.Atom;
 import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Bdd;
-import io.ballerina.types.BddMemo;
 import io.ballerina.types.CellSemType;
 import io.ballerina.types.Common;
 import io.ballerina.types.Conjunction;
@@ -47,6 +46,11 @@ import static io.ballerina.types.Common.bddSubtypeComplement;
 import static io.ballerina.types.Common.bddSubtypeDiff;
 import static io.ballerina.types.Common.bddSubtypeIntersect;
 import static io.ballerina.types.Common.bddSubtypeUnion;
+import static io.ballerina.types.Common.memoSubtypeIsEmpty;
+import static io.ballerina.types.Common.shallowCopyCellTypes;
+import static io.ballerina.types.Core.cellContainingInnerVal;
+import static io.ballerina.types.Core.cellInnerVal;
+import static io.ballerina.types.Core.intersectMemberSemType;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.subtypedata.IntSubtype.intSubtypeContains;
 import static io.ballerina.types.typeops.IntOps.intSubtypeMax;
@@ -59,30 +63,13 @@ import static io.ballerina.types.typeops.IntOps.intSubtypeOverlapRange;
  */
 public class ListOps extends CommonOps implements BasicTypeOps {
 
-    static boolean listSubtypeIsEmpty(Context cx, SubtypeData t) {
-        Bdd b = (Bdd) t;
-        BddMemo mm = cx.listMemo.get(b);
-        BddMemo m;
-        if (mm == null) {
-            m = BddMemo.from(b);
-            cx.listMemo.put(m.bdd, m);
-        } else {
-            m = mm;
-            BddMemo.MemoStatus res = m.isEmpty;
-            if (res == BddMemo.MemoStatus.NOT_SET) {
-                // we've got a loop
-                // XXX is this right???
-                return true;
-            } else {
-                return res == BddMemo.MemoStatus.TRUE;
-            }
-        }
-        boolean isEmpty = Common.bddEvery(cx, b, null, null, ListOps::listFormulaIsEmpty);
-        m.setIsEmpty(isEmpty);
-        return isEmpty;
+    private static boolean listSubtypeIsEmpty(Context cx, SubtypeData t) {
+        return memoSubtypeIsEmpty(cx, cx.listMemo,
+                (context, bdd) -> Common.bddEvery(context, bdd, null, null, ListOps::listFormulaIsEmpty),
+                (Bdd) t);
     }
 
-    static boolean listFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
+    private static boolean listFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
         FixedLengthArray members;
         CellSemType rest;
         if (pos == null) {
@@ -108,11 +95,12 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                     Atom d = p.atom;
                     p = p.next;
                     lt = cx.listAtomType(d);
-                    TwoTuple intersected = listIntersectWith(cx.env, members, rest, lt.members, lt.rest);
+                    TwoTuple<FixedLengthArray, SemType>
+                            intersected = listIntersectWith(cx.env, members, rest, lt.members, lt.rest);
                     if (intersected == null) {
                         return true;
                     }
-                    members = (FixedLengthArray) intersected.item1;
+                    members = intersected.item1;
                     rest = (CellSemType) intersected.item2;
                 }
             }
@@ -127,23 +115,6 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 sampleTypes.item2, neg);
     }
 
-    static TwoTuple<FixedLengthArray, SemType> listIntersectWith(Env env, FixedLengthArray members1, CellSemType rest1,
-                                                                 FixedLengthArray members2, CellSemType rest2) {
-        if (listLengthsDisjoint(members1, rest1, members2, rest2)) {
-            return null;
-        }
-        int max = Integer.max(members1.initial.size(), members2.initial.size());
-        List<CellSemType> initial =
-                IntStream.range(0, max)
-                        .mapToObj(i -> Core.intersectMemberSemType(env, listMemberAt(members1, rest1, i),
-                                listMemberAt(members2, rest2, i)))
-                        .collect(Collectors.toList());
-        return TwoTuple.from(FixedLengthArray.from(initial,
-                        Integer.max(members1.fixedLength,
-                                members2.fixedLength)),
-                Core.intersect(rest1, rest2));
-    }
-
     // Return a list of sample indices for use as second argument of `listInhabited`.
     // The positive list type P is represented by `members` and `rest`.
     // The negative list types N are represented by `neg`
@@ -154,7 +125,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
     // which sample we choose, but (this is the key point) we need at least as many samples
     // as there are negatives in N, so that for each negative we can freely choose a type for the sample
     // to avoid being matched by that negative.
-    public static List<Integer> listSamples(Context cx, FixedLengthArray members, SemType rest, Conjunction neg) {
+    static List<Integer> listSamples(Context cx, FixedLengthArray members, SemType rest, Conjunction neg) {
         int maxInitialLength = members.initial.size();
         List<Integer> fixedLengths = new ArrayList<>();
         fixedLengths.add(members.fixedLength);
@@ -215,6 +186,24 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         return indices;
     }
 
+    static TwoTuple<FixedLengthArray, SemType> listIntersectWith(Env env, FixedLengthArray members1, CellSemType rest1,
+                                                                 FixedLengthArray members2, CellSemType rest2) {
+        if (listLengthsDisjoint(members1, rest1, members2, rest2)) {
+            return null;
+        }
+        int max = Integer.max(members1.initial.size(), members2.initial.size());
+        List<CellSemType> initial =
+                IntStream.range(0, max)
+                        .mapToObj(i -> Core.intersectMemberSemType(env, listMemberAt(members1, rest1, i),
+                                listMemberAt(members2, rest2, i)))
+                        .collect(Collectors.toList());
+        return TwoTuple.from(FixedLengthArray.from(initial,
+                        Integer.max(members1.fixedLength,
+                                members2.fixedLength)),
+                intersectMemberSemType(env, rest1, rest2));
+    }
+
+
     static FixedLengthArray fixedArrayShallowCopy(FixedLengthArray array) {
         return FixedLengthArray.from(Collections.unmodifiableList(array.initial), array.fixedLength);
     }
@@ -235,7 +224,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             return true;
         } else {
             final ListAtomicType nt = cx.listAtomType(neg.atom);
-            if (nRequired > 0 && Core.isNever(listMemberAt(nt.members, nt.rest, indices[nRequired - 1]))) {
+            if (nRequired > 0 && Core.isNever(listMemberAtInnerVal(nt.members, nt.rest, indices[nRequired - 1]))) {
                 // Skip this negative if it is always shorter than the minimum required by the positive
                 return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
             }
@@ -250,6 +239,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                     if (indices[i] >= negLen) {
                         break;
                     }
+                    // TODO: avoid creating new arrays here
                     SemType[] t = Arrays.copyOfRange(memberTypes, 0, i);
                     if (listInhabited(cx, indices, t, nRequired, neg.next)) {
                         return true;
@@ -293,6 +283,10 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         }
     }
 
+    private static SemType listMemberAtInnerVal(FixedLengthArray fixedArray, CellSemType rest, int index) {
+        return cellInnerVal(listMemberAt(fixedArray, rest, index));
+    }
+
     private static boolean listLengthsDisjoint(FixedLengthArray members1, SemType rest1,
                                                FixedLengthArray members2, SemType rest2) {
         int len1 = members1.fixedLength;
@@ -312,7 +306,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         int nRequired = 0;
         for (int i = 0; i < indices.size(); i++) {
             int index = indices.get(i);
-            CellSemType t = listMemberAt(members, rest, index);
+            CellSemType t = cellContainingInnerVal(cx.env, listMemberAt(members, rest, index));
             if (Core.isEmpty(cx, t)) {
                 break;
             }
@@ -321,7 +315,6 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 nRequired = i + 1;
             }
         }
-        // Note that indices may be longer
         return TwoTuple.from(memberTypes, nRequired);
     }
 

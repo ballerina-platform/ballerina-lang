@@ -1812,7 +1812,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             BType elementType = ((BSequenceType) symbol.type).elementType;
             List<BTupleMember> tupleMembers = new ArrayList<>(1);
             tupleMembers.add(new BTupleMember(elementType, Symbols.createVarSymbolForTupleMember(elementType)));
-            symbol.type = new BTupleType(null, tupleMembers, elementType, 0);
+            symbol.type = new BTupleType(symTable.typeEnv(), null, tupleMembers, elementType, 0);
         }
         return symbol.type;
     }

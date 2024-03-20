@@ -17,6 +17,10 @@
  */
 package io.ballerina.types;
 
+import java.util.Arrays;
+
+import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER;
+
 /**
  * MappingAtomicType node.
  *
@@ -29,7 +33,7 @@ public class MappingAtomicType implements AtomicType {
     public final CellSemType rest;
 
     public static final MappingAtomicType MAPPING_ATOMIC_INNER = from(
-            new String[]{}, new CellSemType[]{}, CellSemType.CELL_SEMTYPE_INNER
+            new String[]{}, new CellSemType[]{}, CELL_SEMTYPE_INNER
     );
 
     private MappingAtomicType(String[] names, CellSemType[] types, CellSemType rest) {
@@ -40,5 +44,11 @@ public class MappingAtomicType implements AtomicType {
 
     public static MappingAtomicType from(String[] names, CellSemType[] types, CellSemType rest) {
         return new MappingAtomicType(names, types, rest);
+    }
+
+    @Override
+    public String toString() {
+        return "MappingAtomicType{names=" + Arrays.toString(names) + ", types=" + Arrays.toString(types) + ", rest=" +
+                rest + '}';
     }
 }

@@ -47,10 +47,10 @@ import static io.ballerina.types.BasicTypeCode.BT_NIL;
 import static io.ballerina.types.BasicTypeCode.BT_STRING;
 import static io.ballerina.types.BasicTypeCode.BT_TABLE;
 import static io.ballerina.types.BasicTypeCode.VT_MASK;
-import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_VAL;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.types.Common.isNothingSubtype;
 import static io.ballerina.types.MappingAtomicType.MAPPING_ATOMIC_INNER;
+import static io.ballerina.types.PredefinedType.CELL_ATOMIC_VAL;
 import static io.ballerina.types.PredefinedType.INNER;
 import static io.ballerina.types.PredefinedType.LIST;
 import static io.ballerina.types.PredefinedType.MAPPING;
@@ -76,8 +76,70 @@ public final class Core {
     }
 
     public static SemType diff(SemType t1, SemType t2) {
-        // FIXME: this should do the correct diff we have now
-        return maybeRoDiff(t1, t2, null);
+        BasicTypeBitSet all1, all2, some1, some2;
+        if (t1 instanceof BasicTypeBitSet b1) {
+            if (t2 instanceof BasicTypeBitSet b2) {
+                return BasicTypeBitSet.from(b1.bitset & ~b2.bitset);
+            } else {
+                if (b1.bitset == 0) {
+                    return t1;
+                }
+                ComplexSemType c2 = (ComplexSemType) t2;
+                all2 = c2.all;
+                some2 = c2.some;
+            }
+            all1 = b1;
+            some1 = BasicTypeBitSet.from(0);
+        } else {
+            ComplexSemType c1 = (ComplexSemType) t1;
+            all1 = c1.all;
+            some1 = c1.some;
+            if (t2 instanceof BasicTypeBitSet b2) {
+                if (b2.bitset == BasicTypeCode.VT_MASK) {
+                    return BasicTypeBitSet.from(0);
+                }
+                all2 = b2;
+                some2 = BasicTypeBitSet.from(0);
+            } else {
+                ComplexSemType c2 = (ComplexSemType) t2;
+                all2 = c2.all;
+                some2 = c2.some;
+            }
+        }
+        BasicTypeBitSet all = BasicTypeBitSet.from(all1.bitset & ~(all2.bitset | some2.bitset));
+
+        int someBitset = (all1.bitset | some1.bitset) & ~all2.bitset;
+        someBitset = someBitset & ~all.bitset;
+        BasicTypeBitSet some = BasicTypeBitSet.from(someBitset);
+
+        if (some.bitset == 0) {
+            return PredefinedType.basicTypeUnion(all.bitset);
+        }
+        List<BasicSubtype> subtypes = new ArrayList<>();
+
+        for (SubtypePair pair : new SubtypePairs(t1, t2, some)) {
+            BasicTypeCode code = pair.basicTypeCode;
+            SubtypeData data1 = pair.subtypeData1;
+            SubtypeData data2 = pair.subtypeData2;
+            SubtypeData data;
+            if (data1 == null) {
+                data = OpsTable.OPS[code.code].complement(data2);
+            } else if (data2 == null) {
+                data = data1;
+            } else {
+                data = OpsTable.OPS[code.code].diff(data1, data2);
+            }
+            if (!(data instanceof AllOrNothingSubtype)) {
+                subtypes.add(BasicSubtype.from(code, (ProperSubtypeData) data));
+            } else if (((AllOrNothingSubtype) data).isAllSubtype()) {
+                int c = code.code;
+                all = BasicTypeBitSet.from(all.bitset | (1 << c));
+            }
+        }
+        if (subtypes.isEmpty()) {
+            return all;
+        }
+        return ComplexSemType.createComplexSemType(all.bitset, subtypes);
     }
 
     public static List<BasicSubtype> unpackComplexSemType(ComplexSemType t) {
@@ -262,7 +324,7 @@ public final class Core {
         CellAtomicType atom = intersectCellAtomicType(CellAtomicType.from(t1), CellAtomicType.from(t2));
         SemType ty = atom.ty;
         CellAtomicType.CellMutability mut = atom.mut;
-        return cellContaining(env, ty, ty == UNDEF ? CELL_MUT_NONE : mut);
+        return cellContaining(env, ty, ty.equals(UNDEF) ? CELL_MUT_NONE : mut);
     }
 
     public static SemType maybeRoDiff(SemType t1, SemType t2, Context cx) {

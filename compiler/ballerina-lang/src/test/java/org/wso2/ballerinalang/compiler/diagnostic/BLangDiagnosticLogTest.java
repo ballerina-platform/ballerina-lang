@@ -28,6 +28,7 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Env;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
@@ -62,7 +63,7 @@ public class BLangDiagnosticLogTest {
 
     @Test
     public void testLogDiagnosticWithModuleDescriptor() {
-        BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
+        BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode(new Env());
         PackageID packageID = createPackageID("org.diagnostic.log", ".", "1.0.0");
 
         PackageCache packageCache = PackageCache.getInstance(context);
@@ -80,7 +81,7 @@ public class BLangDiagnosticLogTest {
 
     @Test
     public void testLogDiagnosticWithPackageID() {
-        BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
+        BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode(new Env());
         PackageID packageID = createPackageID("org.diagnostic.log", ".", "1.0.0");
 
         PackageCache packageCache = PackageCache.getInstance(context);
