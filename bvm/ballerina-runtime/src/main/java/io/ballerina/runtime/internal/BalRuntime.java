@@ -79,11 +79,7 @@ public class BalRuntime extends Runtime {
 
     public void init() {
         // Invoke Config init
-        Object response = invokeConfigInit();
-        if (response instanceof Throwable) {
-            throw ErrorCreator.createError(StringUtils.fromString("configurable initialization failed due to " +
-                    RuntimeUtils.formatErrorMessage((Throwable) response)), (Throwable) response);
-        }
+        invokeConfigInit();
         // Invoke module init
         invokeMethodAsync("$moduleInit", new Object[1], null, PredefinedTypes.TYPE_NULL, "init");
         moduleInitialized = true;
@@ -332,7 +328,7 @@ public class BalRuntime extends Runtime {
         return func;
     }
 
-    private Object invokeConfigInit() {
+    private void invokeConfigInit() {
         String configClassName = getConfigClassName(this.module);
         Class<?> configClazz;
         try {
@@ -342,15 +338,13 @@ public class BalRuntime extends Runtime {
                     configClassName));
         }
         TomlDetails configDetails = LaunchUtils.getConfigurationDetails();
-
         String funcName = Utils.encodeFunctionIdentifier("$configureInit");;
         try {
             final Method method = configClazz.getDeclaredMethod(funcName, String[].class, Path[].class, String.class);
-            return method.invoke(null, new String[]{}, configDetails.paths, configDetails.configContent);
-        } catch (InvocationTargetException e) {
-            throw ErrorCreator.createError(StringUtils.fromString(e.getTargetException().getMessage()));
-        } catch (NoSuchMethodException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            method.invoke(null, new String[]{}, configDetails.paths, configDetails.configContent);
+        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            throw ErrorCreator.createError(StringUtils.fromString("configurable initialization failed due to " +
+                    RuntimeUtils.formatErrorMessage(e)), e);
         }
     }
 
