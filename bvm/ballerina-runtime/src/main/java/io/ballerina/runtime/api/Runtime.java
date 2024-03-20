@@ -46,8 +46,33 @@ public abstract class Runtime {
     @Deprecated(forRemoval = true)
     public static Runtime getCurrentRuntime() {
         Strand strand = Scheduler.getStrand();
-        return new BalRuntime(strand.scheduler);
+        return new BalRuntime(strand.scheduler, null);
     }
+
+    /**
+     * Gets an instance of Ballerina runtime for the given module.
+     *
+     * @param module    Module instance.
+     * @return          Ballerina runtime instance.
+     */
+    public static Runtime from(Module module) {
+        return new BalRuntime(module);
+    }
+
+    /**
+     * Calls the module init method.
+     */
+    public abstract void init();
+
+    /**
+     * Calls the module start method.
+     */
+    public abstract void start();
+
+    /**
+     * Calls the module stop method.
+     */
+    public abstract void stop();
 
     /**
      * Invoke Object method asynchronously and sequentially. This method will ensure that the object methods are
@@ -152,4 +177,13 @@ public abstract class Runtime {
     public abstract void deregisterListener(BObject listener);
 
     public abstract void registerStopHandler(BFunctionPointer<?, ?> stopHandler);
+
+    /**
+     * Invoke a Ballerina function pointer asynchronously.
+     *
+     * @param functionName  Name of the function which needs to be invoked.
+     * @param args          Ballerina function arguments.
+     * @param callback      Callback which will get notified once the function execution is done.
+     */
+    public abstract void invokeMethodAsync(String functionName, Object[] args, Callback callback);
 }
