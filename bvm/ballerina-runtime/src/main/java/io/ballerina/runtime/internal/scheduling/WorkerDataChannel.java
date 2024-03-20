@@ -48,7 +48,6 @@ public class WorkerDataChannel {
 
     protected String chnlName;
     protected int callCount = 0;
-    protected boolean isRemovable;
 
     @SuppressWarnings("rawtypes")
     private final Queue<WorkerResult> channel = new LinkedList<>();
@@ -93,10 +92,6 @@ public class WorkerDataChannel {
 
     public State getState() {
         return this.state;
-    }
-
-    public void setRemovable() {
-        this.isRemovable = true;
     }
 
     public enum State {
