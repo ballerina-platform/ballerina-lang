@@ -17,17 +17,14 @@
 import ballerina/jballerina.java;
 import ballerina/lang.runtime;
 
-Listener dynamicListener1 = check new Listener("dynamic listener1");
-Listener dynamicListener2 = check new Listener("dynamic listener2");
+Listener dynamicListener = check new Listener("dynamic listener");
 listener Listener staticListener = check new Listener("static listener");
 
 
 public function main() returns error? {
     print("main called");
-    runtime:registerListener(dynamicListener1);
-    runtime:registerListener(dynamicListener2);
-    check dynamicListener1.'start();
-    check dynamicListener2.'start();
+    runtime:registerListener(dynamicListener);
+    check dynamicListener.'start();
 }
 
 public class Listener {

@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.types.BFunctionType;
-import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.io.PrintStream;
@@ -33,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
+import static io.ballerina.runtime.internal.util.RuntimeUtils.handleRuntimeReturnValues;
 
 /**
  * The registry for runtime dynamic listeners and stop handlers.
@@ -115,9 +115,7 @@ public class RuntimeRegistry {
 
         @Override
         public void notifySuccess(Object result) {
-            if (result instanceof ErrorValue errorValue) {
-                outStream.println(ERROR_PRINT_PREFIX + errorValue.getPrintableError());
-            }
+            handleRuntimeReturnValues(result);
             invokeListenerGracefulStop(strand, scheduler, iterator);
         }
 
@@ -142,9 +140,7 @@ public class RuntimeRegistry {
 
         @Override
         public void notifySuccess(Object result) {
-            if (result instanceof ErrorValue errorValue) {
-                outStream.println(ERROR_PRINT_PREFIX + errorValue.getPrintableError());
-            }
+            handleRuntimeReturnValues(result);
             invokeStopHandlerFunction(strand, scheduler);
         }
 

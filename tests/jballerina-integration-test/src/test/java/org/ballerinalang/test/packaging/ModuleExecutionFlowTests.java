@@ -222,35 +222,11 @@ public class ModuleExecutionFlowTests extends BaseTest {
         LogLeecher logLeecherA = new LogLeecher("Calling stop for static listener");
         LogLeecher logLeecherB = new LogLeecher("error: error during the gracefulStop call of static listener",
                 LogLeecher.LeecherType.ERROR);
-        LogLeecher logLeecherC = new LogLeecher("Calling stop for dynamic listener1");
-        LogLeecher logLeecherD = new LogLeecher("error: error during the gracefulStop call of dynamic listener1",
-                LogLeecher.LeecherType.ERROR);
-        LogLeecher logLeecherE = new LogLeecher("Calling stop for dynamic listener2");
-        LogLeecher logLeecherF = new LogLeecher("error: error during the gracefulStop call of dynamic listener2",
-                LogLeecher.LeecherType.ERROR);
-        LogLeecher logLeecherG = new LogLeecher("stopHandler2 called");
-        LogLeecher logLeecherH = new LogLeecher("error: error during the gracefulStop call of StopHandler2",
-                LogLeecher.LeecherType.ERROR);
-        LogLeecher logLeecherI = new LogLeecher("stopHandler1 called");
         serverInstance.addLogLeecher(logLeecherA);
         serverInstance.addErrorLogLeecher(logLeecherB);
-        serverInstance.addLogLeecher(logLeecherC);
-        serverInstance.addErrorLogLeecher(logLeecherD);
-        serverInstance.addLogLeecher(logLeecherE);
-        serverInstance.addErrorLogLeecher(logLeecherF);
-        serverInstance.addLogLeecher(logLeecherG);
-        serverInstance.addErrorLogLeecher(logLeecherH);
-        serverInstance.addLogLeecher(logLeecherI);
         serverInstance.shutdownServer();
         logLeecherA.waitForText(TIMEOUT);
         logLeecherB.waitForText(TIMEOUT);
-        logLeecherC.waitForText(TIMEOUT);
-        logLeecherD.waitForText(TIMEOUT);
-        logLeecherE.waitForText(TIMEOUT);
-        logLeecherF.waitForText(TIMEOUT);
-        logLeecherG.waitForText(TIMEOUT);
-        logLeecherH.waitForText(TIMEOUT);
-        logLeecherI.waitForText(TIMEOUT);
         serverInstance.removeAllLeechers();
     }
 

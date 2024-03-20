@@ -57,7 +57,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_RETURNED_ERROR_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
@@ -262,7 +262,7 @@ public class ModuleStopMethodGen {
     private void genHandleErrorReturn(MethodVisitor mv, BIRVarToJVMIndexMap indexMap) {
         mv.visitVarInsn(ALOAD, indexMap.get(FUTURE_VAR));
         mv.visitFieldInsn(GETFIELD , FUTURE_VALUE, "result", GET_OBJECT);
-        mv.visitMethodInsn(INVOKESTATIC , RUNTIME_UTILS , HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT,
+        mv.visitMethodInsn(INVOKESTATIC , RUNTIME_UTILS , HANDLE_RETURNED_ERROR_METHOD,
                 HANDLE_ERROR_RETURN, false);
     }
 
