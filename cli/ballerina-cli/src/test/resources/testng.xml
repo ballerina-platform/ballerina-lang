@@ -20,6 +20,11 @@ under the License.
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="commands-test-suite">
+    <test name="diagnostics-tests" preserve-order="true">
+        <packages>
+            <package name="io.ballerina.cli.diagnostics"/>
+        </packages>
+    </test>
     <test name="command-tests" preserve-order="true">
         <classes>
             <class name="io.ballerina.cli.cmd.AddCommandTest" />
@@ -45,12 +50,6 @@ under the License.
             <class name="io.ballerina.cli.cmd.DeprecateCommandTest"/>
             <class name="io.ballerina.cli.cmd.ToolCommandTest"/>
             <class name="io.ballerina.cli.cmd.RunBuildToolsTaskTest"/>
-        </classes>
-    </test>
-    <test name="diagnostics-tests" preserve-order="true">
-        <classes>
-            <class name="io.ballerina.cli.diagnostics.AnnotateDiagnosticsTest" />
-            <class name="io.ballerina.cli.diagnostics.DiagnosticAnnotationTest" />
         </classes>
     </test>
 </suite>
