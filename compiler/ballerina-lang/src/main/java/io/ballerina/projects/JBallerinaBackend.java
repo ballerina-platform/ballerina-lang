@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
@@ -717,8 +716,8 @@ public class JBallerinaBackend extends CompilerBackend {
                 }
             }
         }
-        throw new ProjectException("cannot resolve '" + artifactId + "' as platform dependencies belonging to the " +
-                "'provided' scope must be provided by the user. Please add the dependency in the Ballerina.toml file");
+        throw new ProjectException(String.format("cannot resolve '%s:%s:%s'. Dependencies with " +
+                "'provided' scope need to be manually added to Ballerina.toml.", groupId, artifactId, version));
     }
 
     /**

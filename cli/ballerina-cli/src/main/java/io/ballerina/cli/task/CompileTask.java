@@ -314,8 +314,7 @@ public class CompileTask implements Task {
                 if (Objects.equals(dependency.get("scope"), PlatformLibraryScope.PROVIDED.getStringValue())) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.INVALID_PROVIDED_SCOPE_IN_BUILD.diagnosticId(),
-                            "Invalid scope 'provided' for platform dependencies" +
-                                    " found in Ballerina.toml during project build\n",
+                            "'provided' scope for platform dependencies is not allowed with package build\n",
                             DiagnosticSeverity.ERROR);
                     diagnostics.add(new PackageDiagnostic(diagnosticInfo,
                             project.currentPackage().descriptor().name().toString()));
