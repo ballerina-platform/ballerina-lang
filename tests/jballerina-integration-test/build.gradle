@@ -105,6 +105,27 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+
+    jacoco {
+        destinationFile = file("$buildDir/jacoco/all-test.exec")
+    }
+}
+
+tasks.register('jacocoMergeTest', JacocoReport) {
+    dependsOn ':ballerina-runtime:build'
+    String rtProjectBuildDir = project(":ballerina-runtime").buildDir
+    getExecutionData().setFrom(files("$buildDir/jacoco/test.exec", "$rtProjectBuildDir/jacoco/test.exec"))
+}
+
+jacocoTestReport {
+    afterEvaluate {
+        String rtProjectDir = project(":ballerina-runtime").projectDir
+        String rtBuildDir = project(":ballerina-runtime").buildDir
+        getClassDirectories().setFrom(files("$rtBuildDir/classes/java/main/io/ballerina/runtime") as FileCollection)
+        getSourceDirectories().setFrom(files("$rtProjectDir/src/main/java") as FileCollection)
+        getExecutionData().setFrom(files("$buildDir/jacoco/all-test.exec") as FileCollection)
+    }
+    dependsOn(jacocoMergeTest)
 }
 
 clean.doFirst {
