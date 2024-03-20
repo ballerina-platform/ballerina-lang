@@ -273,12 +273,6 @@ public class JBallerinaBackend extends CompilerBackend {
 
                 // If dependencyFilePath does not exist, resolve it using MavenResolver
                 if (dependencyFilePath == null || dependencyFilePath.isEmpty()) {
-                    // if the current project is a bala project, and the platform dependency has
-                    // provided scope, skip adding the jar
-                    if (Objects.equals(dependencyScope, PlatformLibraryScope.PROVIDED)
-                    && this.packageContext().project().getClass().equals(BalaProject.class)) {
-                        continue;
-                    }
                     // if the dependency is transitive and has provided scope, check the current package's
                     // Ballerina.toml for provided platform dependencies
                     if (Objects.equals(dependencyScope, PlatformLibraryScope.PROVIDED)
@@ -326,9 +320,7 @@ public class JBallerinaBackend extends CompilerBackend {
     @Override
     public void performCodeGen(ModuleContext moduleContext, CompilationCache compilationCache) {
         BLangPackage bLangPackage = moduleContext.bLangPackage();
-        if (!this.packageContext().project().kind().equals(ProjectKind.BALA_PROJECT)) {
-            interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
-        }
+        interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
         if (bLangPackage.getErrorCount() > 0) {
             return;
         }
