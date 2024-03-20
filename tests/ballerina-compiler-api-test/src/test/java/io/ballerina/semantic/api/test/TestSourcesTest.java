@@ -141,40 +141,47 @@ public class TestSourcesTest {
         Module baz = getModule(this.project, "baz");
         SemanticModel bazSemanticModel = baz.getCompilation().getSemanticModel();
 
-        DocumentId bazConstantsDocId = baz.documentIds().stream()
+        DocumentId bazBalDocId = baz.documentIds().stream()
                 .filter(docId -> docId.toString().contains("baz.bal"))
                 .findFirst().get();
+        Document bazBalDoc = baz.document(bazBalDocId);
+        SyntaxTree bazSyntaxTree = bazBalDoc.syntaxTree();
 
-        SyntaxTree bazSyntaxTree = baz.document(bazConstantsDocId).syntaxTree();
-
-        // `symbol(Node node)` and `typeOf(Node node)`
+        // `symbol(Node node)`, `typeOf(Node node)` and `type(Node node)`
         // use `fooSemanticModel` for `baz` module
         bazSyntaxTree.rootNode().accept(getNodeVisitor(fooSemanticModel));
 
-        Document bazConstantsDoc = baz.document(bazConstantsDocId);
-
         // `symbol(Document sourceDocument, LinePosition position)`
-        assertTrue(fooSemanticModel.symbol(bazConstantsDoc, from(16, 13)).isEmpty());
+        assertTrue(fooSemanticModel.symbol(bazBalDoc, from(16, 13)).isEmpty());
 
         // `visibleSymbols(Document sourceFile, LinePosition position, DiagnosticState... states)`
-        assertTrue(fooSemanticModel.visibleSymbols(bazConstantsDoc, from(16, 23)).isEmpty());
+        assertTrue(fooSemanticModel.visibleSymbols(bazBalDoc, from(16, 23)).isEmpty());
 
         // `references(Document sourceDocument, LinePosition position)`
-        assertTrue(fooSemanticModel.references(bazConstantsDoc, from(0, 0)).isEmpty());
+        assertTrue(fooSemanticModel.references(bazBalDoc, from(0, 0)).isEmpty());
 
         // `references(Document sourceDocument, LinePosition position, boolean withDefinition)`
-        assertTrue(fooSemanticModel.references(bazConstantsDoc, from(0, 0), true).isEmpty());
+        assertTrue(fooSemanticModel.references(bazBalDoc, from(0, 0), true).isEmpty());
 
         // `references(Symbol symbol, Document targetDocument, boolean withDefinition)`
-        Optional<Symbol> constSym = bazSemanticModel.symbol(bazConstantsDoc, from(16, 13));
+        Optional<Symbol> constSym = bazSemanticModel.symbol(bazBalDoc, from(16, 13));
         assertTrue(constSym.isPresent());
-        assertTrue(fooSemanticModel.references(constSym.get(), bazConstantsDoc, true).isEmpty());
+        assertTrue(fooSemanticModel.references(constSym.get(), bazBalDoc, true).isEmpty());
 
         // `references(Document sourceDocument, Document targetDocument, LinePosition position, boolean withDefinition)`
-        assertTrue(fooSemanticModel.references(bazConstantsDoc, bazConstantsDoc, from(16, 13), true).isEmpty());
+        assertTrue(fooSemanticModel.references(bazBalDoc, bazBalDoc, from(16, 13), true).isEmpty());
+
+        DocumentId fooBalDocId = foo.documentIds().stream()
+                .filter(docId -> docId.toString().contains("constants.bal"))
+                .findFirst().get();
+        assertTrue(fooSemanticModel.references(foo.document(fooBalDocId), bazBalDoc, from(16, 13), true).isEmpty());
 
         // `expectedType(Document sourceDocument, LinePosition linePosition)`
-        assertTrue(fooSemanticModel.expectedType(bazConstantsDoc, from(16, 18)).isEmpty());
+        assertTrue(fooSemanticModel.expectedType(bazBalDoc, from(16, 18)).isEmpty());
+
+        // `type(LineRange lineRange)`
+        assertTrue(fooSemanticModel.type(LineRange.from("baz.bal",
+                from(16, 18), from(16, 21))).isEmpty());
     }
 
     private NodeVisitor getNodeVisitor(SemanticModel semanticModel) {
@@ -188,6 +195,7 @@ public class TestSourcesTest {
             @Override
             public void visit(BasicLiteralNode basicLiteralNode) {
                 assertTrue(semanticModel.typeOf(basicLiteralNode).isEmpty());
+                assertTrue(semanticModel.type(basicLiteralNode).isEmpty());
             }
         };
     }
