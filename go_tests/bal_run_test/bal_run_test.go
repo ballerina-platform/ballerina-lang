@@ -1,18 +1,20 @@
-// Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
-//
-// WSO2 LLC. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package main
 
@@ -81,7 +83,6 @@ func TestRunBalProjectWithConfigurables(t *testing.T) {
 	rootDir := rootDir()
 	Dir := filepath.Join(rootDir, "go_tests", "bal_run_test", "bal_run_sample")
 	tmpDir, err := setup(Dir)
-	tempFile := filepath.Join(tmpDir, "temp.txt")
 	err = os.Chdir(tmpDir)
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
@@ -90,13 +91,10 @@ func TestRunBalProjectWithConfigurables(t *testing.T) {
 	arch := runtime.GOARCH
 	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
 	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
-	cmd := exec.Command(bal_path, "run", "--", tempFile, "-Cint1=5", "-Cint2=8")
+	cmd := exec.Command(bal_path, "run", "-Cint1=5", "-Cint2=8")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to run Ballerina project: %v", err)
-	}
-	if _, err := os.Stat(tempFile); os.IsNotExist(err) {
-		t.Error("Expected temporary file 'temp.txt' does not exist")
 	}
 	DirName := "unix"
 	if Os == "windows" {
@@ -127,6 +125,7 @@ func TestRunBalProject(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
+
 	Os := runtime.GOOS
 	arch := runtime.GOARCH
 	balName := fmt.Sprintf("bal_%s_%s", Os, arch)

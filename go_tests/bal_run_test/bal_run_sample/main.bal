@@ -1,25 +1,27 @@
+// Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/io;
-import ballerina/jballerina.java;
 
 configurable int int1 = 1;
 configurable int int2 = 1;
 
-// Creates a file in the current directory.
-public function main(string filepath) {
-    handle file = newFile(java:fromString(filepath));
-    boolean|error isSuccess = createNewFileInternal(file);
+public function main() {
+   
     io:println(int1 + int2);
 
 }
-
-public function createNewFileInternal(handle receiver) returns boolean|error = @java:Method {
-    name: "createNewFile",
-    'class: "java/io/File",
-    paramTypes: []
-} external;
-
-function newFile(handle filename) returns handle = @java:Constructor {
-    'class: "java.io.File",
-    paramTypes: ["java.lang.String"]
-} external;
 

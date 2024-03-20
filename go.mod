@@ -1,3 +1,3 @@
-module bal.go
+module ballerina
 
 go 1.18

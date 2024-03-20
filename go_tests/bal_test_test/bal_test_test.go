@@ -1,18 +1,20 @@
-// Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
-//
-// WSO2 LLC. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package main
 
@@ -35,7 +37,6 @@ func setup(dir string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to create temporary directory: %v", err)
 	}
-
 	err = cp.Copy(dir, tmpDir)
 	return tmpDir, nil
 }
@@ -84,6 +85,9 @@ func TestModule1SingleTest(t *testing.T) {
 	rootDir := rootDir()
 	testResourcesDir := filepath.Join(rootDir, "cli", "ballerina-cli", "src", "test", "resources", "test-resources", "project-based-tests", "module-execution-tests")
 	tmpDir, err := setup(testResourcesDir)
+	if err != nil {
+		t.Fatalf("Failed to set up test resources: %v", err)
+	}
 	defer os.RemoveAll(tmpDir)
 	projectPath := filepath.Join(tmpDir)
 	err = os.Chdir(projectPath)
@@ -93,29 +97,26 @@ func TestModule1SingleTest(t *testing.T) {
 	args := []string{"--code-coverage", "--includes=*", "--tests", "moduleExecution.Module1:module1_test1"}
 	output, err := runBallerinaTest(args)
 	if err != nil {
-		t.Fatalf("failed to execute test command: %v", err)
+		t.Fatalf("Failed to execute test command: %v", err)
 	}
-
 	firstString := "Compiling source"
 	endString := "Generating Test Report"
 	output = replaceVaryingString(firstString, endString, output)
-	DirName := "unix"
-	Os := runtime.GOOS
-	if Os == "windows" {
-		DirName = "windows"
+	dirName := "unix"
+	if runtime.GOOS == "windows" {
+		dirName = "windows"
 	}
-	expectedOutputPath := filepath.Join(rootDir, "tests", "testerina-integration-test", "src", "test", "resources", "command-outputs", DirName, "ModuleExecutionTest-test_Module1_SingleTest.txt")
+	expectedOutputPath := filepath.Join(rootDir, "tests", "testerina-integration-test", "src", "test", "resources", "command-outputs", dirName, "ModuleExecutionTest-test_Module1_SingleTest.txt")
 	expectedOutput, err := os.ReadFile(expectedOutputPath)
-	expectedOutputStr := replaceVaryingString(firstString, endString, string(expectedOutput))
 	if err != nil {
-		t.Fatalf("failed to read expected output file: %v", err)
+		t.Fatalf("Failed to read expected output file: %v", err)
 	}
-	if removeWhitespace(string(output)) != removeWhitespace(string(expectedOutputStr)) {
-		t.Errorf("output does not match expected output:\nExpected: %s\nGot: %s", expectedOutput, output)
-	}
-	os.RemoveAll(tmpDir)
-}
 
+	expectedOutputStr := replaceVaryingString(firstString, endString, string(expectedOutput))
+	if removeWhitespace(output) != removeWhitespace(expectedOutputStr) {
+		t.Errorf("Output does not match expected output:\nExpected: %s\nGot: %s", expectedOutputStr, output)
+	}
+}
 func TestMultipleGroupExecution(t *testing.T) {
 	rootDir := rootDir()
 	testResourcesDir := filepath.Join(rootDir, "go_tests", "bal_test_test", "bal_test_group")
@@ -280,9 +281,9 @@ func runBallerinaTest(args []string) (string, error) {
 	arch := runtime.GOARCH
 	balName := fmt.Sprintf("bal_%s_%s", Os, arch)
 	rootDir := rootDir()
-	bal_path := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
-	cmd := exec.Command(bal_path, append([]string{"test"}, args...)...)
-	output, err := cmd.Output()
+	balPath := filepath.Join(rootDir, "distribution", "zip", "jballerina-tools", "build", "extracted-distributions", "jballerina-tools-2201.9.0-SNAPSHOT", "bin", balName)
+	cmd := exec.Command(balPath, append([]string{"test"}, args...)...)
+	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", err
 	}

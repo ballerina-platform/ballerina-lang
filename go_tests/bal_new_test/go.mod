@@ -1,6 +1,6 @@
 module bal_new_test.go
 
-go 1.21.6
+go 1.18
 
 require (
 	github.com/otiai10/copy v1.14.0 // indirect

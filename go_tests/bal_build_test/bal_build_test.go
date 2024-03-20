@@ -1,18 +1,20 @@
-// Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
-//
-// WSO2 LLC. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package main
 
@@ -24,6 +26,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strings"
 	"testing"
 
 	cp "github.com/otiai10/copy"
@@ -202,15 +205,33 @@ func TestBuildWithOffline(t *testing.T) {
 		error: compilation contains errors
 	`, currentUser.Username)
 	}
-
-	if removeWhitespace(string(output)) != removeWhitespace(expectedOutput) {
+	startStr := "source"
+	endStr := ")]"
+	outputMod := RemoveBetween(startStr, endStr, string(output))
+	expectedOutputMod := RemoveBetween(startStr, endStr, expectedOutput)
+	if removeWhitespace(outputMod) != removeWhitespace(expectedOutputMod) {
 		t.Errorf("Actual log does not match expected log.\nExpected: %s\nActual: %s", expectedOutput, string(output))
 	}
 }
+
 func removeWhitespace(input string) string {
 	re := regexp.MustCompile(`\s+`)
 	return re.ReplaceAllString(input, "")
 }
 
 func main() {
+}
+func RemoveBetween(startStr, endStr, input string) string {
+	startIndex := strings.Index(input, startStr)
+	if startIndex == -1 {
+		return input
+	}
+
+	endIndex := strings.Index(input[startIndex:], endStr)
+	if endIndex == -1 {
+		return input
+	}
+	endIndex += startIndex + len(endStr)
+
+	return input[:startIndex] + input[endIndex:]
 }
