@@ -143,7 +143,7 @@ public class AnnotateDiagnosticsTest {
     @Test(description = "Test annotations spanning two lines in the source file")
     void testTwoLinedAnnotations() throws IOException {
         CompileResult result =
-                BCompileUtil.compileOffline("test-resources/diagnostics-test-files/bal-error/two-line-error.bal");
+                BCompileUtil.compile("test-resources/diagnostics-test-files/bal-error/two-line-error.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
         String output = getAnnotatedDiagnostics(diagnostics, documentMap);
@@ -155,7 +155,7 @@ public class AnnotateDiagnosticsTest {
     @Test(description = "Test annotations when the source file contains diagnostics spanning multiple lines")
     void testMultiLinedAnnotations() throws IOException {
         CompileResult result =
-                BCompileUtil.compileOffline("test-resources/diagnostics-test-files/bal-error/multi-line.bal");
+                BCompileUtil.compile("test-resources/diagnostics-test-files/bal-error/multi-line.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
         String output = getAnnotatedDiagnostics(diagnostics, documentMap);
@@ -165,7 +165,7 @@ public class AnnotateDiagnosticsTest {
 
     @Test(description = "Test annotations when the source file contains tabs instead of spaces")
     void testAnnotationsWithTabs() throws IOException {
-        CompileResult result = BCompileUtil.compileOffline("test-resources/diagnostics-test-files/bal-error/tabs.bal");
+        CompileResult result = BCompileUtil.compile("test-resources/diagnostics-test-files/bal-error/tabs.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
         String output = getAnnotatedDiagnostics(diagnostics, documentMap);
