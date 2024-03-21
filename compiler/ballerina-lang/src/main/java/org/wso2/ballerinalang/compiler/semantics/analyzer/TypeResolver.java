@@ -1449,8 +1449,8 @@ public class TypeResolver {
         Iterator<BType> iterator = intersectionType.getConstituentTypes().iterator();
         BType effectiveType = iterator.next();
         BLangType bLangEffectiveType = bLangTypeItr.next();
-        BType effectiveImpliedTypeReferenceType = Types.getImpliedType(effectiveType);
-        if (effectiveImpliedTypeReferenceType.tag == TypeTags.READONLY && iterator.hasNext()) {
+        BType bLangEffectiveImpliedType = Types.getImpliedType(effectiveType);
+        if (bLangEffectiveImpliedType.tag == TypeTags.READONLY && iterator.hasNext()) {
             intersectionType.flags = intersectionType.flags | TypeTags.READONLY;
             effectiveType = iterator.next();
             bLangEffectiveType = bLangTypeItr.next();
@@ -1464,9 +1464,9 @@ public class TypeResolver {
                 intersectionType.flags = intersectionType.flags | TypeTags.READONLY;
                 continue;
             }
-            effectiveImpliedTypeReferenceType = Types.getImpliedType(effectiveType);
+            bLangEffectiveImpliedType = Types.getImpliedType(effectiveType);
             effectiveType = calculateEffectiveType(td, bLangEffectiveType, bLangType, effectiveType, type,
-                    effectiveImpliedTypeReferenceType, typeReferenceType);
+                    bLangEffectiveImpliedType, typeReferenceType);
             if (effectiveType.tag == TypeTags.SEMANTIC_ERROR) {
                 intersectionType.effectiveType = symTable.semanticError;
                 return;
