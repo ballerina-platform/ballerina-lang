@@ -1,16 +1,14 @@
-ERROR [two-line-error.bal:(4:33,5:10)] operator '+' not defined for 'int' and 'float' (BCE2070)
+ERROR [two-line-error.bal:(2:45,3:18)] operator '+' not defined for 'int' and 'string' (BCE2070)
   |
-4 |     io:println("Hello, World!", 1 + 2
-  |                                 ^^^^^
-5 |     + 3.4, true, "Hello, World!");
-  | ^^^^^^^^^
-  |
+2 |     int a = exponentiate(1 + 2 + 3 + 4 + 5, 3 + 4 + 5 +
+  |                                             ^^^^^^^^^^^
+3 |     "Hello world" + 6 + 7 + 8 + 9 + 10);
+  | ^^^^^^^^^^^^^^^^^
 
-ERROR [two-line-error.bal:(19:41,20:29)] too many arguments in call to 'exponentiate()' (BCE2524)
+ERROR [two-line-error.bal:(17:13,18:29)] too many arguments in call to 'exponentiate()' (BCE2524)
    |
-19 |     io:println("Hello, World!", 1 + 2 + exponentiate(2, 3
-   |                                         ^^^^^^^^^^^^^^^^^
-20 |     , true, "Hello, World!"));
+17 |     int d = exponentiate(2, 3
+   |             ^^^^^^^^^^^^^^^^^
+18 |     , true, "Hello, World!");
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
 

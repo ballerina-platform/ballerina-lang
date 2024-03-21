@@ -1,4 +1,3 @@
-import ballerina/io;
 import asfasdf/adsfadsf;
 import project1.util;
 

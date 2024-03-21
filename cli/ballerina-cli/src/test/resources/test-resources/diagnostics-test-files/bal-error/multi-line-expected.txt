@@ -46,7 +46,6 @@ ERROR [multi-line.bal:(131:10,134:4)] missing non-defaultable required record fi
  :  |         :
 134 |         };
     | ^^^^^^^^^
-    |
 
 ERROR [multi-line.bal:(152:13,152:25)] incompatible types: expected 'float', found 'int' (BCE2066)
     |
@@ -96,7 +95,6 @@ ERROR [multi-line.bal:(291:24,294:18)] a type compatible with mapping constructo
  :  |             :
 294 |                 };
     | ^^^^^^^^^^^^^^^^^
-    |
 
 ERROR [multi-line.bal:(350:36,350:41)] redeclared symbol 'fname' (BCE2008)
     |
@@ -256,7 +254,6 @@ ERROR [multi-line.bal:(573:13,577:28)] incompatible types: expected 'int', found
  :  |                :
 577 |     select person.firstName;
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    |
 
 ERROR [multi-line.bal:(583:12,583:28)] incompatible types: expected 'PersonA', found 'string' (BCE2066)
     |
@@ -271,5 +268,4 @@ ERROR [multi-line.bal:(585:28,588:28)] incompatible types: expected 'PersonA', f
  :  |                             :
 588 |     select person.firstName;
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    |
 
