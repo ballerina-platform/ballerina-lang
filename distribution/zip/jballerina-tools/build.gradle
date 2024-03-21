@@ -77,7 +77,7 @@ dependencies {
     // dist 'org.ow2.asm:asm:6.2.1'
     dist 'com.fasterxml.woodstox:woodstox-core:6.5.0'
     dist 'org.codehaus.woodstox:stax2-api:4.2.1'
-    dist 'org.apache.commons:commons-compress:1.21'
+    dist 'org.apache.commons:commons-compress:1.26.0'
     dist 'me.tongfei:progressbar:0.7.4'
     dist 'org.jline:jline:3.11.0'
 

@@ -111,9 +111,9 @@ target = "java8"
     modules = ["mime"]
 
     [[platform.libraries]]
-    artifactId = "bcprov-jdk15on"
-    version = "1.69"
-    path = "./lib/bcprov-jdk15on-1.69.jar"
+    artifactId = "bcprov-jdk18on"
+    version = "1.73"
+    path = "./lib/bcprov-jdk18on-1.73.jar"
     groupId = "org.bouncycastle"
     modules = ["mime"]
 

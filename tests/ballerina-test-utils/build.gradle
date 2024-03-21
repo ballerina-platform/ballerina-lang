@@ -80,7 +80,7 @@ shadowJar {
         exclude(dependency('commons-pool.wso2:commons-pool'))
         exclude(dependency('commons-pool:commons-pool'))
         exclude(dependency('org.yaml:snakeyaml'))
-        exclude(dependency('org.bouncycastle:bcprov-jdk15on'))
+        exclude(dependency('org.bouncycastle:bcprov-jdk18on'))
         exclude(dependency('org.bouncycastle:bcpkix-jdk15on'))
         exclude(dependency('io.netty:netty-tcnative-boringssl-static'))
         exclude(dependency('org.testng:testng'))
