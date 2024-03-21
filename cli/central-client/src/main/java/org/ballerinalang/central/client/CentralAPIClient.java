@@ -46,6 +46,8 @@ import org.ballerinalang.central.client.model.PackageNameResolutionResponse;
 import org.ballerinalang.central.client.model.PackageResolutionRequest;
 import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.ballerinalang.central.client.model.PackageSearchResult;
+import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
+import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.ballerinalang.central.client.model.ToolSearchResult;
 
 import java.io.IOException;
@@ -57,6 +59,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -83,9 +86,9 @@ import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_TYPE;
 import static org.ballerinalang.central.client.CentralClientConstants.DEPRECATE_MESSAGE;
+import static org.ballerinalang.central.client.CentralClientConstants.DIGEST;
 import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.CentralClientConstants.IS_DEPRECATED;
-import static org.ballerinalang.central.client.CentralClientConstants.DIGEST;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.CentralClientConstants.ORGANIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.PKG_NAME;
@@ -95,14 +98,12 @@ import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALG
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
+import static org.ballerinalang.central.client.Utils.checkHash;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.getBearerToken;
 import static org.ballerinalang.central.client.Utils.getRemoteRepo;
 import static org.ballerinalang.central.client.Utils.isApplicationJsonContentType;
-import static org.ballerinalang.central.client.Utils.checkHash;
-import static org.ballerinalang.central.client.Utils.bytesToHex;
-
 /**
  * {@code CentralAPIClient} is a client for the Central API.
  *
@@ -115,10 +116,15 @@ public class CentralAPIClient {
     private static final String CONNECTORS = "connectors";
     private static final String TRIGGERS = "triggers";
     private static final String SEARCH_QUERY = "?q=";
+    private static final String SEPARATOR = "/";
     private static final String RESOLVE_DEPENDENCIES = "resolve-dependencies";
     private static final String RESOLVE_MODULES = "resolve-modules";
     private static final String DEPRECATE = "deprecate";
     private static final String UN_DEPRECATE = "undeprecate";
+    private static final String PACKAGE_PATH_PREFIX = SEPARATOR + PACKAGES + SEPARATOR;
+    private static final String TOOL_PATH_PREFIX = SEPARATOR + TOOLS + SEPARATOR;
+    private static final String CONNECTOR_PATH_PREFIX = SEPARATOR + CONNECTORS + SEPARATOR;
+    private static final String TRIGGER_PATH_PREFIX = SEPARATOR + TRIGGERS + SEPARATOR;
     private static final String ERR_CANNOT_FIND_PACKAGE = "error: could not connect to remote repository to find " +
             "package: ";
     private static final String ERR_CANNOT_FIND_VERSIONS = "error: could not connect to remote repository to find " +
@@ -195,15 +201,15 @@ public class CentralAPIClient {
      */
     public Package getPackage(String orgNamePath, String packageNamePath, String version, String supportedPlatform,
             String ballerinaVersion) throws CentralClientException {
-        String packageSignature = orgNamePath + "/" + packageNamePath + ":" + version;
+        String packageSignature = orgNamePath + SEPARATOR + packageNamePath + ":" + version;
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
         try {
-            String resourceUrl = "/" + PACKAGES + "/" + orgNamePath + "/" + packageNamePath;
+            String resourceUrl = PACKAGE_PATH_PREFIX + orgNamePath + SEPARATOR + packageNamePath;
             String url = this.baseUrl + resourceUrl;
             // append version to url if available
             if (null != version && !version.isEmpty()) {
-                url = url + "/" + version;
+                url = url + SEPARATOR + version;
             }
 
             Request getPackageReq = getNewRequest(supportedPlatform, ballerinaVersion).get().url(url).build();
@@ -211,7 +217,7 @@ public class CentralAPIClient {
 
             Call getPackageReqCall = client.newCall(getPackageReq);
             Response getPackageResponse = getPackageReqCall.execute();
-            logRequestConnectVerbose(getPackageReq, "/" + PACKAGES + "/" + orgNamePath + "/" + packageNamePath);
+            logRequestConnectVerbose(getPackageReq, resourceUrl);
 
             body = Optional.ofNullable(getPackageResponse.body());
             String responseBodyContent = null;
@@ -284,11 +290,11 @@ public class CentralAPIClient {
      */
     public List<String> getPackageVersions(String orgNamePath, String packageNamePath, String supportedPlatform,
             String ballerinaVersion) throws CentralClientException {
-        String packageSignature = orgNamePath + "/" + packageNamePath;
+        String packageSignature = orgNamePath + SEPARATOR + packageNamePath;
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
         try {
-            String resourceUrl = "/" + PACKAGES + "/" + orgNamePath + "/" + packageNamePath;
+            String resourceUrl = PACKAGE_PATH_PREFIX + orgNamePath + SEPARATOR + packageNamePath;
             String url = this.baseUrl + resourceUrl;
             Request getVersionsReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
@@ -373,8 +379,8 @@ public class CentralAPIClient {
             String ballerinaVersion) throws CentralClientException {
         boolean enableOutputStream = Boolean
                 .parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
-        String packageSignature = org + "/" + name + ":" + version;
-        String url = this.baseUrl + "/" + PACKAGES;
+        String packageSignature = org + SEPARATOR + name + ":" + version;
+        String url = this.baseUrl + SEPARATOR + PACKAGES;
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
         try {
@@ -394,8 +400,7 @@ public class CentralAPIClient {
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
                     packageSignature + " [" + projectRepo + " -> " + remoteRepo + "]", this.outStream);
 
-            byte[] hashInBytes = checkHash(balaPath.toString(), SHA256_ALGORITHM);
-            String digestVal = SHA256 + bytesToHex(hashInBytes);
+            String digestVal = SHA256 + checkHash(balaPath.toString(), SHA256_ALGORITHM);
             // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
                     .addHeader(DIGEST, digestVal)
@@ -406,7 +411,7 @@ public class CentralAPIClient {
 
             Call pushRequestCall = client.newCall(pushRequest);
             Response packagePushResponse = pushRequestCall.execute();
-            logRequestConnectVerbose(pushRequest, "/" + PACKAGES);
+            logRequestConnectVerbose(pushRequest, SEPARATOR + PACKAGES);
 
             body = Optional.ofNullable(packagePushResponse.body());
             String responseBodyContent = null;
@@ -489,14 +494,14 @@ public class CentralAPIClient {
     public void pullPackage(String org, String name, String version, Path packagePathInBalaCache,
             String supportedPlatform, String ballerinaVersion, boolean isBuild)
             throws CentralClientException {
-        String resourceUrl = "/" + PACKAGES + "/" + org + "/" + name;
+        String resourceUrl = PACKAGE_PATH_PREFIX + org + SEPARATOR + name;
         boolean enableOutputStream = Boolean
                 .parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
-        String packageSignature = org + "/" + name;
+        String packageSignature = org + SEPARATOR + name;
         String url = this.baseUrl + resourceUrl;
         // append version to url if available
         if (null != version && !version.isEmpty()) {
-            url += "/" + version;
+            url += SEPARATOR + version;
             packageSignature += ":" + version;
         } else {
             url += "/*";
@@ -538,9 +543,9 @@ public class CentralAPIClient {
                 Optional<String> deprecationMsg = Optional.ofNullable(packagePullResponse.header(DEPRECATE_MESSAGE));
                 Optional<String> digest = Optional.ofNullable(packagePullResponse.header(DIGEST));
 
-                String digestVal = digest.isPresent() ? digest.get() : "";
+                String digestVal = digest.orElse("");
                 boolean isDeprecated = deprecationFlag.isPresent() && Boolean.parseBoolean(deprecationFlag.get());
-                String deprecationMessage = deprecationMsg.isPresent() ? deprecationMsg.get() : "";
+                String deprecationMessage = deprecationMsg.orElse("");
 
                 if (!isBuild && isDeprecated) {
                     outStream.println("WARNING [" + name + "] " + packageSignature + " is deprecated: "
@@ -640,7 +645,7 @@ public class CentralAPIClient {
      */
     public String[] pullTool(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
             String ballerinaVersion, boolean isBuild) throws CentralClientException {
-        String resourceUrl = "/" + TOOLS + "/" + toolId;
+        String resourceUrl = TOOL_PATH_PREFIX + toolId;
         boolean enableOutputStream = Boolean
                 .parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
         String toolSignature = toolId;
@@ -648,7 +653,7 @@ public class CentralAPIClient {
         String url = this.baseUrl + resourceUrl;
         // append version to url if available
         if (null != version && !version.isEmpty()) {
-            url += "/" + version;
+            url += SEPARATOR + version;
             toolSignature += ":" + version;
         }
 
@@ -794,7 +799,7 @@ public class CentralAPIClient {
     public PackageNameResolutionResponse resolvePackageNames(PackageNameResolutionRequest request,
             String supportedPlatform, String ballerinaVersion) throws CentralClientException {
 
-        String url = this.baseUrl + "/" + PACKAGES + "/" + RESOLVE_MODULES;
+        String url = this.baseUrl + PACKAGE_PATH_PREFIX + RESOLVE_MODULES;
 
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
@@ -810,7 +815,7 @@ public class CentralAPIClient {
 
             Call resolutionReqCall = client.newCall(resolutionReq);
             Response packageResolutionResponse = resolutionReqCall.execute();
-            logRequestConnectVerbose(resolutionReq, "/" + PACKAGES + "/" + RESOLVE_MODULES);
+            logRequestConnectVerbose(resolutionReq, PACKAGE_PATH_PREFIX + RESOLVE_MODULES);
 
             body = Optional.ofNullable(packageResolutionResponse.body());
             String resolvePackageNamesBody = null;
@@ -872,7 +877,7 @@ public class CentralAPIClient {
             String ballerinaVersion)
             throws CentralClientException {
 
-        String url = this.baseUrl + "/" + PACKAGES + "/" + RESOLVE_DEPENDENCIES;
+        String url = this.baseUrl + PACKAGE_PATH_PREFIX + RESOLVE_DEPENDENCIES;
 
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
@@ -887,7 +892,7 @@ public class CentralAPIClient {
             logRequestInitVerbose(packageResolutionReq);
             Call packageResolutionReqCall = client.newCall(packageResolutionReq);
             Response packageResolutionResponse = packageResolutionReqCall.execute();
-            logRequestConnectVerbose(packageResolutionReq, "/" + PACKAGES + "/" + RESOLVE_DEPENDENCIES);
+            logRequestConnectVerbose(packageResolutionReq, PACKAGE_PATH_PREFIX + RESOLVE_DEPENDENCIES);
 
             body = Optional.ofNullable(packageResolutionResponse.body());
             String packageResolutionResponseBody = null;
@@ -941,6 +946,81 @@ public class CentralAPIClient {
     }
 
     /**
+     * Resolve Tools from central.
+     *
+     * @param request            The tool resolution request.
+     * @param supportedPlatform  The supported jBallerina backend platform.
+     * @param ballerinaVersion   The ballerina distribution version.
+     *
+     * @throws CentralClientException Central Client exception.
+     */
+    public ToolResolutionCentralResponse resolveToolDependencies(
+            ToolResolutionCentralRequest request, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        String url = this.baseUrl + TOOL_PATH_PREFIX + RESOLVE_DEPENDENCIES;
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            RequestBody requestBody = RequestBody.create(JSON, new Gson().toJson(request));
+            Request toolResolutionReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .post(requestBody)
+                    .url(url)
+                    .addHeader(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(ACCEPT, APPLICATION_JSON)
+                    .build();
+            logRequestInitVerbose(toolResolutionReq);
+            Call toolResolutionReqCall = client.newCall(toolResolutionReq);
+            Response toolResolutionResponse = toolResolutionReqCall.execute();
+            logRequestConnectVerbose(toolResolutionReq, TOOL_PATH_PREFIX + RESOLVE_DEPENDENCIES);
+            body = Optional.ofNullable(toolResolutionResponse.body());
+            String toolResolutionResponseBody = null;
+            if (body.isPresent()) {
+                toolResolutionResponseBody = body.get().string();
+            }
+            logResponseVerbose(toolResolutionResponse, toolResolutionResponseBody);
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
+                    // If resolution was successful
+                    if (toolResolutionResponse.code() == HTTP_OK) {
+                        return new Gson().fromJson(toolResolutionResponseBody, ToolResolutionCentralResponse.class);
+                    }
+                    // Unauthorized access token
+                    if (toolResolutionResponse.code() == HTTP_UNAUTHORIZED) {
+                        handleUnauthorizedResponse(contentType.get(), toolResolutionResponseBody);
+                    }
+                    // If search request was sent wrongly
+                    if (toolResolutionResponse.code() == HTTP_BAD_REQUEST) {
+                        Error error = new Gson().fromJson(toolResolutionResponseBody, Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new ConnectionErrorException(error.getMessage());
+                        }
+                    }
+                    // If error occurred at remote repository
+                    if (toolResolutionResponse.code() == HTTP_INTERNAL_ERROR ||
+                            toolResolutionResponse.code() == HTTP_UNAVAILABLE) {
+                        Error error = new Gson().fromJson(toolResolutionResponseBody, Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new ConnectionErrorException(ERR_PACKAGE_RESOLUTION + " reason:" +
+                                    error.getMessage());
+                        }
+                    }
+                }
+            }
+            throw new ConnectionErrorException(ERR_PACKAGE_RESOLUTION);
+        } catch (IOException e) {
+            throw new ConnectionErrorException(ERR_PACKAGE_RESOLUTION + ". reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
      * Search packages in registry.
      */
     public PackageSearchResult searchPackage(String query, String supportedPlatform, String ballerinaVersion)
@@ -950,12 +1030,12 @@ public class CentralAPIClient {
         try {
             Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
-                    .url(this.baseUrl + "/" + PACKAGES + "/?q=" + query)
+                    .url(this.baseUrl + SEPARATOR + PACKAGES + "/?q=" + query)
                     .build();
             logRequestInitVerbose(searchReq);
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
-            logRequestConnectVerbose(searchReq, "/" + PACKAGES + "/?q=" + query);
+            logRequestConnectVerbose(searchReq, SEPARATOR + PACKAGES + "/?q=" + query);
 
             body = Optional.ofNullable(searchResponse.body());
             String searchResponseBody = null;
@@ -1019,13 +1099,13 @@ public class CentralAPIClient {
         try {
             Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
-                    .url(this.baseUrl + "/" + TOOLS + SEARCH_QUERY + keyword)
+                    .url(this.baseUrl + SEPARATOR + TOOLS + SEARCH_QUERY + keyword)
                     .build();
 
             logRequestInitVerbose(searchReq);
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
-            logRequestConnectVerbose(searchReq, "/" + TOOLS + "/" + SEARCH_QUERY + "/" + keyword);
+            logRequestConnectVerbose(searchReq, TOOL_PATH_PREFIX + SEARCH_QUERY + SEPARATOR + keyword);
 
             body = Optional.ofNullable(searchResponse.body());
             String searchResponseBody = null;
@@ -1087,8 +1167,9 @@ public class CentralAPIClient {
         // Get existing package details
         // PackageInfo is already validated to support the format
         // org-name/package-name:version
-        Package existingPackage = getPackage(packageInfo.split("/")[0], packageInfo.split("/")[1].split(":")[0],
-                packageInfo.split("/")[1].split(":")[1], supportedPlatform, ballerinaVersion);
+        Package existingPackage = getPackage(
+                packageInfo.split(SEPARATOR)[0], packageInfo.split(SEPARATOR)[1].split(":")[0],
+                packageInfo.split(SEPARATOR)[1].split(":")[1], supportedPlatform, ballerinaVersion);
 
         String packageValue = packageInfo.endsWith(":*") ? packageInfo.substring(0, packageInfo.length() - 2)
                 : packageInfo;
@@ -1103,13 +1184,13 @@ public class CentralAPIClient {
             RequestBody requestBody;
             String requestURL;
             if (isUndo) {
-                requestURL = this.baseUrl + "/" + PACKAGES + "/" + UN_DEPRECATE + "/" +
-                        packageInfo.replace(":", "/");
+                requestURL = this.baseUrl + PACKAGE_PATH_PREFIX + UN_DEPRECATE + SEPARATOR +
+                        packageInfo.replace(":", SEPARATOR);
                 requestBody = RequestBody.create(JSON, "{}");
             } else {
                 requestBody = RequestBody.create(JSON, "{\"message\": \"" + deprecationMsg + "\"}");
-                requestURL = this.baseUrl + "/" + PACKAGES + "/" + DEPRECATE + "/" +
-                        packageInfo.replace(":", "/");
+                requestURL = this.baseUrl + PACKAGE_PATH_PREFIX + DEPRECATE + SEPARATOR +
+                        packageInfo.replace(":", SEPARATOR);
             }
 
             Request deprecationReq = getNewRequest(supportedPlatform, ballerinaVersion)
@@ -1218,7 +1299,8 @@ public class CentralAPIClient {
                 .build();
 
         try {
-            HttpUrl.Builder httpBuilder = HttpUrl.parse(this.baseUrl).newBuilder().addPathSegment(PACKAGES);
+            HttpUrl.Builder httpBuilder = Objects.requireNonNull(HttpUrl.parse(this.baseUrl))
+                    .newBuilder().addPathSegment(PACKAGES);
             for (Map.Entry<String, String> param : params.entrySet()) {
                 httpBuilder.addQueryParameter(param.getKey(), param.getValue());
             }
@@ -1278,7 +1360,8 @@ public class CentralAPIClient {
                 .build();
 
         try {
-            HttpUrl.Builder httpBuilder = HttpUrl.parse(this.baseUrl).newBuilder().addPathSegment(CONNECTORS);
+            HttpUrl.Builder httpBuilder = Objects.requireNonNull(HttpUrl.parse(this.baseUrl))
+                    .newBuilder().addPathSegment(CONNECTORS);
             for (Map.Entry<String, String> param : params.entrySet()) {
                 httpBuilder.addQueryParameter(param.getKey(), param.getValue());
             }
@@ -1291,7 +1374,7 @@ public class CentralAPIClient {
 
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
-            logRequestConnectVerbose(searchReq, "/" + CONNECTORS);
+            logRequestConnectVerbose(searchReq, SEPARATOR + CONNECTORS);
 
             body = Optional.ofNullable(searchResponse.body());
             String searchResponseBody = null;
@@ -1336,13 +1419,13 @@ public class CentralAPIClient {
         try {
             Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
-                    .url(this.baseUrl + "/" + CONNECTORS + "/" + id)
+                    .url(this.baseUrl + CONNECTOR_PATH_PREFIX + id)
                     .build();
             logRequestInitVerbose(searchReq);
 
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
-            logRequestConnectVerbose(searchReq, "/" + CONNECTORS + "/" + id);
+            logRequestConnectVerbose(searchReq, CONNECTOR_PATH_PREFIX + id);
 
             body = Optional.ofNullable(searchResponse.body());
             String searchResponseBody = null;
@@ -1351,11 +1434,10 @@ public class CentralAPIClient {
             }
             logResponseVerbose(searchResponse, searchResponseBody);
             if (body.isPresent()) {
-                String responseStr = searchResponseBody;
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
-                    return new Gson().fromJson(responseStr, JsonObject.class);
+                    return new Gson().fromJson(searchResponseBody, JsonObject.class);
                 }
             }
             handleResponseErrors(searchResponse, ERR_CANNOT_GET_CONNECTOR + " id:" + id);
@@ -1388,17 +1470,17 @@ public class CentralAPIClient {
         try {
             Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
-                    .url(this.baseUrl + "/" + CONNECTORS + "/" + connector.getOrgName() +
-                            "/" + connector.getPackageName() + "/" + connector.getVersion() +
-                            "/" + connector.getModuleName() + "/" + connector.getName())
+                    .url(this.baseUrl + CONNECTOR_PATH_PREFIX + connector.getOrgName() +
+                            SEPARATOR + connector.getPackageName() + SEPARATOR + connector.getVersion() +
+                            SEPARATOR + connector.getModuleName() + SEPARATOR + connector.getName())
                     .build();
             logRequestInitVerbose(searchReq);
 
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
-            logRequestConnectVerbose(searchReq, "/" + CONNECTORS + "/" + connector.getOrgName() +
-                    "/" + connector.getPackageName() + "/" + connector.getVersion() +
-                    "/" + connector.getModuleName() + "/" + connector.getName());
+            logRequestConnectVerbose(searchReq, CONNECTOR_PATH_PREFIX + connector.getOrgName() +
+                    SEPARATOR + connector.getPackageName() + SEPARATOR + connector.getVersion() +
+                    SEPARATOR + connector.getModuleName() + SEPARATOR + connector.getName());
 
             body = Optional.ofNullable(searchResponse.body());
             String searchResponseBody = null;
@@ -1407,11 +1489,10 @@ public class CentralAPIClient {
             }
             logResponseVerbose(searchResponse, searchResponseBody);
             if (body.isPresent()) {
-                String responseStr = searchResponseBody;
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
-                    return new Gson().fromJson(responseStr, JsonObject.class);
+                    return new Gson().fromJson(searchResponseBody, JsonObject.class);
                 }
             }
             handleResponseErrors(searchResponse, ERR_CANNOT_GET_CONNECTOR + " " + connector.getPackageName());
@@ -1569,7 +1650,8 @@ public class CentralAPIClient {
                 .build();
 
         try {
-            HttpUrl.Builder httpBuilder = HttpUrl.parse(this.baseUrl).newBuilder().addPathSegment(TRIGGERS);
+            HttpUrl.Builder httpBuilder = Objects.requireNonNull(HttpUrl.parse(this.baseUrl))
+                    .newBuilder().addPathSegment(TRIGGERS);
             for (Map.Entry<String, String> param : params.entrySet()) {
                 httpBuilder.addQueryParameter(param.getKey(), param.getValue());
             }
@@ -1582,7 +1664,7 @@ public class CentralAPIClient {
 
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
-            logRequestConnectVerbose(searchReq, "/" + TRIGGERS);
+            logRequestConnectVerbose(searchReq, SEPARATOR + TRIGGERS);
 
             body = Optional.ofNullable(searchResponse.body());
             String searchResponseBody = null;
@@ -1627,13 +1709,13 @@ public class CentralAPIClient {
         try {
             Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
-                    .url(this.baseUrl + "/" + TRIGGERS + "/" + id)
+                    .url(this.baseUrl + TRIGGER_PATH_PREFIX + id)
                     .build();
             logRequestInitVerbose(searchReq);
 
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
-            logRequestConnectVerbose(searchReq, "/" + TRIGGERS + "/" + id);
+            logRequestConnectVerbose(searchReq, TRIGGER_PATH_PREFIX + id);
 
             body = Optional.ofNullable(searchResponse.body());
             String searchResponseBody = null;
@@ -1645,8 +1727,7 @@ public class CentralAPIClient {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
-                    String responseStr = searchResponseBody;
-                    return new Gson().fromJson(responseStr, JsonObject.class);
+                    return new Gson().fromJson(searchResponseBody, JsonObject.class);
                 }
             }
             handleResponseErrors(searchResponse, ERR_CANNOT_GET_TRIGGER + " id:" + id);
