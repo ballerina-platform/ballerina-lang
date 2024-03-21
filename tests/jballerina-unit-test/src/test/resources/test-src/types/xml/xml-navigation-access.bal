@@ -170,7 +170,6 @@ function testXMLNavigationWithEscapeCharacter() {
     assert(x7, xml `<home-address>some address</home-address>`);
 }
 
-
 type XC xml:Comment;
 type XE xml:Element;
 type XCE XC|XE;
