@@ -1904,6 +1904,23 @@ function getQueryResult(error onConflictError, Customer[] customerList) returns 
     on conflict onConflictError;
 }
 
+function testMapConstructNestedQueryWithConflictingKeys() {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+    Customer[] customerList = [c1, c2, c3, c1];
+    (anydata|error)[] result = from var i in [1]
+        select table key(id, name) from var customer in customerList
+                   select {
+                           id: customer.id,
+                           name: customer.name,
+                           noOfItems: customer.noOfItems
+                   }
+                   on conflict error(string `Error key: ${customer.id} iteration: ${i}`);
+    assertEqual(result[0] is error, true);
+    assertEqual((<error>result[0]).message(), "Error key: 1 iteration: 1");
+}
+
 function assertEqual(anydata|error actual, anydata|error expected) {
     anydata expectedValue = (expected is error)? (<error> expected).message() : expected;
     anydata actualValue = (actual is error)? (<error> actual).message() : actual;

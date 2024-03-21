@@ -151,6 +151,11 @@ public class QueryExprWithQueryConstructTypeTest {
         BRunUtil.invoke(result, "testTableConstructQueryWithConflictingKeys");
     }
 
+    @Test(description = "Test table creating nested query with conflicting keys and onConflict error")
+    public void testMapConstructNestedQueryWithConflictingKeys() {
+        BRunUtil.invoke(result, "testMapConstructNestedQueryWithConflictingKeys");
+    }
+
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
         int index = 0;
