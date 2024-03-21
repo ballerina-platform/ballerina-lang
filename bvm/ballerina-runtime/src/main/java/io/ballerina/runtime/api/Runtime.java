@@ -50,7 +50,7 @@ public abstract class Runtime {
     }
 
     /**
-     * Gets an instance of Ballerina runtime for the given module.
+     * Returns an instance of Ballerina runtime for the given module.
      *
      * @param module    Module instance.
      * @return          Ballerina runtime instance.
@@ -60,17 +60,19 @@ public abstract class Runtime {
     }
 
     /**
-     * Calls the module init method.
+     * Performs the module initialization.
      */
     public abstract void init();
 
     /**
-     * Calls the module start method.
+     * Starts the listening phase.
      */
     public abstract void start();
 
     /**
-     * Calls the module stop method.
+     * Gracefully shuts down the Ballerina runtime.
+     * The `gracefulStop` method of each registered listener and the functions registered with
+     * `runtime:onGracefulStop` will be called within this method.
      */
     public abstract void stop();
 
@@ -182,7 +184,7 @@ public abstract class Runtime {
      * Invoke a Ballerina function pointer asynchronously.
      *
      * @param functionName  Name of the function which needs to be invoked.
-     * @param args          Ballerina function arguments.
+     * @param args          Arguments of the Ballerina function.
      * @param callback      Callback which will get notified once the function execution is done.
      */
     public abstract void invokeMethodAsync(String functionName, Object[] args, Callback callback);

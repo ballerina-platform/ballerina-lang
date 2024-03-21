@@ -78,9 +78,7 @@ public class BalRuntime extends Runtime {
     }
 
     public void init() {
-        // Invoke Config init
         invokeConfigInit();
-        // Invoke module init
         invokeMethodAsync("$moduleInit", new Object[1], null, PredefinedTypes.TYPE_NULL, "init");
         moduleInitialized = true;
     }

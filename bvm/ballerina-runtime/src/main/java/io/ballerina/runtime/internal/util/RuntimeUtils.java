@@ -249,18 +249,10 @@ public class RuntimeUtils {
     }
 
     public static String formatErrorMessage(Throwable e) {
-        try {
-            if (e instanceof BError) {
-                return ((BError) e).getPrintableStackTrace();
-            } else if (e instanceof Exception | e instanceof Error) {
-                return getPrintableStackTrace(e);
-            } else {
-                return getPrintableStackTrace(e);
-            }
-        } catch (ClassCastException classCastException) {
-            // If an unhandled error type is passed to format error message
-            return getPrintableStackTrace(e);
+        if (e instanceof BError error) {
+            return error.getPrintableStackTrace();
         }
+        return getPrintableStackTrace(e);
     }
 
     private static String getPrintableStackTrace(Throwable throwable) {
