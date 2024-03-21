@@ -174,7 +174,7 @@ type XC xml:Comment;
 type XE xml:Element;
 type XCE XC|XE;
 
-function testXMLNavigationWithUnionType() {
+function testXmlNavigationWithUnionType() {
     xml<xml:Element>|xml<xml:Comment> x1 = xml `<a><b><c><e>foo</e></c></b><d><g>bar</g></d></a>`;
     assert(x1.<a>, xml `<a><b><c><e>foo</e></c></b><d><g>bar</g></d></a>`);
     assert(x1/*, xml `<b><c><e>foo</e></c></b><d><g>bar</g></d>`);
@@ -202,7 +202,7 @@ function testXMLNavigationWithUnionType() {
     assert(x4/**/<e>, xml ``);
     assert(x4/<f>, xml ``);
 
-    XC|XE x5 = xml `<foo><bar>b</bar></foo>`;
+    XCE x5 = xml `<foo><bar>b</bar></foo>`;
     assert(x5.<foo>, xml `<foo><bar>b</bar></foo>`);
     assert(x5/*, xml `<bar>b</bar>`);
     assert(x5/*.<bar>, xml `<bar>b</bar>`);
