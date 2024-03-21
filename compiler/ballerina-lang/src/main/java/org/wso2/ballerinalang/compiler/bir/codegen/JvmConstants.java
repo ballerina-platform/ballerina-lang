@@ -429,6 +429,14 @@ public class JvmConstants {
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
     public static final String DISPLAY_ANNOTATION = "display";
     public static final String RECORD_CHECKPOINT_METHOD = "recordCheckpoint";
+    public static final String GET_ELEMENT_OR_NIL = "getElementOrNil";
+    public static final String GET_ELEMENT = "getElement";
+    public static final String FILL_AND_GET = "fillAndGet";
+    public static final String GET_BOXED_VALUE = "get";
+    public static final String GET_UNBOXED_INT_VALUE = "getUnboxedIntValue";
+    public static final String GET_UNBOXED_FLOAT_VALUE = "getUnboxedFloatValue";
+    public static final String GET_STRING_VALUE = "getStringValue";
+    public static final String GET_UNBOXED_BOOLEAN_VALUE = "getUnboxedBooleanValue";
     // visibility flags
     public static final int BAL_PUBLIC = 1;
     public static final int BAL_NATIVE = 2;

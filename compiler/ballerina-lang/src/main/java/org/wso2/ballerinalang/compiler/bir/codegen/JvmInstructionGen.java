@@ -142,7 +142,15 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_V
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.EQUALS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILL_AND_GET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_BOXED_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ELEMENT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ELEMENT_OR_NIL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_UNBOXED_BOOLEAN_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_UNBOXED_FLOAT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_UNBOXED_INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INSTANTIATE_FUNCTION;
@@ -1481,13 +1489,13 @@ public class JvmInstructionGen {
         boolean shouldUnbox = true;
         if (varRefType.tag == TypeTags.JSON) {
             if (mapLoadIns.optionalFieldAccess) {
-                this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElementOrNil", JSON_GET_ELEMENT, false);
+                this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, GET_ELEMENT_OR_NIL, JSON_GET_ELEMENT, false);
             } else {
-                this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement", JSON_GET_ELEMENT, false);
+                this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, GET_ELEMENT, JSON_GET_ELEMENT, false);
             }
         } else {
             if (mapLoadIns.fillingRead) {
-                this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "fillAndGet",
+                this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, FILL_AND_GET,
                         PASS_OBJECT_RETURN_OBJECT, true);
             } else {
                 shouldUnbox = generateMapGet(varRefType, targetType);
@@ -1503,32 +1511,32 @@ public class JvmInstructionGen {
 
     boolean generateMapGet(BType mapType, BType expectedType) {
         if (mapType.getKind() != TypeKind.RECORD) {
-            this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get", PASS_OBJECT_RETURN_OBJECT, true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, GET_BOXED_VALUE, PASS_OBJECT_RETURN_OBJECT, true);
             return true;
         }
         return switch (expectedType.getKind()) {
             case INT -> {
-                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "getUnboxedIntValue",
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, GET_UNBOXED_INT_VALUE,
                         PASS_B_STRING_RETURN_UNBOXED_LONG, false);
                 yield false;
             }
             case FLOAT -> {
-                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "getUnboxedFloatValue",
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, GET_UNBOXED_FLOAT_VALUE,
                         PASS_B_STRING_RETURN_UNBOXED_DOUBLE, false);
                 yield false;
             }
             case STRING -> {
-                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "getStringValue", PASS_B_STRING_RETURN_B_STRING,
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, GET_STRING_VALUE, PASS_B_STRING_RETURN_B_STRING,
                         false);
                 yield true;
             }
             case BOOLEAN -> {
-                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "getUnboxedBooleanValue",
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, GET_UNBOXED_BOOLEAN_VALUE,
                         PASS_B_STRING_RETURN_UNBOXED_BOOLEAN, false);
                 yield false;
             }
             default -> {
-                this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get", PASS_OBJECT_RETURN_OBJECT, true);
+                this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, GET_BOXED_VALUE, PASS_OBJECT_RETURN_OBJECT, true);
                 yield true;
             }
         };
@@ -1542,7 +1550,7 @@ public class JvmInstructionGen {
         this.loadVar(objectLoadIns.keyOp.variableDcl);
 
         // invoke get() method, and unbox if needed
-        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "get", BOBJECT_GET, true);
+        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, GET_BOXED_VALUE, BOBJECT_GET, true);
         BType targetType = objectLoadIns.lhsOp.variableDcl.type;
         jvmCastGen.addUnboxInsn(this.mv, targetType);
 
@@ -1720,7 +1728,7 @@ public class JvmInstructionGen {
         this.loadVar(inst.keyOp.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, inst.keyOp.variableDcl.type);
         BType bType = inst.lhsOp.variableDcl.type;
-        this.mv.visitMethodInsn(INVOKEINTERFACE, TABLE_VALUE, "get",
+        this.mv.visitMethodInsn(INVOKEINTERFACE, TABLE_VALUE, GET_BOXED_VALUE,
                 PASS_OBJECT_RETURN_OBJECT, true);
 
         String targetTypeClass = getTargetClass(bType);

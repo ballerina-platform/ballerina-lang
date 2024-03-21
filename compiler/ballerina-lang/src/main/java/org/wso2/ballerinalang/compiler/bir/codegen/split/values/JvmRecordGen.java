@@ -69,6 +69,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIS
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_BOXED_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
@@ -906,12 +907,7 @@ public class JvmRecordGen {
     private void createBasicTypeGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                           JvmCastGen jvmCastGen, TypeKind basicType, String methodName,
                                           String methodDesc, boolean boxed, String boxedTypeDesc) {
-        List<BField> sortedFields = fields.values().stream()
-                .filter(field -> field.type.getKind() == basicType &&
-                        !isOptionalRecordField(field)) // optional fields will be handled by the default get method
-                .limit(MAX_FIELDS_PER_SPLIT_METHOD) // rest will go through the default get method
-                .sorted(FIELD_NAME_HASH_COMPARATOR)
-                .toList();
+        List<BField> sortedFields = getSortedFields(fields, basicType);
         if (sortedFields.isEmpty()) {
             return;
         }
@@ -957,7 +953,7 @@ public class JvmRecordGen {
 
         mv.visitVarInsn(ALOAD, selfRegister);
         mv.visitVarInsn(ALOAD, fieldNameBStringReg);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "get", PASS_OBJECT_RETURN_OBJECT, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, GET_BOXED_VALUE, PASS_OBJECT_RETURN_OBJECT, false);
 
         if (boxed) {
             mv.visitTypeInsn(CHECKCAST, boxedTypeDesc);
@@ -974,5 +970,21 @@ public class JvmRecordGen {
         mv.visitInsn(returnIns);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, className);
         mv.visitEnd();
+    }
+
+    private List<BField> getSortedFields(Map<String, BField> fields, TypeKind basicType) {
+        List<BField> sortedFields = new ArrayList<>();
+        for (BField field: fields.values()) {
+            if (sortedFields.size() >= MAX_FIELDS_PER_SPLIT_METHOD) {
+                // Rest will fall through the default case
+                break;
+            }
+            if (field.type.getKind() != basicType || isOptionalRecordField(field)) {
+                continue;
+            }
+            sortedFields.add(field);
+        }
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
+        return sortedFields;
     }
 }
