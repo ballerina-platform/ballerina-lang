@@ -1194,8 +1194,7 @@ public class CommandUtil {
             }
             return jBallerinaBackend.diagnosticResult().hasErrors();
         }
-        errStream.println("Warning: Compilation of the pulled packages could not be completed due to 'provided' " +
-                "platform dependencies found");
+        errStream.println("Warning: Cache generation skipped due to platform dependencies with 'provided' scope");
         return false;
     }
 

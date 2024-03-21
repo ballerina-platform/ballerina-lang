@@ -277,6 +277,11 @@ public class JBallerinaBackend extends CompilerBackend {
                     if (Objects.equals(dependencyScope, PlatformLibraryScope.PROVIDED)
                             && !Objects.equals(packageId, this.packageContext().packageId())) {
                         dependencyFilePath = getPlatformLibPathFromProvided(platform, groupId, artifactId, version);
+                        Path jarPath = Paths.get(dependencyFilePath);
+                        if (!jarPath.isAbsolute()) {
+                            jarPath = this.packageContext().project().sourceRoot().resolve(jarPath);
+                        }
+                        dependencyFilePath = jarPath.toString();
                     } else {
                         dependencyFilePath = getPlatformLibPath(groupId, artifactId, version);
                     }
@@ -694,6 +699,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     /**
+     * Get platform lib path for platform libs with provided scope in dependencies.
      *
      * @param platform java platform of the dependency
      * @param groupId group id
@@ -820,7 +826,7 @@ public class JBallerinaBackend extends CompilerBackend {
         if (!jarResolver.providedPlatformLibs().isEmpty()) {
             DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                     ProjectDiagnosticErrorCode.PROVIDED_PLATFORM_JAR_IN_EXECUTABLE.diagnosticId(),
-                    "Detected platform dependencies with provided scope; redistribution is not " +
+                    "Detected platform dependencies with provided scope. Redistribution is not " +
                             "recommended due to potential license restrictions\n",
                     DiagnosticSeverity.WARNING);
             emitResultDiagnostics.add(new PackageDiagnostic(diagnosticInfo,
