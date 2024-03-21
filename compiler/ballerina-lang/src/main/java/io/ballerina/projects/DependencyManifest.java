@@ -37,15 +37,18 @@ public class DependencyManifest {
     private final String dependenciesTomlVersion;
     private final SemanticVersion distributionVersion;
     private final List<Package> packages;
+    private final List<Tool> tools;
     private final DiagnosticResult diagnostics;
     private final PackageContainer<Package> pkgContainer;
 
     private DependencyManifest(String dependenciesTomlVersion,
                                SemanticVersion distributionVersion,
                                List<Package> packages,
+                               List<Tool> tools,
                                DiagnosticResult diagnostics) {
         this.dependenciesTomlVersion = dependenciesTomlVersion;
         this.distributionVersion = distributionVersion;
+        this.tools = Collections.unmodifiableList(tools);
         this.packages = Collections.unmodifiableList(packages);
         this.diagnostics = diagnostics;
 
@@ -59,14 +62,16 @@ public class DependencyManifest {
     public static DependencyManifest from(String dependenciesTomlVersion,
                                           SemanticVersion distributionVersion,
                                           List<Package> dependencies,
+                                            List<Tool> tools,
                                           DiagnosticResult diagnostics) {
-        return new DependencyManifest(dependenciesTomlVersion, distributionVersion, dependencies, diagnostics);
+        return new DependencyManifest(dependenciesTomlVersion, distributionVersion, dependencies, tools, diagnostics);
     }
 
     public static DependencyManifest from(String dependenciesTomlVersion,
                                             SemanticVersion distributionVersion,
-                                          List<Package> dependencies) {
-        return new DependencyManifest(dependenciesTomlVersion, distributionVersion, dependencies,
+                                          List<Package> dependencies,
+                                          List<Tool> tools) {
+        return new DependencyManifest(dependenciesTomlVersion, distributionVersion, dependencies, tools,
                                       new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
@@ -80,6 +85,10 @@ public class DependencyManifest {
 
     public Collection<Package> packages() {
         return packages;
+    }
+
+    public Collection<Tool> tools() {
+        return tools;
     }
 
     public Optional<Package> dependency(PackageOrg org, PackageName name) {
@@ -239,6 +248,47 @@ public class DependencyManifest {
 
         public String moduleName() {
             return moduleName;
+        }
+    }
+
+    /**
+     * Represents a dependency tool.
+     *
+     * @since 2201.9.0
+     */
+    public static class Tool {
+        private final BuildToolId id;
+        private final PackageOrg org;
+        private final PackageName name;
+        private final PackageVersion version;
+        private final Location location;
+
+        public Tool(BuildToolId id, PackageOrg org, PackageName name, PackageVersion version, Location location) {
+            this.id = id;
+            this.org = org;
+            this.name = name;
+            this.version = version;
+            this.location = location;
+        }
+
+        public BuildToolId id() {
+            return id;
+        }
+
+        public PackageOrg org() {
+            return org;
+        }
+
+        public PackageName name() {
+            return name;
+        }
+
+        public PackageVersion version() {
+            return version;
+        }
+
+        public Optional<Location> location() {
+            return Optional.ofNullable(location);
         }
     }
 }

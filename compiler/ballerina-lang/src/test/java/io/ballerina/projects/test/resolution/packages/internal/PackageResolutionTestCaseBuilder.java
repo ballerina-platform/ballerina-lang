@@ -142,7 +142,7 @@ public class PackageResolutionTestCaseBuilder {
 
     private static DependencyManifest getDependencyManifest(Path dependenciesTomlPath) {
         if (dependenciesTomlPath == null) {
-            return DependencyManifest.from("2.0.0", null, Collections.emptyList());
+            return DependencyManifest.from("2.0.0", null, Collections.emptyList(), Collections.emptyList());
         }
 
         List<DependencyManifest.Package> recordedDeps = new ArrayList<>();
@@ -160,12 +160,12 @@ public class PackageResolutionTestCaseBuilder {
             recordedDeps.add(new DependencyManifest.Package(pkgDesc.name(), pkgDesc.org(), pkgDesc.version(),
                     scope.getValue(), isTransitive, Collections.emptyList(), Collections.emptyList()));
         }
-        return DependencyManifest.from("2.0.0", null, recordedDeps);
+        return DependencyManifest.from("2.0.0", null, recordedDeps, Collections.emptyList());
     }
 
     private static PackageManifest getPackageManifest(Path balTomlPath, PackageDescriptor rootPkgDesc) {
         if (balTomlPath == null) {
-            return PackageManifest.from(rootPkgDesc, null, Collections.emptyMap(),
+            return PackageManifest.from(rootPkgDesc, null, null, Collections.emptyMap(),
                     Collections.emptyList());
         }
 
@@ -187,7 +187,7 @@ public class PackageResolutionTestCaseBuilder {
                     pkgDesc.org(), pkgDesc.version(), repo, new NullLocation()));
         }
 
-        return PackageManifest.from(rootPkgDesc, null, Collections.emptyMap(), dependencies);
+        return PackageManifest.from(rootPkgDesc, null, null, Collections.emptyMap(), dependencies);
     }
 
     private static PackageDescWrapper getRootPkgDescWrapper(Path appDotFilePath) {

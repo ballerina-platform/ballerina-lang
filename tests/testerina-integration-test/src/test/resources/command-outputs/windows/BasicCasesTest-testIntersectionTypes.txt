@@ -4,9 +4,6 @@ Compiling source
 Running Tests with Coverage
 
 	intersection_type
-
-		Test execution time :*****ms
-
 		[pass] testIntersectionTypes
 
 
@@ -14,6 +11,8 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 Generating Test Report
 	intersection-type-test\target\report\test_results.json
-
+
