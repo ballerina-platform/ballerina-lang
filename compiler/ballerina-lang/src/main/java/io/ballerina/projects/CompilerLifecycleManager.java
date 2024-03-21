@@ -218,7 +218,7 @@ class CompilerLifecycleManager {
             diagnostics.add(diagnostic);
         }
 
-        public BalCommand artifactType() {
+        public BalCommand balCommand() {
             return balCommand;
         }
 
