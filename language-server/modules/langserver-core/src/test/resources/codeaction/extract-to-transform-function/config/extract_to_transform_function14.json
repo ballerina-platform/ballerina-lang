@@ -1,0 +1,60 @@
+{
+  "range": {
+    "start": {
+      "line": 32,
+      "character": 20
+    },
+    "end": {
+      "line": 32,
+      "character": 22
+    }
+  },
+  "source": "extract_to_transform_function14.bal",
+  "description": "Extract to transform function for a imported record as a simple var ref",
+  "expected": [
+    {
+      "title": "Extract to transform function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 33,
+              "character": 2
+            },
+            "end": {
+              "line": 33,
+              "character": 2
+            }
+          },
+          "newText": "\n\nfunction transform1(module1:TestRecord1 testRecord11) returns module1:TestRecord1 => {\n\n};\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 32,
+              "character": 17
+            },
+            "end": {
+              "line": 32,
+              "character": 28
+            }
+          },
+          "newText": "transform1(testRecord1)"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_transform_function14.bal",
+          {
+            "line": 32,
+            "character": 17
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

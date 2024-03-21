@@ -1,0 +1,60 @@
+{
+  "range": {
+    "start": {
+      "line": 36,
+      "character": 20
+    },
+    "end": {
+      "line": 36,
+      "character": 22
+    }
+  },
+  "source": "extract_to_transform_function16.bal",
+  "description": "Extract to transform function for a list indexed expression",
+  "expected": [
+    {
+      "title": "Extract to transform function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 37,
+              "character": 2
+            },
+            "end": {
+              "line": 37,
+              "character": 2
+            }
+          },
+          "newText": "\n\nfunction transform1(Address addresses1) returns Address => {\n    country: \"\",\n    city: \"\",\n    houseNo: \"\",\n    line2: \"\",\n    line1: \"\"\n};\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 36,
+              "character": 13
+            },
+            "end": {
+              "line": 36,
+              "character": 25
+            }
+          },
+          "newText": "transform1(addresses[0])"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_transform_function16.bal",
+          {
+            "line": 36,
+            "character": 13
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

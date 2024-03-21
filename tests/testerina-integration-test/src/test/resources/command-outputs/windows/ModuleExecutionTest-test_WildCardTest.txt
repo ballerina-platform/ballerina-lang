@@ -4,9 +4,6 @@ Compiling source
 Running Tests with Coverage
 
 	moduleExecution.Module1
-
-		Test execution time :*****ms
-
 		[pass] commonTest_Module1
 
 
@@ -14,10 +11,9 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 	moduleExecution
-
-		Test execution time :*****ms
-
 		[pass] commonTest
 
 
@@ -25,5 +21,7 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 Generating Test Report*****project-based-tests\module-execution-tests\target\report\test_results.json
-
+
