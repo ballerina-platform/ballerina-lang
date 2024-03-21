@@ -104,6 +104,8 @@ public class CompilerPluginTests {
                 "compiler_plugin_tests/log_creator_pkg_provided_code_generator_im");
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/log_creator_pkg_provided_code_analyzer_im");
+        BCompileUtil.compileAndCacheBala(
+                    "compiler_plugin_tests/pkg_provided_compiler_plugin_with_shared_data");
     }
 
     @Test
@@ -601,6 +603,26 @@ public class CompilerPluginTests {
         clearCodeGenModAnalyzePluginOutputFile();
         Assert.assertEquals(output, "Initialized generator\nInitialized modifier",
                 "Invalid compiler plugin file logs after running code generators and modifiers");
+    }
+
+    @Test(description = "Test the usage of BuildContext as a data holder for compiler plugins")
+    public void testBuildContextForCompilerPlugins() {
+        Package currentPackage = loadPackage("shared_data_plugin");
+
+        // Run code modifiers
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Assert.assertEquals(codeModifierResult.reportedDiagnostics().diagnosticCount(), 2,
+                "Unexpected compilation diagnostics from modifier");
+        OUT.println("Diagnostics from modifier");
+        codeModifierResult.reportedDiagnostics().diagnostics().forEach(OUT::println);
+
+        // Get the compilation
+        PackageCompilation compilation = codeModifierResult.updatedPackage().get().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        OUT.println("Diagnostics from analyzer");
+        diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0,
+                "Unexpected compilation diagnostic from analyzer");
     }
 
     private Package loadPackage(String path) {

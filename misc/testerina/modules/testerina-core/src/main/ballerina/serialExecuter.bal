@@ -30,7 +30,8 @@ function executeTest(TestFunction testFunction) {
             shouldSkipDependents = executeNonDataDrivenTest(testFunction);
         }
     } else {
-        reportData.onSkipped(name = testFunction.name, testType = getTestType(dataDrivenTestParams[testFunction.name]));
+        reportData.onSkipped(name = testFunction.name, testType =
+        getTestType(dataDrivenTestParams[testFunction.name]));
         shouldSkipDependents = true;
     }
     testFunction.groups.forEach('group => groupStatusRegistry.incrementExecutedTest('group));
@@ -43,7 +44,8 @@ function executeBeforeGroupFunctions(TestFunction testFunction) {
     foreach string 'group in testFunction.groups {
         TestFunction[]? beforeGroupFunctions = beforeGroupsRegistry.getFunctions('group);
         if beforeGroupFunctions != () && !groupStatusRegistry.firstExecuted('group) {
-            handleBeforeGroupOutput(testFunction, 'group, executeFunctions(beforeGroupFunctions, getShouldSkip()));
+            handleBeforeGroupOutput(testFunction, 'group, executeFunctions(beforeGroupFunctions,
+            getShouldSkip()));
         }
     }
 }
@@ -66,11 +68,13 @@ function executeDataDrivenTestSet(TestFunction testFunction) {
 
 function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
     if executeBeforeFunction(testFunction) {
-        conMgr.setSkip(testFunction.name);
-        reportData.onSkipped(name = testFunction.name, testType = getTestType(dataDrivenTestParams[testFunction.name]));
+        executionManager.setSkip(testFunction.name);
+        reportData.onSkipped(name = testFunction.name, testType = getTestType(
+            dataDrivenTestParams[testFunction.name]));
         return true;
     }
-    boolean failed = handleNonDataDrivenTestOutput(testFunction, executeTestFunction(testFunction, "", GENERAL_TEST));
+    boolean failed = handleNonDataDrivenTestOutput(testFunction, executeTestFunction(testFunction, "",
+    GENERAL_TEST));
     if executeAfterFunction(testFunction) {
         return true;
     }
@@ -99,16 +103,19 @@ function executeFunctions(TestFunction[] testFunctions, boolean skip = false) re
     }
 }
 
-function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrError[] value, TestType testType) {
+function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrError[] value,
+        TestType testType) {
     if executeBeforeFunction(testFunction) {
-        reportData.onSkipped(name = testFunction.name, testType = getTestType(dataDrivenTestParams[testFunction.name]));
+        reportData.onSkipped(name = testFunction.name, testType = getTestType(
+            dataDrivenTestParams[testFunction.name]));
     } else {
         executeDataDrivenTest(testFunction, key, testType, value);
         _ = executeAfterFunction(testFunction);
     }
 }
 
-function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType, AnyOrError[] params) {
+function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType,
+        AnyOrError[] params) {
     if skipDataDrivenTest(testFunction, suffix, testType) {
         return;
     }
@@ -124,7 +131,8 @@ function executeBeforeFunction(TestFunction testFunction) returns boolean {
     return failed;
 }
 
-function executeTestFunction(TestFunction testFunction, string suffix, TestType testType, AnyOrError[]? params = ()) returns ExecutionError|boolean {
+function executeTestFunction(TestFunction testFunction, string suffix, TestType testType,
+        AnyOrError[]? params = ()) returns ExecutionError|boolean {
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
     return handleTestFuncOutput(output, testFunction, suffix, testType);
@@ -139,9 +147,11 @@ function executeAfterFunction(TestFunction testFunction) returns boolean {
 }
 
 function executeFunction(TestFunction|function testFunction) returns ExecutionError? {
-    any|error output = trap function:call(testFunction is function ? testFunction : testFunction.executableFunction);
+    any|error output = trap function:call(testFunction is function ? testFunction :
+        testFunction.executableFunction);
     if output is error {
         enableExit();
-        return error(getErrorMessage(output), functionName = testFunction is function ? "" : testFunction.name);
+        return error(getErrorMessage(output), functionName = testFunction is function ? "" :
+            testFunction.name);
     }
 }

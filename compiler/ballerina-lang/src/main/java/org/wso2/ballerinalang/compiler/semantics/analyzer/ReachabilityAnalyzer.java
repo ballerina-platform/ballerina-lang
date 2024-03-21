@@ -195,6 +195,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     public void visit(BLangBlockStmt blockNode, AnalyzerData data) {
         final SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, data.env);
         BType prevBoolConst = data.booleanConstCondition;
+        data.isBlockUnreachable = false;
         for (BLangStatement stmt : blockNode.stmts) {
             data.env = blockEnv;
             analyzeReachability(stmt, data);
@@ -574,13 +575,13 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             boolean isNeverReturn = types.isNeverTypeOrStructureTypeWithARequiredNeverMember
                     (funcNode.symbol.type.getReturnType());
             // If the return signature is nil-able, an implicit return will be added in Desugar.
-            // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
+            // Hence, this only checks for non-nil-able return signatures and uncertain return in the body.
             if (!funcNode.symbol.type.getReturnType().isNullable() && !isNeverReturn &&
-                    !data.statementReturnsPanicsOrFails) {
+                    !data.hasFunctionTerminated) {
                 Location closeBracePos = getEndCharPos(funcNode.pos);
                 this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
-            } else if (isNeverReturn && !data.statementReturnsPanicsOrFails) {
+            } else if (isNeverReturn && !data.hasFunctionTerminated) {
                 this.dlog.error(funcNode.pos, DiagnosticErrorCode.THIS_FUNCTION_SHOULD_PANIC);
             }
         }
@@ -690,15 +691,20 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     @Override
     public void visit(BLangBlockFunctionBody body, AnalyzerData data) {
         final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, data.env);
+        boolean hasFunctionTerminated = false;
         for (BLangStatement stmt : body.stmts) {
             data.env = blockEnv;
             analyzeReachability(stmt, data);
+            hasFunctionTerminated |=
+                    data.statementReturnsPanicsOrFails || (data.isBlockUnreachable && stmt.getKind() == NodeKind.BLOCK);
         }
+        data.hasFunctionTerminated = hasFunctionTerminated;
     }
 
     @Override
     public void visit(BLangExprFunctionBody body, AnalyzerData data) {
         data.statementReturnsPanicsOrFails = true;
+        data.hasFunctionTerminated = true;
         resetLastStatement(data);
     }
 
@@ -781,19 +787,24 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
     private void checkUnreachableCode(Location pos, AnalyzerData data) {
         if (data.statementReturnsPanicsOrFails) {
-            dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
+            logUnreachableError(pos, data);
             resetStatementReturnsPanicsOrFails(data);
         } else if (data.errorThrown) {
-            dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
+            logUnreachableError(pos, data);
             resetErrorThrown(data);
         } else if (data.breakAsLastStatement || data.continueAsLastStatement) {
-            dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
+            logUnreachableError(pos, data);
             resetLastStatement(data);
         } else if (data.unreachableBlock) {
             data.skipFurtherAnalysisInUnreachableBlock = true;
-            dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
+            logUnreachableError(pos, data);
             resetUnreachableBlock(data);
         }
+    }
+
+    private void logUnreachableError(Location pos, AnalyzerData data) {
+        dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
+        data.isBlockUnreachable = true;
     }
 
     private void resetStatementReturnsPanicsOrFails(AnalyzerData data) {
@@ -1010,6 +1021,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         boolean failureHandled;
         boolean returnedWithinQuery;
         boolean skipFurtherAnalysisInUnreachableBlock;
+        boolean hasFunctionTerminated;
+        boolean isBlockUnreachable;
         int loopCount;
         int loopAndDoClauseCount;
         BType booleanConstCondition;

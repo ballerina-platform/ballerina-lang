@@ -1,0 +1,9 @@
+
+Executing Build Tools
+ERROR [dummy_tool_invalid_name.proces__s] Command name 'dummy_tool_invalid_name.proces__s' is invalid because command name should not contain consecutive underscores.
+WARNING: Execution of the build tool 'dummy_tool_invalid_name.proces__s' for 'main_dummy' is skipped due to errors
+ERROR [dummy_tool_invalid_name._write] Command name 'dummy_tool_invalid_name._write' is invalid because command name should not start with an underscore.
+WARNING: Execution of the build tool 'dummy_tool_invalid_name._write' for 'write_dummy' is skipped due to errors
+ERROR [dummy_tool_invalid_name.read_] Command name 'dummy_tool_invalid_name.read_' is invalid because command name should not end with an underscore.
+WARNING: Execution of the build tool 'dummy_tool_invalid_name.read_' for 'read_dummy' is skipped due to errors
+

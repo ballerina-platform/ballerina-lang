@@ -86,7 +86,7 @@ public abstract class DiagnosticReporter {
      *
      * @return All the collected diagnostics.
      */
-    public Collection<Diagnostic> diagnostics() {
+    public List<Diagnostic> diagnostics() {
         return this.diagnostics;
     }
 

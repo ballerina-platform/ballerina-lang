@@ -515,7 +515,7 @@ public class JvmTerminatorGen {
                 this.genJIConstructorTerm((JIConstructorCall) terminator, localVarOffset);
                 return;
             case JI_METHOD_CLI_CALL:
-                this.genJICLICallTerm((JIMethodCLICall) terminator, localVarOffset, func);
+                this.genJICLICallTerm((JIMethodCLICall) terminator, localVarOffset);
                 return;
             default:
                 throw new BLangCompilerException("JVM generation is not supported for terminator instruction " +
@@ -523,7 +523,7 @@ public class JvmTerminatorGen {
         }
     }
 
-    private void genJICLICallTerm(JIMethodCLICall terminator, int localVarOffset, BIRNode.BIRFunction func) {
+    private void genJICLICallTerm(JIMethodCLICall terminator, int localVarOffset) {
         Label blockedOnExternLabel = new Label();
         Label notBlockedOnExternLabel = new Label();
         genHandlingBlockedOnExternal(localVarOffset, blockedOnExternLabel);
@@ -537,14 +537,19 @@ public class JvmTerminatorGen {
                 VarScope.FUNCTION, VarKind.TEMP);
         int resultIndex = this.getJVMIndexOfVarRef(tempVar);
         this.mv.visitVarInsn(ASTORE, resultIndex);
-        int paramIndex = 1;
-        for (BIROperand localVar : terminator.lhsArgs) {
-            mv.visitVarInsn(ALOAD, resultIndex);
-            mv.visitIntInsn(BIPUSH, paramIndex);
-            mv.visitInsn(AALOAD);
-            jvmCastGen.addUnboxInsn(mv, localVar.variableDcl.type);
-            paramIndex += 1;
-            this.storeToVar(localVar.variableDcl);
+        int nonDefaultArgsCount = terminator.lhsArgs.size() - terminator.defaultFunctionArgs.size();
+        int index = 0;
+        for (BIROperand lhsArg : terminator.lhsArgs) {
+            this.mv.visitVarInsn(ALOAD, resultIndex);
+            this.mv.visitIntInsn(BIPUSH, index + 1);
+            this.mv.visitInsn(AALOAD);
+            if (index < nonDefaultArgsCount) {
+                jvmCastGen.addUnboxInsn(this.mv, lhsArg.variableDcl.type);
+            } else {
+                lhsArg = terminator.defaultFunctionArgs.get(index - nonDefaultArgsCount);
+            }
+            index++;
+            this.storeToVar(lhsArg.variableDcl);
         }
         this.mv.visitLabel(notBlockedOnExternLabel);
     }
