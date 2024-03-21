@@ -267,6 +267,8 @@ type CyclicUnion int|CyclicUnion[]|map<CyclicUnion>;
 type UnionWithMapRegexp map<string:RegExp>|map<float>|int|string:RegExp|float|Rec4|Rec5|[float, int]|int[]|float[]|[int,
  float];
 
+type UnionXmlJson xml|json;
+
 public function main() {
     testParsingCharacterStreamToTypes();
 }
@@ -396,7 +398,8 @@ function testParsingCharacterStreamToTypes() {
         ["{\"a\": \"\\u1234\"}", jsonType],
         ["[ \"\\u1234\"]", jsonType],
         ["\"\\u1234\"", jsonType],
-        ["{\"\\u1234\": \"abc\"}", jsonType]
+        ["{\"\\u1234\": \"abc\"}", jsonType],
+        ["[{\"id\": 12, \"age\": 24}, {\"id\": 12, \"age\": 24}]", UnionXmlJson]
     ];
 
     [string, typedesc<anydata>][] negativeCases = [
@@ -488,7 +491,8 @@ function testParsingCharacterStreamToTypes() {
         [string `[[ aa  a", {}]]`, type8],
         [string `{"val" : [12, 13.4]a`, RecUnion1],
         ["{\"a\": \"\\u123Z\"}", jsonType],
-        ["[\\u123Z\"]", jsonType]
+        ["[\\u123Z\"]", jsonType],
+        ["<book></book>", UnionXmlJson]
     ];
 
     foreach [string, typedesc<anydata>] [givenStr, targetType] in positiveCases {
