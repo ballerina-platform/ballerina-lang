@@ -486,7 +486,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private void checkXMLNamespacePrefixes(List<BLangXMLElementFilter> filters, AnalyzerData data) {
         Map<Name, BXMLNSSymbol> nameBXMLNSSymbolMap = symResolver.resolveAllNamespaces(data.env);
         BXMLNSSymbol defaultNSSymbol = nameBXMLNSSymbolMap.get(Names.fromString(XMLConstants.DEFAULT_NS_PREFIX));
-
+        boolean hasDefaultNS = defaultNSSymbol != null;
         for (BLangXMLElementFilter filter : filters) {
             String namespace = filter.namespace;
             if (!namespace.isEmpty()) {
@@ -496,7 +496,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     dlog.error(filter.nsPos, DiagnosticErrorCode.CANNOT_FIND_XML_NAMESPACE, nsName);
                 }
                 filter.namespaceSymbol = nsSymbol;
-            } else {
+            } else if (hasDefaultNS) {
                 filter.namespaceSymbol = defaultNSSymbol;
             }
         }
