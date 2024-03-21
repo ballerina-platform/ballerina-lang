@@ -59,6 +59,7 @@ public class WorkerMultipleReceiveTest {
                 "workerMultipleReceiveWithErrorReturnRec",
                 "workerMultipleReceiveWithConditionalSend1",
                 "workerMultipleReceiveWithConditionalSend2",
+                "workerMultipleReceiveWithConditionalSend3"
         };
     }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 WSO2 LLC.
+// Copyright (c) 2024 WSO2 Inc. (http://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -378,3 +378,24 @@ function alternateReceiveWithSameWorkerSendPanic() {
         test:assertEquals(x, 3, "Invalid int result");
         test:assertEquals(y, 2, "Invalid int result");
     }
+
+function workerAlternateReceiveWithConditionalSend() returns error? {
+    worker w1 {
+      boolean b1 = true;
+      boolean b2 = true;
+      boolean b3 = false;
+
+      if b1 {
+         1 -> function;
+      } else if b2 {
+         2 -> function;
+      } else if b3 {
+         3 -> function;
+      } else {
+         4 -> function;
+      }
+    }
+
+    int n = check <- w1|w1|w1|w1;
+    test:assertEquals(n, 1);
+}

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 WSO2 LLC.
+// Copyright (c) 2024 WSO2 Inc. (http://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -311,4 +311,34 @@ function workerMultipleReceiveWithConditionalSend2() {
     test:assertEquals(e.message(), "NoMessage", "Invalid error message");
     test:assertEquals(e.detail().toString(), "{\"message\":\"no message received from worker 'w1' to worker 'w2'\"}", "Invalid error detail");
     test:assertEquals(mapResult["w3"], 3, "Invalid map result");
+}
+
+function workerMultipleReceiveWithConditionalSend3() {
+    worker w1 {
+      boolean b1 = true;
+      boolean b2 = true;
+      boolean b3 = false;
+
+      if b1 {
+         1 -> function;
+      } else if b2 {
+         2 -> function;
+      } else if b3 {
+         3 -> function;
+      } else {
+         4 -> function;
+      }
+    }
+
+    map<int|errorLib:NoMessage> mapResult = <- {a:w1, b:w1, c:w1, d:w1};
+    test:assertEquals(mapResult["a"], 1);
+
+    int|errorLib:NoMessage? bResult = mapResult["b"];
+    test:assertTrue(bResult is errorLib:NoMessage);
+    errorLib:NoMessage e = <errorLib:NoMessage> bResult;
+    test:assertEquals(e.message(), "NoMessage", "Invalid error message");
+    test:assertEquals(e.detail().toString(), "{\"message\":\"no message received from worker 'w1' to worker 'function'\"}", "Invalid error detail");
+
+    test:assertTrue(mapResult["c"] is errorLib:NoMessage);
+    test:assertTrue(mapResult["d"] is errorLib:NoMessage);
 }

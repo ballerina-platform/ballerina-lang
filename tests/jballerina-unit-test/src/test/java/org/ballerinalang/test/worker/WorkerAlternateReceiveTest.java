@@ -62,7 +62,8 @@ public class WorkerAlternateReceiveTest {
                 "alternateReceiveWithSameWorkerSendError2",
                 "alternateReceiveWithSameWorkerSendPanic",
                 "multilpleAlternateReceive1",
-                "multilpleAlternateReceive2"
+                "multilpleAlternateReceive2",
+                "workerAlternateReceiveWithConditionalSend"
         };
     }
 
