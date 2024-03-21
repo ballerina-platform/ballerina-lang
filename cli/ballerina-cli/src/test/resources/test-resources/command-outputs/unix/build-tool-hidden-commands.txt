@@ -1,0 +1,13 @@
+
+Executing Build Tools
+	hidden_cmd_dummy_tool.write.caps(write_dummy_caps)
+		Running write caps tool: write_dummy_caps
+		GAYAL DASSANAYAKE
+ERROR [hidden_cmd_dummy_tool.write] Build tool command 'hidden_cmd_dummy_tool.write' not found
+WARNING: Execution of the build tool 'hidden_cmd_dummy_tool.write' for 'write_dummy' is skipped due to errors
+	hidden_cmd_dummy_tool.read(read_dummy)
+		Running read tool: read_dummy
+		Gayal Dassanayake
+	hidden_cmd_dummy_tool(main_dummy)
+		Running sample build tool: main_dummy
+

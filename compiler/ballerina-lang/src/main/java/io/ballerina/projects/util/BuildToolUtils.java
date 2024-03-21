@@ -129,6 +129,9 @@ public class BuildToolUtils {
                 ToolConfig toolConfig = codeGeneratorToolClass.getAnnotation(ToolConfig.class);
                 if (toolConfig.name().equals(subcommandNames[level])) {
                     if (level + 1 == subcommandNames.length) {
+                        if (toolConfig.hidden()) {
+                            return Optional.empty();
+                        }
                         return Optional.of(buildRunner);
                     }
                     CodeGeneratorTool[] subcommands = Arrays.stream(toolConfig.subcommands()).map(cmdClz -> {

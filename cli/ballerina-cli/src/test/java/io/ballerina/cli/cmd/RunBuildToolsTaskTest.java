@@ -65,6 +65,8 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
                         .resolve("invalid-name-tool-pkg").toString(), testDistCacheDirectory);
         BCompileUtil.compileAndCacheBala(buildToolResources.resolve("tools")
                         .resolve("ballerina-generate-file").toString(), testDistCacheDirectory);
+        BCompileUtil.compileAndCacheBala(buildToolResources.resolve("tools")
+                .resolve("hidden-cmd-tool-pkg").toString(), testDistCacheDirectory);
     }
 
     @Test(description = "Resolve a tool offline", dataProvider = "buildToolProvider")
@@ -141,6 +143,10 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
                 {
                     "project-with-only-subcommands",
                     "build-tool-only-subcommands.txt"
+                },
+                {
+                    "project-with-hidden-commands",
+                    "build-tool-hidden-commands.txt"
                 },
         };
     }
