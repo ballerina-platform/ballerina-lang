@@ -112,8 +112,8 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "bcprov-jdk18on"
-    version = "1.73"
-    path = "./lib/bcprov-jdk18on-1.73.jar"
+    version = "1.74"
+    path = "./lib/bcprov-jdk18on-1.74.jar"
     groupId = "org.bouncycastle"
     modules = ["grpc"]
 
