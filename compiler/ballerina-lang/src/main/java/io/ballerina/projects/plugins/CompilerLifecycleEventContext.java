@@ -60,5 +60,5 @@ public interface CompilerLifecycleEventContext {
      * @return path to the generated artifact.
      */
     public Optional<Path> getGeneratedArtifactPath();
-    public BalCommand artifactType();
+    public BalCommand balCommand();
 }
