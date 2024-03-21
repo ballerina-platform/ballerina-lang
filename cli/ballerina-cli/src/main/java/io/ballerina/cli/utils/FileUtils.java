@@ -99,10 +99,9 @@ public class FileUtils {
         }
     }
 
-    public static String readSchema(String toolName) throws IOException {
+    public static String readSchema(String toolName, ClassLoader classLoader) throws IOException {
         String schemaFilePath = toolName + "-options-schema.json";
-        InputStream inputStream = io.ballerina.projects.util.FileUtils.class.getClassLoader()
-                .getResourceAsStream(schemaFilePath);
+        InputStream inputStream = classLoader.getResourceAsStream(schemaFilePath);
 
         if (inputStream == null) {
             throw new FileNotFoundException("Schema file for tool options inputStream not found: " + schemaFilePath);
@@ -124,8 +123,8 @@ public class FileUtils {
         return sb.toString();
     }
 
-    public static void validateToml(Toml optionsToml, String toolName) throws IOException {
-        Schema schema = Schema.from(FileUtils.readSchema(toolName));
+    public static void validateToml(Toml optionsToml, String toolName, ClassLoader classLoader) throws IOException {
+        Schema schema = Schema.from(FileUtils.readSchema(toolName, classLoader));
         TomlValidator tomlValidator = new TomlValidator(schema);
         tomlValidator.validate(optionsToml);
     }

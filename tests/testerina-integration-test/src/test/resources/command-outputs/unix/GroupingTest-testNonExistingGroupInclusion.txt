@@ -7,8 +7,7 @@ Running Tests
 
 	groups-test.bal
 
-		Test execution time :*****ms
-
-
 
 		No tests found
+
+		Test execution time :*****s

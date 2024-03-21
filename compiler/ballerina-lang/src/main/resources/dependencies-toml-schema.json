@@ -154,6 +154,88 @@
           "required": "'${property}' under [[package]] is missing"
         }
       }
+    },
+    "tool": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]*$",
+            "maxLength": 256,
+            "message": {
+              "pattern": "invalid 'id' under [[tool]]: 'id' can only contain alphanumerics and underscores",
+              "maxLength": "invalid 'id' under [[tool]]: maximum length of 'id' is 256 characters"
+            },
+            "allOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!_).+",
+                "message": {
+                  "pattern": "invalid 'id' under [[tool]]: 'id' cannot have initial underscore characters"
+                }
+              },
+              {
+                "type": "string",
+                "pattern": ".*(?<!_)$",
+                "message": {
+                  "pattern": "invalid 'id' under [[tool]]: 'id' cannot have trailing underscore characters"
+                }
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!.*__).*$",
+                "message": {
+                  "pattern": "invalid 'id' under [[tool]]: 'id' cannot have consecutive underscore characters"
+                }
+              },
+              {
+                "type": "string",
+                "pattern": "^(?![0-9]).+",
+                "message": {
+                  "pattern": "invalid 'id' under [[tool]]: 'id' cannot have initial numeric characters"
+                }
+              }
+            ]
+          },
+          "org": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]*$",
+            "maxLength": 256,
+            "message": {
+              "pattern": "invalid 'org' under [[tool]]: 'org' can only contain alphanumerics and underscores",
+              "maxLength": "invalid 'org' under [[tool]]: maximum length of 'org' is 256 characters"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_.]*$",
+            "maxLength": 256,
+            "message": {
+              "pattern": "invalid 'name' under [[tool]]: 'name' can only contain alphanumerics, underscores and periods",
+              "maxLength": "invalid 'name' under [[tool]]: maximum length of 'name' is 256 characters"
+            }
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+            "message": {
+              "pattern": "invalid 'version' under [[tool]]: 'version' should be compatible with semver"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "org",
+          "name",
+          "version"
+        ],
+        "message": {
+          "required": "'${property}' under [[tool]] is missing"
+        }
+      }
     }
   }
 }

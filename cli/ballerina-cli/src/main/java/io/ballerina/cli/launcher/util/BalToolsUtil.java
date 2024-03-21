@@ -232,7 +232,13 @@ public class BalToolsUtil {
                 && localDistVersion.minor() >= toolDistVersion.minor();
     }
 
-    private static List<File> findJarFiles(File directory) {
+    /**
+     * Find jar files in the given directory.
+     *
+     * @param directory directory to search for jar files
+     * @return list of jar files
+     */
+    public static List<File> findJarFiles(File directory) {
         List<File> jarFiles = new ArrayList<>();
         if (directory.isDirectory()) {
             File[] files = directory.listFiles();

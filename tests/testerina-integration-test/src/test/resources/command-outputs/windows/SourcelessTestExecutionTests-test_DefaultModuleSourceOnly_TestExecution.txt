@@ -4,9 +4,6 @@ Compiling source
 Running Tests with Coverage
 
 	defaultModuleSource.module1
-
-		Test execution time :*****ms
-
 		[pass] test3
 
 
@@ -14,10 +11,9 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 	defaultModuleSource.module2
-
-		Test execution time :*****ms
-
 		[pass] test4
 
 
@@ -25,6 +21,8 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 Generating Test Report
 	default-module-source-only-test\target\report\test_results.json
-
+

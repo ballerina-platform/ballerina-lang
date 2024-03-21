@@ -1,0 +1,4 @@
+
+Executing Build Tools
+ERROR [dummy_tool] Build tool 'dummy_tool' cannot be resolved
+

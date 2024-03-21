@@ -33,7 +33,7 @@ public function setTestOptions(string inTargetPath, string inPackageName, string
     boolean codeCoverage = parseBooleanInput(inCoverage, "code-coverage");
     listGroups = parseBooleanInput(inListGroups, "list-groups");
     boolean isParallelExecution = parseBooleanInput(inIsParallelExecution, "isParallelExecution");
-    conMgr.setParallelExecutionStatus(isParallelExecution);
+    executionManager.setParallelExecutionStatus(isParallelExecution);
 
     if rerunFailed {
         error? err = parseRerunJson();
@@ -69,7 +69,8 @@ function filterKeyBasedTests(string packageName, string moduleName, string[] tes
             int separatorIndex = <int>updatedName.indexOf(DATA_KEY_SEPARATOR);
             string suffix = updatedName.substring(separatorIndex + 1);
             string testPart = updatedName.substring(0, separatorIndex);
-            if testOptions.isFilterSubTestsContains(updatedName) && testOptions.getFilterSubTest(updatedName) is string[] {
+            if testOptions.isFilterSubTestsContains(updatedName) && testOptions.getFilterSubTest(updatedName)
+            is string[] {
                 string[] subTestList = <string[]>testOptions.getFilterSubTest(testPart);
                 subTestList.push(suffix);
                 testOptions.addFilterSubTest(testPart, subTestList);

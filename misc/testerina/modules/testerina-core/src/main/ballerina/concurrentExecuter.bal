@@ -41,7 +41,8 @@ isolated function executeBeforeGroupFunctionsIsolated(TestFunction testFunction)
     foreach string 'group in testFunction.groups {
         TestFunction[]? beforeGroupFunctions = beforeGroupsRegistry.getFunctions('group);
         if beforeGroupFunctions != () && !groupStatusRegistry.firstExecuted('group) {
-            handleBeforeGroupOutput(testFunction, 'group, executeFunctionsIsolated(beforeGroupFunctions, getShouldSkip()));
+            handleBeforeGroupOutput(testFunction, 'group, executeFunctionsIsolated(beforeGroupFunctions,
+            getShouldSkip()));
         }
     }
 }
@@ -49,7 +50,8 @@ isolated function executeBeforeGroupFunctionsIsolated(TestFunction testFunction)
 isolated function executeBeforeEachFunctionsIsolated() =>
     handleBeforeEachOutput(executeFunctionsIsolated(beforeEachRegistry.getFunctions(), getShouldSkip()));
 
-isolated function executeDataDrivenTestSetIsolated(TestFunction testFunction, DataProviderReturnType? testFunctionArgs) {
+isolated function executeDataDrivenTestSetIsolated(TestFunction testFunction,
+        DataProviderReturnType? testFunctionArgs) {
     string[] keys = [];
     AnyOrError[][] values = [];
     TestType testType = prepareDataSet(testFunctionArgs, keys, values);
@@ -61,8 +63,10 @@ isolated function executeDataDrivenTestSetIsolated(TestFunction testFunction, Da
             where item is readonly
             select item;
         if readOnlyVal.length() != value.length() {
-            reportData.onFailed(name = testFunction.name, suffix = key, message = string `[fail data provider for the function ${testFunction.name}]${"\n"} Data provider returned non-readonly values`, testType = testType);
-            println(string `${"\n"}${testFunction.name}:${key} has failed.${"\n"}`);
+            reportData.onFailed(name = testFunction.name, suffix = key, message =
+            string `[fail data provider for the function ${testFunction.name}]${"\n"}` +
+            string ` Data provider returned non-readonly values`, testType = testType);
+            println(string `${"\n\t"}${testFunction.name}:${key} has failed.${"\n"}`);
             enableExit();
         }
         future<()> futureResult = start prepareDataDrivenTestIsolated(testFunction, key, readOnlyVal, testType);
@@ -72,20 +76,24 @@ isolated function executeDataDrivenTestSetIsolated(TestFunction testFunction, Da
         string suffix = futureResult[0];
         any|error parallelDataProviderResult = wait futureResult[1];
         if parallelDataProviderResult is error {
-            reportData.onFailed(name = testFunction.name, suffix = suffix, message = string `[fail data provider for the function ${testFunction.name}]${"\n"} ${getErrorMessage(parallelDataProviderResult)}`, testType = testType);
-            println(string `${"\n"}${testFunction.name}:${suffix} has failed.${"\n"}`);
+            reportData.onFailed(name = testFunction.name, suffix = suffix, message =
+            string `[fail data provider for the function ` +
+            string `${testFunction.name}]${"\n"} ${getErrorMessage(parallelDataProviderResult)}`, testType = testType);
+            println(string `${"\n\t"}${testFunction.name}:${suffix} has failed.${"\n"}`);
             enableExit();
         }
     }
 }
 
-isolated function executeNonDataDrivenTestIsolated(TestFunction testFunction, DataProviderReturnType? testFunctionArgs) returns boolean {
+isolated function executeNonDataDrivenTestIsolated(TestFunction testFunction,
+        DataProviderReturnType? testFunctionArgs) returns boolean {
     if executeBeforeFunctionIsolated(testFunction) {
-        conMgr.setSkip(testFunction.name);
+        executionManager.setSkip(testFunction.name);
         reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunctionArgs));
         return true;
     }
-    boolean failed = handleNonDataDrivenTestOutput(testFunction, executeTestFunctionIsolated(testFunction, "", GENERAL_TEST));
+    boolean failed = handleNonDataDrivenTestOutput(testFunction, executeTestFunctionIsolated(testFunction, "",
+    GENERAL_TEST));
     if executeAfterFunctionIsolated(testFunction) {
         return true;
     }
@@ -106,7 +114,8 @@ isolated function executeAfterGroupFunctionsIsolated(TestFunction testFunction) 
     }
 }
 
-isolated function executeFunctionsIsolated(TestFunction[] testFunctions, boolean skip = false) returns ExecutionError? {
+isolated function executeFunctionsIsolated(TestFunction[] testFunctions, boolean skip = false)
+returns ExecutionError? {
     foreach TestFunction testFunction in testFunctions {
         if !skip || testFunction.alwaysRun {
             check executeFunctionIsolated(testFunction);
@@ -114,7 +123,8 @@ isolated function executeFunctionsIsolated(TestFunction[] testFunctions, boolean
     }
 }
 
-isolated function prepareDataDrivenTestIsolated(TestFunction testFunction, string key, AnyOrError[] value, TestType testType) {
+isolated function prepareDataDrivenTestIsolated(TestFunction testFunction, string key, AnyOrError[] value,
+        TestType testType) {
     if executeBeforeFunctionIsolated(testFunction) {
         reportData.onSkipped(name = testFunction.name, testType = testType);
     } else {
@@ -123,7 +133,8 @@ isolated function prepareDataDrivenTestIsolated(TestFunction testFunction, strin
     }
 }
 
-isolated function executeDataDrivenTestIsolated(TestFunction testFunction, string suffix, TestType testType, AnyOrError[] params) {
+isolated function executeDataDrivenTestIsolated(TestFunction testFunction, string suffix, TestType testType,
+        AnyOrError[] params) {
     if skipDataDrivenTest(testFunction, suffix, testType) {
         return;
     }
@@ -139,7 +150,8 @@ isolated function executeBeforeFunctionIsolated(TestFunction testFunction) retur
     return failed;
 }
 
-isolated function executeTestFunctionIsolated(TestFunction testFunction, string suffix, TestType testType, AnyOrError[]? params = ()) returns ExecutionError|boolean {
+isolated function executeTestFunctionIsolated(TestFunction testFunction, string suffix, TestType testType,
+        AnyOrError[]? params = ()) returns ExecutionError|boolean {
     isolated function isolatedTestFunction = <isolated function>testFunction.executableFunction;
     any|error output = params == () ? trap function:call(isolatedTestFunction)
         : trap function:call(isolatedTestFunction, ...params);
@@ -155,7 +167,8 @@ isolated function executeAfterFunctionIsolated(TestFunction testFunction) return
 }
 
 isolated function executeFunctionIsolated(TestFunction|function testFunction) returns ExecutionError? {
-    isolated function isolatedTestFunction = <isolated function>(testFunction is function ? testFunction : testFunction.executableFunction);
+    isolated function isolatedTestFunction = <isolated function>(testFunction is function ? testFunction :
+        testFunction.executableFunction);
     // casting is done outside the function to avoid the error of casting inside the function and trapping it.
     any|error output = trap function:call(isolatedTestFunction);
     if output is error {

@@ -29,7 +29,7 @@ public class CommonUtils {
     }
 
     public static String replaceExecutionTime(String content) {
-        return replaceVaryingString("Test execution time :", "ms", content);
+        return replaceVaryingString("Test execution time :", "s", content);
     }
 
     public static String replaceVaryingString(String firstString, String endString, String content) {

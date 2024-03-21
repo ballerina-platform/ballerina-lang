@@ -27,8 +27,20 @@ import java.util.Set;
  */
 public class ParserConstants {
 
+    public static final String WRAPPER_PREFIX = "__shell_wrapper__";
+
     public static final Set<String> RESTRICTED_FUNCTION_NAMES = Set.of("main", "init", "__java_recall",
             "__java_memorize", "__recall_any", "__recall_any_error", "__memorize", "__stmts", "__run");
+
+    /**
+     * Checks if the given function name is restricted.
+     *
+     * @param functionName function name to check
+     * @return <code>true</code> if the function name is restricted. <code>false</code> otherwise
+     */
+    public static boolean isFunctionNameRestricted(String functionName) {
+        return RESTRICTED_FUNCTION_NAMES.contains(functionName) || functionName.startsWith(WRAPPER_PREFIX);
+    }
 
     private ParserConstants() {}
 }

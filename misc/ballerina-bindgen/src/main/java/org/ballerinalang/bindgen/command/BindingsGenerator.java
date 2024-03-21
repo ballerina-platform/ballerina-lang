@@ -147,7 +147,7 @@ public class BindingsGenerator {
             if (tomlDocument == null) {
                 return;
             }
-            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null,
+            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, null,
                     env.getProjectRoot()).packageManifest();
             if (packageManifest == null) {
                 return;
@@ -176,7 +176,7 @@ public class BindingsGenerator {
         if (tomlDocument == null) {
             return jvmTarget;
         }
-        PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null,
+        PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, null,
                 env.getProjectRoot()).packageManifest();
         if (packageManifest == null) {
             return jvmTarget;

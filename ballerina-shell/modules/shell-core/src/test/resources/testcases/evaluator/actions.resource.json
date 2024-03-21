@@ -1,0 +1,24 @@
+[
+  {
+    "description": "Define a client class",
+    "code": "client class MyClient { resource function get root/[string path](string param) returns string { return string `${path} -> ${param}`; } }"
+  },
+  {
+    "description": "Initialize a client class",
+    "code": "MyClient myClient = new;"
+  },
+  {
+    "description": "Invoke a client resource method as an expression",
+    "code": "myClient ->/root/name(\"input\");",
+    "expr": "\"name -> input\""
+  },
+  {
+    "description": "Invoke a client resource method with a variable",
+    "code": "string returnValue = myClient ->/root/name(\"input\");"
+  },
+  {
+    "description": "Check the return value",
+    "code": "returnValue",
+    "expr": "\"name -> input\""
+  }
+]

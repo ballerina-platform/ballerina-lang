@@ -1,7 +1,9 @@
-ERROR [Ballerina.toml:(6:1,9:24)] empty string found for key '[filePath]' in table '[tool.openapi]'.
+ERROR [Ballerina.toml:(6:1,10:24)] empty string found for key '[filePath]' in table '[tool.openapi]'.
+ERROR [Ballerina.toml:(12:1,14:24)] missing key '[filePath]' in table '[tool.openapi]'.
 
 Executing Build Tools
-WARNING: Skipping execution of build tool openapi(generate-delivery-client) as Ballerina.toml contains errors
+WARNING: Execution of the build tool 'openapi' for 'generate-delivery-client' is skipped due to errors
+WARNING: Execution of the build tool 'openapi' for 'generate-client' is skipped due to errors
 
 Compiling source
 	foo/winery:0.1.0

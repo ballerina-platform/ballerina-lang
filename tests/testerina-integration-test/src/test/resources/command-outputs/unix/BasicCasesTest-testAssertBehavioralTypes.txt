@@ -7,9 +7,6 @@ WARNING [tests/assert-test-behavioral-types.bal:(24:5,24:32)] undocumented field
 Running Tests with Coverage
 
 	assertions
-
-		Test execution time :*****ms
-
 		[pass] testAssertObjectArrayEquals
 		[pass] testAssertObjectArrayEqualsNegative
 		[pass] testAssertObjectArrayNotEquals
@@ -27,6 +24,8 @@ Running Tests with Coverage
 		12 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****s
 
 Generating Test Report
 	assertions-behavioral-types/target/report/test_results.json

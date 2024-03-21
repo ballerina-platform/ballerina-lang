@@ -9,13 +9,10 @@ Calling init for default module listener
 Calling start for moduleA listener
 Calling start for default module listener
 
-main_negative_test1: has failed.
+	main_negative_test1: has failed.
 
 
-main_negative_test2: has failed.
-
-
-		Test execution time :*****ms
+	main_negative_test2: has failed.
 
 		[pass] main_test1
 		[pass] main_test2
@@ -48,6 +45,8 @@ main_negative_test2: has failed.
 		2 passing
 		2 failing
 		0 skipped
+
+		Test execution time :*****s
 Calling stop for default module listener
 Calling stop for moduleA listener
 
@@ -55,10 +54,7 @@ Calling stop for moduleA listener
 Calling init for moduleA listener
 Calling start for moduleA listener
 
-negative_test1: has failed.
-
-
-		Test execution time :*****ms
+	negative_test1: has failed.
 
 		[pass] test1
 
@@ -78,5 +74,7 @@ negative_test1: has failed.
 		1 passing
 		1 failing
 		0 skipped
+
+		Test execution time :*****s
 Calling stop for moduleA listener
 error: there are test failures

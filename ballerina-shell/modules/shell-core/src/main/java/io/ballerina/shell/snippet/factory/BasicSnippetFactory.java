@@ -65,6 +65,7 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 import io.ballerina.shell.exceptions.SnippetException;
+import io.ballerina.shell.parser.ParserConstants;
 import io.ballerina.shell.snippet.SnippetSubKind;
 import io.ballerina.shell.snippet.types.ExpressionSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
@@ -75,6 +76,7 @@ import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * A factory that will create snippets from given nodes.
@@ -153,19 +155,38 @@ public class BasicSnippetFactory extends SnippetFactory {
                 qualifiers = NodeFactory.createNodeList(varNode.finalKeyword().get());
             }
 
-            if (((VariableDeclarationNode) node).initializer().get().kind() == SyntaxKind.QUERY_ACTION) {
+            Optional<ExpressionNode> optVarInitNode = varNode.initializer();
+            if (optVarInitNode.isEmpty()) {
+                assert false : "This line is unreachable as the error is captured before.";
+                addErrorDiagnostic("Variable declaration without an initializer is not allowed");
+                return null;
+            }
+
+            ExpressionNode varInitNode = optVarInitNode.get();
+            SyntaxKind nodeKind = varInitNode.kind();
+            if (isSupportedAction(nodeKind)) {
                 TypedBindingPatternNode typedBindingPatternNode = varNode.typedBindingPattern();
                 TypeDescriptorNode typeDescriptorNode = typedBindingPatternNode.typeDescriptor();
                 BindingPatternNode bindingPatternNode = typedBindingPatternNode.bindingPattern();
-                String functionPart = "function() returns ";
-                String functionBody = varNode.initializer().get().toString();
-                String functionString = "var " + "f_" + varFunctionCount + " = " + functionPart
-                        + typeDescriptorNode.toString() + "{" + typeDescriptorNode + bindingPatternNode.toString()
-                        + " = " + functionBody + ";" + "return " + bindingPatternNode + ";};";
-                varNode = (VariableDeclarationNode) NodeParser.parseStatement(functionString);
-                newNode = (VariableDeclarationNode) NodeParser
-                        .parseStatement(typeDescriptorNode + " " + bindingPatternNode
-                                         + " = f_" + varFunctionCount + "();");
+
+                // Check if the type descriptor of the variable is 'var' as it is not yet supported.
+                if (typeDescriptorNode.kind() == SyntaxKind.VAR_TYPE_DESC) {
+                    addErrorDiagnostic("'var' type is not yet supported for actions. Please specify the exact type.");
+                    return null;
+                }
+
+                boolean isCheckAction = nodeKind == SyntaxKind.CHECK_ACTION;
+                String initAction = varInitNode.toSourceCode();
+                String functionTypeDesc = (isCheckAction ? "function() returns error|" :
+                        "function() returns ") + typeDescriptorNode;
+                String functionName = ParserConstants.WRAPPER_PREFIX + varFunctionCount;
+                String functionVarDecl = String.format("%s %s = %s {%s %s = %s; return %s;};", functionTypeDesc,
+                        functionName, functionTypeDesc, typeDescriptorNode, bindingPatternNode, initAction,
+                        bindingPatternNode);
+                varNode = (VariableDeclarationNode) NodeParser.parseStatement(functionVarDecl);
+                newNode = (VariableDeclarationNode) NodeParser.parseStatement(
+                        String.format("%s %s = %s %s();", typeDescriptorNode, bindingPatternNode,
+                                (isCheckAction ? "check " : ""), functionName));
             }
 
             varFunctionCount += 1;
@@ -265,5 +286,26 @@ public class BasicSnippetFactory extends SnippetFactory {
         }
 
         return false;
+    }
+
+    private boolean isSupportedAction(SyntaxKind nodeKind) {
+        switch (nodeKind) {
+            case REMOTE_METHOD_CALL_ACTION:
+            case BRACED_ACTION:
+            case CHECK_ACTION:
+            case START_ACTION:
+            case TRAP_ACTION:
+            case FLUSH_ACTION:
+            case ASYNC_SEND_ACTION:
+            case SYNC_SEND_ACTION:
+            case RECEIVE_ACTION:
+            case WAIT_ACTION:
+            case QUERY_ACTION:
+            case COMMIT_ACTION:
+            case CLIENT_RESOURCE_ACCESS_ACTION:
+                return true;
+            default:
+                return false;
+        }
     }
 }

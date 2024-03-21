@@ -7,8 +7,7 @@ Running Tests
 
 	single-test-execution.bal
 
-		Test execution time :*****ms
-
-
 
 		No tests found
+
+		Test execution time :*****s

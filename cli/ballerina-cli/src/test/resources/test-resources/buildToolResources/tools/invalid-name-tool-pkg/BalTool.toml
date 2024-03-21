@@ -1,0 +1,5 @@
+[tool]
+id="dummy_tool_invalid_name"
+
+[[dependency]]
+path="./resources/sample-dummy-build-tool-1.4.0.jar"

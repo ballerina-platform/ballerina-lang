@@ -1,0 +1,10 @@
+[package]
+org = "foo"
+name = "winery"
+version = "0.1.0"
+
+[[tool.nonexistent]]
+id = "main_dummy"
+filePath = "delivery.json"
+targetModule = "mod_nonexistent"
+options.mode = "client"

@@ -7,10 +7,7 @@ Running Tests
 
 	foo
 
-testMain: has failed.
-
-
-		Test execution time :*****ms
+	testMain: has failed.
 
 		[pass] testFunc
 
@@ -28,10 +25,9 @@ testMain: has failed.
 		1 failing
 		1 skipped
 
+		Test execution time :*****s
+
 	foo.bar.tests
-
-		Test execution time :*****ms
-
 		[pass] testBarAdd
 
 
@@ -39,10 +35,9 @@ testMain: has failed.
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 	foo.math
-
-		Test execution time :*****ms
-
 		[pass] testFunction1
 		[pass] testFunction2
 
@@ -50,4 +45,6 @@ testMain: has failed.
 		2 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****s
 error: there are test failures
