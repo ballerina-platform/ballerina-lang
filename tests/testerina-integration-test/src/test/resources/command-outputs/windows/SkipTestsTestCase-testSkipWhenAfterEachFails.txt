@@ -16,13 +16,12 @@ Running Tests
 			callableName: afterEach  fileName: skip-when-afterEach-fails.bal lineNumber: 30
 			callableName: afterEach$lambda2$  fileName: skip-when-afterEach-fails.bal lineNumber: 55
 		
-
-		Test execution time :*****ms
-
 		[pass] test1
 
 
 		1 passing
 		0 failing
 		2 skipped
+
+		Test execution time :*****s
 error: there are test failures

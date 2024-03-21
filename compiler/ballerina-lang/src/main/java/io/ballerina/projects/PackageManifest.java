@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.projects.internal.model.BalToolDescriptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
@@ -36,6 +37,7 @@ import java.util.Optional;
 public class PackageManifest {
     private final PackageDescriptor packageDesc;
     private final CompilerPluginDescriptor compilerPluginDesc;
+    private final BalToolDescriptor balToolDesc;
     private final Map<String, Platform> platforms;
     private final List<Tool> tools;
     private final List<Dependency> dependencies;
@@ -57,12 +59,14 @@ public class PackageManifest {
 
     private PackageManifest(PackageDescriptor packageDesc,
                             CompilerPluginDescriptor compilerPluginDesc,
+                            BalToolDescriptor balToolDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
                             DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
+        this.balToolDesc = balToolDesc;
         this.platforms = Collections.unmodifiableMap(platforms);
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
@@ -81,6 +85,7 @@ public class PackageManifest {
 
     private PackageManifest(PackageDescriptor packageDesc,
                             CompilerPluginDescriptor compilerPluginDesc,
+                            BalToolDescriptor balToolDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
@@ -88,6 +93,7 @@ public class PackageManifest {
                             DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
+        this.balToolDesc = balToolDesc;
         this.platforms = Collections.unmodifiableMap(platforms);
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
@@ -106,6 +112,7 @@ public class PackageManifest {
 
     private PackageManifest(PackageDescriptor packageDesc,
                             CompilerPluginDescriptor compilerPluginDesc,
+                            BalToolDescriptor balToolDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
@@ -122,6 +129,7 @@ public class PackageManifest {
                             String icon) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
+        this.balToolDesc = balToolDesc;
         this.platforms = Collections.unmodifiableMap(platforms);
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
@@ -141,6 +149,7 @@ public class PackageManifest {
 
     private PackageManifest(PackageDescriptor packageDesc,
                             CompilerPluginDescriptor compilerPluginDesc,
+                            BalToolDescriptor balToolDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
@@ -158,6 +167,7 @@ public class PackageManifest {
                             List<Tool> tools) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
+        this.balToolDesc = balToolDesc;
         this.platforms = Collections.unmodifiableMap(platforms);
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
@@ -175,21 +185,23 @@ public class PackageManifest {
         this.tools = tools;
     }
     public static PackageManifest from(PackageDescriptor packageDesc) {
-        return new PackageManifest(packageDesc, null, Collections.emptyMap(), Collections.emptyList(),
+        return new PackageManifest(packageDesc, null, null, Collections.emptyMap(), Collections.emptyList(),
                                    Collections.emptyMap(), Collections.emptyList(),
                                     new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        CompilerPluginDescriptor compilerPluginDesc,
+                                       BalToolDescriptor balToolDesc,
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
-                                    Collections.emptyList(), new DefaultDiagnosticResult(Collections.emptyList()));
+        return new PackageManifest(packageDesc, compilerPluginDesc, balToolDesc, platforms, dependencies,
+                Collections.emptyMap(), Collections.emptyList(), new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        CompilerPluginDescriptor compilerPluginDesc,
+                                       BalToolDescriptor balToolDesc,
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies,
                                        Map<String, Object> otherEntries,
@@ -205,13 +217,14 @@ public class PackageManifest {
                                        boolean template,
                                        String icon,
                                        List<Tool> tools) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, otherEntries, diagnostics,
-                license, authors, keywords, export, include, repository, ballerinaVersion, visibility,
+        return new PackageManifest(packageDesc, compilerPluginDesc, balToolDesc, platforms, dependencies, otherEntries,
+                diagnostics, license, authors, keywords, export, include, repository, ballerinaVersion, visibility,
                 template, icon, tools);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        CompilerPluginDescriptor compilerPluginDesc,
+                                       BalToolDescriptor balToolDescriptor,
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies,
                                        List<String> license,
@@ -223,9 +236,9 @@ public class PackageManifest {
                                        String ballerinaVersion,
                                        String visibility,
                                        boolean template) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
-                new DefaultDiagnosticResult(Collections.emptyList()), license, authors, keywords,
-                export, include, repository, ballerinaVersion, visibility, template, "");
+        return new PackageManifest(packageDesc, compilerPluginDesc, balToolDescriptor, platforms, dependencies,
+                Collections.emptyMap(), new DefaultDiagnosticResult(Collections.emptyList()), license, authors,
+                keywords, export, include, repository, ballerinaVersion, visibility, template, "");
     }
 
     public PackageName name() {
@@ -246,6 +259,10 @@ public class PackageManifest {
 
     public Optional<CompilerPluginDescriptor> compilerPluginDescriptor() {
         return Optional.ofNullable(compilerPluginDesc);
+    }
+
+    public Optional<BalToolDescriptor> balToolDescriptor() {
+        return Optional.ofNullable(balToolDesc);
     }
 
     public Platform platform(String platformCode) {

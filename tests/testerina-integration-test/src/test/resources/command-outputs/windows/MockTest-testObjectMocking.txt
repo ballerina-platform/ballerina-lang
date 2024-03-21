@@ -1,4 +1,3 @@
-Compiling source
 	intg_tests/object_mocking:0.0.0
 WARNING [modules\TestHttpClient\main.bal:(54:45,54:82)] this function should explicitly return a value (BCE20350)
    |
@@ -18,25 +17,22 @@ Running Tests with Coverage
 testDefaultIncompatibleArgs has failed.
 
 
-testDefaultInvalidMemberReturnValue has failed.
+	testDefaultInvalidMemberReturnValue has failed.
 
 
-testDefaultMockInvalidFieldName has failed.
+	testDefaultMockInvalidFieldName has failed.
 
 
-testDefaultMockInvalidReturnValue has failed.
+	testDefaultMockInvalidReturnValue has failed.
 
 
-testDefaultMockWrongAction has failed.
+	testDefaultMockWrongAction has failed.
 
 
-testDefaultTooManyArgs has failed.
+	testDefaultTooManyArgs has failed.
 
 
-testMockInvalidStream has failed.
-
-
-		Test execution time :*****ms
+	testMockInvalidStream has failed.
 
 		[pass] testDependentlyTypedFunctions_testDouble
 		[pass] testDependentlyTypedFunctions_thenReturn
@@ -115,6 +111,8 @@ testMockInvalidStream has failed.
 		9 passing
 		7 failing
 		0 skipped
+
+		Test execution time :*****s
 
 Generating Test Report
 	object-mocking-tests\target\report\test_results.json

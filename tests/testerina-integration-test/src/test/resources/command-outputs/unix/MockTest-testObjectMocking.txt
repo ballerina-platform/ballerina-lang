@@ -15,28 +15,25 @@ Running Tests with Coverage
 
 	object_mocking
 
-testDefaultIncompatibleArgs has failed.
+	testDefaultIncompatibleArgs has failed.
 
 
-testDefaultInvalidMemberReturnValue has failed.
+	testDefaultInvalidMemberReturnValue has failed.
 
 
-testDefaultMockInvalidFieldName has failed.
+	testDefaultMockInvalidFieldName has failed.
 
 
-testDefaultMockInvalidReturnValue has failed.
+	testDefaultMockInvalidReturnValue has failed.
 
 
-testDefaultMockWrongAction has failed.
+	testDefaultMockWrongAction has failed.
 
 
-testDefaultTooManyArgs has failed.
+	testDefaultTooManyArgs has failed.
 
 
-testMockInvalidStream has failed.
-
-
-		Test execution time :*****ms
+	testMockInvalidStream has failed.
 
 		[pass] testDependentlyTypedFunctions_testDouble
 		[pass] testDependentlyTypedFunctions_thenReturn
@@ -115,6 +112,8 @@ testMockInvalidStream has failed.
 		9 passing
 		7 failing
 		0 skipped
+
+		Test execution time :*****s
 
 Generating Test Report
 	object-mocking-tests/target/report/test_results.json
