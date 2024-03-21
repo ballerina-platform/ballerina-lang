@@ -47,7 +47,13 @@ public enum RecoveryState {
         return state;
     }
 
-    public static RecoveryState getRecoveryStatus(String state) {
+    /**
+     * Get the recovery state for the given state.
+     *
+     * @param state the state as a string
+     * @return the recovery state
+     */
+    public static RecoveryState getRecoveryState(String state) {
         for (RecoveryState recoveryState : RecoveryState.values()) {
             if (recoveryState.getState().equals(state)) {
                 return recoveryState;

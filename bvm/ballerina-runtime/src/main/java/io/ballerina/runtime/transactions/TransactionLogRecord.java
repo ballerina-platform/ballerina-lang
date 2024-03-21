@@ -69,11 +69,15 @@ public class TransactionLogRecord {
         return transactionBlockId;
     }
 
-    // Need to move or change
     public String getCombinedId() {
         return transactionId + ":" + transactionBlockId;
     }
 
+    /**
+     * Get the transaction log record as a string to write to file recovery log.
+     *
+     * @return the transaction log record as a string
+     */
     public String getTransactionLogRecordString() {
         return transactionId + COMBINED_ID_SEPARATOR + transactionBlockId + FIELD_SEPARATOR + transactionStatus +
                 FIELD_SEPARATOR + logTime + LINE_SEPARATOR;
@@ -94,7 +98,7 @@ public class TransactionLogRecord {
             Long logTime = Long.parseLong(logBlocks[2]);
             String transactionId = combinedId[0];
             String transactionBlockId = combinedId[1];
-            RecoveryState transactionStatus = RecoveryState.getRecoveryStatus(transactionStatusString);
+            RecoveryState transactionStatus = RecoveryState.getRecoveryState(transactionStatusString);
             return new TransactionLogRecord(transactionId, transactionBlockId, transactionStatus, logTime);
         }
         return null;

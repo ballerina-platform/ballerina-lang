@@ -26,7 +26,7 @@ package io.ballerina.runtime.transactions;
 public interface RecoveryLog {
 
     /**
-     * Write a log entry to the recovery log file.
+     * Write a log entry to the recovery log.
      *
      * @param trxRecord the transaction log record
      */

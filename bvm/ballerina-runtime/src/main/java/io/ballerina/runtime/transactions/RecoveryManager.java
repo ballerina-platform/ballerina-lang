@@ -91,6 +91,11 @@ public class RecoveryManager {
         xaResources.add(xaResource);
     }
 
+    /**
+     * Perform a recovery pass to recover all failed transactions in xa resources.
+     *
+     * @return true if recovery pass is successful, false otherwise
+     */
     public boolean performRecoveryPass() {
         boolean recoverSuccess = true; // assume success, until it is not
 
@@ -231,42 +236,53 @@ public class RecoveryManager {
      * @return true if the log can be forgotten, false otherwise
      * <p>
      * "heuristic" itself means "by hand", and that is the way that these outcomes have to be handled. Consider the
-     * following possible cases: 1. If the decision was to commit, the transaction is heuristically committed, the log
-     * can be forgotten. 2. If the decision was to rollback, the transaction is heuristically rolled back, the log can
-     * be forgotten. 3. If the decision was to commit, but the transaction is heuristically rolled back, or vise versa,
-     * it needs to be handled manually. 4. If the decision was to commit/rollback, but the transaction is heuristically
+     * following possible cases:
+     * 1. If the decision was to commit, the transaction is heuristically committed, the log
+     * can be forgotten.
+     * 2. If the decision was to rollback, the transaction is heuristically rolled back, the log can
+     * be forgotten.
+     * 3. If the decision was to commit, but the transaction is heuristically rolled back, or vise versa,
+     * it needs to be handled manually.
+     * 4. If the decision was to commit/rollback, but the transaction is heuristically
      * mixed, or is in hazard state, it needs to be handled manually.
      */
     private boolean handleHeuristicTermination(Xid xid, XAResource xaResource, XAException e, boolean decisionCommit) {
         switch (e.errorCode) {
             case XAException.XA_HEURCOM -> {
                 if (!decisionCommit) {
-                    reportUserOfHueristics(e, xid, decisionCommit);
+                    reportUserOfHeuristics(e, xid, decisionCommit);
                 }
                 forgetXidInXaResource(xid, xaResource);
                 return true;
             }
             case XAException.XA_HEURRB -> {
                 if (decisionCommit) {
-                    reportUserOfHueristics(e, xid, decisionCommit);
+                    reportUserOfHeuristics(e, xid, decisionCommit);
                 }
                 forgetXidInXaResource(xid, xaResource);
                 return true;
             }
             case XAException.XA_HEURMIX -> {
-                reportUserOfHueristics(e, xid, decisionCommit);
+                reportUserOfHeuristics(e, xid, decisionCommit);
                 forgetXidInXaResource(xid, xaResource);
                 return true; // we report it to user, forget about the txn and move on (for now)
             }
             case XAException.XA_HEURHAZ -> {
-                reportUserOfHueristics(e, xid, decisionCommit);
+                reportUserOfHeuristics(e, xid, decisionCommit);
                 return false;
             }
         }
         return true;
     }
 
-    private void reportUserOfHueristics(XAException e, Xid xid, boolean decisionCommit) {
+    /**
+     * Reports the user of heuristic termination of a transaction.
+     *
+     * @param e             the XAException that was thrown
+     * @param xid           the xid of the transaction
+     * @param decisionCommit the decision that was made for that specific transaction
+     */
+    private void reportUserOfHeuristics(XAException e, Xid xid, boolean decisionCommit) {
         String transactionID = new String(xid.getGlobalTransactionId());
         String transactionBlockId = new String(xid.getBranchQualifier());
         String combinedId = transactionID + ":" + transactionBlockId;

@@ -21,10 +21,24 @@ package io.ballerina.runtime.transactions;
 import java.nio.file.Path;
 import java.util.Map;
 
+/**
+ * The log manager is responsible for managing the transaction logs.
+ *
+ * @since 2201.9.0
+ */
 public class LogManager {
     private final FileRecoveryLog fileRecoveryLog;
     private final InMemoryRecoveryLog inMemoryRecoveryLog;
 
+    /**
+     * Create a log manager with the given base file name, checkpoint interval, recovery log directory, and delete old
+     * logs flag.
+     *
+     * @param baseFileName       the base file name
+     * @param checkpointInterval the checkpoint interval
+     * @param recoveryLogDir     the recovery log directory
+     * @param deleteOldLogs      the delete old logs flag
+     */
     public LogManager(String baseFileName, int checkpointInterval, Path recoveryLogDir, boolean deleteOldLogs) {
         this.fileRecoveryLog = new FileRecoveryLog(baseFileName, checkpointInterval, recoveryLogDir, deleteOldLogs);
         this.inMemoryRecoveryLog = new InMemoryRecoveryLog();
@@ -52,10 +66,18 @@ public class LogManager {
         fileRecoveryLog.put(trxRecord);
     }
 
+    /**
+     * Get the failed transaction logs from the in-memory log.
+     *
+     * @return the failed transaction logs
+     */
     public Map<String, TransactionLogRecord> getFailedTransactionLogs() {
         return inMemoryRecoveryLog.getFailedTransactions();
     }
 
+    /**
+     * Close the file recovery log releasing the file lock.
+     */
     public void close() {
         fileRecoveryLog.close();
     }
