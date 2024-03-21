@@ -106,7 +106,6 @@ public class CreateTestExecutableTask implements Task {
 
     @Override
     public void execute(Project project) {
-        this.out.println();
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
         Target target = getTarget(project);
         try {
