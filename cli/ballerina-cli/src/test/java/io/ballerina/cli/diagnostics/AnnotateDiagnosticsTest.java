@@ -33,7 +33,7 @@ public class AnnotateDiagnosticsTest {
 
     @Test(description = "Test annotations when the source file contains missing tokens")
     public void testMissingTokenAnnotation() throws IOException {
-        CompileResult result = BCompileUtil.compile(
+        CompileResult result = BCompileUtil.compileOffline(
                 "test-resources/diagnostics-test-files/bal-missing-error/semicolon-missing.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
@@ -48,7 +48,7 @@ public class AnnotateDiagnosticsTest {
 
     @Test(description = "Test annotations when the source file contains a missing function keyword")
     public void testMissingFunctionKeywordAnnotation() throws IOException {
-        CompileResult result = BCompileUtil.compile(
+        CompileResult result = BCompileUtil.compileOffline(
                 "test-resources/diagnostics-test-files/bal-missing-error/missing-function-keyword.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
@@ -63,7 +63,7 @@ public class AnnotateDiagnosticsTest {
 
     @Test(description = "Test annotations when the source file contains a missing keywords")
     public void testMissingMultipleKeywordsAnnotation() throws IOException {
-        CompileResult result = BCompileUtil.compile(
+        CompileResult result = BCompileUtil.compileOffline(
                 "test-resources/diagnostics-test-files/bal-missing-error/missing-multiple-keywords.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
@@ -76,7 +76,7 @@ public class AnnotateDiagnosticsTest {
 
     @Test(description = "Test annotations when the source file contains invalid tokens")
     void testInvalidTokenAnnotation() throws IOException {
-        CompileResult result = BCompileUtil.compile(
+        CompileResult result = BCompileUtil.compileOffline(
                 "test-resources/diagnostics-test-files/bal-invalid-error/invalid-token.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
@@ -92,7 +92,7 @@ public class AnnotateDiagnosticsTest {
     @Test(description = "Test annotations when erroneous line is longer than the terminal width. Tests truncation")
     void testLongLineAnnotation() throws IOException {
         int[] terminalWidth = {999, 200, 150, 100, 50, 40};
-        CompileResult result = BCompileUtil.compile(
+        CompileResult result = BCompileUtil.compileOffline(
                 "test-resources/diagnostics-test-files/bal-error/long-line.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
@@ -110,7 +110,7 @@ public class AnnotateDiagnosticsTest {
 
     @Test(description = "Test annotations when a ballerina project contains errors in multiple files")
     void testProjectErrorAnnotation() throws IOException {
-        CompileResult result = BCompileUtil.compile(
+        CompileResult result = BCompileUtil.compileOffline(
                 "test-resources/diagnostics-test-files/bal-project-error/project1");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
@@ -143,7 +143,7 @@ public class AnnotateDiagnosticsTest {
     @Test(description = "Test annotations spanning two lines in the source file")
     void testTwoLinedAnnotations() throws IOException {
         CompileResult result =
-                BCompileUtil.compile("test-resources/diagnostics-test-files/bal-error/two-line-error.bal");
+                BCompileUtil.compileOffline("test-resources/diagnostics-test-files/bal-error/two-line-error.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
         String output = getAnnotatedDiagnostics(diagnostics, documentMap);
@@ -154,7 +154,8 @@ public class AnnotateDiagnosticsTest {
 
     @Test(description = "Test annotations when the source file contains diagnostics spanning multiple lines")
     void testMultiLinedAnnotations() throws IOException {
-        CompileResult result = BCompileUtil.compile("test-resources/diagnostics-test-files/bal-error/multi-line.bal");
+        CompileResult result =
+                BCompileUtil.compileOffline("test-resources/diagnostics-test-files/bal-error/multi-line.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
         String output = getAnnotatedDiagnostics(diagnostics, documentMap);
@@ -164,7 +165,7 @@ public class AnnotateDiagnosticsTest {
 
     @Test(description = "Test annotations when the source file contains tabs instead of spaces")
     void testAnnotationsWithTabs() throws IOException {
-        CompileResult result = BCompileUtil.compile("test-resources/diagnostics-test-files/bal-error/tabs.bal");
+        CompileResult result = BCompileUtil.compileOffline("test-resources/diagnostics-test-files/bal-error/tabs.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
         String output = getAnnotatedDiagnostics(diagnostics, documentMap);

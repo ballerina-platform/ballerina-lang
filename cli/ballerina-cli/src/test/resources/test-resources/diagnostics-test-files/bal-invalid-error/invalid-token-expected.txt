@@ -1,4 +1,4 @@
-ERROR [invalid-token.bal:(5:16,5:17)] invalid token '=' (BCE0600)
+ERROR [invalid-token.bal:(3:16,3:17)] invalid token '=' (BCE0600)
   |
-5 |     int b = 20;=
+3 |     int b = 20;=
   |                ^

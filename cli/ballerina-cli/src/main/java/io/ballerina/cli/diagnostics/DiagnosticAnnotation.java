@@ -114,8 +114,8 @@ public class DiagnosticAnnotation {
                             colorEnabled) + NEW_LINE
                     + String.format("%" + endDigitsNum + "d ", startLineNumber + 1) + "| " + result2.line + NEW_LINE
                     + padding + "| " +
-                    getUnderline(0, result2.diagnosticLength, this.severity, this.type, colorEnabled) + NEW_LINE
-                    + padding + "|" + NEW_LINE;
+                    getUnderline(0, result2.diagnosticLength, this.severity, this.type, colorEnabled) + NEW_LINE;
+
         }
         String padding2 = " ".repeat(Math.min(terminalWidth, maxLineLength) / 2);
         return padding + "|" + NEW_LINE
@@ -128,8 +128,7 @@ public class DiagnosticAnnotation {
                 + String.format("%" + endDigitsNum + "d ", startLineNumber + lines.size() - 1) + "| "
                 + result2.line + NEW_LINE
                 + padding + "| " + getUnderline(0, result2.diagnosticLength, this.severity, this.type, colorEnabled) +
-                NEW_LINE
-                + padding + "|" + NEW_LINE;
+                NEW_LINE;
 
     }
 

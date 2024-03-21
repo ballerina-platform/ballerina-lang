@@ -1,40 +1,40 @@
-ERROR [missing-multiple-keywords.bal:(7:8,7:8)] missing function keyword (BCE0248)
+ERROR [missing-multiple-keywords.bal:(5:8,5:8)] missing function keyword (BCE0248)
   |
-7 | public function add(int a, int b) returns int {
+5 | public function add(int a, int b) returns int {
   |        ++++++++
 
-ERROR [missing-multiple-keywords.bal:(10:12,10:12)] missing if keyword (BCE0262)
-   |
-10 |     } else if (b < 0) {
-   |            ++
+ERROR [missing-multiple-keywords.bal:(8:12,8:12)] missing if keyword (BCE0262)
+  |
+8 |     } else if (b < 0) {
+  |            ++
 
-ERROR [missing-multiple-keywords.bal:(16:8,16:8)] missing function keyword (BCE0248)
+ERROR [missing-multiple-keywords.bal:(14:8,14:8)] missing function keyword (BCE0248)
    |
-16 | public function sub(int a, int b) returns int {
+14 | public function sub(int a, int b) returns int {
    |        ++++++++
 
-ERROR [missing-multiple-keywords.bal:(26:44,26:44)] missing select keyword (BCE0231)
+ERROR [missing-multiple-keywords.bal:(24:44,24:44)] missing select keyword (BCE0231)
    |
-26 |     int[] numsTimes10 = from var i in nums select i * 10;
+24 |     int[] numsTimes10 = from var i in nums select i * 10;
    |                                            ++++++
 
-ERROR [missing-multiple-keywords.bal:(27:24,27:24)] missing from keyword (BCE0260)
+ERROR [missing-multiple-keywords.bal:(25:24,25:24)] missing from keyword (BCE0260)
    |
-27 |     int[] numsTimes2 = from var i in nums select i * 2;
+25 |     int[] numsTimes2 = from var i in nums select i * 2;
    |                        ++++
 
-ERROR [missing-multiple-keywords.bal:(28:35,28:35)] missing in keyword (BCE0261)
+ERROR [missing-multiple-keywords.bal:(26:35,26:35)] missing in keyword (BCE0261)
    |
-28 |     int[] numsTimes3 = from var i in nums select i * 3;
+26 |     int[] numsTimes3 = from var i in nums select i * 3;
    |                                   ++
 
-ERROR [missing-multiple-keywords.bal:(29:45,29:45)] missing order keyword (BCE0266)
+ERROR [missing-multiple-keywords.bal:(27:45,27:45)] missing order keyword (BCE0266)
    |
-29 |     int[] numsReversed = from int i in nums order by i descending select i;
+27 |     int[] numsReversed = from int i in nums order by i descending select i;
    |                                             +++++
 
-ERROR [missing-multiple-keywords.bal:(30:52,30:52)] missing by keyword (BCE0267)
+ERROR [missing-multiple-keywords.bal:(28:52,28:52)] missing by keyword (BCE0267)
    |
-30 |     int[] numsReversed_ = from int i in nums order by i descending select i;
+28 |     int[] numsReversed_ = from int i in nums order by i descending select i;
    |                                                    ++
 
