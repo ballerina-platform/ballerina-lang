@@ -19,12 +19,15 @@
 package org.ballerinalang.docgen.docs;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.GsonBuilder;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
@@ -45,39 +48,18 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.Call;
 import okhttp3.ResponseBody;
-import okhttp3.MediaType;
-import okhttp3.Headers;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
+
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import java.util.Optional;
 
-import javax.net.ssl.HttpsURLConnection;
-
-import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.net.HttpURLConnection.HTTP_OK;
 /**
  * Main class to generate a ballerina documentation.
@@ -91,13 +73,18 @@ public class BallerinaDocGenerator {
     private static final String API_DOCS_JS = "api-docs.js";
     private static final String CENTRAL_STDLIB_INDEX_JSON = "stdlib-index.json";
     private static final String CENTRAL_STDLIB_SEARCH_JSON = "stdlib-search.json";
+    private static final String BALLERINA_DOC_UI_ZIP_FILE_NAME = "ballerina-doc-ui.zip";
     private static final String BUILTIN_TYPES_DESCRIPTION_DIR = "builtin-types-descriptions";
     private static final String BUILTIN_KEYWORDS_DESCRIPTION_DIR = "keywords-descriptions";
+    private static final String DOCS_FOLDER_NAME = "docs";
+    private static final String JSON_KEY_HASH_VALUE = "hashValue";
+    private static final String JSON_KEY_FILE_URL = "fileURL";
+    private static final int MAX_RETRIES = 3;
     private static final String RELEASE_DESCRIPTION_MD = "/release-description.md";
-    public static final String SOURCE =  "https://api.dev-central.ballerina.io/2.0/docs/doc-ui";
+    private static final int RETRY_DELAY_MS = 5000;
+    private static final String SHA256_HASH_FILE_NAME = "ballerina-doc-ui-hash.sha256";
+    private static final String SOURCE =  "http://localhost:9090/doc-ui";
     public static final String PROPERTIES_FILE = "/META-INF/properties";
-    static final String ACCEPT = "Accept";
-    static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
 
     private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
             .excludeFieldsWithoutExposeAnnotation().create();
@@ -264,52 +251,118 @@ public class BallerinaDocGenerator {
     }
 
     private static void copyDocerinaUI(Path output) {
+        Path docsDirPath = ProjectUtils.createAndGetHomeReposPath().resolve(DOCS_FOLDER_NAME);
         OkHttpClient client = new OkHttpClient();
-        try {
-            Request zipFilePullReq = new Request.Builder()
-                    .get()
-                    .url(SOURCE)
-                    .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
-                    .build();
-            Call zipFilePullReqCall = client.newCall(zipFilePullReq);
+        Request request = new Request.Builder()
+                .get()
+                .url(SOURCE)
+                .build();
 
-            try (Response zipFilePullResponse = zipFilePullReqCall.execute()) {
-                if (zipFilePullResponse.code() == HTTP_OK) {
-                    ResponseBody responseBody = zipFilePullResponse.body();
-                    if (responseBody != null) {
-                        try (InputStream inputStream = responseBody.byteStream()) {
-                            ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(inputStream));
-                            ZipEntry entry;
-                            while ((entry = zipInputStream.getNextEntry()) != null) {
-                                Path docUIFilePath = output.resolve(entry.getName());
-                                if (entry.isDirectory()) {
-                                    Files.createDirectories(docUIFilePath);
-                                } else {
-                                    try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(docUIFilePath.toFile()))) {
-                                        byte[] buffer = new byte[1024];
-                                        int length;
+        int retryCount = 0;
+        while (retryCount < MAX_RETRIES) {
+            try (Response response = client.newCall(request).execute()) {
+                if (response.code() == HTTP_OK && response.body() != null) {
+                    ResponseBody responseBody = response.body();
+                    JsonObject jsonResponse = JsonParser.parseReader(responseBody.charStream()).getAsJsonObject();
+                    String sha256HashValue = jsonResponse.get(JSON_KEY_HASH_VALUE).getAsString();
+                    String zipFileURL = jsonResponse.get(JSON_KEY_FILE_URL).getAsString();
 
-                                        while ((length = zipInputStream.read(buffer)) > 0) {
-                                            outputStream.write(buffer, 0, length);
-                                        }
-                                    } catch (IOException e) {
-                                        log.error("unable to write to the file", e);
-                                    }
-                                }
+                    if (docsDirPath.toFile().exists() && Objects.requireNonNull(docsDirPath.toFile().list()).length > 0) {
+                        Path sha256FilePath = docsDirPath.resolve(SHA256_HASH_FILE_NAME);
+                        if(Files.exists(sha256FilePath)) {
+                            String hashValueInCache = Files.readString(sha256FilePath).trim();
+                            if (sha256HashValue.equals(hashValueInCache)) {
+                                copyDocUIToProjectDir(output, docsDirPath.resolve(BALLERINA_DOC_UI_ZIP_FILE_NAME));
+                            }else {
+                                FileUtils.cleanDirectory(docsDirPath.toFile());
+                                writeFileInCache(docsDirPath, zipFileURL, sha256HashValue);
+                                copyDocUIToProjectDir(output, docsDirPath.resolve(BALLERINA_DOC_UI_ZIP_FILE_NAME));
                             }
+                        } else {
+                            //idk how to handle this, typically this should not happen unless the user manually deletes it
+                            log.error("sha256 hash file does not exist in the .ballerina/docs folder.");
                         }
-                    } else {
-                        log.error("response body is null.");
+                    }else {
+                        if (!docsDirPath.toFile().exists()) {
+                            Files.createDirectories(docsDirPath);
+                        }
+                        writeFileInCache(docsDirPath, zipFileURL, sha256HashValue);
+                        copyDocUIToProjectDir(output, docsDirPath.resolve(BALLERINA_DOC_UI_ZIP_FILE_NAME));
                     }
+                    break;
                 }else{
-                    log.error("failed to get the zip file.");
+                    throw new IOException("Response failed with status code: " + response.code());
+                }
+            } catch (IOException e) {
+                retryCount++;
+                if (retryCount == MAX_RETRIES) {
+                    if (docsDirPath.toFile().exists() && Objects.requireNonNull(docsDirPath.toFile().list()).length > 0) {
+                        String warning = String.format("********************************************************************%n" +
+                                "* WARNING: The document is built using an outdated version of the UI. *%n" +
+                                "********************************************************************%n%n");
+                        out.println(warning);
+                        copyDocUIToProjectDir(output, docsDirPath.resolve(BALLERINA_DOC_UI_ZIP_FILE_NAME));
+                    } else {
+                        //should be a better way to handle this?!
+                        log.error("Failed to copy the doc UI");
+                    }
+                } else {
+                    try {
+                        Thread.sleep(RETRY_DELAY_MS);
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }finally {
+                client.dispatcher().executorService().shutdown();
+                client.connectionPool().evictAll();
+            }
+        }
+    }
+
+    private static void writeFileInCache(Path path, String fileURL, String hashValue) {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().get().url(fileURL).build();
+        try (Response response = client.newCall(request).execute()) {
+            if (response.code() == HTTP_OK) {
+                ResponseBody responseBody = response.body();
+                if (responseBody != null) {
+                    Path zipFilePath = path.resolve(BALLERINA_DOC_UI_ZIP_FILE_NAME);
+                    Files.write(zipFilePath, responseBody.bytes());
+                    Path hashFilePath = path.resolve(SHA256_HASH_FILE_NAME);
+                    Files.write(hashFilePath, hashValue.getBytes());
+                } else {
+                    log.error("Unable to download doc-ui zip file: Response Body is empty.");
                 }
             }
         } catch (IOException e) {
-            log.error("failed to copy ui from s3 bucket", e);
-        }finally {
-            client.dispatcher().executorService().shutdown();
-            client.connectionPool().evictAll();
+            log.error("Unable to download doc-ui zip file: " + e.getMessage());
+        }
+    }
+
+    private static void copyDocUIToProjectDir(Path output, Path zipFilePath) {
+        try (InputStream inputStream = new FileInputStream(zipFilePath.toFile())) {
+            ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(inputStream));
+            ZipEntry entry;
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+                Path docUIFilePath = output.resolve(entry.getName());
+                if (entry.isDirectory()) {
+                    Files.createDirectories(docUIFilePath);
+                } else {
+                    try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(docUIFilePath.toFile()))) {
+                        byte[] buffer = new byte[1024];
+                        int length;
+
+                        while ((length = zipInputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+                    } catch (IOException e) {
+                        log.error("Unable to write to the file" , e);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            log.error("Error occurred when unzipping file", e);
         }
     }
 
