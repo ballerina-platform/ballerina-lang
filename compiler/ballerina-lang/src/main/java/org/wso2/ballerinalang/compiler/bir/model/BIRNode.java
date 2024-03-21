@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -74,7 +75,7 @@ public abstract class BIRNode {
                           String sourceRoot, boolean skipTest, boolean isTestPkg) {
             super(pos);
             packageID = new PackageID(org, pkgName, name, version, sourceFileName, sourceRoot, isTestPkg, skipTest);
-            this.importModules = new HashSet<>();
+            this.importModules = new LinkedHashSet<>();
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();
             this.importedGlobalVarsDummyVarDcls = new HashSet<>();
