@@ -35,6 +35,14 @@ service on new Listener() {
 
     function func() {
     }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+
+    resource function post path(T1 t1) {
+        _ = start mutableValueAccess(t1.arg1);
+    }
 }
 
 isolated service "ser2" on new Listener() {
@@ -53,6 +61,14 @@ isolated service "ser2" on new Listener() {
     function func() {
         nonIsolatedFunc();
     }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+
+    resource function post path(T1 t1) {
+        _ = start mutableValueAccess(t1.arg1);
+    }
 }
 
 // Inferred isolated.
@@ -69,6 +85,14 @@ service "ser3" on new Listener() {
 
     function func() {
         nonIsolatedFunc();
+    }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+
+    resource function post path(T1 t1) {
+        _ = start mutableValueAccess(t1.arg1);
     }
 }
 
@@ -88,6 +112,14 @@ service "ser4" on new Listener() {
 
     function func() {
         nonIsolatedFunc();
+    }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+
+    resource function post path(T1 t1) {
+        _ = start mutableValueAccess(t1.arg1);
     }
 }
 
@@ -110,6 +142,14 @@ service class Serv1 {
 
     function func() {
     }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+
+    resource function post path(T1 t1) {
+        _ = start mutableValueAccess(t1.arg1);
+    }
 }
 
 isolated service class Serv2 {
@@ -128,6 +168,14 @@ isolated service class Serv2 {
     function func() {
         nonIsolatedFunc();
     }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+
+    resource function post path(T1 t1) {
+        _ = start mutableValueAccess(t1.arg1);
+    }
 }
 
 // Inferred isolated.
@@ -144,6 +192,14 @@ service class Serv3 {
 
     function func() {
         nonIsolatedFunc();
+    }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+
+    resource function post path(T1 t1) {
+        _ = start mutableValueAccess(t1.arg1);
     }
 }
 
@@ -163,6 +219,14 @@ service class Serv4 {
 
     function func() {
         nonIsolatedFunc();
+    }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+
+    resource function post path(T1 t1) {
+        _ = start mutableValueAccess(t1.arg1);
     }
 }
 
@@ -185,6 +249,14 @@ var s1 = service object {
 
     function func() {
     }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+
+    resource function post path(T1 t1) {
+        _ = start mutableValueAccess(t1.arg1);
+    }
 };
 
 var s2 = isolated service object {
@@ -203,6 +275,14 @@ var s2 = isolated service object {
     function func() {
         nonIsolatedFunc();
     }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+
+    resource function post path(T1 t1) {
+        _ = start mutableValueAccess(t1.arg1);
+    }
 };
 
 var s3 = service object {
@@ -218,6 +298,14 @@ var s3 = service object {
 
     function func() {
         nonIsolatedFunc();
+    }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+
+    resource function post path(T1 t1) {
+        _ = start mutableValueAccess(t1.arg1);
     }
 };
 
@@ -237,6 +325,14 @@ service object {} s4 = service object {
 
     function func() {
         nonIsolatedFunc();
+    }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+
+    resource function post path(T1 t1) {
+        _ = start mutableValueAccess(t1.arg1);
     }
 };
 
@@ -314,6 +410,13 @@ var s6 = isolated service object {
         }
     }
 };
+
+isolated function mutableValueAccess(string[] value) {
+}
+
+type T1 record {|
+    string[] arg1;
+|};
 
 public class Listener {
     public isolated function 'start() returns error? {
