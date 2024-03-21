@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
@@ -126,88 +127,135 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
             return Collections.emptyList();
         }
 
-        Optional<FunctionDefinitionNode> funcDef = CodeActionUtil.getEnclosedFunction(positionDetails.matchedNode());
-        if (funcDef.isEmpty()) {
-            return Collections.emptyList();
-        }
-
         List<TextEdit> importEdits = new ArrayList<>();
         List<Set<String>> types = new ArrayList<>();
         List<CodeAction> codeActions = new ArrayList<>();
-        boolean returnTypeDescPresent = funcDef.get().functionSignature().returnTypeDesc().isPresent();
 
-        if (checkExprDiagnostic) {
-            // Add error return type for check expression
-            if (returnTypeDescPresent) {
-                types.add(Collections.singleton(funcDef.get().functionSignature().returnTypeDesc().get().type()
-                        .toString().trim().concat("|").concat("error")));
+        Optional<NonTerminalNode> enclosingBlock = CodeActionUtil.getEnclosingBlock(positionDetails.matchedNode());
+        if (enclosingBlock.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        SyntaxKind blockKind = enclosingBlock.get().kind();
+        boolean isNamedWorker = blockKind == SyntaxKind.NAMED_WORKER_DECLARATION;
+
+        if (isNamedWorker) {
+            NamedWorkerDeclarationNode worker = (NamedWorkerDeclarationNode) enclosingBlock.get();
+            boolean returnTypeDescPresent = worker.returnTypeDesc().isPresent();
+
+            if (checkExprDiagnostic) {
+                types.add(Collections.singleton(returnTypeDescPresent ?
+                        ((ReturnTypeDescriptorNode)worker.returnTypeDesc().get()).type().toString().trim().concat("|")
+                                .concat("error") : "error?"));
             } else {
-                types.add(Collections.singleton("error?"));
+                types = getPossibleCombinations(getCombinedTypes(worker, context, importEdits), types);
             }
+
+            Position start;
+            Position end;
+            if (returnTypeDescPresent) {
+                // eg. worker w() returns () {...}
+                ReturnTypeDescriptorNode returnTypeDesc = (ReturnTypeDescriptorNode) worker.returnTypeDesc().get();
+                LinePosition retStart = returnTypeDesc.type().lineRange().startLine();
+                LinePosition retEnd = returnTypeDesc.type().lineRange().endLine();
+                start = new Position(retStart.line(), retStart.offset());
+                end = new Position(retEnd.line(), retEnd.offset());
+            } else {
+                // eg. worker w() {...}
+                Position workerStart = PositionUtil.toPosition(worker.workerName().lineRange().endLine());
+                start = workerStart;
+                end = workerStart;
+            }
+
+            addCodeActions(types, start, end, returnTypeDescPresent, importEdits, codeActions, context);
         } else {
-            // Not going to provide code action to change return type of the main() function
-            if (RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.get().functionName().text())) {
+            FunctionDefinitionNode funcDef = (FunctionDefinitionNode) enclosingBlock.get();
+            boolean returnTypeDescPresent = funcDef.functionSignature().returnTypeDesc().isPresent();
+
+            if (checkExprDiagnostic) {
+                types.add(Collections.singleton(returnTypeDescPresent ? funcDef.functionSignature().returnTypeDesc()
+                        .get().type().toString().trim().concat("|").concat("error") : "error?"));
+            } else {
+                if (RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.functionName().text())) {
+                    return Collections.emptyList();
+                }
+                types = getPossibleCombinations(getCombinedTypes(funcDef, context, importEdits), types);
+            }
+
+            Position start;
+            Position end;
+            if (returnTypeDescPresent) {
+                // eg. function test() returns () {...}
+                ReturnTypeDescriptorNode returnTypeDesc = funcDef.functionSignature().returnTypeDesc().get();
+                LinePosition retStart = returnTypeDesc.type().lineRange().startLine();
+                LinePosition retEnd = returnTypeDesc.type().lineRange().endLine();
+                start = new Position(retStart.line(), retStart.offset());
+                end = new Position(retEnd.line(), retEnd.offset());
+            } else {
+                // eg. function test() {...}
+                Position funcBodyStart = PositionUtil.toPosition(funcDef.functionSignature().lineRange().endLine());
+                start = funcBodyStart;
+                end = funcBodyStart;
+            }
+
+            addCodeActions(types, start, end, returnTypeDescPresent, importEdits, codeActions, context);
+        }
+
+        return codeActions;
+    }
+
+    private List<List<String>> getCombinedTypes(NonTerminalNode node,
+                                                CodeActionContext context,
+                                                List<TextEdit> importEdits) {
+        List<List<String>> combinedTypes = new ArrayList<>();
+        ReturnStatementFinder returnStatementFinder = new ReturnStatementFinder();
+        node.accept(returnStatementFinder);
+        List<ReturnStatementNode> nodeList = returnStatementFinder.getNodeList();
+
+        for (ReturnStatementNode returnStatementNode : nodeList) {
+            if (returnStatementNode.expression().isEmpty() || context.currentSemanticModel().isEmpty()) {
                 return Collections.emptyList();
             }
-            List<List<String>> combinedTypes = new ArrayList<>();
-            ReturnStatementFinder returnStatementFinder = new ReturnStatementFinder();
-            returnStatementFinder.visit(funcDef.get());
-            List<ReturnStatementNode> nodeList = returnStatementFinder.getNodeList();
-
-            for (ReturnStatementNode returnStatementNode : nodeList) {
-                if (returnStatementNode.expression().isEmpty() || context.currentSemanticModel().isEmpty()) {
-                    return Collections.emptyList();
-                }
-                ExpressionNode expression = returnStatementNode.expression().get();
-                SemanticModel semanticModel = context.currentSemanticModel().get();
-                Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expression);
-                if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
-                    return Collections.emptyList();
-                }
-                if (typeSymbol.get().typeKind() == TypeDescKind.FUNCTION) {
-                    combinedTypes.add(Collections.singletonList("(" + CodeActionUtil.getPossibleTypes(typeSymbol.get(),
-                            importEdits, context).get(0) + ")"));
-                } else {
-                    combinedTypes.add(CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context));
-                }
+            ExpressionNode expression = returnStatementNode.expression().get();
+            SemanticModel semanticModel = context.currentSemanticModel().get();
+            Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expression);
+            if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                return Collections.emptyList();
             }
-            
-            CheckExprNodeFinder checkExprNodeFinder = new CheckExprNodeFinder();
-            funcDef.get().accept(checkExprNodeFinder);
-            if (checkExprNodeFinder.containCheckExprNode()) {
-                combinedTypes.add(Collections.singletonList("error"));
+            if (typeSymbol.get().typeKind() == TypeDescKind.FUNCTION) {
+                combinedTypes.add(Collections.singletonList("(" + CodeActionUtil.getPossibleTypes(typeSymbol.get(),
+                        importEdits, context).get(0) + ")"));
+            } else {
+                combinedTypes.add(CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context));
             }
-
-            types = getPossibleCombinations(combinedTypes, types);
         }
 
-        // Where to insert the edit: Depends on if a return statement already available or not
-        Position start;
-        Position end;
-        if (returnTypeDescPresent) {
-            // eg. function test() returns () {...}
-            ReturnTypeDescriptorNode returnTypeDesc = funcDef.get().functionSignature().returnTypeDesc().get();
-            LinePosition retStart = returnTypeDesc.type().lineRange().startLine();
-            LinePosition retEnd = returnTypeDesc.type().lineRange().endLine();
-            start = new Position(retStart.line(), retStart.offset());
-            end = new Position(retEnd.line(), retEnd.offset());
-        } else {
-            // eg. function test() {...}
-            Position funcBodyStart = PositionUtil.toPosition(funcDef.get().functionSignature().lineRange().endLine());
-            start = funcBodyStart;
-            end = funcBodyStart;
+        CheckExprNodeFinder checkExprNodeFinder = new CheckExprNodeFinder();
+        node.accept(checkExprNodeFinder);
+        if (checkExprNodeFinder.containCheckExprNode()) {
+            combinedTypes.add(Collections.singletonList("error"));
         }
 
+        return combinedTypes;
+    }
+
+    private void addCodeActions(List<Set<String>> types,
+                                Position start,
+                                Position end,
+                                boolean returnTypeDescPresent,
+                                List<TextEdit> importEdits,
+                                List<CodeAction> codeActions,
+                                CodeActionContext context) {
         types.forEach(type -> {
             List<TextEdit> edits = new ArrayList<>();
 
             String editText;
             // Process function node
             String newType = String.join("|", type);
-            if (funcDef.get().functionSignature().returnTypeDesc().isEmpty()) {
-                editText = " returns " + newType;
-            } else {
+            if (returnTypeDescPresent) {
                 editText = newType;
+            } else {
+                editText = " returns " +  newType;
             }
             edits.add(new TextEdit(new Range(start, end), editText));
             edits.addAll(importEdits);
@@ -217,8 +265,6 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
             codeActions.add(CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
                     CodeActionKind.QuickFix));
         });
-
-        return codeActions;
     }
 
     @Override

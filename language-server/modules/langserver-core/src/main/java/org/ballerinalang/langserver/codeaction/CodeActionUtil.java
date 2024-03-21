@@ -666,7 +666,7 @@ public class CodeActionUtil {
      * {@link SyntaxKind#RESOURCE_ACCESSOR_DEFINITION}s
      *
      * @param matchedNode Node which is enclosed within a function
-     * @return Optional function defintion node
+     * @return Optional function definition node
      */
     public static Optional<FunctionDefinitionNode> getEnclosedFunction(Node matchedNode) {
         if (matchedNode == null) {
@@ -708,6 +708,36 @@ public class CodeActionUtil {
         }
 
         return Optional.ofNullable(functionDefNode);
+    }
+
+    /**
+     * Given a node, tries to find the {@link NonTerminalNode} which is enclosing the given node.
+     *
+     * @param matchedNode Node which is enclosed within a block
+     * @return Optional non terminal node
+     */
+    public static Optional<NonTerminalNode> getEnclosingBlock(Node matchedNode) {
+        Node parentNode = matchedNode;
+        while (parentNode.parent() != null) {
+            if ((parentNode.kind() == SyntaxKind.FUNCTION_DEFINITION &&
+                    parentNode.parent().kind() == SyntaxKind.MODULE_PART)
+            || (parentNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION &&
+                    (parentNode.parent().kind() == SyntaxKind.CLASS_DEFINITION
+                            || parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION
+                            || parentNode.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR))
+            || parentNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION &&
+                    (parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION
+                            || (parentNode.parent().kind() == SyntaxKind.CLASS_DEFINITION &&
+                            ((ClassDefinitionNode) parentNode.parent())
+                                    .classTypeQualifiers().stream()
+                                    .anyMatch(qualifier-> qualifier.kind() == SyntaxKind.CLIENT_KEYWORD))
+                            || parentNode.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR)
+            || parentNode.kind() == SyntaxKind.NAMED_WORKER_DECLARATION) {
+                return Optional.of((NonTerminalNode) parentNode);
+            }
+            parentNode = parentNode.parent();
+        }
+        return Optional.empty();
     }
 
     /**

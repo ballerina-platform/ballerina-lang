@@ -47,6 +47,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(functionDefinitionNode);
     }
 
+    public void visit(NonTerminalNode nonTerminalNode) {
+        visitSyntaxNode(nonTerminalNode);
+    }
+
     public void visit(ImportDeclarationNode importDeclarationNode) {
         visitSyntaxNode(importDeclarationNode);
     }
