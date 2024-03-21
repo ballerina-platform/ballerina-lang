@@ -4,6 +4,7 @@ CVE-2021-42392
 CVE-2022-23221
 GHSA-h376-j262-vhq6
 GMS-2022-7
+CVE-2022-45868
 
 # com.github.docker-java:docker-java:3.1.5
 CVE-2020-13956
