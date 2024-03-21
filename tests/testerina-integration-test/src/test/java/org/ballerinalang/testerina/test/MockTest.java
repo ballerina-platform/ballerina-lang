@@ -111,7 +111,6 @@ public class MockTest extends BaseTestCase {
         AssertionUtils.assertOutput("MockTest-testResourceMocking.txt", output);
     }
 
-
     @Test()
     public void testFunctionMockingModuleLevel() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});

@@ -15,6 +15,15 @@
 // under the License.
 import ballerina/jballerina.java;
 
+# Represents the indicator for the path parameter in resource name.
+const string PATH_PARAMETER_INDICATOR = ":";
+
+# Represents the indicator for the rest parameter in resource name.
+const string REST_PARAMETER_INDICATOR = "::";
+
+# Represents the path separator.
+const string PATH_SEPARATOR = "/";
+
 # Represents the placeholder to be given for object or record type arguments.
 public const ANY = "__ANY__";
 
@@ -207,7 +216,9 @@ public class MemberFunctionStub {
 #
 # + mockObject - Created mock object
 # + functionName - Member function name
+# + accessor - Resource accessor method
 # + args - Arguments list of the function
+# + pathArgs - Path parameters list
 # + returnValue - Value to return
 # + returnValueSeq - Sequence of values to return
 public class MemberResourceFunctionStub {
@@ -229,7 +240,7 @@ public class MemberResourceFunctionStub {
     # Sets the resource accessor method to consider when stubbing the function call.
     #
     # + method - Resource accessor method
-    # + return - Object that allows stubbing calls to provided member function
+    # + return - Object that allows stubbing calls to provided member resource function
     public isolated function onMethod(string method) returns MemberResourceFunctionStub {
         self.accessor = method;
         error? result = validateResourceMethodExt(self);
@@ -243,7 +254,7 @@ public class MemberResourceFunctionStub {
     #
     # + paths - Path parameters list
     # + return - Object that allows stubbing calls to provided member function
-    public isolated function withPathParams(map<anydata> paths) returns MemberResourceFunctionStub {
+    public isolated function withPathParameters(map<anydata> paths) returns MemberResourceFunctionStub {
         error? result = validatePathParamsExt(self, paths);
         if (result is error) {
             panic result;
@@ -297,7 +308,7 @@ public class MemberResourceFunctionStub {
             panic err;
         }
         if (self.pathArgs.length() != 0) {
-            error err = error("'withPathParams' function cannot be specified with a return sequence");
+            error err = error("'withPathParameters' function cannot be specified with a return sequence");
             panic err;
         }
         self.returnValueSeq = returnValues;
@@ -322,12 +333,12 @@ public class MemberResourceFunctionStub {
 }
 
 isolated function populatePathParams(string functionName, map<anydata> pathParamsMap) returns anydata[] {
-    string[] pathSegments = split(functionName, "/");
+    string[] pathSegments = split(functionName, PATH_SEPARATOR);
     anydata[] pathArgs = [];
     foreach string pathSegment in pathSegments {
-        if pathSegment.startsWith("::") {
+        if pathSegment.startsWith(REST_PARAMETER_INDICATOR) {
             pathArgs.push(pathParamsMap[pathSegment.substring(2)]);
-        } else if pathSegment.startsWith(":") {
+        } else if pathSegment.startsWith(PATH_PARAMETER_INDICATOR) {
             pathArgs.push(pathParamsMap[pathSegment.substring(1)]);
         }
     }

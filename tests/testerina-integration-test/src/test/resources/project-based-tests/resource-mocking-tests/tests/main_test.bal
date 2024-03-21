@@ -30,7 +30,7 @@ public function testGetMethod() {
 @test:Config {}
 public function testGetWithPathParam() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello/:name").withPathParams({name: "Luhee"})
+    test:prepare(clientEndpoint).whenResource("greeting/hello/:name").withPathParameters({name: "Luhee"})
     .onMethod("get").thenReturn("Hello, Luhee");
     string stringResult = clientEndpoint->/greeting/hello/["Luhee"];
     test:assertEquals(stringResult, "Hello, Luhee");
@@ -39,7 +39,8 @@ public function testGetWithPathParam() {
 @test:Config {}
 public function testGetWPathParamWSingleArg() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name").withPathParams({name: "Luhee"}).withArguments("Luhee")
+    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name")
+    .withPathParameters({name: "Luhee"}).withArguments("Luhee")
     .onMethod("get").thenReturn("Hello, Luhee");
     string stringResult = clientEndpoint->/greeting/hello2/["Luhee"].get(a = "Luhee");
     test:assertEquals(stringResult, "Hello, Luhee");
@@ -57,9 +58,9 @@ public function testPostMethod() {
 @test:Config {}
 public function testPostWithPathParam() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello/:name").withPathParams({name: "Luhee"})
+    test:prepare(clientEndpoint).whenResource("greeting/hello/:name").withPathParameters({name: "Luhee"})
     .onMethod("post").thenReturn("Hello, Luhee");
-    test:prepare(clientEndpoint).whenResource("greeting/hello/:name").withPathParams({name: "bar"})
+    test:prepare(clientEndpoint).whenResource("greeting/hello/:name").withPathParameters({name: "bar"})
     .onMethod("post").thenReturn("Hello, bar");
     string stringResult = clientEndpoint->/greeting/hello/["bar"].post();
     test:assertEquals(stringResult, "Hello, bar");
@@ -79,7 +80,8 @@ public function testPostMethodWArgs() {
 @test:Config {}
 public function testPostWPathParamsWSingleArg() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name").withPathParams({name: "Luhee"}).withArguments("bar")
+    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name")
+    .withPathParameters({name: "Luhee"}).withArguments("bar")
     .onMethod("post").thenReturn("Hello, Luhee");
     string stringResult = clientEndpoint->/greeting/hello2/["Luhee"].post(a = "bar");
     test:assertEquals(stringResult, "Hello, Luhee");
@@ -88,9 +90,11 @@ public function testPostWPathParamsWSingleArg() {
 @test:Config {}
 public function testPostWMultiPathParamsWMultiArg() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town").withPathParams({town: "Jaffna", name: "Luhee"})
+    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town")
+    .withPathParameters({town: "Jaffna", name: "Luhee"})
     .withArguments("bar", 2).onMethod("post").thenReturn("Hello, Luhee");
-    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town").withPathParams({town: "Mallakam", name: "Luhee"})
+    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town")
+    .withPathParameters({town: "Mallakam", name: "Luhee"})
     .withArguments("foo", 3).onMethod("post").thenReturn("Hello, Luhe");
     string stringResult = clientEndpoint->/greeting/hello2/["Luhee"]/["Jaffna"].post(a = "bar", b = 2);
     test:assertEquals(stringResult, "Hello, Luhee");
@@ -101,7 +105,8 @@ public function testPostWMultiPathParamsWMultiArg() {
 @test:Config {}
 public function testPostWMultiPathParamsWMultiArg_1() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello2/:integ/:decim/:str").withPathParams({integ: 1, decim: <decimal>2, str: "mal"})
+    test:prepare(clientEndpoint).whenResource("greeting/hello2/:integ/:decim/:str")
+    .withPathParameters({integ: 1, decim: <decimal>2, str: "mal"})
     .withArguments("bar", 2).onMethod("post").thenReturn("Hello, Lu");
     string stringResult = clientEndpoint->/greeting/hello2/[1]/[2]/["mal"].post(a = "bar", b = 2);
     test:assertEquals(stringResult, "Hello, Lu");
@@ -141,7 +146,8 @@ public function testDoNoting2() {
 @test:Config {}
 public function testPathParamsWThenReturnSeq() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello2/:integ/:decim/:str").withPathParams({integ: 1, decim: <decimal>2, str: "mal"})
+    test:prepare(clientEndpoint).whenResource("greeting/hello2/:integ/:decim/:str")
+    .withPathParameters({integ: 1, decim: <decimal>2, str: "mal"})
     .onMethod("post").thenReturnSequence("alp", "gulf", "mulf", "lulf");
     string stringResult = clientEndpoint->/greeting/hello2/[1]/[2]/["mal"].post(a = "bar", b = 2);
     test:assertEquals(stringResult, "alp");
@@ -156,7 +162,8 @@ public function testPathParamsWThenReturnSeq() {
 @test:Config {}
 public function testArgsWThenReturnSeq() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello2/:integ/:decim/:str").withArguments("bar", 2)
+    test:prepare(clientEndpoint).whenResource("greeting/hello2/:integ/:decim/:str")
+    .withArguments("bar", 2)
     .onMethod("post").thenReturnSequence("alp", "gulf", "mulf", "lulf");
     string stringResult = clientEndpoint->/greeting/hello2/[1]/[2]/["mal"].post(a = "bar", b = 2);
     test:assertEquals(stringResult, "alp");
@@ -171,49 +178,55 @@ public function testArgsWThenReturnSeq() {
 @test:Config {}
 public function testWMultiPathParamsWMultiArg_1() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town").withPathParams({town: "Jaffna", name: "Luhee"})
+    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town")
+    .withPathParameters({town: "Jaffna", name: "Luhee"})
     .withArguments("bar", "str").onMethod("post").thenReturn("Hello, Luhee");
 }
 
 @test:Config {}
 public function testWMultiPathParamsWErrorneousMultiArg() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town").withPathParams({town: "Jaffna", name: "Luhee"})
+    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town")
+    .withPathParameters({town: "Jaffna", name: "Luhee"})
     .withArguments("bar", "str", "mad").onMethod("post").thenReturn("Hello, Luhee");
 }
 
 @test:Config {}
 public function testWMultiPathParamsWErrorneousMultiArg_1() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hellore/:name").withPathParams({name: 2})
+    test:prepare(clientEndpoint).whenResource("greeting/hellore/:name").withPathParameters({name: 2})
     .withArguments("bar").onMethod("get").thenReturn("Hello, Luhee");
 }
 
 @test:Config {}
 public function testWErrorneousMultiPathParamsWMultiArg() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hellore/:name").withPathParams({name: "Luhee"})
+    test:prepare(clientEndpoint).whenResource("greeting/hellore/:name")
+    .withPathParameters({name: "Luhee"})
     .withArguments(2).onMethod("get").thenReturn("Hello, Luhee");
 }
 
 @test:Config {}
 public function testWMultiPathParamsWMultiArg_2() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town").withPathParams({town: 2, name: "Luhee"})
+    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town")
+    .withPathParameters({town: 2, name: "Luhee"})
     .withArguments("bar", 2).onMethod("post").thenReturn("Hello, Luhee");
 }
 
 @test:Config {}
 public function testWErrorneousMultiPath() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town").withPathParams({name: "Luhee", towne: "Jaffna"}
-    ).withArguments("bar", 2).onMethod("post").thenReturn("Hello, Luhee");
+    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town")
+    .withPathParameters({name: "Luhee", towne: "Jaffna"}).withArguments("bar", 2)
+    .onMethod("post").thenReturn("Hello, Luhee");
 }
 
 @test:Config {}
 public function testWErrorneousResourceMethod() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town").withPathParams({name: "Luhee", town: "Jaffna"})
+    test:prepare(clientEndpoint).whenResource("greeting/hello2/:name/:town")
+    .withPathParameters({name: "Luhee", town: "Jaffna"})
     .withArguments("bar", 2).onMethod("postr").thenReturn("Hello, Luhee");
 }
 
@@ -228,7 +241,7 @@ public function testRemoteMethod() {
 @test:Config {}
 public function testRestPathParamThenReturn() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello/:num/:str/::comtype").withPathParams({
+    test:prepare(clientEndpoint).whenResource("greeting/hello/:num/:str/::comtype").withPathParameters({
         num:
         1,
         str: "Luhee",
@@ -242,7 +255,8 @@ public function testRestPathParamThenReturn() {
 @test:Config {}
 public function testThenReturnWOArgsPaths_1() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello/:num/:str/::comtype").thenReturn("Hello, Luhee");
+    test:prepare(clientEndpoint).whenResource("greeting/hello/:num/:str/::comtype")
+    .thenReturn("Hello, Luhee");
     string stringResult = clientEndpoint->/greeting/hello/[1]/["Luhee"]/["comtype1"]/["comtype2"]/
     ["comtype3"].get("bar", 2);
     test:assertEquals(stringResult, "Hello, Luhee");
@@ -267,7 +281,8 @@ public function testDefaultArgsResources() {
 @test:Config {}
 public function testRestPathParamThenReturnSeq() {
     clientEndpoint = test:mock(Client);
-    test:prepare(clientEndpoint).whenResource("greeting/hello/:num/:str/::comtype").onMethod("get").thenReturnSequence("Hello, Luhee", "Hello, Luhe", "Hello, Lu");
+    test:prepare(clientEndpoint).whenResource("greeting/hello/:num/:str/::comtype")
+    .onMethod("get").thenReturnSequence("Hello, Luhee", "Hello, Luhe", "Hello, Lu");
     string stringResult = clientEndpoint->/greeting/hello/[1]/["Luhee"]/["comtype1"]/["comtype2"]/
     ["comtype3"].get("bar", 2);
     test:assertEquals(stringResult, "Hello, Luhee");

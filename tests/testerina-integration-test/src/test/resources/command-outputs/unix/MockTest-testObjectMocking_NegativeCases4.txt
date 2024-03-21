@@ -1,7 +1,7 @@
 Compiling source
 	intg_tests/object_mocking:0.0.0
-WARNING [modules/TestHttpClient/main.bal:(62:45,62:82)] this function should explicitly return a value
-WARNING [main.bal:(54:5,54:47)] unused variable 'closeErr'
+WARNING [modules/TestHttpClient/main.bal:(64:45,64:82)] this function should explicitly return a value
+WARNING [main.bal:(53:5,53:47)] unused variable 'closeErr'
 
 Running Tests with Coverage
 
@@ -16,8 +16,8 @@ testDefaultMockInvalidReturnValue has failed.
 		[fail] testDefaultMockInvalidReturnValue:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("return value provided does not match the return type of function 'get()'")
-				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 551
-				callableName: thenReturn moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 167
+				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 562
+				callableName: thenReturn moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 176
 				callableName: testDefaultMockInvalidReturnValue moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 35
 				callableName: testDefaultMockInvalidReturnValue$lambda0$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 4
 			
