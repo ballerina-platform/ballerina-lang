@@ -1,3 +1,4 @@
+Compiling source
 	intg_tests/object_mocking:0.0.0
 WARNING [modules\TestHttpClient\main.bal:(54:45,54:82)] this function should explicitly return a value (BCE20350)
    |
@@ -14,7 +15,7 @@ Running Tests with Coverage
 
 	object_mocking
 
-testDefaultIncompatibleArgs has failed.
+	testDefaultIncompatibleArgs has failed.
 
 
 	testDefaultInvalidMemberReturnValue has failed.
