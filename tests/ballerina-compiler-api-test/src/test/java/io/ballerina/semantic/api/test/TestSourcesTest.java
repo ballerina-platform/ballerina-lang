@@ -21,6 +21,10 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -43,6 +47,7 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbol
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for the positions of symbols.
@@ -53,10 +58,11 @@ public class TestSourcesTest {
 
     private SemanticModel model;
     private Document srcFile;
+    private Project project;
 
     @BeforeClass
     public void setup() {
-        Project project = BCompileUtil.loadProject("test-src/test-project");
+        this.project = BCompileUtil.loadProject("test-src/test-project");
         Module baz = getModule(project, "baz");
         model = project.currentPackage().getCompilation().getSemanticModel(baz.moduleId());
         DocumentId id = baz.testDocumentIds().iterator().next();
@@ -103,7 +109,7 @@ public class TestSourcesTest {
     public Object[][] getVisibleSymbolPos() {
         List<String> moduleSymbols = List.of("PI", "ZERO", "add", "concat", "newPerson", "Person", "Employee",
                                              "BasicType", "PersonObj", "Digit", "FileNotFoundError", "EofError",
-                                             "Error", "Address");
+                                             "Error", "Address", "IV");
         return new Object[][]{
                 {17, 0, getSymbolNames(moduleSymbols, "testConstUse", "testAdd", "test")},
                 {26, 31, getSymbolNames(moduleSymbols, "testConstUse", "testAdd", "test", "sum")},
@@ -124,6 +130,73 @@ public class TestSourcesTest {
                 {20, 22, 20, 24, FLOAT},
                 {20, 26, 20, 30, FLOAT},
                 {26, 22, 26, 25, INT},
+        };
+    }
+
+    @Test
+    public void testSemanticModelForWrongModule() {
+        Module foo = getModule(this.project, "foo");
+        SemanticModel fooSemanticModel = foo.getCompilation().getSemanticModel();
+
+        Module baz = getModule(this.project, "baz");
+        SemanticModel bazSemanticModel = baz.getCompilation().getSemanticModel();
+
+        DocumentId bazBalDocId = baz.documentIds().stream()
+                .filter(docId -> docId.toString().contains("baz.bal"))
+                .findFirst().get();
+        Document bazBalDoc = baz.document(bazBalDocId);
+        SyntaxTree bazSyntaxTree = bazBalDoc.syntaxTree();
+
+        // `symbol(Node node)`, `typeOf(Node node)` and `type(Node node)`
+        // use `fooSemanticModel` for `baz` module
+        bazSyntaxTree.rootNode().accept(getNodeVisitor(fooSemanticModel));
+
+        // `symbol(Document sourceDocument, LinePosition position)`
+        assertTrue(fooSemanticModel.symbol(bazBalDoc, from(16, 13)).isEmpty());
+
+        // `visibleSymbols(Document sourceFile, LinePosition position, DiagnosticState... states)`
+        assertTrue(fooSemanticModel.visibleSymbols(bazBalDoc, from(16, 23)).isEmpty());
+
+        // `references(Document sourceDocument, LinePosition position)`
+        assertTrue(fooSemanticModel.references(bazBalDoc, from(0, 0)).isEmpty());
+
+        // `references(Document sourceDocument, LinePosition position, boolean withDefinition)`
+        assertTrue(fooSemanticModel.references(bazBalDoc, from(0, 0), true).isEmpty());
+
+        // `references(Symbol symbol, Document targetDocument, boolean withDefinition)`
+        Optional<Symbol> constSym = bazSemanticModel.symbol(bazBalDoc, from(16, 13));
+        assertTrue(constSym.isPresent());
+        assertTrue(fooSemanticModel.references(constSym.get(), bazBalDoc, true).isEmpty());
+
+        // `references(Document sourceDocument, Document targetDocument, LinePosition position, boolean withDefinition)`
+        assertTrue(fooSemanticModel.references(bazBalDoc, bazBalDoc, from(16, 13), true).isEmpty());
+
+        DocumentId fooBalDocId = foo.documentIds().stream()
+                .filter(docId -> docId.toString().contains("constants.bal"))
+                .findFirst().get();
+        assertTrue(fooSemanticModel.references(foo.document(fooBalDocId), bazBalDoc, from(16, 13), true).isEmpty());
+
+        // `expectedType(Document sourceDocument, LinePosition linePosition)`
+        assertTrue(fooSemanticModel.expectedType(bazBalDoc, from(16, 18)).isEmpty());
+
+        // `type(LineRange lineRange)`
+        assertTrue(fooSemanticModel.type(LineRange.from("baz.bal",
+                from(16, 18), from(16, 21))).isEmpty());
+    }
+
+    private NodeVisitor getNodeVisitor(SemanticModel semanticModel) {
+        return new NodeVisitor() {
+            @Override
+            public void visit(ConstantDeclarationNode constantDeclarationNode) {
+                assertTrue(semanticModel.symbol(constantDeclarationNode).isEmpty());
+                constantDeclarationNode.initializer().accept(this);
+            }
+
+            @Override
+            public void visit(BasicLiteralNode basicLiteralNode) {
+                assertTrue(semanticModel.typeOf(basicLiteralNode).isEmpty());
+                assertTrue(semanticModel.type(basicLiteralNode).isEmpty());
+            }
         };
     }
 }
