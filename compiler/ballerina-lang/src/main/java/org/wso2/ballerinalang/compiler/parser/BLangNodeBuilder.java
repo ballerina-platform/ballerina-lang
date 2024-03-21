@@ -6408,6 +6408,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     Token parameterName = parameterDocLineNode.parameterName();
                     String parameterNameValue = parameterName.isMissing() ? "" :
                             Utils.unescapeUnicodeCodepoints(parameterName.text());
+                    paraName.originalValue = parameterNameValue;
                     if (stringStartsWithSingleQuote(parameterNameValue)) {
                         parameterNameValue = parameterNameValue.substring(1);
                     }
