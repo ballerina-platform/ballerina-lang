@@ -157,7 +157,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--management-service-included", description = "package service management tools in " +
             "the executable JAR file(s).")
-    private Boolean managementServiceIncluded;
+    private Boolean runtimeManagementIncluded;
 
     @CommandLine.Option(names = "--list-conflicted-classes",
             description = "list conflicted classes when generating executable")
@@ -305,7 +305,7 @@ public class BuildCommand implements BLauncherCmd {
                 .setOffline(offline)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setCloud(cloud)
-                .setManagementServiceIncluded(managementServiceIncluded)
+                .setRuntimeManagementIncluded(runtimeManagementIncluded)
                 .setDumpBir(dumpBIR)
                 .setDumpBirFile(dumpBIRFile)
                 .setDumpGraph(dumpGraph)

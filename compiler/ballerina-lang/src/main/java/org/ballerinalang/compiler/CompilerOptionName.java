@@ -63,7 +63,7 @@ public enum CompilerOptionName {
     STICKY("sticky"),
 
     ENABLE_CACHE("enableCache"),
-    MANAGEMENT_SERVICE_INCLUDED("managementServiceIncluded"),
+    RUNTIME_MANAGEMENT_INCLUDED("runtimeManagementIncluded"),
 
     /**
      * We've introduced this temporary option to support old-project structure and the new package structure.

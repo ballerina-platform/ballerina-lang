@@ -88,7 +88,7 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--management-service-included", description = "package management service in the " +
             "executable when run is used with a source file or a module.")
-    private Boolean managementServiceIncluded;
+    private Boolean runtimeManagementIncluded;
 
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
@@ -281,7 +281,7 @@ public class RunCommand implements BLauncherCmd {
                 .setSkipTests(true)
                 .setTestReport(false)
                 .setObservabilityIncluded(observabilityIncluded)
-                .setManagementServiceIncluded(managementServiceIncluded)
+                .setRuntimeManagementIncluded(runtimeManagementIncluded)
                 .setSticky(sticky)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)

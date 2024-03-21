@@ -37,41 +37,41 @@ import java.util.List;
  *
  * @since 2201.9.0
  */
-public class ManagementServiceDesugar {
+public class RuntimeManagementDesugar {
 
-    private static final CompilerContext.Key<ManagementServiceDesugar> MANAGEMENT_SERVICE_DESUGAR_KEY =
+    private static final CompilerContext.Key<RuntimeManagementDesugar> RUNTIME_MANAGEMENT_DESUGAR_KEY =
             new CompilerContext.Key<>();
-    private final boolean managementServiceIncluded;
+    private final boolean runtimeManagementIncluded;
     private final PackageCache packageCache;
     private PackageID managementPkgID;
 
-    public static ManagementServiceDesugar getInstance(CompilerContext context) {
-        ManagementServiceDesugar desugar = context.get(MANAGEMENT_SERVICE_DESUGAR_KEY);
+    public static RuntimeManagementDesugar getInstance(CompilerContext context) {
+        RuntimeManagementDesugar desugar = context.get(RUNTIME_MANAGEMENT_DESUGAR_KEY);
         if (desugar == null) {
-            desugar = new ManagementServiceDesugar(context);
+            desugar = new RuntimeManagementDesugar(context);
         }
         return desugar;
     }
 
-    private ManagementServiceDesugar(CompilerContext context) {
-        context.put(MANAGEMENT_SERVICE_DESUGAR_KEY, this);
-        managementServiceIncluded = Boolean.parseBoolean(CompilerOptions.getInstance(context)
-                .get(CompilerOptionName.MANAGEMENT_SERVICE_INCLUDED));
+    private RuntimeManagementDesugar(CompilerContext context) {
+        context.put(RUNTIME_MANAGEMENT_DESUGAR_KEY, this);
+        runtimeManagementIncluded = Boolean.parseBoolean(CompilerOptions.getInstance(context)
+                .get(CompilerOptionName.RUNTIME_MANAGEMENT_INCLUDED));
         packageCache = PackageCache.getInstance(context);
         final BPackageSymbol symbol = PackageCache.getInstance(context).getSymbol(Names.BALLERINA_ORG.value
-                + Names.ORG_NAME_SEPARATOR.value + Names.MANAGEMENT_SERVICE.value);
+                + Names.ORG_NAME_SEPARATOR.value + Names.RUNTIME_MANAGEMENT.value);
         if (symbol != null) {
             managementPkgID = symbol.pkgID;
         }
     }
 
     void addManagementServiceModuleImport(BLangPackage pkgNode) {
-        if (managementServiceIncluded && (pkgNode.moduleContextDataHolder != null
+        if (runtimeManagementIncluded && (pkgNode.moduleContextDataHolder != null
                 && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT))
                 && managementPkgID != null) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();
-            pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.MANAGEMENT_SERVICE.value));
+            pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.RUNTIME_MANAGEMENT.value));
             importDcl.pkgNameComps = pkgNameComps;
             importDcl.pos = pkgNode.symbol.pos;
             importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_ORG.value);
