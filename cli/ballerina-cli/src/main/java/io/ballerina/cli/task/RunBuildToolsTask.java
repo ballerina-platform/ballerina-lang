@@ -333,7 +333,7 @@ public class RunBuildToolsTask implements Task {
     }
 
     private void printToolSkipWarning(PackageManifest.Tool toolEntry) {
-        outStream.printf("WARNING: Execution of the build tool '%s' for '%s' is skipped due to errors%n", toolEntry
+        outStream.printf("WARNING: Execution of '%s:%s' is skipped due to errors%n", toolEntry
                 .type(), toolEntry.id() != null ? toolEntry.id() : "");
     }
 

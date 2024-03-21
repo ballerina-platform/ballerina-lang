@@ -61,10 +61,12 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 public class BuildToolResolution {
     private static final String PACKAGE_NAME_PREFIX  = "tool_";
     private final PackageContext packageContext;
-    private final List<BuildTool> resolvedTools = new ArrayList<>();
-    private final List<Diagnostic> diagnosticList = new ArrayList<>();
+    private final List<BuildTool> resolvedTools;
+    private final List<Diagnostic> diagnosticList;
 
     private BuildToolResolution(PackageContext packageContext) {
+        resolvedTools = new ArrayList<>();
+        diagnosticList = new ArrayList<>();
         this.packageContext = packageContext;
         resolveToolDependencies();
     }
@@ -130,7 +132,7 @@ public class BuildToolResolution {
         try {
             resolvedTools.addAll(resolveToolVersions(currentProject, resolutionRequiredTools));
         } catch (CentralClientException e) {
-            throw new ProjectException("Failed to resolve tool dependencies: " + e.getMessage());
+            throw new ProjectException("Failed to resolve build tools: " + e.getMessage());
         }
     }
 
