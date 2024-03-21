@@ -301,7 +301,7 @@ public class ArrayFillTest {
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(unionArr.get(i), 0);
+            assertEquals(unionArr.get(i), 0L);
         }
 
         assertEquals(unionArr.get(index), 5L);

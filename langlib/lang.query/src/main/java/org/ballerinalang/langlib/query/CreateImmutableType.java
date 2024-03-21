@@ -1,6 +1,5 @@
 package org.ballerinalang.langlib.query;
 
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -10,6 +9,8 @@ import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.TableValueImpl;
+
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 
 /**
  * Implementation of lang.query:CreateImmutableType().
@@ -25,18 +26,19 @@ public class CreateImmutableType {
 
     public static BTable createImmutableTable(BTable tbl, BArray arr) {
         Type type =  tbl.getType();
-        TableType tableType = (TableType) TypeUtils.getImpliedType(type);
+        TableType tableType = toBType(TypeUtils.getImpliedType(type));
         BTable immutableTable = new TableValueImpl(type,
-                new ArrayValueImpl(arr.getValues(), (ArrayType) TypeUtils.getImpliedType(arr.getType())),
+                new ArrayValueImpl(arr.getValues(), TypeUtils.getImpliedType(arr.getType())),
                 new ArrayValueImpl(tableType.getFieldNames(), true));
         immutableTable.freezeDirect();
         return immutableTable;
     }
 
     public static BTable createTableWithKeySpecifier(BTable immutableTable, BTypedesc tableType) {
-        TableType type = (TableType) TypeUtils.getImpliedType(tableType.getDescribingType());
+        TableType type = toBType(TypeUtils.getImpliedType(tableType.getDescribingType()));
         BTable tbl = new TableValueImpl(type,
-                new ArrayValueImpl(((TableType) TypeUtils.getImpliedType(immutableTable.getType())).getFieldNames(),
+                new ArrayValueImpl(
+                        ((TableType) toBType(TypeUtils.getImpliedType(immutableTable.getType()))).getFieldNames(),
                         false));
         return tbl;
     }

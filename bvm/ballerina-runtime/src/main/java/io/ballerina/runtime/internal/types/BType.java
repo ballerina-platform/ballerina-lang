@@ -24,7 +24,11 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.BSubType;
+import io.ballerina.runtime.internal.types.semtype.BTypeComponent;
+import io.ballerina.runtime.internal.types.semtype.SubType;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -37,7 +41,7 @@ import java.util.Objects;
  *
  * @since 0.995.0
  */
-public abstract class BType implements Type {
+public abstract class BType implements Type, SubType, BTypeComponent {
     protected String typeName;
     protected Module pkg;
     protected Class<? extends Object> valueClass;
@@ -90,10 +94,12 @@ public abstract class BType implements Type {
             return true;
         }
 
-        if (obj instanceof BType) {
-            BType other = (BType) obj;
+        if (obj instanceof BType other) {
 
-            if (!this.typeName.equals(other.getName())) {
+            if (this.typeName == null) {
+                return other.typeName == null;
+            }
+            if (!this.typeName.equals(other.typeName)) {
                 return false;
             }
 
@@ -211,5 +217,51 @@ public abstract class BType implements Type {
 
     public Type getCachedImpliedType() {
         return this.cachedImpliedType;
+    }
+
+    @Override
+    public SubType union(SubType other) {
+        if (other instanceof BType bType) {
+            return new BSubType(List.of(this, bType));
+        } else if (other instanceof BSubType bSubType) {
+            return bSubType.union(this);
+        }
+        throw new UnsupportedOperationException("union of different subtypes");
+    }
+
+    @Override
+    public SubType intersect(SubType other) {
+        throw new UnsupportedOperationException("BTypes don't support semtype operations");
+    }
+
+    // Override this for types such as record and tuples where you can define types that don't contain any values
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public SubType diff(SubType other) {
+        throw new UnsupportedOperationException("BTypes don't support semtype operations");
+    }
+
+    @Override
+    public SubType complement() {
+        throw new UnsupportedOperationException("BTypes don't support semtype operations");
+    }
+
+    @Override
+    public BType getBTypeComponent() {
+        return this;
+    }
+
+    @Override
+    public BType getBTypeComponent(String name, Module module) {
+        return this;
+    }
+
+    @Override
+    public void addCyclicMembers(List<Type> members) {
+        throw new RuntimeException("unimplemented");
     }
 }

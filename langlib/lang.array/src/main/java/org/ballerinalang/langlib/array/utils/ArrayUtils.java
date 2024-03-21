@@ -24,12 +24,12 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
-import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 
@@ -89,8 +89,8 @@ public class ArrayUtils {
         }
     }
 
-    public static void checkIsClosedArray(ArrayType arrType, String op) {
-        if (arrType.getState() == ArrayType.ArrayState.CLOSED) {
+    public static void checkIsClosedArray(Type arrType, String op) {
+        if (TypeHelper.arrayState(arrType) == ArrayType.ArrayState.CLOSED) {
             throw createOpNotSupportedError(arrType, op);
         }
     }
@@ -103,9 +103,8 @@ public class ArrayUtils {
 
     public static BArray createEmptyArrayFromTuple(BArray arr) {
         Type arrType = TypeUtils.getImpliedType(arr.getType());
-        TupleType tupleType = (TupleType) arrType;
-        List<Type> tupleTypes = tupleType.getTupleTypes();
-        Type restType = tupleType.getRestType();
+        List<Type> tupleTypes = TypeHelper.listMemberTypes(arrType);
+        Type restType = TypeHelper.listRestType(arrType);
         Set<Type> uniqueTypes = new HashSet<>(tupleTypes);
         if (restType != null) {
             uniqueTypes.add(restType);

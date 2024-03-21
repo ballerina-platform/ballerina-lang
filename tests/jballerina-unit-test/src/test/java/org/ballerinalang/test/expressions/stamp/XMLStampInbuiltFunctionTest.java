@@ -18,6 +18,7 @@
 package org.ballerinalang.test.expressions.stamp;
 
 import io.ballerina.runtime.internal.types.BXmlType;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -51,7 +52,7 @@ public class XMLStampInbuiltFunctionTest {
         Object xmlValue = results;
 
         Assert.assertEquals(xmlValue.toString(), "<book>The Lost World</book>");
-        Assert.assertEquals(getType(xmlValue).getClass(), BXmlType.class);
+        BAssertUtil.assertTypeClass(getType(xmlValue), BXmlType.class);
     }
 
     @Test
@@ -61,7 +62,7 @@ public class XMLStampInbuiltFunctionTest {
         Object anydataValue = results;
 
         Assert.assertEquals(anydataValue.toString(), "<book>The Lost World</book>");
-        Assert.assertEquals(getType(anydataValue).getClass(), BXmlType.class);
+        BAssertUtil.assertTypeClass(getType(anydataValue), BXmlType.class);
     }
 
     @AfterClass

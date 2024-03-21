@@ -106,7 +106,31 @@ public class JvmConstants {
             "io/ballerina/runtime/internal/values/ListInitialValueEntry$SpreadEntry";
 
     // types related classes
+    // TODO: these names are not uniform
     public static final String TYPE = "io/ballerina/runtime/api/types/Type";
+    public static final String BASIC_TYPE_BUILDER_DESCRIPTOR = "()L" + TYPE + ";";
+    public static final String BINARY_TYPE_OPERATION_DESCRIPTOR = "(L" + TYPE + ";L" + TYPE + ";)L" + TYPE + ";";
+    public static final String TYPE_BUILDER = "io/ballerina/runtime/api/TypeBuilder";
+    public static final String TO_B_TYPE_DESC =
+            "(Lio/ballerina/runtime/api/types/Type;)Lio/ballerina/runtime/api/types/Type;";
+    public static final String TO_SEMTYPE_DESC =
+            "(Lio/ballerina/runtime/api/types/Type;)Lio/ballerina/runtime/internal/types/semtype/BSemType;";
+    public static final String STRING_SUBTYPE_DATA =
+            TYPE_BUILDER + "$StringSubtypeData";
+    public static final String TYPE_BUILDER_IDENTIFIER = TYPE_BUILDER + "$Identifier";
+    public static final String TYPE_BUILDER_INIT_DESCRIPTOR =
+            "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE + ";)V";
+
+    public static final String BINARY_TYPE_OPERATION_WITH_IDENTIFIER_DESCRIPTOR =
+            "(L" + TYPE + ";L" + TYPE + ";L" + TYPE_BUILDER_IDENTIFIER + ";)L" + TYPE + ";";
+    public static final String LIST_SUBTYPE_BUILDER_DESCRIPTOR = "([L" + TYPE + ";IL" + TYPE + ";)L" + TYPE + ";";
+    public static final String STRING_SUBTYPE_BUILDER_DESCRIPTOR = "(L" + STRING_SUBTYPE_DATA + ";)L" + TYPE + ";";
+    public static final String INT_SUBTYPE_BUILDER_DESCRIPTOR = "(JJ)L" + TYPE + ";";
+    public static final String XML_SIMPLE_SUBTYPE_BUILDER_DESCRIPTOR = "(I)L" + TYPE + ";";
+    public static final String XML_SUBTYPE_BUILDER_DESCRIPTOR = "(L" + TYPE + ";)L" + TYPE + ";";
+    public static final String STRING_SUBTYPE_DATA_BUILDER_DESC =
+            "([L" + STRING_VALUE + ";)L" + STRING_SUBTYPE_DATA + ";";
+
     public static final String PREDEFINED_TYPES = "io/ballerina/runtime/api/PredefinedTypes";
 
     public static final String ARRAY_TYPE = "io/ballerina/runtime/api/types/ArrayType";
@@ -129,17 +153,9 @@ public class JvmConstants {
     public static final String REMOTE_METHOD_TYPE = "io/ballerina/runtime/api/types/RemoteMethodType";
     public static final String FINITE_TYPE = "io/ballerina/runtime/api/types/FiniteType";
     public static final String FUTURE_TYPE = "io/ballerina/runtime/api/types/FutureType";
-    public static final String INTEGER_TYPE = "io/ballerina/runtime/api/types/IntegerType";
-    public static final String BYTE_TYPE = "io/ballerina/runtime/api/types/ByteType";
-    public static final String FLOAT_TYPE = "io/ballerina/runtime/api/types/FloatType";
-    public static final String STRING_TYPE = "io/ballerina/runtime/api/types/StringType";
-    public static final String BOOLEAN_TYPE = "io/ballerina/runtime/api/types/BooleanType";
-    public static final String DECIMAL_TYPE = "io/ballerina/runtime/api/types/DecimalType";
     public static final String READONLY_TYPE = "io/ballerina/runtime/api/types/ReadonlyType";
     public static final String ANY_TYPE = "io/ballerina/runtime/api/types/AnyType";
     public static final String ANYDATA_TYPE = "io/ballerina/runtime/api/types/AnydataType";
-    public static final String NEVER_TYPE = "io/ballerina/runtime/api/types/NeverType";
-    public static final String NULL_TYPE = "io/ballerina/runtime/api/types/NullType";
     public static final String HANDLE_TYPE = "io/ballerina/runtime/api/types/HandleType";
     public static final String INTERSECTABLE_REFERENCE_TYPE
             = "io/ballerina/runtime/api/types/IntersectableReferenceType";
@@ -174,6 +190,8 @@ public class JvmConstants {
     public static final String LARGE_STRING_VAR_PREFIX = "$stringChunk";
     public static final String GET_SURROGATE_ARRAY_METHOD_PREFIX = "getSurrogateArray";
     public static final String UNION_TYPE_VAR_PREFIX = "$unionType";
+
+    public static final String SEMTYPE_TYPE_VAR_PREFIX = "$semType";
     public static final String ERROR_TYPE_VAR_PREFIX = "$errorType";
     public static final String TYPEREF_TYPE_VAR_PREFIX = "$typeRefType$";
     public static final String TUPLE_TYPE_VAR_PREFIX = "$tupleType";
@@ -294,6 +312,7 @@ public class JvmConstants {
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
     public static final String OBJECT_SELF_INSTANCE = "self";
     public static final String UNION_TYPE_CONSTANT_CLASS_NAME = "constants/$_union_type_constants";
+    public static final String SEMTYPE_TYPE_CONSTANT_CLASS_NAME = "constants/$_semtype_constants";
     public static final String ERROR_TYPE_CONSTANT_CLASS_NAME = "constants/$_error_type_constants";
     public static final String TUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
     public static final String ARRAY_TYPE_CONSTANT_CLASS_NAME = "constants/$_array_type_constants";
@@ -316,6 +335,7 @@ public class JvmConstants {
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String B_UNION_TYPE_INIT_METHOD = "$union_type_init";
+    public static final String B_SEMTYPE_TYPE_INIT_METHOD = "$semtype_init";
     public static final String B_ERROR_TYPE_INIT_METHOD = "$error_type_init";
     public static final String B_TUPLE_TYPE_INIT_METHOD = "$tuple_type_init";
     public static final String B_ARRAY_TYPE_INIT_METHOD = "$array_type_init";

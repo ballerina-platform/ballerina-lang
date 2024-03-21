@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
@@ -51,7 +52,7 @@ public class Filter {
                                                                       TABLE_VERSION, "filter");
 
     public static BTable filter(BTable tbl, BFunctionPointer<Object, Boolean> func) {
-        TableType tableType = (TableType) TypeUtils.getImpliedType(tbl.getType());
+        TableType tableType = toBType(TypeUtils.getImpliedType(tbl.getType()));
         BTable newTable =
                 ValueCreator.createTableValue(TypeCreator.createTableType(tableType.getConstrainedType(),
                         tableType.getFieldNames(), false));

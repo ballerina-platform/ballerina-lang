@@ -962,7 +962,7 @@ function testCastOfReadonlyIntArrayToByteArrayNegative() {
     assertEquality(true, g is error);
     error err = <error> g;
     assertEquality("{ballerina}TypeCastError", err.message());
-    assertEquality("incompatible types: '(int[] & readonly)' cannot be cast to 'byte[]'", <string> checkpanic err.detail()["message"]);
+    assertEquality("incompatible types: 'int[] & readonly' cannot be cast to 'byte[]'", <string> checkpanic err.detail()["message"]);
 }
 
 function testCastOfReadonlyAnyToByteArray() {

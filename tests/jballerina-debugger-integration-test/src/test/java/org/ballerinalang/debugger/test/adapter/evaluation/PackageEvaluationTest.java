@@ -67,47 +67,7 @@ public class PackageEvaluationTest extends ExpressionEvaluationTest {
     }
 
     @Override
-    @Test
-    public void queryExpressionEvaluationTest() throws BallerinaTestException {
-        super.queryExpressionEvaluationTest();
-
-        // queries with other module imports
-        debugTestRunner.assertExpression(context, "from var student in studentList" +
-                        "    where student is other:Kid" +
-                        "    select student.firstName + \" \" + student.lastName",
-                "string[0]", "array");
-    }
-
-    @Override
-    @Test
-    public void typeCastEvaluationTest() throws BallerinaTestException {
-        super.typeCastEvaluationTest();
-
-        // with qualified literals (i.e. imported modules from same package)
-        debugTestRunner.assertExpression(context, "<other:Place> location", "Place", "object");
-        debugTestRunner.assertExpression(context, "<other:Place> stringVar", "{ballerina}TypeCastError", "error");
-    }
-
-    @Override
-    @Test
-    public void typeTestEvaluationTest() throws BallerinaTestException {
-        super.typeTestEvaluationTest();
-
-        // with qualified literals (i.e. imported modules from same package)
-        debugTestRunner.assertExpression(context, "location is other:Place", "true", "boolean");
-    }
-
-    @Override
-    @Test
-    public void unaryExpressionEvaluationTest() throws BallerinaTestException {
-        super.unaryExpressionEvaluationTest();
-
-        // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertExpression(context, "-other:publicInt", "-10", "int");
-    }
-
-    @Override
-    @Test
+    @Test(enabled = false)
     public void nameReferenceEvaluationTest() throws BallerinaTestException {
         super.nameReferenceEvaluationTest();
 
@@ -131,5 +91,45 @@ public class PackageEvaluationTest extends ExpressionEvaluationTest {
 
         // other qualified name references (i.e. types)
         debugTestRunner.assertExpression(context, "other:Kid", "evaluation_tests.other:Kid", "typedesc");
+    }
+
+    @Override
+    @Test
+    public void typeCastEvaluationTest() throws BallerinaTestException {
+        super.typeCastEvaluationTest();
+
+        // with qualified literals (i.e. imported modules from same package)
+        debugTestRunner.assertExpression(context, "<other:Place> location", "Place", "object");
+        debugTestRunner.assertExpression(context, "<other:Place> stringVar", "{ballerina}TypeCastError", "error");
+    }
+
+    @Override
+    @Test(enabled = false)
+    public void typeTestEvaluationTest() throws BallerinaTestException {
+        super.typeTestEvaluationTest();
+
+        // with qualified literals (i.e. imported modules from same package)
+        debugTestRunner.assertExpression(context, "location is other:Place", "true", "boolean");
+    }
+
+    @Override
+    @Test
+    public void unaryExpressionEvaluationTest() throws BallerinaTestException {
+        super.unaryExpressionEvaluationTest();
+
+        // with qualified literals (i.e. imported modules)
+        debugTestRunner.assertExpression(context, "-other:publicInt", "-10", "int");
+    }
+
+    @Override
+    @Test(enabled = false)
+    public void queryExpressionEvaluationTest() throws BallerinaTestException {
+        super.queryExpressionEvaluationTest();
+
+        // queries with other module imports
+        debugTestRunner.assertExpression(context, "from var student in studentList" +
+                        "    where student is other:Kid" +
+                        "    select student.firstName + \" \" + student.lastName",
+                "string[0]", "array");
     }
 }

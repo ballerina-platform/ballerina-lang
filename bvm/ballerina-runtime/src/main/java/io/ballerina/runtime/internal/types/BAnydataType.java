@@ -42,7 +42,7 @@ public class BAnydataType extends BUnionType implements AnydataType {
         super(typeName, pkg, readonly, RefValue.class);
         if (!readonly) {
             BAnydataType immutableAnydataType = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME, pkg, true);
-            this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},
+            this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
                                                        immutableAnydataType, TypeFlags.asMask(TypeFlags.NILABLE,
                                                         TypeFlags.ANYDATA, TypeFlags.PURETYPE), true);
         }
@@ -53,7 +53,7 @@ public class BAnydataType extends BUnionType implements AnydataType {
         super(unionType, typeName, readonly);
         if (!readonly) {
             BAnydataType immutableAnydataType = new BAnydataType(unionType, TypeConstants.READONLY_ANYDATA_TNAME, true);
-            this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
+            this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_ANYDATA},
                     immutableAnydataType, TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA, TypeFlags.PURETYPE),
                     true);
         }

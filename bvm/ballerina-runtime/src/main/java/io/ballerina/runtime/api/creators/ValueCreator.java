@@ -88,7 +88,7 @@ public class ValueCreator {
      * @param type the {@code ArrayType} object representing the type
      * @return     the new array
      */
-    public static BArray createArrayValue(ArrayType type) {
+    public static BArray createArrayValue(Type type) {
         return new ArrayValueImpl(type);
     }
 
@@ -238,7 +238,7 @@ public class ValueCreator {
      * @param initialValues initial values
      * @return              ref value array
      */
-    public static BArray createArrayValue(ArrayType type, BListInitialValueEntry[] initialValues) {
+    public static BArray createArrayValue(Type type, BListInitialValueEntry[] initialValues) {
         return new ArrayValueImpl(type, initialValues);
     }
 

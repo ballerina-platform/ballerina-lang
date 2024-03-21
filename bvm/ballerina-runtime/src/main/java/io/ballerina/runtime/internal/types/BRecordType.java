@@ -34,6 +34,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.types.semtype.BSemType;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -43,6 +44,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static io.ballerina.runtime.internal.types.semtype.Core.isNever;
 
 /**
  * {@code BRecordType} represents a user defined record type in Ballerina.
@@ -151,6 +154,17 @@ public class BRecordType extends BStructureType implements RecordType {
                     implicitInitValue.put(StringUtils.fromString(entry.getKey()), value);
                 });
         return (V) implicitInitValue;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        for (Field field : fields.values()) {
+            if (!SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) {
+                Type fieldType = field.getFieldType();
+                return fieldType instanceof BSemType semType && isNever(semType);
+            }
+        }
+        return false;
     }
 
     @Override

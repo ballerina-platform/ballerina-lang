@@ -17,6 +17,7 @@
 */
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.TupleType;
@@ -141,7 +142,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     public TupleValueImpl(Type type, BListInitialValueEntry[] initialValues) {
         this.type = type;
-        this.tupleType = (TupleType) TypeUtils.getImpliedType(type);
+        this.tupleType = TypeBuilder.toBType(TypeUtils.getImpliedType(type));
         List<Type> memTypes = this.tupleType.getTupleTypes();
         int memCount = memTypes.size();
 
@@ -596,7 +597,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
-        this.tupleType = (TupleType) TypeUtils.getImpliedType(type);
+        this.tupleType = TypeBuilder.toBType(TypeUtils.getImpliedType(type));
         for (int i = 0; i < this.size; i++) {
             Object value = this.get(i);
             if (value instanceof BRefValue) {

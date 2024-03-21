@@ -39,6 +39,8 @@ import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
+
 /**
  * Extern function typedesc:typeIds.
  *
@@ -84,20 +86,20 @@ public class TypeIds {
         BTypeIdSet typeIdSet;
         switch (describingType.getTag()) {
             case TypeTags.ERROR_TAG:
-                BErrorType errorType = (BErrorType) describingType;
+                BErrorType errorType = toBType(describingType);
                 typeIdSet = errorType.typeIdSet;
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.SERVICE_TAG:
-                BObjectType objectType = (BObjectType) describingType;
+                BObjectType objectType = toBType(describingType);
                 typeIdSet = objectType.typeIdSet;
                 break;
             case TypeTags.INTERSECTION_TAG:
-                BIntersectionType intersectionType = (BIntersectionType) describingType;
+                BIntersectionType intersectionType = toBType(describingType);
                 typeIdSet = getTypeIdSetForType(intersectionType.getEffectiveType());
                 break;
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                BTypeReferenceType referenceType = (BTypeReferenceType) describingType;
+                BTypeReferenceType referenceType = toBType(describingType);
                 typeIdSet = getTypeIdSetForType(referenceType.getReferredType());
                 break;
             default:

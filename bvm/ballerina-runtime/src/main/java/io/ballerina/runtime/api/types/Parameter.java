@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.api.types;
 
+import io.ballerina.runtime.internal.TypeHelper;
+
 /**
  * {@code Parameter} represents the parameter of a function in ballerina.
  *
@@ -47,7 +49,8 @@ public class Parameter {
         }
 
         Parameter that = (Parameter) o;
-        return this.name.equals(that.name) && this.type.equals(that.type) && this.isDefault == that.isDefault;
+        return this.name.equals(that.name) && TypeHelper.typeEqual(this.type, that.type) &&
+                this.isDefault == that.isDefault;
     }
 
 }

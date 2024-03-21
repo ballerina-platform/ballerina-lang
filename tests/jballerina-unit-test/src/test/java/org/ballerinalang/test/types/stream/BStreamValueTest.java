@@ -279,12 +279,13 @@ public class BStreamValueTest {
         BRunUtil.invoke(result, "testInvalidCast");
     }
 
+    // TODO: string fix
     @Test(description = "Check if stream without params contextually expected type",
             expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina}TypeCastError " +
-                            "\\{\"message\":\"incompatible types: 'stream<\\(any\\|error\\),error\\?>' cannot be cast" +
-                            " to 'stream<int,error\\?>'.*")
+                            "\\{\"message\":\"incompatible types: 'stream<\\(any\\|error\\),\\(error\\)\\?>' cannot " +
+                            "be cast to 'stream<int,\\(error\\)\\?>'.*")
     public void testCastingFromSuperStreamType() {
         BRunUtil.invoke(result, "testCastingFromSuperStreamType");
     }

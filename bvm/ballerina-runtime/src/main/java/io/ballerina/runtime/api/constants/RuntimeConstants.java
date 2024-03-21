@@ -100,6 +100,8 @@ public class RuntimeConstants {
     public static final Long UNSIGNED32_MAX_VALUE = 4294967295L;
     public static final Integer UNSIGNED16_MAX_VALUE = 65535;
     public static final Integer UNSIGNED8_MAX_VALUE = 255;
+    public static final Long INT_MAX_VALUE = 9223372036854775807L;
+    public static final Long INT_MIN_VALUE = -9223372036854775807L - 1L;
     public static final double BINT_MAX_VALUE_DOUBLE_RANGE_MAX = 9223372036854775807.5;
     public static final double BINT_MIN_VALUE_DOUBLE_RANGE_MIN = -9223372036854775807.6;
     public static final BigDecimal BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX = new BigDecimal("9223372036854775807.5",

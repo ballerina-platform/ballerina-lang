@@ -21,9 +21,8 @@ package io.ballerina.runtime.internal.configurable;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.types.IntersectionType;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.TypeHelper;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
@@ -137,10 +136,9 @@ public class ConfigResolver {
             case TypeTags.TUPLE_TAG:
                 return configProvider -> configProvider.getAsTupleAndMark(module, key);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getValueFunction(module, key, ((ReferenceType) type).getReferredType());
+                return getValueFunction(module, key, TypeHelper.referredType(type));
             case TypeTags.INTERSECTION_TAG:
-                Type effectiveType = ((IntersectionType) type).getEffectiveType();
-                return getValueFunction(module, key, effectiveType);
+                return getValueFunction(module, key, TypeHelper.effectiveType(type));
             default:
                 diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
                         Utils.decodeIdentifier(type.toString()));

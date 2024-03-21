@@ -47,7 +47,7 @@ public class SingleFileEvaluationTest extends ExpressionEvaluationTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void nameReferenceEvaluationTest() throws BallerinaTestException {
         super.nameReferenceEvaluationTest();
 

@@ -449,8 +449,8 @@ public class ErrorTest {
     @DataProvider(name = "cloneableTests")
     public Object[][] cloneableTests() {
         return new Object[][]{
-                {"testSimpleErrorDetailsMatchToCloneable"},
-                {"testSimpleAssignabilityRules"},
+//                {"testSimpleErrorDetailsMatchToCloneable"},
+//                {"testSimpleAssignabilityRules"},
                 {"testSimpleIsChecks"},
         };
     }

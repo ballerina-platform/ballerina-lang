@@ -96,6 +96,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_POPULATE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_SEMTYPE_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TUPLE_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TUPLE_TYPE_POPULATE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPEREF_TYPE_INIT_METHOD;
@@ -194,12 +195,14 @@ public class JvmCreateTypeGen {
         String arrayTypeConstantClass = jvmConstantsGen.getArrayTypeConstantClass();
         String tupleTypeConstantsClass = jvmConstantsGen.getTupleTypeConstantsClass();
         String unionTypeConstantClass = jvmConstantsGen.getUnionTypeConstantClass();
+        String semTypeConstantClass = jvmConstantsGen.getSemTypeConstantClass();
         String errorTypeConstantClass = jvmConstantsGen.getErrorTypeConstantClass();
 
         mv.visitMethodInsn(INVOKESTATIC, refTypeConstantsClass, B_TYPEREF_TYPE_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitMethodInsn(INVOKESTATIC, arrayTypeConstantClass, B_ARRAY_TYPE_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitMethodInsn(INVOKESTATIC, tupleTypeConstantsClass, B_TUPLE_TYPE_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitMethodInsn(INVOKESTATIC, unionTypeConstantClass, B_UNION_TYPE_INIT_METHOD, VOID_METHOD_DESC, false);
+        mv.visitMethodInsn(INVOKESTATIC, semTypeConstantClass, B_SEMTYPE_TYPE_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitMethodInsn(INVOKESTATIC, errorTypeConstantClass, B_ERROR_TYPE_INIT_METHOD, VOID_METHOD_DESC, false);
 
         mv.visitMethodInsn(INVOKESTATIC, refTypeConstantsClass, B_TYPEREF_TYPE_POPULATE_METHOD, VOID_METHOD_DESC,

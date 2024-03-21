@@ -16,9 +16,11 @@
  */
 package org.ballerinalang.test.types.typedesc;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.TypeChecker;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -137,14 +139,14 @@ public class TypedescTests {
     public void testModuleLevelTypeDesc() {
         Object returns = BRunUtil.invoke(result, "testModuleLevelTypeDesc");
         Assert.assertTrue(returns instanceof BTypedesc);
-        Assert.assertEquals(TypeTags.JSON_TAG, ((BTypedesc) returns).getDescribingType().getTag());
+        TypeChecker.checkIsType(((BTypedesc) returns).getDescribingType(), PredefinedTypes.TYPE_JSON);
     }
 
     @Test(description = "Test method level typedesc definition")
     public void testMethodLevelTypeDesc() {
         Object returns = BRunUtil.invoke(result, "testMethodLevelTypeDesc");
         Assert.assertTrue(returns instanceof BTypedesc);
-        Assert.assertEquals(TypeTags.JSON_TAG, ((BTypedesc) returns).getDescribingType().getTag());
+        TypeChecker.checkIsType(((BTypedesc) returns).getDescribingType(), PredefinedTypes.TYPE_JSON);
     }
 
     @Test(description = "Test custom error typedesc")

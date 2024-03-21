@@ -18,9 +18,12 @@
 
 package org.ballerinalang.test.javainterop.basic;
 
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeBuilder;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BHandleType;
 import io.ballerina.runtime.internal.values.HandleValue;
@@ -71,7 +74,7 @@ public class InstanceMethodTest {
         Object returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrows", args);
 
         Assert.assertNotNull(returns);
-        Assert.assertTrue(getType(returns) instanceof BErrorType);
+        Assert.assertTrue(TypeBuilder.toBType(getType(returns)) instanceof BErrorType);
         Assert.assertEquals(((BError) returns).getMessage(), "java.lang.InterruptedException");
 
         returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrowsReturn", args);
@@ -85,7 +88,7 @@ public class InstanceMethodTest {
         args[0] = new HandleValue(testIns);
 
         Object returns = BRunUtil.invoke(result, "testHandleOrErrorReturn", args);
-        Assert.assertTrue(getType(returns) instanceof BHandleType);
+        Assert.assertTrue(TypeBuilder.toBType(getType(returns)) instanceof BHandleType);
         Assert.assertEquals(((HandleValue) returns).getValue(), 70);
 
         returns = BRunUtil.invoke(result, "testHandleOrErrorReturnThrows", args);
@@ -120,7 +123,7 @@ public class InstanceMethodTest {
 
         Object returns = BRunUtil.invoke(result, "testPrimitiveOrErrorReturn", args);
 
-        Assert.assertEquals(getType(returns).getName(), "float");
+        Assert.assertTrue(TypeChecker.checkIsType(getType(returns), PredefinedTypes.TYPE_FLOAT));
         Assert.assertEquals(returns, 55.0);
 
         returns = BRunUtil.invoke(result, "testPrimitiveOrErrorReturnThrows", args);
@@ -138,7 +141,7 @@ public class InstanceMethodTest {
 
         Object returns = BRunUtil.invoke(result, "testUnionWithErrorReturnByte", args);
 
-        Assert.assertEquals(getType(returns).getName(), "byte");
+        Assert.assertTrue(TypeChecker.checkIsType(getType(returns), PredefinedTypes.TYPE_BYTE));
         Assert.assertEquals(((Integer) returns).byteValue(), (byte) '5');
 
         returns = BRunUtil.invoke(result, "testUnionWithErrorReturnThrows", args);
@@ -150,7 +153,7 @@ public class InstanceMethodTest {
         returns = BRunUtil.invoke(result, "testUnionWithErrorReturnHandle", args);
 
         Assert.assertNotNull(returns);
-        Assert.assertEquals(getType(returns).getName(), "handle");
+        Assert.assertTrue(TypeChecker.checkIsType(getType(returns), PredefinedTypes.TYPE_HANDLE));
         Assert.assertEquals(((HandleValue) returns).getValue(), "handle ret");
     }
 

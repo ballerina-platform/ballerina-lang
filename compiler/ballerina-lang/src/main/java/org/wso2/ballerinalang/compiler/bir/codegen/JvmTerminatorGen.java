@@ -182,8 +182,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_DEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_TO_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.IS_CONCURRENT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_ARRAY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_JOBJECT_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PANIC_IF_IN_LOCK;
@@ -1349,7 +1349,7 @@ public class JvmTerminatorGen {
         mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, pathVarArrayIndex);
-        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPE_ANYDATA_ARRAY, LOAD_ARRAY_TYPE);
+        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPE_ANYDATA_ARRAY, LOAD_TYPE);
         mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, INIT_ANYDATA_ARRAY, false);
         mv.visitVarInsn(ASTORE, bundledArrayIndex);
         mv.visitVarInsn(ALOAD, bundledArrayIndex);

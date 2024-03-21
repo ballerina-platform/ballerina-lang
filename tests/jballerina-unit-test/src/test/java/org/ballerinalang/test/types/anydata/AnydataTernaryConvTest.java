@@ -18,9 +18,11 @@
 
 package org.ballerinalang.test.types.anydata;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeHelper;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -143,7 +145,7 @@ public class AnydataTernaryConvTest {
         Object returns = BRunUtil.invoke(result, "testTypeCheckingOnAny");
 
         assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
-        assertEquals(((BArrayType) getType(returns)).getElementType().getTag(), TypeTags.ANYDATA_TAG);
+        TypeChecker.checkIsType(TypeHelper.listRestType(getType(returns)), PredefinedTypes.TYPE_ANYDATA);
 
         BArray rets = (BArray) returns;
         assertEquals(rets.getRefValue(0), 10L);

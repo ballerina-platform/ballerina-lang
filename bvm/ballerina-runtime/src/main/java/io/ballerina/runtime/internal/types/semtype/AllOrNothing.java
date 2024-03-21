@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -14,15 +14,19 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
+ *
  */
-package io.ballerina.runtime.api.types;
+
+package io.ballerina.runtime.internal.types.semtype;
 
 /**
- * {@code NeverType} describes the a type that does not contain any shapes.
- * No value ever belongs to a {@code NeverType}.
+ * Represent cases where a subtype is either all or nothing of the basic type. For example if StringSubType has All as
+ * it's subtype data that means subtype is actually String basic type and nothing means it doesn't have any string
+ * subtype
  *
- * @since 2.0.0-preview1
+ * @since 2201.10.0
  */
-public interface NeverType extends NullType {
-
+public enum AllOrNothing implements SubTypeData {
+    ALL,
+    NOTHING
 }

@@ -27,7 +27,6 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
-import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -68,6 +67,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
+import static io.ballerina.runtime.api.TypeBuilder.toBType;
 import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
 
 /**
@@ -244,7 +244,7 @@ public class DebuggerRuntime {
         }
 
         ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
-        BMap<BString, Object> errorDetailsMap = ValueCreator.createMapValue((MapType) PredefinedTypes.TYPE_ERROR_DETAIL,
+        BMap<BString, Object> errorDetailsMap = ValueCreator.createMapValue(toBType(PredefinedTypes.TYPE_ERROR_DETAIL),
                 errorDetailEntries.toArray(errorDetailEntries.toArray(new BMapInitialValueEntry[0])));
         return ErrorCreator.createError(bErrorType, (StringValue) message, (ErrorValue) cause, errorDetailsMap);
     }
