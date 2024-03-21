@@ -74,6 +74,7 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
 
         // The current implementation of the CA only supports object fields
         if (cursorNode.kind() != SyntaxKind.OBJECT_FIELD) {
+            assert false : "This line is unreachable as the diagnostic is only generated for an object field.";
             return Collections.emptyList();
         }
 
@@ -96,16 +97,13 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
             Symbol symbol = semanticModel.symbol(cursorNode).orElseThrow();
             typeSymbol = getTypeSymbol(symbol).orElseThrow();
         } catch (RuntimeException e) {
+            assert false : "This line is unreachable because the semantic model cannot be empty, and the type " +
+                    "symbol does not contain errors.";
             return Collections.emptyList();
         }
         boolean isReadonly = typeSymbol.subtypeOf(readonlyType);
         if (!isReadonly) {
             textEdits.addAll(getReadonlyTextEdits(typeNode, typeSymbol.typeKind() == TypeDescKind.UNION));
-        }
-
-        // Check if the text edits are empty
-        if (textEdits.isEmpty()) {
-            return Collections.emptyList();
         }
 
         // Generate and return the code action
@@ -117,14 +115,11 @@ public class MakeVariableImmutableCodeAction implements DiagnosticBasedCodeActio
     }
 
     private static Optional<TypeSymbol> getTypeSymbol(Symbol symbol) {
-        TypeSymbol typeSymbol;
         if (symbol.kind() == SymbolKind.CLASS_FIELD) {
-            typeSymbol = ((ClassFieldSymbol) symbol).typeDescriptor();
-        } else {
-            assert false : "Unconsidered symbol type found: " + symbol.kind();
-            return Optional.empty();
+            return Optional.of(((ClassFieldSymbol) symbol).typeDescriptor());
         }
-        return typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR ? Optional.empty() : Optional.of(typeSymbol);
+        assert false : "Unconsidered symbol type found: " + symbol.kind();
+        return Optional.empty();
     }
 
     private static TextEdit getFinalTextEdit(Node typeNode) {

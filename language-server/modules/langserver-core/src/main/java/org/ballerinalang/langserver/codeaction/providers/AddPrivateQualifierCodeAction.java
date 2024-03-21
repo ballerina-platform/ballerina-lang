@@ -65,6 +65,7 @@ public class AddPrivateQualifierCodeAction implements DiagnosticBasedCodeActionP
                                            CodeActionContext context) {
         Node cursorNode = positionDetails.matchedNode();
         if (cursorNode.kind() != SyntaxKind.OBJECT_FIELD) {
+            assert false : "This line is unreachable as the diagnostic is only generated for an object field.";
             return Collections.emptyList();
         }
 
