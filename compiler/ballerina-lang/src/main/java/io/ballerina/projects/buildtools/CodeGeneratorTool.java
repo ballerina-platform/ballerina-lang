@@ -29,11 +29,4 @@ public interface CodeGeneratorTool {
      * @param  toolContext the {@link ToolContext} of the build tool
      */
     void execute(ToolContext toolContext);
-
-    /**
-     * Retrieve the tool name.
-     *
-     * @return the name of the tool.
-     */
-    String toolName();
 }
