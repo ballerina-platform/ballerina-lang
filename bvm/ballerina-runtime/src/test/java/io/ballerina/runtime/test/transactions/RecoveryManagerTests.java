@@ -20,6 +20,7 @@ package io.ballerina.runtime.test.transactions;
 
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnostic;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.transactions.LogManager;
 import io.ballerina.runtime.transactions.RecoveryManager;
 import io.ballerina.runtime.transactions.RecoveryState;
@@ -44,7 +45,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 public class RecoveryManagerTests {
     private RecoveryManager recoveryManager;
@@ -57,7 +60,7 @@ public class RecoveryManagerTests {
         recoveryManager = new RecoveryManager();
         Field logManagerField = TransactionResourceManager.class.getDeclaredField("logManager");
         logManagerField.setAccessible(true);
-        LogManager logManager = new LogManager("testLog", 100,
+        LogManager logManager = new LogManager("testLog", -1,
                 Path.of("build/tmp/test/recovery/testRecoveryLogs"), true);
         logManagerField.set(transactionResourceManager, logManager);
 
@@ -93,6 +96,17 @@ public class RecoveryManagerTests {
         Assert.assertEquals(pendingRecords, transactionLogRecords);
     }
 
+    @Test (description = "Test recovery pass when there are no failed transactions")
+    public void testRecoveryPassWithNoFailedTransactions() throws NoSuchFieldException, IllegalAccessException {
+        recoveryManager.addXAResourceToRecover(xaResource);
+        Map<String, TransactionLogRecord> failedTransactions = new HashMap<>();
+        Field failedTransactionsField = RecoveryManager.class.getDeclaredField("failedTransactions");
+        failedTransactionsField.setAccessible(true);
+        failedTransactionsField.set(recoveryManager, failedTransactions);
+
+        Assert.assertTrue(recoveryManager.performRecoveryPass());
+    }
+
     @Test (description = "Test startup recovery pass recovering from all recoverable states")
     public void testRecoverFromRecoverableStates() throws NoSuchFieldException, IllegalAccessException {
         recoveryManager.addXAResourceToRecover(xaResource);
@@ -124,7 +138,7 @@ public class RecoveryManagerTests {
     }
 
     @Test (description = "Test startup recovery pass recovering from hazard and mixed states")
-    public void testRecoverFromUnrecoverableStates() throws NoSuchFieldException, IllegalAccessException {
+    public void testRecoveryForHazardMixedStates() throws NoSuchFieldException, IllegalAccessException {
         recoveryManager.addXAResourceToRecover(xaResource);
 
         LogManager logManager = Mockito.mock(LogManager.class);
@@ -161,10 +175,168 @@ public class RecoveryManagerTests {
         Assert.assertEquals(diagnosticList.size(), 2);
         Assert.assertTrue(failedTransactionAfterRecovery.isEmpty()); // means user was warned and recovery successful
     }
+    
+    @Test (description = "Test handling recovery when decision was commit and resource has heur committed")
+    public void testHeuristicTerminationWhenDecisionCommitWithHeurCommit()
+            throws IllegalAccessException, NoSuchMethodException,
+            InvocationTargetException {
+        Xid mockXid = Mockito.mock(Xid.class);
+        XAResource mockXaResource = Mockito.mock(XAResource.class);
+        XAException mockXaException = Mockito.mock(XAException.class);
 
-    @Test
-    public void testPerformRecoveryPass() throws Exception {
+        mockXaException.errorCode = XAException.XA_HEURCOM;
 
+        Method handleHeuristicTerminationMethod = RecoveryManager.class.getDeclaredMethod(
+                "handleHeuristicTermination", Xid.class, XAResource.class, XAException.class,
+                        boolean.class);
+        handleHeuristicTerminationMethod.setAccessible(true);
+
+        // Invoke the method with a decisionCommit value of true
+        boolean result = (boolean) handleHeuristicTerminationMethod.invoke(recoveryManager, mockXid,
+                mockXaResource, mockXaException, true);
+        Assert.assertTrue(result);
+    }
+
+    @Test (description = "Test handling recovery when decision was commit and resource has heur rolledback")
+    public void testHeuristicTerminationWhenDecisionCommitWithHeurRollback()
+            throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException,
+            InvocationTargetException {
+
+        Xid mockXid = Mockito.mock(Xid.class);
+        Mockito.when(mockXid.getGlobalTransactionId()).thenReturn(new byte[0]);
+        Mockito.when(mockXid.getBranchQualifier()).thenReturn(new byte[0]);
+        XAResource mockXaResource = Mockito.mock(XAResource.class);
+        XAException mockXaException = Mockito.mock(XAException.class);
+
+        mockXaException.errorCode = XAException.XA_HEURRB;
+
+        Method handleHeuristicTerminationMethod = RecoveryManager.class.getDeclaredMethod(
+                "handleHeuristicTermination", Xid.class, XAResource.class, XAException.class, boolean.class);
+        handleHeuristicTerminationMethod.setAccessible(true);
+
+        // Invoke with a decisionCommit value of true
+        boolean result = (boolean) handleHeuristicTerminationMethod.invoke(
+                recoveryManager, mockXid, mockXaResource, mockXaException, true);
+
+        Field diagnosticLogsField = RecoveryManager.class.getDeclaredField("diagnosticLog");
+        diagnosticLogsField.setAccessible(true);
+        RuntimeDiagnosticLog diagnosticLogs = (RuntimeDiagnosticLog) diagnosticLogsField.get(recoveryManager);
+        List<RuntimeDiagnostic> diagnosticList = diagnosticLogs.getDiagnosticList();
+
+        Assert.assertTrue(result);
+        Assert.assertEquals(diagnosticList.size(), 1);
+        Assert.assertEquals(diagnosticList.get(0).diagnosticInfo().code(),
+                ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE.diagnosticId());
+    }
+
+    @Test (description = "Test handling recovery when decision was rollback and resource has heur rolledback")
+    public void testHeuristicTerminationWhenDecisionRollbackWithHeurRollback()
+            throws IllegalAccessException, NoSuchMethodException,
+            InvocationTargetException {
+        Xid mockXid = Mockito.mock(Xid.class);
+        XAResource mockXaResource = Mockito.mock(XAResource.class);
+        XAException mockXaException = Mockito.mock(XAException.class);
+
+        mockXaException.errorCode = XAException.XA_HEURRB;
+
+        Method handleHeuristicTerminationMethod = RecoveryManager.class.getDeclaredMethod(
+                "handleHeuristicTermination", Xid.class, XAResource.class, XAException.class, boolean.class);
+        handleHeuristicTerminationMethod.setAccessible(true);
+
+        // Invoke the method with a decisionCommit value of false
+        boolean result = (boolean) handleHeuristicTerminationMethod.invoke(recoveryManager, mockXid,
+                mockXaResource, mockXaException, false);
+        Assert.assertTrue(result);
+    }
+
+    @Test (description = "Test handling recovery when decision was rollback and resource has heur committed")
+    public void testHeuristicTerminationWhenDecisionRollbackWithHeurCommit()
+            throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException,
+            InvocationTargetException {
+
+        Xid mockXid = Mockito.mock(Xid.class);
+        Mockito.when(mockXid.getGlobalTransactionId()).thenReturn(new byte[0]);
+        Mockito.when(mockXid.getBranchQualifier()).thenReturn(new byte[0]);
+        XAResource mockXaResource = Mockito.mock(XAResource.class);
+        XAException mockXaException = Mockito.mock(XAException.class);
+
+        mockXaException.errorCode = XAException.XA_HEURCOM;
+
+        Method handleHeuristicTerminationMethod = RecoveryManager.class.getDeclaredMethod(
+                "handleHeuristicTermination", Xid.class, XAResource.class, XAException.class, boolean.class);
+        handleHeuristicTerminationMethod.setAccessible(true);
+
+        // Invoke with a decisionCommit value of false
+        boolean result = (boolean) handleHeuristicTerminationMethod.invoke(recoveryManager, mockXid,
+                mockXaResource, mockXaException, false);
+
+        Field diagnosticLogsField = RecoveryManager.class.getDeclaredField("diagnosticLog");
+        diagnosticLogsField.setAccessible(true);
+        RuntimeDiagnosticLog diagnosticLogs = (RuntimeDiagnosticLog) diagnosticLogsField.get(recoveryManager);
+        List<RuntimeDiagnostic> diagnosticList = diagnosticLogs.getDiagnosticList();
+
+        Assert.assertTrue(result);
+        Assert.assertEquals(diagnosticList.size(), 1);
+        Assert.assertEquals(diagnosticList.get(0).diagnosticInfo().code(),
+                ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE.diagnosticId());
+    }
+
+    @Test (description = "Test handling recovery when a resource is in mixed state")
+    public void testHeuristicTerminationWithHuerMixed()
+            throws NoSuchFieldException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Xid mockXid = Mockito.mock(Xid.class);
+        Mockito.when(mockXid.getGlobalTransactionId()).thenReturn(new byte[0]);
+        Mockito.when(mockXid.getBranchQualifier()).thenReturn(new byte[0]);
+        XAResource mockXaResource = Mockito.mock(XAResource.class);
+        XAException mockXaException = Mockito.mock(XAException.class);
+
+        mockXaException.errorCode = XAException.XA_HEURMIX;
+
+        Method handleHeuristicTerminationMethod = RecoveryManager.class.getDeclaredMethod(
+                "handleHeuristicTermination", Xid.class, XAResource.class, XAException.class, boolean.class);
+        handleHeuristicTerminationMethod.setAccessible(true);
+
+        boolean result = (boolean) handleHeuristicTerminationMethod.invoke(recoveryManager, mockXid,
+                mockXaResource, mockXaException, true);
+
+        Field diagnosticLogsField = RecoveryManager.class.getDeclaredField("diagnosticLog");
+        diagnosticLogsField.setAccessible(true);
+        RuntimeDiagnosticLog diagnosticLogs = (RuntimeDiagnosticLog) diagnosticLogsField.get(recoveryManager);
+        List<RuntimeDiagnostic> diagnosticList = diagnosticLogs.getDiagnosticList();
+
+        Assert.assertTrue(result);
+        Assert.assertEquals(diagnosticList.size(), 1);
+        Assert.assertEquals(diagnosticList.get(0).diagnosticInfo().code(),
+                ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE.diagnosticId());
+    }
+
+    @Test (description = "Test handling recovery when a resource is in heur hazard")
+    public void testHeuristicTerminationWithHuerHazard()
+            throws NoSuchFieldException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Xid mockXid = Mockito.mock(Xid.class);
+        Mockito.when(mockXid.getGlobalTransactionId()).thenReturn(new byte[0]);
+        Mockito.when(mockXid.getBranchQualifier()).thenReturn(new byte[0]);
+        XAResource mockXaResource = Mockito.mock(XAResource.class);
+        XAException mockXaException = Mockito.mock(XAException.class);
+
+        mockXaException.errorCode = XAException.XA_HEURHAZ;
+
+        Method handleHeuristicTerminationMethod = RecoveryManager.class.getDeclaredMethod(
+                "handleHeuristicTermination", Xid.class, XAResource.class, XAException.class, boolean.class);
+        handleHeuristicTerminationMethod.setAccessible(true);
+
+        boolean result = (boolean) handleHeuristicTerminationMethod.invoke(recoveryManager, mockXid,
+                mockXaResource, mockXaException, true);
+
+        Field diagnosticLogsField = RecoveryManager.class.getDeclaredField("diagnosticLog");
+        diagnosticLogsField.setAccessible(true);
+        RuntimeDiagnosticLog diagnosticLogs = (RuntimeDiagnosticLog) diagnosticLogsField.get(recoveryManager);
+        List<RuntimeDiagnostic> diagnosticList = diagnosticLogs.getDiagnosticList();
+
+        Assert.assertFalse(result);
+        Assert.assertEquals(diagnosticList.size(), 1);
+        Assert.assertEquals(diagnosticList.get(0).diagnosticInfo().code(),
+                ErrorCodes.TRANSACTION_IN_HUERISTIC_STATE.diagnosticId());
     }
 
     @AfterTest

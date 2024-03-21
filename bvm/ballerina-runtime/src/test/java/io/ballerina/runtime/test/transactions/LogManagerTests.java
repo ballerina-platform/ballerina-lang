@@ -64,7 +64,7 @@ public class LogManagerTests {
     }
 
     @Test (description = "Test getting failed transaction logs from the log manager")
-    public void testGetFailedTransactionLogs() throws Exception {
+    public void testGetFailedTransactionLogs() {
         logManager.put(logRecord);
         Map<String, TransactionLogRecord> failedTransactions = logManager.getFailedTransactionLogs();
         Assert.assertTrue(failedTransactions.containsValue(logRecord));
