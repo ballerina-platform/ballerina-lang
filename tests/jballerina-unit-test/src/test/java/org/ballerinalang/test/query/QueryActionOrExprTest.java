@@ -90,7 +90,7 @@ public class QueryActionOrExprTest {
         BRunUtil.invoke(compileResult, "testQueryingEmptyTuple");
     }
 
-    @Test(enabled = false) // TODO: enable
+    @Test
     public void testQueryActionOrExprSemanticsNegative() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/query/query_action_or_expr_semantic_negative.bal");
@@ -113,10 +113,8 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 93, 27);
         validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 133, 27);
         validateError(negativeResult, i++, "incompatible types: 'other' is not an iterable collection", 151, 27);
-        validateError(negativeResult, i++, "invalid usage of receive expression, var not allowed", 151, 27);
-        validateError(negativeResult, i++, "incompatible types: 'other' is not an iterable collection", 168, 27);
-        validateError(negativeResult, i++, "invalid usage of receive expression, var not allowed", 168, 31);
-        validateError(negativeResult, i++, "invalid usage of receive expression, var not allowed", 168, 35);
+        validateError(negativeResult, i++, "receive action not supported wth 'var' type", 151, 27);
+        validateError(negativeResult, i++, "receive action not supported wth 'var' type", 168, 27);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 279, 15);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 291, 18);
         validateError(negativeResult, i++, "order by not supported for complex type fields, order key should " +

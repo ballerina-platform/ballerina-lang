@@ -43,7 +43,7 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "action invocation as an expression not allowed here", 78, 15);
         BAssertUtil.validateError(resultSemanticsNegative, index++,
-                "invalid usage of receive expression, var not allowed", 112, 21);
+                "receive action not supported wth 'var' type", 112, 21);
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "missing identifier", 139, 13);
         BAssertUtil.validateError(resultSemanticsNegative, index++,

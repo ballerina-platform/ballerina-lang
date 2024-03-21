@@ -3022,6 +3022,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         BType impliedType = Types.getImpliedType(bType);
+        if (impliedType.tag == TypeTags.NONE) {
+            dlog.error(multipleWorkerReceive.pos, DiagnosticErrorCode.RECEIVE_ACTION_NOT_SUPPORTED_WITH_VAR);
+            return symTable.semanticError;
+        }
+
         if (impliedType.tag != TypeTags.UNION) {
             BType compatibleType = getMappingConstructorCompatibleNonUnionType(impliedType, data);
             if (symTable.semanticError.tag == compatibleType.tag || (TypeTags.RECORD == compatibleType.tag &&
@@ -3099,9 +3104,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             workerReceiveExpr.workerType = symbol.type;
             workerReceiveExpr.workerSymbol = symbol;
         }
-        // The receive expression cannot be assigned to var, since we cannot infer the type.
+        // The receive-action cannot be assigned to var, since we cannot infer the type.
         if (symTable.noType == data.expType) {
-            this.dlog.error(workerReceiveExpr.pos, DiagnosticErrorCode.INVALID_USAGE_OF_RECEIVE_EXPRESSION);
+            this.dlog.error(workerReceiveExpr.pos, DiagnosticErrorCode.RECEIVE_ACTION_NOT_SUPPORTED_WITH_VAR);
         }
         // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
         // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
