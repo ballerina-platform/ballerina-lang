@@ -1,4 +1,4 @@
-// Copyright (c) 2023 WSO2 LLC.
+// Copyright (c) 2024 WSO2 LLC. (http://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -477,4 +477,3 @@ function testSendWithEarlyReturnError() {
     test:assertEquals(mapResult["a"], false, "Invalid boolean result");
     test:assertEquals(mapResult["b"], 2, "Invalid int result");
 }
-

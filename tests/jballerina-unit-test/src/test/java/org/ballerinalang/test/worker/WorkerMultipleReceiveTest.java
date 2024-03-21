@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com)
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com)
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -28,7 +28,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * worker alternative receive related tests.
+ * Worker alternative receive related tests.
+ *
+ * @since 2201.9.0
  */
 public class WorkerMultipleReceiveTest {
 
