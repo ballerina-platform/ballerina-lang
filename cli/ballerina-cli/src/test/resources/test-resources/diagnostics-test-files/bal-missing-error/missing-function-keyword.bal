@@ -1,5 +1,3 @@
-import ballerina/io;
-
 public main() {
-    io:println("Hello Worl");
+    string a = "Hello Worl";
 }

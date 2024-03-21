@@ -1,8 +1,6 @@
-import ballerina/io;
-
 public function main() {
-    io:println("Hello, World!", 1 + 2
-    + 3.4, true, "Hello, World!");
+    int a = exponentiate(1 + 2 + 3 + 4 + 5, 3 + 4 + 5 +
+    "Hello world" + 6 + 7 + 8 + 9 + 10);
     // 
     // 
     // 
@@ -16,8 +14,8 @@ public function main() {
     // 
     // 
 
-    io:println("Hello, World!", 1 + 2 + exponentiate(2, 3
-    , true, "Hello, World!"));
+    int d = exponentiate(2, 3
+    , true, "Hello, World!");
 }
 
 public function exponentiate(int base, int exponent) returns int {
