@@ -24,7 +24,7 @@
     <test name="jballerina-semtype-test">
         <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
-            <package name="io.ballerina.types.*"/>
+            <package name="io.ballerina.semtype.port.test"/>
         </packages>
     </test>
 </suite>

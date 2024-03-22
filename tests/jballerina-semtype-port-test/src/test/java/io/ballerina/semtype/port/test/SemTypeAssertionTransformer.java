@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.types;
+package io.ballerina.semtype.port.test;
 
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
@@ -26,6 +26,11 @@ import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.types.Context;
+import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.testng.Assert;
 
 import java.nio.file.Paths;
@@ -91,7 +96,7 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
         String memberAccessExpr = typeExpr.substring(leftBracketPos + 1, rightBracketPos);
 
         SemType type = typeNameSemTypeMap.get(typeRef);
-        if (SemTypes.isSubtypeSimple(type,  PredefinedType.LIST)) {
+        if (SemTypes.isSubtypeSimple(type, PredefinedType.LIST)) {
             SemType m;
             try {
                 long l = Long.parseLong(memberAccessExpr);
