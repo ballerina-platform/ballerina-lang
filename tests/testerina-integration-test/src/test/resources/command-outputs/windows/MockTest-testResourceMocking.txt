@@ -31,6 +31,7 @@ Running Tests with Coverage
 
 	testWMultiPathParamsWErrorneousMultiArg_1 has failed.
 
+		[pass] test
 		[pass] testDefaultArgsResources
 		[pass] testDoNoting1
 		[pass] testDoNoting2
@@ -63,7 +64,7 @@ Running Tests with Coverage
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("incorrect type of argument provided at position '2' to mock the function 'greeting/hello2/:name/:town")
 				callableName: validateResourceArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 544
-				callableName: withArguments moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 276
+				callableName: thenReturn moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 283
 				callableName: testNegWMultiPathParamsWMultiArg_1 moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 191
 				callableName: testNegWMultiPathParamsWMultiArg_1$lambda15$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 19
 			
@@ -72,7 +73,7 @@ Running Tests with Coverage
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("incorrect type of path provided for 'town' to mock the function 'greeting/hello2/:name/:town")
 				callableName: validatePathArgsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 553
-				callableName: withPathParameters moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 263
+				callableName: thenReturn moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 287
 				callableName: testNegWMultiPathParamsWMultiArg_2 moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 222
 				callableName: testNegWMultiPathParamsWMultiArg_2$lambda19$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 23
 			
@@ -98,7 +99,7 @@ Running Tests with Coverage
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("incorrect type of path provided for 'name' to mock the function 'greeting/hellore/:name")
 				callableName: validatePathArgsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 553
-				callableName: withPathParameters moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 263
+				callableName: thenReturn moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 287
 				callableName: testWErrorneousMultiPathParamsWMultiArg moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 214
 				callableName: testWErrorneousMultiPathParamsWMultiArg$lambda18$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 22
 			
@@ -116,7 +117,7 @@ Running Tests with Coverage
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("too many argument provided to mock the function 'greeting/hello2/:name/:town()'")
 				callableName: validateResourceArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 544
-				callableName: withArguments moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 276
+				callableName: thenReturn moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 283
 				callableName: testWMultiPathParamsWErrorneousMultiArg moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 199
 				callableName: testWMultiPathParamsWErrorneousMultiArg$lambda16$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 20
 			
@@ -125,13 +126,13 @@ Running Tests with Coverage
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("incorrect type of argument provided at position '1' to mock the function 'greeting/hellore/:name")
 				callableName: validateResourceArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 544
-				callableName: withArguments moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 276
+				callableName: thenReturn moduleName: ballerina.test.0.MemberResourceFunctionStub fileName: mock.bal lineNumber: 283
 				callableName: testWMultiPathParamsWErrorneousMultiArg_1 moduleName: luheerathan.test1$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 207
 				callableName: testWMultiPathParamsWErrorneousMultiArg_1$lambda17$ moduleName: luheerathan.test1$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 21
 			
 
 
-		19 passing
+		20 passing
 		9 failing
 		0 skipped
 
@@ -140,4 +141,4 @@ Running Tests with Coverage
 Generating Test Report
 	resource-mocking-tests\target\report\test_results.json
 
-error: there are test failures
+error: there are test failures
