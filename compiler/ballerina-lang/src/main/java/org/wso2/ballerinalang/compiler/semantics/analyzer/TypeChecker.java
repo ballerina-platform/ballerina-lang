@@ -470,12 +470,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, symTable.intType, data);
         }
-        BType exprType = checkExpr(xmlNavigation.expr, symTable.xmlType, data);
-
-        if (Types.getImpliedType(exprType).tag == TypeTags.UNION) {
-            dlog.error(xmlNavigation.pos, DiagnosticErrorCode.TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS,
-                       xmlNavigation.expr.getBType());
-        }
+        checkExpr(xmlNavigation.expr, symTable.xmlType, data);
 
         BType actualType = xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN
                 ? symTable.xmlType : symTable.xmlElementSeqType;
