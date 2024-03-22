@@ -28,6 +28,3 @@ public function query() {
     int[] numsReversed_ = from int i in nums order i descending select i;
 
 }
-
-
-

@@ -28,4 +28,3 @@ public function exponentiate(int base, int exponent) returns int {
     }
     return base * exponentiate(base, exponent - 1);
 }
-

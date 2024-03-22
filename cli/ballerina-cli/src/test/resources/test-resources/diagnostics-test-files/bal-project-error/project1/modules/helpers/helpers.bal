@@ -7,4 +7,3 @@ public function hello2(string name) returns string {
         return "Hello, " + name;
     }
     return "Hello, World!";
-
