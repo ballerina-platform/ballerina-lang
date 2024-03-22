@@ -173,23 +173,19 @@ public class AnnotateDiagnosticsTest {
         Assert.assertEquals(output, expectedOutput);
     }
 
-//    @Test
-//    public void testGetTerminalWidthIOException() throws IOException {
-//        // Mock the TerminalBuilder
-//        TerminalBuilder terminalBuilder = mock(TerminalBuilder.class);
-//        when(terminalBuilder.dumb(true)).thenReturn(terminalBuilder);
-//        when(terminalBuilder.build()).thenReturn(terminalBuilder);
-//        when(terminalBuilder.getWidth()).thenThrow(new IOException());
-//
-//        // Inject the mock TerminalBuilder into your class
-//        AnnotateDiagnostics.setTerminalBuilder(terminalBuilder);
-//
-//        // Call the method you want to test
-//        int result = AnnotateDiagnostics.getTerminalWidth();
-//
-//        // Assert that the result is the expected value (999 in this case)
-//        Assert.assertEquals(999, result);
-//    }
+    @Test(description = "Test non terminal node missing annotations")
+    void testNonTerminalNodeMissingAnnotation() throws IOException {
+        CompileResult result = BCompileUtil.compileWithoutInitInvocation(
+                "test-resources/diagnostics-test-files/bal-missing-error/missing-non-terminal.bal");
+        Diagnostic[] diagnostics = result.getDiagnostics();
+        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
+        String expectedOutput = Files.readString(testResources.resolve("bal-missing-error")
+                .resolve("missing-non-terminal-expected.txt"));
+        Assert.assertEquals(diagnostics.length, 8);
+        String output = getAnnotatedDiagnostics(diagnostics, documentMap);
+        Assert.assertEquals(output, expectedOutput);
+    }
+
 
     private static String getAnnotatedDiagnostics(Diagnostic[] diagnostics, Map<String, Document> documentMap) {
         StringBuilder output = new StringBuilder();

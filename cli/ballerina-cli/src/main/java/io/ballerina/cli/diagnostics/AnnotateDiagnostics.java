@@ -190,25 +190,6 @@ public class AnnotateDiagnostics {
 
         if (diagnosticCode == INVALID_TOKEN_CODE) {
             List<String> lines = getLines(textDocument, startLine, endLine);
-            if (lines.size() > 1) {
-                String annotatedLine1 = lines.get(0).substring(0, startOffset) +
-                        getColoredString(lines.get(0).substring(startOffset), color, colorEnabled);
-                String annotatedLine2 =
-                        getColoredString(lines.get(lines.size() - 1).substring(0, endOffset), color, colorEnabled) +
-                                lines.get(lines.size() - 1).substring(endOffset);
-                lines.set(0, annotatedLine1);
-                lines.set(lines.size() - 1, annotatedLine2);
-                return new DiagnosticAnnotation(
-                        lines,
-                        startOffset,
-                        textDocument.line(startLine).length() - location.lineRange().startLine().offset(),
-                        true,
-                        endOffset,
-                        startLine + 1,
-                        DiagnosticSeverity.ERROR,
-                        DiagnosticAnnotation.DiagnosticAnnotationType.INVALID,
-                        terminalWidth, colorEnabled);
-            }
             String line = lines.get(0);
             String annotatedLine = line.substring(0, startOffset) +
                     getColoredString(line.substring(startOffset, endOffset), color, colorEnabled) +
