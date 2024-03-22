@@ -19,6 +19,7 @@
 package io.ballerina.projects.util;
 
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.ProjectException;
@@ -27,8 +28,10 @@ import io.ballerina.projects.buildtools.CodeGeneratorTool;
 import io.ballerina.projects.buildtools.ToolConfig;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.BalaFiles;
-import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -61,11 +64,14 @@ public class BuildToolUtils {
      * @param commandName command/ subcommand name of the build tool
      * @return diagnostic
      */
-    public static PackageDiagnostic getBuildToolCommandNotFoundDiagnostic(String commandName) {
+    public static TomlDiagnostic getBuildToolCommandNotFoundDiagnostic(String commandName, TomlNodeLocation location) {
         String message = "Build tool command '" + commandName + "' not found";
+        DiagnosticCode diagnosticCode = ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND;
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(), message, DiagnosticSeverity.ERROR);
-        return new PackageDiagnostic(diagnosticInfo, commandName);
+                diagnosticCode.diagnosticId(),
+                diagnosticCode.messageKey(),
+                DiagnosticSeverity.ERROR);
+        return new TomlDiagnostic(location, diagnosticInfo, message);
     }
 
     /**
@@ -74,11 +80,13 @@ public class BuildToolUtils {
      * @param toolId tool id of the build tool
      * @return diagnostic
      */
-    public static PackageDiagnostic getCannotResolveBuildToolDiagnostic(String toolId) {
+    public static TomlDiagnostic getCannotResolveBuildToolDiagnostic(String toolId, TomlNodeLocation location) {
         String message = "Build tool '" + toolId + "' cannot be resolved";
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(), message, DiagnosticSeverity.ERROR);
-        return new PackageDiagnostic(diagnosticInfo, toolId);
+                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(),
+                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.messageKey(),
+                DiagnosticSeverity.ERROR);
+        return new TomlDiagnostic(location, diagnosticInfo, message);
     }
 
     /**
@@ -103,22 +111,26 @@ public class BuildToolUtils {
      * @param fullCommandName the full name of the command. eg: health.fhir
      * @return diagnostic wrapped in Optional
      */
-    public static Optional<PackageDiagnostic> getDiagnosticIfInvalidCommandName(String fullCommandName) {
+    public static Optional<TomlDiagnostic> getDiagnosticIfInvalidCommandName(
+            String fullCommandName, TomlNodeLocation location) {
         String[] subcommandNames = fullCommandName.split("\\.");
         for (String subcommandName : subcommandNames) {
             ValidationStatus validationStatus = validateCommandName(subcommandName);
             if (validationStatus != ValidationStatus.VALID) {
-                return Optional.of(getInvalidCommandNameDiagnostic(fullCommandName, validationStatus.message()));
+                return Optional.of(getInvalidCommandNameDiagnostic(
+                        fullCommandName, validationStatus.message(), location));
             }
         }
         return Optional.empty();
     }
 
-    private static PackageDiagnostic getInvalidCommandNameDiagnostic(String cmdName, String reason) {
+    private static TomlDiagnostic getInvalidCommandNameDiagnostic(
+            String cmdName, String reason, TomlNodeLocation location) {
         String message = "Command name '" + cmdName + "' is invalid because " + reason;
+        DiagnosticCode diagnosticCode = ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND;
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(), message, DiagnosticSeverity.ERROR);
-        return new PackageDiagnostic(diagnosticInfo, cmdName);
+                diagnosticCode.diagnosticId(), diagnosticCode.messageKey(), DiagnosticSeverity.ERROR);
+        return new TomlDiagnostic(location, diagnosticInfo, message);
     }
 
     private static Optional<CodeGeneratorTool> getTargetToolRec(
@@ -235,6 +247,24 @@ public class BuildToolUtils {
                 Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
     }
 
+
+    /**
+     * Get the location of the first tool entry in the Ballerina.toml file. If the tool entry is not found, return null.
+     * This is used to get the diagnostic location for the tool entry error.
+     *
+     * @param toolId      tool id
+     * @param toolEntries tool entries in Ballerina.toml
+     * @return location of the first tool entry
+     */
+    public static TomlNodeLocation getFirstToolEntryLocation(String toolId, List<PackageManifest.Tool> toolEntries) {
+        for (PackageManifest.Tool toolEntry : toolEntries) {
+            if (toolEntry.type().value().equals(toolId)) {
+                return toolEntry.type().location();
+            }
+        }
+        return null;
+    }
+
     private static List<Path> getIncompatibleVersions(List<Path> versions, PackageOrg org, PackageName name) {
         List<Path> incompatibleVersions = new ArrayList<>();
         if (!versions.isEmpty()) {
@@ -340,7 +370,6 @@ public class BuildToolUtils {
         }
         return Optional.of(latestVersion);
     }
-
 
     /**
      * Denote all possible validation failures of a command name plus a valid status.

@@ -23,9 +23,10 @@ import io.ballerina.projects.buildtools.CodeGeneratorTool;
 import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ToolResolutionRequest;
-import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.BuildToolUtils;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -104,8 +105,10 @@ public class BuildToolResolution {
         for (ToolContext toolContext: toolContextMap.values()) {
             // Populate the tools needed to resolve
             BuildToolId toolId = BuildToolId.from(toolContext.type().split("\\.")[0]);
+            TomlNodeLocation location = BuildToolUtils.getFirstToolEntryLocation(
+                    toolId.value(), packageContext.packageManifest().tools());
             if (toolIds.add(toolId.value())) {
-                buildTools.add(BuildTool.from(toolId, null, null, null));
+                buildTools.add(BuildTool.from(toolId, null, null, null, location));
             }
         }
         ClassLoader toolClassLoader = this.getClass().getClassLoader();
@@ -182,7 +185,8 @@ public class BuildToolResolution {
             PackageName name = tool.name();
             PackageVersion version = tool.version();
             if (tool.org() == null || tool.name() == null) {
-                PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id().value());
+                TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id().value(),
+                        tool.location());
                 diagnosticList.add(diagnostic);
                 continue;
             }
@@ -192,11 +196,13 @@ public class BuildToolResolution {
             if (latestCompVersion.isEmpty()) {
                 String toolIdAndVersionOpt = tool.id().value()
                         + (tool.version() == null ? "" : ":" + tool.version().toString());
-                PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(toolIdAndVersionOpt);
+                TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(toolIdAndVersionOpt,
+                        tool.location());
                 diagnosticList.add(diagnostic);
                 continue;
             }
-            resolvedTools.add(BuildTool.from(id, org, name, PackageVersion.from(latestCompVersion.get())));
+            resolvedTools.add(BuildTool.from(id, org, name,
+                    PackageVersion.from(latestCompVersion.get()), tool.location()));
         }
         return resolvedTools;
     }
@@ -247,20 +253,24 @@ public class BuildToolResolution {
         List<ToolResolutionCentralResponse.ResolvedTool> resolved = packageResolutionResponse.resolved();
         List<ToolResolutionCentralResponse.UnresolvedTool> unresolved = packageResolutionResponse.unresolved();
         for (ToolResolutionCentralResponse.UnresolvedTool tool : unresolved) {
-            PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
+            TomlNodeLocation location = BuildToolUtils.getFirstToolEntryLocation(
+                    tool.id(), packageContext.packageManifest().tools());
+            TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id(), location);
             diagnosticList.add(diagnostic);
         }
         List<BuildTool> resolvedTools = new ArrayList<>();
         for (ToolResolutionCentralResponse.ResolvedTool tool : resolved) {
-            if (tool.id() == null || tool.version() == null || tool.name() == null || tool.org() == null) {
-                PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
+            TomlNodeLocation location = BuildToolUtils.getFirstToolEntryLocation(tool.id(),
+                    packageContext.packageManifest().tools());
+            if (tool.version() == null || tool.name() == null || tool.org() == null) {
+                TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id(), location);
                 diagnosticList.add(diagnostic);
                 continue;
             }
             try {
                 PackageVersion.from(tool.version());
             } catch (ProjectException ignore) {
-                PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
+                TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id(), location);
                 diagnosticList.add(diagnostic);
                 continue;
             }
@@ -268,7 +278,8 @@ public class BuildToolResolution {
                     BuildToolId.from(tool.id()),
                     PackageOrg.from(tool.org()),
                     PackageName.from(tool.name()),
-                    PackageVersion.from(tool.version())
+                    PackageVersion.from(tool.version()),
+                    location
             ));
         }
         return resolvedTools;

@@ -37,6 +37,8 @@ import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.toml.api.Toml;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -113,7 +115,7 @@ public class RunBuildToolsTask implements Task {
         for (Tool toolEntry : toolEntries) {
             // Populate tool context
             ToolContext toolContext = ToolContext.from(toolEntry, project.currentPackage(), outStream);
-            toolContextMap.put(toolEntry.id(), toolContext);
+            toolContextMap.put(toolEntry.id().value(), toolContext);
         }
         BuildToolResolution buildToolResolution;
         try {
@@ -138,15 +140,16 @@ public class RunBuildToolsTask implements Task {
         // We run only the entries of resolved tools.
         List<PackageManifest.Tool> resolvedToolEntries = toolEntries.stream()
                 .filter(toolEntry -> resolvedTools.stream()
-                        .anyMatch(tool -> tool.id().value().equals(toolEntry.type().split("\\.")[0])))
+                        .anyMatch(tool -> tool.id().value().equals(toolEntry.type().value().split("\\.")[0])))
                 .toList();
         for (Tool toolEntry : resolvedToolEntries) {
-            String commandName = toolEntry.type();
-            ToolContext toolContext = toolContextMap.get(toolEntry.id());
+            String commandName = toolEntry.type().value();
+            ToolContext toolContext = toolContextMap.get(toolEntry.id().value());
             Optional<CodeGeneratorTool> targetTool = BuildToolUtils.getTargetTool(commandName, toolServiceLoader);
             if (targetTool.isEmpty()) {
                 // If the tool is not found, we skip the execution and report a diagnostic
-                PackageDiagnostic diagnostic = BuildToolUtils.getBuildToolCommandNotFoundDiagnostic(commandName);
+                Diagnostic diagnostic = BuildToolUtils.getBuildToolCommandNotFoundDiagnostic(
+                        commandName, toolEntry.type().location());
                 toolContext.reportDiagnostic(diagnostic);
                 this.outStream.println(diagnostic);
                 printToolSkipWarning(toolEntry);
@@ -155,8 +158,8 @@ public class RunBuildToolsTask implements Task {
             // Here, we can safely pass the tool type value given in Ballerina.toml instead of
             // the aggregation of the ToolConfig annotation name fields of a command/ subcommand field
             // since we have verified that those two are identical in the ToolUtils.getTargetTool method
-            Optional<PackageDiagnostic> cmdNameDiagnostic = BuildToolUtils
-                    .getDiagnosticIfInvalidCommandName(commandName);
+            Optional<TomlDiagnostic> cmdNameDiagnostic = BuildToolUtils
+                    .getDiagnosticIfInvalidCommandName(commandName, toolEntry.id().location());
             if (cmdNameDiagnostic.isPresent()) {
                 toolContext.reportDiagnostic(cmdNameDiagnostic.get());
                 this.outStream.println(cmdNameDiagnostic.get());
@@ -166,19 +169,22 @@ public class RunBuildToolsTask implements Task {
             boolean hasOptionErrors = false;
             try {
                 // validate the options toml and report diagnostics
-                hasOptionErrors = validateOptionsToml(toolEntry.optionsToml(), toolEntry.id(), toolEntry.type());
+                hasOptionErrors = validateOptionsToml(toolEntry.optionsToml(), toolEntry.id().value(),
+                        toolEntry.type());
                 if (hasOptionErrors) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_FAILED.diagnosticId(),
                             ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_FAILED.messageKey(),
                             DiagnosticSeverity.ERROR);
-                    PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, toolEntry.type());
+                    TomlNodeLocation location = toolEntry.optionsToml() == null ? toolEntry.type().location() :
+                            toolEntry.optionsTable().location();
+                    TomlDiagnostic diagnostic = new TomlDiagnostic(location, diagnosticInfo, toolEntry.type().value());
                     toolContext.reportDiagnostic(diagnostic);
                 }
             } catch (IOException e) {
                 // if there is no options toml, we warn the user and continue
                 outStream.printf("WARNING: Validation of tool options of '%s' for '%s' is skipped due to: %s%n",
-                        commandName, toolEntry.id(), e.getMessage());
+                        commandName, toolEntry.id().value(), e.getMessage());
             }
             // if manifest errors or options table validation errors
             if (toolEntry.hasErrorDiagnostic() || hasOptionErrors) {
@@ -188,7 +194,7 @@ public class RunBuildToolsTask implements Task {
 
             // Execute the build tool
             try {
-                this.outStream.printf("\t%s(%s)%n", toolEntry.type(), toolEntry.id());
+                this.outStream.printf("\t%s(%s)%n", toolEntry.type().value(), toolEntry.id().value());
                 targetTool.get().execute(toolContext);
                 for (Diagnostic d : toolContext.diagnostics()) {
                     if (d.toString().contains("(1:1,1:1)")) {
@@ -206,26 +212,26 @@ public class RunBuildToolsTask implements Task {
         this.outStream.println();
     }
 
-    private boolean validateOptionsToml(Toml optionsToml, String toolId, String toolType) throws IOException {
+    private boolean validateOptionsToml(Toml optionsToml, String toolId, Tool.Field toolType) throws IOException {
         if (optionsToml == null) {
             return validateEmptyOptionsToml(toolId, toolType);
         }
-        FileUtils.validateToml(optionsToml, toolType, toolClassLoader);
+        FileUtils.validateToml(optionsToml, toolType.value(), toolClassLoader);
         optionsToml.diagnostics().forEach(outStream::println);
         return !Diagnostics.filterErrors(optionsToml.diagnostics()).isEmpty();
     }
 
-    private boolean validateEmptyOptionsToml(String toolId, String toolType) throws IOException {
-        Schema schema = Schema.from(FileUtils.readSchema(toolType, toolClassLoader));
+    private boolean validateEmptyOptionsToml(String toolId, Tool.Field toolType) throws IOException {
+        Schema schema = Schema.from(FileUtils.readSchema(toolType.value(), toolClassLoader));
         List<String> requiredFields = schema.required();
         if (!requiredFields.isEmpty()) {
             for (String field: requiredFields) {
+                String message = "missing required optional field '" + field + "'";
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                         ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML.diagnosticId(),
-                        String.format("missing required optional field '%s'", field),
+                        ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML.messageKey(),
                         DiagnosticSeverity.ERROR);
-                PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
-                        toolType);
+                TomlDiagnostic diagnostic = new TomlDiagnostic(toolType.location(), diagnosticInfo, message);
                 this.outStream.println(diagnostic);
             }
             return true;
@@ -251,9 +257,9 @@ public class RunBuildToolsTask implements Task {
                         + e.getMessage();
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                         ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(),
-                        message,
+                        ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.messageKey(),
                         DiagnosticSeverity.ERROR);
-                PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, toolId);
+                TomlDiagnostic diagnostic = new TomlDiagnostic(tool.location(), diagnosticInfo, message);
                 outStream.println(diagnostic);
                 buildToolResolution.getDiagnosticList().add(diagnostic);
                 tools.remove(tool);
@@ -262,9 +268,9 @@ public class RunBuildToolsTask implements Task {
                         "' from the local cache: " + e.getMessage();
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                         ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(),
-                        message,
+                        ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.messageKey(),
                         DiagnosticSeverity.ERROR);
-                PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, toolId);
+                TomlDiagnostic diagnostic = new TomlDiagnostic(tool.location(), diagnosticInfo, message);
                 outStream.println(diagnostic);
                 buildToolResolution.getDiagnosticList().add(diagnostic);
                 tools.remove(tool);
@@ -334,7 +340,7 @@ public class RunBuildToolsTask implements Task {
 
     private void printToolSkipWarning(PackageManifest.Tool toolEntry) {
         outStream.printf("WARNING: Execution of '%s:%s' is skipped due to errors%n", toolEntry
-                .type(), toolEntry.id() != null ? toolEntry.id() : "");
+                .type().value(), toolEntry.id() != null ? toolEntry.id().value() : "");
     }
 
     private void reloadProject(Project project) {

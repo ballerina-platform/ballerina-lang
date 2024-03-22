@@ -44,6 +44,7 @@ import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -65,10 +66,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static io.ballerina.projects.internal.ManifestUtils.ToolNodeValueType;
 import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
 import static io.ballerina.projects.internal.ManifestUtils.getBuildToolTomlValueType;
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
-import static io.ballerina.projects.internal.ManifestUtils.ToolNodeValueType;
 import static io.ballerina.projects.util.ProjectUtils.defaultName;
 import static io.ballerina.projects.util.ProjectUtils.defaultOrg;
 import static io.ballerina.projects.util.ProjectUtils.defaultVersion;
@@ -301,10 +302,10 @@ public class ManifestBuilder {
 
     private void addTool(List<PackageManifest.Tool> tools, TomlTableNode toolEntry, String toolCode,
                          String toolCodePrefix) {
-        String id = getStringValueFromPreBuildToolNode(toolEntry, "id", toolCode);
-        String filePath = getStringValueFromPreBuildToolNode(toolEntry, "filePath",
+        PackageManifest.Tool.Field id = getValueFromPreBuildToolNode(toolEntry, "id", toolCode);
+        PackageManifest.Tool.Field filePath = getValueFromPreBuildToolNode(toolEntry, "filePath",
                 toolCode);
-        String targetModule = getStringValueFromPreBuildToolNode(toolEntry,
+        PackageManifest.Tool.Field targetModule = getValueFromPreBuildToolNode(toolEntry,
                 TARGETMODULE, toolCode);
         Toml optionsToml = getToml(toolEntry, OPTIONS);
         TopLevelNode topLevelNode = toolEntry.entries().get(OPTIONS);
@@ -314,13 +315,13 @@ public class ManifestBuilder {
         }
 
         // Validate recurring tool ids and target modules
-        if (!toolIdsSet.add(id)) {
-            reportDiagnostic(toolEntry, "recurring tool id '" + id + "' found in Ballerina.toml. " +
+        if (!toolIdsSet.add(id.value())) {
+            reportDiagnostic(toolEntry, "recurring tool id '" + id.value() + "' found in Ballerina.toml. " +
                             "Tool id must be unique for each tool",
                     ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES,
                     DiagnosticSeverity.ERROR);
         }
-        if (!targetModuleSet.add(targetModule)) {
+        if (!targetModuleSet.add(targetModule.value())) {
             reportDiagnostic(toolEntry, "recurring target module found in Ballerina.toml. Target " +
                             "module must be unique for each tool",
                     ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES,
@@ -328,8 +329,11 @@ public class ManifestBuilder {
         }
 
         // Add a flag for tools with error diagnostics
+
         boolean hasErrorDiagnostic = !Diagnostics.filterErrors(toolEntry.diagnostics()).isEmpty();
-        PackageManifest.Tool tool = new PackageManifest.Tool(toolCodePrefix + toolCode, id, filePath,
+        String typeValue = toolCodePrefix + toolCode;
+        PackageManifest.Tool.Field type = new PackageManifest.Tool.Field(typeValue, toolEntry.location());
+        PackageManifest.Tool tool = new PackageManifest.Tool(type, id, filePath,
                 targetModule, optionsToml, optionsNode, hasErrorDiagnostic);
         tools.add(tool);
     }
@@ -826,7 +830,8 @@ public class ManifestBuilder {
         return getStringFromTomlTableNode(topLevelNode);
     }
 
-    private String getStringValueFromPreBuildToolNode(TomlTableNode toolNode, String key, String toolCode) {
+    private PackageManifest.Tool.Field getValueFromPreBuildToolNode(TomlTableNode toolNode, String key,
+                                                                    String toolCode) {
         TopLevelNode topLevelNode = toolNode.entries().get(key);
         String errorMessage = "missing key '[" + key + "]' in table '[tool." + toolCode + "]'.";
         if (topLevelNode == null) {
@@ -835,11 +840,13 @@ public class ManifestBuilder {
                         ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML,
                         DiagnosticSeverity.ERROR);
             }
-            return null;
+            return new PackageManifest.Tool.Field(null, toolNode.location());
         }
         ToolNodeValueType toolNodeValueType = getBuildToolTomlValueType(topLevelNode);
         if (ToolNodeValueType.STRING.equals(toolNodeValueType)) {
-            return getStringFromTomlTableNode(topLevelNode);
+            String value = getStringFromTomlTableNode(topLevelNode);
+            TomlNodeLocation location = topLevelNode.location();
+            return new PackageManifest.Tool.Field(value, location);
         } else if (ToolNodeValueType.EMPTY.equals(toolNodeValueType)) {
             if (!key.equals(TARGETMODULE)) {
                 reportDiagnostic(toolNode, "empty string found for key '[" + key + "]' in table '[tool."
@@ -847,14 +854,14 @@ public class ManifestBuilder {
                     ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY,
                     DiagnosticSeverity.ERROR);
             }
-            return null;
+            return new PackageManifest.Tool.Field(null, toolNode.location());
         } else if (ToolNodeValueType.NON_STRING.equals(toolNodeValueType)) {
             reportDiagnostic(toolNode, "incompatible type found for key '[" + key + "]': expected 'STRING'",
                 ProjectDiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_TOOL_PROPERTY,
                 DiagnosticSeverity.ERROR);
-            return null;
+            return new PackageManifest.Tool.Field(null, toolNode.location());
         }
-        return null;
+        return new PackageManifest.Tool.Field(null, toolNode.location());
     }
 
     private Toml getToml(TomlTableNode toolNode, String key) {
