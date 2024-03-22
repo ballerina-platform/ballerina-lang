@@ -1,6 +1,7 @@
 package io.ballerina.cli.diagnostics;
 
 import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentConfig;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BCompileUtil;
@@ -175,7 +176,7 @@ public class AnnotateDiagnosticsTest {
 
     @Test(description = "Test non terminal node missing annotations")
     void testNonTerminalNodeMissingAnnotation() throws IOException {
-        CompileResult result = BCompileUtil.compileWithoutInitInvocation(
+        CompileResult result = BCompileUtil.compile(
                 "test-resources/diagnostics-test-files/bal-missing-error/missing-non-terminal.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
@@ -186,6 +187,28 @@ public class AnnotateDiagnosticsTest {
         Assert.assertEquals(output, expectedOutput);
     }
 
+    @Test(description = "Test missing token annotation padding")
+    void testMissingTokenAnnotationPadding() throws IOException {
+        CompileResult result = BCompileUtil.compile(
+                "test-resources/diagnostics-test-files/bal-missing-error/missing-function-keyword.bal");
+        Diagnostic[] diagnostics = result.getDiagnostics();
+        Assert.assertEquals(diagnostics.length, 1);
+
+        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
+        Document document = documentMap.get(diagnostics[0].location().lineRange().fileName());
+        int index = diagnostics[0].location().textRange().startOffset();
+
+        String documentString = " " + document.textDocument().toString().substring(0, index - 1) +
+                document.textDocument().toString().substring(index);
+        DocumentConfig documentConfig = DocumentConfig.from(document.documentId(), documentString, document.name());
+        Document updatedDocument = Document.from(documentConfig, document.module());
+
+        String output = AnnotateDiagnostics.renderDiagnostic(diagnostics[0], updatedDocument, 999, false).toString();
+        String expectedOutput = Files.readString(testResources.resolve("bal-missing-error")
+                .resolve("missing-token-padding-expected.txt"));
+
+        Assert.assertEquals(output, expectedOutput);
+    }
 
     private static String getAnnotatedDiagnostics(Diagnostic[] diagnostics, Map<String, Document> documentMap) {
         StringBuilder output = new StringBuilder();
