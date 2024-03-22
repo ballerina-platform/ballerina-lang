@@ -22,6 +22,7 @@ import io.ballerina.types.Atom;
 import io.ballerina.types.AtomicType;
 import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.Bdd;
+import io.ballerina.types.CellSemType;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.EnumerableCharString;
 import io.ballerina.types.EnumerableDecimal;
@@ -1974,12 +1975,16 @@ public class BIRPackageSymbolEnter {
             }
 
             int typesLength = inputStream.readInt();
-            SemType[] types = new SemType[typesLength];
+            CellSemType[] types = new CellSemType[typesLength];
             for (int i = 0; i < typesLength; i++) {
-                types[i] = readSemType();
+                SemType t = readSemType();
+                assert t != null;
+                types[i] = CellSemType.from(((ComplexSemType)t).subtypeDataList);
             }
 
-            SemType rest = readSemType();
+            SemType r = readSemType();
+            assert r != null;
+            CellSemType rest = CellSemType.from(((ComplexSemType) r).subtypeDataList);
             return MappingAtomicType.from(names, types, rest);
         }
 

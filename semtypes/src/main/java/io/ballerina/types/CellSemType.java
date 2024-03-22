@@ -29,14 +29,17 @@ import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
  */
 public class CellSemType extends ComplexSemType {
 
-    public static final CellSemType CELL_SEMTYPE_VAL = new CellSemType(new ProperSubtypeData[]{bddAtom(ATOM_CELL_VAL)});
-    public static final CellSemType CELL_SEMTYPE_INNER =
-            new CellSemType(new ProperSubtypeData[]{bddAtom(ATOM_CELL_INNER)});
+    public static final CellSemType CELL_SEMTYPE_VAL = from(new ProperSubtypeData[]{bddAtom(ATOM_CELL_VAL)});
+    public static final CellSemType CELL_SEMTYPE_INNER = from(new ProperSubtypeData[]{bddAtom(ATOM_CELL_INNER)});
     public static final CellSemType CELL_SEMTYPE_INNER_MAPPING =
-            new CellSemType(new ProperSubtypeData[]{bddAtom(ATOM_CELL_INNER_MAPPING)});
+            from(new ProperSubtypeData[]{bddAtom(ATOM_CELL_INNER_MAPPING)});
 
-    public CellSemType(ProperSubtypeData[] subtypeDataList) {
+    private CellSemType(ProperSubtypeData[] subtypeDataList) {
         super(BasicTypeBitSet.from(0), PredefinedType.CELL, subtypeDataList);
         assert subtypeDataList.length == 1;
+    }
+
+    public static CellSemType from(ProperSubtypeData[] subtypeDataList) {
+        return new CellSemType(subtypeDataList);
     }
 }

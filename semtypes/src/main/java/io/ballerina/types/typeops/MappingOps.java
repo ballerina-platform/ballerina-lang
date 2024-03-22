@@ -101,7 +101,7 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
             for (FieldPair fieldPair : pairing) {
                 SemType d = Core.diff(fieldPair.type1, fieldPair.type2);
                 assert Core.isSubtypeSimple(d, PredefinedType.CELL);
-                CellSemType dCell = new CellSemType(((ComplexSemType) d).subtypeDataList);
+                CellSemType dCell = CellSemType.from(((ComplexSemType) d).subtypeDataList);
                 if (!Core.isEmpty(cx, d)) {
                     MappingAtomicType mt;
                     if (fieldPair.index1 == null) {
