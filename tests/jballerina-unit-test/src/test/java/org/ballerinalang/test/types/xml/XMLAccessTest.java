@@ -260,6 +260,11 @@ public class XMLAccessTest {
     }
 
     @Test
+    public void testInvalidXMLUnionAccessWithNegativeIndex() {
+        BRunUtil.invoke(result, "testInvalidXMLUnionAccessWithNegativeIndex");
+    }
+
+    @Test
     public void testInvalidXMLAccessWithNegativeIndex() {
         BRunUtil.invoke(result, "testInvalidXMLAccessWithNegativeIndex");
     }
@@ -267,6 +272,11 @@ public class XMLAccessTest {
     @Test
     public void testXmlAccessWithLargerIndex() {
         BRunUtil.invoke(result, "testXmlAccessWithLargerIndex");
+    }
+
+    @Test
+    public void testXmlIndexedAccessWithUnionType() {
+        BRunUtil.invoke(result, "testXmlIndexedAccessWithUnionType");
     }
 
     @Test

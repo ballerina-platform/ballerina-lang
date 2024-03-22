@@ -1,0 +1,14 @@
+
+Executing Build Tools
+	dummy_tool.write.caps(write_dummy_caps)
+		Running write caps tool: write_dummy_caps
+		GAYAL DASSANAYAKE
+	dummy_tool.write(write_dummy)
+		Running write tool: write_dummy
+		Gayal Dassanayake
+	dummy_tool.read(read_dummy)
+		Running read tool: read_dummy
+		Gayal Dassanayake
+	dummy_tool(main_dummy)
+		Running sample build tool: main_dummy
+
