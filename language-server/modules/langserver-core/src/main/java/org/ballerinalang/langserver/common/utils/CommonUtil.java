@@ -250,6 +250,18 @@ public class CommonUtil {
     }
 
     /**
+     * Whether the given module is a langlib module or ballerina test module.
+     *
+     * @param moduleID Module ID to evaluate
+     * @return {@link Boolean} whether langlib or not ballerina test module
+     */
+    public static boolean isLangLibOrLangTest(ModuleID moduleID) {
+        String orgName = moduleID.orgName();
+        String moduleName = moduleID.moduleName();
+        return isLangLib(orgName, moduleName) || (orgName.equals("ballerina") && moduleName.equals("test"));
+    }
+
+    /**
      * Escapes the escape characters present in an identifier.
      *
      * @param identifier Identifier

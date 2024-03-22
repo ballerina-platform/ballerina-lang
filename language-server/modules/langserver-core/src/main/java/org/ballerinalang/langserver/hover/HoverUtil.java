@@ -44,6 +44,7 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.util.Optional;
 
@@ -108,8 +109,15 @@ public class HoverUtil {
             if (moduleID.isEmpty() || symbol.get().getName().isEmpty()) {
                 return hoverObj;
             }
-            String url = APIDocReference.from(moduleID.get().orgName(),
-                    moduleID.get().moduleName(), moduleID.get().version(), symbol.get().getName().get());
+            ModuleID modID = moduleID.get();
+            String version;
+            if (CommonUtil.isLangLibOrLangTest(modID)) {
+                version = RepoUtils.getBallerinaVersion();
+            } else {
+                version = modID.version();
+            }
+            String url = APIDocReference.from(modID.orgName(), modID.moduleName(), version,
+                    symbol.get().getName().get());
             markupContent.setValue((content.isEmpty() ? "" : content + MarkupUtils.getHorizontalSeparator())
                     + "[View API Docs](" + url + ")");
             hoverObj.setContents(markupContent);
