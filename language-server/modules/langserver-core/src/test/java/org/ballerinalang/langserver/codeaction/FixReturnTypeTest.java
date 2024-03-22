@@ -83,7 +83,9 @@ public class FixReturnTypeTest extends AbstractCodeActionTest {
                 {"fixReturnTypeForQueryExpr4.json"},
                 {"fixReturnTypeForWorker.json"},
                 {"fixReturnTypeForWorker2.json"},
-                {"fixReturnTypeForWorker3.json"}
+                {"fixReturnTypeForWorker3.json"},
+                {"fixReturnTypeForWorker4.json"},
+                {"fixReturnTypeForWorker5.json"}
         };
     }
 

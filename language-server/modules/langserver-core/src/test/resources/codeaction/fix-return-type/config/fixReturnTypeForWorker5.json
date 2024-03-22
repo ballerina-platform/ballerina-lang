@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 17,
+    "character": 22
+  },
+  "source": "fixReturnTypeForWorker.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'string'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 17
+            },
+            "end": {
+              "line": 10,
+              "character": 17
+            }
+          },
+          "newText": " returns string"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

@@ -145,12 +145,13 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
 
             if (checkExprDiagnostic) {
                 types.add(Collections.singleton(returnTypeDescPresent ?
-                        ((ReturnTypeDescriptorNode)worker.returnTypeDesc().get()).type().toString().trim().concat("|")
+                        ((ReturnTypeDescriptorNode) worker.returnTypeDesc().get()).type().toString().trim().concat("|")
                                 .concat("error") : "error?"));
             } else {
                 types = getPossibleCombinations(getCombinedTypes(worker, context, importEdits), types);
             }
 
+            // Where to insert the edit: Depends on if a return statement already available or not
             Position start;
             Position end;
             if (returnTypeDescPresent) {
@@ -176,6 +177,7 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
                 types.add(Collections.singleton(returnTypeDescPresent ? funcDef.functionSignature().returnTypeDesc()
                         .get().type().toString().trim().concat("|").concat("error") : "error?"));
             } else {
+                // Not going to provide code action to change return type of the main() function
                 if (RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.functionName().text())) {
                     return Collections.emptyList();
                 }
