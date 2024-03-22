@@ -218,28 +218,41 @@ function testXmlNavigationWithUnionType() {
 function testXmlNavigationWithDefaultNamespaceDefinedAfter() {
     xml[] results = [];
     xml x1 = xml `<a>a<b>b<c>c</c></b><d>d</d></a><f/>`;
-    results.push(x1.<a>, (x1/*), (x1/<b>), (x1/<*>), (x1/**/<c>));
+    results[0] = x1.<a>;
+    results[1] = x1/*;
+    results[2] = x1/<b>;
+    results[3] = x1/<*>;
+    results[4] = x1/**/<c>;
 
     xmlns "http://example2.com/" as p1;
     xml x2 = xml `<l>l<m>m<n>n</n></m><p1:q>q1</p1:q><q>q2</q></l>`;
     {
         xmlns "http://example2.com/";
     }
-    results.push(x2.<l>, (x2/<m>), (x2/<q>), (x2/**/<n>));
+    results[5] = x2.<l>;
+    results[6] = x2/<m>;
+    results[7] = x2/<q>;
+    results[8] = x2/**/<n>;
 
     {
         xmlns "http://example2.com/";
         {
-            results.push(x2.<l>, (x2/<q>));
+            results[9] = x2.<l>;
+            results[10] = x2/<q>;
         }
     }
     xmlns "http://example.com/" as p2;
     xml x3 = xml `<e>no-ns</e><f/><p2:e>with-ns</p2:e>`;
-    results.push(x3.<e>);
+    results[11] = x3.<e>;
 
     xml x4 = xml `<e>e<f><g>f</g></f><h>h</h></e><j/>`;
     xmlns "http://example.com/";
-    results.push(x3.<e>, x4.<e>, (x4/*), (x4/<f>), (x4/<*>), (x4/**/<g>));
+    results[12] = x3.<e>;
+    results[13] = x4.<e>;
+    results[14] = x4/*;
+    results[15] = x4/<f>;
+    results[16] = x4/<*>;
+    results[17] = x4/**/<g>;
 
     assertXmlNavigationWithDefaultNamespaceDefinedAfter(results);
 }
