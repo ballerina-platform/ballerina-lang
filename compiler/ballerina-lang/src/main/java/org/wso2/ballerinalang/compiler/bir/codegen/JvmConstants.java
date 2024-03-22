@@ -429,6 +429,8 @@ public class JvmConstants {
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
     public static final String DISPLAY_ANNOTATION = "display";
     public static final String RECORD_CHECKPOINT_METHOD = "recordCheckpoint";
+    public static final String MODULE_INITIALIZER_METHOD_DESC =
+            "(Lio/ballerina/runtime/internal/scheduling/Strand;)Ljava/lang/Object;";
     // visibility flags
     public static final int BAL_PUBLIC = 1;
     public static final int BAL_NATIVE = 2;

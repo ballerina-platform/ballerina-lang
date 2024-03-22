@@ -738,9 +738,18 @@ public class JvmPackageGen {
         BIRFunction mainFunc = getMainFunction(module);
         BIRFunction testExecuteFunc = getTestExecuteFunction(module);
 
+        // Getting the non-duplicate immediateImports
+        Set<PackageID> immediateImports = new LinkedHashSet<>();
+        addBuiltinImports(module.packageID, immediateImports);
+        for (BIRNode.BIRImportModule immediateImport : module.importModules) {
+            BPackageSymbol pkgSymbol = packageCache.getSymbol(
+                    getBvmAlias(immediateImport.packageID.orgName.value, immediateImport.packageID.name.value));
+            immediateImports.add(pkgSymbol.pkgID);
+        }
+
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(birFunctionMap, jvmClassMapping, moduleInitClass, module,
-                flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc);
+                immediateImports, serviceEPAvailable, mainFunc, testExecuteFunc);
         TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
         JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass, types, typeHashVisitor);
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);

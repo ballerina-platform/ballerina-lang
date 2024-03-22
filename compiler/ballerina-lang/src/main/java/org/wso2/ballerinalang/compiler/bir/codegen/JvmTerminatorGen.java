@@ -130,6 +130,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STOR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAKE_CONCAT_WITH_CONSTANTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INITIALIZER_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
@@ -861,6 +862,16 @@ public class JvmTerminatorGen {
                     packageID.orgName.getValue() + "/" + packageID.name.getValue());
             Name decodedMethodName = new Name(Utils.decodeIdentifier(methodName));
             BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(decodedMethodName).symbol;
+            if (funcSymbol == null && JvmCodeGenUtil.isModuleInitializerMethod(decodedMethodName.value)) {
+                // moduleInit() and moduleStart() functions are not present in the BIR cache because they are generated in CodeGen phase.
+                // Therefore, they are not found inside the packageSymbol scope.
+                jvmClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
+                        JvmCodeGenUtil.cleanupPathSeparators(MODULE_INIT_CLASS_NAME));
+                methodDesc = MODULE_INITIALIZER_METHOD_DESC;
+
+                this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, encodedMethodName, methodDesc, false);
+                return;
+            }
             BInvokableType type = (BInvokableType) funcSymbol.type;
             ArrayList<BType> params = new ArrayList<>(type.paramTypes);
             if (type.restType != null) {

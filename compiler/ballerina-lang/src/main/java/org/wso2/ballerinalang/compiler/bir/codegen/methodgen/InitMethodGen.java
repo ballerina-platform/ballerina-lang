@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.Opcodes.AALOAD;
@@ -238,7 +239,7 @@ public class InitMethodGen {
 
     public void enrichPkgWithInitializers(Map<String, BIRFunctionWrapper> birFunctionMap,
                                           Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
-                                          BIRNode.BIRPackage pkg, List<PackageID> moduleImports,
+                                          BIRNode.BIRPackage pkg, Set<PackageID> moduleImports,
                                           boolean serviceEPAvailable, BIRNode.BIRFunction mainFunc,
                                           BIRNode.BIRFunction testExecuteFunc) {
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
@@ -421,7 +422,7 @@ public class InitMethodGen {
         return null;
     }
 
-    private BIRNode.BIRFunction generateDefaultFunction(List<PackageID> imprtMods, BIRNode.BIRPackage pkg,
+    private BIRNode.BIRFunction generateDefaultFunction(Set<PackageID> imprtMods, BIRNode.BIRPackage pkg,
                                                         String funcName, String initName) {
         nextId = 0;
         nextVarId = 0;
@@ -440,7 +441,7 @@ public class InitMethodGen {
         BIROperand boolRef = new BIROperand(boolVal);
 
         for (PackageID id : imprtMods) {
-            String initFuncName = MethodGenUtils.encodeModuleSpecialFuncName(initName);
+            String initFuncName = MethodGenUtils.encodeModuleSpecialFuncName(funcName);
             addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef, boolRef);
         }
 
