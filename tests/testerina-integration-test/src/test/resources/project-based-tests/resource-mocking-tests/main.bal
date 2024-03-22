@@ -42,6 +42,10 @@ public client class Client {
         return "hey";
     }
 
+    resource function post greeting/hello10/[string name](string a) returns string {
+        return "hey";
+    }
+
     resource function get greeting/hello1(string a) returns string {
         return "hey";
     }
@@ -90,6 +94,14 @@ public client class Client {
 
     resource function get greetin/[string al](string me = "luhee") returns string {
         return "hey";
+    }
+
+    resource function get foo/bar(string a, int b) returns string {
+        return "Called post method on foo/bar " + a + " " + b.toBalString();
+    }
+
+    resource function post foo/bar(string a, string b) returns string {
+        return "Called post method on foo/bar " + a + " " + b;
     }
 
     remote function alp() returns string {

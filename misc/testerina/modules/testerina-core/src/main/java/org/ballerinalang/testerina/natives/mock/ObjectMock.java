@@ -378,6 +378,9 @@ public class ObjectMock {
         String[] pathParamPlaceHolder = getPathParamPlaceHolders(functionName);
         BArray argsList = caseObj.getArrayValue(StringUtils.fromString(MockConstants.PATH_ARGS));
         String functionPattern = getFunctionNameForResourcePath(functionName);
+        String accessor = caseObj.getStringValue(StringUtils.fromString(MockConstants.ACCESSOR)).toString();
+        functionPattern = MockConstants.DOLLAR_RESOURCE_SEPARATOR + accessor +
+                MockConstants.DOLLAR_RESOURCE_SEPARATOR + functionPattern;
         for (ResourceMethodType attachedFunction : ((BClientType) genericMock.getType()).getResourceMethods()) {
             if (attachedFunction.getName().endsWith(functionPattern)) {
                 int pathSegmentCount = (int) functionPattern.chars().filter(ch -> ch ==
@@ -455,6 +458,9 @@ public class ObjectMock {
         String functionName = caseObj.getStringValue(StringUtils.fromString(MockConstants.FUNCTION_NAME)).toString();
         BArray argsList = caseObj.getArrayValue(StringUtils.fromString(MockConstants.ARGS));
         String functionPattern = getFunctionNameForResourcePath(functionName);
+        String accessor = caseObj.getStringValue(StringUtils.fromString(MockConstants.ACCESSOR)).toString();
+        functionPattern = MockConstants.DOLLAR_RESOURCE_SEPARATOR + accessor +
+                MockConstants.DOLLAR_RESOURCE_SEPARATOR + functionPattern;
         for (ResourceMethodType attachedFunction : ((BClientType) genericMock.getType()).getResourceMethods()) {
             if (attachedFunction.getName().endsWith(functionPattern)) {
                 int pathSegmentCount = (int) functionPattern.chars().filter(ch -> ch ==

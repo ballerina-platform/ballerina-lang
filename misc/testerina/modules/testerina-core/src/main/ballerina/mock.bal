@@ -260,10 +260,6 @@ public class MemberResourceFunctionStub {
             panic result;
         }
         self.pathArgs = populatePathParams(self.functionName, paths);
-        result = validatePathArgsExt(self);
-        if (result is error) {
-            panic result;
-        }
         return self;
     }
 
@@ -273,10 +269,6 @@ public class MemberResourceFunctionStub {
     # + return - Object that allows stubbing calls to provided member function
     public isolated function withArguments(anydata|error... args) returns MemberResourceFunctionStub {
         self.args = args;
-        error? result = validateResourceArgumentsExt(self);
-        if (result is error) {
-            panic result;
-        }
         return self;
     }
 
@@ -287,6 +279,14 @@ public class MemberResourceFunctionStub {
         if (self.functionName == "") {
             error err = error("resource function to mock is not specified.");
             panic err;
+        }
+        error? result = validateResourceArgumentsExt(self);
+        if (result is error) {
+            panic result;
+        }
+        result = validatePathArgsExt(self);
+        if (result is error) {
+            panic result;
         }
         self.returnValue = returnValue;
         error? thenReturnExtResult = thenReturnExt(self);

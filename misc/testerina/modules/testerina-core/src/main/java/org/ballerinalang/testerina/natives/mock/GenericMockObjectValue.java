@@ -189,52 +189,53 @@ public class GenericMockObjectValue implements ObjectValue {
         String funcNameOriginal = funcName;
         List<String> caseIdList = new ArrayList<>();
         StringBuilder caseId = new StringBuilder();
+        List<String> functionNames = new ArrayList<>();
         // args contain an extra boolean value arg after every proper argument.
         // These should be removed before constructing case ids
         args = removeUnnecessaryArgs(args);
         if (funcName.startsWith(MockConstants.DOLLAR_RESOURCE_SEPARATOR)) {
-            //add case for function before path modification
-            caseId.append(mockObj.hashCode()).append(MockConstants.CASE_ID_DELIMITER).append(funcName);
-            caseIdList.add(caseId.toString());
-            caseId.setLength(0);
             int caretCount = (int) funcName.chars().filter(ch -> ch == MockConstants.PATH_PARAM_PLACEHOLDER.charAt(0))
                     .count();
             int pathSegmentCount = caretCount - (funcName.contains(MockConstants.REST_PARAM_PLACEHOLDER) ? 1 : 0);
             funcName = replacePathPlaceHolders(funcName, args, caretCount);
+            functionNames.add(funcName);
             args = Arrays.copyOfRange(args, pathSegmentCount, args.length);
         }
+        functionNames.add(funcNameOriginal);
 
         // 1) add case for function without args
-        caseId.append(mockObj.hashCode()).append(MockConstants.CASE_ID_DELIMITER).append(funcName);
-        caseIdList.add(caseId.toString());
-
-        // 2) add case for function with ANY specified for objects and records
-        for (Object arg : args) {
-            caseId.append(MockConstants.CASE_ID_DELIMITER);
-            if (arg instanceof BObject || arg instanceof RecordType) {
-                caseId.append(MockRegistry.ANY);
-            } else {
-                caseId.append(arg);
-            }
-        }
-        caseIdList.add(caseId.toString());
-        caseId.setLength(0);
-        caseId.append(mockObj.hashCode()).append(MockConstants.CASE_ID_DELIMITER).append(funcName);
-
-        // 3) add case for function with ANY specified for objects
-        for (Object arg : args) {
-            caseId.append(MockConstants.CASE_ID_DELIMITER);
-            if (arg instanceof BObject) {
-                caseId.append(MockRegistry.ANY);
-            } else {
-                caseId.append(arg);
-            }
-        }
-        // skip if entry exists in list
-        if (!caseIdList.contains(caseId.toString())) {
+        for (String function : functionNames) {
+            caseId.append(mockObj.hashCode()).append(MockConstants.CASE_ID_DELIMITER).append(function);
             caseIdList.add(caseId.toString());
+
+            // 2) add case for function with ANY specified for objects and records
+            for (Object arg : args) {
+                caseId.append(MockConstants.CASE_ID_DELIMITER);
+                if (arg instanceof BObject || arg instanceof RecordType) {
+                    caseId.append(MockRegistry.ANY);
+                } else {
+                    caseId.append(arg);
+                }
+            }
+            caseIdList.add(caseId.toString());
+            caseId.setLength(0);
+            caseId.append(mockObj.hashCode()).append(MockConstants.CASE_ID_DELIMITER).append(function);
+
+            // 3) add case for function with ANY specified for objects
+            for (Object arg : args) {
+                caseId.append(MockConstants.CASE_ID_DELIMITER);
+                if (arg instanceof BObject) {
+                    caseId.append(MockRegistry.ANY);
+                } else {
+                    caseId.append(arg);
+                }
+            }
+            // skip if entry exists in list
+            if (!caseIdList.contains(caseId.toString())) {
+                caseIdList.add(caseId.toString());
+            }
+            caseId.setLength(0);
         }
-        caseId.setLength(0);
 
         // 4) add case for return sequence if available
         if (funcNameOriginal.startsWith(MockConstants.DOLLAR_RESOURCE_SEPARATOR)) {
