@@ -64,7 +64,7 @@ public class FormatFileResolutionTest {
 
     @Test(description = "Test invalid local formatting configuration files",
             expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Failed to retrieve local formatting configuration file")
+            expectedExceptionsMessageRegExp = "Failed to retrieve local formatting configuration file.*")
     public void invalidLocalFormatFileTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(invalidLocal, invalidLocal.resolve("directory.toml").toString());
     }
@@ -74,6 +74,13 @@ public class FormatFileResolutionTest {
             expectedExceptionsMessageRegExp = "Failed to read cached formatting configuration file")
     public void invalidRemoteCachedFormatFileTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(resDir.resolve(Path.of("invalidCached")), validRemoteUrl);
+    }
+
+    @Test(description = "Test invalid remote file protocol", expectedExceptions = FormatterException.class,
+            expectedExceptionsMessageRegExp = "Configuration file remote url is not an HTTP url:.*")
+    public void invalidRemoteFileProtocol() throws FormatterException {
+        Path invalidUrl = resDir.resolve("invalidUrl");
+        FormatterUtils.getFormattingConfigurations(invalidUrl, "ftp://example.com/Format.toml");
     }
 
     @Test(description = "Test invalid remote formatting configuration file url",
@@ -86,7 +93,7 @@ public class FormatFileResolutionTest {
     }
 
     @Test(description = "Test invalid formatting configuration files", expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Failed to retrieve formatting configuration file")
+            expectedExceptionsMessageRegExp = "Failed to retrieve formatting configuration file.*")
     public void getInvalidFormatFileTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(invalidLocal, invalidLocal.resolve("t.toml").toString());
     }
