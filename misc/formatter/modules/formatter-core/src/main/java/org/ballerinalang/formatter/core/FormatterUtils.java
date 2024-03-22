@@ -51,6 +51,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -69,14 +70,13 @@ import java.util.stream.Collectors;
  */
 public class FormatterUtils {
     static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
-    static final String FORMAT_FILE_FIELD = "configPath";
-    static final String FORMAT_OPTION_FILE_EXT = ".toml";
-    static final String DEFAULT_FORMAT_OPTION_FILE = "Format.toml";
-    static final String TARGET_DIR = "target";
-    static final String FORMAT = "format";
-    static final String FORMAT_TOML_SCHEMA = "format-toml-schema.json";
+    private static final String FORMAT_FILE_FIELD = "configPath";
+    private static final String FORMAT_OPTION_FILE_EXT = ".toml";
+    private static final String DEFAULT_FORMAT_OPTION_FILE = "Format.toml";
+    private static final String TARGET_DIR = "target";
+    private static final String FORMAT = "format";
+    private static final String FORMAT_TOML_SCHEMA = "format-toml-schema.json";
     private static final PrintStream errStream = System.err;
-
     public static final ResourceBundle DEFAULTS = ResourceBundle.getBundle("formatter", Locale.getDefault());
 
     private FormatterUtils() {
@@ -187,7 +187,8 @@ public class FormatterUtils {
             try {
                 content = Files.readString(absPath.get(), StandardCharsets.UTF_8);
             } catch (IOException e) {
-                throw new FormatterException("Failed to retrieve local formatting configuration file");
+                throw new FormatterException(
+                        "Failed to retrieve local formatting configuration file: " + configurationFilePath);
             }
         } else {
             content = readRemoteFormatFile(root, configurationFilePath);
@@ -205,7 +206,7 @@ public class FormatterUtils {
     }
 
     private static boolean isLocalFile(Optional<Path> path) throws InvalidPathException {
-        return !path.isEmpty() && new File(path.get().toString()).exists();
+        return path.isPresent() && new File(path.get().toString()).exists();
     }
 
     private static String readRemoteFormatFile(Path root, String fileUrl) throws FormatterException {
@@ -221,22 +222,26 @@ public class FormatterUtils {
         StringBuilder fileContent = new StringBuilder();
         try {
             URL url = new URL(fileUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            int responseCode = connection.getResponseCode();
+            URLConnection connection =  url.openConnection();
+            if (!(connection instanceof HttpURLConnection)) {
+                throw new FormatterException("Configuration file remote url is not an HTTP url: " + fileUrl);
+            }
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            int responseCode = httpURLConnection.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
-                connection.disconnect();
+                httpURLConnection.disconnect();
                 throw new FormatterException("Failed to retrieve remote file. HTTP response code: " + responseCode);
             }
             try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                    new InputStreamReader(httpURLConnection.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     fileContent.append(line).append(NEWLINE_SYMBOL);
                 }
             }
-            connection.disconnect();
+            httpURLConnection.disconnect();
         } catch (IOException e) {
-            throw new FormatterException("Failed to retrieve formatting configuration file");
+            throw new FormatterException("Failed to retrieve formatting configuration file: " + fileUrl);
         }
         cacheRemoteConfigurationFile(root, fileContent.toString());
 
@@ -422,7 +427,8 @@ public class FormatterUtils {
     }
 
     static int openBraceTrailingNLs(WrappingFormattingOptions options, Node node) {
-        if (node.lineRange().startLine().line() != node.lineRange().endLine().line()) {
+        LineRange lineRange = node.lineRange();
+        if (lineRange.startLine().line() != lineRange.endLine().line()) {
             return 1;
         }
 

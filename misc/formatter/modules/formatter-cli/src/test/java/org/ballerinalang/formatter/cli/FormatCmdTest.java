@@ -91,7 +91,6 @@ public class FormatCmdTest {
             for (Path dir : dirs) {
                 Path tempDir = dir.resolveSibling(dir.getFileName() + "Temp");
                 Path assertDir = Paths.get(dir.toString().replace("/source/", "/assert/"));
-
                 FormatUtil.execute(argList, false, null, null, false, dir);
                 Assert.assertEquals(Files.readString(dir.resolve("main.bal")),
                         Files.readString(assertDir.resolve("main.bal")));
@@ -353,7 +352,6 @@ public class FormatCmdTest {
         Path moduleRelativePath = Path.of("modules", module, "core.bal");
         try {
             FormatUtil.execute(argList, false, module, null, false, projectDir);
-
             Assert.assertEquals(Files.readString(projectDir.resolve("main.bal")),
                     Files.readString(assertDir.resolve("main.bal")));
             Assert.assertEquals(Files.readString(projectDir.resolve(moduleRelativePath)),
@@ -376,7 +374,6 @@ public class FormatCmdTest {
         Path moduleRelativePath = Path.of("modules", module, "mod.bal");
         try {
             FormatUtil.execute(argList, false, module, null, false, sourceDir.resolve("source"));
-
             Assert.assertEquals(Files.readString(projectDir.resolve("main.bal")),
                     Files.readString(assertDir.resolve("main.bal")));
             Assert.assertEquals(Files.readString(projectDir.resolve(moduleRelativePath)),
