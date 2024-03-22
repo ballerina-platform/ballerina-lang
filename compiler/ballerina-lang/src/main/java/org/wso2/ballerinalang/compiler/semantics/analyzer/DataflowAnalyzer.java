@@ -1441,8 +1441,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         } else if (node.getKind() == NodeKind.REG_EXP_TEMPLATE_LITERAL) {
             result = 31 * result +
                     generateHashForRegExp(((BLangRegExpTemplateLiteral) node).reDisjunction.sequenceList);
+        } else if (node.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+            result = 31 * result + hash(((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) node).expr);
+        } else if (node.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
+            result = 31 * result + hash(((BLangRecordLiteral.BLangRecordSpreadOperatorField) node).expr);
         } else {
-            dlog.error(((BLangExpression) node).pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+            dlog.error(node.getPosition(), DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
         return result;
     }
