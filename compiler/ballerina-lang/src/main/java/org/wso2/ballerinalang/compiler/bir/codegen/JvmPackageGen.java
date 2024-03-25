@@ -755,7 +755,7 @@ public class JvmPackageGen {
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
         JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module, moduleInitClass,
                 typeHashVisitor, jvmTypeGen);
-        configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, jvmConstantsGen,
+        configMethodGen.generateConfigMapper(immediateImports, module, moduleInitClass, jvmConstantsGen,
                                              typeHashVisitor, jarEntries, symbolTable);
 
         // generate the shutdown listener class.
