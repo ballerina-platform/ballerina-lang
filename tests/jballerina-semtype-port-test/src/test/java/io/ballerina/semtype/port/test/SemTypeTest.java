@@ -19,10 +19,10 @@ package io.ballerina.semtype.port.test;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.ValueComparisonUtils;
-import io.ballerina.types.Context;
-import io.ballerina.types.SemType;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.types.Context;
+import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import org.ballerinalang.test.BCompileUtil;
 import org.jetbrains.annotations.NotNull;

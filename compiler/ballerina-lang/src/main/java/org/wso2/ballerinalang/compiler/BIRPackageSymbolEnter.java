@@ -1979,7 +1979,7 @@ public class BIRPackageSymbolEnter {
             for (int i = 0; i < typesLength; i++) {
                 SemType t = readSemType();
                 assert t != null;
-                types[i] = CellSemType.from(((ComplexSemType)t).subtypeDataList);
+                types[i] = CellSemType.from(((ComplexSemType) t).subtypeDataList);
             }
 
             SemType r = readSemType();
