@@ -110,12 +110,7 @@ public class HoverUtil {
                 return hoverObj;
             }
             ModuleID modID = moduleID.get();
-            String version;
-            if (CommonUtil.isLangLibOrLangTest(modID)) {
-                version = RepoUtils.getBallerinaVersion();
-            } else {
-                version = modID.version();
-            }
+            String version = CommonUtil.isLangLibOrLangTest(modID) ? RepoUtils.getBallerinaVersion() : modID.version();
             String url = APIDocReference.from(modID.orgName(), modID.moduleName(), version,
                     symbol.get().getName().get());
             markupContent.setValue((content.isEmpty() ? "" : content + MarkupUtils.getHorizontalSeparator())

@@ -250,15 +250,16 @@ public class CommonUtil {
     }
 
     /**
-     * Whether the given module is a langlib module or ballerina test module.
+     * Whether the given module is a langlib module or the Ballerina test module.
      *
      * @param moduleID Module ID to evaluate
-     * @return {@link Boolean} whether langlib or not ballerina test module
+     * @return {@link Boolean} <code>true</code> if the given module is either a langlib module or
+     * the Ballerina test module. <code>false</code> otherwise.
      */
     public static boolean isLangLibOrLangTest(ModuleID moduleID) {
         String orgName = moduleID.orgName();
         String moduleName = moduleID.moduleName();
-        return isLangLib(orgName, moduleName) || (orgName.equals("ballerina") && moduleName.equals("test"));
+        return orgName.equals("ballerina") && (moduleName.startsWith("lang.") ||  moduleName.equals("test"));
     }
 
     /**
