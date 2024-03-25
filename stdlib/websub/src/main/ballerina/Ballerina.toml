@@ -104,9 +104,9 @@ target = "java8"
     modules = ["web-sub"]
 
     [[platform.libraries]]
-    artifactId = "bcprov-jdk15on"
-    version = "1.69"
-    path = "./lib/bcprov-jdk15on-1.69.jar"
+    artifactId = "bcprov-jdk18on"
+    version = "1.74"
+    path = "./lib/bcprov-jdk18on-1.74.jar"
     groupId = "org.bouncycastle"
     modules = ["web-sub"]
 
