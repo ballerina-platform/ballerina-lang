@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -60,7 +61,7 @@ import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.get
  */
 public class SemTypeResolver {
 
-    void defineSemTypes(List<BLangNode> moduleDefs, Context ctx) {
+    void defineSemTypes(List<BLangNode> moduleDefs, Context cx) {
         Map<String, BLangNode> modTable = new LinkedHashMap<>();
         for (BLangNode typeAndClassDef : moduleDefs) {
             modTable.put(getTypeOrClassName(typeAndClassDef), typeAndClassDef);
@@ -71,11 +72,32 @@ public class SemTypeResolver {
             if (def.getKind() == NodeKind.CLASS_DEFN) {
                 throw new UnsupportedOperationException("Semtype are not supported for class definitions yet");
             } else if (def.getKind() == NodeKind.CONSTANT) {
-                throw new UnsupportedOperationException("Semtype are not supported for constant definitions yet");
+                resolveConstant(cx, modTable, (BLangConstant) def);
             } else {
                 BLangTypeDefinition typeDefinition = (BLangTypeDefinition) def;
-                resolveTypeDefn(ctx, modTable, typeDefinition, 0);
+                resolveTypeDefn(cx, modTable, typeDefinition, 0);
             }
+        }
+    }
+
+    private void resolveConstant(Context cx, Map<String, BLangNode> modTable, BLangConstant constant) {
+        SemType semtype = evaluateConst(constant);
+        addSemTypeBType(constant.getTypeNode(), semtype);
+        cx.env.addTypeDef(constant.name.value, semtype);
+    }
+
+    private SemType evaluateConst(BLangConstant constant) {
+        switch (constant.symbol.value.type.getKind()) {
+            case INT:
+                return SemTypes.intConst((long) constant.symbol.value.value);
+            case BOOLEAN:
+                return SemTypes.booleanConst((boolean) constant.symbol.value.value);
+            case STRING:
+                return SemTypes.stringConst((String) constant.symbol.value.value);
+            case FLOAT:
+                return SemTypes.floatConst((double) constant.symbol.value.value);
+            default:
+                throw new UnsupportedOperationException("Expression type not implemented for const semtype");
         }
     }
 
@@ -122,9 +144,10 @@ public class SemTypeResolver {
                 return resolveTypeDesc((BLangConstrainedType) td, cx, mod, depth, defn);
             case UNION_TYPE_NODE:
                 return resolveTypeDesc((BLangUnionTypeNode) td, cx, mod, depth, defn);
+            case INTERSECTION_TYPE_NODE:
+                return resolveTypeDesc((BLangIntersectionTypeNode) td, cx, mod, depth, defn);
             case USER_DEFINED_TYPE:
                 return resolveTypeDesc((BLangUserDefinedType) td, cx, mod, depth);
-
             case FINITE_TYPE_NODE:
                 return resolveSingletonType((BLangFiniteTypeNode) td);
             default:
@@ -181,6 +204,7 @@ public class SemTypeResolver {
         TypeKind typeKind = ((BLangBuiltInRefTypeNode) td.getType()).getTypeKind();
         return switch (typeKind) {
             case MAP -> resolveMapTypeDesc(td, cx, mod, depth, defn);
+            case XML -> resolveXmlTypeDesc(td, cx, mod, depth, defn);
             default -> throw new UnsupportedOperationException("Constrained type not implemented: " + typeKind);
         };
     }
@@ -196,6 +220,14 @@ public class SemTypeResolver {
 
         SemType rest = resolveTypeDesc(cx, mod, typeDefinition, depth + 1, td.constraint);
         return defineMappingTypeWrapped(d, cx.env, Collections.emptyList(), rest == null ? PredefinedType.NEVER : rest);
+    }
+
+    private SemType resolveXmlTypeDesc(BLangConstrainedType td, Context cx, Map<String, BLangNode> mod, int depth,
+                                       BLangTypeDefinition defn) {
+        if (td.defn != null) {
+            return td.defn.getSemType(cx.env);
+        }
+        return SemTypes.xmlSequence(resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint));
     }
 
     private SemType resolveTypeDesc(BLangRecordTypeNode td, Context cx, Map<String, BLangNode> mod, int depth,
@@ -234,6 +266,16 @@ public class SemTypeResolver {
             u = Core.union(u, resolveTypeDesc(cx, mod, defn, depth, iterator.next()));
         }
         return u;
+    }
+
+    private SemType resolveTypeDesc(BLangIntersectionTypeNode td, Context cx, Map<String, BLangNode> mod, int depth,
+                                    BLangTypeDefinition defn) {
+        Iterator<BLangType> iterator = td.constituentTypeNodes.iterator();
+        SemType i = resolveTypeDesc(cx, mod, defn, depth, iterator.next());
+        while (iterator.hasNext()) {
+            i = Core.intersect(i, resolveTypeDesc(cx, mod, defn, depth, iterator.next()));
+        }
+        return i;
     }
 
     private SemType resolveTypeDesc(BLangUserDefinedType td, Context cx, Map<String, BLangNode> mod, int depth) {

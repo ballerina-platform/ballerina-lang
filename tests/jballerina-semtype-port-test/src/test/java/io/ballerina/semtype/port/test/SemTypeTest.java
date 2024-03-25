@@ -63,61 +63,52 @@ public class SemTypeTest {
         List<String> testFiles = Arrays.stream(Objects.requireNonNull(dataDir.listFiles()))
                 .map(File::getAbsolutePath)
                 .filter(name -> name.endsWith(".bal") &&
-                        !skipList().contains(name.substring(name.lastIndexOf(File.separator) + 1)))
+                        !dataDirSkipList().contains(name.substring(name.lastIndexOf(File.separator) + 1)))
                 .collect(Collectors.toList());
 
-        // blocked on https://github.com/ballerina-platform/ballerina-lang/issues/28334 and
-        // https://github.com/ballerina-platform/ballerina-lang/issues/32722
-        ignore(testFiles, "float-singleton2.bal");
-        ignore(testFiles, "int-singleton.bal");
-        // due to https://github.com/ballerina-platform/ballerina-lang/issues/35204
-        ignore(testFiles, "function.bal");
-
-        // due to https://github.com/ballerina-platform/ballerina-lang/issues/35203
-        ignore(testFiles, "int-singleton2.bal");
-
         include(testFiles,
-                "test-src/simple-type/type-test.bal",
-               // "test-src/simple-type/list-type-test.bal",
-               // "test-src/simple-type/map-type-test.bal",
-               // due to https://github.com/ballerina-platform/ballerina-lang/issues/35203
-               // "test-src/simple-type/int-singleton-altered.bal",
-               // "test-src/simple-type/function-altered.bal",
-                "test-src/simple-type/float-altered.bal");
+                "test-src/simple-type/float-altered.bal",
+                // "test-src/simple-type/function-altered.bal", // func type not supported yet
+                "test-src/simple-type/int-singleton-altered.bal",
+                // "test-src/simple-type/list-type-test.bal", // list type not supported yet
+                "test-src/simple-type/map-type-test.bal",
+                "test-src/simple-type/type-test.bal"
+        );
 
         return testFiles.toArray(new String[0]);
         //return new Object[]{"test-src/data/error2.bal"};
     }
 
-    public final HashSet<String> skipList() {
+    public final HashSet<String> dataDirSkipList() {
         HashSet<String> hashSet = new HashSet<>();
-        // Not yet supported in jBallerina
-        hashSet.add("error2.bal");
-        hashSet.add("readonly1.bal");
-        hashSet.add("xml-sequence.bal");
-        hashSet.add("list-fixed.bal");
-        hashSet.add("xml.bal");
-        hashSet.add("contextual.bal");
-        hashSet.add("list-type-test.bal");
-        hashSet.add("fixed-length-array-2-3-e.bal");
-        hashSet.add("fixed-length-array.bal");
-        hashSet.add("fixed-length-array-2-2-e.bal");
-        hashSet.add("int-subtype.bal");
+        // error type not supported yet
         hashSet.add("basic.bal");
-        hashSet.add("table.bal");
-        hashSet.add("xml-never.bal");
-        hashSet.add("bdddiff1.bal");
-        hashSet.add("fixed-length-array-2-4-e.bal");
-        hashSet.add("tuple1.bal");
-        hashSet.add("fixed-length-array-2.bal");
-        hashSet.add("map-type-test.bal");
-        hashSet.add("function-altered.bal");
-        hashSet.add("tuple4.bal");
-        hashSet.add("never.bal");
-        hashSet.add("xml-singleton.bal");
-        hashSet.add("fixed-length-array-tuple.bal");
         hashSet.add("error1.bal");
+        hashSet.add("error2.bal");
+
+        // list type not supported yet
+        hashSet.add("bdddiff1.bal");
+        hashSet.add("fixed-length-array.bal");
+        hashSet.add("fixed-length-array-2.bal");
+        hashSet.add("fixed-length-array-2-2-e.bal");
+        hashSet.add("fixed-length-array-2-3-e.bal");
+        hashSet.add("fixed-length-array-2-4-e.bal");
+        hashSet.add("fixed-length-array-tuple.bal");
+        hashSet.add("hard.bal");
+        hashSet.add("list-fixed.bal");
+        hashSet.add("tuple1.bal");
+        hashSet.add("tuple4.bal");
+
+        // func type not supported yet
+        hashSet.add("function.bal"); // due to https://github.com/ballerina-platform/ballerina-lang/issues/35204
+        hashSet.add("never.bal");
+
+        // readonly type not supported yet
+        hashSet.add("readonly1.bal");
         hashSet.add("readonly2.bal");
+
+        // table type not supported yet
+        hashSet.add("table.bal");
         return hashSet;
     }
 
@@ -174,28 +165,54 @@ public class SemTypeTest {
             if (f.isDirectory()) {
                 listAllBalFiles(f, balFiles);
             }
-            if (f.getName().endsWith(".bal")) {
+            String fileName = f.getName();
+            if (fileName.endsWith(".bal") && !typeRelDirSkipList().contains(fileName)) {
                 balFiles.add(f);
             }
         }
     }
 
+    public final HashSet<String> typeRelDirSkipList() {
+        HashSet<String> hashSet = new HashSet<>();
+        // list type not supported yet
+        hashSet.add("bdddiff1-tv.bal");
+        hashSet.add("fixed-length-array2-t.bal");
+        hashSet.add("fixed-length-array-t.bal");
+        hashSet.add("fixed-length-array-tuple-t.bal");
+        hashSet.add("proj1-tv.bal");
+        hashSet.add("proj2-tv.bal");
+        hashSet.add("proj3-t.bal");
+        hashSet.add("proj4-t.bal");
+        hashSet.add("proj5-t.bal");
+        hashSet.add("proj6-t.bal");
+        hashSet.add("proj7-t.bal");
+        hashSet.add("proj8-t.bal");
+        hashSet.add("proj9-t.bal");
+        hashSet.add("proj10-t.bal");
+        hashSet.add("tuple1-tv.bal");
+        hashSet.add("tuple2-tv.bal");
+        hashSet.add("tuple3-tv.bal");
+        hashSet.add("tuple4-tv.bal");
+        hashSet.add("test_test.bal");
+
+        // readonly type not supported yet
+        hashSet.add("xml-complex-ro-tv.bal");
+        hashSet.add("xml-readonly-tv.bal");
+        hashSet.add("xml-te.bal");
+
+        // table type not supported yet
+        hashSet.add("anydata-tv.bal");
+        hashSet.add("table-t.bal");
+        hashSet.add("table2-t.bal");
+
+        hashSet.add("not1-tv.bal"); // diff operator not supported
+        hashSet.add("record-proj-tv.bal"); // projection not supported
+        return hashSet;
+    }
+
     private void include(List<String> testFiles, String... fileNames) {
         for (int i = 0; i < fileNames.length; i++) {
             testFiles.add(i, fileNames[i]);
-        }
-    }
-
-    private void ignore(List<String> testFiles, String fileName) {
-        int index = -1;
-        for (int i = 0; i < testFiles.size(); i++) {
-            if (testFiles.get(i).endsWith(fileName)) {
-                index = i;
-                break;
-            }
-        }
-        if (index != -1) {
-            testFiles.remove(index);
         }
     }
 
