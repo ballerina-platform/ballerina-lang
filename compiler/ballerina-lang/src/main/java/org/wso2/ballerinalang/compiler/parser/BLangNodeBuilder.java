@@ -550,8 +550,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     boolean inCollectContext = false;
 
     private  HashSet<String> constantSet = new HashSet<String>();
-    private Location modulePartPos;
-
 
     public BLangNodeBuilder(CompilerContext context,
                             PackageID packageID, String entryName) {
@@ -656,20 +654,27 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         this.currentCompilationUnit = compilationUnit;
         compilationUnit.name = currentCompUnitName;
         compilationUnit.setPackageID(packageID);
-        modulePartPos = getPosition(modulePart);
+        Location pos = getPosition(modulePart);
+        BLangIdentifier compUnit = this.createIdentifier(pos, compilationUnit.getName());
         // Generate import declarations
         for (ImportDeclarationNode importDecl : modulePart.imports()) {
             BLangImportPackage bLangImport = (BLangImportPackage) importDecl.apply(this);
-            bLangImport.compUnit = this.createIdentifier(modulePartPos, compilationUnit.getName());
+            bLangImport.compUnit = compUnit;
             compilationUnit.addTopLevelNode(bLangImport);
         }
 
         // Generate other module-level declarations
         for (ModuleMemberDeclarationNode member : modulePart.members()) {
-            compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
+            if (member.kind() == SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION) {
+                compilationUnit.addTopLevelNode(
+                        (TopLevelNode) transformModuleXMLNSDeclaration((ModuleXMLNamespaceDeclarationNode) member,
+                                compUnit));
+            } else {
+                compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
+            }
         }
 
-        Location newLocation = new BLangDiagnosticLocation(modulePartPos.lineRange().fileName(), 0, 0, 0, 0, 0, 0);
+        Location newLocation = new BLangDiagnosticLocation(pos.lineRange().fileName(), 0, 0, 0, 0, 0, 0);
 
         compilationUnit.pos = newLocation;
         compilationUnit.setPackageID(packageID);
@@ -3689,7 +3694,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
-        xmlns.compUnit = this.createIdentifier(modulePartPos, currentCompUnitName);
 
         BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
         xmlnsStmt.xmlnsDecl = xmlns;
@@ -3697,15 +3701,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return xmlnsStmt;
     }
 
-    @Override
-    public BLangNode transform(ModuleXMLNamespaceDeclarationNode xmlnsDeclNode) {
+    public BLangNode transformModuleXMLNSDeclaration(ModuleXMLNamespaceDeclarationNode xmlnsDeclNode,
+                                                     BLangIdentifier compUnit) {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix().orElse(null));
         BLangExpression namespaceUri = createExpression(xmlnsDeclNode.namespaceuri());
         xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
-        xmlns.compUnit = this.createIdentifier(modulePartPos, currentCompUnitName);
+        xmlns.compUnit = compUnit;
         return xmlns;
     }
 
