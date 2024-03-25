@@ -1,0 +1,24 @@
+[
+  {
+    "description": "Define a client class",
+    "code": "client class MyClient { remote function invoke(string param) returns string { return string `remote method invoked with ${param}`; } }"
+  },
+  {
+    "description": "Initialize a client class",
+    "code": "MyClient myClient = new;"
+  },
+  {
+    "description": "Invoke a client remote method as an expression",
+    "code": "myClient->invoke(\"input\");",
+    "expr": "\"remote method invoked with input\""
+  },
+  {
+    "description": "Invoke a client remote method with a variable",
+    "code": "string returnValue = myClient->invoke(\"input\");"
+  },
+  {
+    "description": "Check the return value",
+    "code": "returnValue",
+    "expr": "\"remote method invoked with input\""
+  }
+]

@@ -487,7 +487,7 @@ public class BallerinaTomlTests {
         String tomlContent = Files.readString(BAL_TOML_REPO.resolve("simple-ballerina.toml"));
         String replacedContent = tomlContent.replace("1.0.0", version);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, replacedContent);
-        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, BAL_TOML_REPO).packageManifest();
+        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, null, BAL_TOML_REPO).packageManifest();
         Assert.assertFalse(manifest.diagnostics().hasErrors());
     }
 
@@ -496,7 +496,7 @@ public class BallerinaTomlTests {
         String tomlContent = Files.readString(BAL_TOML_REPO.resolve("simple-ballerina.toml"));
         String replacedContent = tomlContent.replace("1.0.0", version);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, replacedContent);
-        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, BAL_TOML_REPO).packageManifest();
+        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, null, BAL_TOML_REPO).packageManifest();
         Assert.assertTrue(manifest.diagnostics().hasErrors());
         Assert.assertEquals(manifest.diagnostics().errors().iterator().next().message(),
                             "invalid 'version' under [package]: 'version' should be compatible with semver");
@@ -624,12 +624,12 @@ public class BallerinaTomlTests {
     static PackageManifest getPackageManifest(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
-        return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).packageManifest();
+        return ManifestBuilder.from(ballerinaToml, null, null, tomlPath.getParent()).packageManifest();
     }
 
     static BuildOptions getBuildOptions(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
-        return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).buildOptions();
+        return ManifestBuilder.from(ballerinaToml, null, null, tomlPath.getParent()).buildOptions();
     }
 }

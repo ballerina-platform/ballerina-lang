@@ -1,5 +1,6 @@
 module io.ballerina.lang {
     uses io.ballerina.projects.plugins.CompilerPlugin;
+    uses io.ballerina.projects.buildtools.CodeGeneratorTool;
     requires java.compiler;
     requires com.google.gson;
     requires java.xml;
