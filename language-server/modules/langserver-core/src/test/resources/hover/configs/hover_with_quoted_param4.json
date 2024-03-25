@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 39,
+    "character": 4
+  },
+  "source": {
+    "file": "hover_with_quoted_param.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Description.\n  \n  \n---  \n  \n### Parameters  \n  \n`ParamConfig` ***'type*** : Configuration for the function."
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

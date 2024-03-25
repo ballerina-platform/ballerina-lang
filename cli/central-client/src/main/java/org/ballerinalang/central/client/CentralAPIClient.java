@@ -98,14 +98,12 @@ import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALG
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
-import static org.ballerinalang.central.client.Utils.bytesToHex;
 import static org.ballerinalang.central.client.Utils.checkHash;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.getBearerToken;
 import static org.ballerinalang.central.client.Utils.getRemoteRepo;
 import static org.ballerinalang.central.client.Utils.isApplicationJsonContentType;
-
 /**
  * {@code CentralAPIClient} is a client for the Central API.
  *
@@ -402,8 +400,7 @@ public class CentralAPIClient {
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
                     packageSignature + " [" + projectRepo + " -> " + remoteRepo + "]", this.outStream);
 
-            byte[] hashInBytes = checkHash(balaPath.toString(), SHA256_ALGORITHM);
-            String digestVal = SHA256 + bytesToHex(hashInBytes);
+            String digestVal = SHA256 + checkHash(balaPath.toString(), SHA256_ALGORITHM);
             // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
                     .addHeader(DIGEST, digestVal)

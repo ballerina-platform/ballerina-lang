@@ -732,7 +732,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     CONTINUE_NOT_ALLOWED("BCE3992", "continue.not.allowed"),
     BREAK_NOT_ALLOWED("BCE3993", "break.not.allowed"),
-    TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3994", "type.does.not.support.xml.navigation.access"),
     XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3995", "xml.function.does.not.support.argument.type"),
 
     INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE3996", "intersection.not.allowed.with.type"),

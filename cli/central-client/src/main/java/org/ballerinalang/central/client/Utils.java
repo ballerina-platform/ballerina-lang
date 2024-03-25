@@ -40,12 +40,12 @@ import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
@@ -54,26 +54,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_DEV_CENTRAL;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_STAGE_CENTRAL;
+import static org.ballerinalang.central.client.CentralClientConstants.BYTES_FOR_KB;
 import static org.ballerinalang.central.client.CentralClientConstants.DEV_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.PRODUCTION_REPO;
+import static org.ballerinalang.central.client.CentralClientConstants.PROGRESS_BAR_BYTE_THRESHOLD;
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256;
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALGORITHM;
 import static org.ballerinalang.central.client.CentralClientConstants.STAGING_REPO;
-import static org.ballerinalang.central.client.CentralClientConstants.BYTES_FOR_KB;
-import static org.ballerinalang.central.client.CentralClientConstants.PROGRESS_BAR_BYTE_THRESHOLD;
 import static org.ballerinalang.central.client.CentralClientConstants.UPDATE_INTERVAL_MILLIS;
 
 /**
@@ -86,8 +84,6 @@ public class Utils {
             System.getenv(BALLERINA_STAGE_CENTRAL));
     public static final boolean SET_BALLERINA_DEV_CENTRAL = Boolean.parseBoolean(
             System.getenv(BALLERINA_DEV_CENTRAL));
-
-    public static final String ERR_CANNOT_PULL_PACKAGE = "error: failed to pull the package: ";
 
     private Utils() {
     }
@@ -134,7 +130,7 @@ public class Utils {
         }
 
         String resolvedURI = balaDownloadResponse.header(RESOLVED_REQUESTED_URI);
-        if (resolvedURI == null || resolvedURI.equals("")) {
+        if (resolvedURI == null || resolvedURI.isEmpty()) {
             resolvedURI = newUrl;
         }
         String[] uriParts = resolvedURI.split("/");
@@ -442,10 +438,9 @@ public class Utils {
             throws IOException, CentralClientException {
         Files.createDirectories(balaFileDestPath);
         URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
-        byte[] hashInBytes = checkHash(balaFilePath.toString(), SHA256_ALGORITHM);
 
         // If the hash value is not matching , throw an exception.
-        if (Objects.equals((SHA256 + bytesToHex(hashInBytes)), trueDigest)) {
+        if (!trueDigest.equals(SHA256 + checkHash(balaFilePath.toString(), SHA256_ALGORITHM))) {
             StringBuilder warning = new StringBuilder(
                     String.format("*************************************************************%n" +
         "* WARNING: Certain packages may have originated from sources other than the official distributors. *%n" +
@@ -472,33 +467,14 @@ public class Utils {
         }
     }
 
-    public static byte[] checkHash(String filePath, String algorithm) {
-        MessageDigest md;
+    public static String checkHash(String filePath, String algorithm) throws CentralClientException {
         try {
-            md = MessageDigest.getInstance(algorithm);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException(e);
+            byte[] data = Files.readAllBytes(Paths.get(filePath));
+            byte[] hash = MessageDigest.getInstance(algorithm).digest(data);
+            return new BigInteger(1, hash).toString(16);
+        } catch (IOException | NoSuchAlgorithmException e) {
+            throw new CentralClientException("Unable to calculate the hash value of the file: " + filePath);
         }
-
-        try (InputStream is = new FileInputStream(filePath);
-                DigestInputStream dis = new DigestInputStream(is, md)) {
-            while (dis.read() != -1) {
-            }
-            md = dis.getMessageDigest();
-            return md.digest();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    public static String bytesToHex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
     }
 
     static String getBearerToken(String accessToken) {
