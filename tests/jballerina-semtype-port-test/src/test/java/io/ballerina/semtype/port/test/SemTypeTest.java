@@ -206,7 +206,6 @@ public class SemTypeTest {
         hashSet.add("table2-t.bal");
 
         hashSet.add("not1-tv.bal"); // diff operator not supported
-        hashSet.add("record-proj-tv.bal"); // projection not supported
         return hashSet;
     }
 

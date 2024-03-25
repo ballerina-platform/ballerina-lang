@@ -119,8 +119,8 @@ public class SemTypes {
         return TableSubtype.tableContaining(memberType);
     }
 
-    public static SemType mappingMemberType(Context context, SemType t, SemType m) {
-        return Core.mappingMemberTypeInner(context, t, m);
+    public static SemType mappingMemberTypeInnerVal(Context context, SemType t, SemType m) {
+        return Core.mappingMemberTypeInnerVal(context, t, m);
     }
 
     public static SemType listProj(Context context, SemType t, SemType key) {

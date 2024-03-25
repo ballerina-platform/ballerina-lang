@@ -486,6 +486,10 @@ public final class Core {
         return null;
     }
 
+    public static SemType mappingMemberTypeInnerVal(Context cx, SemType t, SemType k) {
+        return diff(mappingMemberTypeInner(cx, t, k), UNDEF);
+    }
+
     // This computes the spec operation called "member type of K in T",
     // for when T is a subtype of mapping, and K is either `string` or a singleton string.
     // This is what Castagna calls projection.

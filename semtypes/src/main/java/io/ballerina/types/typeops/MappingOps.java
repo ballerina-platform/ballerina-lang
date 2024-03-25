@@ -45,7 +45,7 @@ import static io.ballerina.types.Common.bddSubtypeUnion;
 import static io.ballerina.types.Common.isAllSubtype;
 import static io.ballerina.types.MappingAtomicType.MAPPING_ATOMIC_INNER;
 import static io.ballerina.types.PredefinedType.NEVER;
-import static io.ballerina.types.typeops.StringOps.stringSubtypeContainedIn;
+import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.typeops.StringOps.stringSubtypeListCoverage;
 
 /**
@@ -193,11 +193,15 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
     }
 
     static SemType mappingAtomicMemberTypeInner(MappingAtomicType atomic, SubtypeData key) {
-        SemType memberType = NEVER;
+        SemType memberType = null;
         for (SemType ty : mappingAtomicApplicableMemberTypesInner(atomic, key)) {
-            memberType = Core.union(memberType, ty);
+            if (memberType == null) {
+                memberType = ty;
+            } else {
+                memberType = Core.union(memberType, ty);
+            }
         }
-        return memberType;
+        return memberType == null ? UNDEF : memberType;
     }
 
     static List<SemType> mappingAtomicApplicableMemberTypesInner(MappingAtomicType atomic, SubtypeData key) {
@@ -222,18 +226,6 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
             }
         }
         return memberTypes;
-    }
-
-    public static boolean bddMappingMemberRequired(Context cx, Bdd b, StringSubtype k, boolean requiredOnPath) {
-        if (b instanceof BddAllOrNothing allOrNothing) {
-            return !allOrNothing.isAll() || requiredOnPath;
-        } else {
-            BddNode bdd = (BddNode) b;
-            return bddMappingMemberRequired(cx, bdd.left, k,
-                    requiredOnPath || stringSubtypeContainedIn(k, cx.mappingAtomType(bdd.atom).names))
-                    && bddMappingMemberRequired(cx, bdd.middle, k, requiredOnPath)
-                    && bddMappingMemberRequired(cx, bdd.right, k, requiredOnPath);
-        }
     }
 
     @Override

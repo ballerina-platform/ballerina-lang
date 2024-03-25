@@ -108,7 +108,7 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
             return listProj(context, type, m);
         } else if (SemTypes.isSubtypeSimple(type, PredefinedType.MAPPING)) {
             SemType m = typeNameSemTypeMap.get(memberAccessExpr);
-            return SemTypes.mappingMemberType(context, type, m);
+            return SemTypes.mappingMemberTypeInnerVal(context, type, m);
         }
         throw new IllegalStateException("Unsupported type test: " + typeExpr);
     }
