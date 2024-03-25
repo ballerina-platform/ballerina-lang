@@ -418,15 +418,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define type definitions.
         this.typePrecedence = 0;
 
-        // Treat constants and type definitions in the same manner, since constants can be used as
-        // types. Also, there can be references between constant and type definitions in both ways.
-        // Thus visit them according to the precedence.
+        // Treat constants, type definitions and xmlns declarations in the same manner, since constants can be
+        // used as types. Also, there can be references between constant, type definitions and xmlns declarations in
+        // both ways. Thus visit them according to the precedence.
         List<BLangNode> moduleDefs = new ArrayList<>();
-        pkgNode.constants.forEach(constant -> moduleDefs.add(constant));
-        pkgNode.typeDefinitions.forEach(typDef -> moduleDefs.add(typDef));
-        pkgNode.xmlnsList.forEach(xmlns -> moduleDefs.add(xmlns));
-        List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
-        classDefinitions.forEach(classDefn -> moduleDefs.add(classDefn));
+        moduleDefs.addAll(pkgNode.constants);
+        moduleDefs.addAll(pkgNode.typeDefinitions);
+        moduleDefs.addAll(pkgNode.xmlnsList);
+        moduleDefs.addAll(getClassDefinitions(pkgNode.topLevelNodes));
 
         this.env = pkgEnv;
         typeResolver.defineBTypes(moduleDefs, pkgEnv);
@@ -1177,8 +1176,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) xmlnsNode.namespaceURI;
             if (Symbols.isFlagOn(varRef.symbol.flags, Flags.CONSTANT)) {
                 BLangConstantValue constantValue = ((BConstantSymbol) varRef.symbol).value;
-                nsURI = constantValue != null ? constantValue.toString() : "";
-                checkInvalidNameSpaceDeclaration(xmlnsNode.pos, xmlnsNode.prefix, nsURI);
+                if (constantValue != null) {
+                    nsURI = constantValue.toString();
+                    checkInvalidNameSpaceDeclaration(xmlnsNode.pos, xmlnsNode.prefix, nsURI);
+                }
             }
         } else {
             nsURI = (String) ((BLangLiteral) xmlnsNode.namespaceURI).value;
@@ -1192,9 +1193,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         Name prefix = names.fromIdNode(xmlnsNode.prefix);
         Location nsSymbolPos = prefix.value.isEmpty() ? xmlnsNode.pos : xmlnsNode.prefix.pos;
+        BLangIdentifier compUnit = xmlnsNode.compUnit;
         BXMLNSSymbol xmlnsSymbol =
                 Symbols.createXMLNSSymbol(prefix, nsURI, symEnv.enclPkg.symbol.pkgID, symEnv.scope.owner,
-                        nsSymbolPos, getOrigin(prefix), names.fromIdNode(xmlnsNode.compUnit));
+                        nsSymbolPos, getOrigin(prefix), compUnit != null ? names.fromIdNode(xmlnsNode.compUnit) : null);
         xmlnsNode.symbol = xmlnsSymbol;
 
         // First check for package-imports with the same alias.

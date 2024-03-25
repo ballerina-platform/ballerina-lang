@@ -225,8 +225,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return true;
         }
 
-        if (symbol.tag == SymTag.XMLNS &&
-                !(((BXMLNSSymbol) foundSym).compUnit.value.equals(((BXMLNSSymbol) symbol).compUnit.value))) {
+        if (symbol.tag == SymTag.XMLNS && isXmlnsInDifferentCompUnit((BXMLNSSymbol) symbol, (BXMLNSSymbol) foundSym)) {
             return true;
         }
 
@@ -476,8 +475,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             BSymbol symbol = entry.symbol;
             long tag = symbol.tag;
 
-            if ((tag & SymTag.XMLNS) == SymTag.XMLNS &&
-                    ((BXMLNSSymbol) symbol).compUnit.equals(compUnit)) {
+            if (symbol instanceof BXMLNSSymbol bxmlnsSymbol &&
+                    (bxmlnsSymbol.compUnit == null || bxmlnsSymbol.compUnit.equals(compUnit))) {
                 return symbol;
             }
 
@@ -2650,6 +2649,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             default:
                 return false;
         }
+    }
+
+    private boolean isXmlnsInDifferentCompUnit(BXMLNSSymbol symbol, BXMLNSSymbol foundSym) {
+        if (foundSym.compUnit != null && symbol.compUnit != null) {
+            return !foundSym.compUnit.value.equals(symbol.compUnit.value);
+        }
+        return foundSym.compUnit == null ^ symbol.compUnit == null;
     }
 
     /**

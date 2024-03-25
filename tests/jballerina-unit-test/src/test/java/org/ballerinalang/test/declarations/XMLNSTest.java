@@ -71,10 +71,8 @@ public class XMLNSTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 28, 11);
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'F'", 29, 11);
         BAssertUtil.validateError(negativeResult, i++, "expression is not a constant expression", 36, 11);
-        BAssertUtil.validateError(negativeResult, i++, "cannot bind prefix 'ns' to the empty namespace name", 37, 1);
         BAssertUtil.validateError(negativeResult, i++, "expression is not a constant expression", 39, 11);
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'K'", 39, 11);
-        BAssertUtil.validateError(negativeResult, i++, "cannot bind prefix 'ns6' to the empty namespace name", 40, 1);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
