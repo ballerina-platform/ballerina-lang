@@ -49,6 +49,7 @@ import java.util.stream.Stream;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
+import static io.ballerina.projects.util.ProjectUtils.CompatibleRange;
 
 /**
  * Utility methods required for build tools.
@@ -208,8 +209,8 @@ public class BuildToolUtils {
             SemanticVersion version,
             List<SemanticVersion> versions,
             PackageLockingMode packageLockingMode) {
-        CompatibleRange compatibleRange = getCompatibleRange(version, packageLockingMode);
-        List<SemanticVersion> versionsInCompatibleRange = getVersionsInCompatibleRange(
+        CompatibleRange compatibleRange = ProjectUtils.getCompatibleRange(version, packageLockingMode);
+        List<SemanticVersion> versionsInCompatibleRange = ProjectUtils.getVersionsInCompatibleRange(
                 version, versions, compatibleRange);
         return getLatestVersion(versionsInCompatibleRange);
     }
@@ -285,44 +286,6 @@ public class BuildToolUtils {
         return incompatibleVersions;
     }
 
-    private static CompatibleRange getCompatibleRange(SemanticVersion version, PackageLockingMode packageLockingMode) {
-        if (version == null) {
-            return CompatibleRange.LATEST;
-        }
-        if (packageLockingMode.equals(PackageLockingMode.HARD)) {
-            return CompatibleRange.EXACT;
-        }
-        if (packageLockingMode.equals(PackageLockingMode.MEDIUM) || version.isInitialVersion()) {
-            return CompatibleRange.LOCK_MINOR;
-        }
-        // Locking mode SOFT
-        return CompatibleRange.LOCK_MAJOR;
-    }
-
-    private static List<SemanticVersion> getVersionsInCompatibleRange(
-            SemanticVersion minVersion,
-            List<SemanticVersion> versions,
-            CompatibleRange compatibleRange) {
-        List<SemanticVersion> inRangeVersions = new ArrayList<>();
-        if (compatibleRange.equals(CompatibleRange.LATEST)) {
-            // If minVersion is null, range is LATEST
-            inRangeVersions.addAll(versions);
-        } else if (compatibleRange.equals(CompatibleRange.LOCK_MAJOR)) {
-            inRangeVersions.addAll(
-                    versions.stream().filter(version -> version.major() == minVersion.major()
-            ).toList());
-        } else if (compatibleRange.equals(CompatibleRange.LOCK_MINOR)) {
-            inRangeVersions.addAll(
-                    versions.stream().filter(
-                            version -> version.major() == minVersion.major()
-                            && version.minor() == minVersion.minor()
-                    ).toList());
-        } else if (versions.contains(minVersion)) {
-            inRangeVersions.add(minVersion);
-        }
-        return inRangeVersions;
-    }
-
     private static Path getPackagePath(String org, String name, String version) {
         Path centralBalaDirPath = getCentralBalaDirPath();
         Path balaPath = centralBalaDirPath.resolve(
@@ -391,27 +354,5 @@ public class BuildToolUtils {
         public String message() {
             return message;
         }
-    }
-
-    /**
-     * Denote the compatibility range of a given tool version.
-     */
-    private enum CompatibleRange {
-        /**
-         * Latest stable (if any), else latest pre-release.
-         */
-        LATEST,
-        /**
-         * Latest minor version of the locked major version.
-         */
-        LOCK_MAJOR,
-        /**
-         * Latest patch version of the locked major and minor versions.
-         */
-        LOCK_MINOR,
-        /**
-         * Exact version provided.
-         */
-        EXACT
     }
 }

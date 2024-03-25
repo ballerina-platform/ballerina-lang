@@ -18,13 +18,12 @@
 
 package io.ballerina.projects;
 
-import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.buildtools.CodeGeneratorTool;
 import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ToolResolutionRequest;
-import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.BuildToolUtils;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -35,9 +34,6 @@ import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -48,11 +44,9 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEFAULT_VERSION;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
-import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
  * {@code BuildToolResolution} Model for resolving tool dependencies.
@@ -152,7 +146,7 @@ public class BuildToolResolution {
     }
 
     private PackageLockingMode getPackageLockingMode(Project project) {
-        boolean sticky = getSticky(project);
+        boolean sticky = ProjectUtils.getSticky(project);
 
         // new project
         if (project.currentPackage().dependenciesToml().isEmpty()) {
@@ -283,30 +277,6 @@ public class BuildToolResolution {
             ));
         }
         return resolvedTools;
-    }
-
-    private boolean getSticky(Project project) {
-        boolean sticky = project.buildOptions().sticky();
-        if (sticky) {
-            return true;
-        }
-
-        // set sticky if `build` file exists and `last_update_time` not passed 24 hours
-        Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
-        if (Files.exists(buildFilePath) && buildFilePath.toFile().length() > 0) {
-            try {
-                BuildJson buildJson = readBuildJson(buildFilePath);
-                // if distribution is not same, we anyway return sticky as false
-                if (buildJson != null && buildJson.distributionVersion() != null &&
-                        buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
-                        !buildJson.isExpiredLastUpdateTime()) {
-                    return true;
-                }
-            } catch (IOException | JsonSyntaxException e) {
-                // ignore
-            }
-        }
-        return false;
     }
 
     private void updateLockedToolDependencyVersions(List<BuildTool> unresolvedTools, Project project) {
