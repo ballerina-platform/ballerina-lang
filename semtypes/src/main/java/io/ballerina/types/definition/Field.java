@@ -20,7 +20,7 @@ package io.ballerina.types.definition;
 import io.ballerina.types.SemType;
 
 /**
- * Represent a record field in a type-descriptor.
+ * Represent a field in a mapping type.
  *
  * @param name field name
  * @param ty field type

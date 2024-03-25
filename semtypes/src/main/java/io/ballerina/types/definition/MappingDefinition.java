@@ -118,13 +118,13 @@ public class MappingDefinition implements Definition {
         List<String> names = new ArrayList<>();
         List<CellSemType> types = new ArrayList<>();
         for (CellField field : sortedFields) {
-            names.add(field.name);
-            types.add(field.type);
+            names.add(field.name());
+            types.add(field.type());
         }
         return SplitField.from(names, types);
     }
 
     private static String fieldName(CellField f) {
-        return f.name;
+        return f.name();
     }
 }

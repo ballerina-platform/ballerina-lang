@@ -20,18 +20,13 @@ package io.ballerina.types.definition;
 import io.ballerina.types.CellSemType;
 
 /**
- * Represent a record field in a type-descriptor.
+ * Represents a cell field in a mapping type.
  *
+ * @param name name of the field
+ * @param type cell-sem-type of the field
  * @since 2201.10.0
  */
-public class CellField {
-    public final String name;
-    public final CellSemType type;
-
-    private CellField(String name, CellSemType type) {
-        this.name = name;
-        this.type = type;
-    }
+public record CellField(String name, CellSemType type) {
 
     public static CellField from(String name, CellSemType type) {
         return new CellField(name, type);

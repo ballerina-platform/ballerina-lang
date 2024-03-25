@@ -33,8 +33,8 @@ public class Context {
 
     private static volatile Context instance;
 
-    public SemType anydataMemo; // TODO: make this private?
-    public SemType jsonMemo;
+    SemType anydataMemo;
+    SemType jsonMemo;
 
     private Context(Env env) {
         this.env = env;

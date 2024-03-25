@@ -465,8 +465,8 @@ public final class Core {
                 return null;
             }
             return bddMappingAtomicType(env,
-                    (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_MAPPING),
-                    mappingAtomicInner);
+                                       (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_MAPPING),
+                                       mappingAtomicInner);
         }
     }
 
@@ -710,7 +710,7 @@ public final class Core {
         MappingDefinition mapDef = new MappingDefinition();
         SemType j = union(PredefinedType.SIMPLE_OR_STRING, union(listDef.getSemType(env), mapDef.getSemType(env)));
         listDef.define(env, new ArrayList<>(), 0,  j);
-        SemType s = MappingDefinition.defineMappingTypeWrapped(mapDef, env, new ArrayList<>(), j);
+        MappingDefinition.defineMappingTypeWrapped(mapDef, env, new ArrayList<>(), j);
         return j;
     }
 
