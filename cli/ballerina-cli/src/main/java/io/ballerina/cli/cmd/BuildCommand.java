@@ -155,7 +155,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
 
-    @CommandLine.Option(names = "--management-service-included", description = "package service management tools in " +
+    @CommandLine.Option(names = "--runtime-management-included", description = "package service management tools in " +
             "the executable JAR file(s).")
     private Boolean runtimeManagementIncluded;
 
