@@ -98,15 +98,19 @@ public class Common {
     }
 
     public static CellSemType[] shallowCopyCellTypes(CellSemType[] v) {
-        return Arrays.copyOf(v, v.length);
+        return shallowCopyCellTypes(v, v.length);
+    }
+
+    public static CellSemType[] shallowCopyCellTypes(CellSemType[] v, int newLength) {
+        return Arrays.copyOf(v, newLength);
     }
 
     public static List<SemType> shallowCopyTypes(List<SemType> v) {
         return new ArrayList<>(v);
     }
 
-    public static String[] shallowCopyStrings(String[] v) {
-        return Arrays.copyOf(v, v.length);
+    public static String[] shallowCopyStrings(String[] v, int newLength) {
+        return Arrays.copyOf(v, newLength);
     }
 
     public static boolean notIsEmpty(Context cx, SubtypeData d) {

@@ -19,64 +19,16 @@ package io.ballerina.types.definition;
 
 import io.ballerina.types.SemType;
 
-import java.util.Objects;
-
 /**
  * Represent a record field in a type-descriptor.
  *
+ * @param name field name
+ * @param ty field type
+ * @param ro whether the field is readonly
+ * @param opt whether the field is optional
  * @since 2201.10.0
  */
-public final class Field {
-    private final String name;
-    private final SemType ty;
-    private final boolean ro;
-    private final boolean opt;
-
-    /**
-     *
-     */
-    public Field(String name, SemType ty, boolean ro, boolean opt) {
-        this.name = name;
-        this.ty = ty;
-        this.ro = ro;
-        this.opt = opt;
-    }
-
-    public String name() {
-        return name;
-    }
-
-    public SemType ty() {
-        return ty;
-    }
-
-    public boolean ro() {
-        return ro;
-    }
-
-    public boolean opt() {
-        return opt;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
-        var that = (Field) obj;
-        return Objects.equals(this.name, that.name) &&
-                Objects.equals(this.ty, that.ty) &&
-                this.ro == that.ro &&
-                this.opt == that.opt;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, ty, ro, opt);
-    }
+public record Field(String name, SemType ty, boolean ro, boolean opt) {
 
     @Override
     public String toString() {

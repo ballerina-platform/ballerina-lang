@@ -30,8 +30,8 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.File;
@@ -43,9 +43,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,10 +57,10 @@ import java.util.stream.Stream;
  */
 public class SemTypeTest {
 
-    @DataProvider(name = "fileNameProvider")
-    public Object[] fileNameProvider() {
+    @DataProvider(name = "dataDirFileNameProvider")
+    public Object[] dataDirFileNameProvider() {
         File dataDir = resolvePath("test-src/data").toFile();
-        List<String> testFiles = Arrays.stream(dataDir.listFiles())
+        List<String> testFiles = Arrays.stream(Objects.requireNonNull(dataDir.listFiles()))
                 .map(File::getAbsolutePath)
                 .filter(name -> name.endsWith(".bal") &&
                         !skipList().contains(name.substring(name.lastIndexOf(File.separator) + 1)))
@@ -124,10 +124,10 @@ public class SemTypeTest {
     @DataProvider(name = "fileNameProviderFunc")
     public Object[] fileNameProviderFunc() {
         File dataDir = resolvePath("test-src/localVar").toFile();
-        List<String> testFiles = Arrays.stream(dataDir.listFiles())
+        List<String> testFiles = Arrays.stream(Objects.requireNonNull(dataDir.listFiles()))
                 .map(File::getAbsolutePath)
                 .filter(name -> name.endsWith(".bal"))
-                .collect(Collectors.toList());
+                .toList();
 
         return testFiles.toArray(new String[0]);
     }
@@ -143,8 +143,24 @@ public class SemTypeTest {
         for (File file : balFiles) {
             String fileName = file.getAbsolutePath();
             BCompileUtil.PackageSyntaxTreePair pair = BCompileUtil.compileSemType(fileName);
-            List<SemTypeAssertionTransformer.TypeAssertion> assertions = SemTypeAssertionTransformer
-                    .getTypeAssertionsFrom(fileName, pair.syntaxTree, pair.bLangPackage.semtypeEnv);
+            BLangPackage pkgNode = pair.bLangPackage;
+
+            List<BLangNode> typeAndClassDefs = new ArrayList<>();
+            typeAndClassDefs.addAll(pkgNode.constants);
+            typeAndClassDefs.addAll(pkgNode.typeDefinitions);
+            SemTypeResolver typeResolver = new SemTypeResolver();
+            Context typeCheckContext = Context.from(pkgNode.semtypeEnv);
+
+            List<SemTypeAssertionTransformer.TypeAssertion> assertions;
+            try {
+                typeResolver.defineSemTypes(typeAndClassDefs, typeCheckContext);
+                assertions = SemTypeAssertionTransformer.getTypeAssertionsFrom(fileName, pair.syntaxTree,
+                        pkgNode.semtypeEnv);
+            } catch (Exception e) {
+                assertions = new ArrayList<>(List.of(new SemTypeAssertionTransformer.TypeAssertion(
+                        null, fileName, null, null, null, e.getMessage()
+                )));
+            }
             tests.addAll(assertions);
         }
         return tests.toArray();
@@ -154,7 +170,7 @@ public class SemTypeTest {
         if (file.isFile()) {
             return;
         }
-        for (File f : file.listFiles()) {
+        for (File f : Objects.requireNonNull(file.listFiles())) {
             if (f.isDirectory()) {
                 listAllBalFiles(f, balFiles);
             }
@@ -183,20 +199,20 @@ public class SemTypeTest {
         }
     }
 
-    @Test(dataProvider = "fileNameProvider")
-    public void initialTest(String fileName) {
+    @Test(dataProvider = "dataDirFileNameProvider")
+    public void verifyAllSubtypeRelationships(String fileName) {
         List<String> subtypeRels = getSubtypeRels(fileName);
         List<String> expectedRels = extractSubtypeRelations(fileName);
         // Commented code will get expected content for this test to pass.
         // Useful for taking a diff.
-        //String text = toText(subtypeRels);
+        // String text = toText(subtypeRels);
         Assert.assertEquals(subtypeRels, expectedRels);
     }
 
     @Test(dataProvider = "fileNameProviderFunc")
     public void funcTest(String fileName) {
         BCompileUtil.PackageSyntaxTreePair packageSyntaxTreePair = BCompileUtil.compileSemType(fileName);
-        BLangPackage bLangPackage = packageSyntaxTreePair.bLangPackage;;
+        BLangPackage bLangPackage = packageSyntaxTreePair.bLangPackage;
         ensureNoErrors(bLangPackage);
         List<String[]> vars = extractVarTypes(fileName);
         Context tc = Context.from(bLangPackage.semtypeEnv);
@@ -219,6 +235,10 @@ public class SemTypeTest {
 
     @Test(dataProvider = "type-rel-provider")
     public void testSemTypeAssertions(SemTypeAssertionTransformer.TypeAssertion typeAssertion) {
+        if (typeAssertion.kind == null) {
+            Assert.fail("Exception thrown in " + typeAssertion.file + System.lineSeparator() + typeAssertion.text);
+        }
+
         switch (typeAssertion.kind) {
             case NON:
                 Assert.assertFalse(SemTypes.isSubtype(typeAssertion.context, typeAssertion.lhs, typeAssertion.rhs),
@@ -255,32 +275,28 @@ public class SemTypeTest {
     }
 
     private List<String> getSubtypeRels(String sourceFilePath) {
-        BLangPackage bLangPackage = BCompileUtil.compileSemType(sourceFilePath).bLangPackage;
+        BLangPackage pkgNode = BCompileUtil.compileSemType(sourceFilePath).bLangPackage;
         // xxxx-e.bal pattern is used to test bal files where jBallerina type checking doesn't support type operations
         // such as intersection. Make sure not to use nBallerina type negation (!) with this as jBallerina compiler
         // front end doesn't generate AST from those.
         if (!sourceFilePath.endsWith("-e.bal")) {
-            ensureNoErrors(bLangPackage);
+            ensureNoErrors(pkgNode);
         }
-        Context typeCheckContext = Context.from(bLangPackage.semtypeEnv);
 
-        // Map<String, SemType> typeMap = bLangPackage.semtypeEnv.getTypeNameSemTypeMap();
-        // TODO: use above line instead of below, once sem-type resolving is done directly.
+        List<BLangNode> typeAndClassDefs = new ArrayList<>();
+        typeAndClassDefs.addAll(pkgNode.constants);
+        typeAndClassDefs.addAll(pkgNode.typeDefinitions);
 
-        Map<String, SemType> typeMap = new LinkedHashMap<>();
-        List<BLangTypeDefinition> typeDefs = bLangPackage.typeDefinitions;
-        for (BLangTypeDefinition typeDef : typeDefs) {
-            SemType s = typeDef.getBType().semType();
-            if (s != null) {
-                typeMap.put(typeDef.name.value, s);
-            }
-        }
+        SemTypeResolver typeResolver = new SemTypeResolver();
+        Context typeCheckContext = Context.from(pkgNode.semtypeEnv);
+        typeResolver.defineSemTypes(typeAndClassDefs, typeCheckContext);
+        Map<String, SemType> typeMap = pkgNode.semtypeEnv.getTypeNameSemTypeMap();
 
         List<TypeRel> subtypeRelations = new ArrayList<>();
         List<String> typeNameList = typeMap.keySet().stream()
                 .filter(n -> !n.startsWith("$anon"))
                 .sorted(SemTypeTest::ballerinaStringCompare)
-                .collect(Collectors.toList());
+                .toList();
         int size = typeNameList.size();
         for (int i = 0; i < size; i++) {
             for (int j = i + 1; j < size; j++) {
@@ -307,10 +323,10 @@ public class SemTypeTest {
     private void ensureNoErrors(BLangPackage bLangPackage) {
         List<Diagnostic> errors = bLangPackage.getDiagnostics().stream()
                 .filter(d -> d.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)
-                .collect(Collectors.toList());
+                .toList();
         if (!errors.isEmpty()) {
             Assert.fail(errors.stream()
-                            .map(d -> d.toString())
+                            .map(Diagnostic::toString)
                             .reduce("", (a, b) -> a + "\n" + b));
         }
     }
@@ -353,16 +369,11 @@ public class SemTypeTest {
     /**
      * Represent subtype relationship.
      *
-     * @since 3.0.0
+     * @param subType   subtype name
+     * @param superType super type name
+     * @since 2201.10.0
      */
-    public static class TypeRel {
-        public final String superType;
-        public final String subType;
-
-        public TypeRel(String subType, String superType) {
-            this.superType = superType;
-            this.subType = subType;
-        }
+    private record TypeRel(String subType, String superType) {
 
         public static TypeRel rel(String sub, String sup) {
             return new TypeRel(sub, sup);

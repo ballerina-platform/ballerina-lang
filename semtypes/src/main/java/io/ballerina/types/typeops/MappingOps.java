@@ -37,7 +37,6 @@ import io.ballerina.types.subtypedata.StringSubtype;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static io.ballerina.types.Common.bddSubtypeComplement;
 import static io.ballerina.types.Common.bddSubtypeDiff;
@@ -122,11 +121,11 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
     }
 
     private static MappingAtomicType insertField(MappingAtomicType m, String name, CellSemType t) {
-        String[] names = Common.shallowCopyStrings(m.names);
-        CellSemType[] types = Common.shallowCopyCellTypes(m.types);
-        int i = names.length;
+        String[] names = Common.shallowCopyStrings(m.names, m.names.length + 1);
+        CellSemType[] types = Common.shallowCopyCellTypes(m.types, m.types.length + 1);
+        int i = m.names.length;
         while (true) {
-            if (i == 0 || Objects.equals(name, names[i - 1]) || Common.codePointCompare(name, names[i - 1])) { // TODO
+            if (i == 0 || Common.codePointCompare(names[i - 1], name)) {
                 names[i] = name;
                 types[i] = t;
                 break;
