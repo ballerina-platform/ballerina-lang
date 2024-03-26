@@ -120,13 +120,16 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/send-receive-failure-type.bal");
         int index = 0;
         validateError(result, index++, "incompatible types: expected 'int', " +
-                "found '(int|ballerina/lang.error:0.0.0:NoMessage)'", 51, 15);
+                "found '(int|ballerina/lang.error:0.0.0:NoMessage)'", 49, 15);
         validateError(result, index++, "incompatible types: expected 'int', " +
-                "found '(ErrorA|int|ballerina/lang.error:0.0.0:NoMessage)'", 52, 15);
+                "found '(ErrorA|int|ballerina/lang.error:0.0.0:NoMessage)'", 50, 15);
         validateError(result, index++, "incompatible types: expected 'int', " +
-                "found '(ErrorA|ErrorB|string|ballerina/lang.error:0.0.0:NoMessage)'", 53, 15);
-        validateError(result, index++, "incompatible types: expected '()', found 'ErrorA?'", 91, 14);
-        validateError(result, index++, "incompatible types: expected '()', found '(ErrorA|ErrorB)?'", 92, 14);
+                "found '(ErrorA|ErrorB|string|ballerina/lang.error:0.0.0:NoMessage)'", 51, 15);
+        validateError(result, index++, "incompatible types: expected 'int', found '(ErrorA|ErrorB|int)'", 71, 15);
+        validateError(result, index++, "incompatible types: expected 'int', " +
+                "found '(ErrorA|ErrorB|int|ballerina/lang.error:0.0.0:NoMessage)'", 86, 15);
+        validateError(result, index++, "incompatible types: expected '()', found 'ErrorA?'", 119, 14);
+        validateError(result, index++, "incompatible types: expected '()', found '(ErrorA|ErrorB)?'", 120, 14);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 

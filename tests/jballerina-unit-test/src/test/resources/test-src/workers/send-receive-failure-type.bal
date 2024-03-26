@@ -14,13 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jballerina.java;
-
 public type ErrorA distinct error;
 
 public type ErrorB distinct error;
 
-public function testSendFailureType(boolean b, boolean c) {
+public function testSendFailureType1(boolean b, boolean c) {
     worker w1 returns boolean|ErrorA|ErrorB {
         int i = 2;
 
@@ -56,6 +54,36 @@ public function testSendFailureType(boolean b, boolean c) {
 
       println(m);
       println(n);
+    }
+}
+
+public function testSendFailureType2(boolean b) {
+    worker w1 returns boolean|ErrorA|ErrorB {
+        ErrorA|ErrorB e = error ErrorA("error A");
+        if b {
+            return e;
+        }
+        11 -> w2;
+        return true;
+    }
+
+    worker w2 {
+      int _ = <- w1; // error: found '(ErrorA|ErrorB|int)'
+    }
+}
+
+public function testSendFailureType3(boolean b) {
+    worker w1 returns boolean|ErrorA|ErrorB {
+        ErrorA|ErrorB|boolean e = error ErrorA("error A");
+        if b {
+            return e;
+        }
+        22 -> w2;
+        return true;
+    }
+
+    worker w2 {
+      int _ = <- w1; // error: found '(ErrorA|ErrorB|int|error:NoMessage)
     }
 }
 
@@ -100,6 +128,6 @@ public function testReceiveFailureType(boolean b, boolean c) {
     }
 }
 
-public function println(any|error... values) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Utils"
-} external;
+public function println(any|error value)  {
+    return;
+}
