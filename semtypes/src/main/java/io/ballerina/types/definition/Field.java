@@ -30,6 +30,10 @@ import io.ballerina.types.SemType;
  */
 public record Field(String name, SemType ty, boolean ro, boolean opt) {
 
+    public static Field from(String name, SemType type, boolean ro, boolean opt) {
+        return new Field(name, type, ro, opt);
+    }
+
     @Override
     public String toString() {
         return "Field[" +
@@ -38,5 +42,4 @@ public record Field(String name, SemType ty, boolean ro, boolean opt) {
                 "ro=" + ro + ", " +
                 "opt=" + opt + ']';
     }
-
 }

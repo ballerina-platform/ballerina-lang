@@ -85,7 +85,7 @@ public class CellOps extends CommonOps implements BasicTypeOps {
         SemType negListUnionResult = cellNegListUnion(negList);
         // We expect `isNever` condition to be `true` when there are no negative atoms.
         // Otherwise, we do `isEmpty` to conclude on the inhabitance.
-        return PredefinedType.NEVER.equals(negListUnionResult) || !Core.isEmpty(cx, Core.diff(pos, negListUnionResult));
+        return Core.isNever(negListUnionResult) || !Core.isEmpty(cx, Core.diff(pos, negListUnionResult));
     }
 
     private static SemType cellNegListUnion(Conjunction negList) {
@@ -122,7 +122,7 @@ public class CellOps extends CommonOps implements BasicTypeOps {
         SemType negListUnionResult = cellNegListUnlimitedUnion(negList);
         // We expect `isNever` condition to be `true` when there are no negative atoms with unlimited mutability.
         // Otherwise, we do `isEmpty` to conclude on the inhabitance.
-        return PredefinedType.NEVER.equals(negListUnionResult) || !Core.isEmpty(cx, Core.diff(pos, negListUnionResult));
+        return Core.isNever(negListUnionResult) || !Core.isEmpty(cx, Core.diff(pos, negListUnionResult));
     }
 
     private static SemType cellNegListUnlimitedUnion(Conjunction negList) {

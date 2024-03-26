@@ -22,6 +22,7 @@ import io.ballerina.types.BasicTypeCode;
 import io.ballerina.types.CellAtomicType;
 import io.ballerina.types.CellSemType;
 import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.Core;
 import io.ballerina.types.Definition;
 import io.ballerina.types.Env;
 import io.ballerina.types.MappingAtomicType;
@@ -100,7 +101,7 @@ public class MappingDefinition implements Definition {
         CellSemType restCell = cellContaining(
                 env,
                 union(rest, UNDEF),
-                NEVER.equals(rest) ? CELL_MUT_NONE : mut
+                Core.isNever(rest) ? CELL_MUT_NONE : mut
         );
         return md.define(env, cellFields, restCell);
     }

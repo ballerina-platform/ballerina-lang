@@ -117,7 +117,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 return true;
             }
             // Ensure that we can use isNever on rest in listInhabited
-            if (!NEVER.equals(rest) && Core.isEmpty(cx, rest)) {
+            if (!Core.isNever(rest) && Core.isEmpty(cx, rest)) {
                 rest = NEVER;
             }
         }

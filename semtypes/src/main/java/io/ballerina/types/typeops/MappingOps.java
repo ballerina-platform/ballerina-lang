@@ -98,17 +98,17 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
                 return true;
             }
             for (FieldPair fieldPair : pairing) {
-                SemType d = Core.diff(fieldPair.type1, fieldPair.type2);
+                SemType d = Core.diff(fieldPair.type1(), fieldPair.type2());
                 assert Core.isSubtypeSimple(d, PredefinedType.CELL);
                 CellSemType dCell = CellSemType.from(((ComplexSemType) d).subtypeDataList);
                 if (!Core.isEmpty(cx, d)) {
                     MappingAtomicType mt;
-                    if (fieldPair.index1 == null) {
+                    if (fieldPair.index1() == null) {
                         // the posType came from the rest type
-                        mt = insertField(pos, fieldPair.name, dCell);
+                        mt = insertField(pos, fieldPair.name(), dCell);
                     } else {
                         CellSemType[] posTypes = Common.shallowCopyCellTypes(pos.types);
-                        posTypes[fieldPair.index1] = dCell;
+                        posTypes[fieldPair.index1()] = dCell;
                         mt = MappingAtomicType.from(pos.names, posTypes, pos.rest);
                     }
                     if (mappingInhabited(cx, mt, negList.next)) {
@@ -142,9 +142,9 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
         List<CellSemType> types = new ArrayList<>();
         FieldPairs pairing = new FieldPairs(m1, m2);
         for (FieldPair fieldPair : pairing) {
-            names.add(fieldPair.name);
-            CellSemType t = Core.intersectMemberSemTypes(env, fieldPair.type1, fieldPair.type2);
-            if (NEVER.equals(Core.cellInner(fieldPair.type1))) {
+            names.add(fieldPair.name());
+            CellSemType t = Core.intersectMemberSemTypes(env, fieldPair.type1(), fieldPair.type2());
+            if (Core.isNever(Core.cellInner(fieldPair.type1()))) {
                 return null;
             }
             types.add(t);

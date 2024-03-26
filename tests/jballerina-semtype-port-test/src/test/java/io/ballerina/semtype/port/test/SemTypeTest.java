@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -45,7 +45,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -53,14 +52,14 @@ import java.util.stream.Stream;
 /**
  * Test semtypes using compiler front-end for parsing.
  *
- * @since 3.0.0
+ * @since 2201.10.0
  */
 public class SemTypeTest {
 
     @DataProvider(name = "dataDirFileNameProvider")
     public Object[] dataDirFileNameProvider() {
         File dataDir = resolvePath("test-src/data").toFile();
-        List<String> testFiles = Arrays.stream(Objects.requireNonNull(dataDir.listFiles()))
+        List<String> testFiles = Arrays.stream(dataDir.listFiles())
                 .map(File::getAbsolutePath)
                 .filter(name -> name.endsWith(".bal") &&
                         !dataDirSkipList().contains(name.substring(name.lastIndexOf(File.separator) + 1)))
@@ -115,7 +114,7 @@ public class SemTypeTest {
     @DataProvider(name = "fileNameProviderFunc")
     public Object[] fileNameProviderFunc() {
         File dataDir = resolvePath("test-src/localVar").toFile();
-        List<String> testFiles = Arrays.stream(Objects.requireNonNull(dataDir.listFiles()))
+        List<String> testFiles = Arrays.stream(dataDir.listFiles())
                 .map(File::getAbsolutePath)
                 .filter(name -> name.endsWith(".bal"))
                 .toList();
@@ -161,7 +160,7 @@ public class SemTypeTest {
         if (file.isFile()) {
             return;
         }
-        for (File f : Objects.requireNonNull(file.listFiles())) {
+        for (File f : file.listFiles()) {
             if (f.isDirectory()) {
                 listAllBalFiles(f, balFiles);
             }

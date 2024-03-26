@@ -135,19 +135,19 @@ public class SemTypeResolver {
         }
         switch (td.getKind()) {
             case VALUE_TYPE:
-                return resolveTypeDesc((BLangValueType) td, cx);
+                return resolveTypeDesc(cx, (BLangValueType) td);
             case BUILT_IN_REF_TYPE:
                 return resolveTypeDesc((BLangBuiltInRefTypeNode) td);
             case RECORD_TYPE:
-                return resolveTypeDesc((BLangRecordTypeNode) td, cx, mod, depth, defn);
+                return resolveTypeDesc(cx, (BLangRecordTypeNode) td, mod, depth, defn);
             case CONSTRAINED_TYPE: // map<?> and typedesc<?>
-                return resolveTypeDesc((BLangConstrainedType) td, cx, mod, depth, defn);
+                return resolveTypeDesc(cx, (BLangConstrainedType) td, mod, depth, defn);
             case UNION_TYPE_NODE:
-                return resolveTypeDesc((BLangUnionTypeNode) td, cx, mod, depth, defn);
+                return resolveTypeDesc(cx, (BLangUnionTypeNode) td, mod, depth, defn);
             case INTERSECTION_TYPE_NODE:
-                return resolveTypeDesc((BLangIntersectionTypeNode) td, cx, mod, depth, defn);
+                return resolveTypeDesc(cx, (BLangIntersectionTypeNode) td, mod, depth, defn);
             case USER_DEFINED_TYPE:
-                return resolveTypeDesc((BLangUserDefinedType) td, cx, mod, depth);
+                return resolveTypeDesc(cx, (BLangUserDefinedType) td, mod, depth);
             case FINITE_TYPE_NODE:
                 return resolveSingletonType((BLangFiniteTypeNode) td);
             default:
@@ -155,7 +155,7 @@ public class SemTypeResolver {
         }
     }
 
-    private SemType resolveTypeDesc(BLangValueType td, Context cx) {
+    private SemType resolveTypeDesc(Context cx, BLangValueType td) {
         switch (td.typeKind) {
             case NIL:
                 return PredefinedType.NIL;
@@ -199,7 +199,7 @@ public class SemTypeResolver {
         };
     }
 
-    private SemType resolveTypeDesc(BLangConstrainedType td, Context cx, Map<String, BLangNode> mod,
+    private SemType resolveTypeDesc(Context cx, BLangConstrainedType td, Map<String, BLangNode> mod,
                                     int depth, BLangTypeDefinition defn) {
         TypeKind typeKind = ((BLangBuiltInRefTypeNode) td.getType()).getTypeKind();
         return switch (typeKind) {
@@ -230,7 +230,7 @@ public class SemTypeResolver {
         return SemTypes.xmlSequence(resolveTypeDesc(cx, mod, defn, depth + 1, td.constraint));
     }
 
-    private SemType resolveTypeDesc(BLangRecordTypeNode td, Context cx, Map<String, BLangNode> mod, int depth,
+    private SemType resolveTypeDesc(Context cx, BLangRecordTypeNode td, Map<String, BLangNode> mod, int depth,
                                     BLangTypeDefinition typeDefinition) {
         if (td.defn != null) {
             return td.defn.getSemType(cx.env);
@@ -242,10 +242,10 @@ public class SemTypeResolver {
         List<Field> fields = new ArrayList<>();
         for (BLangSimpleVariable field : td.fields) {
             SemType ty = resolveTypeDesc(cx, mod, typeDefinition, depth + 1, field.typeNode);
-            if (PredefinedType.NEVER.equals(ty)) {
+            if (Core.isNever(ty)) {
                 throw new IllegalStateException("record field can't be never");
             }
-            fields.add(new Field(field.name.value, ty, false, field.flagSet.contains(Flag.OPTIONAL)));
+            fields.add(Field.from(field.name.value, ty, false, field.flagSet.contains(Flag.OPTIONAL)));
         }
 
         SemType rest;
@@ -258,7 +258,7 @@ public class SemTypeResolver {
         return defineMappingTypeWrapped(d, cx.env, fields, rest == null ? PredefinedType.NEVER : rest);
     }
 
-    private SemType resolveTypeDesc(BLangUnionTypeNode td, Context cx, Map<String, BLangNode> mod, int depth,
+    private SemType resolveTypeDesc(Context cx, BLangUnionTypeNode td, Map<String, BLangNode> mod, int depth,
                                     BLangTypeDefinition defn) {
         Iterator<BLangType> iterator = td.memberTypeNodes.iterator();
         SemType u = resolveTypeDesc(cx, mod, defn, depth, iterator.next());
@@ -268,7 +268,7 @@ public class SemTypeResolver {
         return u;
     }
 
-    private SemType resolveTypeDesc(BLangIntersectionTypeNode td, Context cx, Map<String, BLangNode> mod, int depth,
+    private SemType resolveTypeDesc(Context cx, BLangIntersectionTypeNode td, Map<String, BLangNode> mod, int depth,
                                     BLangTypeDefinition defn) {
         Iterator<BLangType> iterator = td.constituentTypeNodes.iterator();
         SemType i = resolveTypeDesc(cx, mod, defn, depth, iterator.next());
@@ -278,7 +278,7 @@ public class SemTypeResolver {
         return i;
     }
 
-    private SemType resolveTypeDesc(BLangUserDefinedType td, Context cx, Map<String, BLangNode> mod, int depth) {
+    private SemType resolveTypeDesc(Context cx, BLangUserDefinedType td, Map<String, BLangNode> mod, int depth) {
         String name = td.typeName.value;
         // Need to replace this with a real package lookup
         if (td.pkgAlias.value.equals("int")) {
@@ -353,13 +353,16 @@ public class SemTypeResolver {
         return switch (targetTypeKind) {
             case NIL -> PredefinedType.NIL;
             case BOOLEAN -> SemTypes.booleanConst((Boolean) value);
-            case INT, BYTE -> SemTypes.intConst(((Number) value).longValue());
+            case INT, BYTE -> {
+                assert !(value instanceof Byte);
+                yield SemTypes.intConst(((Number) value).longValue());
+            }
             case FLOAT -> {
                 double doubleVal;
-                if (value instanceof Long) {
-                    doubleVal = ((Long) value).doubleValue();
-                } else if (value instanceof Double) {
-                    doubleVal = (double) value;
+                if (value instanceof Long longValue) {
+                    doubleVal = longValue.doubleValue();
+                } else if (value instanceof Double doubleValue) {
+                    doubleVal = doubleValue;
                 } else {
                     // literal value will be a string if it wasn't within the bounds of what is supported by Java Long
                     // or Double when it was parsed in BLangNodeBuilder.

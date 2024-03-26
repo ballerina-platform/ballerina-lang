@@ -32,6 +32,7 @@ import io.ballerina.types.FixedLengthArray;
 import io.ballerina.types.FunctionAtomicType;
 import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.MappingAtomicType;
+import io.ballerina.types.PredefinedType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
@@ -1900,6 +1901,10 @@ public class BIRPackageSymbolEnter {
             for (int i = 0; i < subtypeDataListLength; i++) {
                 subtypeList[i] = readProperSubtypeData();
             }
+
+            if (some == PredefinedType.CELL.bitset && all == 0) {
+                return CellSemType.from(subtypeList);
+            }
             return new ComplexSemType(BasicTypeBitSet.from(all), BasicTypeBitSet.from(some), subtypeList);
         }
 
@@ -1977,14 +1982,10 @@ public class BIRPackageSymbolEnter {
             int typesLength = inputStream.readInt();
             CellSemType[] types = new CellSemType[typesLength];
             for (int i = 0; i < typesLength; i++) {
-                SemType t = readSemType();
-                assert t != null;
-                types[i] = CellSemType.from(((ComplexSemType) t).subtypeDataList);
+                types[i] = (CellSemType) readSemType();
             }
 
-            SemType r = readSemType();
-            assert r != null;
-            CellSemType rest = CellSemType.from(((ComplexSemType) r).subtypeDataList);
+            CellSemType rest = (CellSemType) readSemType();
             return MappingAtomicType.from(names, types, rest);
         }
 
