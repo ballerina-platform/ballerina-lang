@@ -808,8 +808,7 @@ public class JvmTerminatorGen {
         BIRNode.BIRVariableDcl selfArg = callIns.args.get(0).variableDcl;
         BType selfArgRefType = JvmCodeGenUtil.getImpliedType(selfArg.type);
         if (selfArgRefType.tag == TypeTags.OBJECT  || selfArgRefType.tag == TypeTags.UNION) {
-            this.genVirtualCall(callIns, JvmCodeGenUtil.isBallerinaBuiltinModule(
-                    packageID.orgName.getValue(), packageID.name.getValue()), localVarOffset);
+            this.genVirtualCall(callIns, localVarOffset);
         } else {
             // then this is a function attached to a built-in type
             this.genBuiltinTypeAttachedFuncCall(callIns, packageID, localVarOffset);
@@ -882,7 +881,7 @@ public class JvmTerminatorGen {
         this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, encodedMethodName, methodDesc, false);
     }
 
-    private void genVirtualCall(BIRTerminator.Call callIns, boolean isBuiltInModule, int localVarOffset) {
+    private void genVirtualCall(BIRTerminator.Call callIns, int localVarOffset) {
         // load self
         BIRNode.BIRVariableDcl selfArg = callIns.args.get(0).variableDcl;
         this.loadVar(selfArg);
@@ -893,7 +892,6 @@ public class JvmTerminatorGen {
 
         // load the function name as the second argument
         this.mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(callIns.name.value));
-
         // create an Object[] for the rest params
         int argsCount = callIns.args.size() - 1;
         this.mv.visitLdcInsn((long) (argsCount));
