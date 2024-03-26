@@ -1,0 +1,4 @@
+ERROR [missing-function-keyword.bal:(1:8,1:8)] missing function keyword (BCE0248)
+  |
+1 |  public function main() {
+  |         ++++++++

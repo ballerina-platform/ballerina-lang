@@ -1,8 +1,20 @@
 Compiling source
 	intg_tests/assertions:0.0.0
-WARNING [tests/assert-test-structural-types.bal:(22:5,22:21)] undocumented field 'id'
-WARNING [tests/assert-test-structural-types.bal:(23:5,23:17)] undocumented field 'name'
-WARNING [tests/assert-test-structural-types.bal:(24:5,24:18)] undocumented field 'salary'
+WARNING [tests/assert-test-structural-types.bal:(22:5,22:21)] undocumented field 'id' (BCE20004)
+   |
+22 |     readonly int id;
+   |     ^^^^^^^^^^^^^^^^
+
+WARNING [tests/assert-test-structural-types.bal:(23:5,23:17)] undocumented field 'name' (BCE20004)
+   |
+23 |     string name;
+   |     ^^^^^^^^^^^^
+
+WARNING [tests/assert-test-structural-types.bal:(24:5,24:18)] undocumented field 'salary' (BCE20004)
+   |
+24 |     float salary;
+   |     ^^^^^^^^^^^^^
+
 
 Running Tests with Coverage
 

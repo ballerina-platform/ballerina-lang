@@ -3,4 +3,8 @@ warning: ignoring --includes flag since code coverage is not enabled
 Compiling source
 	function-mock.bal
 ERROR [function-mock.bal:(12:1,12:38)] function mocking is not supported with standalone Ballerina files
+   |
+12 | @test:Mock { functionName: "intAdd" }
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 error: compilation contains errors
