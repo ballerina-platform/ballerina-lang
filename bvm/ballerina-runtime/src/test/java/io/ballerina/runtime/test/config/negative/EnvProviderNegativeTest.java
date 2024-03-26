@@ -78,6 +78,9 @@ public class EnvProviderNegativeTest {
                 {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", " hello  "), "myorg", "mod", "x", PredefinedTypes.TYPE_INT,
                         "error: [BAL_CONFIG_VAR_MYORG_MOD_X= hello  ] configurable variable 'x' is expected " +
                         "to be of type 'int', but found ' hello  '"},
+                {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", " hello  "), "myorg", "mod", "x",
+                        PredefinedTypes.TYPE_FLOAT, "error: [BAL_CONFIG_VAR_MYORG_MOD_X= hello  ] configurable " +
+                        "variable 'x' is expected to be of type 'float', but found ' hello  '"},
                 // Config int value with spaces
                 {Map.of("BAL_CONFIG_VAR_MYORG_MOD_X", " 123  "), "myorg", "mod", "x", PredefinedTypes.TYPE_INT,
                         "error: [BAL_CONFIG_VAR_MYORG_MOD_X= 123  ] configurable variable 'x' is expected " +

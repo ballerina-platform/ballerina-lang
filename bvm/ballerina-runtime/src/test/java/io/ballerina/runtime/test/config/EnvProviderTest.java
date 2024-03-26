@@ -245,4 +245,19 @@ public class EnvProviderTest {
         Object value = configValueMap.get(unionVar).getValue();
         Assert.assertEquals(xmlVal.toString(), value.toString());
     }
+
+    @Test
+    public void testEnvProviderXmlType() {
+        BXml xmlVal = ValueCreator.createXmlComment(StringUtils.fromString("I am a comment"));
+        VariableKey xmlVar = new VariableKey(ROOT_MODULE, "xmlVar",
+                getIntersectionType(ROOT_MODULE, PredefinedTypes.TYPE_READONLY_XML), false);
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver =
+                new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{xmlVar})), diagnosticLog
+                        , List.of(new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_XMLVAR",
+                        "<!--I am a comment-->"))));
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+        Object value = configValueMap.get(xmlVar).getValue();
+        Assert.assertEquals(xmlVal.toString(), value.toString());
+    }
 }

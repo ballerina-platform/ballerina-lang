@@ -356,7 +356,6 @@ public class EnvVarProvider implements ConfigProvider {
 
     private Map<String, String> filterConfigEnvVariables(Map<String, String> originalMap) {
         Map<String, String> filteredMap = new HashMap<>();
-
         for (Map.Entry<String, String> entry : originalMap.entrySet()) {
             if (entry.getKey().startsWith(ENV_VAR_PREFIX)) {
                 filteredMap.put(entry.getKey(), entry.getValue());
