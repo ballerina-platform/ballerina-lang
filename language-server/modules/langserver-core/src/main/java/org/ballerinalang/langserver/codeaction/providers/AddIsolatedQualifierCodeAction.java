@@ -81,7 +81,7 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
         if (nonTerminalNode.kind() == SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION) {
             ExplicitAnonymousFunctionExpressionNode functionExpressionNode =
                     (ExplicitAnonymousFunctionExpressionNode) nonTerminalNode;
-            return getCodeAction(context, functionExpressionNode.functionKeyword(), ANONYMOUS_FUNCTION_EXPRESSION,
+            return getCodeAction(functionExpressionNode.functionKeyword(), ANONYMOUS_FUNCTION_EXPRESSION,
                     context.fileUri());
         }
 
@@ -117,12 +117,13 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
         }
         FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node.get();
 
-        return getCodeAction(context, functionDefinitionNode.functionKeyword(), symbol.get().getName().orElse(""),
+        return getCodeAction(functionDefinitionNode.functionKeyword(), symbol.get().getName().orElse(""),
                 filePath.get().toUri().toString());
     }
 
     private static Optional<Symbol> getReferredSymbol(CodeActionContext context, NonTerminalNode node) {
-        if (node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION || node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION) {
+        SyntaxKind kind = node.kind();
+        if (kind == SyntaxKind.EXPLICIT_NEW_EXPRESSION || kind == SyntaxKind.IMPLICIT_NEW_EXPRESSION) {
             try {
                 TypeReferenceTypeSymbol typeSymbol = (TypeReferenceTypeSymbol) context.currentSemanticModel()
                         .flatMap(semanticModel -> semanticModel.typeOf(node))
@@ -137,9 +138,7 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
         return context.currentSemanticModel().flatMap(semanticModel -> semanticModel.symbol(node));
     }
 
-    private static List<CodeAction> getCodeAction(CodeActionContext context, Token functionKeyword,
-                                                  String expressionName,
-                                                  String filePath) {
+    private static List<CodeAction> getCodeAction(Token functionKeyword, String expressionName, String filePath) {
         Position position = PositionUtil.toPosition(functionKeyword.lineRange().startLine());
         String editText = SyntaxKind.ISOLATED_KEYWORD.stringValue() + " ";
         TextEdit textEdit = new TextEdit(new Range(position, position), editText);
