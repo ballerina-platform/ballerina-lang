@@ -5004,7 +5004,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         docAttachment.description = docNode.getDocumentation();
 
         for (BLangMarkdownParameterDocumentation p : docNode.getParameters()) {
-            docAttachment.parameters.add(new MarkdownDocAttachment.Parameter(p.parameterName.value,
+            docAttachment.parameters.add(new MarkdownDocAttachment.Parameter(p.parameterName.originalValue,
                                                                              p.getParameterDocumentation()));
         }
 

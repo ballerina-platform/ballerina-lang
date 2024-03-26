@@ -48,14 +48,15 @@ type TestFunctionMetaData record {|
     TestCompletionStatus executionCompletionStatus = YET_TO_COMPLETE;
 |};
 
-isolated class ConcurrentExecutionManager {
+// This class manages the execution of the tests
+isolated class ExecutionManager {
     private final TestFunction[] parallelTestExecutionList = [];
     private final TestFunction[] serialTestExecutionList = [];
     private final TestFunction[] testsInExecution = [];
     private final map<TestFunctionMetaData> testMetaData = {};
     private boolean parallelExecutionEnabled = false;
 
-    isolated function createTestFunctionMetaData(string functionName, int dependsOnCount, boolean enabled) { // accept as readonly (str, str, int,boolean) param and remove clone usage
+    isolated function createTestFunctionMetaData(string functionName, int dependsOnCount, boolean enabled) {
         lock {
             self.testMetaData[functionName] = {dependsOnCount: dependsOnCount, enabled: enabled};
         }
@@ -109,7 +110,6 @@ isolated class ConcurrentExecutionManager {
         lock {
             TestFunctionMetaData? testFunctionMetaData = self.testMetaData[functionName];
             return testFunctionMetaData is TestFunctionMetaData && testFunctionMetaData.skip;
-
         }
     }
 
@@ -218,7 +218,8 @@ isolated class ConcurrentExecutionManager {
                 }
                 executionCompletionStatus = inProgressTestMetaData.executionCompletionStatus;
                 if executionCompletionStatus == COMPLETED {
-                    inProgressTestMetaData.dependents.reverse().forEach(dependent => self.checkExecutionReadiness(dependent));
+                    inProgressTestMetaData.dependents.reverse().forEach(
+                        dependent => self.checkExecutionReadiness(dependent));
                     _ = self.testsInExecution.remove(i);
                 } else if executionCompletionStatus == SUSPENDED {
                     _ = self.testsInExecution.remove(i);
@@ -267,7 +268,7 @@ isolated class TestOptions {
     isolated function getFilterSubTest(string key) returns string[] {
         lock {
             string[]? nullOrSubTests = self.filterSubTests[key];
-            if nullOrSubTests is string[] { // TODO: use ternary
+            if nullOrSubTests is string[] {
                 return nullOrSubTests.clone();
             }
             return [];
@@ -381,7 +382,6 @@ isolated class TestOptions {
             return self.hasFilteredTests;
         }
     }
-
 }
 
 isolated class TestRegistry {

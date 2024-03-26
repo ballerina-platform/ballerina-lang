@@ -571,22 +571,19 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 maxIntKey = ((Long) TypeChecker.anyToInt(key)).intValue();
             }
 
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
             Long hash = TableUtils.hash(key, null);
 
             if (entries.containsKey(hash)) {
                 updateIndexKeyMappings(hash, key, data);
                 List<Map.Entry<K, V>> extEntries = entries.get(hash);
-                Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
                 extEntries.add(entry);
                 List<V> extValues = values.get(hash);
                 extValues.add(data);
                 return;
             }
 
-            ArrayList<V> newData = new ArrayList<>();
-            newData.add(data);
-            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
-            putData(key, data, newData, entry, hash);
+            putNewData(key, data, entry, hash);
         }
 
         public V getData(K key) {
@@ -603,9 +600,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V putData(K key, V data) {
-            ArrayList<V> newData = new ArrayList<>();
-            newData.add(data);
-
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
             Object actualKey = this.keyWrapper.wrapKey((MapValue) data);
             Long actualHash = TableUtils.hash(actualKey, null);
@@ -616,10 +610,15 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                         ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_IN_VALUE, key, data));
             }
 
-            return putData(key, data, newData, entry, hash);
+            if (entries.containsKey(hash)) {
+                return updateExistingEntry(key, data, entry, hash);
+            }
+            return putNewData(key, data, entry, hash);
         }
 
-        private V putData(K key, V value, List<V> data, Map.Entry<K, V> entry, Long hash) {
+        private V putNewData(K key, V value, Map.Entry<K, V> entry, Long hash) {
+            List<V> data = new ArrayList<>();
+            data.add(value);
             updateIndexKeyMappings(hash, key, value);
             List<Map.Entry<K, V>> entryList = new ArrayList<>();
             entryList.add(entry);
@@ -632,13 +631,30 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             MapValue dataMap = (MapValue) data;
             checkInherentTypeViolation(dataMap, tableType);
             K key = this.keyWrapper.wrapKey(dataMap);
-
-            ArrayList<V> newData = new ArrayList<>();
-            newData.add(data);
-
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
             Long hash = TableUtils.hash(key, null);
-            return putData((K) key, data, newData, entry, hash);
+
+            if (entries.containsKey(hash)) {
+                return updateExistingEntry(key, data, entry, hash);
+            }
+            return putNewData((K) key, data, entry, hash);
+        }
+
+        private V updateExistingEntry(K key, V data, Map.Entry<K, V> entry, Long hash) {
+            updateIndexKeyMappings(hash, key, data);
+            List<V> valueList = values.get(hash);
+            List<Map.Entry<K, V>> entryList = entries.get(hash);
+            for (Map.Entry<K, V> extEntry: entryList) {
+                // Handle hash-collided entries
+                if (TypeChecker.isEqual(key, extEntry.getKey())) {
+                    entryList.remove(extEntry);
+                    valueList.remove(extEntry.getValue());
+                    break;
+                }
+            }
+            entryList.add(entry);
+            values.get(hash).add(data);
+            return data;
         }
 
         public V remove(K key) {
