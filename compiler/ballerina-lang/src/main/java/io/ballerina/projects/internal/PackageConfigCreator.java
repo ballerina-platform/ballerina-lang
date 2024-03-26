@@ -69,8 +69,10 @@ public class PackageConfigCreator {
                 .map(d -> TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML, d.content())).orElse(null);
         TomlDocument pluginToml = packageData.compilerPluginToml()
                 .map(d -> TomlDocument.from(ProjectConstants.COMPILER_PLUGIN_TOML, d.content())).orElse(null);
+        TomlDocument balToolToml = packageData.balToolToml()
+                .map(d -> TomlDocument.from(ProjectConstants.BAL_TOOL_TOML, d.content())).orElse(null);
         ManifestBuilder manifestBuilder = ManifestBuilder
-                .from(ballerinaToml, pluginToml, projectDirPath);
+                .from(ballerinaToml, pluginToml, balToolToml, projectDirPath);
         PackageManifest packageManifest = manifestBuilder.packageManifest();
         DependencyManifestBuilder dependencyManifestBuilder =
                 DependencyManifestBuilder.from(dependenciesToml, packageManifest.descriptor());
@@ -92,7 +94,8 @@ public class PackageConfigCreator {
         PackageDescriptor packageDesc = PackageDescriptor.from(PackageOrg.from(ProjectConstants.ANON_ORG),
                 PackageName.from(ProjectConstants.DOT), PackageVersion.from(ProjectConstants.DEFAULT_VERSION));
         PackageManifest packageManifest = PackageManifest.from(packageDesc);
-        DependencyManifest dependencyManifest = DependencyManifest.from(null, null, Collections.emptyList());
+        DependencyManifest dependencyManifest = DependencyManifest.from(
+                null, null, Collections.emptyList(), Collections.emptyList());
 
         PackageData packageData = ProjectFiles.loadSingleFileProjectPackageData(filePath);
         return createPackageConfig(packageData, packageManifest, dependencyManifest, DependencyGraph.emptyGraph(),

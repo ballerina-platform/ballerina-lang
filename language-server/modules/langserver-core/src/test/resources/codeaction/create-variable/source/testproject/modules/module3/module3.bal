@@ -33,3 +33,19 @@ public function testFunction6() {
 public function testFunction7() returns error? {
     module4:getInt3();
 }
+
+function foo1() {
+    module4:getValueOrError1();
+}
+
+function foo2() {
+    module4:getValueOrError2();
+}
+
+function foo3() {
+    module4:getValueOrError3();
+}
+
+function foo4() {
+    module4:getValueOrError4();
+}

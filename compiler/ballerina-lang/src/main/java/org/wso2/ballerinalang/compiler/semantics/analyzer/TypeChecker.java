@@ -470,12 +470,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, symTable.intType, data);
         }
-        BType exprType = checkExpr(xmlNavigation.expr, symTable.xmlType, data);
-
-        if (Types.getImpliedType(exprType).tag == TypeTags.UNION) {
-            dlog.error(xmlNavigation.pos, DiagnosticErrorCode.TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS,
-                       xmlNavigation.expr.getBType());
-        }
+        checkExpr(xmlNavigation.expr, symTable.xmlType, data);
 
         BType actualType = xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN
                 ? symTable.xmlType : symTable.xmlElementSeqType;
@@ -489,14 +484,20 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private void checkXMLNamespacePrefixes(List<BLangXMLElementFilter> filters, AnalyzerData data) {
+        Map<Name, BXMLNSSymbol> nameBXMLNSSymbolMap = symResolver.resolveAllNamespaces(data.env);
+        BXMLNSSymbol defaultNSSymbol = nameBXMLNSSymbolMap.get(Names.fromString(XMLConstants.DEFAULT_NS_PREFIX));
+        boolean hasDefaultNS = defaultNSSymbol != null;
         for (BLangXMLElementFilter filter : filters) {
-            if (!filter.namespace.isEmpty()) {
-                Name nsName = names.fromString(filter.namespace);
-                BSymbol nsSymbol = symResolver.lookupSymbolInPrefixSpace(data.env, nsName);
-                filter.namespaceSymbol = nsSymbol;
-                if (nsSymbol.getKind() != SymbolKind.XMLNS) {
+            String namespace = filter.namespace;
+            if (!namespace.isEmpty()) {
+                Name nsName = Names.fromString(namespace);
+                BXMLNSSymbol nsSymbol = nameBXMLNSSymbolMap.get(nsName);
+                if (nsSymbol == null) {
                     dlog.error(filter.nsPos, DiagnosticErrorCode.CANNOT_FIND_XML_NAMESPACE, nsName);
                 }
+                filter.namespaceSymbol = nsSymbol;
+            } else if (hasDefaultNS) {
+                filter.namespaceSymbol = defaultNSSymbol;
             }
         }
     }
@@ -8703,7 +8704,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             indexBasedAccessExpr.originalType = symTable.charStringType;
             actualType = symTable.charStringType;
-        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
+        } else if (types.isAssignable(varRefType, symTable.xmlType)) {
             if (indexBasedAccessExpr.isLValue) {
                 indexExpr.setBType(symTable.semanticError);
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_XML_SEQUENCE);

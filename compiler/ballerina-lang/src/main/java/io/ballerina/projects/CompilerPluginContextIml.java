@@ -26,7 +26,9 @@ import io.ballerina.projects.plugins.codeaction.CodeAction;
 import io.ballerina.projects.plugins.completion.CompletionProvider;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The default implementation of the {@code CompilerPluginContext}.
@@ -41,11 +43,16 @@ class CompilerPluginContextIml implements CompilerPluginContext {
     private final List<CodeModifierManager.CodeModifierInfo> codeModifiers = new ArrayList<>();
     private final List<CompilerLifecycleManager.LifecycleListenerInfo> lifecycleListeners = new ArrayList<>();
     private final List<CodeAction> codeActions = new ArrayList<>();
-
+    private Map<String, Object> compilerPluginUserData = new HashMap();
     private final List<CompletionProvider> completionProviders = new ArrayList<>();
 
     CompilerPluginContextIml(CompilerPluginInfo compilerPluginInfo) {
         this.compilerPluginInfo = compilerPluginInfo;
+    }
+
+    CompilerPluginContextIml(CompilerPluginInfo compilerPluginInfo, Map<String, Object> userData) {
+        this.compilerPluginInfo = compilerPluginInfo;
+        this.compilerPluginUserData = userData;
     }
 
     public void addCodeAnalyzer(CodeAnalyzer codeAnalyzer) {
@@ -102,5 +109,9 @@ class CompilerPluginContextIml implements CompilerPluginContext {
 
     public CompilerPluginInfo compilerPluginInfo() {
         return compilerPluginInfo;
+    }
+
+    public Map<String, Object> userData() {
+        return this.compilerPluginUserData;
     }
 }

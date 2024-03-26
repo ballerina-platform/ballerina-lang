@@ -1,0 +1,5 @@
+[plugin]
+class = "io.context.plugins.CompilerPluginWithSharedData"
+
+[[dependency]]
+path = "../../../../../build/compiler-plugin-jars/pkg-provided-compiler-plugin-with-shared-data-1.0.0.jar"
