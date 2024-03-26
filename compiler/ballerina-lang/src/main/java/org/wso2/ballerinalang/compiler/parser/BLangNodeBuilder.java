@@ -666,9 +666,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         // Generate other module-level declarations
         for (ModuleMemberDeclarationNode member : modulePart.members()) {
             if (member.kind() == SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION) {
-                compilationUnit.addTopLevelNode(
-                        (TopLevelNode) transformModuleXMLNSDeclaration((ModuleXMLNamespaceDeclarationNode) member,
-                                compUnit));
+                BLangXMLNS bLangXMLNS = (BLangXMLNS) member.apply(this);
+                bLangXMLNS.compUnit = compUnit;
+                compilationUnit.addTopLevelNode(bLangXMLNS);
             } else {
                 compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
             }
@@ -3701,15 +3701,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return xmlnsStmt;
     }
 
-    public BLangNode transformModuleXMLNSDeclaration(ModuleXMLNamespaceDeclarationNode xmlnsDeclNode,
-                                                     BLangIdentifier compUnit) {
+    @Override
+    public BLangNode transform(ModuleXMLNamespaceDeclarationNode xmlnsDeclNode) {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix().orElse(null));
         BLangExpression namespaceUri = createExpression(xmlnsDeclNode.namespaceuri());
         xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
-        xmlns.compUnit = compUnit;
         return xmlns;
     }
 
