@@ -418,9 +418,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define type definitions.
         this.typePrecedence = 0;
 
-        // Treat constants, type definitions and xmlns declarations in the same manner, since constants can be
-        // used as types. Also, there can be references between constant, type definitions and xmlns declarations in
-        // both ways. Thus visit them according to the precedence.
+        // Treat constants, type definitions and xmlns declarations in the same manner, since constants can be used
+        // as types and can be referred to in XMLNS declarations. Also, there can be references between constant,
+        // type definitions and xmlns declarations in both ways. Thus visit them according to the precedence.
         List<BLangNode> moduleDefs = new ArrayList<>();
         moduleDefs.addAll(pkgNode.constants);
         moduleDefs.addAll(pkgNode.typeDefinitions);
