@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.test.runtime.api;
 
+import io.ballerina.runtime.api.Artifact;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.Repository;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
@@ -30,6 +32,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -82,6 +85,40 @@ public class RuntimeAPITest {
                 scheduler.poison();
             }
         });
+        try {
+            thread1.start();
+            thread2.start();
+            thread1.join();
+            thread2.join();
+            Throwable storedException = exceptionRef.get();
+            if (storedException != null) {
+                throw new AssertionError("Test failed due to an exception in a thread", storedException);
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Error while invoking function 'main'", e);
+        }
+    }
+
+    @Test
+    public void testRuntimeManagementAPI() {
+        CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/runtime_mgt");
+        AtomicReference<Throwable> exceptionRef = new AtomicReference<>();
+        final Scheduler scheduler = new Scheduler(false);
+        Thread thread1 = new Thread(() -> {
+            BRunUtil.runOnSchedule(strandResult, "main", scheduler);
+        });
+        Thread thread2 = new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                List<Artifact> artifacts = Repository.getArtifacts();
+                Assert.assertEquals(artifacts.size(), 3);
+            } catch (Throwable e) {
+                exceptionRef.set(e);
+            } finally {
+                scheduler.poison();
+            }
+        });
+
         try {
             thread1.start();
             thread2.start();
