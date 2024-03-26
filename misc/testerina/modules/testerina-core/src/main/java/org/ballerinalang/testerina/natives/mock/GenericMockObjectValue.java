@@ -190,18 +190,19 @@ public class GenericMockObjectValue implements ObjectValue {
         List<String> caseIdList = new ArrayList<>();
         StringBuilder caseId = new StringBuilder();
         List<String> functionNames = new ArrayList<>();
+        functionNames.add(funcNameOriginal);
         // args contain an extra boolean value arg after every proper argument.
         // These should be removed before constructing case ids
         args = removeUnnecessaryArgs(args);
-        if (funcName.startsWith(MockConstants.DOLLAR_RESOURCE_SEPARATOR)) {
-            int caretCount = (int) funcName.chars().filter(ch -> ch == MockConstants.PATH_PARAM_PLACEHOLDER.charAt(0))
-                    .count();
-            int pathSegmentCount = caretCount - (funcName.contains(MockConstants.REST_PARAM_PLACEHOLDER) ? 1 : 0);
-            funcName = replacePathPlaceHolders(funcName, args, caretCount);
+        if (funcName.startsWith(MockConstants.RESOURCE_SEPARATOR)) {
+            int numOfPathSeparators = (int) funcName.chars().filter(ch -> ch ==
+                            MockConstants.PATH_PARAM_PLACEHOLDER.charAt(0)).count();
+            int pathSegmentCount = numOfPathSeparators - (funcName.contains(MockConstants.REST_PARAM_PLACEHOLDER)
+                    ? 1 : 0);
+            funcName = replacePathPlaceHolders(funcName, args, numOfPathSeparators);
             functionNames.add(funcName);
             args = Arrays.copyOfRange(args, pathSegmentCount, args.length);
         }
-        functionNames.add(funcNameOriginal);
 
         // 1) add case for function without args
         for (String function : functionNames) {
@@ -238,7 +239,7 @@ public class GenericMockObjectValue implements ObjectValue {
         }
 
         // 4) add case for return sequence if available
-        if (funcNameOriginal.startsWith(MockConstants.DOLLAR_RESOURCE_SEPARATOR)) {
+        if (funcNameOriginal.startsWith(MockConstants.RESOURCE_SEPARATOR)) {
             funcName = funcNameOriginal;
         }
         caseId.append(mockObj.hashCode()).append(MockConstants.CASE_ID_DELIMITER).append(funcName);
@@ -263,11 +264,12 @@ public class GenericMockObjectValue implements ObjectValue {
             newFuncName.setLength(0);
             String substring = funcName.substring(0, funcName.length() - 2);
             newFuncName.append(substring);
-            Arrays.stream(restArgs.getValues()).forEach(arg -> {
+            for (int i = 0; i < restArgs.size(); i++) {
+                Object arg = restArgs.get(i);
                 if (arg != null) {
-                    newFuncName.append(arg).append(MockConstants.DOLLAR_RESOURCE_SEPARATOR);
+                    newFuncName.append(arg).append(MockConstants.RESOURCE_SEPARATOR);
                 }
-            });
+            }
             newFuncName.setLength(newFuncName.length() - 1);
             caretCount -= 2;
         }

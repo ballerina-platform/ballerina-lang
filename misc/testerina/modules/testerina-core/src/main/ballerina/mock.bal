@@ -67,7 +67,7 @@ public type Error InvalidObjectError|FunctionNotFoundError|FunctionSignatureMism
 # + return - Prepared object that allows a member function/field to register stubs
 public isolated function prepare(object {} mockObject) returns MockObject {
     error? result = validatePreparedObjExt(mockObject);
-    if (result is error) {
+    if result is error {
         panic result;
     }
     MockObject obj = new MockObject(mockObject);
@@ -92,7 +92,7 @@ public class MockObject {
     # + return - Object that allows stubbing calls to provided member function
     public isolated function when(string functionName) returns MemberFunctionStub {
         error? result = validateFunctionNameExt(java:fromString(functionName), self.mockObject);
-        if (result is error) {
+        if result is error {
             panic result;
         }
         MemberFunctionStub mockObjCaseMemFunc = new MemberFunctionStub(self.mockObject);
@@ -106,7 +106,7 @@ public class MockObject {
     # + return - Object that allows stubbing calls to provided member function
     public isolated function whenResource(string functionName) returns MemberResourceFunctionStub {
         error? result = validateResourcePathExt(java:fromString(functionName), self.mockObject);
-        if (result is error) {
+        if result is error {
             panic result;
         }
         MemberResourceFunctionStub mockObjCaseMemFunc = new MemberResourceFunctionStub(self.mockObject);
@@ -121,7 +121,7 @@ public class MockObject {
     public isolated function getMember(string fieldName) returns MemberVariableStub {
         self.fieldName = fieldName;
         error? result = validateFieldNameExt(java:fromString(fieldName), self.mockObject);
-        if (result is error) {
+        if result is error {
             panic result;
         }
         MemberVariableStub memberVariableStub = new MemberVariableStub(self.mockObject);
@@ -158,7 +158,7 @@ public class MemberFunctionStub {
     public isolated function withArguments(anydata|error... args) returns MemberFunctionStub {
         self.args = args;
         error? result = validateArgumentsExt(self);
-        if (result is error) {
+        if result is error {
             panic result;
         }
         return self;
@@ -168,13 +168,13 @@ public class MemberFunctionStub {
     #
     # + returnValue - Value or error to return
     public isolated function thenReturn(any|error returnValue) {
-        if (self.functionName == "") {
+        if self.functionName == "" {
             error err = error("function to mock is not specified.");
             panic err;
         }
         self.returnValue = returnValue;
         error? thenReturnExtResult = thenReturnExt(self);
-        if (thenReturnExtResult is error) {
+        if thenReturnExtResult is error {
             panic thenReturnExtResult;
         }
     }
@@ -183,30 +183,30 @@ public class MemberFunctionStub {
     #
     # + returnValues - Value or error to return
     public isolated function thenReturnSequence(any|error... returnValues) {
-        if (self.functionName == "") {
+        if self.functionName == "" {
             error err = error("function to mock is not specified.");
             panic err;
         }
-        if (self.args.length() != 0) {
+        if self.args.length() != 0 {
             error err = error("'withArguments' function cannot be specified with a return sequence");
             panic err;
         }
         self.returnValueSeq = returnValues;
         error? thenReturnSeqExtResult = thenReturnSeqExt(self);
-        if (thenReturnSeqExtResult is error) {
+        if thenReturnSeqExtResult is error {
             panic thenReturnSeqExtResult;
         }
     }
 
     # Sets the function behavior to do nothing when called.
     public isolated function doNothing() {
-        if (self.functionName == "") {
+        if self.functionName == "" {
             error err = error("function to mock is not specified.");
             panic err;
         }
         self.returnValue = ();
         error? thenReturnExtResult = thenReturnExt(self);
-        if (thenReturnExtResult is error) {
+        if thenReturnExtResult is error {
             panic thenReturnExtResult;
         }
     }
@@ -244,7 +244,7 @@ public class MemberResourceFunctionStub {
     public isolated function onMethod(string method) returns MemberResourceFunctionStub {
         self.accessor = method;
         error? result = validateResourceMethodExt(self);
-        if (result is error) {
+        if result is error {
             panic result;
         }
         return self;
@@ -256,7 +256,7 @@ public class MemberResourceFunctionStub {
     # + return - Object that allows stubbing calls to provided member function
     public isolated function withPathParameters(map<anydata> paths) returns MemberResourceFunctionStub {
         error? result = validatePathParamsExt(self, paths);
-        if (result is error) {
+        if result is error {
             panic result;
         }
         self.pathArgs = populatePathParams(self.functionName, paths);
@@ -276,21 +276,21 @@ public class MemberResourceFunctionStub {
     #
     # + returnValue - Value or error to return
     public isolated function thenReturn(any|error returnValue) {
-        if (self.functionName == "") {
+        if self.functionName == "" {
             error err = error("resource function to mock is not specified.");
             panic err;
         }
         error? result = validateResourceArgumentsExt(self);
-        if (result is error) {
+        if result is error {
             panic result;
         }
         result = validatePathArgsExt(self);
-        if (result is error) {
+        if result is error {
             panic result;
         }
         self.returnValue = returnValue;
         error? thenReturnExtResult = thenReturnExt(self);
-        if (thenReturnExtResult is error) {
+        if thenReturnExtResult is error {
             panic thenReturnExtResult;
         }
     }
@@ -299,34 +299,34 @@ public class MemberResourceFunctionStub {
     #
     # + returnValues - Value or error to return
     public isolated function thenReturnSequence(any|error... returnValues) {
-        if (self.functionName == "") {
+        if self.functionName == "" {
             error err = error("resource function to mock is not specified.");
             panic err;
         }
-        if (self.args.length() != 0) {
+        if self.args.length() != 0 {
             error err = error("'withArguments' function cannot be specified with a return sequence");
             panic err;
         }
-        if (self.pathArgs.length() != 0) {
+        if self.pathArgs.length() != 0 {
             error err = error("'withPathParameters' function cannot be specified with a return sequence");
             panic err;
         }
         self.returnValueSeq = returnValues;
         error? thenReturnSeqExtResult = thenReturnSeqExt(self);
-        if (thenReturnSeqExtResult is error) {
+        if thenReturnSeqExtResult is error {
             panic thenReturnSeqExtResult;
         }
     }
 
     # Sets the function behavior to do nothing when called.
     public isolated function doNothing() {
-        if (self.functionName == "") {
+        if self.functionName == "" {
             error err = error("resource function to mock is not specified.");
             panic err;
         }
         self.returnValue = ();
         error? thenReturnExtResult = thenReturnExt(self);
-        if (thenReturnExtResult is error) {
+        if thenReturnExtResult is error {
             panic thenReturnExtResult;
         }
     }
@@ -365,13 +365,13 @@ public class MemberVariableStub {
     #
     # + returnValue - Value or error to return
     public isolated function thenReturn(any|error returnValue) {
-        if (self.fieldName == "") {
+        if self.fieldName == "" {
             error err = error("field name is not specified.");
             panic err;
         }
         self.returnValue = returnValue;
         error? thenReturnExtResult = thenReturnExt(self);
-        if (thenReturnExtResult is error) {
+        if thenReturnExtResult is error {
             panic thenReturnExtResult;
         }
     }
@@ -418,7 +418,7 @@ public class FunctionStub {
     public isolated function thenReturn(any|error returnValue) {
         self.returnValue = returnValue;
         error? result = thenReturnFuncExt(self);
-        if (result is error) {
+        if result is error {
             panic result;
         }
     }
@@ -435,7 +435,7 @@ public class FunctionStub {
     # Sets the function behavior to do nothing when called.
     public isolated function doNothing() {
         error? result = thenReturnFuncExt(self);
-        if (result is error) {
+        if result is error {
             panic result;
         }
     }
@@ -446,7 +446,7 @@ public class FunctionStub {
     public isolated function call(string functionName) {
         self.returnValue = "__CALL__" + functionName;
         error? result = thenReturnFuncExt(self);
-        if (result is error) {
+        if result is error {
             panic result;
         }
     }
@@ -455,7 +455,7 @@ public class FunctionStub {
     public isolated function callOriginal() {
         self.returnValue = "__ORIGINAL__";
         error? result = thenReturnFuncExt(self);
-        if (result is error) {
+        if result is error {
             panic result;
         }
     }

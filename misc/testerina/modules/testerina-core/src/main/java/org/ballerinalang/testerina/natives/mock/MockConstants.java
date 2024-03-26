@@ -49,7 +49,7 @@ public class MockConstants {
     public static final String ARGS = "args";
     public static final String RETURN_VALUE = "returnValue";
     public static final String MEMBER_RESOURCE_FUNCTION_STUB = "MemberResourceFunctionStub";
-    public static final String DOLLAR_RESOURCE_SEPARATOR = "$";
+    public static final String RESOURCE_SEPARATOR = "$";
     public static final String RETURN_VALUE_SEQ = "returnValueSeq";
     public static final String PATH_PARAM_PLACEHOLDER = "^";
     public static final String RESOURCE_FUNCTION_ARGS = "functionArgs";
