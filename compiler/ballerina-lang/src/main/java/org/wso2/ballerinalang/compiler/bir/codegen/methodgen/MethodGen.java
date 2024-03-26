@@ -83,6 +83,7 @@ import static org.objectweb.asm.Opcodes.FCONST_0;
 import static org.objectweb.asm.Opcodes.FLOAD;
 import static org.objectweb.asm.Opcodes.FSTORE;
 import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IADD;
 import static org.objectweb.asm.Opcodes.ICONST_0;
@@ -113,9 +114,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANNOTATIONS_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_PARENT_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SELF_INSTANCE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
@@ -280,7 +283,7 @@ public class MethodGen {
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
         mv.visitCode();
 
-        visitModuleStartFunction(module.packageID, funcName, mv);
+        visitStartFunction(module.packageID, funcName, mv);
 
         Label methodStartLabel = new Label();
         mv.visitLabel(methodStartLabel);
@@ -302,7 +305,8 @@ public class MethodGen {
         mv.visitJumpInsn(IFGT, resumeLabel);
 
         // set function invocation variable
-        setFunctionInvocationVar(localVarOffset, mv, invocationVarIndex, invocationCountArgVarIndex);
+        setFunctionInvocationVar(localVarOffset, mv, invocationVarIndex, invocationCountArgVarIndex, module.packageID,
+                funcName);
         // set channel details to strand.
         setChannelDetailsToStrand(func, localVarOffset, mv, invocationVarIndex);
 
@@ -387,7 +391,18 @@ public class MethodGen {
     }
 
     private void setFunctionInvocationVar(int localVarOffset, MethodVisitor mv, int invocationVarIndex,
-                                          int invocationCountArgVarIndex) {
+                                          int invocationCountArgVarIndex, PackageID packageID, String funcName) {
+
+        if (isModuleInitFunction(funcName)) {
+            String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+            generateFunctionAttemptedBooleanCheck(MODULE_INIT_ATTEMPTED, mv, moduleClass);
+        }
+
+        if (isModuleStartFunction(funcName)) {
+            String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+            generateFunctionAttemptedBooleanCheck(MODULE_START_PARENT_ATTEMPTED, mv, moduleClass);
+        }
+
         if (invocationCountArgVarIndex == -1) {
             mv.visitVarInsn(ALOAD, localVarOffset);
             mv.visitInsn(DUP);
@@ -401,6 +416,19 @@ public class MethodGen {
             mv.visitVarInsn(ILOAD, invocationCountArgVarIndex);
         }
         mv.visitVarInsn(ISTORE, invocationVarIndex);
+    }
+
+    private void generateFunctionAttemptedBooleanCheck(String staticFieldName, MethodVisitor mv,
+                                                       String moduleClassPath) {
+        mv.visitFieldInsn(GETSTATIC, moduleClassPath, staticFieldName, "Z");
+        Label labelIf = new Label();
+        mv.visitJumpInsn(IFEQ, labelIf);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitInsn(ARETURN);
+        mv.visitLabel(labelIf);
+
+        mv.visitInsn(ICONST_1);
+        mv.visitFieldInsn(PUTSTATIC, moduleClassPath, staticFieldName, "Z");
     }
 
     private void generateFrameStringFieldSet(MethodVisitor mv, String frameName, int rhsVarIndex, String fieldName) {
@@ -417,8 +445,8 @@ public class MethodGen {
         return retType;
     }
 
-    private void visitModuleStartFunction(PackageID packageID, String funcName, MethodVisitor mv) {
-        if (!isModuleStartFunction(funcName)) {
+    private void visitStartFunction(PackageID packageID, String funcName, MethodVisitor mv) {
+        if (!isStartFunction(funcName)) {
             return;
         }
         mv.visitInsn(ICONST_1);
@@ -705,7 +733,7 @@ public class MethodGen {
                     false);
         }
         //set module start success to true for $_init class
-        if (isModuleStartFunction(funcName) && terminator.kind == InstructionKind.RETURN) {
+        if (isStartFunction(funcName) && terminator.kind == InstructionKind.RETURN) {
             mv.visitInsn(ICONST_1);
             mv.visitFieldInsn(PUTSTATIC, JvmCodeGenUtil.getModuleLevelClassName(module.packageID,
                             MODULE_INIT_CLASS_NAME),
@@ -719,9 +747,19 @@ public class MethodGen {
                         .encodeModuleSpecialFuncName(".<testinit>"));
     }
 
-    private boolean isModuleStartFunction(String functionName) {
+    private boolean isStartFunction(String functionName) {
         return functionName
                 .equals(MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.START_FUNCTION_SUFFIX));
+    }
+
+    private boolean isModuleInitFunction(String functionName) {
+        return functionName
+                .equals(MethodGenUtils.encodeModuleSpecialFuncName(JvmConstants.MODULE_INIT_METHOD));
+    }
+
+    private boolean isModuleStartFunction(String functionName) {
+        return functionName
+                .equals(MethodGenUtils.encodeModuleSpecialFuncName(JvmConstants.MODULE_START_METHOD));
     }
 
     private void genGetFrameOnResumeIndex(int localVarOffset, MethodVisitor mv, String frameName) {

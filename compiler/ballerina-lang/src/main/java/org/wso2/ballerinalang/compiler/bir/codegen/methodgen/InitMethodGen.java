@@ -439,9 +439,8 @@ public class InitMethodGen {
 
         BIRNode.BIRVariableDcl boolVal = addAndGetNextVar(modInitFunc, symbolTable.booleanType);
         BIROperand boolRef = new BIROperand(boolVal);
-
+        String initFuncName = MethodGenUtils.encodeModuleSpecialFuncName(funcName);
         for (PackageID id : imprtMods) {
-            String initFuncName = MethodGenUtils.encodeModuleSpecialFuncName(funcName);
             addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef, boolRef);
         }
 

@@ -863,8 +863,8 @@ public class JvmTerminatorGen {
             Name decodedMethodName = new Name(Utils.decodeIdentifier(methodName));
             BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(decodedMethodName).symbol;
             if (funcSymbol == null && JvmCodeGenUtil.isModuleInitializerMethod(decodedMethodName.value)) {
-                // moduleInit() and moduleStart() functions are not present in the BIR cache because they are generated in CodeGen phase.
-                // Therefore, they are not found inside the packageSymbol scope.
+                // moduleInit() and moduleStart() functions are not present in the BIR cache because they are generated
+                // in CodeGen phase. Therefore, they are not found inside the packageSymbol scope.
                 jvmClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
                         JvmCodeGenUtil.cleanupPathSeparators(MODULE_INIT_CLASS_NAME));
                 methodDesc = MODULE_INITIALIZER_METHOD_DESC;
