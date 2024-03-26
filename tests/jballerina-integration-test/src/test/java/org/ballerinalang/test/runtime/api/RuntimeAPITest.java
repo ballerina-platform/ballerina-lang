@@ -16,6 +16,8 @@
 
 package org.ballerinalang.test.runtime.api;
 
+import io.ballerina.projects.JarLibrary;
+import io.ballerina.projects.JarResolver;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -26,6 +28,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,6 +36,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
+
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_HOME;
 
 /**
  * Test class to test the functionality of Ballerina runtime APIs for invoking functions.
@@ -45,7 +52,7 @@ public class RuntimeAPITest extends BaseTest {
             .toAbsolutePath().toString();
     private static final Path javaSrcLocation = Paths.get("src", "test", "java", "org", "ballerinalang",
             "test", "runtime", "api").toAbsolutePath();
-    private static final String JAVA_OPTS = "JAVA_OPTS";
+    private static final Path TARGET_OUTPUT_PATH = Paths.get(System.getProperty(USER_DIR));
     private BMainInstance bMainInstance;
 
     @BeforeClass
@@ -57,29 +64,26 @@ public class RuntimeAPITest extends BaseTest {
     }
 
     @Test
-    public void testRuntimeAPIsForBalFunctionInvocation() throws BallerinaTestException {
+    public void testRuntimeAPIsForBalFunctionInvocation() throws BallerinaTestException, InterruptedException {
         Path jarPath = Paths.get(testFileLocation, "function_invocation", "target", "bin",
                 "function_invocation.jar").toAbsolutePath();
         compileJavaSource(jarPath, "RuntimeAPICall.java", "targetDir");
         unzipJarFile(jarPath, "targetDir");
         createExecutableJar("targetDir", "org.ballerinalang.test.runtime.api.RuntimeAPICall");
-        Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
 
         // Run the executable jar and assert the output
         Path execJarPath = Paths.get(javaSrcLocation.toString(), "targetDir", "test-exec.jar").toAbsolutePath();
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
-        if (envProperties.containsKey(JAVA_OPTS)) {
-            runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
-        }
-        runCmdSet.add("-jar");
-        runCmdSet.add(execJarPath.toString());
-        ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
-        Map<String, String> env = runProcessBuilder.environment();
-        env.putAll(envProperties);
+        runCmdSet.add(getAgentArgs());
+        runCmdSet.add("-cp");
+        runCmdSet.add(getAllClassPaths(execJarPath));
+        runCmdSet.add("org.ballerinalang.test.runtime.api.RuntimeAPICall");
+        ProcessBuilder pb = new ProcessBuilder(runCmdSet);
+        bMainInstance.addJavaAgents(pb.environment());
+        pb.redirectErrorStream(true);
         try {
-            Process runProcess = runProcessBuilder.start();
+            Process runProcess = pb.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
             List<LogLeecher> leechers = new ArrayList<>();
             leechers.add(new LogLeecher("12"));
@@ -103,24 +107,19 @@ public class RuntimeAPITest extends BaseTest {
                 "function_invocation.jar").toAbsolutePath();
         compileJavaSource(jarPath, "RuntimeAPICallNegative.java", "target-dir-negative");
         unzipJarFile(jarPath, "target-dir-negative");
-        createExecutableJar("target-dir-negative",
-                "org.ballerinalang.test.runtime.api.RuntimeAPICallNegative");
-        Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
+        createExecutableJar("target-dir-negative", "org.ballerinalang.test.runtime.api.RuntimeAPICallNegative");
 
         // Run the executable jar and assert the output
         Path execJarPath = Paths.get(javaSrcLocation.toString(), "target-dir-negative",
                 "test-exec.jar").toAbsolutePath();
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
-        if (envProperties.containsKey(JAVA_OPTS)) {
-            runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
-        }
-        runCmdSet.add("-jar");
-        runCmdSet.add(execJarPath.toString());
+        runCmdSet.add(getAgentArgs());
+        runCmdSet.add("-cp");
+        runCmdSet.add(getAllClassPaths(execJarPath));
+        runCmdSet.add("org.ballerinalang.test.runtime.api.RuntimeAPICallNegative");
         ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
-        Map<String, String> env = runProcessBuilder.environment();
-        env.putAll(envProperties);
+        bMainInstance.addJavaAgents(runProcessBuilder.environment());
         runProcessBuilder.redirectErrorStream(true);
         try {
             Process runProcess = runProcessBuilder.start();
@@ -147,22 +146,18 @@ public class RuntimeAPITest extends BaseTest {
         unzipJarFile(jarPath, "start-call-negative");
         createExecutableJar("start-call-negative",
                 "org.ballerinalang.test.runtime.api.ModuleStartCallNegative");
-        Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
 
         // Run the executable jar and assert the output
         Path execJarPath = Paths.get(javaSrcLocation.toString(), "start-call-negative",
                 "test-exec.jar").toAbsolutePath();
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
-        if (envProperties.containsKey(JAVA_OPTS)) {
-            runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
-        }
-        runCmdSet.add("-jar");
-        runCmdSet.add(execJarPath.toString());
+        runCmdSet.add(getAgentArgs());
+        runCmdSet.add("-cp");
+        runCmdSet.add(getAllClassPaths(execJarPath));
+        runCmdSet.add("org.ballerinalang.test.runtime.api.ModuleStartCallNegative");
         ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
-        Map<String, String> env = runProcessBuilder.environment();
-        env.putAll(envProperties);
+        bMainInstance.addJavaAgents(runProcessBuilder.environment());
         runProcessBuilder.redirectErrorStream(true);
         try {
             Process runProcess = runProcessBuilder.start();
@@ -211,6 +206,7 @@ public class RuntimeAPITest extends BaseTest {
         List<String> unzipProcessCmdSet = new ArrayList<>();
         unzipProcessCmdSet.add("unzip");
         unzipProcessCmdSet.add("-qq");
+        unzipProcessCmdSet.add("-o");
         unzipProcessCmdSet.add(jarPath.toString());
         unzipProcessCmdSet.add("-d");
         unzipProcessCmdSet.add(targetDir);
@@ -245,5 +241,22 @@ public class RuntimeAPITest extends BaseTest {
         for (LogLeecher leecher : leechers) {
             serverInfoLogReader.addLeecher(leecher);
         }
+    }
+
+    private String getAgentArgs() {
+        return "-javaagent:" + Paths.get(bMainInstance.getBalServerHome(), "bre", "lib",
+                "jacocoagent.jar") + "=destfile=" + TARGET_OUTPUT_PATH.resolve("build").resolve("jacoco")
+                .resolve("test.exec") + " ";
+    }
+
+    private String getAgentJar() {
+        return Paths.get(bMainInstance.getBalServerHome(), "bre", "lib", "jacocoagent.jar").toString();
+    }
+
+    private String getAllClassPaths(Path targetJAr) {
+        StringJoiner cp = new StringJoiner(File.pathSeparator);
+        cp.add(targetJAr.toString());
+        cp.add(getAgentJar());
+        return cp.toString();
     }
 }
