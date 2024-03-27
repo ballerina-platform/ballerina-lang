@@ -2383,11 +2383,11 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = tempResourceDir.resolve("provided_jars_tests/jars_not_provided/pkg_b");
         BuildProject project = TestUtils.loadBuildProject(envBuilder, projectPath);
         PackageCompilation compilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
-        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
-            Assert.fail("unexpected compilation failure:\n" + getErrorsAsString(compilation.diagnosticResult()));
-        }
         try {
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
+            if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+                Assert.fail("unexpected compilation failure:\n" + getErrorsAsString(compilation.diagnosticResult()));
+            }
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, Paths.get("test.jar"));
         } catch (ProjectException e) {
             Assert.assertEquals(e.getMessage(), "cannot resolve 'com.example:project1:1.0'. Dependencies with " +
