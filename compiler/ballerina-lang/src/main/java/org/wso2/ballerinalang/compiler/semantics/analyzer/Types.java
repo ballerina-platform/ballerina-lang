@@ -6206,7 +6206,7 @@ public class Types {
      * @return boolean
      */
     public boolean isOrderedType(SemType t) {
-        assert !PredefinedType.NEVER.equals(t);
+        assert !Core.isNever(t);
         SemType tButNil = Core.diff(t, PredefinedType.NIL);
         BasicTypeBitSet basicTypeBitSet = Core.widenToBasicTypes(tButNil);
         if (SemTypes.isSubtypeSimple(basicTypeBitSet, PredefinedType.SIMPLE_OR_STRING)) {

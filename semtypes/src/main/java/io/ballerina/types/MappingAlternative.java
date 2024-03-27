@@ -52,7 +52,7 @@ public class MappingAlternative {
             List<MappingAlternative> alts = new ArrayList<>();
             for (BddPath bddPath : paths) {
                 SemType semType = Core.createBasicSemType(BasicTypeCode.BT_MAPPING, bddPath.bdd);
-                if (!PredefinedType.NEVER.equals(semType)) {
+                if (!Core.isNever(semType)) {
                     alts.add(from(cx, semType, bddPath.pos, bddPath.neg));
                 }
             }

@@ -50,6 +50,7 @@ public class PredefinedType {
     public static final BasicTypeBitSet MAPPING = basicType(BasicTypeCode.BT_MAPPING);
     public static final BasicTypeBitSet TABLE = basicType(BasicTypeCode.BT_TABLE);
     public static final BasicTypeBitSet CELL = basicType(BasicTypeCode.BT_CELL);
+    public static final BasicTypeBitSet UNDEF = basicType(BasicTypeCode.BT_UNDEF);
 
     // matches all functions
     public static final BasicTypeBitSet FUNCTION = basicType(BasicTypeCode.BT_FUNCTION);
@@ -62,8 +63,8 @@ public class PredefinedType {
     public static final BasicTypeBitSet FUTURE = basicType(BasicTypeCode.BT_FUTURE);
 
     // this is SubtypeData|error
-    // public final BasicTypeBitSet VAL = basicTypeUnion(BasicTypeCode.VT_MASK);
-    public static final BasicTypeBitSet TOP = basicTypeUnion(BasicTypeCode.VT_MASK);
+    public static final BasicTypeBitSet VAL = basicTypeUnion(BasicTypeCode.VT_MASK);
+    public static final BasicTypeBitSet INNER = BasicTypeBitSet.from(VAL.bitset | UNDEF.bitset);
     public static final BasicTypeBitSet ANY =
             basicTypeUnion(BasicTypeCode.VT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code));
     public static final BasicTypeBitSet SIMPLE_OR_STRING =

@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -15,20 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.types;
+package io.ballerina.semtype.port.test;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.ValueComparisonUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.types.Context;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.test.BCompileUtil;
 import org.jetbrains.annotations.NotNull;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.File;
@@ -40,7 +43,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -50,71 +52,62 @@ import java.util.stream.Stream;
 /**
  * Test semtypes using compiler front-end for parsing.
  *
- * @since 3.0.0
+ * @since 2201.10.0
  */
 public class SemTypeTest {
 
-    @DataProvider(name = "fileNameProvider")
-    public Object[] fileNameProvider() {
+    @DataProvider(name = "dataDirFileNameProvider")
+    public Object[] dataDirFileNameProvider() {
         File dataDir = resolvePath("test-src/data").toFile();
         List<String> testFiles = Arrays.stream(dataDir.listFiles())
                 .map(File::getAbsolutePath)
                 .filter(name -> name.endsWith(".bal") &&
-                        !skipList().contains(name.substring(name.lastIndexOf(File.separator) + 1)))
+                        !dataDirSkipList().contains(name.substring(name.lastIndexOf(File.separator) + 1)))
                 .collect(Collectors.toList());
 
-        // blocked on https://github.com/ballerina-platform/ballerina-lang/issues/28334 and
-        // https://github.com/ballerina-platform/ballerina-lang/issues/32722
-        ignore(testFiles, "float-singleton2.bal");
-        ignore(testFiles, "int-singleton.bal");
-        // due to https://github.com/ballerina-platform/ballerina-lang/issues/35204
-        ignore(testFiles, "function.bal");
-
-        // due to https://github.com/ballerina-platform/ballerina-lang/issues/35203
-        ignore(testFiles, "int-singleton2.bal");
-
         include(testFiles,
-                "test-src/simple-type/type-test.bal",
-               // "test-src/simple-type/list-type-test.bal",
-               // "test-src/simple-type/map-type-test.bal",
-               // due to https://github.com/ballerina-platform/ballerina-lang/issues/35203
-               // "test-src/simple-type/int-singleton-altered.bal",
-               // "test-src/simple-type/function-altered.bal",
-                "test-src/simple-type/float-altered.bal");
+                "test-src/simple-type/float-altered.bal",
+                // "test-src/simple-type/function-altered.bal", // func type not supported yet
+                "test-src/simple-type/int-singleton-altered.bal",
+                // "test-src/simple-type/list-type-test.bal", // list type not supported yet
+                "test-src/simple-type/map-type-test.bal",
+                "test-src/simple-type/type-test.bal"
+        );
 
         return testFiles.toArray(new String[0]);
         //return new Object[]{"test-src/data/error2.bal"};
     }
 
-    public final HashSet<String> skipList() {
+    public final HashSet<String> dataDirSkipList() {
         HashSet<String> hashSet = new HashSet<>();
-        // Not yet supported in jBallerina
-        hashSet.add("error2.bal");
-        hashSet.add("readonly1.bal");
-        hashSet.add("xml-sequence.bal");
-        hashSet.add("list-fixed.bal");
-        hashSet.add("xml.bal");
-        hashSet.add("contextual.bal");
-        hashSet.add("list-type-test.bal");
-        hashSet.add("fixed-length-array-2-3-e.bal");
-        hashSet.add("fixed-length-array.bal");
-        hashSet.add("fixed-length-array-2-2-e.bal");
-        hashSet.add("int-subtype.bal");
+        // error type not supported yet
         hashSet.add("basic.bal");
-        hashSet.add("table.bal");
-        hashSet.add("xml-never.bal");
-        hashSet.add("bdddiff1.bal");
-        hashSet.add("fixed-length-array-2-4-e.bal");
-        hashSet.add("tuple1.bal");
-        hashSet.add("fixed-length-array-2.bal");
-        hashSet.add("map-type-test.bal");
-        hashSet.add("function-altered.bal");
-        hashSet.add("tuple4.bal");
-        hashSet.add("never.bal");
-        hashSet.add("xml-singleton.bal");
-        hashSet.add("fixed-length-array-tuple.bal");
         hashSet.add("error1.bal");
+        hashSet.add("error2.bal");
+
+        // list type not supported yet
+        hashSet.add("bdddiff1.bal");
+        hashSet.add("fixed-length-array.bal");
+        hashSet.add("fixed-length-array-2.bal");
+        hashSet.add("fixed-length-array-2-2-e.bal");
+        hashSet.add("fixed-length-array-2-3-e.bal");
+        hashSet.add("fixed-length-array-2-4-e.bal");
+        hashSet.add("fixed-length-array-tuple.bal");
+        hashSet.add("hard.bal");
+        hashSet.add("list-fixed.bal");
+        hashSet.add("tuple1.bal");
+        hashSet.add("tuple4.bal");
+
+        // func type not supported yet
+        hashSet.add("function.bal"); // due to https://github.com/ballerina-platform/ballerina-lang/issues/35204
+        hashSet.add("never.bal");
+
+        // readonly type not supported yet
+        hashSet.add("readonly1.bal");
         hashSet.add("readonly2.bal");
+
+        // table type not supported yet
+        hashSet.add("table.bal");
         return hashSet;
     }
 
@@ -124,7 +117,7 @@ public class SemTypeTest {
         List<String> testFiles = Arrays.stream(dataDir.listFiles())
                 .map(File::getAbsolutePath)
                 .filter(name -> name.endsWith(".bal"))
-                .collect(Collectors.toList());
+                .toList();
 
         return testFiles.toArray(new String[0]);
     }
@@ -138,13 +131,35 @@ public class SemTypeTest {
 
         List<SemTypeAssertionTransformer.TypeAssertion> tests = new ArrayList<>();
         for (File file : balFiles) {
-            String fileName = file.getAbsolutePath();
-            BCompileUtil.PackageSyntaxTreePair pair = BCompileUtil.compileSemType(fileName);
-            List<SemTypeAssertionTransformer.TypeAssertion> assertions = SemTypeAssertionTransformer
-                    .getTypeAssertionsFrom(fileName, pair.syntaxTree, pair.bLangPackage.semtypeEnv);
+            List<SemTypeAssertionTransformer.TypeAssertion> assertions = getTypeAssertions(file);
             tests.addAll(assertions);
         }
         return tests.toArray();
+    }
+
+    @NotNull
+    private static List<SemTypeAssertionTransformer.TypeAssertion> getTypeAssertions(File file) {
+        String fileName = file.getAbsolutePath();
+        BCompileUtil.PackageSyntaxTreePair pair = BCompileUtil.compileSemType(fileName);
+        BLangPackage pkgNode = pair.bLangPackage;
+
+        List<BLangNode> typeAndClassDefs = new ArrayList<>();
+        typeAndClassDefs.addAll(pkgNode.constants);
+        typeAndClassDefs.addAll(pkgNode.typeDefinitions);
+        SemTypeResolver typeResolver = new SemTypeResolver();
+        Context typeCheckContext = Context.from(pkgNode.semtypeEnv);
+
+        List<SemTypeAssertionTransformer.TypeAssertion> assertions;
+        try {
+            typeResolver.defineSemTypes(typeAndClassDefs, typeCheckContext);
+            assertions = SemTypeAssertionTransformer.getTypeAssertionsFrom(fileName, pair.syntaxTree,
+                    pkgNode.semtypeEnv);
+        } catch (Exception e) {
+            assertions = new ArrayList<>(List.of(new SemTypeAssertionTransformer.TypeAssertion(
+                    null, fileName, null, null, null, e.getMessage()
+            )));
+        }
+        return assertions;
     }
 
     public void listAllBalFiles(File file, List<File> balFiles) {
@@ -155,10 +170,46 @@ public class SemTypeTest {
             if (f.isDirectory()) {
                 listAllBalFiles(f, balFiles);
             }
-            if (f.getName().endsWith(".bal")) {
+            String fileName = f.getName();
+            if (fileName.endsWith(".bal") && !typeRelDirSkipList().contains(fileName)) {
                 balFiles.add(f);
             }
         }
+    }
+
+    public final HashSet<String> typeRelDirSkipList() {
+        HashSet<String> hashSet = new HashSet<>();
+        // list type not supported yet
+        hashSet.add("bdddiff1-tv.bal");
+        hashSet.add("fixed-length-array2-t.bal");
+        hashSet.add("fixed-length-array-t.bal");
+        hashSet.add("fixed-length-array-tuple-t.bal");
+        hashSet.add("proj1-tv.bal");
+        hashSet.add("proj2-tv.bal");
+        hashSet.add("proj3-t.bal");
+        hashSet.add("proj4-t.bal");
+        hashSet.add("proj5-t.bal");
+        hashSet.add("proj6-t.bal");
+        hashSet.add("proj7-t.bal");
+        hashSet.add("proj8-t.bal");
+        hashSet.add("proj9-t.bal");
+        hashSet.add("proj10-t.bal");
+        hashSet.add("tuple1-tv.bal");
+        hashSet.add("tuple2-tv.bal");
+        hashSet.add("tuple3-tv.bal");
+        hashSet.add("tuple4-tv.bal");
+        hashSet.add("test_test.bal");
+
+        // readonly type not supported yet
+        hashSet.add("xml-complex-ro-tv.bal");
+        hashSet.add("xml-readonly-tv.bal");
+        hashSet.add("xml-te.bal");
+
+        // table type not supported yet
+        hashSet.add("anydata-tv.bal");
+        hashSet.add("table-t.bal");
+        hashSet.add("table2-t.bal");
+        return hashSet;
     }
 
     private void include(List<String> testFiles, String... fileNames) {
@@ -167,33 +218,20 @@ public class SemTypeTest {
         }
     }
 
-    private void ignore(List<String> testFiles, String fileName) {
-        int index = -1;
-        for (int i = 0; i < testFiles.size(); i++) {
-            if (testFiles.get(i).endsWith(fileName)) {
-                index = i;
-                break;
-            }
-        }
-        if (index != -1) {
-            testFiles.remove(index);
-        }
-    }
-
-    @Test(dataProvider = "fileNameProvider")
-    public void initialTest(String fileName) {
+    @Test(dataProvider = "dataDirFileNameProvider")
+    public void verifyAllSubtypeRelationships(String fileName) {
         List<String> subtypeRels = getSubtypeRels(fileName);
         List<String> expectedRels = extractSubtypeRelations(fileName);
         // Commented code will get expected content for this test to pass.
         // Useful for taking a diff.
-        //String text = toText(subtypeRels);
+        // String text = toText(subtypeRels);
         Assert.assertEquals(subtypeRels, expectedRels);
     }
 
     @Test(dataProvider = "fileNameProviderFunc")
     public void funcTest(String fileName) {
         BCompileUtil.PackageSyntaxTreePair packageSyntaxTreePair = BCompileUtil.compileSemType(fileName);
-        BLangPackage bLangPackage = packageSyntaxTreePair.bLangPackage;;
+        BLangPackage bLangPackage = packageSyntaxTreePair.bLangPackage;
         ensureNoErrors(bLangPackage);
         List<String[]> vars = extractVarTypes(fileName);
         Context tc = Context.from(bLangPackage.semtypeEnv);
@@ -214,8 +252,19 @@ public class SemTypeTest {
         });
     }
 
+    @Test(expectedExceptions = AssertionError.class)
+    public void shouldFailForIncorrectTestStructure() {
+        File wrongAssertionFile = resolvePath("test-src/type-rel-wrong.bal").toFile();
+        List<SemTypeAssertionTransformer.TypeAssertion> typeAssertions = getTypeAssertions(wrongAssertionFile);
+        testSemTypeAssertions(typeAssertions.get(0));
+    }
+
     @Test(dataProvider = "type-rel-provider")
     public void testSemTypeAssertions(SemTypeAssertionTransformer.TypeAssertion typeAssertion) {
+        if (typeAssertion.kind == null) {
+            Assert.fail("Exception thrown in " + typeAssertion.file + System.lineSeparator() + typeAssertion.text);
+        }
+
         switch (typeAssertion.kind) {
             case NON:
                 Assert.assertFalse(SemTypes.isSubtype(typeAssertion.context, typeAssertion.lhs, typeAssertion.rhs),
@@ -252,32 +301,28 @@ public class SemTypeTest {
     }
 
     private List<String> getSubtypeRels(String sourceFilePath) {
-        BLangPackage bLangPackage = BCompileUtil.compileSemType(sourceFilePath).bLangPackage;
+        BLangPackage pkgNode = BCompileUtil.compileSemType(sourceFilePath).bLangPackage;
         // xxxx-e.bal pattern is used to test bal files where jBallerina type checking doesn't support type operations
         // such as intersection. Make sure not to use nBallerina type negation (!) with this as jBallerina compiler
         // front end doesn't generate AST from those.
         if (!sourceFilePath.endsWith("-e.bal")) {
-            ensureNoErrors(bLangPackage);
+            ensureNoErrors(pkgNode);
         }
-        Context typeCheckContext = Context.from(bLangPackage.semtypeEnv);
 
-        // Map<String, SemType> typeMap = bLangPackage.semtypeEnv.getTypeNameSemTypeMap();
-        // TODO: use above line instead of below, once sem-type resolving is done directly.
+        List<BLangNode> typeAndClassDefs = new ArrayList<>();
+        typeAndClassDefs.addAll(pkgNode.constants);
+        typeAndClassDefs.addAll(pkgNode.typeDefinitions);
 
-        Map<String, SemType> typeMap = new LinkedHashMap<>();
-        List<BLangTypeDefinition> typeDefs = bLangPackage.typeDefinitions;
-        for (BLangTypeDefinition typeDef : typeDefs) {
-            SemType s = typeDef.getBType().semType();
-            if (s != null) {
-                typeMap.put(typeDef.name.value, s);
-            }
-        }
+        SemTypeResolver typeResolver = new SemTypeResolver();
+        Context typeCheckContext = Context.from(pkgNode.semtypeEnv);
+        typeResolver.defineSemTypes(typeAndClassDefs, typeCheckContext);
+        Map<String, SemType> typeMap = pkgNode.semtypeEnv.getTypeNameSemTypeMap();
 
         List<TypeRel> subtypeRelations = new ArrayList<>();
         List<String> typeNameList = typeMap.keySet().stream()
                 .filter(n -> !n.startsWith("$anon"))
                 .sorted(SemTypeTest::ballerinaStringCompare)
-                .collect(Collectors.toList());
+                .toList();
         int size = typeNameList.size();
         for (int i = 0; i < size; i++) {
             for (int j = i + 1; j < size; j++) {
@@ -304,10 +349,10 @@ public class SemTypeTest {
     private void ensureNoErrors(BLangPackage bLangPackage) {
         List<Diagnostic> errors = bLangPackage.getDiagnostics().stream()
                 .filter(d -> d.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)
-                .collect(Collectors.toList());
+                .toList();
         if (!errors.isEmpty()) {
             Assert.fail(errors.stream()
-                            .map(d -> d.toString())
+                            .map(Diagnostic::toString)
                             .reduce("", (a, b) -> a + "\n" + b));
         }
     }
@@ -350,16 +395,11 @@ public class SemTypeTest {
     /**
      * Represent subtype relationship.
      *
-     * @since 3.0.0
+     * @param subType   subtype name
+     * @param superType super type name
+     * @since 2201.10.0
      */
-    public static class TypeRel {
-        public final String superType;
-        public final String subType;
-
-        public TypeRel(String subType, String superType) {
-            this.superType = superType;
-            this.subType = subType;
-        }
+    private record TypeRel(String subType, String superType) {
 
         public static TypeRel rel(String sub, String sup) {
             return new TypeRel(sub, sup);

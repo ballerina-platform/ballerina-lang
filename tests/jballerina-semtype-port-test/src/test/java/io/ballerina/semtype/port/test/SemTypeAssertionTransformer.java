@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.types;
+package io.ballerina.semtype.port.test;
 
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
@@ -26,11 +26,17 @@ import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.types.Context;
+import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.testng.Assert;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -91,7 +97,7 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
         String memberAccessExpr = typeExpr.substring(leftBracketPos + 1, rightBracketPos);
 
         SemType type = typeNameSemTypeMap.get(typeRef);
-        if (SemTypes.isSubtypeSimple(type,  PredefinedType.LIST)) {
+        if (SemTypes.isSubtypeSimple(type, PredefinedType.LIST)) {
             SemType m;
             try {
                 long l = Long.parseLong(memberAccessExpr);
@@ -103,7 +109,7 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
             return listProj(context, type, m);
         } else if (SemTypes.isSubtypeSimple(type, PredefinedType.MAPPING)) {
             SemType m = typeNameSemTypeMap.get(memberAccessExpr);
-            return SemTypes.mappingMemberType(context, type, m);
+            return SemTypes.mappingMemberTypeInnerVal(context, type, m);
         }
         throw new IllegalStateException("Unsupported type test: " + typeExpr);
     }
@@ -118,16 +124,38 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
     }
 
     private String[] splitAssertion(String str) {
+        if (ignoredCommentSet().contains(str)) {
+            return null;
+        }
         String[] parts = str.split(" ");
+
+        if (parts[1].equals("-@type")) {
+            // TODO: remove this check once diff operator is supported
+            return null;
+        }
+
         // Only accept the form: `//` `@type` T1 REL T2
         if (!parts[1].equals("@type") || parts.length != 5) {
-            return null;
+            throw new IllegalStateException("Invalid type assertion '" + str +
+                    "', expected in form: '// @type T1 REL T2'");
         }
         return Arrays.copyOfRange(parts, 2, 5);
     }
 
-     @Override
-     protected void visitSyntaxNode(Node node) {
+    /**
+     * Returns a set of comments that are to be ignored during the processing.
+     * These comments include non-essential information or comments that do not conform to the expected format.
+     *
+     * @return Set of comments to be ignored.
+     */
+    public final HashSet<String> ignoredCommentSet() {
+        HashSet<String> hashSet = new HashSet<>();
+        hashSet.add("// the order of type defns are intentional");
+        return hashSet;
+    }
+
+    @Override
+    protected void visitSyntaxNode(Node node) {
         addComments(node.leadingMinutiae());
         addComments(node.trailingMinutiae());
     }

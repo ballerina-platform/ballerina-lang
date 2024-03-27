@@ -111,7 +111,7 @@ public class FunctionOps extends CommonOps implements BasicTypeOps {
 
     private static SemType functionIntersectRet(Context cx, Conjunction pos) {
         if (pos == null) {
-            return PredefinedType.TOP;
+            return PredefinedType.VAL;
         }
         return Core.intersect(cx.functionAtomType(pos.atom).retType, functionIntersectRet(cx, pos.next));
     }

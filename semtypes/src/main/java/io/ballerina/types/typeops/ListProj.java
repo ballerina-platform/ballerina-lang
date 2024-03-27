@@ -48,7 +48,7 @@ import static io.ballerina.types.Core.isNever;
 import static io.ballerina.types.Core.union;
 import static io.ballerina.types.PredefinedType.LIST;
 import static io.ballerina.types.PredefinedType.NEVER;
-import static io.ballerina.types.PredefinedType.TOP;
+import static io.ballerina.types.PredefinedType.VAL;
 import static io.ballerina.types.subtypedata.IntSubtype.intSubtypeContains;
 import static io.ballerina.types.typeops.ListOps.fixedArrayAnyEmpty;
 import static io.ballerina.types.typeops.ListOps.fixedArrayShallowCopy;
@@ -66,7 +66,7 @@ public class ListProj {
     // Based on listMemberType
     public static SemType listProj(Context cx, SemType t, SemType k) {
         if (t instanceof BasicTypeBitSet b) {
-            return (b.bitset & LIST.bitset) != 0 ? TOP : NEVER;
+            return (b.bitset & LIST.bitset) != 0 ? VAL : NEVER;
         } else {
             SubtypeData keyData = Core.intSubtype(k);
             if (isNothingSubtype(keyData)) {
@@ -94,7 +94,7 @@ public class ListProj {
         SemType rest;
         if (pos == null) {
             members = FixedLengthArray.empty();
-            rest = TOP;
+            rest = VAL;
         } else {
             // combine all the positive tuples using intersection
             ListAtomicType lt = cx.listAtomType(pos.atom);

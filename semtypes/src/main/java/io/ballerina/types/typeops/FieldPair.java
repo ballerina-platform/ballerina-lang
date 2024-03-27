@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,30 +17,21 @@
  */
 package io.ballerina.types.typeops;
 
-import io.ballerina.types.SemType;
+import io.ballerina.types.CellSemType;
 
 /**
  * Represent the FieldPair record.
  *
- * @since 2201.8.0
+ * @param name   name of the field
+ * @param type1  type of the field in the first mapping
+ * @param type2  type of the field in the second mapping
+ * @param index1 index of the field in the first mapping
+ * @param index2 index of the field in the second mapping
+ * @since 2201.10.0
  */
-public class FieldPair {
-    public final String  name;
-    public final SemType type1;
-    public final SemType type2;
-    Integer index1;
-    Integer index2;
+public record FieldPair(String name, CellSemType type1, CellSemType type2, Integer index1, Integer index2) {
 
-
-    public FieldPair(String name, SemType type1, SemType type2, Integer index1, Integer index2) {
-        this.name = name;
-        this.type1 = type1;
-        this.type2 = type2;
-        this.index1 = index1;
-        this.index2 = index2;
-    }
-
-    public static FieldPair create(String name, SemType type1, SemType type2, Integer index1,
+    public static FieldPair create(String name, CellSemType type1, CellSemType type2, Integer index1,
                                    Integer index2) {
         return new FieldPair(name, type1, type2, index1, index2);
     }

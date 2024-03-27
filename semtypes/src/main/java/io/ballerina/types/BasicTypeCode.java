@@ -52,6 +52,7 @@ public class BasicTypeCode {
 
     // Non-val
     public static final BasicTypeCode BT_CELL = from(0x11);
+    public static final BasicTypeCode BT_UNDEF = from(0x12);
 
     // Helper bit fields (does not represent basic type tag)
     static final int VT_COUNT = BT_OBJECT.code + 1;

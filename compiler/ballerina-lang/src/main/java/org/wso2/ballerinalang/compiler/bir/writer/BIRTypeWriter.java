@@ -21,6 +21,7 @@ import io.ballerina.types.Atom;
 import io.ballerina.types.AtomicType;
 import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.Bdd;
+import io.ballerina.types.CellSemType;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.EnumerableCharString;
 import io.ballerina.types.EnumerableDecimal;
@@ -687,9 +688,9 @@ public class BIRTypeWriter extends TypeVisitor {
         for (String name : names) {
             buff.writeInt(addStringCPEntry(name));
         }
-        SemType[] types = mat.types;
+        CellSemType[] types = mat.types;
         buff.writeInt(types.length);
-        for (SemType type : types) {
+        for (CellSemType type : types) {
             writeSemType(type);
         }
         writeSemType(mat.rest);

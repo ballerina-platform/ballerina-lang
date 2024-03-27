@@ -26,8 +26,12 @@ public final class CellAtomicType implements AtomicType {
     public final SemType ty;
     public final CellMutability mut;
 
-    public static final CellAtomicType CELL_ATOMIC_VAL = from(PredefinedType.TOP, CellMutability.CELL_MUT_LIMITED);
+    public static final CellAtomicType CELL_ATOMIC_VAL = from(PredefinedType.VAL, CellMutability.CELL_MUT_LIMITED);
+    public static final CellAtomicType CELL_ATOMIC_INNER = from(PredefinedType.INNER, CellMutability.CELL_MUT_LIMITED);
     public static final CellAtomicType CELL_ATOMIC_NEVER = from(PredefinedType.NEVER, CellMutability.CELL_MUT_LIMITED);
+    public static final CellAtomicType CELL_ATOMIC_INNER_MAPPING = from(
+            Core.union(PredefinedType.MAPPING, PredefinedType.UNDEF), CellMutability.CELL_MUT_LIMITED
+    );
 
     private CellAtomicType(SemType ty, CellMutability mut) {
         this.ty = ty;

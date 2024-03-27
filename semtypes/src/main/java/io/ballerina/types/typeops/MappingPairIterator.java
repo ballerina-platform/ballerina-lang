@@ -17,9 +17,9 @@
  */
 package io.ballerina.types.typeops;
 
+import io.ballerina.types.CellSemType;
 import io.ballerina.types.Common;
 import io.ballerina.types.MappingAtomicType;
-import io.ballerina.types.SemType;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -34,14 +34,14 @@ import java.util.Optional;
 public class MappingPairIterator implements Iterator<FieldPair> {
     private final String[] names1;
     private final String[] names2;
-    private final SemType[] types1;
-    private final SemType[] types2;
+    private final CellSemType[] types1;
+    private final CellSemType[] types2;
     private final int len1;
     private final int len2;
     private int i1 = 0;
     private int i2 = 0;
-    private final SemType rest1;
-    private final SemType rest2;
+    private final CellSemType rest1;
+    private final CellSemType rest2;
 
     private boolean doneIteration = false;
     private boolean shouldCalculate = true;
@@ -124,7 +124,7 @@ public class MappingPairIterator implements Iterator<FieldPair> {
         return p;
     }
 
-    private SemType curType1() {
+    private CellSemType curType1() {
         return this.types1[this.i1];
     }
 
@@ -132,7 +132,7 @@ public class MappingPairIterator implements Iterator<FieldPair> {
         return this.names1[this.i1];
     }
 
-    private SemType curType2() {
+    private CellSemType curType2() {
         return this.types2[this.i2];
     }
 

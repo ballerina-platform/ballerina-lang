@@ -20,10 +20,13 @@ package io.ballerina.types.typeops;
 import io.ballerina.types.BasicTypeOps;
 import io.ballerina.types.Bdd;
 import io.ballerina.types.BddMemo;
+import io.ballerina.types.CellSemType;
 import io.ballerina.types.Common;
+import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Conjunction;
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
+import io.ballerina.types.Env;
 import io.ballerina.types.MappingAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
@@ -33,17 +36,16 @@ import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.StringSubtype;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static io.ballerina.types.Common.bddSubtypeComplement;
 import static io.ballerina.types.Common.bddSubtypeDiff;
 import static io.ballerina.types.Common.bddSubtypeIntersect;
 import static io.ballerina.types.Common.bddSubtypeUnion;
 import static io.ballerina.types.Common.isAllSubtype;
+import static io.ballerina.types.MappingAtomicType.MAPPING_ATOMIC_INNER;
 import static io.ballerina.types.PredefinedType.NEVER;
-import static io.ballerina.types.typeops.StringOps.stringSubtypeContainedIn;
+import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.typeops.StringOps.stringSubtypeListCoverage;
 
 /**
@@ -57,10 +59,7 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
     public static boolean mappingFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
         MappingAtomicType combined;
         if (posList == null) {
-            combined = MappingAtomicType.from(new String[0], new SemType[0],
-                    // This isn't right for the readonly case.
-                    // bddFixReadOnly avoids this
-                    PredefinedType.TOP);
+            combined = MAPPING_ATOMIC_INNER;
         } else {
             // combine all the positive atoms using intersection
             combined = cx.mappingAtomType(posList.atom);
@@ -69,7 +68,7 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
                 if (p == null) {
                     break;
                 } else {
-                    MappingAtomicType m = intersectMapping(combined, cx.mappingAtomType(p.atom));
+                    MappingAtomicType m = intersectMapping(cx.env, combined, cx.mappingAtomType(p.atom));
                     if (m == null) {
                         return true;
                     } else {
@@ -94,41 +93,22 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
         } else {
             MappingAtomicType neg = cx.mappingAtomType(negList.atom);
 
-            FieldPairs pairing;
-
-            if (!Arrays.equals(pos.names, neg.names)) {
-                // If this negative type has required fields that the positive one does not allow
-                // or vice-versa, then this negative type has no effect,
-                // so we can move on to the next one
-
-                // Deal the easy case of two closed records fast.
-                if (Core.isNever(pos.rest) && Core.isNever(neg.rest)) {
-                    return mappingInhabited(cx, pos, negList.next);
-                }
-                pairing = new FieldPairs(pos, neg);
-                for (FieldPair fieldPair : pairing) {
-                    if (Core.isNever(fieldPair.type1) || Core.isNever(fieldPair.type2)) {
-                        return mappingInhabited(cx, pos, negList.next);
-                    }
-                }
-                pairing.itr.reset();
-            } else {
-                pairing = new FieldPairs(pos, neg);
-            }
-
+            FieldPairs pairing = new FieldPairs(pos, neg);
             if (!Core.isEmpty(cx, Core.diff(pos.rest, neg.rest))) {
                 return true;
             }
             for (FieldPair fieldPair : pairing) {
-                SemType d = Core.diff(fieldPair.type1, fieldPair.type2);
+                SemType d = Core.diff(fieldPair.type1(), fieldPair.type2());
+                assert Core.isSubtypeSimple(d, PredefinedType.CELL);
+                CellSemType dCell = CellSemType.from(((ComplexSemType) d).subtypeDataList);
                 if (!Core.isEmpty(cx, d)) {
                     MappingAtomicType mt;
-                    if (fieldPair.index1 == null) {
+                    if (fieldPair.index1() == null) {
                         // the posType came from the rest type
-                        mt = insertField(pos, fieldPair.name, d);
+                        mt = insertField(pos, fieldPair.name(), dCell);
                     } else {
-                        SemType[] posTypes = Common.shallowCopyTypes(pos.types);
-                        posTypes[fieldPair.index1] = d;
+                        CellSemType[] posTypes = Common.shallowCopyCellTypes(pos.types);
+                        posTypes[fieldPair.index1()] = dCell;
                         mt = MappingAtomicType.from(pos.names, posTypes, pos.rest);
                     }
                     if (mappingInhabited(cx, mt, negList.next)) {
@@ -140,12 +120,12 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
         }
     }
 
-    private static MappingAtomicType insertField(MappingAtomicType m, String name, SemType t) {
-        String[] names = Common.shallowCopyStrings(m.names);
-        SemType[] types = Common.shallowCopyTypes(m.types);
-        int i = names.length;
+    private static MappingAtomicType insertField(MappingAtomicType m, String name, CellSemType t) {
+        String[] names = Common.shallowCopyStrings(m.names, m.names.length + 1);
+        CellSemType[] types = Common.shallowCopyCellTypes(m.types, m.types.length + 1);
+        int i = m.names.length;
         while (true) {
-            if (i == 0 || Objects.equals(name, names[i - 1]) || Common.codePointCompare(name, names[i - 1])) {
+            if (i == 0 || Common.codePointCompare(names[i - 1], name)) {
                 names[i] = name;
                 types[i] = t;
                 break;
@@ -157,20 +137,20 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
         return MappingAtomicType.from(names, types, m.rest);
     }
 
-    private static MappingAtomicType intersectMapping(MappingAtomicType m1, MappingAtomicType m2) {
+    private static MappingAtomicType intersectMapping(Env env, MappingAtomicType m1, MappingAtomicType m2) {
         List<String> names = new ArrayList<>();
-        List<SemType> types = new ArrayList<>();
+        List<CellSemType> types = new ArrayList<>();
         FieldPairs pairing = new FieldPairs(m1, m2);
         for (FieldPair fieldPair : pairing) {
-            names.add(fieldPair.name);
-            SemType t = Core.intersect(fieldPair.type1, fieldPair.type2);
-            if (Core.isNever(t)) {
+            names.add(fieldPair.name());
+            CellSemType t = Core.intersectMemberSemTypes(env, fieldPair.type1(), fieldPair.type2());
+            if (Core.isNever(Core.cellInner(fieldPair.type1()))) {
                 return null;
             }
             types.add(t);
         }
-        SemType rest = Core.intersect(m1.rest, m2.rest);
-        return MappingAtomicType.from(names.toArray(new String[]{}), types.toArray(new SemType[]{}), rest);
+        CellSemType rest = Core.intersectMemberSemTypes(env, m1.rest, m2.rest);
+        return MappingAtomicType.from(names.toArray(new String[]{}), types.toArray(new CellSemType[]{}), rest);
     }
 
     public static boolean mappingSubtypeIsEmpty(Context cx, SubtypeData t) {
@@ -198,59 +178,54 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
         return isEmpty;
     }
 
-    public static SemType bddMappingMemberType(Context cx, Bdd b, SubtypeData key, SemType accum)  {
+    public static SemType bddMappingMemberTypeInner(Context cx, Bdd b, SubtypeData key, SemType accum)  {
         if (b instanceof BddAllOrNothing allOrNothing) {
             return allOrNothing.isAll() ? accum : NEVER;
         } else {
             BddNode bdd = (BddNode) b;
             return Core.union(
-                    bddMappingMemberType(cx, bdd.left, key,
-                                         Core.intersect(mappingAtomicMemberType(cx.mappingAtomType(bdd.atom), key),
+                    bddMappingMemberTypeInner(cx, bdd.left, key,
+                                         Core.intersect(mappingAtomicMemberTypeInner(cx.mappingAtomType(bdd.atom), key),
                                                         accum)),
-                    Core.union(bddMappingMemberType(cx, bdd.middle, key, accum),
-                               bddMappingMemberType(cx, bdd.right, key, accum)));
+                    Core.union(bddMappingMemberTypeInner(cx, bdd.middle, key, accum),
+                               bddMappingMemberTypeInner(cx, bdd.right, key, accum)));
         }
     }
 
-    static SemType mappingAtomicMemberType(MappingAtomicType atomic, SubtypeData key) {
-        SemType memberType = NEVER;
-        for (SemType ty : mappingAtomicApplicableMemberTypes(atomic, key)) {
-            memberType = Core.union(memberType, ty);
-        }
-        return memberType;
-    }
-
-    static List<SemType> mappingAtomicApplicableMemberTypes(MappingAtomicType atomic, SubtypeData key) {
-        List<SemType> memberTypes = new ArrayList<>();
-        if (isAllSubtype(key)) {
-            for (SemType t : atomic.types) {
-                memberTypes.add(t);
+    static SemType mappingAtomicMemberTypeInner(MappingAtomicType atomic, SubtypeData key) {
+        SemType memberType = null;
+        for (SemType ty : mappingAtomicApplicableMemberTypesInner(atomic, key)) {
+            if (memberType == null) {
+                memberType = ty;
+            } else {
+                memberType = Core.union(memberType, ty);
             }
-            memberTypes.add(atomic.rest);
+        }
+        return memberType == null ? UNDEF : memberType;
+    }
+
+    static List<SemType> mappingAtomicApplicableMemberTypesInner(MappingAtomicType atomic, SubtypeData key) {
+        List<SemType> types = new ArrayList<>(atomic.types.length);
+        for (CellSemType t: atomic.types) {
+            types.add(Core.cellInner(t));
+        }
+
+        List<SemType> memberTypes = new ArrayList<>();
+        SemType rest = Core.cellInner(atomic.rest);
+        if (isAllSubtype(key)) {
+            memberTypes.addAll(types);
+            memberTypes.add(rest);
         } else {
             StringSubtype.StringSubtypeListCoverage coverage = stringSubtypeListCoverage((StringSubtype) key,
                                                                                          atomic.names);
             for (int index : coverage.indices) {
-                memberTypes.add(atomic.types[index]);
+                memberTypes.add(types.get(index));
             }
             if (!coverage.isSubtype) {
-                memberTypes.add(atomic.rest);
+                memberTypes.add(rest);
             }
         }
         return memberTypes;
-    }
-
-
-    public static boolean bddMappingMemberRequired(Context cx, Bdd b, StringSubtype k, boolean requiredOnPath) {
-        if (b instanceof BddAllOrNothing allOrNothing) {
-            return !allOrNothing.isAll() || requiredOnPath;
-        } else {
-            BddNode bdd = (BddNode) b;
-            return bddMappingMemberRequired(cx, bdd.left, k,
-                    requiredOnPath || stringSubtypeContainedIn(k, cx.mappingAtomType(bdd.atom).names))
-                    && bddMappingMemberRequired(cx, bdd.middle, k, requiredOnPath)
-                    && bddMappingMemberRequired(cx, bdd.right, k, requiredOnPath);
-        }
     }
 
     @Override

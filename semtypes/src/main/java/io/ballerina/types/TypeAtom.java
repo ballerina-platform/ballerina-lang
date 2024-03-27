@@ -17,6 +17,8 @@
  */
 package io.ballerina.types;
 
+import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_INNER;
+import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_INNER_MAPPING;
 import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_NEVER;
 import static io.ballerina.types.CellAtomicType.CELL_ATOMIC_VAL;
 
@@ -31,6 +33,8 @@ public class TypeAtom implements Atom {
 
     public static final TypeAtom ATOM_CELL_VAL = createTypeAtom(0, CELL_ATOMIC_VAL);
     public static final TypeAtom ATOM_CELL_NEVER = createTypeAtom(1, CELL_ATOMIC_NEVER);
+    public static final TypeAtom ATOM_CELL_INNER = createTypeAtom(2, CELL_ATOMIC_INNER);
+    public static final TypeAtom ATOM_CELL_INNER_MAPPING = createTypeAtom(3, CELL_ATOMIC_INNER_MAPPING);
 
     private TypeAtom(long index, AtomicType atomicType) {
         this.index = index;

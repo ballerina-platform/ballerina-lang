@@ -146,10 +146,6 @@ public class Env {
         }
     }
 
-    public static CellAtomicType cellAtomType(Atom atom) {
-        return (CellAtomicType) ((TypeAtom) atom).atomicType;
-    }
-
     public void addTypeDef(String typeName, SemType semType) {
         this.types.put(typeName, semType);
     }

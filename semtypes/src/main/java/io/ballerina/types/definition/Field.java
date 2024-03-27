@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -20,20 +20,26 @@ package io.ballerina.types.definition;
 import io.ballerina.types.SemType;
 
 /**
- * Represent a record field in a type-descriptor.
+ * Represent a field in a mapping type.
  *
- * @since 2201.8.0
+ * @param name field name
+ * @param ty field type
+ * @param ro whether the field is readonly
+ * @param opt whether the field is optional
+ * @since 2201.10.0
  */
-public class Field {
-    public final String name;
-    public final SemType type;
+public record Field(String name, SemType ty, boolean ro, boolean opt) {
 
-    private Field(String name, SemType type) {
-        this.name = name;
-        this.type = type;
+    public static Field from(String name, SemType type, boolean ro, boolean opt) {
+        return new Field(name, type, ro, opt);
     }
 
-    public static Field from(String name, SemType type) {
-        return new Field(name, type);
+    @Override
+    public String toString() {
+        return "Field[" +
+                "name=" + name + ", " +
+                "ty=" + ty + ", " +
+                "ro=" + ro + ", " +
+                "opt=" + opt + ']';
     }
 }

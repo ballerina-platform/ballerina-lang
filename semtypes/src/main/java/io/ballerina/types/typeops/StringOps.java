@@ -139,10 +139,6 @@ public class StringOps implements BasicTypeOps {
         return StringSubtype.StringSubtypeListCoverage.from(stringConsts == indices.size(), inds);
     }
 
-    static boolean stringSubtypeContainedIn(StringSubtype subtype, String[] values) {
-        return stringSubtypeListCoverage(subtype, values).isSubtype;
-    }
-
     private static String[] toStringArray(EnumerableCharString[] ar) {
         String[] strings = new String[ar.length];
         for (int i = 0; i < ar.length; i++) {

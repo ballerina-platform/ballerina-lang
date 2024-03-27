@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
@@ -541,7 +542,7 @@ public class BUnionType extends BType implements UnionType {
         }
 
         SemType s = SemTypeHelper.semTypeComponent(memberType);
-        if (!PredefinedType.NEVER.equals(s)) {
+        if (!Core.isNever(s)) {
             memberSemTypes.add(s);
         }
 
