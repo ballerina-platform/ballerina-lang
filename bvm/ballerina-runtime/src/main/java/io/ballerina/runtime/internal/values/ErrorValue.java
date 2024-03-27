@@ -43,12 +43,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.internal.TypeChecker.isEqual;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 
@@ -447,5 +449,20 @@ public class ErrorValue extends BError implements RefValue {
 
     private boolean isCompilerAddedName(String name) {
         return name != null && name.startsWith("$") && name.endsWith("$");
+    }
+
+    /**
+     * Deep equality check for error values.
+     *
+     * @param o The error value to be compared
+     * @param visitedValues Visited values due to circular references
+     * @return True if the error values are equal, false otherwise
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        ErrorValue errorValue = (ErrorValue) o;
+        return isEqual(this.getMessage(), errorValue.getMessage(), visitedValues) &&
+                ((MapValueImpl<?, ?>) this.getDetails()).equals(errorValue.getDetails(), visitedValues) &&
+                isEqual(this.getCause(), errorValue.getCause(), visitedValues);
     }
 }

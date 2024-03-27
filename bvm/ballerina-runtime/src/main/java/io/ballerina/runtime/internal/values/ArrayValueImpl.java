@@ -44,7 +44,9 @@ import io.ballerina.runtime.internal.types.BArrayType;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -1285,12 +1287,33 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     public int hashCode() {
         int result = Objects.hash(type, elementType);
-        result = 31 * result + Arrays.hashCode(refValues);
+        result = 31 * result + calculateHashCode(new ArrayList<>());
         result = 31 * result + Arrays.hashCode(intValues);
         result = 31 * result + Arrays.hashCode(booleanValues);
         result = 31 * result + Arrays.hashCode(byteValues);
         result = 31 * result + Arrays.hashCode(floatValues);
         result = 31 * result + Arrays.hashCode(bStringValues);
+        return result;
+    }
+
+    private int calculateHashCode(List<Object> visited) {
+        if (refValues == null) {
+            return 0;
+        }
+
+        int result = 1;
+        if (visited.contains(refValues)) {
+            return 31 * result + System.identityHashCode(refValues);
+        }
+        visited.add(refValues);
+
+        for (Object ref : refValues) {
+            if (ref instanceof ArrayValueImpl) {
+                result = 31 * result + calculateHashCode(visited);
+            } else {
+                result = 31 * result + (ref == null ? 0 : ref.hashCode());
+            }
+        }
         return result;
     }
 }
