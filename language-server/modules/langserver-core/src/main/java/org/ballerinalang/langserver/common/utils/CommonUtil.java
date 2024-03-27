@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -414,6 +415,39 @@ public class CommonUtil {
                         .map(CommonUtil::getRawType)
                         .map(TypeSymbol::typeKind)
                         .allMatch(kind -> kind == typeDescKind);
+    }
+
+    /**
+     * Remove error types from the given type.
+     *
+     * @param typeSymbol type descriptor to evaluate
+     * @param types instance of the Types
+     * @return {@link TypeSymbol} type symbol without error types
+     */
+    public static Optional<TypeSymbol> removeErrorTypes(TypeSymbol typeSymbol, Types types) {
+        TypeDescKind kind = typeSymbol.typeKind();
+        if (kind == TypeDescKind.ERROR) {
+            return Optional.empty();
+        }
+        if (kind == TypeDescKind.TYPE_REFERENCE) {
+            return removeErrorTypes(getRawType(typeSymbol), types);
+        }
+        if (kind == TypeDescKind.UNION) {
+            List<TypeSymbol> memberTypes = ((UnionTypeSymbol) typeSymbol).userSpecifiedMemberTypes();
+            List<TypeSymbol> noErrorMembers = new ArrayList<>();
+            for (TypeSymbol memberType : memberTypes) {
+                Optional<TypeSymbol> newMemberType = removeErrorTypes(memberType, types);
+                newMemberType.ifPresent(noErrorMembers::add);
+            }
+            if (noErrorMembers.size() == memberTypes.size()) {
+                return Optional.of(typeSymbol);
+            } else if (noErrorMembers.size() == 1) {
+                return Optional.of(noErrorMembers.get(0));
+            }
+            return Optional.of(types.builder().
+                    UNION_TYPE.withMemberTypes(noErrorMembers.toArray(new TypeSymbol[0])).build());
+        }
+        return Optional.of(typeSymbol);
     }
 
     /**
