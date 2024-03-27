@@ -14,4 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const NAME = "name";
+public const MAPPING_A = "A";
+public const MAPPING_B = "B";
+const MAPPING_C = "C";
+const MAPPING_NAME = "name";
