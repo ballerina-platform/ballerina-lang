@@ -452,6 +452,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertFalse(project.buildOptions().offlineBuild());
         Assert.assertFalse(project.buildOptions().testReport());
         Assert.assertTrue(project.buildOptions().runtimeManagementIncluded());
+        Assert.assertTrue(project.buildOptions().enableServicePublish());
     }
 
     @Test(description = "tests loading a valid build project with build options from toml")

@@ -59,7 +59,7 @@ public class RuntimeManagementDesugar {
         runtimeManagementIncluded = Boolean.parseBoolean(CompilerOptions.getInstance(context)
                 .get(CompilerOptionName.RUNTIME_MANAGEMENT_INCLUDED));
         enableServicePublish = Boolean.parseBoolean(CompilerOptions.getInstance(context)
-                .get(CompilerOptionName.ENABLE_SERVICE_CATALOG));
+                .get(CompilerOptionName.ENABLE_SERVICE_PUBLISH));
         packageCache = PackageCache.getInstance(context);
         final BPackageSymbol symbol = PackageCache.getInstance(context).getSymbol(Names.BALLERINA_ORG.value
                 + Names.ORG_NAME_SEPARATOR.value + Names.RUNTIME_MANAGEMENT.value);

@@ -644,7 +644,7 @@ public class ManifestBuilder {
         Boolean runtimeManagementIncluded = getBooleanFromBuildOptionsTableNode(tableNode,
                 CompilerOptionName.RUNTIME_MANAGEMENT_INCLUDED.toString());
         Boolean enableServicePublish = getBooleanFromBuildOptionsTableNode(tableNode,
-                CompilerOptionName.ENABLE_SERVICE_CATALOG.toString());
+                CompilerOptionName.ENABLE_SERVICE_PUBLISH.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
