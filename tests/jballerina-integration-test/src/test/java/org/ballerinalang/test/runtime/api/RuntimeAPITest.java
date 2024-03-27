@@ -77,7 +77,6 @@ public class RuntimeAPITest extends BaseTest {
         runCmdSet.add("org.ballerinalang.test.runtime.api.RuntimeAPICall");
         ProcessBuilder pb = new ProcessBuilder(runCmdSet);
         pb.redirectErrorStream(true);
-        bMainInstance.addJavaAgents(pb.environment());
         try {
             Process runProcess = pb.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
@@ -116,7 +115,6 @@ public class RuntimeAPITest extends BaseTest {
         runCmdSet.add("org.ballerinalang.test.runtime.api.RuntimeAPICallNegative");
         ProcessBuilder pb = new ProcessBuilder(runCmdSet);
         pb.redirectErrorStream(true);
-        bMainInstance.addJavaAgents(pb.environment());
         try {
             Process runProcess = pb.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
@@ -154,7 +152,6 @@ public class RuntimeAPITest extends BaseTest {
         runCmdSet.add("org.ballerinalang.test.runtime.api.ModuleStartCallNegative");
         ProcessBuilder pb = new ProcessBuilder(runCmdSet);
         pb.redirectErrorStream(true);
-        bMainInstance.addJavaAgents(pb.environment());
         try {
             Process runProcess = pb.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
@@ -242,7 +239,7 @@ public class RuntimeAPITest extends BaseTest {
     private String getAgentArgs() {
         return "-javaagent:" + Paths.get(bMainInstance.getBalServerHome(), "bre", "lib",
                 "jacocoagent.jar") + "=destfile=" + TARGET_OUTPUT_PATH.resolve("build").resolve("jacoco")
-                .resolve("test.exec") + " ";
+                .resolve("test2.exec") + " ";
     }
 
     private String getAgentJar() {
