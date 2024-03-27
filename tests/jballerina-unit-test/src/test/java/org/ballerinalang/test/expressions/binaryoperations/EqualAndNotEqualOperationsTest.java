@@ -60,7 +60,7 @@ public class EqualAndNotEqualOperationsTest {
                 "checkDecimalEquality", "checkStringEquality", "checkEqualityToNil", "checkAnyDataEquality",
                 "testIntByteEqualityPositive", "testIntByteEqualityNegative", "testIntersectingUnionEquality",
                 "testTableEquality", "testEqualityWithNonAnydataType", "testEqualityByteWithIntSubTypes",
-                "checkFiniteTypeEquality"
+                "checkFiniteTypeEquality", "testEqualityWithCyclicReferences"
         };
     }
 
