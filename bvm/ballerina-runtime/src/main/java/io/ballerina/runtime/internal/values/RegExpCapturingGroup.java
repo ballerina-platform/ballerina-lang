@@ -30,10 +30,10 @@ import io.ballerina.runtime.api.values.BLink;
  * @since 2201.3.0
  */
 public class RegExpCapturingGroup extends RegExpCommonValue implements RegExpAtom {
-    private String openParen;
-    private RegExpFlagExpression flagExpr;
-    private RegExpDisjunction reDisjunction;
-    private String closeParen;
+    private final String openParen;
+    private final RegExpFlagExpression flagExpr;
+    private final RegExpDisjunction reDisjunction;
+    private final String closeParen;
 
     public RegExpCapturingGroup(String openParen, RegExpFlagExpression flagExpr,
                                 RegExpDisjunction reDisjunction, String closeParen) {

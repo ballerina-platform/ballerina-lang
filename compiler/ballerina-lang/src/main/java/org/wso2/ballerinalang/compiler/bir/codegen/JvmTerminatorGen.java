@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -53,11 +54,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -134,6 +138,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_IN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECEIVE_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_LOCAL_METHOD;
@@ -146,12 +151,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_PO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_VALUE_ANY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_CONCAT_FACTORY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ANYDATA_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WD_CHANNELS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DATA_CHANNEL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addJUnboxInsn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ALT_RECEIVE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANNOTATION_GET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BAL_ENV_PARAM;
@@ -179,6 +186,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_W
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ANYDATA_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BAL_ENV_WITH_FUNC_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_DECIMAL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RECEIVE_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_TO_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.IS_CONCURRENT;
@@ -186,8 +194,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_ARR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_JOBJECT_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MULTIPLE_RECEIVE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PANIC_IF_IN_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.REMOVE_WORKER_DATA_CHANNEL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_LOCAL;
@@ -386,6 +396,14 @@ public class JvmTerminatorGen {
                 return;
             case WK_RECEIVE:
                 this.genWorkerReceiveIns((BIRTerminator.WorkerReceive) terminator, localVarOffset, invocationVarIndex);
+                return;
+            case WK_ALT_RECEIVE:
+                this.genWorkerAlternateReceiveIns((BIRTerminator.WorkerAlternateReceive) terminator, localVarOffset,
+                        invocationVarIndex);
+                return;
+            case WK_MULTIPLE_RECEIVE:
+                this.genWorkerMultipleReceiveIns((BIRTerminator.WorkerMultipleReceive) terminator, localVarOffset,
+                        invocationVarIndex);
                 return;
             case FLUSH:
                 this.genFlushIns((BIRTerminator.Flush) terminator, localVarOffset, invocationVarIndex);
@@ -1229,6 +1247,79 @@ public class JvmTerminatorGen {
         }
     }
 
+    private void genWorkerAlternateReceiveIns(BIRTerminator.WorkerAlternateReceive ins, int localVarOffset,
+                                              int invocationVarIndex) {
+        BIRNode.BIRVariableDcl listVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("channels"),
+                VarScope.FUNCTION, VarKind.LOCAL);
+        int channelIndex = this.getJVMIndexOfVarRef(listVar);
+        int channelSize = ins.channels.size();
+        this.mv.visitIntInsn(BIPUSH, channelSize);
+        this.mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
+        int i = 0;
+        while (i < channelSize) {
+            this.mv.visitInsn(DUP);
+            this.mv.visitIntInsn(BIPUSH, i);
+            this.mv.visitVarInsn(ILOAD, invocationVarIndex);
+            this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
+                    new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
+                            HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false),
+                    ins.channels.get(i) + START_OF_HEADING_WITH_SEMICOLON);
+            this.mv.visitInsn(AASTORE);
+            i += 1;
+        }
+        this.mv.visitVarInsn(ASTORE, channelIndex);
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        if (!ins.isSameStrand) {
+            this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "parent", GET_STRAND);
+        }
+        this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        this.mv.visitVarInsn(ALOAD, channelIndex);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "receiveDataAlternateChannels", ALT_RECEIVE_CALL, false);
+
+        generateReceiveResultStore(ins.lhsOp);
+    }
+
+
+    private void genWorkerMultipleReceiveIns(BIRTerminator.WorkerMultipleReceive ins, int localVarOffset,
+                                              int invocationVarIndex) {
+        BIRNode.BIRVariableDcl listVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("channels"),
+                VarScope.FUNCTION, VarKind.LOCAL);
+        int channelIndex = this.getJVMIndexOfVarRef(listVar);
+        int channelSize = ins.receiveFields.size();
+        this.mv.visitIntInsn(BIPUSH, channelSize);
+        this.mv.visitTypeInsn(ANEWARRAY, RECEIVE_FIELD);
+        int i = 0;
+        while (i < channelSize) {
+            BIRTerminator.WorkerMultipleReceive.ReceiveField receiveField = ins.receiveFields.get(i);
+            this.mv.visitInsn(DUP);
+            this.mv.visitIntInsn(BIPUSH, i);
+            this.mv.visitTypeInsn(NEW, RECEIVE_FIELD);
+            this.mv.visitInsn(DUP);
+            this.mv.visitLdcInsn(receiveField.key());
+            this.mv.visitVarInsn(ILOAD, invocationVarIndex);
+            this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
+                    new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
+                            HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false),
+                    receiveField.workerReceive() + START_OF_HEADING_WITH_SEMICOLON);
+            this.mv.visitMethodInsn(INVOKESPECIAL, RECEIVE_FIELD, JVM_INIT_METHOD, INIT_RECEIVE_FIELD, false);
+            this.mv.visitInsn(AASTORE);
+            i += 1;
+        }
+        this.mv.visitVarInsn(ASTORE, channelIndex);
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        if (!ins.isSameStrand) {
+            this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "parent", GET_STRAND);
+        }
+        this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        this.mv.visitVarInsn(ALOAD, channelIndex);
+        jvmTypeGen.loadType(this.mv, ins.targetType);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "receiveDataMultipleChannels",
+                MULTIPLE_RECEIVE_CALL, false);
+        generateReceiveResultStore(ins.lhsOp);
+    }
+
     private void genWorkerReceiveIns(BIRTerminator.WorkerReceive ins, int localVarOffset, int invocationVarIndex) {
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -1245,7 +1336,10 @@ public class JvmTerminatorGen {
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "tryTakeData", TRY_TAKE_DATA, false);
+        generateReceiveResultStore(ins.lhsOp);
+    }
 
+    private void generateReceiveResultStore(BIROperand ins) {
         BIRNode.BIRVariableDcl tempVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("wrkMsg"),
                 VarScope.FUNCTION, VarKind.ARG);
         int wrkResultIndex = this.getJVMIndexOfVarRef(tempVar);
@@ -1258,9 +1352,8 @@ public class JvmTerminatorGen {
         Label withinReceiveSuccess = new Label();
         this.mv.visitLabel(withinReceiveSuccess);
         this.mv.visitVarInsn(ALOAD, wrkResultIndex);
-        jvmCastGen.addUnboxInsn(this.mv, ins.lhsOp.variableDcl.type);
-        this.storeToVar(ins.lhsOp.variableDcl);
-
+        jvmCastGen.addUnboxInsn(this.mv, ins.variableDcl.type);
+        this.storeToVar(ins.variableDcl);
         this.mv.visitLabel(jumpAfterReceive);
     }
 
@@ -1362,6 +1455,26 @@ public class JvmTerminatorGen {
 
     public void genReturnTerm(int returnVarRefIndex, BIRNode.BIRFunction func, int invocationVarIndex,
                               int localVarOffset) {
+        if (func.workerChannels != null) {
+            Set<BIRNode.ChannelDetails> uniqueValues = new HashSet<>();
+            for (BIRNode.ChannelDetails channel : func.workerChannels) {
+                if (uniqueValues.add(channel)) {
+                    this.mv.visitVarInsn(ALOAD, localVarOffset);
+                    if (Symbols.isFlagOn(func.flags, Flags.WORKER)) {
+                        this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "parent", GET_STRAND);
+                    }
+                    this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
+                    this.mv.visitVarInsn(ALOAD, localVarOffset);
+                    this.mv.visitVarInsn(ILOAD, invocationVarIndex);
+                    this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
+                            new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
+                                    HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false), channel.name
+                                     + START_OF_HEADING_WITH_SEMICOLON);
+                    this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "removeCompletedChannels",
+                            REMOVE_WORKER_DATA_CHANNEL, false);
+                }
+            }
+        }
         BType bType = unifier.build(func.type.retType);
         generateReturnTermFromType(returnVarRefIndex, bType, func, invocationVarIndex, localVarOffset);
     }
