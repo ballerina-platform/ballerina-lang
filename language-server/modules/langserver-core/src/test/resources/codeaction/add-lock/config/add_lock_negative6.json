@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 5,
+    "character": 14
+  },
+  "source": "add_lock_negative6.bal",
+  "expected": [
+    {
+      "title": "Surround with lock"
+    }
+  ]
+}

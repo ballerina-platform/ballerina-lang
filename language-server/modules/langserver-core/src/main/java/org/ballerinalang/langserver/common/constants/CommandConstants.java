@@ -154,6 +154,8 @@ public class CommandConstants {
 
     public static final String SURROUND_WITH_DO_ON_FAIL = "Surround with do/on-fail";
 
+    public static final String SURROUND_WITH_LOCK = "Surround with lock";
+
     public static final String CONVERT_MODULE_VAR_TO_LISTENER_DECLARATION =
             "Convert module variable '%s' to listener declaration";
 
