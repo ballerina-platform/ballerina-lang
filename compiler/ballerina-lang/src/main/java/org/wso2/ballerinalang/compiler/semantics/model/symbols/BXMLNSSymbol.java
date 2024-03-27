@@ -35,6 +35,7 @@ public class BXMLNSSymbol extends BSymbol implements VariableSymbol {
      * Holds the namespace URI for lookup during semantic validations.
      */
     public String namespaceURI;
+    // Applicable to only module level XMLNS declarations
     public Name compUnit;
 
     public BXMLNSSymbol(Name prefix, String namespaceURI, PackageID pkgID, BSymbol owner, Location pos,
