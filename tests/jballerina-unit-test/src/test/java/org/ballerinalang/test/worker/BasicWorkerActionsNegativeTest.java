@@ -43,7 +43,7 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "action invocation as an expression not allowed here", 78, 15);
         BAssertUtil.validateError(resultSemanticsNegative, index++,
-                "invalid usage of receive expression, var not allowed", 112, 21);
+                "receive action not supported wth 'var' type", 112, 21);
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "missing identifier", 139, 13);
         BAssertUtil.validateError(resultSemanticsNegative, index++,
@@ -63,67 +63,61 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, "invalid worker flush expression for 'w1', there are no " +
                 "worker send statements to 'w1' from 'w3'", 62, 17);
         BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'val'", 63, 9);
-        BAssertUtil.validateError(resultNegative, index++, "worker send statement position not supported yet, " +
-                "must be a top level statement in a worker", 76, 13);
-        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'msg'", 81, 9);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'msg'", 78, 9);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker receive statement position, must be a " +
-                "top level statement in a worker", 83, 19);
-        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'x1'", 91, 9);
-        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'x2'", 92, 9);
-        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'result'", 93, 9);
+                "top level statement in a worker", 80, 19);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'x1'", 88, 9);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'x2'", 89, 9);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'result'", 90, 9);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker flush expression for 'w2', there are no " +
-                "worker send statements to 'w2' from 'w1'", 93, 25);
-        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'j'", 100, 9);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 144, 26);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 161, 26);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 162, 26);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 166, 25);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 167, 22);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 168, 25);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 169, 21);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 190, 17);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 198, 30);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 200, 26);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 218, 30);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 219, 30);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 220, 75);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 226, 29);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 227, 26);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 228, 29);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 229, 25);
-        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 231, 21);
+                "worker send statements to 'w2' from 'w1'", 90, 25);
+        BAssertUtil.validateWarning(resultNegative, index++, "unused variable 'j'", 97, 9);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 141, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 158, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 159, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 163, 25);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 164, 22);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 165, 25);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 166, 21);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 187, 17);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 195, 30);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 197, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 215, 30);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 216, 30);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 217, 75);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 223, 29);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 224, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 225, 29);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 226, 25);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 228, 21);
 
         String notSupportedMsg = "worker send statement position not supported yet, " +
                 "must be a top level statement in a worker";
 
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 244, 13);
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 246, 17);
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 252, 13);
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 253, 13);
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 257, 13);
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 258, 13);
-        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 261, 9);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 249, 13);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 250, 13);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 254, 13);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 255, 13);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 258, 9);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 260, 17);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 263, 17);
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 266, 17);
-        BAssertUtil.validateError(resultNegative, index++, "undefined worker 'w1'", 271, 26);
+        BAssertUtil.validateError(resultNegative, index++, "undefined worker 'w1'", 268, 26);
         BAssertUtil.validateError(resultNegative, index++,
-                "invalid worker receive statement position, must be a top level statement in a worker", 278, 21);
+                "invalid worker receive statement position, must be a top level statement in a worker", 275, 21);
         BAssertUtil.validateError(resultNegative, index++,
-                "invalid worker receive statement position, must be a top level statement in a worker", 283, 17);
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 290, 26);
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 292, 30);
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 298, 26);
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 299, 26);
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 303, 26);
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 304, 26);
-        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 307, 22);
+                "invalid worker receive statement position, must be a top level statement in a worker", 280, 17);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 295, 26);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 296, 26);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 300, 26);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 301, 26);
+        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 304, 22);
+        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 306, 30);
         BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 309, 30);
-        BAssertUtil.validateError(resultNegative, index++, notSupportedMsg, 312, 30);
-        BAssertUtil.validateError(resultNegative, index++, "undefined worker 'w1'", 317, 39);
+        BAssertUtil.validateError(resultNegative, index++, "undefined worker 'w1'", 314, 39);
         BAssertUtil.validateError(resultNegative, index++,
-                "invalid worker receive statement position, must be a top level statement in a worker", 324, 34);
+                "invalid worker receive statement position, must be a top level statement in a worker", 321, 34);
         BAssertUtil.validateError(resultNegative, index++,
-                "invalid worker receive statement position, must be a top level statement in a worker", 329, 30);
+                "invalid worker receive statement position, must be a top level statement in a worker", 326, 30);
 
         Assert.assertEquals(resultNegative.getDiagnostics().length, index,
                             "Worker actions negative test diagnostic count");
