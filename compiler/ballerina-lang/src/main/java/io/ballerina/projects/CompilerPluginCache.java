@@ -43,7 +43,7 @@ public class CompilerPluginCache {
      * @param key compiler plugin id
      * @return data holder map for the plugin
      */
-    public Map<String, Object> getData(String key) {
+    Map<String, Object> getData(String key) {
         if (!pluginMap.containsKey(key)) {
             pluginMap.put(key, new HashMap<>());
         }
