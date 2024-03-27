@@ -103,6 +103,10 @@ public class BuildOptions {
         return this.compilationOptions.getCloud();
     }
 
+    public boolean runtimeManagementIncluded() {
+        return this.compilationOptions.runtimeManagementIncluded();
+    }
+
     CompilationOptions compilationOptions() {
         return this.compilationOptions;
     }
@@ -195,6 +199,7 @@ public class BuildOptions {
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
+        buildOptionsBuilder.setRuntimeManagementIncluded(compilationOptions.runtimeManagementIncluded);
 
         return buildOptionsBuilder.build();
     }
@@ -384,6 +389,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setNativeImage(Boolean value) {
             nativeImage = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setRuntimeManagementIncluded(Boolean value) {
+            compilationOptionsBuilder.setRuntimeManagementIncluded(value);
             return this;
         }
 

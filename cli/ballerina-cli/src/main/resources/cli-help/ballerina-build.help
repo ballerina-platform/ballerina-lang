@@ -59,6 +59,10 @@ OPTIONS
        --graalvm-build-options
            Additional build options to be passed to the GraalVM native image.
 
+       --runtime-management-included
+           Include the dependencies that are required to enable runtime package
+           management service.
+
 
 
 EXAMPLES
