@@ -265,7 +265,13 @@ public class PackageResolution {
                     PackageDependencyScope.DEFAULT, DependencyResolutionType.COMPILER_PLUGIN);
             allModuleLoadRequests.add(c2cModuleLoadReq);
         }
-
+        if (compilationOptions.runtimeManagementIncluded()) {
+            String moduleName = Names.RUNTIME_MANAGEMENT.getValue();
+            ModuleLoadRequest managementModuleLoadReq = new ModuleLoadRequest(
+                    PackageOrg.from(Names.BALLERINA_ORG.value), moduleName,
+                    PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
+            allModuleLoadRequests.add(managementModuleLoadReq);
+        }
         return allModuleLoadRequests;
     }
 
