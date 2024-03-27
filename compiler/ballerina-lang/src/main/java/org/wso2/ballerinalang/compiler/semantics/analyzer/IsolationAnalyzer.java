@@ -27,6 +27,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
@@ -269,6 +270,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 
@@ -295,10 +297,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean inferredIsolated = true;
     private boolean inLockStatement = false;
+    private boolean inIsolatedStartAction = false;
     private final Stack<LockInfo> copyInLockInfoStack = new Stack<>();
     private final Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
     private final Map<BSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
     private final Map<BLangArrowFunction, BInvokableSymbol> arrowFunctionTempSymbolMap = new HashMap<>();
+    private List<BLangExpression> listConstructorExprs;
+    private List<RecordLiteralNode.RecordField> mappingConstructorExprs;
 
     private IsolationAnalyzer(CompilerContext context) {
         context.put(ISOLATION_ANALYZER_KEY, this);
@@ -1151,11 +1156,23 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     analyzeNode(keyValuePair.key.expr, env);
                 }
                 analyzeNode(keyValuePair.valueExpr, env);
+                addToMappingConstructorExprs(keyValuePair);
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 analyzeNode((BLangRecordLiteral.BLangRecordVarNameField) field, env);
+                addToMappingConstructorExprs(field);
             } else {
-                analyzeNode(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr, env);
+                analyzeNode((BLangRecordLiteral.BLangRecordSpreadOperatorField) field, env);
             }
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField) {
+        analyzeNode(spreadOperatorField.expr, env);
+        NodeKind kind = spreadOperatorField.expr.getKind();
+        if (!(kind == NodeKind.RECORD_LITERAL_EXPR || kind == NodeKind.TYPE_CONVERSION_EXPR
+                || kind == NodeKind.GROUP_EXPR)) {
+            addToMappingConstructorExprs(spreadOperatorField);
         }
     }
 
@@ -1287,9 +1304,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 }
             }
         }
-
         if (!recordFieldDefaultValue && !objectFieldDefaultValueRequiringIsolation && enclInvokable != null &&
                 isReferenceToVarDefinedInSameInvokable(symbol.owner, enclInvokable.symbol)) {
+            if (this.inIsolatedStartAction
+                    && !isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(symbol.owner, symbol.getType())) {
+                inferredIsolated = false;
+            }
             return;
         }
 
@@ -1545,7 +1565,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         analyzeNode(resourceAccessInvocation.resourceAccessPathSegments, env);
         analyzeInvocation(resourceAccessInvocation);
     }
-    
+
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
         BInvokableSymbol initInvocationSymbol =
@@ -1628,11 +1648,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         for (BLangExpression expr : listConstructorExpr.exprs) {
-            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
-                expr = ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expr).expr;
-            }
             analyzeNode(expr, env);
+            addToListConstructorExprs(expr);
         }
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr listConstructorSpreadOpExpr) {
+        analyzeNode(listConstructorSpreadOpExpr.expr, env);
     }
 
     @Override
@@ -2096,7 +2119,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isolatedFunctionCall) {
+            boolean prevInIsolationStartAction = this.inIsolatedStartAction;
+            this.inIsolatedStartAction = inStartAction;
             analyzeArgIsolatedness(invocationExpr, requiredArgs, restArgs, symbol, expectsIsolation);
+            this.inIsolatedStartAction = prevInIsolationStartAction;
             return;
         }
 
@@ -2325,99 +2351,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             if (reqArgCount < paramsCount) {
                 // Part of the non-rest params are provided via the vararg.
-                BTupleType tupleType = varArgType.tag == TypeTags.ARRAY ?
-                    getRepresentativeTupleTypeForRemainingArgs(paramsCount, reqArgCount, (BArrayType) varArgType) :
-                    (BTupleType) varArgType;
-
-                List<BType> memberTypes = tupleType.getTupleTypes();
-
-                BLangExpression varArgExpr = varArg.expr;
-                boolean listConstrVarArg =  varArgExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR;
-                BLangListConstructorExpr listConstructorExpr = listConstrVarArg ?
-                        (BLangListConstructorExpr) varArgExpr : null;
-
-                if (!listConstrVarArg) {
-                    analyzeNode(varArg, env);
-                }
-
-                int tupleIndex = 0;
-                for (int i = reqArgCount; i < paramsCount; i++) {
-                    if (!Symbols.isFlagOn(params.get(i).flags, Flags.ISOLATED_PARAM)) {
-                        if (listConstrVarArg) {
-                            analyzeNode(listConstructorExpr.exprs.get(tupleIndex), env);
-                        }
-                        tupleIndex++;
-                        continue;
-                    }
-
-                    BType type = memberTypes.get(tupleIndex);
-
-                    BLangExpression arg = null;
-                    if (listConstrVarArg) {
-                        arg = listConstructorExpr.exprs.get(tupleIndex);
-                        analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
-                        type = arg.getBType();
-                    }
-
-                    handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
-                                                                   type, varArgPos);
-                    tupleIndex++;
-                }
-
-                BVarSymbol restParam = symbol.restParam;
-
-                if (restParam == null) {
+                if (varArgType.tag == TypeTags.ARRAY || varArgType.tag == TypeTags.TUPLE) {
+                    analyzeListConstructorRestArgs(invocationExpr, expectsIsolation, params,
+                            paramsCount, reqArgCount, varArg, varArgType, varArgPos);
+                    this.listConstructorExprs = null;
                     return;
                 }
-
-                if (!Symbols.isFlagOn(restParam.flags, Flags.ISOLATED_PARAM)) {
-                    if (listConstructorExpr == null) {
-                        return;
-                    }
-
-                    List<BLangExpression> exprs = listConstructorExpr.exprs;
-                    for (int i = tupleIndex; i < exprs.size(); i++) {
-                        analyzeNode(exprs.get(i), env);
-                    }
-                    return;
-                }
-
-                int memberTypeCount = memberTypes.size();
-                if (tupleIndex < memberTypeCount) {
-                    for (int i = tupleIndex; i < memberTypeCount; i++) {
-                        BType type = memberTypes.get(i);
-                        BLangExpression arg = null;
-                        if (listConstrVarArg) {
-                            arg = listConstructorExpr.exprs.get(i);
-                            analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
-                            type = arg.getBType();
-                        }
-
-                        handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
-                                                                       type, varArgPos);
-                    }
-                }
-
-                if (listConstrVarArg) {
-                    List<BLangExpression> exprs = listConstructorExpr.exprs;
-                    for (int i = tupleIndex; i < exprs.size(); i++) {
-                        BLangExpression arg = exprs.get(i);
-                        analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
-
-                        handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
-                                                                       arg.getBType(), varArgPos);
-                    }
-                    return;
-                }
-
-                BType tupleRestType = tupleType.restType;
-                if (tupleRestType == null) {
-                    return;
-                }
-
-                handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
-                                                               tupleRestType, varArgPos);
-
+                analyzeMappingConstructorRestArgs(invocationExpr, expectsIsolation, params,
+                        paramsCount, reqArgCount, varArg, varArgPos);
+                this.mappingConstructorExprs = null;
                 return;
             }
         }
@@ -2426,11 +2368,146 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             for (BLangExpression restArg : restArgs) {
                 analyzeNode(restArg, env);
             }
+        }
+    }
+
+    private void analyzeMappingConstructorRestArgs(BLangInvocation invocationExpr,
+                                                boolean expectsIsolation, List<BVarSymbol> params, int paramsCount,
+                                                int reqArgCount, BLangRestArgsExpression varArg,
+                                                Location varArgPos) {
+        BLangExpression varArgExpr = varArg.expr;
+        
+        BLangExpression recordLiteral = findRecordLiteral(varArgExpr);
+        if (!(recordLiteral instanceof BLangRecordLiteral)) {
+            analyzeNode(varArg, env);
             return;
         }
+        this.mappingConstructorExprs = new ArrayList<>();
+        analyzeNode(recordLiteral, env);
+        
+        for (int i = reqArgCount; i < paramsCount; i++) {
+            BVarSymbol param = params.get(i);
+            if (Symbols.isFlagOn(param.flags, Flags.ISOLATED_PARAM)) {
+                BLangExpression arg = null;
+                BType type = null;
+                for (RecordLiteralNode.RecordField recordField: mappingConstructorExprs) {
+                    if (recordField.isKeyValueField()) {
+                        BLangRecordLiteral.BLangRecordKeyValueField keyValueField =
+                                (BLangRecordLiteral.BLangRecordKeyValueField) recordField;
+                        if (keyValueField.key.fieldSymbol.name.value.equals(param.name.value)) {
+                            arg = keyValueField.valueExpr;
+                            type = Types.getReferredType(arg.getBType());
+                            break;
+                        }
+                    } else if (recordField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                        BLangRecordLiteral.BLangRecordVarNameField varRefRecordField = 
+                                ((BLangRecordLiteral.BLangRecordVarNameField) recordField);
+                        if (varRefRecordField.symbol.name.value.equals(param.name.value)) {
+                            arg = varRefRecordField;
+                            type = Types.getReferredType(arg.getBType());
+                            break;
+                        }
+                    } else {
+                        BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
+                                (BLangRecordLiteral.BLangRecordSpreadOperatorField) recordField;
+                        BVarSymbol varRefSymbol = (BVarSymbol) ((BLangSimpleVarRef) spreadOpField.expr).symbol;
+                        BRecordType recordType = (BRecordType) Types.getReferredType(varRefSymbol.type);
+                        Optional<BField> matchingField = recordType.fields.entrySet().stream()
+                                .filter(k -> k.getKey().equals(param.name.value))
+                                .map(Map.Entry::getValue)
+                                .findFirst();
+                        if (matchingField.isPresent()) {
+                            arg = spreadOpField.expr;
+                            type = Types.getReferredType(matchingField.get().getType());
+                            break;
+                        }
+                    }
+                }
+                analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
+                handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                        type, varArgPos);
+            }
+        }
+    }
 
-        // Args for rest param provided as both individual args and vararg.
-        analyzeRestArgsForRestParam(invocationExpr, restArgs, symbol, expectsIsolation);
+    private BLangExpression findRecordLiteral(BLangExpression expr) {
+        if (expr.getKind() == NodeKind.GROUP_EXPR) {
+            return findRecordLiteral(((BLangGroupExpr) expr).expression);
+        }
+        if (expr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+            return findRecordLiteral(((BLangTypeConversionExpr) expr).expr);
+        }
+        return expr;
+    }
+
+    private void analyzeListConstructorRestArgs(BLangInvocation invocationExpr,
+                                                boolean expectsIsolation, List<BVarSymbol> params, int paramsCount,
+                                                int reqArgCount, BLangRestArgsExpression varArg, BType varArgType,
+                                                Location varArgPos) {
+        BTupleType tupleType = varArgType.tag == TypeTags.ARRAY ?
+            getRepresentativeTupleTypeForRemainingArgs(paramsCount, reqArgCount, (BArrayType) varArgType) :
+            (BTupleType) varArgType;
+
+        List<BType> memberTypes = tupleType.getTupleTypes();
+
+        BLangExpression varArgExpr = varArg.expr;
+        boolean listConstrVarArg =  varArgExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR;
+        BLangListConstructorExpr listConstructorExpr = listConstrVarArg ?
+                (BLangListConstructorExpr) varArgExpr : null;
+
+        if (!listConstrVarArg) {
+            analyzeNode(varArg, env);
+        } else {
+            this.listConstructorExprs = new ArrayList<>();
+            analyzeNode(listConstructorExpr, env);
+        }
+
+        int tupleIndex = 0;
+        int pointer = 0;
+        for (int i = reqArgCount; i < paramsCount; i++) {
+            if (Symbols.isFlagOn(params.get(i).flags, Flags.ISOLATED_PARAM)) {
+                BType type = memberTypes.get(tupleIndex);
+                BLangExpression arg = null;
+                if (listConstrVarArg) {
+                    // find the appropriate arg from the list constructor expr
+
+                    for (int j = pointer; j < listConstructorExprs.size(); j++) {
+                        BLangExpression argExpr = listConstructorExprs.get(j);
+                        if (!(argExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP)) {
+                            continue;
+                        }
+                        BType argBType = Types.getReferredType(
+                                ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) argExpr).expr.getBType());
+                        int size = 0;
+                        if (argBType.getKind() == TypeKind.ARRAY) {
+                            size = ((BArrayType) argBType).getSize();
+                        }
+                        if (argBType.getKind() == TypeKind.TUPLE) {
+                            size = ((BTupleType) argBType).getTupleTypes().size();
+                        }
+                        if (size + j > tupleIndex) {
+                            break;
+                        }
+                    }
+                    arg = listConstructorExprs.get(pointer);
+                    if (arg.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                        arg = ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) arg).expr;
+                    }
+                    analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
+                    type = Types.getReferredType(arg.getBType());
+                    if (type.getKind() == TypeKind.ARRAY) { // do we really need this?
+                        type = ((BArrayType) type).eType;
+                    }
+                    if (type.getKind() == TypeKind.TUPLE) {
+                        type = ((BTupleType) type).getTupleTypes().get(tupleIndex - pointer);
+                    }
+                }
+
+                handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                        type, varArgPos);
+            }
+            tupleIndex++;
+        }
     }
 
     private BTupleType getRepresentativeTupleTypeForRemainingArgs(int paramCount, int reqArgCount,
@@ -2447,35 +2524,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         return new BTupleType(members);
-    }
-
-    private void analyzeRestArgsForRestParam(BLangInvocation invocationExpr, List<BLangExpression> restArgs,
-                                             BInvokableSymbol symbol, boolean expectsIsolation) {
-        if (Symbols.isFlagOn(((BArrayType) symbol.restParam.type).eType.flags, Flags.ISOLATED)) {
-            for (BLangExpression restArg : restArgs) {
-                analyzeNode(restArg, env);
-            }
-            return;
-        }
-
-        for (BLangExpression restArg : restArgs) {
-            analyzeAndSetArrowFuncFlagForIsolatedParamArg(restArg);
-        }
-
-        int size = restArgs.size();
-        BLangExpression lastArg = restArgs.get(size - 1);
-
-        boolean lastArgIsVarArg = lastArg.getKind() == NodeKind.REST_ARGS_EXPR;
-
-        for (int i = 0; i < (lastArgIsVarArg ? size - 1 : size); i++) {
-            BLangExpression arg = restArgs.get(i);
-            handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
-                                                           arg.getBType(), arg.pos);
-        }
-
-        if (lastArgIsVarArg) {
-            analyzeVarArgIsolatedness(invocationExpr, (BLangRestArgsExpression) lastArg, lastArg.pos, expectsIsolation);
-        }
     }
 
     private void analyzeVarArgIsolatedness(BLangInvocation invocationExpr, BLangRestArgsExpression restArgsExpression,
@@ -3575,6 +3623,21 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnFunctions.add(symbol);
     }
 
+
+    private void addToMappingConstructorExprs(RecordLiteralNode.RecordField field) {
+        // need to collect only args given as rest args
+        if (this.mappingConstructorExprs != null) {
+            this.mappingConstructorExprs.add(field);
+        }
+    }
+
+    private void addToListConstructorExprs(BLangExpression expr) {
+        // need to collect only args given as rest args
+        if (this.listConstructorExprs != null) {
+            this.listConstructorExprs.add(expr);
+        }
+    }
+
     private boolean isNotInArrowFunctionBody(SymbolEnv env) {
         return env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY || env.enclEnv.node.getKind() != NodeKind.ARROW_EXPR;
     }
@@ -4142,7 +4205,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         for (BLangExpression dependsOnArg : functionIsolationInferenceInfo.dependsOnFuncCallArgExprs) {
-            if (!isIsolatedExpression(dependsOnArg)) {
+            if (!isIsolatedExpression(dependsOnArg, false, true, new ArrayList<>(), true,
+                    publiclyExposedObjectTypes, classDefinitions, moduleLevelVariables, new HashSet<>())) {
                 return false;
             }
         }

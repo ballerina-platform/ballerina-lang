@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-int nonIsolatedVar = 0;
+int nonIsolatedVar = 0;        
 
 //////////////////// Service Declarations ////////////////////
 
@@ -35,6 +35,42 @@ service on new Listener() {
 
     function func() {
     }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+    
+    resource function post bas([string[], string[], string[]] args) {
+        _ = start passParamsAsRestArgs(...args);
+    }
+    
+    resource function post baz(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passParamsAsRestArgs(...[arg1, arg2, arg3]);
+    }
+    
+    resource function post qux(string[] arg1, string[] arg2, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[arg1, arg2, ...restArgs]);
+    }
+    
+    resource function post quxx([string[], string[]] args, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[...args, ...restArgs]);
+    }
+    
+    resource function post quxxx(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passRestArgsAsArgs(arg1, arg2, arg3);
+    }
+    
+    resource function post path(T1 t1) {
+        _ = start passParamsAsRestArgs(t1.arg1, [], []);
+    }
+    
+    resource function post path2(T1 t1, T2 t2) {
+        _ = start passParamsAsRestArgs(...<T3>{...t1, ...t2, arg3: []});
+    }
+    
+    resource function post path3(T3 t3) {
+        _ = start passParamsAsRestArgs(...<T3>{...{...{...t3}}});
+    }
 }
 
 isolated service "ser2" on new Listener() {
@@ -53,6 +89,42 @@ isolated service "ser2" on new Listener() {
     function func() {
         nonIsolatedFunc();
     }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+    
+    resource function post bas([string[], string[], string[]] args) {
+        _ = start passParamsAsRestArgs(...args);
+    }
+    
+    resource function post baz(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passParamsAsRestArgs(...[arg1, arg2, arg3]);
+    }
+    
+    resource function post qux(string[] arg1, string[] arg2, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[arg1, arg2, ...restArgs]);
+    }
+    
+    resource function post quxx([string[], string[]] args, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[...args, ...restArgs]);
+    }
+    
+    resource function post quxxx(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passRestArgsAsArgs(arg1, arg2, arg3);
+    }
+    
+    resource function post path(T1 t1) {
+        _ = start passParamsAsRestArgs(t1.arg1, [], []);
+    }
+    
+    resource function post path2(T1 t1, T2 t2) {
+        _ = start passParamsAsRestArgs(...<T3>{...t1, ...t2, arg3: []});
+    }
+    
+    resource function post path3(T3 t3) {
+        _ = start passParamsAsRestArgs(...<T3>{...{...{...t3}}});
+    }
 }
 
 // Inferred isolated.
@@ -69,6 +141,42 @@ service "ser3" on new Listener() {
 
     function func() {
         nonIsolatedFunc();
+    }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+    
+    resource function post bas([string[], string[], string[]] args) {
+        _ = start passParamsAsRestArgs(...args);
+    }
+    
+    resource function post baz(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passParamsAsRestArgs(...[arg1, arg2, arg3]);
+    }
+    
+    resource function post qux(string[] arg1, string[] arg2, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[arg1, arg2, ...restArgs]);
+    }
+    
+    resource function post quxx([string[], string[]] args, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[...args, ...restArgs]);
+    }
+    
+    resource function post quxxx(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passRestArgsAsArgs(arg1, arg2, arg3);
+    }
+    
+    resource function post path(T1 t1) {
+        _ = start passParamsAsRestArgs(t1.arg1, [], []);
+    }
+    
+    resource function post path2(T1 t1, T2 t2) {
+        _ = start passParamsAsRestArgs(...<T3>{...t1, ...t2, arg3: []});
+    }
+    
+    resource function post path3(T3 t3) {
+        _ = start passParamsAsRestArgs(...<T3>{...{...{...t3}}});
     }
 }
 
@@ -88,6 +196,42 @@ service "ser4" on new Listener() {
 
     function func() {
         nonIsolatedFunc();
+    }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+    
+    resource function post bas([string[], string[], string[]] args) {
+        _ = start passParamsAsRestArgs(...args);
+    }
+    
+    resource function post baz(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passParamsAsRestArgs(...[arg1, arg2, arg3]);
+    }
+    
+    resource function post qux(string[] arg1, string[] arg2, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[arg1, arg2, ...restArgs]);
+    }
+    
+    resource function post quxx([string[], string[]] args, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[...args, ...restArgs]);
+    }
+    
+    resource function post quxxx(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passRestArgsAsArgs(arg1, arg2, arg3);
+    }
+    
+    resource function post path(T1 t1) {
+        _ = start passParamsAsRestArgs(t1.arg1, [], []);
+    }
+    
+    resource function post path2(T1 t1, T2 t2) {
+        _ = start passParamsAsRestArgs(...<T3>{...t1, ...t2, arg3: []});
+    }
+    
+    resource function post path3(T3 t3) {
+        _ = start passParamsAsRestArgs(...<T3>{...{...{...t3}}});
     }
 }
 
@@ -110,6 +254,42 @@ service class Serv1 {
 
     function func() {
     }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+    
+    resource function post bas([string[], string[], string[]] args) {
+        _ = start passParamsAsRestArgs(...args);
+    }
+    
+    resource function post baz(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passParamsAsRestArgs(...[arg1, arg2, arg3]);
+    }
+    
+    resource function post qux(string[] arg1, string[] arg2, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[arg1, arg2, ...restArgs]);
+    }
+    
+    resource function post quxx([string[], string[]] args, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[...args, ...restArgs]);
+    }
+    
+    resource function post quxxx(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passRestArgsAsArgs(arg1, arg2, arg3);
+    }
+    
+    resource function post path(T1 t1) {
+        _ = start passParamsAsRestArgs(t1.arg1, [], []);
+    }
+    
+    resource function post path2(T1 t1, T2 t2) {
+        _ = start passParamsAsRestArgs(...<T3>{...t1, ...t2, arg3: []});
+    }
+    
+    resource function post path3(T3 t3) {
+        _ = start passParamsAsRestArgs(...<T3>{...{...{...t3}}});
+    }
 }
 
 isolated service class Serv2 {
@@ -128,6 +308,42 @@ isolated service class Serv2 {
     function func() {
         nonIsolatedFunc();
     }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+    
+    resource function post bas([string[], string[], string[]] args) {
+        _ = start passParamsAsRestArgs(...args);
+    }
+    
+    resource function post baz(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passParamsAsRestArgs(...[arg1, arg2, arg3]);
+    }
+    
+    resource function post qux(string[] arg1, string[] arg2, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[arg1, arg2, ...restArgs]);
+    }
+    
+    resource function post quxx([string[], string[]] args, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[...args, ...restArgs]);
+    }
+    
+    resource function post quxxx(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passRestArgsAsArgs(arg1, arg2, arg3);
+    }
+    
+    resource function post path(T1 t1) {
+        _ = start passParamsAsRestArgs(t1.arg1, [], []);
+    }
+    
+    resource function post path2(T1 t1, T2 t2) {
+        _ = start passParamsAsRestArgs(...<T3>{...t1, ...t2, arg3: []});
+    }
+    
+    resource function post path3(T3 t3) {
+        _ = start passParamsAsRestArgs(...<T3>{...{...{...t3}}});
+    }
 }
 
 // Inferred isolated.
@@ -144,6 +360,42 @@ service class Serv3 {
 
     function func() {
         nonIsolatedFunc();
+    }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+    
+    resource function post bas([string[], string[], string[]] args) {
+        _ = start passParamsAsRestArgs(...args);
+    }
+    
+    resource function post baz(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passParamsAsRestArgs(...[arg1, arg2, arg3]);
+    }
+    
+    resource function post qux(string[] arg1, string[] arg2, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[arg1, arg2, ...restArgs]);
+    }
+    
+    resource function post quxx([string[], string[]] args, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[...args, ...restArgs]);
+    }
+    
+    resource function post quxxx(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passRestArgsAsArgs(arg1, arg2, arg3);
+    }
+    
+    resource function post path(T1 t1) {
+        _ = start passParamsAsRestArgs(t1.arg1, [], []);
+    }
+    
+    resource function post path2(T1 t1, T2 t2) {
+        _ = start passParamsAsRestArgs(...<T3>{...t1, ...t2, arg3: []});
+    }
+    
+    resource function post path3(T3 t3) {
+        _ = start passParamsAsRestArgs(...<T3>{...{...{...t3}}});
     }
 }
 
@@ -163,6 +415,42 @@ service class Serv4 {
 
     function func() {
         nonIsolatedFunc();
+    }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+    
+    resource function post bas([string[], string[], string[]] args) {
+        _ = start passParamsAsRestArgs(...args);
+    }
+    
+    resource function post baz(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passParamsAsRestArgs(...[arg1, arg2, arg3]);
+    }
+    
+    resource function post qux(string[] arg1, string[] arg2, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[arg1, arg2, ...restArgs]);
+    }
+    
+    resource function post quxx([string[], string[]] args, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[...args, ...restArgs]);
+    }
+    
+    resource function post quxxx(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passRestArgsAsArgs(arg1, arg2, arg3);
+    }
+    
+    resource function post path(T1 t1) {
+        _ = start passParamsAsRestArgs(t1.arg1, [], []);
+    }
+    
+    resource function post path2(T1 t1, T2 t2) {
+        _ = start passParamsAsRestArgs(...<T3>{...t1, ...t2, arg3: []});
+    }
+    
+    resource function post path3(T3 t3) {
+        _ = start passParamsAsRestArgs(...<T3>{...{...{...t3}}});
     }
 }
 
@@ -185,6 +473,42 @@ var s1 = service object {
 
     function func() {
     }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+    
+    resource function post bas([string[], string[], string[]] args) {
+        _ = start passParamsAsRestArgs(...args);
+    }
+    
+    resource function post baz(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passParamsAsRestArgs(...[arg1, arg2, arg3]);
+    }
+    
+    resource function post qux(string[] arg1, string[] arg2, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[arg1, arg2, ...restArgs]);
+    }
+    
+    resource function post quxx([string[], string[]] args, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[...args, ...restArgs]);
+    }
+    
+    resource function post quxxx(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passRestArgsAsArgs(arg1, arg2, arg3);
+    }
+    
+    resource function post path(T1 t1) {
+        _ = start passParamsAsRestArgs(t1.arg1, [], []);
+    }
+    
+    resource function post path2(T1 t1, T2 t2) {
+        _ = start passParamsAsRestArgs(...<T3>{...t1, ...t2, arg3: []});
+    }
+    
+    resource function post path3(T3 t3) {
+        _ = start passParamsAsRestArgs(...<T3>{...{...{...t3}}});
+    }
 };
 
 var s2 = isolated service object {
@@ -203,6 +527,42 @@ var s2 = isolated service object {
     function func() {
         nonIsolatedFunc();
     }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+    
+    resource function post bas([string[], string[], string[]] args) {
+        _ = start passParamsAsRestArgs(...args);
+    }
+    
+    resource function post baz(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passParamsAsRestArgs(...[arg1, arg2, arg3]);
+    }
+    
+    resource function post qux(string[] arg1, string[] arg2, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[arg1, arg2, ...restArgs]);
+    }
+    
+    resource function post quxx([string[], string[]] args, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[...args, ...restArgs]);
+    }
+    
+    resource function post quxxx(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passRestArgsAsArgs(arg1, arg2, arg3);
+    }
+    
+    resource function post path(T1 t1) {
+        _ = start passParamsAsRestArgs(t1.arg1, [], []);
+    }
+    
+    resource function post path2(T1 t1, T2 t2) {
+        _ = start passParamsAsRestArgs(...<T3>{...t1, ...t2, arg3: []});
+    }
+    
+    resource function post path3(T3 t3) {
+        _ = start passParamsAsRestArgs(...<T3>{...{...{...t3}}});
+    }
 };
 
 var s3 = service object {
@@ -218,6 +578,42 @@ var s3 = service object {
 
     function func() {
         nonIsolatedFunc();
+    }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+    
+    resource function post bas([string[], string[], string[]] args) {
+        _ = start passParamsAsRestArgs(...args);
+    }
+    
+    resource function post baz(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passParamsAsRestArgs(...[arg1, arg2, arg3]);
+    }
+    
+    resource function post qux(string[] arg1, string[] arg2, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[arg1, arg2, ...restArgs]);
+    }
+    
+    resource function post quxx([string[], string[]] args, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[...args, ...restArgs]);
+    }
+    
+    resource function post quxxx(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passRestArgsAsArgs(arg1, arg2, arg3);
+    }
+    
+    resource function post path(T1 t1) {
+        _ = start passParamsAsRestArgs(t1.arg1, [], []);
+    }
+    
+    resource function post path2(T1 t1, T2 t2) {
+        _ = start passParamsAsRestArgs(...<T3>{...t1, ...t2, arg3: []});
+    }
+    
+    resource function post path3(T3 t3) {
+        _ = start passParamsAsRestArgs(...<T3>{...{...{...t3}}});
     }
 };
 
@@ -237,6 +633,42 @@ service object {} s4 = service object {
 
     function func() {
         nonIsolatedFunc();
+    }
+
+    resource function post bar(string[] mutableVal) {
+        _ = start mutableValueAccess(mutableVal);
+    }
+    
+    resource function post bas([string[], string[], string[]] args) {
+        _ = start passParamsAsRestArgs(...args);
+    }
+    
+    resource function post baz(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passParamsAsRestArgs(...[arg1, arg2, arg3]);
+    }
+    
+    resource function post qux(string[] arg1, string[] arg2, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[arg1, arg2, ...restArgs]);
+    }
+    
+    resource function post quxx([string[], string[]] args, string[]... restArgs) {
+        _ = start passRequiredArgsAndRestArgs(...[...args, ...restArgs]);
+    }
+    
+    resource function post quxxx(string[] arg1, string[] arg2, string[] arg3) {
+        _ = start passRestArgsAsArgs(arg1, arg2, arg3);
+    }
+    
+    resource function post path(T1 t1) {
+        _ = start passParamsAsRestArgs(t1.arg1, [], []);
+    }
+    
+    resource function post path2(T1 t1, T2 t2) {
+        _ = start passParamsAsRestArgs(...<T3>{...t1, ...t2, arg3: []});
+    }
+    
+    resource function post path3(T3 t3) {
+        _ = start passParamsAsRestArgs(...<T3>{...{...{...t3}}});
     }
 };
 
@@ -314,6 +746,33 @@ var s6 = isolated service object {
         }
     }
 };
+
+isolated function mutableValueAccess(string[] value) {
+}
+
+isolated function passParamsAsRestArgs(string[] arg1, string[] arg2, string[] arg3) {
+}
+
+isolated function passRequiredArgsAndRestArgs(string[] arg1, string[] arg2, string[]... restArg) {
+}
+
+isolated function passRestArgsAsArgs(string[]... restArg) {
+}
+
+
+type T1 record {|
+    string[] arg1;
+|};
+
+type T2 record {|
+    string[] arg2;
+|};
+
+type T3 record {|
+    *T1;
+    *T2;
+   string[] arg3;
+|};
 
 public class Listener {
     public isolated function 'start() returns error? {
