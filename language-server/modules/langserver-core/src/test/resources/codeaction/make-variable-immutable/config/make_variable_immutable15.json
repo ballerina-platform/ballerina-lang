@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 2,
+    "character": 9
+  },
+  "source": "make_variable_immutable15.bal",
+  "description": "Make immutable of a documented public variable",
+  "expected": [
+    {
+      "title": "Add 'final' to the variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 4
+            }
+          },
+          "newText": "final "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
