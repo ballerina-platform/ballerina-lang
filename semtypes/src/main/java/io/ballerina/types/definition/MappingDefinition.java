@@ -40,7 +40,6 @@ import java.util.List;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.types.Core.union;
-import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 
