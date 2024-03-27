@@ -5,6 +5,6 @@ WARNING [main.bal:(27:5,27:53)] unused variable 'msg'
 
 Generating executable
 
-WARNING [pkg_b] Detected platform dependencies with provided scope. Redistribution is discouraged due to potential license restrictions
+WARNING [pkg_b] Detected platform dependencies with 'provided' scope. Redistribution is discouraged due to potential license restrictions
 
 	target\bin\pkg_b.jar

@@ -723,7 +723,8 @@ public class JBallerinaBackend extends CompilerBackend {
             }
         }
         throw new ProjectException(String.format("cannot resolve '%s:%s:%s'. Dependencies with " +
-                "'provided' scope need to be manually added to Ballerina.toml.", groupId, artifactId, version));
+                "'%s' scope need to be manually added to Ballerina.toml.", groupId, artifactId, version,
+                PlatformLibraryScope.PROVIDED.getStringValue()));
     }
 
     /**
@@ -826,8 +827,8 @@ public class JBallerinaBackend extends CompilerBackend {
         if (!jarResolver.providedPlatformLibs().isEmpty()) {
             DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                     ProjectDiagnosticErrorCode.PROVIDED_PLATFORM_JAR_IN_EXECUTABLE.diagnosticId(),
-                    "Detected platform dependencies with provided scope. Redistribution is discouraged" +
-                            " due to potential license restrictions\n",
+                    String.format("Detected platform dependencies with '%s' scope. Redistribution is discouraged" +
+                            " due to potential license restrictions%n", PlatformLibraryScope.PROVIDED.getStringValue()),
                     DiagnosticSeverity.WARNING);
             emitResultDiagnostics.add(new PackageDiagnostic(diagnosticInfo,
                     this.packageContext().descriptor().name().toString()));

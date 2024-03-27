@@ -314,7 +314,8 @@ public class CompileTask implements Task {
                 if (Objects.equals(dependency.get("scope"), PlatformLibraryScope.PROVIDED.getStringValue())) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.INVALID_PROVIDED_SCOPE_IN_BUILD.diagnosticId(),
-                            "'provided' scope for platform dependencies is not allowed with package build\n",
+                            String.format("'%s' scope for platform dependencies is not allowed with package build%n",
+                                    PlatformLibraryScope.PROVIDED.getStringValue()),
                             DiagnosticSeverity.ERROR);
                     diagnostics.add(new PackageDiagnostic(diagnosticInfo,
                             project.currentPackage().descriptor().name().toString()));
