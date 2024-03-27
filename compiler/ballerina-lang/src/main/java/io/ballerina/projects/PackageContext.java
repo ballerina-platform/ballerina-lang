@@ -238,7 +238,7 @@ class PackageContext {
                 .setConfigSchemaGen(this.compilationOptions.configSchemaGen())
                 .setEnableCache(this.compilationOptions.enableCache())
                 .setRuntimeManagementIncluded(this.compilationOptions.runtimeManagementIncluded())
-                .setEnableServiceCatalog(this.compilationOptions.enableServiceCatalog())
+                .setEnableServicePublish(this.compilationOptions.enableServicePublish())
                 .build();
         CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);
         return PackageCompilation.from(this, mergedOptions);

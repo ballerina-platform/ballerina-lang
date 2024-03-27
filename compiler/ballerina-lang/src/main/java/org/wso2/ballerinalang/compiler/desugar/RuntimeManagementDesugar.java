@@ -42,7 +42,7 @@ public class RuntimeManagementDesugar {
     private static final CompilerContext.Key<RuntimeManagementDesugar> RUNTIME_MANAGEMENT_DESUGAR_KEY =
             new CompilerContext.Key<>();
     private final boolean runtimeManagementIncluded;
-    private final boolean enableServiceCatalog;
+    private final boolean enableServicePublish;
     private final PackageCache packageCache;
     private PackageID managementPkgID;
 
@@ -58,7 +58,7 @@ public class RuntimeManagementDesugar {
         context.put(RUNTIME_MANAGEMENT_DESUGAR_KEY, this);
         runtimeManagementIncluded = Boolean.parseBoolean(CompilerOptions.getInstance(context)
                 .get(CompilerOptionName.RUNTIME_MANAGEMENT_INCLUDED));
-        enableServiceCatalog = Boolean.parseBoolean(CompilerOptions.getInstance(context)
+        enableServicePublish = Boolean.parseBoolean(CompilerOptions.getInstance(context)
                 .get(CompilerOptionName.ENABLE_SERVICE_CATALOG));
         packageCache = PackageCache.getInstance(context);
         final BPackageSymbol symbol = PackageCache.getInstance(context).getSymbol(Names.BALLERINA_ORG.value
@@ -69,7 +69,7 @@ public class RuntimeManagementDesugar {
     }
 
     void addManagementServiceModuleImport(BLangPackage pkgNode) {
-        if ((runtimeManagementIncluded || enableServiceCatalog) && (pkgNode.moduleContextDataHolder != null
+        if ((runtimeManagementIncluded || enableServicePublish) && (pkgNode.moduleContextDataHolder != null
                 && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT))
                 && managementPkgID != null) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();

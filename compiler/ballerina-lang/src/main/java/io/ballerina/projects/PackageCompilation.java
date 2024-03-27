@@ -90,7 +90,7 @@ public class PackageCompilation {
         options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
         options.put(CLOUD, compilationOptions.getCloud());
         options.put(RUNTIME_MANAGEMENT_INCLUDED, Boolean.toString(compilationOptions.runtimeManagementIncluded()));
-        options.put(ENABLE_SERVICE_CATALOG, Boolean.toString(compilationOptions.enableServiceCatalog()));
+        options.put(ENABLE_SERVICE_CATALOG, Boolean.toString(compilationOptions.enableServicePublish()));
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {

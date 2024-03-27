@@ -8,4 +8,4 @@ b7aConfigFile="/tmp/ballerina.conf"
 observabilityIncluded = true
 skipTests=true
 runtimeManagementIncluded=true
-enableServiceCatalog=true
+enableServicePublish=true

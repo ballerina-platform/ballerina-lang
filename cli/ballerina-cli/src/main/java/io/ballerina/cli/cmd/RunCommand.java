@@ -92,7 +92,7 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--enable-service-catalog", description = "package management service in the " +
             "executable for WSO2 API manager when run is used with a source file or a module.")
-    private Boolean enableServiceCatalog;
+    private Boolean enableServicePublish;
 
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
@@ -286,7 +286,7 @@ public class RunCommand implements BLauncherCmd {
                 .setTestReport(false)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setRuntimeManagementIncluded(runtimeManagementIncluded)
-                .setEnableServiceCatalog(enableServiceCatalog)
+                .setEnableServicePublish(enableServicePublish)
                 .setSticky(sticky)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)

@@ -26,7 +26,7 @@ package org.ballerinalang.toml.model;
 public class BuildOptions {
     private boolean observabilityIncluded;
     private boolean runtimeManagementIncluded;
-    private boolean enableServiceCatalog;
+    private boolean enableServicePublish;
 
     public boolean isObservabilityIncluded() {
         return observabilityIncluded;
@@ -35,8 +35,8 @@ public class BuildOptions {
     public boolean isRuntimeManagementIncluded() {
         return runtimeManagementIncluded;
     }
-    public boolean isEnableServiceCatalog() {
-        return enableServiceCatalog;
+    public boolean isEnableServicePublish() {
+        return enableServicePublish;
     }
 
     public void setObservabilityIncluded(boolean observabilityIncluded) {
@@ -47,7 +47,7 @@ public class BuildOptions {
         this.runtimeManagementIncluded = runtimeManagementIncluded;
     }
 
-    public void setEnableServiceCatalog(boolean enableServiceCatalog) {
-        this.enableServiceCatalog = enableServiceCatalog;
+    public void setEnableServicePublish(boolean enableServicePublish) {
+        this.enableServicePublish = enableServicePublish;
     }
 }
