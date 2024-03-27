@@ -197,12 +197,13 @@ public class WaitActionsNegativeTest {
         String msg = "worker send/receive interactions are invalid; worker(s) cannot move onwards from the state: '%s'";
         BAssertUtil.validateError(result, index++, String.format(msg, "[wait v, wait w, FINISHED]"), 19, 14);
         BAssertUtil.validateError(result, index++, String.format(msg, "[wait v, wait w, wait x, FINISHED]"), 29, 14);
-        BAssertUtil.validateError(result, index++, String.format(msg, "[wait w2,  <- w, wait w1, FINISHED]"), 43, 14);
+        BAssertUtil.validateError(result, index++, "invalid worker send, no matching worker receive", 46, 9);
+        BAssertUtil.validateError(result, index++, "invalid worker receive, no matching worker send", 50, 17);
         BAssertUtil.validateError(result, index++, String.format(msg, "[wait v, wait w, wait x, FINISHED]"), 61, 18);
         BAssertUtil.validateError(result, index++,
                 String.format(msg, "[wait vi, wait wi, wait xi, FINISHED, FINISHED]"), 78, 23);
-        BAssertUtil.validateError(result, index++,
-                String.format(msg, "[11 -> w3, FINISHED, FINISHED, wait {w1,w2,w3}]"), 94, 15);
+        BAssertUtil.validateError(result, index++, "invalid worker send, no matching worker receive", 95, 9);
+        BAssertUtil.validateError(result, index++, "invalid worker receive, no matching worker send", 96, 20);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 }

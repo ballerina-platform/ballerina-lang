@@ -281,4 +281,11 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
             workerSend.thenBB = this.env.nextBB;
         }
     }
+
+    @Override
+    public void visit(BIRTerminator.WorkerAlternateReceive workerAlternateReceive) {
+        if (workerAlternateReceive.thenBB == this.env.currentBB) {
+            workerAlternateReceive.thenBB = this.env.nextBB;
+        }
+    }
 }
