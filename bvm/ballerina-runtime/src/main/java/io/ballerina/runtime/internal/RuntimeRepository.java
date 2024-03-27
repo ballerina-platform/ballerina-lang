@@ -16,7 +16,6 @@
 
 package io.ballerina.runtime.internal;
 
-import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.values.ObjectValue;
@@ -25,7 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RuntimeRepository {
-    private static final Map<ObjectValue, ServiceType> serviceListenerMap = new HashMap<>();
+    private static final Map<ObjectValue, ObjectValue> serviceListenerMap = new HashMap<>();
+    private static final Map<ObjectValue, ObjectValue> listenerServiceMap = new HashMap<>();
+
 
     private RuntimeRepository() {
     }
@@ -33,11 +34,16 @@ public class RuntimeRepository {
     public static void addServiceListener(BObject listener, BObject service, Object attachPoint) {
         BServiceType serviceType = (BServiceType) service.getType();
         serviceType.attachPoint = attachPoint;
-        serviceListenerMap.put((ObjectValue) listener, serviceType);
+        serviceListenerMap.put((ObjectValue) service, (ObjectValue) listener);
+        listenerServiceMap.put((ObjectValue) listener, (ObjectValue) service);
     }
 
-    public static Map<ObjectValue, ServiceType> getServiceTypes() {
+    public static Map<ObjectValue, ObjectValue> getServices() {
         return serviceListenerMap;
+    }
+
+    public static Map<ObjectValue, ObjectValue> getListeners() {
+        return listenerServiceMap;
     }
 
 }

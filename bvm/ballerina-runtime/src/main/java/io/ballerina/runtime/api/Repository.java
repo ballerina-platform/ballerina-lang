@@ -16,7 +16,7 @@
 
 package io.ballerina.runtime.api;
 
-import io.ballerina.runtime.api.types.ServiceType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.RuntimeRepository;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.values.ObjectValue;
@@ -36,20 +36,43 @@ public class Repository {
     }
 
     public static List<Artifact> getArtifacts() {
-        Map<ObjectValue, ServiceType> serviceTypes = RuntimeRepository.getServiceTypes();
-        if (serviceTypes.isEmpty()) {
-            return new ArrayList<>();
-        }
-
         List<Artifact> artifacts = new ArrayList<>();
-        for (Map.Entry<ObjectValue, ServiceType> entry : serviceTypes.entrySet()) {
-            BServiceType serviceType = (BServiceType) entry.getValue();
-            Artifact artifact = new Artifact(serviceType.toString(), Artifact.ArtifactType.SERVICE);
-            artifact.addDetail("attachPoint", serviceType.attachPoint);
-            artifact.addDetail("listener", entry.getKey());
-            artifact.addDetail("resources", serviceType.getResourceMethods());
+
+        Map<ObjectValue, ObjectValue> serviceListenerMap = RuntimeRepository.getServices();
+        Map<ObjectValue, ObjectValue> listenerServiceMap = RuntimeRepository.getListeners();
+
+        for (Map.Entry<ObjectValue, ObjectValue> entry : serviceListenerMap.entrySet()) {
+            ObjectValue service = entry.getKey();
+            ObjectValue listener = entry.getValue();
+            Artifact artifact = createArtifact(service, listener);
             artifacts.add(artifact);
         }
+
+        for (Map.Entry<ObjectValue, ObjectValue> entry : listenerServiceMap.entrySet()) {
+            ObjectValue listener = entry.getKey();
+            ObjectValue service = entry.getValue();
+
+            if (!serviceListenerMap.containsKey(service)) {
+                Artifact artifact = createArtifact(service, listener);
+                artifacts.add(artifact);
+            }
+        }
+
         return artifacts;
+    }
+
+    private static Artifact createArtifact(ObjectValue service, ObjectValue listener) {
+        Artifact artifact = new Artifact(service.toString(), Artifact.ArtifactType.SERVICE);
+        List<ObjectValue> listeners = (List<ObjectValue>) artifact.getDetail("listeners");
+        if (listeners == null) {
+            listeners = new ArrayList<>();
+            artifact.addDetail("listeners", listeners);
+        }
+        listeners.add(listener);
+        BServiceType serviceType = (BServiceType) TypeUtils.getImpliedType(service.getOriginalType());
+        artifact.addDetail("attachPoint", serviceType.attachPoint);
+        artifact.addDetail("resources", serviceType.getResourceMethods());
+        artifact.addDetail("remotes", serviceType.getRemoteMethods());
+        return artifact;
     }
 }
