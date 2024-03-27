@@ -6433,7 +6433,7 @@ public class Desugar extends BLangNodeVisitor {
         } else if (types.isSubTypeOfList(varRefType)) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                     indexAccessExpr.indexExpr);
-        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
+        } else if (types.isAssignable(varRefType, symTable.xmlType)) {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (types.isAssignable(varRefType, symTable.stringType)) {
@@ -8308,25 +8308,16 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private ArrayList<BLangExpression> expandFilters(List<BLangXMLElementFilter> filters) {
-        Map<Name, BXMLNSSymbol> nameBXMLNSSymbolMap = symResolver.resolveAllNamespaces(env);
-        BXMLNSSymbol defaultNSSymbol = nameBXMLNSSymbolMap.get(names.fromString(XMLConstants.DEFAULT_NS_PREFIX));
-        String defaultNS = defaultNSSymbol != null ? defaultNSSymbol.namespaceURI : null;
-
         ArrayList<BLangExpression> args = new ArrayList<>();
         for (BLangXMLElementFilter filter : filters) {
-            BSymbol nsSymbol = symResolver.lookupSymbolInPrefixSpace(env, names.fromString(filter.namespace));
-            if (nsSymbol == symTable.notFoundSymbol) {
-                if (defaultNS != null && !filter.name.equals("*")) {
-                    String expandedName = createExpandedQName(defaultNS, filter.name);
-                    args.add(createStringLiteral(filter.elemNamePos, expandedName));
-                } else {
-                    args.add(createStringLiteral(filter.elemNamePos, filter.name));
-                }
+            BSymbol nsSymbol = filter.namespaceSymbol;
+            String filterName = filter.name;
+            if (nsSymbol != null &&
+                    !(filter.namespace.equals(XMLConstants.DEFAULT_NS_PREFIX) && filterName.equals("*"))) {
+                String expandedName = createExpandedQName(((BXMLNSSymbol) nsSymbol).namespaceURI, filterName);
+                args.add(createStringLiteral(filter.elemNamePos, expandedName));
             } else {
-                BXMLNSSymbol bxmlnsSymbol = (BXMLNSSymbol) nsSymbol;
-                String expandedName = createExpandedQName(bxmlnsSymbol.namespaceURI, filter.name);
-                BLangLiteral stringLiteral = createStringLiteral(filter.elemNamePos, expandedName);
-                args.add(stringLiteral);
+                args.add(createStringLiteral(filter.elemNamePos, filterName));
             }
         }
         return args;
