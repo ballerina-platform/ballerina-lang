@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
+import static io.ballerina.types.TypeTestUtils.roTuple;
+import static io.ballerina.types.TypeTestUtils.tuple;
 import static io.ballerina.types.subtypedata.StringSubtype.stringConst;
 
 /**
@@ -93,14 +95,14 @@ public class SemTypeCoreTest {
     public void test2() {
         Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(new Env()), PredefinedType.INT, PredefinedType.VAL));
     }
-    
+
     @Test
     public void test3() {
         Env env = new Env();
-        SemType s = ListDefinition.tuple(env, PredefinedType.INT, Core.union(PredefinedType.INT,
+        SemType s = roTuple(env, PredefinedType.INT, Core.union(PredefinedType.INT,
                 PredefinedType.STRING));
-        SemType t = Core.union(ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.INT),
-                ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.STRING));
+        SemType t = Core.union(roTuple(env, PredefinedType.INT, PredefinedType.INT),
+                roTuple(env, PredefinedType.INT, PredefinedType.STRING));
         equiv(env, s, t);
     }
 
@@ -126,12 +128,35 @@ public class SemTypeCoreTest {
     @Test
     public void test5() {
         Env env = new Env();
-        SemType s = ListDefinition.tuple(env, PredefinedType.INT, Core.union(PredefinedType.NIL,
+        SemType s = roTuple(env, PredefinedType.INT, Core.union(PredefinedType.NIL,
                 Core.union(PredefinedType.INT, PredefinedType.STRING)));
-        SemType t = Core.union(ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.INT),
-                Core.union(ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.NIL),
-                        ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.STRING)));
+        SemType t = Core.union(roTuple(env, PredefinedType.INT, PredefinedType.INT),
+                Core.union(roTuple(env, PredefinedType.INT, PredefinedType.NIL),
+                        roTuple(env, PredefinedType.INT, PredefinedType.STRING)));
         equiv(env, s, t);
+    }
+
+    @Test
+    public void test6() {
+        Env env = new Env();
+        SemType s = tuple(env, PredefinedType.INT, Core.union(PredefinedType.NIL,
+                Core.union(PredefinedType.INT, PredefinedType.STRING)));
+        SemType t = Core.union(tuple(env, PredefinedType.INT, PredefinedType.INT),
+                Core.union(tuple(env, PredefinedType.INT, PredefinedType.NIL),
+                        tuple(env, PredefinedType.INT, PredefinedType.STRING)));
+        Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(env), t, s));
+        Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), s, t));
+    }
+
+    @Test
+    public void test7() {
+        Env env = new Env();
+        SemType s = tuple(env, PredefinedType.INT, Core.union(PredefinedType.INT,
+                PredefinedType.STRING));
+        SemType t = Core.union(tuple(env, PredefinedType.INT, PredefinedType.INT),
+                tuple(env, PredefinedType.INT, PredefinedType.STRING));
+        Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(env), t, s));
+        Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), s, t));
     }
 
     @Test

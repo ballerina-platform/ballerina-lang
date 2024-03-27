@@ -135,6 +135,10 @@ public class PredefinedType {
     public static final SemType XML_TEXT = xmlSequence(xmlSingleton(XML_PRIMITIVE_TEXT));
     public static final SemType XML_PI = xmlSingleton(XML_PRIMITIVE_PI_RO | XML_PRIMITIVE_PI_RW);
 
+    public static final MappingAtomicType MAPPING_ATOMIC_INNER = MappingAtomicType.from(
+            new String[]{}, new CellSemType[]{}, CELL_SEMTYPE_INNER
+    );
+
     private PredefinedType() {
     }
 

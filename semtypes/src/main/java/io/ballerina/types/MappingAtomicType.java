@@ -17,38 +17,37 @@
  */
 package io.ballerina.types;
 
+// TODO: consider switching arrays to lists so if does the element wise comparison correctly, (or override equals)
+
 import java.util.Arrays;
 
-import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER;
-
 /**
- * MappingAtomicType node.
- *
+ * MappingAtomicType node. {@code names} and {@code types} fields must be sorted.
+ * @param names names of the required members
+ * @param types types of the required members
+ * @param rest for a given mapping type this represents the rest type. This is NEVER if the mapping don't have a rest
+ *             type
  * @since 2201.8.0
  */
-public class MappingAtomicType implements AtomicType {
-    // sorted
-    public final String[] names;
-    public final CellSemType[] types;
-    public final CellSemType rest;
+public record MappingAtomicType(String[] names, CellSemType[] types, CellSemType rest) implements AtomicType {
 
-    public static final MappingAtomicType MAPPING_ATOMIC_INNER = from(
-            new String[]{}, new CellSemType[]{}, CELL_SEMTYPE_INNER
-    );
-
-    private MappingAtomicType(String[] names, CellSemType[] types, CellSemType rest) {
-        this.names = names;
-        this.types = types;
+    public MappingAtomicType(String[] names, CellSemType[] types, CellSemType rest) {
+        this.names = Arrays.copyOf(names, names.length);
+        this.types = Arrays.copyOf(types, names.length);
         this.rest = rest;
+    }
+
+    // TODO: we can replace these with unmodifiable lists (which don't create new lists after changing parameters to
+    //   lists)
+    public String[] names() {
+        return Arrays.copyOf(names, names.length);
+    }
+
+    public CellSemType[] types() {
+        return Arrays.copyOf(types, types.length);
     }
 
     public static MappingAtomicType from(String[] names, CellSemType[] types, CellSemType rest) {
         return new MappingAtomicType(names, types, rest);
-    }
-
-    @Override
-    public String toString() {
-        return "MappingAtomicType{names=" + Arrays.toString(names) + ", types=" + Arrays.toString(types) + ", rest=" +
-                rest + '}';
     }
 }

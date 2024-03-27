@@ -47,7 +47,6 @@ import static io.ballerina.types.Common.bddSubtypeDiff;
 import static io.ballerina.types.Common.bddSubtypeIntersect;
 import static io.ballerina.types.Common.bddSubtypeUnion;
 import static io.ballerina.types.Common.memoSubtypeIsEmpty;
-import static io.ballerina.types.Common.shallowCopyCellTypes;
 import static io.ballerina.types.Core.cellContainingInnerVal;
 import static io.ballerina.types.Core.cellInnerVal;
 import static io.ballerina.types.Core.intersectMemberSemType;
@@ -74,13 +73,13 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         CellSemType rest;
         if (pos == null) {
             ListAtomicType atom = ListAtomicType.LIST_ATOMIC_INNER;
-            members = atom.members;
-            rest = atom.rest;
+            members = atom.members();
+            rest = atom.rest();
         } else {
             // combine all the positive tuples using intersection
             ListAtomicType lt = cx.listAtomType(pos.atom);
-            members = lt.members;
-            rest = lt.rest;
+            members = lt.members();
+            rest = lt.rest();
             Conjunction p = pos.next;
             // the neg case is in case we grow the array in listInhabited
             if (p != null || neg != null) {
@@ -96,7 +95,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                     p = p.next;
                     lt = cx.listAtomType(d);
                     TwoTuple<FixedLengthArray, SemType>
-                            intersected = listIntersectWith(cx.env, members, rest, lt.members, lt.rest);
+                            intersected = listIntersectWith(cx.env, members, rest, lt.members(), lt.rest());
                     if (intersected == null) {
                         return true;
                     }
@@ -126,18 +125,18 @@ public class ListOps extends CommonOps implements BasicTypeOps {
     // as there are negatives in N, so that for each negative we can freely choose a type for the sample
     // to avoid being matched by that negative.
     static List<Integer> listSamples(Context cx, FixedLengthArray members, SemType rest, Conjunction neg) {
-        int maxInitialLength = members.initial.size();
+        int maxInitialLength = members.initial().size();
         List<Integer> fixedLengths = new ArrayList<>();
-        fixedLengths.add(members.fixedLength);
+        fixedLengths.add(members.fixedLength());
         Conjunction tem = neg;
         int nNeg = 0;
         while (true) {
             if (tem != null) {
                 ListAtomicType lt = cx.listAtomType(tem.atom);
-                FixedLengthArray m = lt.members;
-                maxInitialLength = Integer.max(maxInitialLength, m.initial.size());
-                if (m.fixedLength > maxInitialLength) {
-                    fixedLengths.add(m.fixedLength);
+                FixedLengthArray m = lt.members();
+                maxInitialLength = Integer.max(maxInitialLength, m.initial().size());
+                if (m.fixedLength() > maxInitialLength) {
+                    fixedLengths.add(m.fixedLength());
                 }
                 nNeg += 1;
                 tem = tem.next;
@@ -191,21 +190,21 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         if (listLengthsDisjoint(members1, rest1, members2, rest2)) {
             return null;
         }
-        int max = Integer.max(members1.initial.size(), members2.initial.size());
+        int max = Integer.max(members1.initial().size(), members2.initial().size());
         List<CellSemType> initial =
                 IntStream.range(0, max)
                         .mapToObj(i -> Core.intersectMemberSemType(env, listMemberAt(members1, rest1, i),
                                 listMemberAt(members2, rest2, i)))
                         .collect(Collectors.toList());
         return TwoTuple.from(FixedLengthArray.from(initial,
-                        Integer.max(members1.fixedLength,
-                                members2.fixedLength)),
+                        Integer.max(members1.fixedLength(),
+                                members2.fixedLength())),
                 intersectMemberSemType(env, rest1, rest2));
     }
 
 
     static FixedLengthArray fixedArrayShallowCopy(FixedLengthArray array) {
-        return FixedLengthArray.from(Collections.unmodifiableList(array.initial), array.fixedLength);
+        return FixedLengthArray.from(array.initial(), array.fixedLength());
     }
 
     // This function determines whether a list type P & N is inhabited.
@@ -224,12 +223,12 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             return true;
         } else {
             final ListAtomicType nt = cx.listAtomType(neg.atom);
-            if (nRequired > 0 && Core.isNever(listMemberAtInnerVal(nt.members, nt.rest, indices[nRequired - 1]))) {
+            if (nRequired > 0 && Core.isNever(listMemberAtInnerVal(nt.members(), nt.rest(), indices[nRequired - 1]))) {
                 // Skip this negative if it is always shorter than the minimum required by the positive
                 return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
             }
             // Consider cases we can avoid this negative by having a sufficiently short list
-            int negLen = nt.members.fixedLength;
+            int negLen = nt.members().fixedLength();
             if (negLen > 0) {
                 int len = memberTypes.length;
                 if (len < indices.length && indices[len] < negLen) {
@@ -267,7 +266,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             // return !isEmpty(cx, d1) &&  tupleInhabited(cx, [s[0], d1], neg.rest);
             // We can generalize this to tuples of arbitrary length.
             for (int i = 0; i < memberTypes.length; i++) {
-                SemType d = Core.diff(memberTypes[i], listMemberAt(nt.members, nt.rest, indices[i]));
+                SemType d = Core.diff(memberTypes[i], listMemberAt(nt.members(), nt.rest(), indices[i]));
                 if (!Core.isEmpty(cx, d)) {
                     SemType[] t = memberTypes.clone();
                     t[i] = d;
@@ -289,8 +288,8 @@ public class ListOps extends CommonOps implements BasicTypeOps {
 
     private static boolean listLengthsDisjoint(FixedLengthArray members1, SemType rest1,
                                                FixedLengthArray members2, SemType rest2) {
-        int len1 = members1.fixedLength;
-        int len2 = members2.fixedLength;
+        int len1 = members1.fixedLength();
+        int len2 = members2.fixedLength();
         if (len1 < len2) {
             return Core.isNever(rest1);
         }
@@ -311,7 +310,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 break;
             }
             memberTypes.add(t);
-            if (index < members.fixedLength) {
+            if (index < members.fixedLength()) {
                 nRequired = i + 1;
             }
         }
@@ -319,7 +318,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
     }
 
     static boolean fixedArrayAnyEmpty(Context cx, FixedLengthArray array) {
-        for (var t : array.initial) {
+        for (var t : array.initial()) {
             if (Core.isEmpty(cx, t)) {
                 return true;
             }
@@ -328,27 +327,27 @@ public class ListOps extends CommonOps implements BasicTypeOps {
     }
 
     static CellSemType listMemberAt(FixedLengthArray fixedArray, CellSemType rest, int index) {
-        if (index < fixedArray.fixedLength) {
+        if (index < fixedArray.fixedLength()) {
             return fixedArrayGet(fixedArray, index);
         }
         return rest;
     }
 
     private static CellSemType fixedArrayGet(FixedLengthArray members, int index) {
-        int memberLen = members.initial.size();
+        int memberLen = members.initial().size();
         int i = Integer.min(index, memberLen - 1);
-        return members.initial.get(i);
+        return members.initial().get(i);
     }
 
     static SemType listAtomicMemberType(ListAtomicType atomic, SubtypeData key) {
-        return listAtomicMemberTypeAt(atomic.members, atomic.rest, key);
+        return listAtomicMemberTypeAt(atomic.members(), atomic.rest(), key);
     }
 
     static SemType listAtomicMemberTypeAt(FixedLengthArray fixedArray, SemType rest, SubtypeData key) {
         if (key instanceof IntSubtype intSubtype) {
             SemType m = NEVER;
-            int initLen = fixedArray.initial.size();
-            int fixedLen = fixedArray.fixedLength;
+            int initLen = fixedArray.initial().size();
+            int fixedLen = fixedArray.fixedLength();
             if (fixedLen != 0) {
                 for (int i = 0; i < initLen; i++) {
                     if (intSubtypeContains(key, i)) {
@@ -365,8 +364,8 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             return m;
         }
         SemType m = rest;
-        if (fixedArray.fixedLength > 0) {
-            for (SemType ty : fixedArray.initial) {
+        if (fixedArray.fixedLength() > 0) {
+            for (SemType ty : fixedArray.initial()) {
                 m = Core.union(m, ty);
             }
         }
@@ -379,12 +378,11 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         } else {
             BddNode bddNode = (BddNode) b;
             return Core.union(bddListMemberType(cx,
-                                           bddNode.left,
-                                           key,
-                                           Core.intersect(listAtomicMemberType(cx.listAtomType(bddNode.atom), key),
-                                                   accum)),
-                    Core.union(bddListMemberType(cx, bddNode.middle, key, accum),
-                               bddListMemberType(cx, bddNode.right, key, accum)));
+                            bddNode.left(),
+                            key,
+                            Core.intersect(listAtomicMemberType(cx.listAtomType(bddNode.atom()), key), accum)),
+                    Core.union(bddListMemberType(cx, bddNode.middle(), key, accum),
+                            bddListMemberType(cx, bddNode.right(), key, accum)));
         }
     }
 

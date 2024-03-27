@@ -27,7 +27,7 @@ import java.util.Map;
  *
  * @since 2201.8.0
  */
-public class Context {
+public final class Context {
 
     public final Env env;
     public final Map<Bdd, BddMemo> functionMemo = new HashMap<>();
@@ -35,7 +35,7 @@ public class Context {
     public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
 
     // Contains all BddMemo entries with isEmpty == PROVISIONAL
-    public final List<BddMemo> memoStack = new ArrayList<>();
+    final List<BddMemo> memoStack = new ArrayList<>();
 
     private static volatile Context instance;
 
@@ -66,7 +66,7 @@ public class Context {
         if (atom instanceof RecAtom recAtom) {
             return this.env.getRecListAtomType(recAtom);
         } else {
-            return (ListAtomicType) ((TypeAtom) atom).atomicType;
+            return (ListAtomicType) ((TypeAtom) atom).atomicType();
         }
     }
 
@@ -74,7 +74,7 @@ public class Context {
         if (atom instanceof RecAtom recAtom) {
             return this.env.getRecMappingAtomType(recAtom);
         } else {
-            return (MappingAtomicType) ((TypeAtom) atom).atomicType;
+            return (MappingAtomicType) ((TypeAtom) atom).atomicType();
         }
     }
 

@@ -102,7 +102,7 @@ public class ListDefinition implements Definition {
     }
 
     private FixedLengthArray fixedLengthNormalize(FixedLengthArray array) {
-        List<CellSemType> initial = array.initial;
+        List<CellSemType> initial = array.initial();
         int i = initial.size() - 1;
         if (i <= 0) {
             return array;
@@ -115,7 +115,7 @@ public class ListDefinition implements Definition {
             }
             i -= 1;
         }
-        return FixedLengthArray.from(initial.subList(0, i + 2), array.fixedLength);
+        return FixedLengthArray.from(initial.subList(0, i + 2), array.fixedLength());
     }
 
     private ComplexSemType createSemType(Env env, Atom atom) {

@@ -27,7 +27,7 @@ import static io.ballerina.types.PredefinedType.BDD_REC_ATOM_READONLY;
 public class RecAtom implements Atom {
     public final int index;
     private TargetKind targetKind = null;
-    public static final RecAtom zero = new RecAtom(BDD_REC_ATOM_READONLY);
+    public static final RecAtom ZERO = new RecAtom(BDD_REC_ATOM_READONLY);
 
     private RecAtom(int index) {
         this.index = index;
@@ -35,7 +35,7 @@ public class RecAtom implements Atom {
 
     public static RecAtom createRecAtom(int index) {
         if (index == BDD_REC_ATOM_READONLY) {
-            return zero;
+            return ZERO;
         }
         return new RecAtom(index);
     }
@@ -49,6 +49,11 @@ public class RecAtom implements Atom {
 
     public void setTargetKind(TargetKind targetKind) {
         this.targetKind = targetKind;
+    }
+
+    @Override
+    public int index() {
+        return index;
     }
 
     public enum TargetKind {

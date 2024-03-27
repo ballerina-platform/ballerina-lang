@@ -28,14 +28,16 @@ import java.util.List;
  * { initial: [string, int], fixedLength: 100 } means `int` is repeated 99 times to get a list of 100 members.
  * `fixedLength` must be `0` when `inital` is empty and the `fixedLength` must be at least `initial.length()`
  *
+ * @param initial List of semtypes of the members of the fixes length array. If last member is repeated multiple times
+ *                it is included only once. For example for {@code [string, string, int, int]} initial would be
+ *                {@code [string, string, int]}
+ * @param fixedLength Actual length of the array. For example for {@code [string, string, int, int]} fixedLength would
+ *                    be {@code 4}
  * @since 2201.8.0
  */
-public final class FixedLengthArray {
+public record FixedLengthArray(List<CellSemType> initial, int fixedLength) {
 
-    public final List<CellSemType> initial;
-    public final int fixedLength;
-
-    private FixedLengthArray(List<CellSemType> initial, int fixedLength) {
+    public FixedLengthArray(List<CellSemType> initial, int fixedLength) {
         this.initial = Collections.unmodifiableList(initial);
         this.fixedLength = fixedLength;
     }
@@ -44,12 +46,11 @@ public final class FixedLengthArray {
         return new FixedLengthArray(initial, fixedLength);
     }
 
-    public static FixedLengthArray empty() {
-        return from(new ArrayList<>(), 0);
+    public List<CellSemType> initial() {
+        return Collections.unmodifiableList(initial);
     }
 
-    @Override
-    public String toString() {
-        return "FixedLengthArray{initial=" + initial + ", fixedLength=" + fixedLength + '}';
+    public static FixedLengthArray empty() {
+        return from(new ArrayList<>(), 0);
     }
 }

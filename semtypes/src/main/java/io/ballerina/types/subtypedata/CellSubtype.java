@@ -42,6 +42,7 @@ public class CellSubtype {
     }
 
     public static CellSemType cellContaining(Env env, SemType ty, CellAtomicType.CellMutability mut) {
+        assert !(ty instanceof CellSemType);
         CellAtomicType atomicCell = CellAtomicType.from(ty, mut);
         TypeAtom atom = env.cellAtom(atomicCell);
         BddNode bdd = bddAtom(atom);

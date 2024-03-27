@@ -26,16 +26,11 @@ import static io.ballerina.types.SemTypes.isSubtypeSimple;
 /**
  * CellAtomicType node.
  *
+ * @param ty  Type "wrapped" by this cell
+ * @param mut Mutability of the cell
  * @since 2201.10.0
  */
-public final class CellAtomicType implements AtomicType {
-    public final SemType ty;
-    public final CellMutability mut;
-
-    private CellAtomicType(SemType ty, CellMutability mut) {
-        this.ty = ty;
-        this.mut = mut;
-    }
+public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicType {
 
     public static CellAtomicType from(SemType ty) {
         if (ty instanceof BasicTypeBitSet bitSet) {
@@ -58,13 +53,13 @@ public final class CellAtomicType implements AtomicType {
         }
         BddNode bddNode = (BddNode) bdd;
         if (bddNode.isSimpleBddNode()) {
-            return cellAtom(bddNode.atom);
+            return cellAtom(bddNode.atom());
         }
         return null;
     }
 
     private static CellAtomicType cellAtom(Atom atom) {
-        return (CellAtomicType) ((TypeAtom) atom).atomicType;
+        return (CellAtomicType) ((TypeAtom) atom).atomicType();
     }
 
     public static CellAtomicType from(SemType ty, CellMutability mut) {
@@ -76,10 +71,5 @@ public final class CellAtomicType implements AtomicType {
         CELL_MUT_NONE,
         CELL_MUT_LIMITED,
         CELL_MUT_UNLIMITED
-    }
-
-    @Override
-    public String toString() {
-        return "CellAtomicType{ty=" + ty + ", mut=" + mut + "}";
     }
 }

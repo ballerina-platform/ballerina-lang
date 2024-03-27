@@ -87,9 +87,9 @@ public class ListProj {
             return allOrNothing.isAll() ? listProjPath(cx, k, pos, neg) : NEVER;
         } else {
             BddNode bddNode = (BddNode) b;
-            return union(listProjBdd(cx, k, bddNode.left, and(bddNode.atom, pos), neg),
-                         union(listProjBdd(cx, k, bddNode.middle, pos, neg),
-                               listProjBdd(cx, k, bddNode.right, pos, and(bddNode.atom, neg))));
+            return union(listProjBdd(cx, k, bddNode.left(), and(bddNode.atom(), pos), neg),
+                    union(listProjBdd(cx, k, bddNode.middle(), pos, neg),
+                            listProjBdd(cx, k, bddNode.right(), pos, and(bddNode.atom(), neg))));
         }
     }
 
@@ -103,8 +103,8 @@ public class ListProj {
         } else {
             // combine all the positive tuples using intersection
             ListAtomicType lt = cx.listAtomType(pos.atom);
-            members = lt.members;
-            rest = lt.rest;
+            members = lt.members();
+            rest = lt.rest();
             Conjunction p = pos.next;
             // the neg case is in case we grow the array in listInhabited
             if (p != null || neg != null) {
@@ -118,8 +118,7 @@ public class ListProj {
                     Atom d = p.atom;
                     p = p.next;
                     lt = cx.listAtomType(d);
-                    TwoTuple intersected = listIntersectWith(cx.env, members, rest,
-                            lt.members, lt.rest);
+                    TwoTuple intersected = listIntersectWith(cx.env, members, rest, lt.members(), lt.rest());
                     if (intersected == null) {
                         return NEVER;
                     }
@@ -198,10 +197,10 @@ public class ListProj {
             }
         } else {
             final ListAtomicType nt = cx.listAtomType(neg.atom);
-            if (nRequired > 0 && isNever(listMemberAt(nt.members, nt.rest, indices[nRequired - 1]))) {
+            if (nRequired > 0 && isNever(listMemberAt(nt.members(), nt.rest(), indices[nRequired - 1]))) {
                 return listProjExclude(cx, indices, keyIndices, memberTypes, nRequired, neg.next);
             }
-            int negLen = nt.members.fixedLength;
+            int negLen = nt.members().fixedLength();
             if (negLen > 0) {
                 int len = memberTypes.length;
                 if (len < indices.length && indices[len] < negLen) {
@@ -211,12 +210,13 @@ public class ListProj {
                     if (indices[i] >= negLen) {
                         break;
                     }
+                    // TODO: think about a way to avoid this allocation here and instead create view and pass it in
                     SemType[] t = Arrays.copyOfRange(memberTypes, 0, i);
                     p = union(p, listProjExclude(cx, indices, keyIndices, t, nRequired, neg.next));
                 }
             }
             for (int i = 0; i < memberTypes.length; i++) {
-                SemType d = diff(memberTypes[i], listMemberAt(nt.members, nt.rest, indices[i]));
+                SemType d = diff(memberTypes[i], listMemberAt(nt.members(), nt.rest(), indices[i]));
                 if (!Core.isEmpty(cx, d)) {
                     SemType[] t = memberTypes.clone();
                     t[i] = d;
