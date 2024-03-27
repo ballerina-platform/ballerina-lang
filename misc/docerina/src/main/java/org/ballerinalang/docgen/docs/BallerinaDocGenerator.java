@@ -48,6 +48,7 @@ import org.ballerinalang.docgen.generator.model.search.SearchJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -83,7 +84,6 @@ public class BallerinaDocGenerator {
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
     private static PrintStream out = System.out;
-
     public static final String API_DOCS_JSON = "api-docs.json";
     private static final String API_DOCS_JS = "api-docs.js";
     private static final String CENTRAL_STDLIB_INDEX_JSON = "stdlib-index.json";
@@ -94,11 +94,9 @@ public class BallerinaDocGenerator {
     private static final String DOCS_FOLDER_NAME = "docs";
     private static final String JSON_KEY_HASH_VALUE = "hashValue";
     private static final String JSON_KEY_FILE_URL = "fileURL";
-    private static final int MAX_RETRIES = 3;
     private static final String RELEASE_DESCRIPTION_MD = "/release-description.md";
-    private static final int RETRY_DELAY_MS = 5000;
+    public static final String SHA256_ALGORITHM = "SHA-256";
     private static final String SHA256_HASH_FILE_NAME = "ballerina-doc-ui-hash.sha256";
-    private static final String SOURCE =  "https://api.dev-central.ballerina.io/2.0/docs/doc-ui";
     public static final String PROPERTIES_FILE = "/META-INF/properties";
 
     private static Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Path.class, new PathToJson())
@@ -264,62 +262,50 @@ public class BallerinaDocGenerator {
     }
 
     private static void copyDocerinaUI(Path output) {
-        int retryCount = 0;
+        String source = RepoUtils.getRemoteRepoURL();
         Path docsDirPath = ProjectUtils.createAndGetHomeReposPath().resolve(DOCS_FOLDER_NAME);
         Path sha256FilePath = docsDirPath.resolve(SHA256_HASH_FILE_NAME);
         Path zipFilePath = docsDirPath.resolve(BALLERINA_DOC_UI_ZIP_FILE_NAME);
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .get()
-                .url(SOURCE)
+                .url(source)
                 .build();
-        while (retryCount < MAX_RETRIES) {
-            try (Response response = client.newCall(request).execute()) {
-                if (response.code() == HTTP_OK && response.body() != null) {
-                    ResponseBody responseBody = response.body();
-                    JsonObject jsonResponse = JsonParser.parseReader(responseBody.charStream()).getAsJsonObject();
-                    String sha256HashValue = jsonResponse.get(JSON_KEY_HASH_VALUE).getAsString();
-                    String zipFileURL = jsonResponse.get(JSON_KEY_FILE_URL).getAsString();
-                    if (!Files.exists(sha256FilePath) || !Files.exists(zipFilePath)) {
-                        if (!docsDirPath.toFile().exists()) {
-                            Files.createDirectories(docsDirPath);
-                        }
+        try (Response response = client.newCall(request).execute()) {
+            if (response.code() == HTTP_OK && response.body() != null) {
+                ResponseBody responseBody = response.body();
+                JsonObject jsonResponse = JsonParser.parseReader(responseBody.charStream()).getAsJsonObject();
+                String sha256HashValue = jsonResponse.get(JSON_KEY_HASH_VALUE).getAsString();
+                String zipFileURL = jsonResponse.get(JSON_KEY_FILE_URL).getAsString();
+                if (!Files.exists(sha256FilePath) || !Files.exists(zipFilePath)) {
+                    if (!docsDirPath.toFile().exists()) {
+                        Files.createDirectories(docsDirPath);
+                    }
+                    writeFileInCache(zipFileURL, sha256HashValue, zipFilePath, sha256FilePath);
+                } else {
+                    String hashValueInCache = Files.readString(sha256FilePath).trim();
+                    if (!sha256HashValue.equals(hashValueInCache)) {
                         writeFileInCache(zipFileURL, sha256HashValue, zipFilePath, sha256FilePath);
-                    } else {
-                        String hashValueInCache = Files.readString(sha256FilePath).trim();
-                        if (!sha256HashValue.equals(hashValueInCache)) {
-                            writeFileInCache(zipFileURL, sha256HashValue, zipFilePath, sha256FilePath);
-                        }
-                    }
-                    copyDocUIToProjectDir(output, zipFilePath);
-                    break;
-                } else {
-                    throw new IOException("Response failed with status code: " + response.code());
-                }
-            } catch (IOException e) {
-                retryCount++;
-                if (retryCount == MAX_RETRIES) {
-                    if (Files.exists(zipFilePath)) {
-                        String warning = """
-                                WARNING: Unable to fetch the latest UI from the central.
-                                This document is built using an existing version of the UI.
-                                """;
-                        out.println(warning);
-                        copyDocUIToProjectDir(output, zipFilePath);
-                    } else {
-                        log.error("Failed to copy the doc UI", e);
-                    }
-                } else {
-                    try {
-                        Thread.sleep(RETRY_DELAY_MS);
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
                     }
                 }
-            } finally {
-                client.dispatcher().executorService().shutdown();
-                client.connectionPool().evictAll();
+                copyDocUIToProjectDir(output, zipFilePath);
+            } else {
+                throw new IOException("Response failed with status code: " + response.code());
             }
+        } catch (IOException e) {
+            if (Files.exists(zipFilePath)) {
+                String warning = """
+                        WARNING: Unable to fetch the latest UI from the central.
+                        This document is built using an existing version of the UI.
+                        """;
+                out.println(warning);
+                copyDocUIToProjectDir(output, zipFilePath);
+            } else {
+                log.error("Failed to copy the doc UI", e);
+            }
+        } finally {
+            client.dispatcher().executorService().shutdown();
+            client.connectionPool().evictAll();
         }
     }
 
@@ -330,8 +316,15 @@ public class BallerinaDocGenerator {
         try (Response response = client.newCall(request).execute()) {
             if (response.code() == HTTP_OK && response.body() != null) {
                 ResponseBody responseBody = response.body();
-                Files.write(zipFilePath, responseBody.bytes());
-                Files.write(hashFilePath, hashValue.getBytes());
+                byte[] contentInBytes = responseBody.bytes();
+                byte[] hash = BallerinaDocUtils.checkHash(contentInBytes, SHA256_ALGORITHM);
+                String checksum = BallerinaDocUtils.bytesToHex(hash);
+                if (checksum.equals(hashValue)) {
+                    Files.write(zipFilePath, contentInBytes);
+                    Files.write(hashFilePath, hashValue.getBytes());
+                } else {
+                    throw new IOException("Failed to download doc-ui zip file: File may be corrupted.");
+                }
             } else {
                 throw new IOException("Failed to download doc-ui zip file: Request failed.");
             }
