@@ -23,4 +23,9 @@ package io.ballerina.types;
  * @since 2201.8.0
  */
 public interface Atom {
+
+    /**
+     * Get the unique index of the atom.
+     */
+    int index();
 }

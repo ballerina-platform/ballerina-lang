@@ -49,11 +49,11 @@ import static io.ballerina.types.BasicTypeCode.BT_TABLE;
 import static io.ballerina.types.BasicTypeCode.VT_MASK;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.types.Common.isNothingSubtype;
-import static io.ballerina.types.MappingAtomicType.MAPPING_ATOMIC_INNER;
 import static io.ballerina.types.PredefinedType.CELL_ATOMIC_VAL;
 import static io.ballerina.types.PredefinedType.INNER;
 import static io.ballerina.types.PredefinedType.LIST;
 import static io.ballerina.types.PredefinedType.MAPPING;
+import static io.ballerina.types.PredefinedType.MAPPING_ATOMIC_INNER;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.SIMPLE_OR_STRING;
 import static io.ballerina.types.PredefinedType.UNDEF;
@@ -72,7 +72,7 @@ import static io.ballerina.types.typeops.MappingOps.bddMappingMemberTypeInner;
 public final class Core {
 
     public static CellAtomicType cellAtomType(Atom atom) {
-        return (CellAtomicType) ((TypeAtom) atom).atomicType;
+        return (CellAtomicType) ((TypeAtom) atom).atomicType();
     }
 
     public static SemType diff(SemType t1, SemType t2) {
@@ -129,9 +129,9 @@ public final class Core {
             } else {
                 data = OpsTable.OPS[code.code].diff(data1, data2);
             }
-            if (!(data instanceof AllOrNothingSubtype)) {
+            if (!(data instanceof AllOrNothingSubtype allOrNothingSubtype)) {
                 subtypes.add(BasicSubtype.from(code, (ProperSubtypeData) data));
-            } else if (((AllOrNothingSubtype) data).isAllSubtype()) {
+            } else if (allOrNothingSubtype.isAllSubtype()) {
                 int c = code.code;
                 all = BasicTypeBitSet.from(all.bitset | (1 << c));
             }
@@ -313,7 +313,7 @@ public final class Core {
         CellAtomicType c2 = cellAtomicType(t2);
         assert c1 != null && c2 != null;
         CellAtomicType atomicType = intersectCellAtomicType(c1, c2);
-        return cellContaining(env, atomicType.ty, UNDEF.equals(atomicType.ty) ? CELL_MUT_NONE : atomicType.mut);
+        return cellContaining(env, atomicType.ty(), UNDEF.equals(atomicType.ty()) ? CELL_MUT_NONE : atomicType.mut());
     }
 
     public static SemType roDiff(Context cx, SemType t1, SemType t2) {
@@ -322,8 +322,8 @@ public final class Core {
 
     public static CellSemType intersectMemberSemType(Env env, CellSemType t1, CellSemType t2) {
         CellAtomicType atom = intersectCellAtomicType(CellAtomicType.from(t1), CellAtomicType.from(t2));
-        SemType ty = atom.ty;
-        CellAtomicType.CellMutability mut = atom.mut;
+        SemType ty = atom.ty();
+        CellAtomicType.CellMutability mut = atom.mut();
         return cellContaining(env, ty, ty.equals(UNDEF) ? CELL_MUT_NONE : mut);
     }
 
@@ -550,10 +550,10 @@ public final class Core {
             return null;
         }
         BddNode bddNode = (BddNode) bdd;
-        if (bddNode.left.equals(BddAllOrNothing.bddAll())
-                && bddNode.middle.equals(BddAllOrNothing.bddNothing())
-                && bddNode.right.equals(BddAllOrNothing.bddNothing())) {
-            return env.mappingAtomType(bddNode.atom);
+        if (bddNode.left().equals(BddAllOrNothing.bddAll())
+                && bddNode.middle().equals(BddAllOrNothing.bddNothing())
+                && bddNode.right().equals(BddAllOrNothing.bddNothing())) {
+            return env.mappingAtomType(bddNode.atom());
         }
         return null;
     }
@@ -585,13 +585,13 @@ public final class Core {
     public static SemType cellInner(CellSemType t) {
         CellAtomicType cat = cellAtomicType(t);
         assert cat != null;
-        return cat.ty;
+        return cat.ty();
     }
 
     public static CellSemType cellContainingInnerVal(Env env, CellSemType t) {
         CellAtomicType cat = cellAtomicType(t);
         assert cat != null;
-        return cellContaining(env, diff(cat.ty, UNDEF), cat.mut);
+        return cellContaining(env, diff(cat.ty(), UNDEF), cat.mut());
     }
 
     public static CellAtomicType cellAtomicType(SemType t) {
@@ -613,10 +613,10 @@ public final class Core {
             return null;
         }
         BddNode bddNode = (BddNode) bdd;
-        if (bddNode.left.equals(BddAllOrNothing.bddAll()) &&
-                bddNode.middle.equals(BddAllOrNothing.bddNothing()) &&
-                bddNode.right.equals(BddAllOrNothing.bddNothing())) {
-            return cellAtomType(bddNode.atom);
+        if (bddNode.left().equals(BddAllOrNothing.bddAll()) &&
+                bddNode.middle().equals(BddAllOrNothing.bddNothing()) &&
+                bddNode.right().equals(BddAllOrNothing.bddNothing())) {
+            return cellAtomType(bddNode.atom());
         }
         return null;
     }

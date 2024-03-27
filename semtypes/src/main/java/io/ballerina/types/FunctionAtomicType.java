@@ -20,21 +20,11 @@ package io.ballerina.types;
 /**
  * FunctionAtomicType node.
  *
+ * @param paramType semtype of parameters represented as a tuple
+ * @param retType semtype of the return value
  * @since 2201.8.0
  */
-public class FunctionAtomicType implements AtomicType {
-    public final SemType paramType;
-    public final SemType retType;
-
-    private FunctionAtomicType(SemType paramType, SemType retType) {
-        this.paramType = paramType;
-        this.retType = retType;
-    }
-
-    @Override
-    public String toString() {
-        return "FunctionAtomicType{paramType=" + paramType + ", retType=" + retType + '}';
-    }
+public record FunctionAtomicType(SemType paramType, SemType retType) implements AtomicType {
 
     public static FunctionAtomicType from(SemType paramType , SemType rest) {
         return new FunctionAtomicType(paramType, rest);

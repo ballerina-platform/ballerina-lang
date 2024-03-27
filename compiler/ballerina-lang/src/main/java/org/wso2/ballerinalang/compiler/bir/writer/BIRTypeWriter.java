@@ -661,7 +661,7 @@ public class BIRTypeWriter extends TypeVisitor {
     }
 
     private void writeBddNode(BddNode bddNode) {
-        Atom atom = bddNode.atom;
+        Atom atom = bddNode.atom();
         boolean isRecAtom = atom instanceof RecAtom;
         if (isRecAtom) {
             RecAtom recAtom = (RecAtom) atom;
@@ -693,14 +693,14 @@ public class BIRTypeWriter extends TypeVisitor {
         } else {
             buff.writeBoolean(false);
             TypeAtom typeAtom = (TypeAtom) atom;
-            visitedAtoms.add(typeAtom.index);
-            buff.writeInt(typeAtom.index);
-            AtomicType atomicType = typeAtom.atomicType;
+            visitedAtoms.add(typeAtom.index());
+            buff.writeInt(typeAtom.index());
+            AtomicType atomicType = typeAtom.atomicType();
             writeAtomicType(atomicType);
         }
-        writeBdd(bddNode.left);
-        writeBdd(bddNode.middle);
-        writeBdd(bddNode.right);
+        writeBdd(bddNode.left());
+        writeBdd(bddNode.middle());
+        writeBdd(bddNode.right());
     }
 
     private void writeAtomicType(AtomicType atomicType) {
@@ -712,40 +712,40 @@ public class BIRTypeWriter extends TypeVisitor {
             writeListAtomicType(listAtomicType);
         } else if (atomicType instanceof FunctionAtomicType functionAtomicType) {
             buff.writeByte(3);
-            writeSemType(functionAtomicType.paramType);
-            writeSemType(functionAtomicType.retType);
+            writeSemType(functionAtomicType.paramType());
+            writeSemType(functionAtomicType.retType());
         } else if (atomicType instanceof CellAtomicType cellAtomicType) {
             buff.writeByte(4);
-            writeSemType(cellAtomicType.ty);
-            buff.writeByte(cellAtomicType.mut.ordinal());
+            writeSemType(cellAtomicType.ty());
+            buff.writeByte(cellAtomicType.mut().ordinal());
         } else {
             throw new UnsupportedOperationException("Unexpected atomic type " + atomicType);
         }
     }
 
     private void writeMappingAtomicType(MappingAtomicType mat) {
-        String[] names = mat.names;
+        String[] names = mat.names();
         buff.writeInt(names.length);
         for (String name : names) {
             buff.writeInt(addStringCPEntry(name));
         }
-        CellSemType[] types = mat.types;
+        CellSemType[] types = mat.types();
         buff.writeInt(types.length);
         for (CellSemType type : types) {
             writeSemType(type);
         }
-        writeSemType(mat.rest);
+        writeSemType(mat.rest());
     }
 
     private void writeListAtomicType(ListAtomicType lat) {
-        FixedLengthArray fla = lat.members;
-        List<CellSemType> initial = fla.initial;
+        FixedLengthArray fla = lat.members();
+        List<CellSemType> initial = fla.initial();
         buff.writeInt(initial.size());
         for (SemType type : initial) {
             writeSemType(type);
         }
-        buff.writeInt(fla.fixedLength);
-        writeSemType(lat.rest);
+        buff.writeInt(fla.fixedLength());
+        writeSemType(lat.rest());
     }
 
     private void writeIntSubtype(IntSubtype intSubtype) {

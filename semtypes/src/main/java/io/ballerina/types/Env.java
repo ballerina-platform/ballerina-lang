@@ -100,7 +100,7 @@ public class Env {
                 return ta;
             } else {
                 TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
-                this.atomTable.put(result.atomicType, result);
+                this.atomTable.put(result.atomicType(), result);
                 return result;
             }
         }
@@ -119,6 +119,7 @@ public class Env {
     }
 
     private <E extends AtomicType> void insertAtomAtIndexInner(int index, List<E> atoms, E atomicType) {
+        // atoms are always private final fields therefore synchronizing on them should be safe.
         synchronized (atoms) {
             if (atoms.size() > index && atoms.get(index) != null) {
                 return;
@@ -134,7 +135,7 @@ public class Env {
         if (atom instanceof RecAtom recAtom) {
             return getRecListAtomType(recAtom);
         } else {
-            return (ListAtomicType) ((TypeAtom) atom).atomicType;
+            return (ListAtomicType) ((TypeAtom) atom).atomicType();
         }
     }
 
@@ -142,7 +143,7 @@ public class Env {
         if (atom instanceof RecAtom recAtom) {
             return getRecFunctionAtomType(recAtom);
         } else {
-            return (FunctionAtomicType) ((TypeAtom) atom).atomicType;
+            return (FunctionAtomicType) ((TypeAtom) atom).atomicType();
         }
     }
 
@@ -150,7 +151,7 @@ public class Env {
         if (atom instanceof RecAtom recAtom) {
             return getRecMappingAtomType(recAtom);
         } else {
-            return (MappingAtomicType) ((TypeAtom) atom).atomicType;
+            return (MappingAtomicType) ((TypeAtom) atom).atomicType();
         }
     }
 
@@ -194,6 +195,10 @@ public class Env {
         synchronized (this.recMappingAtoms) {
             return this.recMappingAtoms.get(ra.index);
         }
+    }
+
+    public static CellAtomicType cellAtomType(Atom atom) {
+        return (CellAtomicType) ((TypeAtom) atom).atomicType();
     }
 
     public void addTypeDef(String typeName, SemType semType) {

@@ -17,6 +17,7 @@
  */
 package io.ballerina.types;
 
+import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.subtypedata.CellSubtype;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -24,9 +25,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.List;
+
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
+import static io.ballerina.types.PredefinedType.NEVER;
 
 /**
  * Tests subtyping rules of cell basic type.
@@ -60,6 +64,11 @@ public class CellTypeTest {
 
     private SemType tuple(SemType ty) {
         return SemTypes.tuple(ctx.env, new SemType[]{ty});
+    }
+
+    private SemType roTuple(SemType ty) {
+        ListDefinition ld = new ListDefinition();
+        return ld.define(ctx.env, List.of(ty), 1, NEVER, CELL_MUT_NONE);
     }
 
     private void assertSemTypeRelation(SemType t1, SemType t2, Relation relation) {
@@ -217,10 +226,10 @@ public class CellTypeTest {
                 // Set 3
                 {
                         SemTypes.union(
-                                cell(tuple(PredefinedType.INT), CELL_MUT_NONE),
-                                cell(tuple(PredefinedType.BOOLEAN), CELL_MUT_NONE)
+                                cell(roTuple(PredefinedType.INT), CELL_MUT_NONE),
+                                cell(roTuple(PredefinedType.BOOLEAN), CELL_MUT_NONE)
                         ),
-                        cell(tuple(SemTypes.union(PredefinedType.INT, PredefinedType.BOOLEAN)), CELL_MUT_NONE),
+                        cell(roTuple(SemTypes.union(PredefinedType.INT, PredefinedType.BOOLEAN)), CELL_MUT_NONE),
                         Relation.EQUAL
                 },
                 {
@@ -237,7 +246,7 @@ public class CellTypeTest {
                                 cell(tuple(PredefinedType.BOOLEAN), CELL_MUT_UNLIMITED)
                         ),
                         cell(tuple(SemTypes.union(PredefinedType.INT, PredefinedType.BOOLEAN)), CELL_MUT_UNLIMITED),
-                        Relation.EQUAL
+                        Relation.SUBTYPE
                 },
         };
     }

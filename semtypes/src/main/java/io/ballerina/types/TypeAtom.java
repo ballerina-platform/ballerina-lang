@@ -19,18 +19,12 @@ package io.ballerina.types;
 
 /**
  * Represent a TypeAtom.
- *
+ * @param index index of the type atom. This is unique within a given {@code Env}. {@code RecAtom}'s that refer to this
+ *              type atom will also have the same index.
+ * @param atomicType atomic type representing the actual type represented by this atom.
  * @since 2201.8.0
  */
-public class TypeAtom implements Atom {
-
-    public final int index;
-    public final AtomicType atomicType;
-
-    private TypeAtom(int index, AtomicType atomicType) {
-        this.index = index;
-        this.atomicType = atomicType;
-    }
+public record TypeAtom(int index, AtomicType atomicType) implements Atom {
 
     public static TypeAtom createTypeAtom(int index, AtomicType atomicType) {
         return new TypeAtom(index, atomicType);
@@ -39,19 +33,5 @@ public class TypeAtom implements Atom {
     @Override
     public int hashCode() {
         return index;
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof TypeAtom typeAtom) {
-            return typeAtom.index == this.index;
-        }
-        return false;
-    }
-
-    @Override
-    public String toString() {
-        return "TypeAtom{" + "index=" + index + ", atomicType=" + atomicType + '}';
     }
 }

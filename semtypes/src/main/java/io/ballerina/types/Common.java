@@ -55,9 +55,9 @@ public class Common {
             return !allOrNothing.isAll() || predicate.apply(cx, pos, neg);
         } else {
             BddNode bn = (BddNode) b;
-            return bddEvery(cx, bn.left, and(bn.atom, pos), neg, predicate)
-                    && bddEvery(cx, bn.middle, pos, neg, predicate)
-                    && bddEvery(cx, bn.right, pos, and(bn.atom, neg), predicate);
+            return bddEvery(cx, bn.left(), and(bn.atom(), pos), neg, predicate)
+                    && bddEvery(cx, bn.middle(), pos, neg, predicate)
+                    && bddEvery(cx, bn.right(), pos, and(bn.atom(), neg), predicate);
         }
     }
 
@@ -67,9 +67,9 @@ public class Common {
             return !allOrNothing.isAll() || predicate.apply(cx, pos, neg);
         } else {
             BddNode bn = (BddNode) b;
-            return bddEveryPositive(cx, bn.left, andIfPositive(bn.atom, pos), neg, predicate)
-                    && bddEveryPositive(cx, bn.middle, pos, neg, predicate)
-                    && bddEveryPositive(cx, bn.right, pos, andIfPositive(bn.atom, neg), predicate);
+            return bddEveryPositive(cx, bn.left(), andIfPositive(bn.atom(), pos), neg, predicate)
+                    && bddEveryPositive(cx, bn.middle(), pos, neg, predicate)
+                    && bddEveryPositive(cx, bn.right(), pos, andIfPositive(bn.atom(), neg), predicate);
         }
     }
 
@@ -187,7 +187,7 @@ public class Common {
                     throw new AssertionError("Unexpected memo status: " + res);
             }
         } else {
-            m = BddMemo.from(b);
+            m = new BddMemo();
             cx.listMemo.put(b, m);
         }
         m.isEmpty = BddMemo.MemoStatus.PROVISIONAL;
@@ -203,9 +203,8 @@ public class Common {
                     cx.memoStack.get(i).isEmpty = isEmpty ? BddMemo.MemoStatus.TRUE : BddMemo.MemoStatus.NULL;
                 }
             }
-            // TODO: think of a more efficient way to do this
             while (cx.memoStack.size() > initStackDepth) {
-                cx.memoStack.remove(cx.memoStack.size() - 1);
+                cx.memoStack.subList(initStackDepth, cx.memoStack.size()).clear();
             }
             // The only way that we have found that this can be empty is by going through a loop.
             // This means that the shapes in the type would all be infinite.

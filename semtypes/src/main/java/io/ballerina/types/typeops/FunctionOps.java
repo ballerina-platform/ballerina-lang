@@ -57,8 +57,8 @@ public class FunctionOps extends CommonOps implements BasicTypeOps {
             return false;
         } else {
             FunctionAtomicType t = cx.functionAtomType(neg.atom);
-            SemType t0 = t.paramType;
-            SemType t1 = t.retType;
+            SemType t0 = t.paramType();
+            SemType t1 = t.retType();
             return (Core.isSubtype(cx, t0, params) && functionPhi(cx, t0, Core.complement(t1), pos))
                     || functionPathIsEmpty(cx, params, pos, neg.next);
         }
@@ -69,8 +69,8 @@ public class FunctionOps extends CommonOps implements BasicTypeOps {
             return Core.isEmpty(cx, t0) || Core.isEmpty(cx, t1);
         } else {
             FunctionAtomicType s = cx.functionAtomType(pos.atom);
-            SemType s0 = s.paramType;
-            SemType s1 = s.retType;
+            SemType s0 = s.paramType();
+            SemType s1 = s.retType();
             return (Core.isSubtype(cx, t0, s0)
                     || Core.isSubtype(cx, functionIntersectRet(cx, pos.next), Core.complement(t1)))
                     && functionPhi(cx, t0, Core.intersect(t1, s1), pos.next)
@@ -82,14 +82,14 @@ public class FunctionOps extends CommonOps implements BasicTypeOps {
         if (pos == null) {
             return PredefinedType.NEVER;
         }
-        return Core.union(cx.functionAtomType(pos.atom).paramType, functionUnionParams(cx, pos.next));
+        return Core.union(cx.functionAtomType(pos.atom).paramType(), functionUnionParams(cx, pos.next));
     }
 
     private static SemType functionIntersectRet(Context cx, Conjunction pos) {
         if (pos == null) {
             return PredefinedType.VAL;
         }
-        return Core.intersect(cx.functionAtomType(pos.atom).retType, functionIntersectRet(cx, pos.next));
+        return Core.intersect(cx.functionAtomType(pos.atom).retType(), functionIntersectRet(cx, pos.next));
     }
 
     private boolean functionTheta(Context cx, SemType t0, SemType t1, Conjunction pos) {
@@ -98,8 +98,8 @@ public class FunctionOps extends CommonOps implements BasicTypeOps {
         } else {
             // replaces the SemType[2] [s0, s1] in nballerina where s0 = paramType, s1 = retType
             FunctionAtomicType s = cx.functionAtomType(pos.atom);
-            SemType s0 = s.paramType;
-            SemType s1 = s.retType;
+            SemType s0 = s.paramType();
+            SemType s1 = s.retType();
             return (Core.isSubtype(cx, t0, s0) || functionTheta(cx, Core.diff(s0, t0), s1, pos.next))
                     && (Core.isSubtype(cx, t1, Core.complement(s1))
                     || functionTheta(cx, s0, Core.intersect(s1, t1), pos.next));
