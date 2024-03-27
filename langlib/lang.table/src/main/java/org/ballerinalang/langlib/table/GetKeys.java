@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * Extern function to get key arrays from the table.
@@ -45,35 +45,35 @@ public class GetKeys {
         Type tableKeyType = tbl.getKeyType();
         Object[] keys = tbl.getKeys();
         switch (tableKeyType.getTag()) {
-            case TypeTags.BOOLEAN:
+            case TypeTags.BOOLEAN_TAG:
                 boolean[] boolArr  = new boolean[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
                     boolArr[i] = (boolean) key;
                 }
                 return ValueCreator.createArrayValue(boolArr);
-            case TypeTags.INT:
+            case TypeTags.INT_TAG:
                 long[] intArr  = new long[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
                     intArr[i] = (long) key;
                 }
                 return ValueCreator.createArrayValue(intArr);
-            case TypeTags.BYTE:
+            case TypeTags.BYTE_TAG:
                 byte[] byteArr  = new byte[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
                     byteArr[i] = (byte) key;
                 }
                 return ValueCreator.createArrayValue(byteArr);
-            case TypeTags.FLOAT:
+            case TypeTags.FLOAT_TAG:
                 double[] floatArr  = new double[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
                     floatArr[i] = (double) key;
                 }
                 return ValueCreator.createArrayValue(floatArr);
-            case TypeTags.STRING:
+            case TypeTags.STRING_TAG:
                 BString[] stringArr  = new BString[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];

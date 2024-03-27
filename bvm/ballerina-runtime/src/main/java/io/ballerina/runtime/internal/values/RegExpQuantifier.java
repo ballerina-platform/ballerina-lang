@@ -30,8 +30,8 @@ import io.ballerina.runtime.api.values.BLink;
  * @since 2201.3.0
  */
 public class RegExpQuantifier extends RegExpCommonValue {
-    private String quantifier;
-    private String nonGreedyChar;
+    private final String quantifier;
+    private final String nonGreedyChar;
 
     public RegExpQuantifier(String quantifier, String nonGreedyChar) {
         this.quantifier = quantifier;
