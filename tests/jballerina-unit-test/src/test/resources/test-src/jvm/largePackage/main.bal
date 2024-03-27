@@ -50,7 +50,7 @@ public function main() {
     r:BigRecord1 bigRecord1 = {};
     r:BigRecord2 bigRecord2 = {'\/workers\/workAssignments\/assignmentStatus\/statusCode\/codeValue: "hello"};
     r:BigRecord3 bigRecord3 = {};
-    test:assertEquals(bigRecord1.v2.toString(), "{\"a\":\"hello\",\"b1\":5,\"m1\":{\"a\":\"apple\"},\"d1\":[1,2,3],\"t\":[{\"id\":1,\"firstName\":\"Waruna\"}]}");
+    test:assertEquals(bigRecord1.v2.toString(), "{\"a\":\"hello\",\"m1\":{\"a\":\"apple\"},\"t\":[{\"id\":1,\"firstName\":\"Waruna\"}],\"d1\":[1,2,3],\"b1\":5}");
     test:assertEquals(bigRecord2?.'\/workers\/workAssignments\/assignmentStatus\/statusCode\/codeValue, "hello");
     test:assertEquals(bigRecord3?.'\/workers\/workAssignments\/assignmentStatus\/statusCode\/codeValue, "waruna");   
 }

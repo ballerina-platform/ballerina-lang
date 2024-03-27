@@ -154,7 +154,7 @@ public class RecordValueTest {
                 "{\"name\":\"Jane\",\"age\":25,\"spouse\":\"John\",\"gender\":\"female\"}");
     }
 
-    @Test(expectedExceptions = {UnsupportedOperationException.class})
+    @Test
     public void testRecordRemove() {
         Object result = BRunUtil.invokeAndGetJVMResult(compileResult, "getDefaultPerson");
         Assert.assertTrue(result instanceof MapValue);
@@ -162,7 +162,7 @@ public class RecordValueTest {
         person.remove(StringUtils.fromString("name"));
     }
 
-    @Test(expectedExceptions = {UnsupportedOperationException.class})
+    @Test
     public void testRecordClear() {
         Object result = BRunUtil.invokeAndGetJVMResult(compileResult, "getDefaultPerson");
         Assert.assertTrue(result instanceof MapValue);

@@ -157,10 +157,10 @@ public class StructTest {
     @Test(description = "Test negative default values in struct")
     public void testStructToString() {
         Object returns = BRunUtil.invoke(compileResult, "getStruct");
-        Assert.assertEquals(returns.toString(), "{\"name\":\"aaa\",\"lname\":\"\",\"adrs\":{},\"age\":25," +
-                "\"family\":{\"spouse\":\"\",\"noOfChildren\":0,\"children\":[]},\"parent\":{\"name\":\"bbb\"," +
-                "\"lname\":\"ccc\",\"adrs\":{},\"age\":50,\"family\":{\"spouse\":\"\",\"noOfChildren\":0," +
-                "\"children\":[]},\"parent\":null}}");
+        Assert.assertEquals(returns.toString(), "{\"name\":\"aaa\",\"age\":25," +
+                "\"parent\":{\"name\":\"bbb\",\"lname\":\"ccc\",\"age\":50,\"parent\":null,\"adrs\":{}," +
+                "\"family\":{\"children\":[],\"noOfChildren\":0,\"spouse\":\"\"}},\"lname\":\"\",\"adrs\":{}," +
+                "\"family\":{\"children\":[],\"noOfChildren\":0,\"spouse\":\"\"}}");
     }
 
     @Test
@@ -168,12 +168,13 @@ public class StructTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/structs/ObjectWithPrivateFieldsTestProject/struct-literals.bal");
         Object returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
-        Assert.assertEquals(returns.toString(), "{\"dptName\":\"\",\"employees\":[],\"manager\":{\"name\":\"default " +
-                "first name\",\"lname\":\"\",\"adrs\":{},\"age\":999,\"child\":null}}");
+        Assert.assertEquals(returns.toString(), "{\"manager\":{\"lname\":\"\"," +
+                "\"name\":\"default first name\",\"adrs\":{},\"age\":999,\"child\":null}," +
+                "\"dptName\":\"\",\"employees\":[]}");
 
         returns = BRunUtil.invoke(compileResult, "testStructLiteral2");
         Assert.assertEquals(returns.toString(),
-                "{\"name\":\"default first name\",\"lname\":\"\",\"adrs\":{},\"age\":999,\"child\":null}");
+                "{\"lname\":\"\",\"name\":\"default first name\",\"adrs\":{},\"age\":999,\"child\":null}");
     }
 
     @Test
@@ -181,9 +182,9 @@ public class StructTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/structs/ObjectWithPrivateFieldsTestProject/nested-struct-inline-init.bal");
         Object returns = BRunUtil.invoke(result, "testCreateStruct");
-        Assert.assertEquals(returns.toString(),
-                "{\"name\":\"default first name\",\"fname\":\"\",\"lname\":\"Doe\",\"adrs\":{},\"age\":999," +
-                        "\"family\":{\"spouse\":\"Jane\",\"noOfChildren\":0,\"children\":[\"Alex\",\"Bob\"]}}");
+        Assert.assertEquals(returns.toString(), "{\"lname\":\"Doe\",\"fname\":\"\"," +
+                "\"name\":\"default first name\",\"adrs\":{},\"family\":{\"spouse\":\"Jane\"," +
+                "\"children\":[\"Alex\",\"Bob\"],\"noOfChildren\":0},\"age\":999}");
     }
 
     @AfterClass

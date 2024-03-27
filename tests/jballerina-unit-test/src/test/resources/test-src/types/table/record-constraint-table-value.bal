@@ -530,8 +530,8 @@ function testTableTypeInferenceWithVarType2() {
     v1.add({...m});
     v1.add({a: true, c: 2, b: false});
 
-    assertEquality("[{\"a\":1},{\"a\":\"str\",\"b\":2},{\"a\":true,\"b\":false,\"c\":2}," +
-    "{\"a\":1},{\"a\":\"str\",\"b\":2},{\"a\":true,\"b\":false,\"c\":2}]", v1.toString());
+    assertEquality("[{\"a\":1},{\"a\":\"str\",\"b\":2},{\"a\":true,\"c\":2,\"b\":false},{\"a\":1}," +
+    "{\"a\":\"str\",\"b\":2},{\"a\":true,\"c\":2,\"b\":false}]", v1.toString());
 }
 
 function testTableTypeInferenceWithVarType3() {
@@ -581,8 +581,8 @@ function testTableTypeInferenceWithVarType5() {
     v1.add({...m});
     v1.add({[s1] : true, c: 2, [s2] : false});
 
-    assertEquality("[{\"a\":1},{\"a\":\"str\",\"b\":2},{\"a\":true,\"b\":false,\"c\":2},{\"a\":1}," +
-    "{\"a\":\"str\",\"b\":2},{\"a\":true,\"b\":false,\"c\":2}]", v1.toString());
+    assertEquality("[{\"a\":1},{\"a\":\"str\",\"b\":2},{\"c\":2,\"a\":true,\"b\":false},{\"a\":1}," +
+    "{\"a\":\"str\",\"b\":2},{\"c\":2,\"a\":true,\"b\":false}]", v1.toString());
 }
 
 type FooUnion int|string;

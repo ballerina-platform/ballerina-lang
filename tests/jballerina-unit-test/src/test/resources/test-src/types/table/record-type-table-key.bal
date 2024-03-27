@@ -85,7 +85,7 @@ type Employee1 record {
 type EmployeeTable table<Employee1> key<EmployeeId>;
 
 function testTableTypeWithMultiFieldKeys() {
-    string expected = "[{\"leaves\":10,\"firstname\":\"John\",\"lastname\":\"Wick\"}]";
+    string expected = "[{\"firstname\":\"John\",\"lastname\":\"Wick\",\"leaves\":10}]";
     table<Employee1> key<EmployeeId> t1 = table key(firstname,lastname) [{firstname: "John", lastname: "Wick", leaves: 10}];
     assertEquality(expected, t1.toString());
 

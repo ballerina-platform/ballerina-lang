@@ -134,22 +134,22 @@ public class ClosedRecordTest {
     @Test(description = "Test negative default values in record")
     public void testStructToString() {
         Object returns = BRunUtil.invoke(compileResult, "getStruct");
-        Assert.assertEquals(returns.toString(), "{\"name\":\"aaa\",\"lname\":\"\",\"adrs\":{},\"age\":25," +
-                "\"family\":{\"spouse\":\"\",\"noOfChildren\":0,\"children\":[]},\"parent\":{\"name\":\"bbb\"," +
-                "\"lname\":\"ccc\",\"adrs\":{},\"age\":50,\"family\":{\"spouse\":\"\",\"noOfChildren\":0," +
-                "\"children\":[]},\"parent\":null}}");
+        Assert.assertEquals(returns.toString(), "{\"name\":\"aaa\",\"age\":25,\"parent\":{\"name\":\"bbb\"," +
+                "\"lname\":\"ccc\",\"age\":50,\"parent\":null,\"adrs\":{},\"family\":{\"children\":[]," +
+                "\"noOfChildren\":0,\"spouse\":\"\"}},\"lname\":\"\",\"adrs\":{},\"family\":{\"children\":[]," +
+                "\"noOfChildren\":0,\"spouse\":\"\"}}");
     }
 
     @Test
     public void testStructLiteral() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/sealed_record_literals.bal");
         Object returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
-        Assert.assertEquals(returns.toString(), "{\"dptName\":\"\",\"employees\":[],\"manager\":{\"name\":\"default " +
-                "first name\",\"lname\":\"\",\"adrs\":{},\"age\":999,\"child\":null}}");
+        Assert.assertEquals(returns.toString(), "{\"manager\":{\"lname\":\"\",\"name\":\"default first " +
+                "name\",\"adrs\":{},\"age\":999,\"child\":null},\"dptName\":\"\",\"employees\":[]}");
 
         returns = BRunUtil.invoke(compileResult, "testStructLiteral2");
         Assert.assertEquals(returns.toString(),
-                "{\"name\":\"default first name\",\"lname\":\"\",\"adrs\":{},\"age\":999,\"child\":null}");
+                "{\"lname\":\"\",\"name\":\"default first name\",\"adrs\":{},\"age\":999,\"child\":null}");
     }
 
     @Test
@@ -157,8 +157,9 @@ public class ClosedRecordTest {
         CompileResult result = BCompileUtil.compile("test-src/record/nested_sealed_record_inline_init.bal");
         Object returns = BRunUtil.invoke(result, "testCreateStruct");
         Assert.assertEquals(returns.toString(),
-                "{\"name\":\"default first name\",\"fname\":\"\",\"lname\":\"Doe\",\"adrs\":{},\"age\":999," +
-                        "\"family\":{\"spouse\":\"Jane\",\"noOfChildren\":0,\"children\":[\"Alex\",\"Bob\"]}}");
+                "{\"lname\":\"Doe\",\"fname\":\"\",\"name\":\"default first name\",\"adrs\":{}," +
+                        "\"family\":{\"spouse\":\"Jane\",\"children\":[\"Alex\",\"Bob\"],\"noOfChildren\":0}," +
+                        "\"age\":999}");
     }
 
     @Test(description = "Negative test to test attaching functions to record literal")
@@ -177,8 +178,8 @@ public class ClosedRecordTest {
         Object returns = BRunUtil.invoke(compileResult, "testStructWithRecordKeyword");
 
         Assert.assertEquals(returns.toString(), "{\"name\":\"John\",\"lname\":\"Doe\"," +
-                "\"address\":{\"country\":\"USA\",\"state\":\"CA\"},\"age\":25,\"family\":{\"spouse\":\"\"," +
-                "\"noOfChildren\":0,\"children\":[]},\"parent\":null,\"designation\":\"Software Engineer\"}");
+                "\"address\":{\"country\":\"USA\",\"state\":\"CA\"},\"age\":25,\"designation\":\"Software Engineer\"," +
+                "\"parent\":null,\"family\":{\"children\":[],\"noOfChildren\":0,\"spouse\":\"\"}}");
     }
 
     @Test(description = "Test function pointer as a record field")

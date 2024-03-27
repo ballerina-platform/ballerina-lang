@@ -136,32 +136,31 @@ public class OpenRecordTest {
     @Test(description = "Test negative default values in record")
     public void testStructToString() {
         Object returns = BRunUtil.invoke(compileResult, "getStruct");
-        Assert.assertEquals(returns.toString(), "{\"name\":\"aaa\",\"lname\":\"\",\"adrs\":{},\"age\":25," +
-                "\"family\":{\"spouse\":\"\",\"noOfChildren\":0,\"children\":[]},\"parent\":{\"name\":\"bbb\"," +
-                "\"lname\":\"ccc\",\"adrs\":{},\"age\":50,\"family\":{\"spouse\":\"\",\"noOfChildren\":0," +
-                "\"children\":[]},\"parent\":null}}");
+        Assert.assertEquals(returns.toString(), "{\"name\":\"aaa\",\"age\":25,\"parent\":{\"name\":\"bbb\"," +
+                "\"lname\":\"ccc\",\"age\":50,\"parent\":null,\"adrs\":{},\"family\":{\"children\":[]," +
+                "\"noOfChildren\":0,\"spouse\":\"\"}},\"lname\":\"\",\"adrs\":{},\"family\":{\"children\":[]," +
+                "\"noOfChildren\":0,\"spouse\":\"\"}}");
     }
 
     @Test
     public void testStructLiteral() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_literals.bal");
         Object returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
-        Assert.assertEquals(returns.toString(), "{\"dptName\":\"\",\"employees\":[],\"manager\":{\"name\":\"default " +
-                "first name\",\"lname\":\"\",\"adrs\":{},\"age\":999,\"child\":null}}");
+        Assert.assertEquals(returns.toString(), "{\"manager\":{\"lname\":\"\",\"name\":\"default first " +
+                "name\",\"adrs\":{},\"age\":999,\"child\":null},\"dptName\":\"\",\"employees\":[]}");
 
         returns = BRunUtil.invoke(compileResult, "testStructLiteral2");
         Assert.assertEquals(returns.toString(),
-                "{\"name\":\"default first name\",\"lname\":\"\",\"adrs\":{},\"age\":999,\"child\":null}");
+                "{\"lname\":\"\",\"name\":\"default first name\",\"adrs\":{},\"age\":999,\"child\":null}");
     }
 
     @Test
     public void testStructLiteralInitFunc() {
         CompileResult result = BCompileUtil.compile("test-src/record/nested_record_inline_init.bal");
         Object returns = BRunUtil.invoke(result, "testCreateStruct");
-        Assert.assertEquals(returns.toString(),
-                "{\"name\":\"default first name\",\"fname\":\"\",\"lname\":\"Doe\",\"adrs\":{}," +
-                        "\"age\":999,\"family\":{\"spouse\":\"Jane\",\"noOfChildren\":0," +
-                        "\"children\":[\"Alex\",\"Bob\"]}}");
+        Assert.assertEquals(returns.toString(), "{\"lname\":\"Doe\",\"fname\":\"\"," +
+                "\"name\":\"default first name\",\"adrs\":{},\"family\":{\"spouse\":\"Jane\"," +
+                "\"children\":[\"Alex\",\"Bob\"],\"noOfChildren\":0},\"age\":999}");
     }
 
     @Test(description = "Negative test to test attaching functions to record literal")
@@ -188,10 +187,9 @@ public class OpenRecordTest {
 
         Assert.assertTrue(person.get(StringUtils.fromString("firstName")) instanceof BString);
         Assert.assertEquals(person.get(StringUtils.fromString("firstName")).toString(), "John");
-
-        Assert.assertEquals(person.toString(), "{\"name\":\"Foo\",\"lname\":\"\",\"adrs\":{},\"age\":25," +
-                "\"family\":{\"spouse\":\"\",\"noOfChildren\":0,\"children\":[]},\"parent\":null,\"mname\":\"Bar\"," +
-                "\"height\":5.9,\"firstName\":\"John\"}");
+        Assert.assertEquals(person.toString(), "{\"name\":\"Foo\",\"mname\":\"Bar\",\"age\":25," +
+                "\"height\":5.9,\"parent\":null,\"lname\":\"\",\"adrs\":{},\"family\":{\"children\":[]," +
+                "\"noOfChildren\":0,\"spouse\":\"\"},\"firstName\":\"John\"}");
     }
 
     @Test(description = "Test non-existent anydata or error rest field RHS index-based access")
