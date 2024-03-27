@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -57,6 +58,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.api.types.XmlNodeType.ELEMENT;
 import static io.ballerina.runtime.api.types.XmlNodeType.TEXT;
+import static io.ballerina.runtime.internal.TypeChecker.isEqual;
 
 /**
  * {@code XMLItem} represents a single XML element in Ballerina.
@@ -681,6 +683,31 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     @Override
     public int hashCode() {
         return Objects.hash(name, children, attributes, probableParents);
+    }
+
+    /**
+     * Deep equality check for XML Item.
+     *
+     * @param o The XML Item to be compared
+     * @param visitedValues Visited values due to circular references
+     * @return True if the XML Items are equal; False otherwise
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (o instanceof XmlItem rhsXMLItem) {
+            if (!(rhsXMLItem.getQName().equals(this.getQName()))) {
+                return false;
+            }
+            if (!(rhsXMLItem.getAttributesMap().entrySet().equals(this.getAttributesMap().entrySet()))) {
+                return false;
+            }
+            return isEqual(rhsXMLItem.getChildrenSeq(), this.getChildrenSeq());
+        }
+        if (o instanceof XmlSequence rhsXMLSequence) {
+            return rhsXMLSequence.getChildrenList().size() == 1 &&
+                    isEqual(this, rhsXMLSequence.getChildrenList().get(0));
+        }
+        return false;
     }
 
     private interface SetAttributeFunction {

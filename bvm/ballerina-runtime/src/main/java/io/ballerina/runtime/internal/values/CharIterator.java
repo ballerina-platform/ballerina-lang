@@ -63,5 +63,4 @@ public class CharIterator implements IteratorValue {
     public boolean hasNext() {
         return cursor < length;
     }
-
 }

@@ -30,7 +30,7 @@ import io.ballerina.runtime.api.values.BLink;
  * @since 2201.3.0
  */
 public class RegExpFlagOnOff extends RegExpCommonValue {
-    private String flags;
+    private final String flags;
 
     public RegExpFlagOnOff(String flags) {
         this.flags = flags;

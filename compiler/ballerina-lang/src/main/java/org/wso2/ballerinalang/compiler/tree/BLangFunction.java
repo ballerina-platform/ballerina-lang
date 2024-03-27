@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSendReceiveExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 
@@ -57,7 +58,7 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
     public BInvokableSymbol originalFuncSymbol;
 
-    public LinkedHashSet<String> sendsToThis = new LinkedHashSet<>();
+    public LinkedHashSet<BLangWorkerSendReceiveExpr.Channel> sendsToThis = new LinkedHashSet<>();
 
     // This only set when we encounter worker inside a fork statement.
     public String anonForkName;

@@ -26,6 +26,7 @@ import org.apache.axiom.om.OMNode;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * XML nodes containing atomic content such as text, comment and processing instructions.
@@ -115,6 +116,22 @@ public class XmlText extends XmlNonElementItem {
     @Override
     public boolean equals(Object obj) {
         return this == obj;
+    }
+
+    /**
+     * Deep equality check for XML Text.
+     *
+     * @param o The XML Text to be compared
+     * @param visitedValues Visited values in previous recursive calls
+     * @return True if the XML Texts are equal; False otherwise
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (o instanceof XmlText rhsXMLText) {
+            return this.getTextValue().equals(rhsXMLText.getTextValue());
+        }
+        return this.getType() == PredefinedTypes.TYPE_XML_NEVER && (o instanceof XmlSequence) &&
+                ((XmlSequence) o).getChildrenList().isEmpty();
     }
 
     @Override

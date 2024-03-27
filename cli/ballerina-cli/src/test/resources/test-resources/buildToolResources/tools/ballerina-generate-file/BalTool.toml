@@ -1,0 +1,5 @@
+[tool]
+id = "generate_file"
+
+[[dependency]]
+path = "./resources/generate-file-tool-0.1.0.jar"

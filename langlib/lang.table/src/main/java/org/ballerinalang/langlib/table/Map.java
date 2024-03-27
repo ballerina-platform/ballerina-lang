@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+import static org.ballerinalang.langlib.table.utils.Constants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table:map(table&lt;Type&gt;, function).

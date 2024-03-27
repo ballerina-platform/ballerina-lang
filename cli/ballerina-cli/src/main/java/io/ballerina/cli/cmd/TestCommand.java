@@ -23,7 +23,7 @@ import io.ballerina.cli.task.CleanTargetCacheDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
-import io.ballerina.cli.task.RunBallerinaPreBuildToolsTask;
+import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.task.RunNativeImageTestTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
@@ -133,7 +133,8 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "start in remote debugging mode")
     private String debugPort;
 
-    @CommandLine.Option(names = "--parallel", description = "enable parallel execution", defaultValue = "false")
+    @CommandLine.Option(names = "--parallel", description = "enable parallel execution of tests",
+            defaultValue = "false")
     private boolean isParallelExecution;
 
     @CommandLine.Option(names = "--list-groups", description = "list the groups available in the tests")
@@ -226,6 +227,9 @@ public class TestCommand implements BLauncherCmd {
 
         if (sticky == null) {
             sticky = false;
+        }
+        if (isParallelExecution) {
+            this.outStream.println("WARNING: Running tests in parallel is an experimental feature");
         }
 
         // load project
@@ -337,7 +341,7 @@ public class TestCommand implements BLauncherCmd {
         // Hence, below tasks are executed before extracting the module map from the project.
         TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
-                .addTask(new RunBallerinaPreBuildToolsTask(outStream), isSingleFile) // run build tools
+                .addTask(new RunBuildToolsTask(outStream), isSingleFile) // run build tools
                 .build();
         preBuildTaskExecutor.executeTasks(project);
 
