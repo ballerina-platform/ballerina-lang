@@ -77,6 +77,7 @@ public class RuntimeAPITest extends BaseTest {
         runCmdSet.add("org.ballerinalang.test.runtime.api.RuntimeAPICall");
         ProcessBuilder pb = new ProcessBuilder(runCmdSet);
         pb.redirectErrorStream(true);
+        bMainInstance.addJavaAgents(pb.environment());
         try {
             Process runProcess = pb.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
@@ -113,10 +114,11 @@ public class RuntimeAPITest extends BaseTest {
         runCmdSet.add("-cp");
         runCmdSet.add(getAllClassPaths(execJarPath));
         runCmdSet.add("org.ballerinalang.test.runtime.api.RuntimeAPICallNegative");
-        ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
-        runProcessBuilder.redirectErrorStream(true);
+        ProcessBuilder pb = new ProcessBuilder(runCmdSet);
+        pb.redirectErrorStream(true);
+        bMainInstance.addJavaAgents(pb.environment());
         try {
-            Process runProcess = runProcessBuilder.start();
+            Process runProcess = pb.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
             List<LogLeecher> leechers = new ArrayList<>();
             leechers.add(new LogLeecher("function 'add' is called before module initialization",
@@ -150,10 +152,11 @@ public class RuntimeAPITest extends BaseTest {
         runCmdSet.add("-cp");
         runCmdSet.add(getAllClassPaths(execJarPath));
         runCmdSet.add("org.ballerinalang.test.runtime.api.ModuleStartCallNegative");
-        ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
-        runProcessBuilder.redirectErrorStream(true);
+        ProcessBuilder pb = new ProcessBuilder(runCmdSet);
+        pb.redirectErrorStream(true);
+        bMainInstance.addJavaAgents(pb.environment());
         try {
-            Process runProcess = runProcessBuilder.start();
+            Process runProcess = pb.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", runProcess.getInputStream());
             List<LogLeecher> leechers = new ArrayList<>();
             leechers.add(new LogLeecher("'start' method is called before module initialization",
