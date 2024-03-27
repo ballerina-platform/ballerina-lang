@@ -2556,8 +2556,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
 
                 dlog.resetErrorCount();
-                BType memCompatibiltyType =
-                        checkMappingConstructorCompatibility(listCompatibleMemType, mappingConstructor, data);
+                BType memCompatibiltyType = checkMappingConstructorCompatibility(listCompatibleMemType,
+                                                                                 mappingConstructor, data);
 
                 if (memCompatibiltyType != symTable.semanticError && dlog.errorCount() == 0 &&
                         isUniqueType(compatibleTypes, memCompatibiltyType)) {
@@ -2575,7 +2575,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (!erroredExpType) {
                     reportIncompatibleMappingConstructorError(mappingConstructor, bType, data);
                 }
-                validateSpecifiedFields(mappingConstructor, symTable.semanticError, data);
+                checkExpr(mappingConstructor, symTable.noType, data);
                 return symTable.semanticError;
             } else if (compatibleTypes.size() != 1) {
                 dlog.error(mappingConstructor.pos, DiagnosticErrorCode.AMBIGUOUS_TYPES, bType);
@@ -7900,11 +7900,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
                 fieldType = validMapKey ? ((BMapType) mappingType).constraint : symTable.semanticError;
                 break;
-           case TypeTags.SEMANTIC_ERROR:
-               if (keyValueField) {
-                   BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
-                   checkValidJsonOrMapLiteralKeyExpr(key.expr, key.computedKey, data);
-               }
         }
 
 
@@ -7965,9 +7960,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         Name fieldName;
 
         if (computedKey) {
-            checkExpr(keyExpr, symTable.stringType, data);
-
-            if (keyExpr.getBType() == symTable.semanticError) {
+            if (exprIncompatible(symTable.stringType, keyExpr, data)) {
                 return new TypeSymbolPair(null, symTable.semanticError);
             }
 
@@ -8030,12 +8023,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private boolean checkValidJsonOrMapLiteralKeyExpr(BLangExpression keyExpr, boolean computedKey, AnalyzerData data) {
         if (computedKey) {
-            exprIncompatible(symTable.stringType, keyExpr, data);
-
-            if (keyExpr.getBType() == symTable.semanticError) {
-                return false;
-            }
-            return true;
+            return !exprIncompatible(symTable.stringType, keyExpr, data);
         } else if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
                 (keyExpr.getKind() == NodeKind.LITERAL && (keyExpr).getBType().tag == TypeTags.STRING)) {
             return true;

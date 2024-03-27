@@ -14,14 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import test_project.mod;
+import testorg/foo;
 
 type Rec record {
     string name;
 };
 
-public function main() {
-    map<string>? _ = {[mod:NAME]: "Amy"};
-    map<string>? _ = {[mod:NAME]: mod:NAME};
-    Rec? _ = {[mod:NAME]: mod:NAME};
+public function testUnAccessibleModuleConstInMappingConstructor() {
+    map<string> _ = {[foo:MAPPING_NAME]: "Amy"};
+    map<string>? _ = {[foo:MAPPING_NAME]: "Amy"};
+    map<string>? _ = {[foo:MAPPING_NAME]: foo:MAPPING_C};
+    Rec? _ = {[foo:MAPPING_NAME]: foo:MAPPING_C};
+    map<string>|Rec _ = {[foo:MAPPING_NAME]: foo:MAPPING_C};
 }

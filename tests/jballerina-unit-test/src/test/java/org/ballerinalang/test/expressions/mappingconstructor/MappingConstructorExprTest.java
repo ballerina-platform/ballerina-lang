@@ -97,6 +97,7 @@ public class MappingConstructorExprTest {
         validateError(result, index++, "undefined symbol 'NAME'", 69, 24);
         validateError(result, index++, "undefined symbol 'NAME'", 69, 32);
         validateError(result, index++, "missing non-defaultable required record field 'name'", 70, 34);
+        validateError(result, index++, "undefined symbol 'NAME'", 70, 36);
         validateError(result, index++, "undefined symbol 'NAME'", 70, 44);
         Assert.assertEquals(result.getErrorCount(), index);
     }
@@ -406,6 +407,8 @@ public class MappingConstructorExprTest {
                       33, 35);
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(Employee|Details)'", 34, 27);
+        validateError(compileResult, index++,
+                "incompatible types: expected 'readonly', found 'Details'", 34, 64);
         validateError(compileResult, index++, "incompatible types: expected '(Employee & readonly)', found 'Employee'",
                       40, 18);
         validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
@@ -415,6 +418,8 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(map<string>|map<(Details|string)>)'",
                       55, 42);
+        validateError(compileResult, index++,
+                "incompatible types: expected 'readonly', found 'Details'", 55, 79);
         validateError(compileResult, index++,
                       "incompatible types: expected '(map<(Details|string)> & readonly)', " +
                               "found 'map<(Details|string)>'", 61, 18);
@@ -427,12 +432,20 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++, "incompatible mapping constructor expression for type '(" +
                 "record {| future<any>...; |}|NonReadOnlyFields)'", 78, 57);
         validateError(compileResult, index++,
+                "incompatible types: expected 'readonly', found 'future<int>'", 78, 67);
+        validateError(compileResult, index++,
+                "incompatible types: expected 'readonly', found 'stream<boolean>'", 78, 84);
+        validateError(compileResult, index++,
                       "incompatible types: expected '((any|error) & readonly)', found 'future<int>'", 81, 39);
         validateError(compileResult, index++,
                       "incompatible types: expected '((any|error) & readonly)', found 'stream<boolean>'", 81, 51);
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(map<(any|error)>|map<future<int>>)'",
                       82, 43);
+        validateError(compileResult, index++,
+                "incompatible types: expected 'readonly', found 'future<int>'", 82, 62);
+        validateError(compileResult, index++,
+                "incompatible types: expected 'readonly', found 'stream<boolean>'", 82, 74);
         validateError(compileResult, index++, "incompatible types: expected 'record {| int i; anydata...; |}', found " +
                 "'record {| readonly (Details & readonly) d1; readonly (Details & readonly) d2; " +
                 "record {| string str; |} d3; readonly record {| string str; readonly int count; |} & readonly d4; " +
