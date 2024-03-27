@@ -62,6 +62,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUIL
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
+import static javax.transaction.xa.XAResource.TMFAIL;
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
 
@@ -245,7 +246,7 @@ public class TransactionResourceManager {
      */
     //TODO:Comment for now, might need it for distributed transactions.
     public boolean prepare(String transactionId, String transactionBlockId) {
-        endXATransaction(transactionId, transactionBlockId);
+        endXATransaction(transactionId, transactionBlockId, false);
         if (transactionManagerEnabled) {
             return true;
         }
@@ -541,7 +542,7 @@ public class TransactionResourceManager {
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
      */
-    void endXATransaction(String transactionId, String transactionBlockId) {
+    void endXATransaction(String transactionId, String transactionBlockId, boolean abortOnly) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         if (transactionManagerEnabled) {
             Transaction trx = trxRegistry.get(combinedId);
@@ -569,7 +570,7 @@ public class TransactionResourceManager {
                     try {
                         XAResource xaResource = ctx.getXAResource();
                         if (xaResource != null) {
-                            ctx.getXAResource().end(xid, TMSUCCESS);
+                            xaResource.end(xid, abortOnly ? TMFAIL : TMSUCCESS);
                         }
                     } catch (XAException e) {
                         log.error("error in ending XA transaction " + transactionId + ":" + e.getMessage(), e);
