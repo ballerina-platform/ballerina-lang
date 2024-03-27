@@ -16,8 +16,6 @@
 
 package org.ballerinalang.test.runtime.api;
 
-import io.ballerina.projects.JarLibrary;
-import io.ballerina.projects.JarResolver;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -35,11 +33,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.StringJoiner;
 
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_HOME;
 
 /**
  * Test class to test the functionality of Ballerina runtime APIs for invoking functions.
@@ -80,7 +76,6 @@ public class RuntimeAPITest extends BaseTest {
         runCmdSet.add(getAllClassPaths(execJarPath));
         runCmdSet.add("org.ballerinalang.test.runtime.api.RuntimeAPICall");
         ProcessBuilder pb = new ProcessBuilder(runCmdSet);
-        bMainInstance.addJavaAgents(pb.environment());
         pb.redirectErrorStream(true);
         try {
             Process runProcess = pb.start();
@@ -119,7 +114,6 @@ public class RuntimeAPITest extends BaseTest {
         runCmdSet.add(getAllClassPaths(execJarPath));
         runCmdSet.add("org.ballerinalang.test.runtime.api.RuntimeAPICallNegative");
         ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
-        bMainInstance.addJavaAgents(runProcessBuilder.environment());
         runProcessBuilder.redirectErrorStream(true);
         try {
             Process runProcess = runProcessBuilder.start();
@@ -157,7 +151,6 @@ public class RuntimeAPITest extends BaseTest {
         runCmdSet.add(getAllClassPaths(execJarPath));
         runCmdSet.add("org.ballerinalang.test.runtime.api.ModuleStartCallNegative");
         ProcessBuilder runProcessBuilder = new ProcessBuilder(runCmdSet);
-        bMainInstance.addJavaAgents(runProcessBuilder.environment());
         runProcessBuilder.redirectErrorStream(true);
         try {
             Process runProcess = runProcessBuilder.start();
