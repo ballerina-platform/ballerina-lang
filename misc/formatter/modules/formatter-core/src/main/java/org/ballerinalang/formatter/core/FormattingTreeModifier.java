@@ -260,6 +260,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.isInlineRange;
 import static org.ballerinalang.formatter.core.FormatterUtils.sortImportDeclarations;
+import static org.ballerinalang.formatter.core.FormatterUtils.swapLeadingMinutiae;
 
 /**
  * A formatter implementation that updates the minutiae of a given tree according to the ballerina formatting
@@ -651,7 +652,8 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ImportDeclarationNode transform(ImportDeclarationNode importDeclarationNode) {
         boolean prevPreservedNewLine = env.hasPreservedNewline;
-        setPreserveNewline(false);
+        setPreserveNewline(importDeclarationNode.textRangeWithMinutiae().startOffset() == 0 &&
+                hasLeadingComments(importDeclarationNode));
         Token importKeyword = formatToken(importDeclarationNode.importKeyword(), 1, 0);
         setPreserveNewline(prevPreservedNewLine);
         boolean hasPrefix = importDeclarationNode.prefix().isPresent();
@@ -4785,6 +4787,10 @@ public class FormattingTreeModifier extends TreeModifier {
             NodeList<ImportDeclarationNode> importDeclarationNodes) {
         // moduleImports would collect only module level imports if grouping is enabled,
         // and would collect all imports otherwise
+        if (importDeclarationNodes.size() == 0) {
+            return importDeclarationNodes;
+        }
+        ImportDeclarationNode firstImport = importDeclarationNodes.get(0);
         List<ImportDeclarationNode> moduleImports = new ArrayList<>();
         List<ImportDeclarationNode> stdLibImports = new ArrayList<>();
         List<ImportDeclarationNode> thirdPartyImports = new ArrayList<>();
@@ -4818,6 +4824,11 @@ public class FormattingTreeModifier extends TreeModifier {
         imports.addAll(moduleImportNodes.stream().collect(Collectors.toList()));
         imports.addAll(stdLibImportNodes.stream().collect(Collectors.toList()));
         imports.addAll(thirdPartyImportNodes.stream().collect(Collectors.toList()));
+
+        if (hasLeadingComments(firstImport)) {
+            swapLeadingMinutiae(firstImport, imports);
+        }
+
         return NodeFactory.createNodeList(imports);
     }
 
@@ -4826,6 +4837,16 @@ public class FormattingTreeModifier extends TreeModifier {
                 functionArgumentNode.children().size() > 0) {
             SyntaxKind kind = functionArgumentNode.children().get(0).kind();
             if (kind == SyntaxKind.OBJECT_CONSTRUCTOR || kind == SyntaxKind.MAPPING_CONSTRUCTOR) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasLeadingComments(Node node) {
+        MinutiaeList minutiaeList = node.leadingMinutiae();
+        for (Minutiae minutiae: minutiaeList) {
+            if (minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE) {
                 return true;
             }
         }
