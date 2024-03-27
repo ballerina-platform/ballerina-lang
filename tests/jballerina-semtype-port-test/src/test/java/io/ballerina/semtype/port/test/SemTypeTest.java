@@ -131,29 +131,35 @@ public class SemTypeTest {
 
         List<SemTypeAssertionTransformer.TypeAssertion> tests = new ArrayList<>();
         for (File file : balFiles) {
-            String fileName = file.getAbsolutePath();
-            BCompileUtil.PackageSyntaxTreePair pair = BCompileUtil.compileSemType(fileName);
-            BLangPackage pkgNode = pair.bLangPackage;
-
-            List<BLangNode> typeAndClassDefs = new ArrayList<>();
-            typeAndClassDefs.addAll(pkgNode.constants);
-            typeAndClassDefs.addAll(pkgNode.typeDefinitions);
-            SemTypeResolver typeResolver = new SemTypeResolver();
-            Context typeCheckContext = Context.from(pkgNode.semtypeEnv);
-
-            List<SemTypeAssertionTransformer.TypeAssertion> assertions;
-            try {
-                typeResolver.defineSemTypes(typeAndClassDefs, typeCheckContext);
-                assertions = SemTypeAssertionTransformer.getTypeAssertionsFrom(fileName, pair.syntaxTree,
-                        pkgNode.semtypeEnv);
-            } catch (Exception e) {
-                assertions = new ArrayList<>(List.of(new SemTypeAssertionTransformer.TypeAssertion(
-                        null, fileName, null, null, null, e.getMessage()
-                )));
-            }
+            List<SemTypeAssertionTransformer.TypeAssertion> assertions = getTypeAssertions(file);
             tests.addAll(assertions);
         }
         return tests.toArray();
+    }
+
+    @NotNull
+    private static List<SemTypeAssertionTransformer.TypeAssertion> getTypeAssertions(File file) {
+        String fileName = file.getAbsolutePath();
+        BCompileUtil.PackageSyntaxTreePair pair = BCompileUtil.compileSemType(fileName);
+        BLangPackage pkgNode = pair.bLangPackage;
+
+        List<BLangNode> typeAndClassDefs = new ArrayList<>();
+        typeAndClassDefs.addAll(pkgNode.constants);
+        typeAndClassDefs.addAll(pkgNode.typeDefinitions);
+        SemTypeResolver typeResolver = new SemTypeResolver();
+        Context typeCheckContext = Context.from(pkgNode.semtypeEnv);
+
+        List<SemTypeAssertionTransformer.TypeAssertion> assertions;
+        try {
+            typeResolver.defineSemTypes(typeAndClassDefs, typeCheckContext);
+            assertions = SemTypeAssertionTransformer.getTypeAssertionsFrom(fileName, pair.syntaxTree,
+                    pkgNode.semtypeEnv);
+        } catch (Exception e) {
+            assertions = new ArrayList<>(List.of(new SemTypeAssertionTransformer.TypeAssertion(
+                    null, fileName, null, null, null, e.getMessage()
+            )));
+        }
+        return assertions;
     }
 
     public void listAllBalFiles(File file, List<File> balFiles) {
@@ -203,8 +209,6 @@ public class SemTypeTest {
         hashSet.add("anydata-tv.bal");
         hashSet.add("table-t.bal");
         hashSet.add("table2-t.bal");
-
-        hashSet.add("not1-tv.bal"); // diff operator not supported
         return hashSet;
     }
 
@@ -246,6 +250,13 @@ public class SemTypeTest {
                 Assert.assertTrue(SemTypes.isSubtype(tc, t2, t1), msg);
             });
         });
+    }
+
+    @Test(expectedExceptions = AssertionError.class)
+    public void shouldFailForIncorrectTestStructure() {
+        File wrongAssertionFile = resolvePath("test-src/type-rel-wrong.bal").toFile();
+        List<SemTypeAssertionTransformer.TypeAssertion> typeAssertions = getTypeAssertions(wrongAssertionFile);
+        testSemTypeAssertions(typeAssertions.get(0));
     }
 
     @Test(dataProvider = "type-rel-provider")

@@ -36,6 +36,7 @@ import org.testng.Assert;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -123,16 +124,38 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
     }
 
     private String[] splitAssertion(String str) {
+        if (ignoredCommentSet().contains(str)) {
+            return null;
+        }
         String[] parts = str.split(" ");
+
+        if (parts[1].equals("-@type")) {
+            // TODO: remove this check once diff operator is supported
+            return null;
+        }
+
         // Only accept the form: `//` `@type` T1 REL T2
         if (!parts[1].equals("@type") || parts.length != 5) {
-            return null;
+            throw new IllegalStateException("Invalid type assertion '" + str +
+                    "', expected in form: '// @type T1 REL T2'");
         }
         return Arrays.copyOfRange(parts, 2, 5);
     }
 
-     @Override
-     protected void visitSyntaxNode(Node node) {
+    /**
+     * Returns a set of comments that are to be ignored during the processing.
+     * These comments include non-essential information or comments that do not conform to the expected format.
+     *
+     * @return Set of comments to be ignored.
+     */
+    public final HashSet<String> ignoredCommentSet() {
+        HashSet<String> hashSet = new HashSet<>();
+        hashSet.add("// the order of type defns are intentional");
+        return hashSet;
+    }
+
+    @Override
+    protected void visitSyntaxNode(Node node) {
         addComments(node.leadingMinutiae());
         addComments(node.trailingMinutiae());
     }
