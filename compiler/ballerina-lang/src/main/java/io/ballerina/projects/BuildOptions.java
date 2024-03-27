@@ -107,6 +107,10 @@ public class BuildOptions {
         return this.compilationOptions.runtimeManagementIncluded();
     }
 
+    public boolean enableServiceCatalog() {
+        return this.compilationOptions.enableServiceCatalog();
+    }
+
     CompilationOptions compilationOptions() {
         return this.compilationOptions;
     }
@@ -200,6 +204,7 @@ public class BuildOptions {
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
         buildOptionsBuilder.setRuntimeManagementIncluded(compilationOptions.runtimeManagementIncluded);
+        buildOptionsBuilder.setEnableServiceCatalog(compilationOptions.enableServicecatalog);
 
         return buildOptionsBuilder.build();
     }
@@ -394,6 +399,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setRuntimeManagementIncluded(Boolean value) {
             compilationOptionsBuilder.setRuntimeManagementIncluded(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setEnableServiceCatalog(Boolean value) {
+            compilationOptionsBuilder.setEnableServiceCatalog(value);
             return this;
         }
 

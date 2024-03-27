@@ -159,6 +159,10 @@ public class BuildCommand implements BLauncherCmd {
             "the executable JAR file(s).")
     private Boolean runtimeManagementIncluded;
 
+    @CommandLine.Option(names = "--enable-service-catalog", description = "package service management tools " +
+            "for WSO2 API manager in the executable JAR file(s).")
+    private Boolean enableServiceCatalog;
+
     @CommandLine.Option(names = "--list-conflicted-classes",
             description = "list conflicted classes when generating executable")
     private Boolean listConflictedClasses;
@@ -306,6 +310,7 @@ public class BuildCommand implements BLauncherCmd {
                 .setObservabilityIncluded(observabilityIncluded)
                 .setCloud(cloud)
                 .setRuntimeManagementIncluded(runtimeManagementIncluded)
+                .setEnableServicecatalog(enableServiceCatalog)
                 .setDumpBir(dumpBIR)
                 .setDumpBirFile(dumpBIRFile)
                 .setDumpGraph(dumpGraph)

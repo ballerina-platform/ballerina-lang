@@ -118,7 +118,8 @@ public class PackageUtils {
                 .setDumpGraph(false)
                 .setDumpRawGraphs(false)
                 .setConfigSchemaGen(false)
-                .setRuntimeManagementIncluded(false);
+                .setRuntimeManagementIncluded(false)
+                .setEnableServiceCatalog(false);
 
         return buildOptionsBuilder.build();
     }
