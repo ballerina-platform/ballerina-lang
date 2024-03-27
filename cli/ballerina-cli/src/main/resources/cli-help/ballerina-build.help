@@ -63,7 +63,7 @@ OPTIONS
            Include the dependencies that are required to enable runtime package
            management service.
 
-       --enable-service-catalog
+       --enable-service-publish
           Include the dependencies that are required to enable runtime package
           management service for WSO2 API manager.
 

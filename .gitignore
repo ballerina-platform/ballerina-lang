@@ -55,4 +55,3 @@ gradle-app.setting
 
 # code coverage reports
 /.jacoco
-bin

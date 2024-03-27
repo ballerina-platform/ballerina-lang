@@ -225,9 +225,9 @@ public class CompilationOptions {
             compilationOptionsBuilder.setRuntimeManagementIncluded(this.runtimeManagementIncluded);
         }
         if (theirOptions.enableServicePublish != null) {
-            compilationOptionsBuilder.setEnableServicecatalog(theirOptions.enableServicePublish);
+            compilationOptionsBuilder.setEnableServicePublish(theirOptions.enableServicePublish);
         } else {
-            compilationOptionsBuilder.setEnableServicecatalog(this.enableServicePublish);
+            compilationOptionsBuilder.setEnableServicePublish(this.enableServicePublish);
         }
         return compilationOptionsBuilder.build();
     }

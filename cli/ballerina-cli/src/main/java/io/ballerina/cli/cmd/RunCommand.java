@@ -90,7 +90,7 @@ public class RunCommand implements BLauncherCmd {
             "executable when run is used with a source file or a module.")
     private Boolean runtimeManagementIncluded;
 
-    @CommandLine.Option(names = "--enable-service-catalog", description = "package management service in the " +
+    @CommandLine.Option(names = "--enable-service-publish", description = "package management service in the " +
             "executable for WSO2 API manager when run is used with a source file or a module.")
     private Boolean enableServicePublish;
 

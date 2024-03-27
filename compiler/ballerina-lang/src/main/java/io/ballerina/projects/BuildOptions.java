@@ -204,7 +204,7 @@ public class BuildOptions {
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
         buildOptionsBuilder.setRuntimeManagementIncluded(compilationOptions.runtimeManagementIncluded);
-        buildOptionsBuilder.setEnableServicePublish(compilationOptions.enableServiceCatalog);
+        buildOptionsBuilder.setEnableServicePublish(compilationOptions.enableServicePublish);
 
         return buildOptionsBuilder.build();
     }
