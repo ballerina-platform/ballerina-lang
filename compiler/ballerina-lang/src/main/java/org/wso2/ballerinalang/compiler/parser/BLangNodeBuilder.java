@@ -665,13 +665,12 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         // Generate other module-level declarations
         for (ModuleMemberDeclarationNode member : modulePart.members()) {
+            TopLevelNode node = (TopLevelNode) member.apply(this);
             if (member.kind() == SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION) {
-                BLangXMLNS bLangXMLNS = (BLangXMLNS) member.apply(this);
+                BLangXMLNS bLangXMLNS = (BLangXMLNS) node;
                 bLangXMLNS.compUnit = compUnit;
-                compilationUnit.addTopLevelNode(bLangXMLNS);
-            } else {
-                compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
             }
+            compilationUnit.addTopLevelNode(node);
         }
 
         Location newLocation = new BLangDiagnosticLocation(pos.lineRange().fileName(), 0, 0, 0, 0, 0, 0);

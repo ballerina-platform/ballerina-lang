@@ -225,7 +225,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return true;
         }
 
-        if (symbol.tag == SymTag.XMLNS && isXmlnsInDifferentCompUnit((BXMLNSSymbol) symbol, (BXMLNSSymbol) foundSym)) {
+        if (symbol.tag == SymTag.XMLNS && isDistinctXMLNSSymbol((BXMLNSSymbol) symbol, (BXMLNSSymbol) foundSym)) {
             return true;
         }
 
@@ -2651,11 +2651,17 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
     }
 
-    private boolean isXmlnsInDifferentCompUnit(BXMLNSSymbol symbol, BXMLNSSymbol foundSym) {
-        if (foundSym.compUnit != null && symbol.compUnit != null) {
-            return !foundSym.compUnit.value.equals(symbol.compUnit.value);
+    private boolean isDistinctXMLNSSymbol(BXMLNSSymbol symbol, BXMLNSSymbol foundSym) {
+        Name foundSymCompUnit = foundSym.compUnit;
+        Name symbolCompUnit = symbol.compUnit;
+        boolean isFoundSymModuleXmlns = foundSymCompUnit != null;
+        boolean isSymModuleXmlns = symbolCompUnit != null;
+        if (isFoundSymModuleXmlns && isSymModuleXmlns) {
+            return !foundSymCompUnit.value.equals(symbolCompUnit.value);
         }
-        return foundSym.compUnit == null ^ symbol.compUnit == null;
+        // If only one of the symbols have a compUnit then it is a module level xmlns and the symbols are distinct.
+        // If they both don't have a compUnit then it is a redeclared prefix.
+        return isFoundSymModuleXmlns || isSymModuleXmlns;
     }
 
     /**
