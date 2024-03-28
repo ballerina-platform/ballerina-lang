@@ -25,10 +25,7 @@ public class Artifact {
     public final Map<String, Object> details;
 
     public enum ArtifactType {
-        SERVICE,
-//        CONFIGURABLE,
-//        LOG,
-//        OBSERVABILITY
+        SERVICE
     }
 
     public Artifact(String name, ArtifactType type) {
@@ -37,7 +34,7 @@ public class Artifact {
         this.details = new HashMap<>();
     }
 
-    void addDetail(String detailsKey, Object value) {
+    public void addDetail(String detailsKey, Object value) {
         this.details.put(detailsKey, value);
     }
 

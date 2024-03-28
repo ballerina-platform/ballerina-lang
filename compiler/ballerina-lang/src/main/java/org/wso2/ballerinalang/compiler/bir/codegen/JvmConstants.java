@@ -227,7 +227,7 @@ public class JvmConstants {
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
     public static final String REG_EXP_FACTORY = "io/ballerina/runtime/internal/regexp/RegExpFactory";
 
-    public static final String RUNTIME_REPOSITORY = "io/ballerina/runtime/internal/RuntimeRepository";
+    public static final String RUNTIME_REPOSITORY = "io/ballerina/runtime/internal/RepositoryImpl";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
