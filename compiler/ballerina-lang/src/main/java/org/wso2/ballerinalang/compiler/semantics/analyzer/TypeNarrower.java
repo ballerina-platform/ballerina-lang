@@ -393,7 +393,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         } else if (union.size() == 1) {
             return union.toArray(new BType[1])[0];
         }
-        return BUnionType.create(null, union);
+        return BUnionType.create(symTable.typeEnv(), null, union);
     }
 
     BVarSymbol getOriginalVarSymbol(BVarSymbol varSymbol) {

@@ -59,7 +59,7 @@ public class BasicTypeCode {
     static final int VT_MASK = (1 << VT_COUNT) - 1;
 
     static final int VT_COUNT_INHERENTLY_IMMUTABLE = 0x0A;
-    static final int VT_INHERENTLY_IMMUTABLE = (1 << VT_COUNT_INHERENTLY_IMMUTABLE) - 1;
+    public static final int VT_INHERENTLY_IMMUTABLE = (1 << VT_COUNT_INHERENTLY_IMMUTABLE) - 1;
 
     public final int code;
 

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Env;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -36,8 +37,8 @@ public class BAnydataType extends BUnionType {
     private boolean nullable;
     private static final int INITIAL_CAPACITY = 10;
 
-    public BAnydataType(BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
-        super(tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
+    public BAnydataType(Env env, BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
+        super(env, tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
         this.tag = TypeTags.ANYDATA;
         this.flags = flags;
         this.name = name;
@@ -46,7 +47,7 @@ public class BAnydataType extends BUnionType {
     }
 
     public BAnydataType(BUnionType type) {
-        super(type.tsymbol, new LinkedHashSet<>(type.memberTypes.size()), type.isNullable(),
+        super(type.env, type.tsymbol, new LinkedHashSet<>(type.memberTypes.size()), type.isNullable(),
                 Symbols.isFlagOn(type.flags, Flags.READONLY));
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
@@ -57,7 +58,7 @@ public class BAnydataType extends BUnionType {
     }
 
     public BAnydataType(BAnydataType type, boolean nullable) {
-        super(type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable,
+        super(type.env, type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable,
                 Symbols.isFlagOn(type.flags, Flags.READONLY));
         this.flags = type.flags;
         this.tag = TypeTags.ANYDATA;

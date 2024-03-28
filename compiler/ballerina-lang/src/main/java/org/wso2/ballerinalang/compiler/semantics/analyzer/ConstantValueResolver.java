@@ -1026,8 +1026,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                                                                Names.EMPTY, env.enclPkg.symbol.pkgID, null,
                                                                env.scope.owner, pos, VIRTUAL);
 
-        return ImmutableTypeCloner.getImmutableIntersectionType(pos, types, new BTupleType(tupleTypeSymbol, tupleTypes),
-                                                                env, symTable, anonymousModelHelper, names,
-                                                                new HashSet<>());
+        return ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
+                new BTupleType(symTable.typeEnv(), tupleTypeSymbol, tupleTypes), env, symTable, anonymousModelHelper,
+                names, new HashSet<>());
     }
 }

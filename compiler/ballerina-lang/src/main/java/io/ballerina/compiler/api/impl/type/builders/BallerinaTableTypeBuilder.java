@@ -165,7 +165,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
             tupleMembers.add(new BTupleMember(constraintType, varSymbol));
         }
 
-        return new BTupleType(tupleMembers);
+        return new BTupleType(symTable.typeEnv(), tupleMembers);
     }
 
     private BType checkKeyConstraintBType(TypeSymbol keyType, TypeSymbol rowType) {

@@ -2224,7 +2224,8 @@ public class BIRGen extends BLangNodeVisitor {
         BLangArrayLiteral dataLiteral = new BLangArrayLiteral();
         dataLiteral.pos = tableConstructorExpr.pos;
         dataLiteral.setBType(
-                new BArrayType(((BTableType) Types.getImpliedType(tableConstructorExpr.getBType())).constraint));
+                new BArrayType(symTable.typeEnv(),
+                        ((BTableType) Types.getImpliedType(tableConstructorExpr.getBType())).constraint));
         dataLiteral.exprs = new ArrayList<>(tableConstructorExpr.recordLiteralList);
         dataLiteral.accept(this);
         BIROperand dataOp = this.env.targetOperand;

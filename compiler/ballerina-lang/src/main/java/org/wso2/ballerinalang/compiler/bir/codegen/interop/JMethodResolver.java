@@ -327,7 +327,8 @@ class JMethodResolver {
         } else if (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue) {
             String errorMsgPart;
             if (returnType instanceof BUnionType bUnionReturnType) {
-                BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
+                BType modifiedRetType =
+                        BUnionType.create(symbolTable.typeEnv(), null, getNonErrorMembers(bUnionReturnType));
                 errorMsgPart = "expected '" + modifiedRetType + "', found '" + returnType + "'";
             } else {
                 errorMsgPart = "no return type expected but found '" + returnType + "'";
@@ -344,7 +345,8 @@ class JMethodResolver {
                 ((BTypeReferenceType) retType).referredType.tag == TypeTags.ERROR)) {
             return "error";
         } else if (retType instanceof BUnionType bUnionReturnType) {
-            BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
+            BType modifiedRetType =
+                    BUnionType.create(symbolTable.typeEnv(), null, getNonErrorMembers(bUnionReturnType));
             return modifiedRetType + "|error";
         } else {
             return retType + "|error";
@@ -445,7 +447,7 @@ class JMethodResolver {
         for (BVarSymbol param : pathParamSymbols) {
             paramTypes.remove(param.type);
         }
-        BArrayType pathParamArrayType = new BArrayType(symbolTable.anydataType);
+        BArrayType pathParamArrayType = new BArrayType(symbolTable.typeEnv(), symbolTable.anydataType);
         paramTypes.add(initialPathParamIndex, pathParamArrayType);
         jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
         jMethodRequest.pathParamCount = 1;

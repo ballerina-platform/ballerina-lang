@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.ballerina.types.BasicTypeCode.BT_CELL;
+
 /**
  * ComplexSemType node.
  *
@@ -36,7 +38,7 @@ public class ComplexSemType implements SemType {
     // Ordered in increasing order of BasicTypeCode
     public final ProperSubtypeData[] subtypeDataList;
 
-    public ComplexSemType(BasicTypeBitSet all, BasicTypeBitSet some, ProperSubtypeData[] subtypeDataList) {
+    ComplexSemType(BasicTypeBitSet all, BasicTypeBitSet some, ProperSubtypeData[] subtypeDataList) {
         this.all = all;
         this.some = some;
         this.subtypeDataList = subtypeDataList;
@@ -44,6 +46,16 @@ public class ComplexSemType implements SemType {
 
     public static ComplexSemType createComplexSemType(int allBitset, BasicSubtype... subtypeList) {
         return createComplexSemType(allBitset, Arrays.asList(subtypeList));
+    }
+
+    public static ComplexSemType createComplexSemType(int allBitset, int someBitset, ProperSubtypeData[] subtypeData) {
+        if (allBitset == 0 && someBitset == (1 << BT_CELL.code)) {
+            return CellSemType.from(subtypeData);
+        }
+        return new ComplexSemType(
+                BasicTypeBitSet.from(allBitset),
+                BasicTypeBitSet.from(someBitset),
+                subtypeData);
     }
 
     public static ComplexSemType createComplexSemType(int allBitset, List<BasicSubtype> subtypeList) {
@@ -54,9 +66,12 @@ public class ComplexSemType implements SemType {
             int c = basicSubtype.basicTypeCode.code;
             some |= 1 << c;
         }
-        return new ComplexSemType(
-                BasicTypeBitSet.from(allBitset),
-                BasicTypeBitSet.from(some),
-                dataList.toArray(new ProperSubtypeData[]{}));
+        return createComplexSemType(allBitset, some, dataList.toArray(new ProperSubtypeData[0]));
+    }
+
+    @Override
+    public String toString() {
+        return "ComplexSemType{all=" + all + ", some=" + some + ", subtypeDataList=" +
+                Arrays.toString(subtypeDataList) + '}';
     }
 }

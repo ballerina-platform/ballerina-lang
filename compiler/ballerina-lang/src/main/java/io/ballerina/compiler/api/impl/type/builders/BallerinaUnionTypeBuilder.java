@@ -77,7 +77,7 @@ public class BallerinaUnionTypeBuilder implements TypeBuilder.UNION {
     public UnionTypeSymbol build() {
         BTypeSymbol unionSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.PUBLIC, Names.EMPTY,
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
-        BUnionType unionType = BUnionType.create(unionSymbol, getMemberBTypes());
+        BUnionType unionType = BUnionType.create(symTable.typeEnv(), unionSymbol, getMemberBTypes());
         UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) typesFactory.getTypeDescriptor(unionType);
         memberTypes.clear();
 

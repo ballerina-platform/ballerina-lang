@@ -17,21 +17,21 @@
  */
 package io.ballerina.types;
 
+import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER;
+import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER_RO;
+
 /**
  * ListAtomicType node.
- *
+ * @param members for a given list type this represents the required members
+ * @param rest for a given list type this represents the rest type. This is NEVER if the list don't have a rest type
  * @since 2201.8.0
  */
-public class ListAtomicType implements AtomicType {
-    public final FixedLengthArray members;
-    public final SemType rest;
+public record ListAtomicType(FixedLengthArray members, CellSemType rest) implements AtomicType {
 
-    private ListAtomicType(FixedLengthArray members, SemType rest) {
-        this.members = members;
-        this.rest = rest;
-    }
+    public static final ListAtomicType LIST_ATOMIC_INNER = from(FixedLengthArray.empty(), CELL_SEMTYPE_INNER);
+    static final ListAtomicType LIST_ATOMIC_RO = from(FixedLengthArray.empty(), CELL_SEMTYPE_INNER_RO);
 
-    public static ListAtomicType from(FixedLengthArray members, SemType rest) {
+    public static ListAtomicType from(FixedLengthArray members, CellSemType rest) {
         return new ListAtomicType(members, rest);
     }
 }

@@ -33,6 +33,10 @@ public class BasicTypeBitSet implements SemType {
         return new BasicTypeBitSet(bitset);
     }
 
+    public static BasicTypeBitSet union(BasicTypeBitSet t1, BasicTypeBitSet t2) {
+        return new BasicTypeBitSet(t1.bitset | t2.bitset);
+    }
+
     @Override
     public String toString() {
         return PredefinedType.toString(this);

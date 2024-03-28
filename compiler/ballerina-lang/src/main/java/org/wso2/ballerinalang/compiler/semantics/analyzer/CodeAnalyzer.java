@@ -2029,7 +2029,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         returnTypeAndSendType.add(exprType);
         if (returnTypeAndSendType.size() > 1) {
-            return BUnionType.create(null, returnTypeAndSendType);
+            return BUnionType.create(symTable.typeEnv(), null, returnTypeAndSendType);
         } else {
             return exprType;
         }
@@ -2064,7 +2064,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        syncSendExpr.setBType(BUnionType.create(null, symTable.nilType, symTable.errorType));
+        syncSendExpr.setBType(BUnionType.create(symTable.typeEnv(), null, symTable.nilType, symTable.errorType));
         syncSendExpr.sendType =
                 createAccumulatedErrorTypeForMatchingReceive(syncSendExpr.pos, syncSendExpr.expr.getBType(), data);
         was.addWorkerAction(syncSendExpr);
@@ -2152,7 +2152,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         returnTypeAndSendType.add(symTable.nilType);
         if (returnTypeAndSendType.size() > 1) {
-            return BUnionType.create(null, returnTypeAndSendType);
+            return BUnionType.create(symTable.typeEnv(), null, returnTypeAndSendType);
         } else {
             return symTable.nilType;
         }

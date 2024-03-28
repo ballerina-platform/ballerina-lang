@@ -22,10 +22,11 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
+
+import static io.ballerina.types.PredefinedType.VAL_READONLY;
 
 /**
  * {@code BReadonlyType} represents the shapes that have their read-only bit on.
@@ -35,7 +36,7 @@ import org.wso2.ballerinalang.util.Flags;
 public class BReadonlyType extends BBuiltInRefType {
 
     public BReadonlyType(BTypeSymbol tsymbol) {
-        this(tsymbol, SemTypeHelper.READONLY_SEMTYPE);
+        this(tsymbol, VAL_READONLY);
     }
 
     private BReadonlyType(BTypeSymbol tsymbol, SemType semType) {
@@ -44,14 +45,14 @@ public class BReadonlyType extends BBuiltInRefType {
     }
 
     public BReadonlyType(BTypeSymbol tsymbol, Name name, long flag) {
-        super(TypeTags.READONLY, tsymbol, SemTypeHelper.READONLY_SEMTYPE);
+        super(TypeTags.READONLY, tsymbol, VAL_READONLY);
         this.name = name;
         this.flags = flag;
         this.flags |= Flags.READONLY;
     }
 
     public static BReadonlyType newNilLiftedBReadonlyType(BTypeSymbol tsymbol) {
-        return new BReadonlyType(tsymbol, Core.diff(SemTypeHelper.READONLY_SEMTYPE, PredefinedType.NIL));
+        return new BReadonlyType(tsymbol, Core.diff(VAL_READONLY, PredefinedType.NIL));
     }
 
     @Override

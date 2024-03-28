@@ -23,16 +23,11 @@ package io.ballerina.types;
  * @since 2201.8.0
  */
 public class BddMemo {
-    public final Bdd bdd;
+
     public MemoStatus isEmpty;
 
-    public BddMemo(Bdd bdd) {
-        this.bdd = bdd;
-        this.isEmpty = MemoStatus.NOT_SET;
-    }
-
-    public static BddMemo from(Bdd bdd) {
-        return new BddMemo(bdd);
+    public BddMemo() {
+        this.isEmpty = MemoStatus.NULL;
     }
 
     public void setIsEmpty(boolean isEmpty) {
@@ -48,6 +43,6 @@ public class BddMemo {
      * @since 3.0.0
      */
     public enum MemoStatus {
-        NOT_SET, TRUE, FALSE;
+        LOOP, TRUE, FALSE, CYCLIC, PROVISIONAL, NULL;
     }
 }

@@ -56,13 +56,10 @@ import static io.ballerina.types.Core.widenToBasicTypes;
  *
  * @since 2201.9.0
  */
-public class SemTypeHelper {
+public final class SemTypeHelper {
 
-    public static final SemType READONLY_SEMTYPE = SemTypes.union(PredefinedType.NIL,
-                                            SemTypes.union(PredefinedType.BOOLEAN,
-                                            SemTypes.union(PredefinedType.INT,
-                                            SemTypes.union(PredefinedType.FLOAT,
-                                            SemTypes.union(PredefinedType.DECIMAL, PredefinedType.STRING)))));
+    private SemTypeHelper() {
+    }
 
     public static SemType resolveSingletonType(BLangLiteral literal) {
         return resolveSingletonType(literal.value, literal.getDeterminedType().getKind());
@@ -122,6 +119,8 @@ public class SemTypeHelper {
             case TypeTags.JSON:
             case TypeTags.ANY:
             case TypeTags.READONLY:
+            case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
                 return t.semType();
             default:
                 if (isFullSemType(t.tag)) {
@@ -171,7 +170,9 @@ public class SemTypeHelper {
         }
 
         if (t.tag == TypeTags.UNION) { // TODO: Handle intersection?
-            return !((BUnionType) t).memberNonSemTypes.isEmpty();
+            BUnionType unionType = (BUnionType) t;
+            unionType.populateMemberSemTypesAndNonSemTypes();
+            return !unionType.memberNonSemTypes.isEmpty();
         }
 
         return true;

@@ -894,7 +894,7 @@ public class TypeResolver {
                     data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner, td.pos, BUILTIN);
             BArrayType arrType;
             if (td.sizes.size() == 0) {
-                arrType = new BArrayType(resultType, arrayTypeSymbol);
+                arrType = new BArrayType(symTable.typeEnv(), resultType, arrayTypeSymbol);
             } else {
                 BLangExpression size = td.sizes.get(i);
                 if (size.getKind() == NodeKind.LITERAL || size.getKind() == NodeKind.NUMERIC_LITERAL) {
@@ -907,7 +907,8 @@ public class TypeResolver {
                     } else {
                         arrayState = BArrayState.CLOSED;
                     }
-                    arrType = new BArrayType(resultType, arrayTypeSymbol, sizeIndicator, arrayState);
+                    arrType =
+                            new BArrayType(symTable.typeEnv(), resultType, arrayTypeSymbol, sizeIndicator, arrayState);
                 } else {
                     if (size.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
                         dlog.error(size.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.intType,
@@ -958,7 +959,8 @@ public class TypeResolver {
                     } else {
                         length = (int) lengthCheck;
                     }
-                    arrType = new BArrayType(resultType, arrayTypeSymbol, length, BArrayState.CLOSED);
+                    arrType =
+                            new BArrayType(symTable.typeEnv(), resultType, arrayTypeSymbol, length, BArrayState.CLOSED);
                 }
             }
             arrayTypeSymbol.type = arrType;
@@ -995,7 +997,7 @@ public class TypeResolver {
                 Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
         List<BTupleMember> memberTypes = new ArrayList<>();
-        BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
+        BTupleType tupleType = new BTupleType(symTable.typeEnv(), tupleTypeSymbol, memberTypes);
         tupleTypeSymbol.type = tupleType;
         td.setBType(tupleType);
         resolvingTypes.push(tupleType);
@@ -1316,7 +1318,7 @@ public class TypeResolver {
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                 Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
-        BUnionType unionType = new BUnionType(unionTypeSymbol, memberTypes, false, false);
+        BUnionType unionType = new BUnionType(types.typeEnv(), unionTypeSymbol, memberTypes, false, false);
         unionTypeSymbol.type = unionType;
         td.setBType(unionType);
         resolvingTypes.push(unionType);
@@ -1380,7 +1382,6 @@ public class TypeResolver {
         type.setOriginalMemberTypes(memberTypes);
         memberTypes.clear();
         memberTypes.addAll(flattenMemberTypes);
-        type.populateMemberSemTypesAndNonSemTypes();
     }
 
     private BType resolveTypeDesc(BLangIntersectionTypeNode td, ResolverData data, boolean anonymous) {

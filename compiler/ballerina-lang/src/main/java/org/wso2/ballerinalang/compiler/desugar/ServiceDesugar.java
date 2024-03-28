@@ -242,7 +242,7 @@ public class ServiceDesugar {
                 }
                 members.add(memberType);
             }
-            return BUnionType.create(null, members);
+            return BUnionType.create(symTable.typeEnv(), null, members);
         }
         return type;
     }

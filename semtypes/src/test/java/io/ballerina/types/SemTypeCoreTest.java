@@ -280,7 +280,7 @@ public class SemTypeCoreTest {
         ListDefinition def = new ListDefinition();
         SemType t = def.getSemType(env);
         List<SemType> members = f.apply(env, t);
-        return def.define(env, members);
+        return def.define(env, members, members.size());
     }
 
     @Test

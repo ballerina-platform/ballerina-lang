@@ -209,6 +209,9 @@ types:
       - id: rec_atom_index
         type: s4
         if: is_rec_atom == 1
+      - id: target_kind
+        type: s4
+        if: is_rec_atom == 1 and rec_atom_index != 0
       - id: type_atom
         type: semtype_type_atom
         if: is_rec_atom == 0
@@ -221,7 +224,7 @@ types:
   semtype_type_atom:
     seq:
       - id: type_atom_index
-        type: s8
+        type: s4
       - id: type_atom_kind
         type: s1
       - id: mapping_atomic_type
@@ -233,6 +236,9 @@ types:
       - id: function_atomic_type
         type: semtype_function_atomic_type
         if: type_atom_kind == 3
+      - id: cell_atomic_type
+        type: semtype_cell_atomic_type
+        if: type_atom_kind == 4
   semtype_mapping_atomic_type:
     seq:
       - id: names_length
@@ -267,6 +273,12 @@ types:
         type: semtype_info
       - id: ret_type
         type: semtype_info
+  semtype_cell_atomic_type:
+    seq:
+      - id: ty
+        type: semtype_info
+      - id: mut
+        type: s1
   semtype_int_subtype:
     seq:
       - id: ranges_length

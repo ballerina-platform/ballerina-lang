@@ -1874,13 +1874,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         switch (typeDef.typeNode.getKind()) {
             case TUPLE_TYPE_NODE:
-                newTypeNode = new BTupleType(null, new ArrayList<>(), true);
+                newTypeNode = new BTupleType(symTable.typeEnv(), null, new ArrayList<>(), true);
                 typeDefSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
                 break;
             default:
-                newTypeNode = BUnionType.create(null, new LinkedHashSet<>(), true);
+                newTypeNode = BUnionType.create(symTable.typeEnv(), null, new LinkedHashSet<>(), true);
                 typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
@@ -2472,7 +2472,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                             }
 
                             if (memberTypes.size() > 1) {
-                                BType type = BUnionType.create(null, memberTypes);
+                                BType type = BUnionType.create(symTable.typeEnv(), null, memberTypes);
                                 BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null,
                                         null, null);
                                 members.add(new BTupleMember(type, varSymbol));
@@ -2482,7 +2482,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                 Symbols.createVarSymbolForTupleMember(m))));
                             }
                         }
-                        tupleTypeNode = new BTupleType(members);
+                        tupleTypeNode = new BTupleType(symTable.typeEnv(), members);
                         tupleTypeNode.restType = getPossibleRestTypeForUnion(varNode, possibleTypes);
                         break;
                     }
@@ -2500,7 +2500,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
                         members.add(new BTupleMember(type, varSymbol));
                     }
-                    tupleTypeNode = new BTupleType(members);
+                    tupleTypeNode = new BTupleType(symTable.typeEnv(), members);
                     tupleTypeNode.restType = getPossibleRestTypeForUnion(varNode, possibleTypes);
                     break;
                 case TypeTags.ANY:
@@ -2510,7 +2510,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(referredType);
                         memberTupleTypes.add(new BTupleMember(referredType, varSymbol));
                     }
-                    tupleTypeNode = new BTupleType(memberTupleTypes);
+                    tupleTypeNode = new BTupleType(symTable.typeEnv(), memberTupleTypes);
                     if (varNode.restVariable != null) {
                         tupleTypeNode.restType = referredType;
                     }
@@ -2521,7 +2521,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 case TypeTags.ARRAY:
                     List<BTupleMember> tupleTypes = new ArrayList<>();
                     BArrayType arrayType = (BArrayType) referredType;
-                    tupleTypeNode = new BTupleType(tupleTypes);
+                    tupleTypeNode = new BTupleType(symTable.typeEnv(), tupleTypes);
                     BType eType = arrayType.eType;
                     for (int i = 0; i < arrayType.size; i++) {
                         BType type = arrayType.eType;
@@ -2579,11 +2579,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
             if (!members.isEmpty()) {
-                BTupleType restTupleType = new BTupleType(members);
+                BTupleType restTupleType = new BTupleType(symTable.typeEnv(), members);
                 restTupleType.restType = restType;
                 type = restTupleType;
             } else {
-                type = restType != null ? new BArrayType(restType) : null;
+                type = restType != null ? new BArrayType(symTable.typeEnv(), restType) : null;
             }
             defineMemberNode(varNode.restVariable, env, type);
         }
@@ -2620,7 +2620,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         if (!memberRestTypes.isEmpty()) {
-            return memberRestTypes.size() > 1 ? BUnionType.create(null, memberRestTypes) :
+            return memberRestTypes.size() > 1 ? BUnionType.create(symTable.typeEnv(), null, memberRestTypes) :
                     memberRestTypes.iterator().next();
         } else {
             return varNode.getBType();
@@ -2785,7 +2785,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BType restFieldType = restFieldMemberTypes.size() > 1 ?
-                BUnionType.create(null, restFieldMemberTypes) :
+                BUnionType.create(symTable.typeEnv(), null, restFieldMemberTypes) :
                 restFieldMemberTypes.iterator().next();
 
         if (!possibleRecordFieldMapList.isEmpty()) {
@@ -2873,7 +2873,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             BType fieldType = memberTypes.size() > 1 ?
-                    BUnionType.create(null, memberTypes) : memberTypes.iterator().next();
+                    BUnionType.create(symTable.typeEnv(), null, memberTypes) : memberTypes.iterator().next();
             BField field = new BField(names.fromString(fieldName), pos,
                     new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
                             fieldType, recordSymbol, pos, SOURCE));
@@ -2888,7 +2888,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (fieldTypes.isNullable()) {
             fieldType = fieldTypes;
         } else {
-            fieldType = BUnionType.create(null, fieldTypes, symTable.nilType);
+            fieldType = BUnionType.create(symTable.typeEnv(), null, fieldTypes, symTable.nilType);
         }
 
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS,
@@ -3031,7 +3031,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             memberType = recordType.restFieldType;
         } else if (hasErrorTypedField(recordType)) {
             memberType = hasOnlyPureTypedFields(recordType) ? symTable.pureType :
-                    BUnionType.create(null, symTable.anyType, symTable.errorType);
+                    BUnionType.create(symTable.typeEnv(), null, symTable.anyType, symTable.errorType);
         } else {
             memberType = hasOnlyAnyDataTypedFields(recordType) ? symTable.anydataType : symTable.anyType;
         }
@@ -3063,7 +3063,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else if (constraintTypes.size() == 1) {
             restConstraintType = constraintTypes.iterator().next();
         } else {
-            restConstraintType = BUnionType.create(null, constraintTypes);
+            restConstraintType = BUnionType.create(symTable.typeEnv(), null, constraintTypes);
         }
         return restVarSymbolMapType.tag == TypeTags.NONE ?
                 restConstraintType : this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
@@ -3270,7 +3270,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         detailType.add(possibleErrType.detailType);
                     }
                     BType errorDetailType = detailType.size() > 1
-                            ? BUnionType.create(null, detailType)
+                            ? BUnionType.create(symTable.typeEnv(), null, detailType)
                             : detailType.iterator().next();
                     errorType = new BErrorType(null, errorDetailType);
                 } else {
@@ -3348,7 +3348,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangVariable boundVar = errorDetailEntry.valueBindingPattern;
             if (entryField != null) {
                 if ((entryField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL) {
-                    boundVar.setBType(BUnionType.create(null, entryField.type, symTable.nilType));
+                    boundVar.setBType(BUnionType.create(symTable.typeEnv(), null, entryField.type, symTable.nilType));
                 } else {
                     boundVar.setBType(entryField.type);
                 }
@@ -3360,7 +3360,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                     boundVar.setBType(symTable.semanticError);
                     return false;
                 } else {
-                    boundVar.setBType(BUnionType.create(null, recordType.restFieldType, symTable.nilType));
+                    boundVar.setBType(
+                            BUnionType.create(symTable.typeEnv(), null, recordType.restFieldType, symTable.nilType));
                 }
             }
 
@@ -3398,7 +3399,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private BType getRestMapConstraintType(Map<String, BField> errorDetailFields, Set<String> matchedDetailFields,
                                            BRecordType recordType) {
-        BUnionType restUnionType = BUnionType.create(null);
+        BUnionType restUnionType = BUnionType.create(symTable.typeEnv(), null);
         if (!recordType.sealed) {
             BType referredRestFieldType = Types.getImpliedType(recordType.restFieldType);
             if (referredRestFieldType.tag == TypeTags.UNION) {

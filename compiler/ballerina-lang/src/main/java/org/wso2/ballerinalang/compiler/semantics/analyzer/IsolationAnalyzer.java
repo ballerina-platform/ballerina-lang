@@ -2425,10 +2425,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (arrayType.size > remReqArgCount) {
-            return new BTupleType(null, members, eType, 0);
+            return new BTupleType(symTable.typeEnv(), null, members, eType, 0);
         }
 
-        return new BTupleType(members);
+        return new BTupleType(symTable.typeEnv(), members);
     }
 
     private void analyzeRestArgsForRestParam(BLangInvocation invocationExpr, List<BLangExpression> restArgs,

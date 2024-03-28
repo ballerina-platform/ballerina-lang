@@ -26,6 +26,7 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.TypeAtom;
 
+import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
 
 /**
@@ -35,7 +36,13 @@ import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
  */
 public class CellSubtype {
 
+    // TODO: cache common cells such as cell containing NEVER
+    public static CellSemType cellContaining(Env env, SemType ty) {
+        return cellContaining(env, ty, CELL_MUT_NONE);
+    }
+
     public static CellSemType cellContaining(Env env, SemType ty, CellAtomicType.CellMutability mut) {
+        assert !(ty instanceof CellSemType);
         CellAtomicType atomicCell = CellAtomicType.from(ty, mut);
         TypeAtom atom = env.cellAtom(atomicCell);
         BddNode bdd = bddAtom(atom);
