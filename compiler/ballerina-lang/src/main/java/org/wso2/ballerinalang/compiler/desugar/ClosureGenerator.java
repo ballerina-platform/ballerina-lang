@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -201,6 +202,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -416,7 +418,51 @@ public class ClosureGenerator extends BLangNodeVisitor {
             rewrite(field, recordTypeNode.typeDefEnv);
         }
         recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
+        generateClosuresForDefaultValuesInTypeRefs(recordTypeNode, typeSymbol);
         result = recordTypeNode;
+    }
+
+    private void generateClosuresForDefaultValuesInTypeRefs(BLangRecordTypeNode recordTypeNode,
+                                                            BTypeSymbol typeSymbol) {
+        for (BLangType type : recordTypeNode.typeRefs) {
+            BRecordType recordType = (BRecordType) Types.getReferredType(type.getBType());
+            Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
+            for (Map.Entry<String, BInvokableSymbol> defaultValue : defaultValues.entrySet()) {
+                String name = defaultValue.getKey();
+                if (((BRecordTypeSymbol) typeSymbol).defaultValues.containsKey(name)) {
+                    continue;
+                }
+                BInvokableSymbol symbol = defaultValue.getValue();
+                BLangInvocation invocation = getFunctionPointerInvocation(symbol);
+                String closureName = RECORD_DELIMITER + recordTypeNode.symbol.name.value + RECORD_DELIMITER + name;
+                generateClosureForDefaultValues(closureName, name, invocation, symbol.retType, typeSymbol);
+            }
+        }
+    }
+
+    private BLangInvocation getFunctionPointerInvocation(BInvokableSymbol symbol) {
+        BLangInvocation funcInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        funcInvocation.setBType(symbol.retType);
+        funcInvocation.symbol = symbol;
+        funcInvocation.name = ASTBuilderUtil.createIdentifier(symbol.pos, symbol.name.value);
+        funcInvocation.functionPointerInvocation = true;
+        return funcInvocation;
+    }
+
+    private void generateClosureForDefaultValues(String closureName, String paramName, BLangInvocation invocation,
+                                                 BType returnType, BTypeSymbol symbol) {
+        BSymbol owner = getOwner(env);
+        BLangFunction function = createFunction(closureName, invocation.pos, owner.pkgID, owner, returnType);
+        BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
+        returnStmt.expr = types.addConversionExprIfRequired(invocation, function.returnTypeNode.getBType());
+        BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
+        BInvokableSymbol varSymbol = createSimpleVariable(function, lambdaFunction, false);
+        ((BRecordTypeSymbol) symbol).defaultValues.put(Utils.unescapeBallerina(paramName), varSymbol);
+        lambdaFunction.function.flagSet.add(Flag.RECORD);
+        env.enclPkg.symbol.scope.define(function.symbol.name, function.symbol);
+        env.enclPkg.functions.add(function);
+        env.enclPkg.topLevelNodes.add(function);
+        rewrite(lambdaFunction, env);
     }
 
     @Override
@@ -1048,7 +1094,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
     public void visit(BLangInvocation invocation) {
         rewriteInvocationExpr(invocation);
         BLangInvokableNode encInvokable = env.enclInvokable;
-        if (encInvokable == null || !invocation.functionPointerInvocation) {
+        if (encInvokable == null || !invocation.functionPointerInvocation ||
+                                     env.enclPkg.packageID != invocation.symbol.pkgID) {
             return;
         }
         updateClosureVariable((BVarSymbol) invocation.symbol, encInvokable, invocation.pos);
