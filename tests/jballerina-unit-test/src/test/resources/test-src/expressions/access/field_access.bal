@@ -562,3 +562,12 @@ function assertEquals(anydata actual, anydata expected) {
     }
     panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
 }
+
+type IntSubtypeRecord record {|
+    int:Signed16 value;
+|};
+
+function testFieldAccessOnIntSubtype() returns int:Signed16 {
+    IntSubtypeRecord r = {value: 1};
+    return r.value;
+}

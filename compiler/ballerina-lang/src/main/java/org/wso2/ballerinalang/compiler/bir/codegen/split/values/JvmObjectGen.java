@@ -62,7 +62,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CHECK_FI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_FOR_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_SET;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_BSTRING_RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_SAME_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
@@ -174,7 +174,7 @@ public class JvmObjectGen {
 
     public void createAndSplitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                         JvmCastGen jvmCastGen) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", PASS_BSTRING_RETURN_OBJECT,
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", PASS_B_STRING_RETURN_OBJECT,
                 PASS_OBJECT_RETURN_SAME_TYPE, null);
         mv.visitCode();
         int selfIndex = 0;

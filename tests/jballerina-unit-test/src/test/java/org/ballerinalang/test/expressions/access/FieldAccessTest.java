@@ -315,6 +315,12 @@ public class FieldAccessTest {
         BRunUtil.invoke(result, function);
     }
 
+    @Test
+    public void testFieldAccessOnIntSubtypeRecordFields() {
+        Object returns = BRunUtil.invoke(result, "testFieldAccessOnIntSubtype");
+        Assert.assertEquals(returns, 1L);
+    }
+
     @DataProvider(name = "fieldAccessOnJsonTypedRecordFields")
     public Object[][] fieldAccessOnJsonTypedRecordFields() {
         return new Object[][] {

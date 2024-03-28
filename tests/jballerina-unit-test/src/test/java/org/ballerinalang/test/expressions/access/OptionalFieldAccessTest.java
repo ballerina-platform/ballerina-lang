@@ -172,6 +172,15 @@ public class OptionalFieldAccessTest {
         BRunUtil.invoke(result, "testNestedOptionalFieldAccessOnIntersectionTypes");
     }
 
+    @Test
+    public void testOptionalFieldAccessOnRecordsWithOnlyOptionalFields() {
+        Object return1 = BRunUtil.invoke(result, "getOptionalField1");
+        Assert.assertNull(return1);
+
+        Object return2 = BRunUtil.invoke(result, "getOptionalField2");
+        Assert.assertEquals(return2, 5L);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

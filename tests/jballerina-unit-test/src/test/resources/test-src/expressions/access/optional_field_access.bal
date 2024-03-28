@@ -581,3 +581,17 @@ function assertEquality(anydata expected, anydata actual) {
 
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
+
+type AllOptionalBasicTypeField record {|
+    int val?;
+|};
+
+function getOptionalField1() returns int? {
+    AllOptionalBasicTypeField r = {};
+    return r.val;
+}
+
+function getOptionalField2() returns int? {
+    AllOptionalBasicTypeField r = {val: 5};
+    return r.val;
+}
