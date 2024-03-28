@@ -19,6 +19,11 @@ package io.ballerina.runtime.api;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents a Ballerina artifact.
+ *
+ * @since 2201.9.0
+ */
 public class Artifact {
     public final String name;
     public final ArtifactType type;

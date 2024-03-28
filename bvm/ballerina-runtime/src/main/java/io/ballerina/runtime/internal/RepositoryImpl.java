@@ -18,6 +18,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Artifact;
 import io.ballerina.runtime.api.Repository;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.types.BServiceType;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * API implementation for the runtime-management module to provide Ballerina runtime artifacts.
@@ -36,6 +38,7 @@ import java.util.Map;
 public class RepositoryImpl implements Repository {
     private static final Map<ObjectValue, ObjectValue> serviceListenerMap = new HashMap<>();
     private static final Map<ObjectValue, ObjectValue> listenerServiceMap = new HashMap<>();
+    private static final String nodeId = generateNodeId();
 
     @Override
     public List<Artifact> getArtifacts() {
@@ -60,6 +63,13 @@ public class RepositoryImpl implements Repository {
         return artifacts;
     }
 
+    @Override
+    public NodeInfo getNodeInformation() {
+        return new NodeInfo(nodeId, System.getProperty(RuntimeConstants.BALLERINA_VERSION),
+                System.getProperty(RuntimeConstants.BALLERINA_HOME),
+                System.getProperty("os.name"), System.getProperty("os.version"));
+    }
+
     private Artifact createArtifact(ObjectValue service, ObjectValue listener) {
         Artifact artifact = new Artifact(service.toString(), Artifact.ArtifactType.SERVICE);
         List<ObjectValue> listeners = (List<ObjectValue>) artifact.getDetail("listeners");
@@ -82,4 +92,7 @@ public class RepositoryImpl implements Repository {
         listenerServiceMap.put((ObjectValue) listener, (ObjectValue) service);
     }
 
+    private static String generateNodeId() {
+        return UUID.randomUUID().toString();
+    }
 }

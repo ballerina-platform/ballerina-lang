@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.test.runtime.api;
 
-import io.ballerina.runtime.api.Artifact;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.Repository;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
@@ -32,7 +30,6 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**

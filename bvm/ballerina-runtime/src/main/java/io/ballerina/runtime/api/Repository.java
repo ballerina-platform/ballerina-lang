@@ -27,4 +27,9 @@ public interface Repository {
 
     public List<Artifact> getArtifacts();
 
+    public NodeInfo getNodeInformation();
+
+    public record NodeInfo(String nodeId, String version, String balHome, String osName, String osVersion) {
+    }
+
 }
