@@ -417,9 +417,8 @@ public class TypeResolver {
     }
 
     private BType calculateEffectiveType(BLangType typeNode, BLangType bLangTypeOne,
-                                         BLangType bLangTypeTwo, BType typeOne, BType typeTwo) {
-        BType typeOneReference = Types.getImpliedType(typeOne);
-        BType typeTwoReference = Types.getImpliedType(typeTwo);
+                                         BLangType bLangTypeTwo, BType typeOne, BType typeTwo,
+                                         BType typeOneReference, BType typeTwoReference) {
 
         if (typeOneReference.tag != TypeTags.ERROR || typeTwoReference.tag != TypeTags.ERROR) {
             dlog.error(typeNode.pos, DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION);
@@ -1455,7 +1454,8 @@ public class TypeResolver {
         Iterator<BType> iterator = intersectionType.getConstituentTypes().iterator();
         BType effectiveType = iterator.next();
         BLangType bLangEffectiveType = bLangTypeItr.next();
-        if (effectiveType.tag == TypeTags.READONLY && iterator.hasNext()) {
+        BType bLangEffectiveImpliedType = Types.getImpliedType(effectiveType);
+        if (bLangEffectiveImpliedType.tag == TypeTags.READONLY && iterator.hasNext()) {
             intersectionType.flags = intersectionType.flags | TypeTags.READONLY;
             effectiveType = iterator.next();
             bLangEffectiveType = bLangTypeItr.next();
@@ -1464,12 +1464,14 @@ public class TypeResolver {
         while (iterator.hasNext()) {
             BType type = iterator.next();
             BLangType bLangType = bLangTypeItr.next();
-            if (type.tag == TypeTags.READONLY) {
+            BType typeReferenceType = Types.getImpliedType(type);
+            if (typeReferenceType.tag == TypeTags.READONLY) {
                 intersectionType.flags = intersectionType.flags | TypeTags.READONLY;
                 continue;
             }
-
-            effectiveType = calculateEffectiveType(td, bLangEffectiveType, bLangType, effectiveType, type);
+            bLangEffectiveImpliedType = Types.getImpliedType(effectiveType);
+            effectiveType = calculateEffectiveType(td, bLangEffectiveType, bLangType, effectiveType, type,
+                    bLangEffectiveImpliedType, typeReferenceType);
             if (effectiveType.tag == TypeTags.SEMANTIC_ERROR) {
                 intersectionType.effectiveType = symTable.semanticError;
                 return;
