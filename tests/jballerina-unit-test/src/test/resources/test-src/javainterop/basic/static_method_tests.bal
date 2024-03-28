@@ -436,3 +436,29 @@ public function testBalEnvAcceptingMethodRetType() {
     map<any> mapResult = getMapFromFutureResult("John", 35, {"Mathematics": 99, "Physics": 95});
     test:assertEquals(mapResult, {"name":"John","age":35,"results":{"Mathematics":99,"Physics":95}});
 }
+
+public isolated client class ClientObj {
+    isolated resource function get orderitem/[string orderId]/[string itemId](typedesc<anydata> targetType = <>)
+                                                            returns targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResource",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
+                                    "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
+    } external;
+
+    isolated resource function get orderitem/[string id](int i, float f, decimal d, string s,
+                                        typedesc<anydata> targetType = <>) returns targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResource",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
+                                    "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
+    } external;
+}
+
+public function testBundleFuncArgsToBArray() returns error? {
+    ClientObj cl = new;
+    anydata res = check cl->/orderitem/["1234"]/["abcd"]();
+    test:assertEquals(res, 5);
+    res = check cl->/orderitem/["1234"](1, 5.2, 7.4, "123");
+    test:assertEquals(res, 5);
+}
