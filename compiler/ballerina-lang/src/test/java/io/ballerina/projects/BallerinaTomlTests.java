@@ -63,7 +63,7 @@ public class BallerinaTomlTests {
         PackageManifest.Platform platform = packageManifest.platform("java17");
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
-        Assert.assertEquals(platform.graalvmCompatible().booleanValue(), true);
+        Assert.assertTrue(platform.graalvmCompatible());
         for (Map<String, Object> library : platformDependencies) {
             Assert.assertTrue(library.get("path").equals("../dummy-jars/toml4j.txt")
                                       || library.get("path").equals("../dummy-jars/swagger.txt"));
@@ -122,13 +122,18 @@ public class BallerinaTomlTests {
 
         PackageManifest.Platform platform = packageManifest.platform("java17");
         List<Map<String, Object>> platformDependencies = platform.dependencies();
-        Assert.assertEquals(platformDependencies.size(), 2);
+        Assert.assertEquals(platformDependencies.size(), 3);
         for (Map<String, Object> library : platformDependencies) {
             if (library.get("path").equals("../dummy-jars/swagger.txt")) {
                 Assert.assertEquals(library.get("scope"), "testOnly");
                 Assert.assertEquals(library.get("artifactId"), "swagger");
                 Assert.assertEquals(library.get("version"), "0.7.2");
                 Assert.assertEquals(library.get("groupId"), "swagger.io");
+            } else if (library.get("path").equals("../dummy-jars/ibm.mq.txt")) {
+                Assert.assertEquals(library.get("scope"), "provided");
+                Assert.assertEquals(library.get("artifactId"), "com.ibm.mq.allclient");
+                Assert.assertEquals(library.get("version"), "9.3.4.0");
+                Assert.assertEquals(library.get("groupId"), "com.ibm.mq");
             } else {
                 Assert.assertNull(library.get("scope"));
                 Assert.assertEquals(library.get("path"), "../dummy-jars/toml4j.txt");
@@ -137,6 +142,19 @@ public class BallerinaTomlTests {
                 Assert.assertEquals(library.get("groupId"), "com.moandjiezana.toml");
             }
         }
+    }
+
+    @Test(description = "Platform libraries with 'provided' scope specified in Ballerina.toml must have an" +
+            " artifactId, groupId and a version")
+    public void testBallerinaTomlWithMissingFieldsInProvidedPlatformLibs() throws IOException {
+        PackageManifest packageManifest =
+                getPackageManifest(BAL_TOML_REPO.resolve("provided-platform-missing-fields.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "artifactId, groupId and version must be provided for platform dependencies with provided scope");
     }
 
     @Test(description = "Test a valid Ballerina.toml file with tool id, filePath and targetModule")
@@ -210,7 +228,7 @@ public class BallerinaTomlTests {
     public void testBallerinaTomlWithGraalvmBuildOptions() throws IOException {
         BuildOptions buildOptions =
                 getBuildOptions(BAL_TOML_REPO.resolve("build-options-as-table.toml"));
-        Assert.assertTrue(buildOptions.graalVMBuildOptions().equals("--static"));
+        Assert.assertEquals(buildOptions.graalVMBuildOptions(), "--static");
     }
 
     @DataProvider(name = "ballerinaTomlWithInvalidEntries")

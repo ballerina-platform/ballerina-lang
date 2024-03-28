@@ -19,6 +19,7 @@
 package io.ballerina.projects.test;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -344,6 +345,50 @@ public class TestBalaWriter {
         Path defaultModuleSrcPath = balaExportPath.resolve("modules").resolve("winery");
         Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
         Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
+    }
+
+    @Test
+    public void testBalaWriterWithProvidedPlatformLibs(ITestContext ctx) throws IOException {
+        Gson gson = new Gson();
+        Path projectPath = BALA_WRITER_RESOURCES.resolve("projectProvidedScope");
+        ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(projectPath));
+        Project project = TestUtils.loadBuildProject(projectPath);
+
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        if (packageCompilation.diagnosticResult().hasErrors()) {
+            Assert.fail("compilation failed:" + packageCompilation.diagnosticResult().errors());
+        }
+
+        Target target = new Target(project.sourceRoot());
+        Path balaPath = target.getBalaPath();
+        // invoke write bala method
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
+        Assert.assertTrue(emitResult.successful());
+
+        // unzip bala
+        TestUtils.unzip(String.valueOf(balaPath.resolve("foo-pkg_a-java17-1.0.0.bala")),
+                String.valueOf(balaExportPath));
+
+        // package.json
+        Path packageJsonPath = balaExportPath.resolve("package.json");
+        Assert.assertTrue(packageJsonPath.toFile().exists());
+        try (FileReader reader = new FileReader(String.valueOf(packageJsonPath))) {
+            PackageJson packageJson = gson.fromJson(reader, PackageJson.class);
+            Assert.assertEquals(packageJson.getPlatform(), "java17");
+            JsonObject foundInBala = packageJson.getPlatformDependencies().get(0).getAsJsonObject();
+            JsonObject expected = new JsonObject();
+            expected.addProperty("artifactId", "project1");
+            expected.addProperty("groupId", "com.example");
+            expected.addProperty("version", "1.0");
+            expected.addProperty("scope", "provided");
+            Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
+            Assert.assertEquals(foundInBala, expected);
+        }
+        // Check if test scoped platform dependencies not exists
+        Path providedScopePlatformDependancy = balaExportPath.resolve("platform").resolve("java17")
+                .resolve("project1-1.0.0.jar");
+        Assert.assertFalse(providedScopePlatformDependancy.toFile().exists());
     }
 
     @Test
