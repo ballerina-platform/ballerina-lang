@@ -1,0 +1,7 @@
+[methodCall]
+parametersWrap = "ChopDown"
+alignMultilineParameters = true
+newLineAfterLeftParen = true
+
+[wrapping]
+maxLineLength = 80

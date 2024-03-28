@@ -32,6 +32,11 @@ public class FormattingEnv {
     int currentIndentation = 0;
 
     /**
+     * Number of whitespaces to be used as the indentation for the current context used when aligning statements.
+     */
+    int preservedIndentation = 0;
+
+    /**
      * Number of leading newlines to be added to the currently processing node.
      */
     int leadingNL = 0;
@@ -75,6 +80,11 @@ public class FormattingEnv {
      * Previous token's trailing new lines.
      */
     int prevTokensTrailingNL = 0;
+
+    /**
+     * Maximum length of the consecutive constant definitions.
+     */
+    int maxConstDefWidth = 1;
 
     /**
      * Flag indicating whether the token that is currently being formatted should preserve its user defined indentation.

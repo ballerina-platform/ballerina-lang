@@ -33,6 +33,7 @@ under the License.
             <package name="org.ballerinalang.formatter.core.declarations.*" />
             <package name="org.ballerinalang.formatter.core.statements.*" />
             <package name="org.ballerinalang.formatter.core.misc.*" />
+            <package name="org.ballerinalang.formatter.core.configurations.*" />
         </packages>
         <classes>
             <class name="org.ballerinalang.formatter.core.ParserTestFormatter" />
