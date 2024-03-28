@@ -33,7 +33,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
+import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
@@ -335,8 +335,8 @@ public class BalRuntime extends Runtime {
             throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" +
                     configClassName));
         }
-        TomlDetails configDetails = LaunchUtils.getConfigurationDetails();
-        String funcName = Utils.encodeFunctionIdentifier("$configureInit");;
+        ConfigDetails configDetails = LaunchUtils.getConfigurationDetails();
+        String funcName = Utils.encodeFunctionIdentifier("$configureInit");
         try {
             final Method method = configClazz.getDeclaredMethod(funcName, String[].class, Path[].class, String.class);
             method.invoke(null, new String[]{}, configDetails.paths, configDetails.configContent);
