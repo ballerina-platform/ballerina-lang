@@ -63,3 +63,9 @@ function testMappingConstrWithIssuesInCET() {
 function testAmbiguousTypeWithAny() {
     any|map<any> _ = {a: 1};
 }
+
+function testMappingConstructorWithUndefinedVars() {
+    map<string>? _ = {[NAME] : "Amy"};
+    map<string>? _ = {[NAME] : NAME};
+    record {|string name;|}? _ = {[NAME] : NAME};
+}
