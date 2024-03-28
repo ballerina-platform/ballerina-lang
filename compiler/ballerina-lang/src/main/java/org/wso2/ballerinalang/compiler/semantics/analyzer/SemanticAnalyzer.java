@@ -241,11 +241,15 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.FUNCTION;
+import static org.ballerinalang.model.tree.NodeKind.LIST_CONSTRUCTOR_EXPR;
+import static org.ballerinalang.model.tree.NodeKind.LIST_CONSTRUCTOR_SPREAD_OP;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
+import static org.ballerinalang.model.tree.NodeKind.RECORD_VARIABLE_REF;
 import static org.ballerinalang.model.tree.NodeKind.REG_EXP_CAPTURING_GROUP;
 import static org.ballerinalang.model.tree.NodeKind.REG_EXP_CHARACTER_CLASS;
+import static org.ballerinalang.model.tree.NodeKind.TUPLE_VARIABLE_REF;
 
 /**
  * @since 0.94
@@ -1673,7 +1677,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangListConstructorExpr listExpr = (BLangListConstructorExpr) expr;
             for (int i = 0; i < listExpr.exprs.size(); i++) {
                 BLangExpression expression = listExpr.exprs.get(i);
-                if (expression.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                if (expression.getKind() == LIST_CONSTRUCTOR_SPREAD_OP) {
                     expression = ((BLangListConstructorSpreadOpExpr) expression).expr;
                 }
                 checkSelfReferences(expression, varInitEnv);
@@ -2355,6 +2359,61 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (type.tag != TypeTags.SEMANTIC_ERROR) {
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
                                         tupleDeStmt.expr.getBType(), tupleDeStmt.expr.pos, data);
+            if (tupleDeStmt.expr.getKind() == LIST_CONSTRUCTOR_EXPR) {
+                analyzeDestructuringWithListBindingPattern(tupleDeStmt.varRef,
+                        (BLangListConstructorExpr) tupleDeStmt.expr);
+            }
+        }
+    }
+
+    // TODO: This is temporary. Remove this once #42352 gets fixed
+    private void analyzeDestructuringWithListBindingPattern(BLangTupleVarRef tupleVarRef,
+                                                            BLangListConstructorExpr listExpr) {
+        List<BLangExpression> exprs = listExpr.exprs;
+        List<BLangExpression> tupleVars = tupleVarRef.expressions;
+
+        int nonRestTupleVarIndex = 0;
+        int noOfNonRestVars = tupleVars.size();
+
+        for (BLangExpression expr: exprs) {
+            NodeKind exprKind = expr.getKind();
+            int remainingNonRestVars = noOfNonRestVars - nonRestTupleVarIndex;
+
+            if (remainingNonRestVars == 0) {
+                return;
+            }
+
+            if (exprKind == LIST_CONSTRUCTOR_SPREAD_OP) {
+                BType spreadOpType = ((BLangListConstructorSpreadOpExpr) expr).expr.getBType();
+                int noOfSpreadMembers = switch (spreadOpType.tag) {
+                    case TypeTags.ARRAY -> {
+                        BArrayType spreadArrayType = (BArrayType) spreadOpType;
+                        yield spreadArrayType.size;
+                    }
+                    case TypeTags.TUPLE -> {
+                        BTupleType spreadTupleType = (BTupleType) spreadOpType;
+                        yield spreadTupleType.getTupleTypes().size();
+                    }
+                    default -> 0;
+                };
+
+                // remainingNonRestVars < noOfSpreadMembers case is ignored since it is already invalid scenario
+
+                nonRestTupleVarIndex += noOfSpreadMembers;
+                continue;
+            }
+
+            BLangExpression tupleMemberVar = tupleVars.get(nonRestTupleVarIndex++);
+            NodeKind tupleMemberKind = tupleMemberVar.getKind();
+            if (exprKind == LIST_CONSTRUCTOR_EXPR && tupleMemberKind == TUPLE_VARIABLE_REF) {
+                analyzeDestructuringWithListBindingPattern(
+                        (BLangTupleVarRef) tupleMemberVar, (BLangListConstructorExpr) expr);
+                continue;
+            }
+
+            if (exprKind == RECORD_LITERAL_EXPR && tupleMemberKind == RECORD_VARIABLE_REF) {
+                dlog.error(expr.getPosition(), DiagnosticErrorCode.INVALID_RECORD_LITERAL_BINDING_PATTERN);
+            }
         }
     }
 

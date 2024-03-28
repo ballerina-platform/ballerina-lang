@@ -109,3 +109,26 @@ function tupleDestructureTest9() returns [boolean, string, [int, float]] {
 
     return [a, b, c];
 }
+
+// TODO: This is temporary. Remove this once #42352 gets fixed
+function tupleDestructureTest10() returns boolean[] {
+    Employee[2] employees = [employee1, employee2];
+
+    Employee e1;
+    Employee e2;
+    [e1, e2] = [...employees];
+
+    Employee e3;
+    Employee e4;
+    [e3, e4] = [...[employee1, employee2]];
+
+    Employee e5;
+    Employee e6;
+    [[e5, e6]] = [...[...[employees]]];
+
+    Employee e7;
+    Employee e8;
+    [[e7, e8]] = [[...[...[employee1, employee2]]]];
+
+    return [e1.intern, e3.intern, e6.intern, e8.intern];
+}
