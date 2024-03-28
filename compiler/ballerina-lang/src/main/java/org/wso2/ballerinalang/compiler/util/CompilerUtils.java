@@ -19,8 +19,12 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+
+import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 
@@ -67,6 +71,15 @@ public class CompilerUtils {
             return org + packageID.name.value;
         }
         return org + packageID.name + Names.VERSION_SEPARATOR.value + getMajorVersion(packageID.version.value);
+    }
+
+    public static boolean isInParameterList(BSymbol symbol, List<BLangSimpleVariable> params) {
+        for (BLangSimpleVariable param : params) {
+            if (param.symbol == symbol) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
