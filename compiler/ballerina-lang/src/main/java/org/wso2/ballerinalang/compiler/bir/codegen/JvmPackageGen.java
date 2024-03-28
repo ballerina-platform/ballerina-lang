@@ -112,9 +112,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STOR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_PARENT_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -301,6 +303,18 @@ public class JvmPackageGen {
 
         mv.visitInsn(ICONST_0);
         mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_STARTED, "Z");
+
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_INIT_ATTEMPTED, "Z", null, null);
+        fv.visitEnd();
+
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_INIT_ATTEMPTED, "Z");
+
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_START_PARENT_ATTEMPTED, "Z", null, null);
+        fv.visitEnd();
+
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_PARENT_ATTEMPTED, "Z");
     }
 
     private static void setCurrentModuleField(ClassWriter cw, MethodVisitor mv, JvmConstantsGen jvmConstantsGen,
@@ -738,15 +752,24 @@ public class JvmPackageGen {
         BIRFunction mainFunc = getMainFunction(module);
         BIRFunction testExecuteFunc = getTestExecuteFunction(module);
 
+        // Getting the non-duplicate immediateImports
+        Set<PackageID> immediateImports = new LinkedHashSet<>();
+        addBuiltinImports(module.packageID, immediateImports);
+        for (BIRNode.BIRImportModule immediateImport : module.importModules) {
+            BPackageSymbol pkgSymbol = packageCache.getSymbol(
+                    getBvmAlias(immediateImport.packageID.orgName.value, immediateImport.packageID.name.value));
+            immediateImports.add(pkgSymbol.pkgID);
+        }
+
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(birFunctionMap, jvmClassMapping, moduleInitClass, module,
-                flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc);
+                immediateImports, serviceEPAvailable, mainFunc, testExecuteFunc);
         TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
         JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass, types, typeHashVisitor);
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
         JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module, moduleInitClass,
                 typeHashVisitor, jvmTypeGen);
-        configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, jvmConstantsGen,
+        configMethodGen.generateConfigMapper(immediateImports, module, moduleInitClass, jvmConstantsGen,
                                              typeHashVisitor, jarEntries, symbolTable);
 
         // generate the shutdown listener class.
