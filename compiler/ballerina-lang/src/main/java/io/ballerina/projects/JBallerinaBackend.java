@@ -110,6 +110,10 @@ public class JBallerinaBackend extends CompilerBackend {
     private final List<JarConflict> conflictedJars;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
+        return from(packageCompilation, jdkVersion, true);
+    }
+
+    public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion, boolean shrink) {
         // Check if the project has write permissions
         if (packageCompilation.packageContext().project().kind().equals(ProjectKind.BUILD_PROJECT)) {
             try {
@@ -119,10 +123,10 @@ public class JBallerinaBackend extends CompilerBackend {
             }
         }
         return packageCompilation.getCompilerBackend(jdkVersion,
-                (targetPlatform -> new JBallerinaBackend(packageCompilation, jdkVersion)));
+                (targetPlatform -> new JBallerinaBackend(packageCompilation, jdkVersion, shrink)));
     }
 
-    private JBallerinaBackend(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
+    private JBallerinaBackend(PackageCompilation packageCompilation, JvmTarget jdkVersion, boolean shrink) {
         this.jdkVersion = jdkVersion;
         this.packageCompilation = packageCompilation;
         this.packageContext = packageCompilation.packageContext();
@@ -135,14 +139,14 @@ public class JBallerinaBackend extends CompilerBackend {
         this.interopValidator = InteropValidator.getInstance(compilerContext);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
         this.conflictedJars = new ArrayList<>();
-        performCodeGen();
+        performCodeGen(shrink);
     }
 
     PackageContext packageContext() {
         return this.packageContext;
     }
 
-    private void performCodeGen() {
+    private void performCodeGen(boolean shrink) {
         if (codeGenCompleted) {
             return;
         }
@@ -173,7 +177,9 @@ public class JBallerinaBackend extends CompilerBackend {
                         new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
 
-            ModuleContext.shrinkDocuments(moduleContext);
+            if (shrink) {
+                ModuleContext.shrinkDocuments(moduleContext);
+            }
             if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
                 moduleContext.cleanBLangPackage();
             }
