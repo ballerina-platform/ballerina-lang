@@ -110,7 +110,10 @@ public class OptionalFieldAccessTest {
                 { "testUnavailableFinalAccessInNestedAccess" },
                 { "testAvailableFinalAccessInNestedAccess" },
                 { "testUnavailableIntermediateAccessInNestedAccess" },
-                { "testNilValuedFinalAccessInNestedAccess" }
+                { "testNilValuedFinalAccessInNestedAccess" },
+                { "testSubtypeAssignment" },
+                { "testUnionAssignment" },
+                { "testNullableAssignment" }
         };
     }
 
@@ -165,6 +168,20 @@ public class OptionalFieldAccessTest {
     @Test
     public void testOptionalFieldAccessOnMethodCall() {
         BRunUtil.invoke(result, "testOptionalFieldAccessOnMethodCall");
+    }
+
+    @Test(dataProvider = "optionalFieldRemovalFunctions")
+    public void testOptionalFieldRemoval(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "optionalFieldRemovalFunctions")
+    public Object[][] optionalFieldRemovalFunctions() {
+        return new Object[][]{
+                {"testOptionalFieldRemovalBasicType"},
+                {"testOptionalFieldRemovalIndirect"},
+                {"testOptionalFieldRemovalComplex"}
+        };
     }
 
     @Test

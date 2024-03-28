@@ -1,0 +1,28 @@
+setOptionalField function() -> () {
+    %0(RETURN) ();
+    %1(LOCAL) R3;
+    %2(TEMP) typeDesc<any|error>;
+    %4(TEMP) int;
+    %6(TEMP) string;
+    %7(TEMP) int|();
+    %8(TEMP) ();
+
+    bb0 {
+        %2 = newType R3;
+        %1 = NewMap %2{};
+        %4 = ConstLoad 2;
+        %6 = ConstLoad x;
+        %1[%6] = %4;
+        %8 = ConstLoad 0;
+        %7 = <int|()> %8;
+        %6 = ConstLoad x;
+        %1[%6] = %7;
+        %0 = ConstLoad 0;
+        GOTO bb1;
+    }
+    bb1 {
+        return;
+    }
+
+
+}
