@@ -1,0 +1,40 @@
+ERROR [tabs.bal:(5:8,5:8)] missing function keyword (BCE0248)
+  |
+5 | public function add(int a, int b) returns int {
+  |        ++++++++
+
+ERROR [tabs.bal:(8:9,8:9)] missing if keyword (BCE0262)
+  |
+8 |     } else if (b < 0) {
+  |            ++
+
+ERROR [tabs.bal:(14:8,14:8)] missing function keyword (BCE0248)
+   |
+14 | public function sub(int a, int b) returns int {
+   |        ++++++++
+
+ERROR [tabs.bal:(24:41,24:41)] missing select keyword (BCE0231)
+   |
+24 |     int[] numsTimes10 = from var i in nums select i * 10;
+   |                                            ++++++
+
+ERROR [tabs.bal:(25:21,25:21)] missing from keyword (BCE0260)
+   |
+25 |     int[] numsTimes2 = from var i in nums select i * 2;
+   |                        ++++
+
+ERROR [tabs.bal:(26:32,26:32)] missing in keyword (BCE0261)
+   |
+26 |     int[] numsTimes3 = from var i in nums select i * 3;
+   |                                   ++
+
+ERROR [tabs.bal:(27:42,27:42)] missing order keyword (BCE0266)
+   |
+27 |     int[] numsReversed = from int i in nums order by i descending select i;
+   |                                             +++++
+
+ERROR [tabs.bal:(28:49,28:49)] missing by keyword (BCE0267)
+   |
+28 |     int[] numsReversed_ = from int i in nums order by i descending select i;
+   |                                                    ++
+

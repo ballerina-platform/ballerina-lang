@@ -1,0 +1,42 @@
+ERROR [missing-non-terminal.bal:(1:12,1:13)] missing enum member (BCE0507)
+  |
+1 | enum Color {
+  |            ^
+
+ERROR [missing-non-terminal.bal:(5:9,5:9)] missing identifier (BCE0400)
+  |
+5 |     int = 5;
+  |         ^
+
+ERROR [missing-non-terminal.bal:(6:12,6:12)] missing identifier (BCE0400)
+  |
+6 |     string = "Hello";
+  |            ^
+
+ERROR [missing-non-terminal.bal:(9:9,10:13)] missing select clause (BCE0503)
+   |
+ 9 |         where i % 2
+   |         ^^^^^^^^^^^
+10 |         == 0
+   | ^^^^^^^^^^^^
+
+ERROR [missing-non-terminal.bal:(15:17,15:17)] missing function name (BCE0500)
+   |
+15 | public function (int num1, int num2) returns int {
+   |                 ^
+
+ERROR [missing-non-terminal.bal:(19:31,19:35)] unknown type 'num2' (BCE2069)
+   |
+19 | public function mul(int num1, num2 ) returns int {
+   |                               ^^^^
+
+ERROR [missing-non-terminal.bal:(19:36,19:36)] missing identifier (BCE0400)
+   |
+19 | public function mul(int num1, num2 ) returns int {
+   |                                    ^
+
+ERROR [missing-non-terminal.bal:(20:19,20:23)] undefined symbol 'num2' (BCE2010)
+   |
+20 |     return num1 * num2;
+   |                   ^^^^
+

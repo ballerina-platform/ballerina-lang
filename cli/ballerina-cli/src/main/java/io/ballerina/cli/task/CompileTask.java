@@ -18,9 +18,11 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.cli.diagnostics.AnnotateDiagnostics;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.CodeModifierResult;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
@@ -45,6 +47,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -60,6 +63,7 @@ import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_P
  * @since 2.0.0
  */
 public class CompileTask implements Task {
+
     private final transient PrintStream out;
     private final transient PrintStream err;
     private final boolean compileForBalPack;
@@ -219,13 +223,27 @@ public class CompileTask implements Task {
                 BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
             }
 
+            // HashSet to keep track of the diagnostics to avoid duplicate diagnostics
+            Set<String> diagnosticSet = new HashSet<>();
+            Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(project.currentPackage());
+            int terminalWidth = AnnotateDiagnostics.getTerminalWidth();
+            boolean colorEnabled = terminalWidth != 0;
+
             // Report package compilation and backend diagnostics
             diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
             diagnostics.forEach(d -> {
                 if (d.diagnosticInfo().code() == null || (!d.diagnosticInfo().code().equals(
                         ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId()) &&
                         !d.diagnosticInfo().code().startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX))) {
-                    err.println(d);
+                    if (diagnosticSet.add(d.toString())) {
+                        Document document = documentMap.get(d.location().lineRange().fileName());
+                        if (document != null) {
+                            err.println(AnnotateDiagnostics.renderDiagnostic(d, document,
+                                    terminalWidth, colorEnabled));
+                        } else {
+                            err.println(AnnotateDiagnostics.renderDiagnostic(d, colorEnabled));
+                        }
+                    }
                 }
             });
             // Add tool resolution diagnostics to diagnostics

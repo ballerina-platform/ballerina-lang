@@ -93,7 +93,7 @@ public class SyntaxErrors {
     public static STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind,
                                                             DiagnosticCode diagnosticCode) {
         List<STNodeDiagnostic> diagnosticList = new ArrayList<>();
-        diagnosticList.add(createDiagnostic(diagnosticCode));
+        diagnosticList.add(createDiagnostic(diagnosticCode, expectedKind.stringValue()));
         return STNodeFactory.createMissingToken(expectedKind, diagnosticList);
     }
 

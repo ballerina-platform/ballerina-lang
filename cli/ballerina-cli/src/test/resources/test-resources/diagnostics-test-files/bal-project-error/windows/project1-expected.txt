@@ -1,0 +1,55 @@
+ERROR [modules\helpers\helpers.bal:(10:1,10:1)] missing close brace token (BCE0007)
+   |
+10 | }
+   | +
+
+ERROR [modules\helpers\tests\lib_test.bal:(16:5,16:9)] undefined symbol 'name' (BCE2010)
+   |
+16 |     name = "";
+   |     ^^^^
+
+ERROR [modules\helpers\tests\lib_test.bal:(17:32,17:36)] undefined symbol 'name' (BCE2010)
+   |
+17 |     string welcomeMsg = hello2(name);
+   |                                ^^^^
+
+ERROR [modules\util\docalc.bal:(2:14,2:14)] missing binary operator (BCE0012)
+  |
+2 |     return 1 + 10;
+  |              +
+
+ERROR [main.bal:(1:1,1:25)] cannot resolve module 'asfasdf/adsfadsf' (BCE2003)
+  |
+1 | import asfasdf/adsfadsf;
+  | ^^^^^^^^^^^^^^^^^^^^^^^^
+
+ERROR [main.bal:(7:5,7:32)] undefined function 'println' (BCE2011)
+  |
+7 |     io:println("Hello, World!");
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ERROR [main.bal:(7:5,7:32)] undefined module 'io' (BCE2000)
+  |
+7 |     io:println("Hello, World!");
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ERROR [main.bal:(8:5,8:31)] undefined function 'println' (BCE2011)
+  |
+8 |     io::println(util:hello(b));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ERROR [main.bal:(8:5,8:31)] undefined module 'io' (BCE2000)
+  |
+8 |     io::println(util:hello(b));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ERROR [main.bal:(8:7,8:8)] invalid token ':' (BCE0600)
+  |
+8 |     io::println(util:hello(b));
+  |       ^
+
+ERROR [main.bal:(11:1,11:1)] missing function keyword (BCE0248)
+   |
+11 | function test() {
+   | ++++++++
+
