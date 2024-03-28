@@ -73,6 +73,9 @@ function createSelectFunction(function(_Frame _frame) returns _Frame|error? sele
     return new _SelectFunction(selectFunc);
 }
 
+function createOnConflictFunction(function(_Frame _frame) returns _Frame|error? onConflictFunc)
+        returns _StreamFunction => new _OnConflictFunction(onConflictFunc);
+
 function createCollectFunction(string[] nonGroupingKeys, function(_Frame _frame) returns _Frame|error? collectFunc) returns _StreamFunction {
     return new _CollectFunction(nonGroupingKeys, collectFunc);
 }
@@ -92,6 +95,9 @@ function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _StreamFu
 function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, CompletionType> {
     return pipeline.getStream();
 }
+
+function getStreamForOnConflictFromPipeline(_StreamPipeline pipeline) returns stream<Type, CompletionType>
+    => pipeline.getStreamForOnConflict();
 
 function toArray(stream<Type, CompletionType> strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
     if isReadOnly {
@@ -159,7 +165,8 @@ function toString(stream<Type, CompletionType> strm) returns string|error {
     return result;
 }
 
-function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, error? err, boolean isReadOnly) returns table<map<Type>>|error {
+function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, boolean isReadOnly) 
+    returns table<map<Type>>|error {
     if isReadOnly {
         // TODO: Properly fix readonly scenario - Issue lang/#36721
         // In this case tbl will be an immutable table. Therefore, we will create a new mutable table. Next, we will
@@ -168,52 +175,83 @@ function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, err
         // and make it immutable with createImmutableTable().
         table<map<Type>> tempTbl = table [];
         table<map<Type>> tbl2 = createTableWithKeySpecifier(tbl, typeof(tempTbl));
-        table<map<Type>> tempTable = check createTable(strm, tbl2, err);
+        table<map<Type>> tempTable = check createTable(strm, tbl2);
         return createImmutableTable(tbl, tempTable.toArray());
     }
-    return createTable(strm, tbl, err);
+    return createTable(strm, tbl);
 }
 
-function createTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
+function createTable(stream<Type, CompletionType> strm, table<map<Type>> tbl) returns table<map<Type>>|error {
     record {| Type value; |}|CompletionType v = strm.next();
     while (v is record {| Type value; |}) {
         error? e = trap tbl.add(<map<Type>> checkpanic v.value);
         if (e is error) {
-            if (err is error) {
-                return err;
-            }
             tbl.put(<map<Type>> checkpanic v.value);
         }
         v = strm.next();
     }
-    if (v is error) {
+    if v is error {
         return v;
     }
     return tbl;
 }
 
-function addToMap(stream<Type, CompletionType> strm, map<Type> mp, error? err, boolean isReadOnly) returns map<Type>|error {
-// Here, `err` is used to get the expression of on-conflict clause
+function addToTableForOnConflict(stream<Type, CompletionType> strm, table<map<Type>> tbl, boolean isReadOnly) 
+    returns table<map<Type>>|error {
+    if isReadOnly {
+        // TODO: Properly fix readonly scenario - Issue lang/#36721
+        // In this case tbl will be an immutable table. Therefore, we will create a new mutable table. Next, we will
+        // pass the newly created table into createTableWithKeySpecifier() to add the key specifier details from the
+        // original table variable (tbl). Then the newly created table variable will be populated using createTable()
+        // and make it immutable with createImmutableTable().
+        table<map<Type>> tempTbl = table [];
+        table<map<Type>> mutableTableRef = createTableWithKeySpecifier(tbl, typeof(tempTbl));
+        _ = check createTableForOnConflict(strm, mutableTableRef);
+        return createImmutableTable(tbl, mutableTableRef.toArray());
+    }
+    return createTableForOnConflict(strm, tbl);
+}
+
+function createTableForOnConflict(stream<Type, CompletionType> strm, table<map<Type>> tbl) 
+    returns table<map<Type>>|error {
+    record {| Type value; |}|CompletionType v = strm.next();
+    while v is record {| Type value; |} {
+        record {|Type v; error? err;|}|error value = v.value.ensureType();
+        if value is error {
+            return value;
+        }
+        map<Type> tblValue = check value.v.ensureType();
+        error? e = trap tbl.add(tblValue);
+        error? err = value.err;
+        if e is error && err is error {
+            return err;
+        }
+        if e is error && err is () {
+            tbl.put(<map<Type>> checkpanic value.v);
+        }
+        v = strm.next();
+    }
+    return v is error ? v : tbl;
+}
+
+function addToMap(stream<Type, CompletionType> strm, map<Type> mp, boolean isReadOnly) returns map<Type>|error {
     if isReadOnly {
         // In this case mp will be an immutable map. Therefore, we will create a new mutable map and pass it to the
         // createMap() (because we can't update immutable map). Then it will populate the members into it and the
         // resultant map will be passed into createImmutableValue() to make it immutable.
         map<Type> mp2 = {};
-        createImmutableValue(check createMap(strm, mp2, err));
+        createImmutableValue(check createMap(strm, mp2));
         return mp2;
     }
-    return createMap(strm, mp, err);
+    return createMap(strm, mp);
 }
 
-function createMap(stream<Type, CompletionType> strm, map<Type> mp, error? err) returns map<Type>|error {
+function createMap(stream<Type, CompletionType> strm, map<Type> mp) returns map<Type>|error {
     record {| Type value; |}|CompletionType v = strm.next();
-    while (v is record {| Type value; |}) {
+    while v is record {| Type value; |} {
         [string, Type]|error value = trap (<[string, Type]> checkpanic v.value);
         if value !is error {
             string key = value[0];
-            if mp.hasKey(key) && err is error {
-                return err;
-            }
             mp[key] = value[1];
         } else {
             return value;
@@ -225,6 +263,41 @@ function createMap(stream<Type, CompletionType> strm, map<Type> mp, error? err) 
         return v;
     }
     return mp;
+}
+
+function addToMapForOnConflict(stream<Type, CompletionType> strm, map<Type> mp, boolean isReadOnly) 
+    returns map<Type>|error {
+    if isReadOnly {
+        // In this case mp will be an immutable map. Therefore, we will create a new mutable map and pass it to the
+        // createMap() (because we can't update immutable map). Then it will populate the members into it and the
+        // resultant map will be passed into createImmutableValue() to make it immutable.
+        map<Type> mp2 = {};
+        createImmutableValue(check createMapForOnConflict(strm, mp2));
+        return mp2;
+    }
+    return createMapForOnConflict(strm, mp);
+}
+
+function createMapForOnConflict(stream<Type, CompletionType> strm, map<Type> mp) returns map<Type>|error {
+    record {| Type value; |}|CompletionType v = strm.next();
+    while v is record {| Type value; |} {
+        record {|Type v; error? err;|}|error value = v.value.ensureType();
+        if value is error {
+            return value;
+        }
+        [string, Type]|error keyValue = value.v.ensureType();
+        if keyValue is error {
+            return keyValue;
+        }
+        string key = keyValue[0];
+        error? err = value.err;
+        if mp.hasKey(key) && err is error {
+            return err;
+        }
+        mp[key] = keyValue[1];
+        v = strm.next();
+    }
+    return v is error ? v : mp;
 }
 
 function consumeStream(stream<Type, CompletionType> strm) returns any|error {
