@@ -220,6 +220,7 @@ public class JarResolver {
         pkgResolution.allDependencies()
                 .stream()
                 .filter(pkgDep -> pkgDep.scope() == PackageDependencyScope.TEST_ONLY)
+                .filter(pkgDep -> !pkgDep.packageInstance().descriptor().isLangLibPackage())    //filter out lang libs
                 .map(pkgDep -> pkgDep.packageInstance().packageContext())
                 .forEach(pkgContext -> {
                     // Add generated thin jar of every module in the package represented by the packageContext
