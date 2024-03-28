@@ -18,8 +18,11 @@
 
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
+import io.ballerina.runtime.api.Artifact;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.Repository;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -527,5 +530,11 @@ public class Values {
                 "    <confirmationID>RPFABE</confirmationID>\n" +
                 "</Reservation>";
         return ValueCreator.createXmlValue(new ByteArrayInputStream(xmlString.getBytes()));
+    }
+
+    public static void validateArtifactCount(Environment env) {
+        Repository repository = env.getRepository();
+        List<Artifact> artifacts = repository.getArtifacts();
+        Assert.assertFalse(artifacts.isEmpty());
     }
 }

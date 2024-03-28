@@ -105,4 +105,6 @@ public abstract class Environment {
      * @return value stored in the strand.
      */
     public abstract Object getStrandLocal(String key);
+
+    public abstract Repository getRepository();
 }
