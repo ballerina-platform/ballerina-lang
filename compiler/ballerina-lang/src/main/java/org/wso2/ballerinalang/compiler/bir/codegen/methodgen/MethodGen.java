@@ -426,7 +426,6 @@ public class MethodGen {
         mv.visitInsn(ACONST_NULL);
         mv.visitInsn(ARETURN);
         mv.visitLabel(labelIf);
-
         mv.visitInsn(ICONST_1);
         mv.visitFieldInsn(PUTSTATIC, moduleClassPath, staticFieldName, "Z");
     }

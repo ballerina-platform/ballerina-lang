@@ -868,7 +868,6 @@ public class JvmTerminatorGen {
                 jvmClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
                         JvmCodeGenUtil.cleanupPathSeparators(MODULE_INIT_CLASS_NAME));
                 methodDesc = MODULE_INITIALIZER_METHOD_DESC;
-
                 this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, encodedMethodName, methodDesc, false);
                 return;
             }
