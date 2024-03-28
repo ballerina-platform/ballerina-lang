@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.runtime.util;
 
-import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.entity.Test;
@@ -130,7 +129,7 @@ public class TesterinaUtils {
         Object response = runTestModuleMain(initClazz, args, String[].class);
         if (response instanceof Throwable) {
             throw new BallerinaTestException("dependant module execution for test suite failed due to " +
-                    formatErrorMessage((Throwable) response), (Throwable) response);
+                    RuntimeUtils.formatErrorMessage((Throwable) response), (Throwable) response);
         }
     }
 
@@ -147,7 +146,7 @@ public class TesterinaUtils {
             return targetException;
         } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
             return new BallerinaTestException("Failed to invoke the function '" + TESTERINA_MAIN_METHOD + " due to " +
-                    formatErrorMessage(e), e);
+                    RuntimeUtils.formatErrorMessage(e), e);
         }
     }
 
@@ -157,22 +156,7 @@ public class TesterinaUtils {
             return Math.toIntExact((long) method.invoke(null));
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new BallerinaTestException("Failed to invoke the function '" + GET_TEST_EXEC_STATE + " due to " +
-                    formatErrorMessage(e), e);
-        }
-    }
-
-    private static String formatErrorMessage(Throwable e) {
-        try {
-            if (e instanceof BError) {
-                return ((BError) e).getPrintableStackTrace();
-            } else if (e instanceof Exception | e instanceof Error) {
-                return TesterinaUtils.getPrintableStackTrace(e);
-            } else {
-                return TesterinaUtils.getPrintableStackTrace(e);
-            }
-        } catch (ClassCastException classCastException) {
-            // If an unhandled error type is passed to format error message
-            return TesterinaUtils.getPrintableStackTrace(e);
+                    RuntimeUtils.formatErrorMessage(e), e);
         }
     }
 
@@ -344,54 +328,6 @@ public class TesterinaUtils {
     public static List<org.ballerinalang.test.runtime.entity.Test> getSingleExecutionTestsOld(
             List<org.ballerinalang.test.runtime.entity.Test> currentTests, List<String> functions) {
         return Collections.emptyList();
-    }
-
-    public static String getPrintableStackTrace(Throwable throwable) {
-        String errorMsg = throwable.toString();
-        StringBuilder sb = new StringBuilder();
-        sb.append(errorMsg);
-        // Append function/action/resource name with package path (if any)
-        StackTraceElement[] stackTrace = throwable.getStackTrace();
-        if (stackTrace.length == 0) {
-            return sb.toString();
-        }
-        sb.append("\n\tat ");
-        // print first element
-        printStackElement(sb, stackTrace[0], "");
-        for (int i = 1; i < stackTrace.length; i++) {
-            printStackElement(sb, stackTrace[i], "\n\t   ");
-        }
-        return sb.toString();
-    }
-
-    private static void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
-        String pkgName = Utils.decodeIdentifier(stackTraceElement.getClassName());
-        String fileName = stackTraceElement.getFileName();
-
-        if (fileName == null) {
-            fileName = "unknown-source";
-        }
-
-        // clean file name from pkgName since we print the file name after the method name.
-        fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
-        fileName = fileName.replace("/", "-");
-        int index = pkgName.lastIndexOf("." + fileName);
-        if (index != -1) {
-            pkgName = pkgName.substring(0, index);
-        }
-        // todo we need to seperate orgname and module name with '/'
-
-        sb.append(tab);
-        if (!pkgName.equals(MODULE_INIT_CLASS_NAME)) {
-            sb.append(pkgName).append(":");
-        }
-
-        // Append the method name
-        sb.append(Utils.decodeIdentifier(stackTraceElement.getMethodName()));
-        // Append the filename
-        sb.append("(").append(fileName);
-        // Append the line number
-        sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
     }
 
     public static StackTraceElement[] getStackTrace(Throwable throwable) {

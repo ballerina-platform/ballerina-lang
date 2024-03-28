@@ -42,23 +42,6 @@ public class SQLDBUtils {
     private static final Logger LOG = LoggerFactory.getLogger(SQLDBUtils.class);
 
     /**
-     * Delete the given directory along with all files and sub directories.
-     *
-     * @param directory Directory to delete.
-     */
-    public static boolean deleteDirectory(File directory) {
-        if (directory.isDirectory()) {
-            for (File f : directory.listFiles()) {
-                boolean success = deleteDirectory(f);
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-        return directory.delete();
-    }
-
-    /**
      * Delete all the files and sub directories which matches given prefix in a given directory.
      *
      * @param directory Directory which contains files to delete.
@@ -68,7 +51,7 @@ public class SQLDBUtils {
         if (directory.isDirectory()) {
             for (File f : directory.listFiles()) {
                 if (f.getName().startsWith(affix) || f.getName().endsWith(affix)) {
-                    deleteDirectory(f);
+                    BFileUtil.deleteDirectory(f);
                 }
             }
         }
@@ -162,7 +145,7 @@ public class SQLDBUtils {
         }
 
         public void stop() {
-            SQLDBUtils.deleteDirectory(new File(this.dbDirectory));
+            BFileUtil.deleteDirectory(new File(this.dbDirectory));
         }
     }
 
