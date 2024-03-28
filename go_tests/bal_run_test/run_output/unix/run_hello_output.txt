@@ -1,0 +1,6 @@
+Compiling source
+        pabadhi/bal_run_hello:0.1.0
+
+Running executable
+
+Hello, World!

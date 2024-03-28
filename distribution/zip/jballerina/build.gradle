@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ plugins {
 
 apply from: "$rootDir/gradle/repositories.gradle"
 apply from: "$rootDir/gradle/javaLibsProject.gradle"
+apply from: "$rootDir/executables/go.gradle"
 
 configurations {
     dist {
@@ -123,10 +124,15 @@ CopySpec copyResourceSpec = copySpec {
     into(basePath + '/bre')
 }
 
-//CopySpec copySrcBalaSpec = copySpec {
-//    from configurations.balSource.files
-//    into("$basePath/src")
-//}
+// tasks.register('setBallerinaVersion', Exec) {
+//     doFirst {
+//         environment 'BALLERINA_VERSION', project.version
+//     }
+//     commandLine 'echo', "Ballerina Version: ${project.version}"
+// }
+// tasks.named('go_build').configure {
+//     dependsOn setBallerinaVersion
+// }
 
 
 task createZip(type: Zip) {
@@ -135,7 +141,6 @@ task createZip(type: Zip) {
     with copyBinSpec
     with copyStaticSpec
     with copyResourceSpec
-//    with copySrcBalaSpec
     with copyBalxSpec
 }
 
@@ -152,6 +157,7 @@ artifacts {
 }
 
 build {
+    dependsOn go_build
     dependsOn createZip
 }
 
