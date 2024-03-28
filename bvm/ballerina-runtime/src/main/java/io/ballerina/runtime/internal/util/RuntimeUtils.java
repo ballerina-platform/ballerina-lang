@@ -160,6 +160,12 @@ public class RuntimeUtils {
         }
     }
 
+    public static void handleRuntimeErrorReturns(Object returnValue) {
+        if (returnValue instanceof ErrorValue errorValue) {
+            errStream.println("error: " + errorValue.getPrintableError());
+        }
+    }
+
     public static void handleDiagnosticErrors(RuntimeDiagnosticLog diagnosticLog) {
         diagnosticLog.getDiagnosticList().forEach(diagnostic -> errStream.println(diagnostic.toString()));
         if (diagnosticLog.getErrorCount() > 0) {

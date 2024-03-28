@@ -181,7 +181,7 @@ public class JvmConstants {
     public static final String MODULE_VAR_PREFIX = "$module";
 
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
-    public static final String TOML_DETAILS = "io/ballerina/runtime/internal/configurable/providers/toml/TomlDetails";
+    public static final String CONFIG_DETAILS = "io/ballerina/runtime/internal/configurable/providers/ConfigDetails";
     public static final String CLI_TEST_ARGS = "io/ballerina/runtime/internal/configurable/providers/cli/CliTestArgs";
     public static final String TEST_ARGUMENTS = "io/ballerina/runtime/internal/testable/TestArguments";
     public static final String TEST_CONFIG_ARGS = "io/ballerina/runtime/internal/testable/TestConfigArguments";
@@ -290,6 +290,7 @@ public class JvmConstants {
     public static final String HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
     public static final String UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
     public static final String HANDLE_STOP_PANIC_METHOD = "handleAllRuntimeErrors";
+    public static final String HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT = "handleRuntimeErrorReturns";
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
