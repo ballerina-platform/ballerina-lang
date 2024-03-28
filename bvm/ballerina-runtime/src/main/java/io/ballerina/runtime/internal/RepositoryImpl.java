@@ -35,6 +35,7 @@ import java.util.UUID;
  * @since 2201.9.0
  */
 public class RepositoryImpl implements Repository {
+
     private static final Map<ObjectValue, ObjectValue> serviceListenerMap = new HashMap<>();
     private static final Map<ObjectValue, ObjectValue> listenerServiceMap = new HashMap<>();
     private static final String nodeId = generateNodeId();
@@ -71,7 +72,7 @@ public class RepositoryImpl implements Repository {
     }
 
     private Artifact createArtifact(ObjectValue service, ObjectValue listener) {
-        Artifact artifact = new Artifact(service.toString(), Artifact.ArtifactType.SERVICE);
+        ArtifactImpl artifact = new ArtifactImpl(service.toString(), Artifact.ArtifactType.SERVICE);
         List<ObjectValue> listeners = (List<ObjectValue>) artifact.getDetail("listeners");
         if (listeners == null) {
             listeners = new ArrayList<>();
@@ -99,5 +100,26 @@ public class RepositoryImpl implements Repository {
 
     private static String generateNodeId() {
         return UUID.randomUUID().toString();
+    }
+
+    /**
+     * The implementation of Ballerina runtime artifacts.
+     */
+    private static class ArtifactImpl extends Artifact {
+        private final Map<String, Object> details;
+
+        public ArtifactImpl(String name, ArtifactType type) {
+            super(name, type);
+            this.details = new HashMap<>();
+        }
+
+        private void addDetail(String detailsKey, Object value) {
+            this.details.put(detailsKey, value);
+        }
+
+        @Override
+        public Object getDetail(String detailKey) {
+            return details.getOrDefault(detailKey, null);
+        }
     }
 }

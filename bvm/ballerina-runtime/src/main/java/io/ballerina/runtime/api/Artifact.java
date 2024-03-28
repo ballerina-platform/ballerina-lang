@@ -16,34 +16,24 @@
 
 package io.ballerina.runtime.api;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Represents a Ballerina artifact.
  *
  * @since 2201.9.0
  */
-public class Artifact {
+public abstract class Artifact {
+
     public final String name;
     public final ArtifactType type;
-    public final Map<String, Object> details;
+
+    protected Artifact(String name, ArtifactType type) {
+        this.name = name;
+        this.type = type;
+    }
 
     public enum ArtifactType {
         SERVICE
     }
 
-    public Artifact(String name, ArtifactType type) {
-        this.name = name;
-        this.type = type;
-        this.details = new HashMap<>();
-    }
-
-    public void addDetail(String detailsKey, Object value) {
-        this.details.put(detailsKey, value);
-    }
-
-    public Object getDetail(String detailKey) {
-        return details.getOrDefault(detailKey, null);
-    }
+    public abstract Object getDetail(String detailKey);
 }
