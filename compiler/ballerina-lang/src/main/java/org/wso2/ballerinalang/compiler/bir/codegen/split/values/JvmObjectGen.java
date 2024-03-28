@@ -63,7 +63,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CALLS_PER_CLIENT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REPOSITORY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPOSITORY_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_SERVICE_LISTENER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOBJECT_CALL;
@@ -166,7 +166,7 @@ public class JvmObjectGen {
                 mv.visitVarInsn(ALOAD, 3);
                 mv.visitInsn(ICONST_1);
                 mv.visitInsn(AALOAD);
-                mv.visitMethodInsn(INVOKESTATIC, RUNTIME_REPOSITORY, "addServiceListener", ADD_SERVICE_LISTENER,
+                mv.visitMethodInsn(INVOKESTATIC, REPOSITORY_IMPL, "addServiceListener", ADD_SERVICE_LISTENER,
                         false);
                 mv.visitVarInsn(ALOAD, 4);
             }

@@ -18,7 +18,6 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Artifact;
 import io.ballerina.runtime.api.Repository;
-import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.types.BServiceType;
@@ -39,6 +38,8 @@ public class RepositoryImpl implements Repository {
     private static final Map<ObjectValue, ObjectValue> serviceListenerMap = new HashMap<>();
     private static final Map<ObjectValue, ObjectValue> listenerServiceMap = new HashMap<>();
     private static final String nodeId = generateNodeId();
+    private static String balHome;
+    private static String balVersion;
 
     @Override
     public List<Artifact> getArtifacts() {
@@ -65,9 +66,8 @@ public class RepositoryImpl implements Repository {
 
     @Override
     public NodeInfo getNodeInformation() {
-        return new NodeInfo(nodeId, System.getProperty(RuntimeConstants.BALLERINA_VERSION),
-                System.getProperty(RuntimeConstants.BALLERINA_HOME),
-                System.getProperty("os.name"), System.getProperty("os.version"));
+        return new NodeInfo(nodeId, balVersion, balHome, System.getProperty("os.name"),
+                System.getProperty("os.version"));
     }
 
     private Artifact createArtifact(ObjectValue service, ObjectValue listener) {
@@ -90,6 +90,11 @@ public class RepositoryImpl implements Repository {
         serviceType.attachPoint = attachPoint;
         serviceListenerMap.put((ObjectValue) service, (ObjectValue) listener);
         listenerServiceMap.put((ObjectValue) listener, (ObjectValue) service);
+    }
+
+    public static void addBallerinaInformation(String balHome, String balVersion) {
+        RepositoryImpl.balHome = balHome;
+        RepositoryImpl.balVersion = balVersion;
     }
 
     private static String generateNodeId() {
