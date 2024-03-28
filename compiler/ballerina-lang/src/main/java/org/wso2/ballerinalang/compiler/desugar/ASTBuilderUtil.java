@@ -102,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -268,6 +269,16 @@ public class ASTBuilderUtil {
         foreach.body = ASTBuilderUtil.createBlockStmt(pos);
         foreach.collection = collectionVarRef;
         return foreach;
+    }
+
+    static BLangWhile createWhile(Location pos,
+                                  BLangExpression condition,
+                                  BLangBlockStmt body) {
+        final BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
+        whileNode.pos = pos;
+        whileNode.body = body;
+        whileNode.expr = condition;
+        return whileNode;
     }
 
     static BLangSimpleVariableDef createVariableDefStmt(Location pos, BlockNode target) {
