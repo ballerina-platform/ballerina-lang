@@ -93,6 +93,21 @@ public class DependenciesTomlTests {
         Assert.assertTrue(github.isTransitive());
         Assert.assertEquals(github.dependencies().size(), 1);
         Assert.assertEquals(github.modules().size(), 0);
+
+        List<DependencyManifest.Tool> tools = new ArrayList<>(depsManifest.tools());
+        Assert.assertEquals(tools.size(), 2);
+
+        DependencyManifest.Tool openapiTool = tools.get(0);
+        Assert.assertEquals(openapiTool.id().value(), "openapi");
+        Assert.assertEquals(openapiTool.org().value(), "ballerina");
+        Assert.assertEquals(openapiTool.name().value(), "openapi_tool");
+        Assert.assertEquals(openapiTool.version().toString(), "0.2.0");
+
+        DependencyManifest.Tool persistTool = tools.get(1);
+        Assert.assertEquals(persistTool.id().value(), "persist");
+        Assert.assertEquals(persistTool.org().value(), "ballerinax");
+        Assert.assertEquals(persistTool.name().value(), "persist_tool");
+        Assert.assertEquals(persistTool.version().toString(), "1.2.0");
     }
 
     @Test(description = "Test dependencies.toml without distribution version")
@@ -337,6 +352,92 @@ public class DependenciesTomlTests {
         Diagnostic firstDiagnostic = iterator.next();
         Assert.assertEquals(firstDiagnostic.message(), "key 'version' not supported in schema 'dependencies'");
         Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(13:37,13:54)");
+    }
+
+    @Test(description = "Invalid Dependencies.toml file with invalid tool ids")
+    public void testDependenciesTomlWithInvalidToolId() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("tool-with-invalid-id-value.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
+
+        Assert.assertTrue(diagnostics.hasErrors());
+        Assert.assertEquals(diagnostics.errors().size(), 5);
+
+        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "invalid 'id' under [[tool]]: " +
+                "'id' cannot have initial underscore characters");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(26:5,26:11)");
+        Diagnostic secondDiagnostic = iterator.next();
+        Assert.assertEquals(secondDiagnostic.message(), "invalid 'id' under [[tool]]: " +
+                "'id' cannot have trailing underscore characters");
+        Assert.assertEquals(secondDiagnostic.location().lineRange().toString(), "(32:5,32:11)");
+        Diagnostic thirdDiagnostic = iterator.next();
+        Assert.assertEquals(thirdDiagnostic.message(), "invalid 'id' under [[tool]]: " +
+                "'id' cannot have consecutive underscore characters");
+        Assert.assertEquals(thirdDiagnostic.location().lineRange().toString(), "(38:5,38:12)");
+        Diagnostic fourthDiagnostic = iterator.next();
+        Assert.assertEquals(fourthDiagnostic.message(), "invalid 'id' under [[tool]]: " +
+                "'id' can only contain alphanumerics and underscores");
+        Assert.assertEquals(fourthDiagnostic.location().lineRange().toString(), "(44:5,44:11)");
+        Diagnostic fifthDiagnostic = iterator.next();
+        Assert.assertEquals(fifthDiagnostic.message(), "invalid 'id' under [[tool]]: " +
+                "'id' cannot have initial numeric characters");
+        Assert.assertEquals(fifthDiagnostic.location().lineRange().toString(), "(50:5,50:11)");
+    }
+
+    @Test(description = "Invalid Dependencies.toml file with invalid org, name in tool array")
+    public void testDependenciesTomlWithInvalidToolOrgNameVersion() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("tool-with-invalid-org-name-version-value.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
+
+        Assert.assertTrue(diagnostics.hasErrors());
+        Assert.assertEquals(diagnostics.errors().size(), 3);
+
+        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "invalid 'org' under [[tool]]: " +
+                "maximum length of 'org' is 256 characters");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(26:6,26:337)");
+        Diagnostic secondDiagnostic = iterator.next();
+        Assert.assertEquals(secondDiagnostic.message(), "invalid 'name' under [[tool]]: " +
+                "maximum length of 'name' is 256 characters");
+        Assert.assertEquals(secondDiagnostic.location().lineRange().toString(), "(27:7,27:303)");
+        Diagnostic thirdDiagnostic = iterator.next();
+        Assert.assertEquals(thirdDiagnostic.message(), "invalid 'version' under [[tool]]: " +
+                "'version' should be compatible with semver");
+        Assert.assertEquals(thirdDiagnostic.location().lineRange().toString(), "(28:10,28:16)");
+    }
+
+    @Test(description = "Invalid Dependencies.toml file with missing org field in tool array")
+    public void testInvalidDependenciesTomlToolWithoutOrg() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("tool-wo-org.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
+        Assert.assertTrue(diagnostics.hasErrors());
+        Assert.assertEquals(diagnostics.errors().size(), 1);
+        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "'org' under [[tool]] is missing");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(25:0,28:17)");
+    }
+
+    @Test(description = "Invalid Dependencies.toml file with missing org value in tool array")
+    public void testInvalidDependenciesTomlWithoutToolOrgValue() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("tool-wo-org-value.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
+        Assert.assertTrue(diagnostics.hasErrors());
+        Assert.assertEquals(diagnostics.errors().size(), 1);
+        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(28:0,28:0)");
+        Assert.assertEquals(firstDiagnostic.message(), "missing value");
     }
 
     private DependencyManifest getDependencyManifest(Path dependenciesTomlPath) throws IOException {

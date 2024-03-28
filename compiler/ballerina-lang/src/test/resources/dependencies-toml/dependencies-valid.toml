@@ -41,3 +41,15 @@ scope = "testOnly"
 dependencies = [
     {org = "ballerina", name = "jballerina.java"}
 ]
+
+[[tool]]
+id = "openapi"
+org = "ballerina"
+name = "openapi_tool"
+version = "0.2.0"
+
+[[tool]]
+id = "persist"
+org = "ballerinax"
+name = "persist_tool"
+version = "1.2.0"

@@ -682,7 +682,7 @@ public class CentralAPIClient {
             }
             logResponseVerbose(packagePullResponse, pkgPullResBodyContent);
 
-            // 302 - Package is found
+            // 200 - Package is found
             if (packagePullResponse.code() == HTTP_OK) {
                 Optional<String> org = Optional.empty();
                 Optional<String> pkgName = Optional.empty();
