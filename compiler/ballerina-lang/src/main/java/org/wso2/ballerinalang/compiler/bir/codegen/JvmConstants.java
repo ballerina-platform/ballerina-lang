@@ -290,6 +290,7 @@ public class JvmConstants {
     public static final String HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
     public static final String UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
     public static final String HANDLE_STOP_PANIC_METHOD = "handleAllRuntimeErrors";
+    public static final String HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT = "handleRuntimeErrorReturns";
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
