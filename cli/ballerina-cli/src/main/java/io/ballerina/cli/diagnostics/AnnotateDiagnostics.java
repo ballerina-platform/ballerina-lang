@@ -20,6 +20,7 @@ package io.ballerina.cli.diagnostics;
 
 import io.ballerina.compiler.internal.diagnostics.StringDiagnosticProperty;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.internal.PackageDiagnostic;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static io.ballerina.cli.diagnostics.DiagnosticAnnotation.NEW_LINE;
 import static io.ballerina.cli.diagnostics.DiagnosticAnnotation.SEVERITY_COLORS;
@@ -53,16 +55,17 @@ public class AnnotateDiagnostics {
     private static final int SYNTAX_ERROR_CODE_THRESHOLD = 1000;
     private static final int MISSING_TOKEN_KEYWORD_CODE_THRESHOLD = 400;
     private static final int INVALID_TOKEN_CODE = 600;
+    private static final int NO_TRUNCATE_WIDTH = 999;
 
     public static Ansi renderDiagnostic(Diagnostic diagnostic, Document document, int terminalWidth,
                                         boolean colorEnabled) {
 
         String diagnosticCode = diagnostic.diagnosticInfo().code();
-        if (diagnostic instanceof PackageDiagnostic && diagnosticCode != null &&
+        terminalWidth = terminalWidth == 0 ? NO_TRUNCATE_WIDTH : terminalWidth;
+        if (diagnostic instanceof PackageDiagnostic packageDiagnostic && diagnosticCode != null &&
                 diagnosticCode.startsWith(COMPILER_ERROR_PREFIX)) {
             int diagnosticCodeNumber = Integer.parseInt(diagnosticCode.substring(3));
             if (diagnosticCodeNumber < SYNTAX_ERROR_CODE_THRESHOLD) {
-                PackageDiagnostic packageDiagnostic = (PackageDiagnostic) diagnostic;
                 return Ansi.ansi()
                         .render(diagnosticToString(diagnostic, colorEnabled) + NEW_LINE + getSyntaxDiagnosticAnnotation(
                                 document, packageDiagnostic, diagnosticCodeNumber, terminalWidth, colorEnabled));
@@ -78,7 +81,7 @@ public class AnnotateDiagnostics {
         try {
             return TerminalBuilder.builder().dumb(true).build().getWidth();
         } catch (IOException e) {
-            return 999;
+            return NO_TRUNCATE_WIDTH;
         }
     }
 
@@ -89,15 +92,12 @@ public class AnnotateDiagnostics {
     public static Map<String, Document> getDocumentMap(Package currentPackage) {
         Map<String, Document> documentMap = new HashMap<>();
         currentPackage.moduleIds().forEach(moduleId -> {
-            currentPackage.module(moduleId).documentIds().forEach(documentId -> {
+            Consumer<DocumentId> consumer = documentId -> {
                 Document document = currentPackage.module(moduleId).document(documentId);
                 documentMap.put(getDocumentPath(document.module().moduleName(), document.name()), document);
-            });
-            currentPackage.module(moduleId).testDocumentIds().forEach(documentId -> {
-                Document document = currentPackage.module(moduleId).document(documentId);
-                documentMap.put(getDocumentPath(document.module().moduleName(), document.name()),
-                        document);
-            });
+            };
+            currentPackage.module(moduleId).documentIds().forEach(consumer);
+            currentPackage.module(moduleId).testDocumentIds().forEach(consumer);
         });
 
         return documentMap;
@@ -128,20 +128,18 @@ public class AnnotateDiagnostics {
                                                                        DiagnosticSeverity severity, int terminalWidth,
                                                                        boolean colorEnabled) {
         TextDocument textDocument = document.textDocument();
-        int startOffset = location.lineRange().startLine().offset();
-        int endOffset = location.lineRange().endLine().offset();
-        int startLine = location.lineRange().startLine().line();
-        int endLine = location.lineRange().endLine().line();
-        boolean isMultiline = startLine != endLine;
-        int length = isMultiline ? textDocument.line(startLine).length() - startOffset : endOffset - startOffset;
+        LocationDetails locationDetails = getLocationDetails(location);
+        boolean isMultiline = locationDetails.startLine != locationDetails.endLine;
+        int length = isMultiline ? textDocument.line(locationDetails.startLine).length() - locationDetails.startOffset :
+                locationDetails.endOffset - locationDetails.startOffset;
 
         return new DiagnosticAnnotation(
-                getLines(textDocument, startLine, endLine),
-                startOffset,
+                getLines(textDocument, locationDetails.startLine, locationDetails.endLine),
+                locationDetails.startOffset,
                 length == 0 ? 1 : length,
                 isMultiline,
-                endOffset,
-                startLine + 1,
+                locationDetails.endOffset,
+                locationDetails.startLine + 1,
                 severity,
                 DiagnosticAnnotation.DiagnosticAnnotationType.REGULAR,
                 terminalWidth, colorEnabled);
@@ -153,61 +151,75 @@ public class AnnotateDiagnostics {
                                                                       boolean colorEnabled) {
         TextDocument textDocument = document.textDocument();
         Location location = packageDiagnostic.location();
-        int startLine = location.lineRange().startLine().line();
-        int startOffset = location.lineRange().startLine().offset();
+        LocationDetails locationDetails = getLocationDetails(location);
         int padding = 0;
-        int endLine = location.lineRange().endLine().line();
-        int endOffset = location.lineRange().endLine().offset();
         String color = SEVERITY_COLORS.get(DiagnosticSeverity.ERROR);
 
         if (diagnosticCode < MISSING_TOKEN_KEYWORD_CODE_THRESHOLD) {
-            StringDiagnosticProperty strProperty = (StringDiagnosticProperty) packageDiagnostic.properties().get(0);
-            String lineString = textDocument.line(startLine).text();
-            String missingTokenString = getColoredString(strProperty.value(), color, colorEnabled);
-            if (startOffset < lineString.length() && lineString.charAt(startOffset) != ' ') {
-                missingTokenString = missingTokenString + " ";
-            }
-            if (startOffset > 0 && lineString.charAt(startOffset - 1) != ' ') {
-                missingTokenString = " " + missingTokenString;
-                padding++;
-            }
-
-            String lineWithMissingToken = lineString.substring(0, startOffset) + missingTokenString +
-                    lineString.substring(startOffset);
-            List<String> lines = new ArrayList<>();
-            lines.add(lineWithMissingToken);
-            return new DiagnosticAnnotation(
-                    lines,
-                    padding + startOffset,
-                    strProperty.value().length(),
-                    false,
-                    0,
-                    startLine + 1,
-                    DiagnosticSeverity.ERROR,
-                    DiagnosticAnnotation.DiagnosticAnnotationType.MISSING,
-                    terminalWidth, colorEnabled);
+            return getMissingTokenAnnotation(packageDiagnostic, textDocument, locationDetails, color, colorEnabled,
+                    terminalWidth, padding);
         }
 
         if (diagnosticCode == INVALID_TOKEN_CODE) {
-            List<String> lines = getLines(textDocument, startLine, endLine);
-            String line = lines.get(0);
-            String annotatedLine = line.substring(0, startOffset) +
-                    getColoredString(line.substring(startOffset, endOffset), color, colorEnabled) +
-                    line.substring(endOffset);
-            lines.set(0, annotatedLine);
-            return new DiagnosticAnnotation(
-                    lines,
-                    startOffset,
-                    endOffset - startOffset,
-                    false,
-                    0,
-                    startLine + 1,
-                    DiagnosticSeverity.ERROR,
-                    DiagnosticAnnotation.DiagnosticAnnotationType.INVALID,
-                    terminalWidth, colorEnabled);
+            return getInvalidTokenAnnotation(textDocument, locationDetails, color, colorEnabled, terminalWidth);
         }
         return getDiagnosticLineFromSyntaxAPI(document, location, DiagnosticSeverity.ERROR, terminalWidth,
                 colorEnabled);
+    }
+
+    private static DiagnosticAnnotation getMissingTokenAnnotation(PackageDiagnostic packageDiagnostic,
+                                                                  TextDocument textDocument,
+                                                                  LocationDetails locationDetails, String color,
+                                                                  boolean colorEnabled, int terminalWidth,
+                                                                  int padding) {
+        StringDiagnosticProperty strProperty = (StringDiagnosticProperty) packageDiagnostic.properties().get(0);
+        String lineString = textDocument.line(locationDetails.startLine).text();
+        String missingTokenString = getColoredString(strProperty.value(), color, colorEnabled);
+        if (locationDetails.startOffset < lineString.length() &&
+                lineString.charAt(locationDetails.startOffset) != ' ') {
+            missingTokenString = missingTokenString + " ";
+        }
+        if (locationDetails.startOffset > 0 && lineString.charAt(locationDetails.startOffset - 1) != ' ') {
+            missingTokenString = " " + missingTokenString;
+            padding++;
+        }
+
+        String lineWithMissingToken = lineString.substring(0, locationDetails.startOffset) + missingTokenString +
+                lineString.substring(locationDetails.startOffset);
+        List<String> lines = new ArrayList<>();
+        lines.add(lineWithMissingToken);
+        return new DiagnosticAnnotation(
+                lines,
+                padding + locationDetails.startOffset,
+                strProperty.value().length(),
+                false,
+                0,
+                locationDetails.startLine + 1,
+                DiagnosticSeverity.ERROR,
+                DiagnosticAnnotation.DiagnosticAnnotationType.MISSING,
+                terminalWidth, colorEnabled);
+    }
+
+    private static DiagnosticAnnotation getInvalidTokenAnnotation(TextDocument textDocument,
+                                                                  LocationDetails locationDetails, String color,
+                                                                  boolean colorEnabled, int terminalWidth) {
+        List<String> lines = getLines(textDocument, locationDetails.startLine, locationDetails.endLine);
+        String line = lines.get(0);
+        String annotatedLine = line.substring(0, locationDetails.startOffset) +
+                getColoredString(line.substring(locationDetails.startOffset, locationDetails.endOffset), color,
+                        colorEnabled) +
+                line.substring(locationDetails.endOffset);
+        lines.set(0, annotatedLine);
+        return new DiagnosticAnnotation(
+                lines,
+                locationDetails.startOffset,
+                locationDetails.endOffset - locationDetails.startOffset,
+                false,
+                0,
+                locationDetails.startLine + 1,
+                DiagnosticSeverity.ERROR,
+                DiagnosticAnnotation.DiagnosticAnnotationType.INVALID,
+                terminalWidth, colorEnabled);
     }
 
     private static List<String> getLines(TextDocument textDocument, int start, int end) {
@@ -216,6 +228,26 @@ public class AnnotateDiagnostics {
             lines.add(textDocument.line(i).text());
         }
         return lines;
+    }
+
+    private static LocationDetails getLocationDetails(Location location) {
+        int startLine = location.lineRange().startLine().line();
+        int startOffset = location.lineRange().startLine().offset();
+        int endLine = location.lineRange().endLine().line();
+        int endOffset = location.lineRange().endLine().offset();
+        return new LocationDetails(startLine, startOffset, endLine, endOffset);
+    }
+
+    /**
+     * Represents the location details of a diagnostic.
+     *
+     * @param startLine   The start line of the diagnostic.
+     * @param startOffset The start offset of the diagnostic.
+     * @param endLine     The end line of the diagnostic.
+     * @param endOffset   The end offset of the diagnostic.
+     */
+    private record LocationDetails(int startLine, int startOffset, int endLine, int endOffset) {
+
     }
 
 }
