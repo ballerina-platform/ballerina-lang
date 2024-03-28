@@ -1,11 +1,11 @@
 import object_mocking.TestHttpClient;
 
 TestHttpClient:AttributeDAO mockAttributeDAO = {
-        id: "aaa-bbb-ccc",
-        name: "mock organization name",
-        description: "This is mock organization",
-        created_at: 1627639797657
-    };
+    id: "aaa-bbb-ccc",
+    name: "mock organization name",
+    description: "This is mock organization",
+    created_at: 1627639797657
+};
 
 function returnMockedAttributeDAOStream() returns stream<TestHttpClient:AttributeDAO, TestHttpClient:Error> {
     stream<TestHttpClient:AttributeDAO, TestHttpClient:Error> attributeDAOStream = new (new AttributeDAOStreamImplementor());
@@ -19,12 +19,14 @@ function returnDAOStreamWithGenericError() returns stream<TestHttpClient:Attribu
 
 class AttributeDAOStreamImplementor {
     private int index = 0;
-    private TestHttpClient:AttributeDAO[] currentEntries = [{
-        id: "aaa-bbb-ccc",
-        name: "mock organization name",
-        description: "This is mock organization",
-        created_at: 1627639797657
-    }];
+    private TestHttpClient:AttributeDAO[] currentEntries = [
+        {
+            id: "aaa-bbb-ccc",
+            name: "mock organization name",
+            description: "This is mock organization",
+            created_at: 1627639797657
+        }
+    ];
 
     isolated function init() {
     }
@@ -41,12 +43,14 @@ class AttributeDAOStreamImplementor {
 
 class InvalidAttributeDAOStreamImplementor {
     private int index = 0;
-    private TestHttpClient:AttributeDAO[] currentEntries = [{
-        id: "aaa-bbb-ccc",
-        name: "mock organization name",
-        description: "This is mock organization",
-        created_at: 1627639797657
-    }];
+    private TestHttpClient:AttributeDAO[] currentEntries = [
+        {
+            id: "aaa-bbb-ccc",
+            name: "mock organization name",
+            description: "This is mock organization",
+            created_at: 1627639797657
+        }
+    ];
 
     isolated function init() {
     }

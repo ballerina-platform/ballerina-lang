@@ -1,3 +1,5 @@
+import object_mocking.TestHttpClient;
+
 // Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -13,9 +15,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import ballerina/test;
-import object_mocking.TestHttpClient;
 
 // Mock Object definition
 public client class MockHttpClient {
@@ -63,7 +63,7 @@ function testProvideAReturnValue() {
 @test:Config {
 }
 function testMockStreamSuccess() {
-    clientEndpoint = test:mock(TestHttpClient:HttpClient);  
+    clientEndpoint = test:mock(TestHttpClient:HttpClient);
     test:prepare(clientEndpoint).when("get_stream").thenReturn(returnMockedAttributeDAOStream());
     TestHttpClient:AttributeDAO|error result = getAttribute();
     test:assertEquals(result, mockAttributeDAO);
@@ -84,7 +84,6 @@ function testProvideErrorReturnValue() {
 @test:Config {}
 function testProvideAReturnValueBasedOnInput() {
     TestHttpClient:HttpClient mockClient = test:mock(TestHttpClient:HttpClient);
-
 
     test:prepare(mockClient).when("get").withArguments("/path1").thenReturn("returning value based on input");
     clientEndpoint = mockClient;
@@ -131,8 +130,8 @@ function testDependentlyTypedFunctions_thenReturn() {
 
 @test:Config {}
 function testDependentlyTypedFunctions_testDouble() {
-      pObj = test:mock(PersonObj, new MockPersonObj("John", "Doe"));
+    pObj = test:mock(PersonObj, new MockPersonObj("John", "Doe"));
 
-      var s = pObj.getValue("id3", td = string);
-      test:assertEquals(s, "mock value");
+    var s = pObj.getValue("id3", td = string);
+    test:assertEquals(s, "mock value");
 }

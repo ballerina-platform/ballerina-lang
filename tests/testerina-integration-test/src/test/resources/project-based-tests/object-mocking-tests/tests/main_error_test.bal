@@ -1,3 +1,5 @@
+import object_mocking.TestHttpClient;
+
 // Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -13,14 +15,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import ballerina/test;
-import object_mocking.TestHttpClient;
 
 public client class MockHttpClientSigErr {
-     remote function get(int path) returns string {
-          return "/error";
-     }
+    remote function get(int path) returns string {
+        return "/error";
+    }
 }
 
 //@test:Config {}
@@ -52,19 +52,19 @@ function testDefaultTooManyArgs() {
 // when the type of arguments provided does not match the function signature
 @test:Config {}
 function testDefaultIncompatibleArgs() {
-  TestHttpClient:HttpClient mockHttpClient = test:mock(TestHttpClient:HttpClient);
-  test:prepare(mockHttpClient).when("get").withArguments(10.5).thenReturn("invalid args");
+    TestHttpClient:HttpClient mockHttpClient = test:mock(TestHttpClient:HttpClient);
+    test:prepare(mockHttpClient).when("get").withArguments(10.5).thenReturn("invalid args");
 }
 
 // when the object doesnt have a member variable of the specified name
 @test:Config {}
 function testDefaultMockInvalidFieldName() {
-     string mockClientUrl = "http://foo";
+    string mockClientUrl = "http://foo";
 
-     TestHttpClient:HttpClient mockClient = test:mock(TestHttpClient:HttpClient);
-     test:prepare(mockClient).getMember("invalidField").thenReturn(mockClientUrl);
-     clientEndpoint = mockClient;
-     test:assertEquals(getClientUrl(), mockClientUrl);
+    TestHttpClient:HttpClient mockClient = test:mock(TestHttpClient:HttpClient);
+    test:prepare(mockClient).getMember("invalidField").thenReturn(mockClientUrl);
+    clientEndpoint = mockClient;
+    test:assertEquals(getClientUrl(), mockClientUrl);
 }
 
 // when the member varible type doesnt match the return values
@@ -77,7 +77,7 @@ function testDefaultInvalidMemberReturnValue() {
 @test:Config {
 }
 function testMockInvalidStream() {
-    clientEndpoint = test:mock(TestHttpClient:HttpClient);  
+    clientEndpoint = test:mock(TestHttpClient:HttpClient);
     test:prepare(clientEndpoint).when("get_stream").thenReturn(returnDAOStreamWithGenericError());
     TestHttpClient:AttributeDAO|error result = getAttribute();
     test:assertEquals(result, mockAttributeDAO);

@@ -104,6 +104,14 @@ public class MockTest extends BaseTestCase {
     }
 
     @Test()
+    public void testResourceMocking() throws BallerinaTestException, IOException {
+        String[] args = mergeCoverageArgs(new String[]{"resource-mocking-tests"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        AssertionUtils.assertOutput("MockTest-testResourceMocking.txt", output);
+    }
+
+    @Test()
     public void testFunctionMockingModuleLevel() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
