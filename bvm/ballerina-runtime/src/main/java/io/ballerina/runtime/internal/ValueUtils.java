@@ -49,6 +49,7 @@ import io.ballerina.runtime.internal.values.ValueCreator;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -77,6 +78,22 @@ public class ValueUtils {
         return createRecordValue(packageId, recordTypeName, new HashSet<>());
     }
 
+    public static BMap<BString, Object> createRecordValueWithDefaultValues(Module packageId, String recordTypeName,
+                                                          List<String> notProvidedFields) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(packageId, false));
+        try {
+            return getPopulatedRecordValue(valueCreator, recordTypeName, notProvidedFields);
+        } catch (BError e) {
+            // If record type definition not found, get it from test module.
+            String testLookupKey = ValueCreator.getLookupKey(packageId, true);
+            if (ValueCreator.containsValueCreator(testLookupKey)) {
+                return getPopulatedRecordValue(ValueCreator.getValueCreator(testLookupKey), recordTypeName,
+                        notProvidedFields);
+            }
+            throw e;
+        }
+    }
+
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           Set<String> providedFields) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(packageId, false));
@@ -100,6 +117,13 @@ public class ValueUtils {
         return populateDefaultValues(recordValue, type, providedFields);
     }
 
+    private static BMap<BString, Object> getPopulatedRecordValue(ValueCreator valueCreator, String recordTypeName,
+                                                                 List<String> notProvidedFields) {
+        MapValue<BString, Object> recordValue = valueCreator.createRecordValue(recordTypeName);
+        BRecordType type = (BRecordType) TypeUtils.getImpliedType(recordValue.getType());
+        return populateDefaultValues(recordValue, type, notProvidedFields);
+    }
+
     public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type,
                                                               Set<String> providedFields) {
         Map<String, BFunctionPointer<Object, ?>> defaultValues = type.getDefaultValues();
@@ -107,6 +131,21 @@ public class ValueUtils {
             return recordValue;
         }
         defaultValues = getNonProvidedDefaultValues(defaultValues, providedFields);
+        return populateRecordDefaultValues(recordValue, defaultValues);
+    }
+
+    public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type,
+                                                              List<String> notProvidedFieldNames) {
+        Map<String, BFunctionPointer<Object, ?>> defaultValues = type.getDefaultValues();
+        if (defaultValues.isEmpty()) {
+            return recordValue;
+        }
+        defaultValues = getNonProvidedDefaultValues(defaultValues, notProvidedFieldNames);
+        return populateRecordDefaultValues(recordValue, defaultValues);
+    }
+
+    private static BMap<BString, Object> populateRecordDefaultValues(
+            BMap<BString, Object> recordValue, Map<String, BFunctionPointer<Object, ?>> defaultValues) {
         Strand strand = Scheduler.getStrandNoException();
         if (strand == null) {
             try {
@@ -133,6 +172,15 @@ public class ValueUtils {
             if (!providedFields.contains(entry.getKey())) {
                 result.put(entry.getKey(), entry.getValue());
             }
+        }
+        return result;
+    }
+
+    private static Map<String, BFunctionPointer<Object, ?>> getNonProvidedDefaultValues(
+            Map<String, BFunctionPointer<Object, ?>> defaultValues, List<String> notProvidedFieldNames) {
+        Map<String, BFunctionPointer<Object, ?>> result = new HashMap<>();
+        for (String notProvidedFieldName : notProvidedFieldNames) {
+            result.put(notProvidedFieldName, defaultValues.get(notProvidedFieldName));
         }
         return result;
     }

@@ -36,6 +36,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.ValueConverter;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
@@ -247,6 +248,11 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
+    public ArrayValueImpl(Type type, long size) {
+        this((ArrayType) TypeUtils.getImpliedType(type), size);
+        this.type = type;
+    }
+
     // Used when the array value is created from a type reference type
     public ArrayValueImpl(Type type, long size, BListInitialValueEntry[] initialValues) {
         this(type, size, initialValues, null);
@@ -321,6 +327,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
             default:
                 return refValues[(int) index];
         }
+    }
+
+    public Object getRefValue(int index) {
+        return refValues[index];
     }
 
     /**
@@ -533,6 +543,73 @@ public class ArrayValueImpl extends AbstractArrayValue {
         addBString(index, value);
     }
 
+    public void addRefValueForcefully(int index, Object value) {
+        switch (this.elementReferredType.getTag()) {
+            case TypeTags.BOOLEAN_TAG:
+                prepareForAddForcefully(index, booleanValues.length);
+                this.booleanValues[index] = (Boolean) value;
+                return;
+            case TypeTags.FLOAT_TAG:
+                prepareForAddForcefully(index, floatValues.length);
+                this.floatValues[index] = (Double) value;
+                return;
+            case TypeTags.BYTE_TAG:
+                prepareForAddForcefully(index, byteValues.length);
+                this.byteValues[index] = ((Number) value).byteValue();
+                return;
+            case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
+                prepareForAddForcefully(index, intValues.length);
+                this.intValues[index] = (Long) value;
+                return;
+            case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
+                prepareForAddForcefully(index, bStringValues.length);
+                this.bStringValues[index] = (BString) value;
+                return;
+            default:
+                prepareForAddForcefully(index, refValues.length);
+                this.refValues[index] = value;
+        }
+    }
+
+    public void convertStringAndAddRefValue(long index, Object value) {
+        switch (this.elementReferredType.getTag()) {
+            case TypeTags.BOOLEAN_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.BYTE_TAG:
+            case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
+                throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
+                        INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorHelper.getErrorDetails(
+                        ErrorCodes.INCOMPATIBLE_TYPE, this.elementType, PredefinedTypes.TYPE_STRING));
+            case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
+                if (!TypeChecker.checkIsType(value, this.elementType)) {
+                    throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
+                            INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorHelper.getErrorDetails(
+                            ErrorCodes.INCOMPATIBLE_TYPE, this.elementType, PredefinedTypes.TYPE_STRING));
+                }
+                prepareForAddWithoutTypeCheck(index, bStringValues.length);
+                this.bStringValues[(int) index] = (BString) value;
+                return;
+            default:
+                Object val = ValueConverter.getConvertedStringValue((BString) value, this.elementType);
+                prepareForAddWithoutTypeCheck(index, refValues.length);
+                this.refValues[(int) index] = val;
+        }
+    }
+
     public void addRefValue(long index, Object value) {
         Type type = TypeChecker.getType(value);
         switch (this.elementReferredType.getTag()) {
@@ -567,6 +644,17 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 prepareForAdd(index, value, type, refValues.length);
                 this.refValues[(int) index] = value;
         }
+    }
+
+    public void setRefValueForcefully(int index, Object refValue) {
+        this.refValues[index] = refValue;
+    }
+
+    public void setArrayRefTypeForcefully(ArrayType type, int size) {
+        this.type = this.arrayType = type;
+        this.size = size;
+        this.elementType = type.getElementType();
+        this.elementReferredType = TypeUtils.getImpliedType(this.elementType);
     }
 
     public void addInt(long index, long value) {
@@ -1165,7 +1253,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
                     INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorHelper.getErrorDetails(
                             ErrorCodes.INCOMPATIBLE_TYPE, this.elementType, sourceType));
         }
+        prepareForAddWithoutTypeCheck(index, currentArraySize);
+    }
 
+    private void prepareForAddWithoutTypeCheck(long index, int currentArraySize) {
         int intIndex = (int) index;
         rangeCheck(index, size);
         fillerValueCheck(intIndex, size, intIndex + 1);

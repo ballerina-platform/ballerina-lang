@@ -21,7 +21,10 @@ package io.ballerina.runtime.api.utils;
 import io.ballerina.runtime.api.types.AnydataType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.JsonParser;
 import io.ballerina.runtime.internal.ValueConverter;
+
+import java.io.InputStream;
 
 /**
  * This class provides APIs needed for the type conversion in Ballerina.
@@ -43,5 +46,20 @@ public class ValueUtils {
      */
     public static Object convert(Object value, Type targetType) throws BError {
         return ValueConverter.convert(value, targetType);
+    }
+
+    /**
+     * Parses the given input stream and creates a value using a subtype of {@link AnydataType}
+     * given by the target type. The {@link InputStream} should only contain a sequence of characters
+     * that can be parsed as {@link io.ballerina.runtime.api.types.JsonType}, otherwise a {@link BError} is thrown.
+     * The user needs to close the {@link InputStream}.
+     *
+     * @param   in          input stream which contains the value content
+     * @param   targetType  target type
+     * @return              created value
+     * @throws              BError if the conversion fails.
+     */
+    public static Object parse(InputStream in, Type targetType) throws BError {
+        return JsonParser.parse(in, targetType);
     }
 }

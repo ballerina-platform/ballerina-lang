@@ -25,6 +25,8 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.JsonParser;
 
+import java.io.StringReader;
+
 /**
  * Parse a string in JSON format and return the the value that it represents.
  * All numbers in the JSON will be represented as decimal values.
@@ -39,7 +41,8 @@ public class FromJsonDecimalString {
             return null;
         }
         try {
-            return JsonParser.parse(str, JsonUtils.NonStringValueProcessingMode.FROM_JSON_DECIMAL_STRING);
+            return JsonParser.parse(new StringReader(str),
+                    JsonUtils.NonStringValueProcessingMode.FROM_JSON_DECIMAL_STRING);
         } catch (BError e) {
             return ErrorCreator
                     .createError(StringUtils.fromString("{ballerina/lang.value}FromJsonDecimalStringError"),

@@ -171,7 +171,7 @@ public class EqualAndNotEqualOperationsTest {
         BRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
 
         jsonValTwo = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\", \"helloThree\": " +
-                "\"worldThree\"}");
+                                      "\"worldThree\"}");
         BRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
     }
 
