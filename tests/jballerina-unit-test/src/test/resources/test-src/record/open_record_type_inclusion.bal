@@ -217,6 +217,10 @@ type Baz record {
     int id;
 };
 
+type Student record {
+    *records:BClosedStudent;
+};
+
 function testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
     Baz bazRecord = {id: 4};
     Bar barRecord = {body: bazRecord};
@@ -226,6 +230,12 @@ function testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
 function testCyclicRecord() {
     records:C1 cc = {auth: {d1: {x: 34}}};
     assertEquality(34, cc?.auth?.d1?.x);
+}
+
+function testDefaultValuesOfRecordFieldsWithTypeInclusion() {
+    Student student = {};
+    assertEquality("", student.name);
+    assertEquality(0, student.age);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

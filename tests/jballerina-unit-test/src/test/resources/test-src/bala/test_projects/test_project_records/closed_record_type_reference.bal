@@ -39,3 +39,8 @@ public type ClosedVehicleWithNever record {|
     int j;
     never p?;
 |};
+
+public type BClosedStudent record {|
+    string name = "";
+    int age = 0;
+|};
