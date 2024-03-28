@@ -33,6 +33,7 @@ public class JIMethodCall extends JTerminator {
     public BIROperand receiver;
     public List<BIROperand> args;
     public List<BIROperand> resourcePathArgs;
+    public List<BIROperand> functionArgs;
     public boolean varArgExist;
     public JType varArgType;
     public String jClassName;

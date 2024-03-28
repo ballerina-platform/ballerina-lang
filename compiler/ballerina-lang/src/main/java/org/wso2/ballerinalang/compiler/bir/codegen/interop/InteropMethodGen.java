@@ -265,6 +265,7 @@ public class InteropMethodGen {
         BIROperand receiverOp = null;
         List<BIROperand> args = new ArrayList<>();
         List<BIROperand> resourcePathArgs = new ArrayList<>();
+        List<BIROperand> functionArgs = new ArrayList<>();
         List<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters;
 
         int birFuncParamIndex = 0;
@@ -310,6 +311,14 @@ public class InteropMethodGen {
                     jMethodParamIndex++;
                 }
                 resourcePathArgs.add(argRef);
+                birFuncParamIndex++;
+                continue;
+            }
+            if (jMethod.hasBundledFunctionParams && !birFuncParam.isPathParameter) {
+                if (functionArgs.isEmpty()) {
+                    jMethodParamIndex++;
+                }
+                functionArgs.add(argRef);
                 birFuncParamIndex++;
                 continue;
             }
@@ -392,6 +401,7 @@ public class InteropMethodGen {
             jCall.args = args;
             jCall.receiver = receiverOp;
             jCall.resourcePathArgs = resourcePathArgs;
+            jCall.functionArgs = functionArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
             jCall.lhsOp = jRetVarRef;
@@ -405,6 +415,7 @@ public class InteropMethodGen {
             jCall.args = args;
             jCall.receiver = receiverOp;
             jCall.resourcePathArgs = resourcePathArgs;
+            jCall.functionArgs = functionArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
             jCall.lhsOp = jRetVarRef;

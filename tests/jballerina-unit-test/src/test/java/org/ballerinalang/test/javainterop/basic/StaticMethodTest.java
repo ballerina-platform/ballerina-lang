@@ -186,7 +186,7 @@ public class StaticMethodTest {
                 "testBalEnvFastAsync", "testReturnNullString", "testReturnNotNullString", "testStaticResolve",
                 "testStringCast", "testGetCurrentModule", "testGetDefaultValueWithBEnv", "testCreateStudentUsingType",
                 "testCreateStudent", "testDefaultDecimalArgs", "testDefaultDecimalArgsAddition",
-                "testJavaNullPointerException", "testBalEnvAcceptingMethodRetType"};
+                "testJavaNullPointerException", "testBalEnvAcceptingMethodRetType", "testBundleFuncArgsToBArray"};
     }
 
     @AfterClass

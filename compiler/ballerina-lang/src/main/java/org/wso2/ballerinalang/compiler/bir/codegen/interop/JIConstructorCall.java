@@ -33,6 +33,7 @@ public class JIConstructorCall extends JTerminator {
     public BIROperand receiver;
     public List<BIROperand> args;
     public List<BIROperand> resourcePathArgs;
+    public List<BIROperand> functionArgs;
     public String jClassName;
     public String jMethodVMSig;
     public String name;
