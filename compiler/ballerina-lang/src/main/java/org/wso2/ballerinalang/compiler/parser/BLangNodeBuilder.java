@@ -667,8 +667,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         for (ModuleMemberDeclarationNode member : modulePart.members()) {
             TopLevelNode node = (TopLevelNode) member.apply(this);
             if (member.kind() == SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION) {
-                BLangXMLNS bLangXMLNS = (BLangXMLNS) node;
-                bLangXMLNS.compUnit = compUnit;
+                ((BLangXMLNS) node).compUnit = compUnit;
             }
             compilationUnit.addTopLevelNode(node);
         }
