@@ -60,7 +60,15 @@ public class BallerinaDocUtils {
         }
     }
 
-    public static byte[] checkHash(byte[] contentInBytes, String algorithm) {
+    /**
+     * Calculates the hash of the file, which is represented as an array of bytes, using the specified algorithm.
+     *
+     * @param contentInBytes content to hash, provided as an array of bytes
+     * @param algorithm hashing algorithm to use
+     * @return hash value of the content
+     * @throws IllegalArgumentException if the specified algorithm is unavailable.
+     */
+    public static byte[] getHash(byte[] contentInBytes, String algorithm) {
         MessageDigest digest;
         try {
             digest = MessageDigest.getInstance(algorithm);
@@ -70,6 +78,12 @@ public class BallerinaDocUtils {
         return digest.digest(contentInBytes);
     }
 
+    /**
+     * Converts an array of bytes to hexadecimal string.
+     *
+     * @param bytes byte array to convert
+     * @return hexadecimal representation of the byte array
+     */
     public static String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
