@@ -2575,7 +2575,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (!erroredExpType) {
                     reportIncompatibleMappingConstructorError(mappingConstructor, bType, data);
                 }
-                checkExpr(mappingConstructor, symTable.noType, data);
+                defineInferredRecordType(mappingConstructor, symTable.noType, data);
                 return symTable.semanticError;
             } else if (compatibleTypes.size() != 1) {
                 dlog.error(mappingConstructor.pos, DiagnosticErrorCode.AMBIGUOUS_TYPES, bType);
