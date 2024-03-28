@@ -238,7 +238,7 @@ public class CompileTask implements Task {
                         Document document = documentMap.get(d.location().lineRange().fileName());
                         if (document != null) {
                             err.println(AnnotateDiagnostics.renderDiagnostic(d, document,
-                                    terminalWidth == 0 ? 999 : terminalWidth, colorEnabled));
+                                    terminalWidth, colorEnabled));
                         } else {
                             err.println(AnnotateDiagnostics.renderDiagnostic(d, colorEnabled));
                         }

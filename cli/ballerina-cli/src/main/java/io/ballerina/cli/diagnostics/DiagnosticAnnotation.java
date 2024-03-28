@@ -74,6 +74,7 @@ public class DiagnosticAnnotation {
         this.colorEnabled = colorEnabled;
     }
 
+    @Override
     public String toString() {
         if (!isMultiline) {
             int digitsNum = (int) Math.log10(startLineNumber) + 1;
@@ -163,8 +164,8 @@ public class DiagnosticAnnotation {
         if (diagnosticStart + diagnosticLength <= maxLength - 3) {
             return new TruncateResult(line.substring(0, maxLength - 3) + "...", diagnosticStart, diagnosticLength);
         }
-        int diagnosticMid = diagnosticStart + diagnosticLength / 2;
-        int stepsToMoveWindow = Math.max(0, diagnosticMid - maxLength / 2);
+        int diagnosticMid = diagnosticStart + (diagnosticLength / 2);
+        int stepsToMoveWindow = Math.max(0, diagnosticMid - (maxLength / 2));
         int border = Math.min(line.length() - 1, stepsToMoveWindow + maxLength - 3);
         int newDiagnosticStart = Math.max(3, diagnosticStart - stepsToMoveWindow);
         int newDiagnosticLength = Math.min(diagnosticLength, maxLength - newDiagnosticStart - 3);
@@ -177,15 +178,8 @@ public class DiagnosticAnnotation {
     }
 
     private static String replaceTabs(String line, int end) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < end; i++) {
-            if (line.charAt(i) == '\t') {
-                sb.append("    ");
-            } else {
-                sb.append(line.charAt(i));
-            }
-        }
-        return sb + line.substring(end);
+        int endIndex = Math.min(end, line.length());
+        return line.substring(0, endIndex).replace("\t", "    ") + line.substring(endIndex);
     }
 
     /**
