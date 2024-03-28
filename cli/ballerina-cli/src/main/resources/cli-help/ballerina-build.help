@@ -64,8 +64,8 @@ OPTIONS
            management service.
 
        --enable-service-publish
-          Include the dependencies that are required to enable runtime package
-          management service for WSO2 API manager.
+          Include the dependencies that are required for publishing
+          service data to external service catalogs.
 
 
 

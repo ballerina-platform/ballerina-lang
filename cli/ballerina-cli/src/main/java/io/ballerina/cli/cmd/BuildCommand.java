@@ -159,8 +159,8 @@ public class BuildCommand implements BLauncherCmd {
             "the executable JAR file(s).")
     private Boolean runtimeManagementIncluded;
 
-    @CommandLine.Option(names = "--enable-service-publish", description = "package service management tools " +
-            "for WSO2 API manager in the executable JAR file(s).")
+    @CommandLine.Option(names = "--enable-service-publish", description = "Include ballerina service management " +
+            "tools for publishing service data to external service catalogs.")
     private Boolean enableServicePublish;
 
     @CommandLine.Option(names = "--list-conflicted-classes",
