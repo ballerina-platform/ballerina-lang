@@ -178,9 +178,10 @@ public class SymbolTable {
     public final BRegexpType regExpType = new BRegexpType(TypeTags.REGEXP, Names.REGEXP_TYPE);
     public final BType xmlNeverType = new BXMLType(neverType,  null);
     public final BType xmlElementSeqType = new BXMLType(xmlElementType, null);
+    public final BType xmlItemType = BUnionType.create(null, xmlElementType, xmlCommentType,
+            xmlPIType, xmlTextType);
 
-    public final BType xmlType = new BXMLType(BUnionType.create(null, xmlElementType, xmlCommentType,
-            xmlPIType, xmlTextType),  null);
+    public final BType xmlType = new BXMLType(xmlItemType,  null);
 
     public BAnydataType anydataType;
     public BArrayType arrayAnydataType;
