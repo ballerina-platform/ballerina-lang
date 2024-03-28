@@ -92,6 +92,7 @@ public class BallerinaDocGenerator {
     private static final String BUILTIN_TYPES_DESCRIPTION_DIR = "builtin-types-descriptions";
     private static final String BUILTIN_KEYWORDS_DESCRIPTION_DIR = "keywords-descriptions";
     private static final String DOCS_FOLDER_NAME = "docs";
+    private static final String ICON_NAME = "icon.png";
     private static final String JSON_KEY_HASH_VALUE = "hashValue";
     private static final String JSON_KEY_FILE_URL = "fileURL";
     private static final String RELEASE_DESCRIPTION_MD = "/release-description.md";
@@ -222,13 +223,14 @@ public class BallerinaDocGenerator {
         String sourceLocation = project.currentPackage().manifest().icon();
         if (!sourceLocation.isEmpty()) {
             output = output.resolve(moduleLib.modules.get(0).orgName).resolve(moduleLib.modules.get(0).id)
-                    .resolve(moduleLib.modules.get(0).version).resolve("icon.png");
+                    .resolve(moduleLib.modules.get(0).version).resolve(ICON_NAME);
             Path iconPath = Paths.get(sourceLocation);
             try {
-                var iconByteArray = Files.readAllBytes(iconPath);
+                byte[] iconByteArray;
+                iconByteArray = Files.readAllBytes(iconPath);
                 Files.write(output, iconByteArray);
             } catch (IOException e) {
-                log.error("Failed to copy icon.", e);
+                log.error("Failed to copy icon to the API docs.", e);
             }
         }
     }
@@ -263,6 +265,7 @@ public class BallerinaDocGenerator {
 
     private static void copyDocerinaUI(Path output) {
         String source = RepoUtils.getRemoteRepoURL();
+        source = source.replace("/registry", "/docs/doc-ui");
         Path docsDirPath = ProjectUtils.createAndGetHomeReposPath().resolve(DOCS_FOLDER_NAME);
         Path sha256FilePath = docsDirPath.resolve(SHA256_HASH_FILE_NAME);
         Path zipFilePath = docsDirPath.resolve(BALLERINA_DOC_UI_ZIP_FILE_NAME);
@@ -272,26 +275,25 @@ public class BallerinaDocGenerator {
                 .url(source)
                 .build();
         try (Response response = client.newCall(request).execute()) {
-            if (response.code() == HTTP_OK && response.body() != null) {
-                ResponseBody responseBody = response.body();
-                JsonObject jsonResponse = JsonParser.parseReader(responseBody.charStream()).getAsJsonObject();
-                String sha256HashValue = jsonResponse.get(JSON_KEY_HASH_VALUE).getAsString();
-                String zipFileURL = jsonResponse.get(JSON_KEY_FILE_URL).getAsString();
-                if (!Files.exists(sha256FilePath) || !Files.exists(zipFilePath)) {
-                    if (!docsDirPath.toFile().exists()) {
-                        Files.createDirectories(docsDirPath);
-                    }
-                    writeFileInCache(zipFileURL, sha256HashValue, zipFilePath, sha256FilePath);
-                } else {
-                    String hashValueInCache = Files.readString(sha256FilePath).trim();
-                    if (!sha256HashValue.equals(hashValueInCache)) {
-                        writeFileInCache(zipFileURL, sha256HashValue, zipFilePath, sha256FilePath);
-                    }
-                }
-                copyDocUIToProjectDir(output, zipFilePath);
-            } else {
+            if (response.code() != HTTP_OK || response.body() == null) {
                 throw new IOException("Response failed with status code: " + response.code());
             }
+            ResponseBody responseBody = response.body();
+            JsonObject jsonResponse = JsonParser.parseReader(responseBody.charStream()).getAsJsonObject();
+            String sha256HashValue = jsonResponse.get(JSON_KEY_HASH_VALUE).getAsString();
+            String zipFileURL = jsonResponse.get(JSON_KEY_FILE_URL).getAsString();
+            if (!Files.exists(sha256FilePath) || !Files.exists(zipFilePath)) {
+                if (!docsDirPath.toFile().exists()) {
+                    Files.createDirectories(docsDirPath);
+                }
+                writeFileInCache(zipFileURL, sha256HashValue, zipFilePath, sha256FilePath);
+            } else {
+                String hashValueInCache = Files.readString(sha256FilePath).trim();
+                if (!sha256HashValue.equals(hashValueInCache)) {
+                    writeFileInCache(zipFileURL, sha256HashValue, zipFilePath, sha256FilePath);
+                }
+            }
+            copyDocUIToProjectDir(output, zipFilePath);
         } catch (IOException e) {
             if (Files.exists(zipFilePath)) {
                 String warning = """
@@ -301,7 +303,7 @@ public class BallerinaDocGenerator {
                 out.println(warning);
                 copyDocUIToProjectDir(output, zipFilePath);
             } else {
-                log.error("Failed to copy the doc UI", e);
+                log.error("Failed to copy the API doc UI", e);
             }
         } finally {
             client.dispatcher().executorService().shutdown();
@@ -317,16 +319,16 @@ public class BallerinaDocGenerator {
             if (response.code() == HTTP_OK && response.body() != null) {
                 ResponseBody responseBody = response.body();
                 byte[] contentInBytes = responseBody.bytes();
-                byte[] hash = BallerinaDocUtils.checkHash(contentInBytes, SHA256_ALGORITHM);
+                byte[] hash = BallerinaDocUtils.getHash(contentInBytes, SHA256_ALGORITHM);
                 String checksum = BallerinaDocUtils.bytesToHex(hash);
                 if (checksum.equals(hashValue)) {
                     Files.write(zipFilePath, contentInBytes);
                     Files.write(hashFilePath, hashValue.getBytes());
                 } else {
-                    throw new IOException("Failed to download doc-ui zip file: File may be corrupted.");
+                    throw new IOException("Failed to fetch API docs UI. UI Components may have been corrupted.");
                 }
             } else {
-                throw new IOException("Failed to download doc-ui zip file: Request failed.");
+                throw new IOException("Failed to fetch API docs UI. Request failed.");
             }
         }
     }
