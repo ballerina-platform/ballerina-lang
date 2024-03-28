@@ -33,6 +33,7 @@
             <package name="org.ballerinalang.test.closures.*"/>
             <package name="org.ballerinalang.test.dataflow.analysis.*"/>
             <package name="org.ballerinalang.test.documentation.*" />
+            <package name="org.ballerinalang.test.declarations.*" />
             <package name="org.ballerinalang.test.endpoint.*" />
             <package name="org.ballerinalang.test.enums.*"/>
             <package name="org.ballerinalang.test.error.*"/>

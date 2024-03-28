@@ -655,16 +655,21 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         compilationUnit.name = currentCompUnitName;
         compilationUnit.setPackageID(packageID);
         Location pos = getPosition(modulePart);
+        BLangIdentifier compUnit = this.createIdentifier(pos, compilationUnit.getName());
         // Generate import declarations
         for (ImportDeclarationNode importDecl : modulePart.imports()) {
             BLangImportPackage bLangImport = (BLangImportPackage) importDecl.apply(this);
-            bLangImport.compUnit = this.createIdentifier(pos, compilationUnit.getName());
+            bLangImport.compUnit = compUnit;
             compilationUnit.addTopLevelNode(bLangImport);
         }
 
         // Generate other module-level declarations
         for (ModuleMemberDeclarationNode member : modulePart.members()) {
-            compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
+            TopLevelNode node = (TopLevelNode) member.apply(this);
+            if (member.kind() == SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION) {
+                ((BLangXMLNS) node).compUnit = compUnit;
+            }
+            compilationUnit.addTopLevelNode(node);
         }
 
         Location newLocation = new BLangDiagnosticLocation(pos.lineRange().fileName(), 0, 0, 0, 0, 0, 0);

@@ -14,27 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const A = 1;
-const string|int B = A;
-const C = 2;
-const E = "";
+xmlns "http://exampleB1.com" as ns1;
 
-xmlns A as ns0;
-xmlns B as ns1;
-xmlns D as ns2;
-xmlns E as ns3;
+final string BA = ns1:doc;
 
-function foo() {
-    xmlns C as ns4;
-    xmlns F as ns5;
+function testXMLNSUsageInAnotherFile() {
+    assert(BA, "{http://exampleB1.com}doc");
+    assert(ns1:foo, "{http://exampleB1.com}foo");
+    assert(ns3:foz, "{http://exampleB3.com}foz");
+
+    xmlns "http://exampleB2.com" as ns2;
+    assert(ns2:foo, "{http://exampleB2.com}foo");
 }
 
-type G record {|
-    int a;
-|};
-
-const X = G;
-xmlns X as ns;
-
-const Z = K;
-xmlns Z as ns6;
+xmlns "http://exampleB3.com" as ns3;

@@ -14,27 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const A = 1;
-const string|int B = A;
-const C = 2;
-const E = "";
+xmlns "http://exampleA1.com" as ns1;
+final string AA = ns1:doc;
 
-xmlns A as ns0;
-xmlns B as ns1;
-xmlns D as ns2;
-xmlns E as ns3;
+function testXMLNSUsage() {
+    assert(AA, "{http://exampleA1.com}doc");
+    assert(ns1:foo, "{http://exampleA1.com}foo");
+    assert(ns3:foz, "{http://exampleA3.com}foz");
 
-function foo() {
-    xmlns C as ns4;
-    xmlns F as ns5;
+    xmlns "http://exampleA2.com" as ns2;
+    assert(ns2:foo, "{http://exampleA2.com}foo");
 }
 
-type G record {|
-    int a;
-|};
+xmlns "http://exampleA3.com" as ns3;
 
-const X = G;
-xmlns X as ns;
-
-const Z = K;
-xmlns Z as ns6;
+function assert(anydata actual, anydata expected) {
+    if expected != actual {
+        panic error(string `expected ${expected.toString()}, but found ${actual.toString()};`);
+    }
+}
