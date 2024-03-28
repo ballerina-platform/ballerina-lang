@@ -246,11 +246,11 @@ class JMethodResolver {
         }
         if (count == reducedParamCount) {
             return true;
-        } else if ((count == (reducedParamCount + 1))) {
+        } else if (count == (reducedParamCount + 1)) {
             // This is for object interop functions when self is passed as a parameter
             jMethod.setReceiverType(jMethodRequest.receiverType);
             return jMethodRequest.receiverType != null;
-        } else if ((count == (reducedParamCount + 2))) {
+        } else if (count == (reducedParamCount + 2)) {
             // This is for object interop functions when both BalEnv and self is passed as parameters.
             if (jMethodRequest.receiverType != null) {
                 jMethod.setReceiverType(jMethodRequest.receiverType);
@@ -261,8 +261,9 @@ class JMethodResolver {
     }
 
     private boolean isAcceptingBundledParameters(JMethodRequest jMethodRequest, JMethod jMethod) {
+        // If both path and function parameters are bundled, then the expected jMethod param count will be 3 or 4.
         int count = jMethod.getParamTypes().length;
-        if (count < 2 || count > 4 || jMethodRequest.pathParamCount == 0) {
+        if (count < 3 || count > 4 || jMethodRequest.pathParamCount == 0) {
             return false;
         }
         Class<?>[] paramTypes = jMethod.getParamTypes();
@@ -271,9 +272,7 @@ class JMethodResolver {
                 || !checkAllParamsAnydataAssignable(jMethodRequest)) {
             return false;
         }
-        if (count == 2 && isParamAssignableToBArray(paramTypes[0])) {
-            return true;
-        } else if ((count == 3) && isParamAssignableToBArray(paramTypes[1])) {
+        if ((count == 3) && isParamAssignableToBArray(paramTypes[1])) {
             // This is for object interop functions when self is passed as a parameter
             jMethod.setReceiverType(jMethodRequest.receiverType);
             return jMethodRequest.receiverType != null;
