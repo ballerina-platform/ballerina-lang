@@ -86,6 +86,15 @@ public class RunCommand implements BLauncherCmd {
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
 
+    @CommandLine.Option(names = "--runtime-management-included", description = "package management service in the " +
+            "executable when run is used with a source file or a module.")
+    private Boolean runtimeManagementIncluded;
+
+    @CommandLine.Option(names = "--enable-service-publish", description = "Include ballerina service management " +
+            "tools for publishing service data to external service catalogs when run is used " +
+            "with a source file or a module.")
+    private Boolean enableServicePublish;
+
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
@@ -277,6 +286,8 @@ public class RunCommand implements BLauncherCmd {
                 .setSkipTests(true)
                 .setTestReport(false)
                 .setObservabilityIncluded(observabilityIncluded)
+                .setRuntimeManagementIncluded(runtimeManagementIncluded)
+                .setEnableServicePublish(enableServicePublish)
                 .setSticky(sticky)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)

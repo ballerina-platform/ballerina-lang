@@ -103,6 +103,14 @@ public class BuildOptions {
         return this.compilationOptions.getCloud();
     }
 
+    public boolean runtimeManagementIncluded() {
+        return this.compilationOptions.runtimeManagementIncluded();
+    }
+
+    public boolean enableServicePublish() {
+        return this.compilationOptions.enableServicePublish();
+    }
+
     CompilationOptions compilationOptions() {
         return this.compilationOptions;
     }
@@ -195,6 +203,8 @@ public class BuildOptions {
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
+        buildOptionsBuilder.setRuntimeManagementIncluded(compilationOptions.runtimeManagementIncluded);
+        buildOptionsBuilder.setEnableServicePublish(compilationOptions.enableServicePublish);
 
         return buildOptionsBuilder.build();
     }
@@ -384,6 +394,16 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setNativeImage(Boolean value) {
             nativeImage = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setRuntimeManagementIncluded(Boolean value) {
+            compilationOptionsBuilder.setRuntimeManagementIncluded(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setEnableServicePublish(Boolean value) {
+            compilationOptionsBuilder.setEnableServicePublish(value);
             return this;
         }
 

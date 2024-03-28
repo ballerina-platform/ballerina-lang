@@ -117,7 +117,9 @@ public class PackageUtils {
                 .setSticky(false)
                 .setDumpGraph(false)
                 .setDumpRawGraphs(false)
-                .setConfigSchemaGen(false);
+                .setConfigSchemaGen(false)
+                .setRuntimeManagementIncluded(false)
+                .setEnableServicePublish(false);
 
         return buildOptionsBuilder.build();
     }
