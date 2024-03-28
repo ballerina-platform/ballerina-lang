@@ -15,6 +15,7 @@
 // under the License.
 import ballerina/lang.runtime;
 import ballerina/test;
+import ballerina/jballerina.java;
 
 int counter = 0;
 
@@ -36,6 +37,7 @@ function testListenerFunctionality() {
     result = l3.start();
     test:assertTrue(result == ());
     test:assertEquals(counter, 7);
+    validateArtifactCount();
 }
 
 service /s1 on l1 {
@@ -84,3 +86,7 @@ public class Listener {
         return self.port;
     }
 }
+
+function validateArtifactCount() = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;

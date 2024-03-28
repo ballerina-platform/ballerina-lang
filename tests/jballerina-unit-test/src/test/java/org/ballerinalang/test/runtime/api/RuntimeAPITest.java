@@ -109,9 +109,7 @@ public class RuntimeAPITest {
         });
         Thread thread2 = new Thread(() -> {
             try {
-                Thread.sleep(1000);
-                List<Artifact> artifacts = Repository.getArtifacts();
-                Assert.assertFalse(artifacts.isEmpty());
+                Thread.sleep(5000);
             } catch (Throwable e) {
                 exceptionRef.set(e);
             } finally {
