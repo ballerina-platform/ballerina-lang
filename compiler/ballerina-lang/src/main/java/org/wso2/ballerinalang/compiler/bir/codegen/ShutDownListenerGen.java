@@ -202,7 +202,7 @@ public class ShutDownListenerGen {
 
     private void generateMethodBody(MethodVisitor mv, String initClass, String stopFuncName,
                                     AsyncDataCollector asyncDataCollector) {
-        JvmCodeGenUtil.createFunctionPointer(mv, initClass, stopFuncName);
+        JvmCodeGenUtil.createFunctionPointer(mv, initClass + "$SignalListener", stopFuncName);
         mv.visitInsn(ACONST_NULL);
         mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_NULL", LOAD_NULL_TYPE);
 
