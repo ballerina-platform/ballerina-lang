@@ -61,7 +61,7 @@ import static io.ballerina.types.PredefinedType.VAL;
 import static io.ballerina.types.PredefinedType.XML;
 import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 import static io.ballerina.types.typeops.CellOps.intersectCellAtomicType;
-import static io.ballerina.types.typeops.ListOps.bddListMemberType;
+import static io.ballerina.types.typeops.ListOps.bddListMemberTypeInnerVal;
 import static io.ballerina.types.typeops.MappingOps.bddMappingMemberTypeInner;
 
 /**
@@ -523,7 +523,8 @@ public final class Core {
             if (isNothingSubtype(keyData)) {
                 return NEVER;
             }
-            return bddListMemberType(cx, (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_LIST), keyData, VAL);
+            return bddListMemberTypeInnerVal(cx, (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_LIST), keyData,
+                    VAL);
         }
     }
 

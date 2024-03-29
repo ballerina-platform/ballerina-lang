@@ -48,6 +48,7 @@ import static io.ballerina.types.Common.bddSubtypeIntersect;
 import static io.ballerina.types.Common.bddSubtypeUnion;
 import static io.ballerina.types.Common.memoSubtypeIsEmpty;
 import static io.ballerina.types.Core.cellContainingInnerVal;
+import static io.ballerina.types.Core.cellInner;
 import static io.ballerina.types.Core.cellInnerVal;
 import static io.ballerina.types.Core.intersectMemberSemType;
 import static io.ballerina.types.PredefinedType.NEVER;
@@ -339,11 +340,11 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         return members.initial().get(i);
     }
 
-    static SemType listAtomicMemberType(ListAtomicType atomic, SubtypeData key) {
-        return listAtomicMemberTypeAt(atomic.members(), atomic.rest(), key);
+    static SemType listAtomicMemberTypeInnerVal(ListAtomicType atomic, SubtypeData key) {
+        return listAtomicMemberTypeAtInner(atomic.members(), atomic.rest(), key);
     }
 
-    static SemType listAtomicMemberTypeAt(FixedLengthArray fixedArray, SemType rest, SubtypeData key) {
+    static SemType listAtomicMemberTypeAtInner(FixedLengthArray fixedArray, CellSemType rest, SubtypeData key) {
         if (key instanceof IntSubtype intSubtype) {
             SemType m = NEVER;
             int initLen = fixedArray.initial().size();
@@ -351,36 +352,36 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             if (fixedLen != 0) {
                 for (int i = 0; i < initLen; i++) {
                     if (intSubtypeContains(key, i)) {
-                        m = Core.union(m, fixedArrayGet(fixedArray, i));
+                        m = Core.union(m, cellInner(fixedArrayGet(fixedArray, i)));
                     }
                 }
                 if (intSubtypeOverlapRange(intSubtype, Range.from(initLen, fixedLen - 1))) {
-                    m = Core.union(m, fixedArrayGet(fixedArray, fixedLen - 1));
+                    m = Core.union(m, cellInner(fixedArrayGet(fixedArray, fixedLen - 1)));
                 }
             }
             if (fixedLen == 0 || intSubtypeMax((IntSubtype) key) > fixedLen - 1) {
-                m = Core.union(m, rest);
+                m = Core.union(m, cellInner(rest));
             }
             return m;
         }
-        SemType m = rest;
+        SemType m = cellInner(rest);
         if (fixedArray.fixedLength() > 0) {
-            for (SemType ty : fixedArray.initial()) {
-                m = Core.union(m, ty);
+            for (CellSemType ty : fixedArray.initial()) {
+                m = Core.union(m, cellInner(ty));
             }
         }
         return m;
     }
 
-    public static SemType bddListMemberType(Context cx, Bdd b, SubtypeData key, SemType accum) {
+    public static SemType bddListMemberTypeInnerVal(Context cx, Bdd b, SubtypeData key, SemType accum) {
         if (b instanceof BddAllOrNothing allOrNothing) {
             return allOrNothing.isAll() ? accum : NEVER;
         } else {
             BddNode bddNode = (BddNode) b;
-            return Core.union(bddListMemberType(cx, bddNode.left(), key,
-                            Core.intersect(listAtomicMemberType(cx.listAtomType(bddNode.atom()), key), accum)),
-                    Core.union(bddListMemberType(cx, bddNode.middle(), key, accum),
-                            bddListMemberType(cx, bddNode.right(), key, accum)));
+            return Core.union(bddListMemberTypeInnerVal(cx, bddNode.left(), key,
+                            Core.intersect(listAtomicMemberTypeInnerVal(cx.listAtomType(bddNode.atom()), key), accum)),
+                    Core.union(bddListMemberTypeInnerVal(cx, bddNode.middle(), key, accum),
+                            bddListMemberTypeInnerVal(cx, bddNode.right(), key, accum)));
         }
     }
 
