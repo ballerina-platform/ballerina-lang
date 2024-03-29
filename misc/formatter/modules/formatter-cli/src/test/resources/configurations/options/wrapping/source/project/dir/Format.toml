@@ -1,4 +1,4 @@
 [wrapping]
 maxLineLength = 80
 simpleBlocksInOneLine = true
-simpleMethodsInOneLine = true
+simpleFunctionsInOneLine = true

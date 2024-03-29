@@ -62,7 +62,7 @@ public class QueryFormattingOptions {
                 if (queryStatementKey.equals(ALIGN_MULTILINE_QUERIES)) {
                     setAlignMultiLineQueries((Boolean) queryStatementEntry.getValue());
                 } else {
-                    throw new FormatterException("Invalid query formatting option: " + queryStatementKey);
+                    throw new FormatterException("invalid query formatting option: " + queryStatementKey);
                 }
             }
             return build();

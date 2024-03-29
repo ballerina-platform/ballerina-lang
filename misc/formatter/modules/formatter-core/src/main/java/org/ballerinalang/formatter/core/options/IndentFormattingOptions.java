@@ -86,7 +86,7 @@ public class IndentFormattingOptions {
                     case INDENT_SIZE -> setIndentSize(((Number) indentEntry.getValue()).intValue());
                     case CONTINUATION_INDENT_SIZE ->
                             setContinuationIndentSize(((Number) indentEntry.getValue()).intValue());
-                    default -> throw new FormatterException("Invalid indent formatting option: " + indentKey);
+                    default -> throw new FormatterException("invalid indent formatting option: " + indentKey);
                 }
             }
             return build();

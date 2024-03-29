@@ -69,13 +69,13 @@ public class FunctionDeclFormattingOptions {
         private static final String NEWLINE_AFTER_LEFT_PAREN = "newLineAfterLeftParen";
         private static final String RIGHT_PAREN_ON_NEWLINE = "rightParenOnNewLine";
         private WrappingMethod parametersWrap =
-                WrappingMethod.valueOf(getDefaultString(FormatSection.METHOD_DECLARATION, PARAMETERS_WRAP));
+                WrappingMethod.valueOf(getDefaultString(FormatSection.FUNCTION_DECLARATION, PARAMETERS_WRAP));
         private boolean alignMultilineParameters =
-                getDefaultBoolean(FormatSection.METHOD_DECLARATION, ALIGN_MULTILINE_PARAMETERS);
+                getDefaultBoolean(FormatSection.FUNCTION_DECLARATION, ALIGN_MULTILINE_PARAMETERS);
         private boolean newLineAfterLeftParen =
-                getDefaultBoolean(FormatSection.METHOD_DECLARATION, NEWLINE_AFTER_LEFT_PAREN);
+                getDefaultBoolean(FormatSection.FUNCTION_DECLARATION, NEWLINE_AFTER_LEFT_PAREN);
         private boolean rightParenOnNewLine =
-                getDefaultBoolean(FormatSection.METHOD_DECLARATION, RIGHT_PAREN_ON_NEWLINE);
+                getDefaultBoolean(FormatSection.FUNCTION_DECLARATION, RIGHT_PAREN_ON_NEWLINE);
 
         public FunctionDeclFormattingOptionsBuilder setParametersWrap(WrappingMethod parametersWrap) {
             this.parametersWrap = parametersWrap;
@@ -103,18 +103,19 @@ public class FunctionDeclFormattingOptions {
         }
 
         public FunctionDeclFormattingOptions build(Map<String, Object> configs) throws FormatterException {
-            for (Map.Entry<String, Object> methodDeclarationEntry : configs.entrySet()) {
-                String methodDeclarationKey = methodDeclarationEntry.getKey();
-                switch (methodDeclarationKey) {
+            for (Map.Entry<String, Object> functionDeclarationEntry : configs.entrySet()) {
+                String functionDeclarationKey = functionDeclarationEntry.getKey();
+                switch (functionDeclarationKey) {
                     case PARAMETERS_WRAP ->
-                            setParametersWrap(WrappingMethod.fromString((String) methodDeclarationEntry.getValue()));
+                            setParametersWrap(WrappingMethod.fromString((String) functionDeclarationEntry.getValue()));
                     case ALIGN_MULTILINE_PARAMETERS ->
-                            setAlignMultilineParameters((Boolean) methodDeclarationEntry.getValue());
+                            setAlignMultilineParameters((Boolean) functionDeclarationEntry.getValue());
                     case NEWLINE_AFTER_LEFT_PAREN ->
-                            setNewLineAfterLeftParen((Boolean) methodDeclarationEntry.getValue());
-                    case RIGHT_PAREN_ON_NEWLINE -> setRightParenOnNewLine((Boolean) methodDeclarationEntry.getValue());
+                            setNewLineAfterLeftParen((Boolean) functionDeclarationEntry.getValue());
+                    case RIGHT_PAREN_ON_NEWLINE ->
+                            setRightParenOnNewLine((Boolean) functionDeclarationEntry.getValue());
                     default -> throw new FormatterException(
-                            "Invalid function declaration formatting option: " + methodDeclarationKey);
+                            "invalid function declaration formatting option: " + functionDeclarationKey);
                 }
             }
             return build();

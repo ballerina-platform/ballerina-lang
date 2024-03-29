@@ -57,6 +57,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -188,7 +189,7 @@ public class FormatterUtils {
                 content = Files.readString(absPath.get(), StandardCharsets.UTF_8);
             } catch (IOException e) {
                 throw new FormatterException(
-                        "Failed to retrieve local formatting configuration file: " + configurationFilePath);
+                        "failed to retrieve local formatting configuration file: " + configurationFilePath);
             }
         } else {
             content = readRemoteFormatFile(root, configurationFilePath);
@@ -215,7 +216,7 @@ public class FormatterUtils {
             try {
                 return Files.readString(cachePath, StandardCharsets.UTF_8);
             } catch (IOException e) {
-                throw new FormatterException("Failed to read cached formatting configuration file");
+                throw new FormatterException("failed to read cached formatting configuration file");
             }
         }
 
@@ -224,13 +225,13 @@ public class FormatterUtils {
             URL url = new URL(fileUrl);
             URLConnection connection =  url.openConnection();
             if (!(connection instanceof HttpURLConnection)) {
-                throw new FormatterException("Configuration file remote url is not an HTTP url: " + fileUrl);
+                throw new FormatterException("configuration file remote url is not an HTTP url: " + fileUrl);
             }
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             int responseCode = httpURLConnection.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
                 httpURLConnection.disconnect();
-                throw new FormatterException("Failed to retrieve remote file. HTTP response code: " + responseCode);
+                throw new FormatterException("failed to retrieve remote file. HTTP response code: " + responseCode);
             }
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(httpURLConnection.getInputStream(), StandardCharsets.UTF_8))) {
@@ -241,7 +242,7 @@ public class FormatterUtils {
             }
             httpURLConnection.disconnect();
         } catch (IOException e) {
-            throw new FormatterException("Failed to retrieve formatting configuration file: " + fileUrl);
+            throw new FormatterException("failed to retrieve formatting configuration file: " + fileUrl);
         }
         cacheRemoteConfigurationFile(root, fileContent.toString());
 
@@ -258,14 +259,14 @@ public class FormatterUtils {
             try {
                 Files.createDirectories(formatDir);
             } catch (IOException e) {
-                throw new FormatterException("Failed to create format configuration cache directory");
+                throw new FormatterException("failed to create format configuration cache directory");
             }
         }
         String filePath = formatDir.resolve(DEFAULT_FORMAT_OPTION_FILE).toString();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, StandardCharsets.UTF_8))) {
             writer.write(content);
         } catch (IOException e) {
-            throw new FormatterException("Failed to write format configuration cache file");
+            throw new FormatterException("failed to write format configuration cache file");
         }
     }
 
@@ -274,7 +275,7 @@ public class FormatterUtils {
      *
      * @param document formatting configuration toml file
      * @return the formatting options
-     * @throws FormatterException if the configuration file validation fails
+     * @throws FormatterException if the configuration file X`n fails
      */
     public static Map<String, Object> parseConfigurationToml(TomlDocument document) throws FormatterException {
         Toml toml = document.toml();
@@ -290,15 +291,15 @@ public class FormatterUtils {
         formatTomlValidator.validate(toml);
 
         List<Diagnostic> diagnostics = toml.diagnostics();
-        boolean hasErrors = false;
+        ArrayList<String> errMessages = new ArrayList<>();
         for (Diagnostic diagnostic: diagnostics) {
             if (diagnostic.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                errStream.println(diagnostic.message());
-                hasErrors = true;
+                errMessages.add(diagnostic.message());
             }
         }
-        if (hasErrors) {
-            throw new FormatterException("Invalid Format.toml file");
+        if (errMessages.size() > 0) {
+            throw new FormatterException("invalid formatting configuration file" + System.lineSeparator() +
+                    String.join(System.lineSeparator(), errMessages));
         }
         return toml.toMap();
     }
@@ -432,11 +433,19 @@ public class FormatterUtils {
             return 1;
         }
 
-        SyntaxKind parentKind = node.parent().kind();
-        if (options.isSimpleBlocksInOneLine() && parentKind != SyntaxKind.METHOD_DECLARATION) {
+        boolean isParentAFunction = isFunctionNode(node.parent());
+        if (options.isSimpleBlocksInOneLine() && !isParentAFunction) {
             return 0;
         }
-        return (options.isSimpleMethodsInOneLine() && parentKind == SyntaxKind.METHOD_DECLARATION) ? 0 : 1;
+        return (options.isSimpleFunctionsInOneLine() && isParentAFunction) ? 0 : 1;
+    }
+
+    private static boolean isFunctionNode(Node node) {
+        return switch (node.kind()) {
+            case FUNCTION_DEFINITION, METHOD_DECLARATION, OBJECT_METHOD_DEFINITION, RESOURCE_ACCESSOR_DEFINITION ->
+                    true;
+            default -> false;
+        };
     }
 
     static int getConstDefWidth(ConstantDeclarationNode node) {

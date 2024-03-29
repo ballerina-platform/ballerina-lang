@@ -92,7 +92,7 @@ public class ImportFormattingOptions {
                 switch (importKey) {
                     case SORT_IMPORTS -> setSortImports((Boolean) importEntry.getValue());
                     case GROUP_IMPORTS -> setGroupImports((Boolean) importEntry.getValue());
-                    default -> throw new FormatterException("Invalid import formatting option: " + importKey);
+                    default -> throw new FormatterException("invalid import formatting option: " + importKey);
                 }
             }
             return build();

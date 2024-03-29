@@ -4,9 +4,9 @@ indentSize = 2
 [wrapping]
 maxLineLength = 80
 simpleBlocksInOneLine = true
-simpleMethodsInOneLine = true
+simpleFunctionsInOneLine = true
 
-[methodDeclaration]
+[functionDeclaration]
 alignMultilineParameters = true
 
 [ifStatement]

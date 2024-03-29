@@ -29,19 +29,19 @@ import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultString;
 public class BraceFormattingOptions {
 
     private final BraceStyle classBraceStyle;
-    private final BraceStyle methodBraceStyle;
+    private final BraceStyle functionBraceStyle;
 
-    private BraceFormattingOptions(BraceStyle classBraceStyle, BraceStyle methodBraceStyle) {
+    private BraceFormattingOptions(BraceStyle classBraceStyle, BraceStyle functionBraceStyle) {
         this.classBraceStyle = classBraceStyle;
-        this.methodBraceStyle = methodBraceStyle;
+        this.functionBraceStyle = functionBraceStyle;
     }
 
     public BraceStyle classBraceStyle() {
         return classBraceStyle;
     }
 
-    public BraceStyle methodBraceStyle() {
-        return methodBraceStyle;
+    public BraceStyle functionBraceStyle() {
+        return functionBraceStyle;
     }
 
     public static BraceFormattingOptions.BraceFormattingOptionsBuilder builder() {
@@ -51,24 +51,24 @@ public class BraceFormattingOptions {
     public static class BraceFormattingOptionsBuilder {
 
         private static final String CLASS_BRACE_STYLE = "classBraceStyle";
-        private static final String METHOD_BRACE_STYLE = "methodBraceStyle";
+        private static final String FUNCTION_BRACE_STYLE = "functionBraceStyle";
         private BraceStyle classBraceStyle =
                 BraceStyle.valueOf(getDefaultString(FormatSection.BRACES, CLASS_BRACE_STYLE));
-        private BraceStyle methodBraceStyle =
-                BraceStyle.valueOf(getDefaultString(FormatSection.BRACES, METHOD_BRACE_STYLE));
+        private BraceStyle functionBraceStyle =
+                BraceStyle.valueOf(getDefaultString(FormatSection.BRACES, FUNCTION_BRACE_STYLE));
 
         public BraceFormattingOptionsBuilder setClassBraceStyle(BraceStyle classBraceStyle) {
             this.classBraceStyle = classBraceStyle;
             return this;
         }
 
-        public BraceFormattingOptionsBuilder setMethodBraceStyle(BraceStyle methodBraceStyle) {
-            this.methodBraceStyle = methodBraceStyle;
+        public BraceFormattingOptionsBuilder setFunctionBraceStyle(BraceStyle functionBraceStyle) {
+            this.functionBraceStyle = functionBraceStyle;
             return this;
         }
 
         public BraceFormattingOptions build() {
-            return new BraceFormattingOptions(classBraceStyle, methodBraceStyle);
+            return new BraceFormattingOptions(classBraceStyle, functionBraceStyle);
         }
 
         public BraceFormattingOptions build(Map<String, Object> configs) throws FormatterException {
@@ -77,8 +77,8 @@ public class BraceFormattingOptions {
                 BraceStyle style = BraceStyle.fromString((String) bracesEntry.getValue());
                 switch (bracesKey) {
                     case CLASS_BRACE_STYLE -> setClassBraceStyle(style);
-                    case METHOD_BRACE_STYLE -> setMethodBraceStyle(style);
-                    default -> throw new FormatterException("Invalid Brace Option: " + bracesKey);
+                    case FUNCTION_BRACE_STYLE -> setFunctionBraceStyle(style);
+                    default -> throw new FormatterException("invalid Brace Option: " + bracesKey);
                 }
             }
             return build();

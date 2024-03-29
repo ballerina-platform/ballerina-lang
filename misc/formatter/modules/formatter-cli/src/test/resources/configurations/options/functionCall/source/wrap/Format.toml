@@ -1,6 +1,6 @@
-[methodCall]
-parametersWrap = "Wrap"
-alignMultilineParameters = true
+[functionCall]
+argumentsWrap = "Wrap"
+alignMultilineArguments = true
 newLineAfterLeftParen = true
 rightParenOnNewLine = true
 

@@ -257,8 +257,10 @@ class FormatUtil {
                     generateChangeReport(formattedFiles, dryRun);
                 }
             }
-        } catch (IOException | NullPointerException | FormatterException e) {
+        } catch (IOException | NullPointerException e) {
             throw LauncherUtils.createLauncherException(Messages.getException() + e);
+        } catch (FormatterException e) {
+            throw LauncherUtils.createLauncherException(Messages.getException() + e.getMessage());
         }
     }
 

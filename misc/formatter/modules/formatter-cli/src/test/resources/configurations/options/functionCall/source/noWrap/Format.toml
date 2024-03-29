@@ -1,5 +1,5 @@
-[methodCall]
-parametersWrap = "NoWrap"
+[functionCall]
+argumentsWrap = "NoWrap"
 newLineAfterLeftParen = true
 
 [wrapping]

@@ -5,7 +5,7 @@ indentSize = 2
 maxLineLength = 120
 
 [braces]
-methodBraceStyle = "NewLine"
+functionBraceStyle = "NewLine"
 
 [ifStatement]
 elseOnNewLine = true

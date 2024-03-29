@@ -40,7 +40,8 @@ public class FormatFileValidatorTest {
     }
 
     @Test(description = "Test validtor on invalid formatting configuration files",
-            expectedExceptions = FormatterException.class, expectedExceptionsMessageRegExp = "Invalid Format.toml file")
+            expectedExceptions = FormatterException.class,
+            expectedExceptionsMessageRegExp = "invalid formatting configuration file.*")
     public void testValidatorOnInvalidFile() throws FormatterException {
         Path invalid = resDir.resolve("invalid");
         FormatterUtils.getFormattingConfigurations(invalid, invalid.resolve("Format.toml").toString());

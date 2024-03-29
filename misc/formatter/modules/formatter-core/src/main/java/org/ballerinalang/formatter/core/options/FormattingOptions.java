@@ -197,9 +197,9 @@ public class FormattingOptions {
                     case INDENT -> indentFormattingOptions = IndentFormattingOptions.builder().build(configs);
                     case WRAPPING -> wrappingFormattingOptions = WrappingFormattingOptions.builder().build(configs);
                     case BRACES -> braceFormattingOptions = BraceFormattingOptions.builder().build(configs);
-                    case METHOD_DECLARATION ->
+                    case FUNCTION_DECLARATION ->
                             functionDeclFormattingOptions = FunctionDeclFormattingOptions.builder().build(configs);
-                    case METHOD_CALL ->
+                    case FUNCTION_CALL ->
                             functionCallFormattingOptions = FunctionCallFormattingOptions.builder().build(configs);
                     case IF_STATEMENT ->
                             ifStatementFormattingOptions = IfStatementFormattingOptions.builder().build(configs);

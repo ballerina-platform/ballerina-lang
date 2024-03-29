@@ -92,7 +92,7 @@ public class SpacingFormattingOptions {
                     case AROUND_RECORD_BRACES -> setAroundRecordBraces((Boolean) spacingEntry.getValue());
                     case ALIGN_CONSECUTIVE_DEFINITIONS ->
                             setAlignConsecutiveDefinitions((Boolean) spacingEntry.getValue());
-                    default -> throw new FormatterException("Invalid spacing formatting option: " + spacingKey);
+                    default -> throw new FormatterException("invalid spacing formatting option: " + spacingKey);
                 }
             }
             return build();

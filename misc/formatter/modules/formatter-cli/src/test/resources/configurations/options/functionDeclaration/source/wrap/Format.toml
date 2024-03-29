@@ -1,4 +1,4 @@
-[methodDeclaration]
+[functionDeclaration]
 parametersWrap = "Wrap"
 alignMultilineParameters = true
 newLineAfterLeftParen = true

@@ -16,27 +16,27 @@
             "pattern": "Invalid value for 'classBraceStyle'. Only 'NewLine' or 'EndOfLine' are allowed."
           }
         },
-        "methodBraceStyle": {
+        "functionBraceStyle": {
           "type": "string",
           "pattern": "\\b(?:NewLine|EndOfLine)\\b",
           "message": {
-            "pattern": "Invalid value for 'methodBraceStyle'. Only 'NewLine' or 'EndOfLine' are allowed."
+            "pattern": "Invalid value for 'functionBraceStyle'. Only 'NewLine' or 'EndOfLine' are allowed."
           }
         }
       }
     },
-    "methodCall": {
+    "functionCall": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "parametersWrap": {
+        "argumentsWrap": {
           "type": "string",
           "pattern": "\\b(?:Wrap|NoWrap|ChopDown)\\b",
           "message": {
             "pattern": "Invalid wrapping style. Only, 'Wrap', 'NoWrap', or 'ChopDown' is allowed."
           }
         },
-        "alignMultilineParameters": {
+        "alignMultilineArguments": {
           "type": "boolean"
         },
         "newLineAfterLeftParen": {
@@ -47,7 +47,7 @@
         }
       }
     },
-    "methodDeclaration": {
+    "functionDeclaration": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -142,7 +142,7 @@
         "simpleBlocksInOneLine": {
           "type": "boolean"
         },
-        "simpleMethodsInOneLine": {
+        "simpleFunctionsInOneLine": {
           "type": "boolean"
         }
       }

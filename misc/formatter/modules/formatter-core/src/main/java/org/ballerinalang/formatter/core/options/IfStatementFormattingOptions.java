@@ -62,7 +62,7 @@ public class IfStatementFormattingOptions {
                 if (ifStatementKey.equals(ELSE_ON_NEW_LINE)) {
                     setElseOnNewLine((Boolean) ifStatementEntry.getValue());
                 } else {
-                    throw new FormatterException("Invalid if statement formatting option: " + ifStatementKey);
+                    throw new FormatterException("invalid if statement formatting option: " + ifStatementKey);
                 }
             }
             return build();

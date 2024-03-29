@@ -1,4 +1,4 @@
-[methodDeclaration]
+[functionDeclaration]
 parametersWrap = "ChopDown"
 alignMultilineParameters = true
 

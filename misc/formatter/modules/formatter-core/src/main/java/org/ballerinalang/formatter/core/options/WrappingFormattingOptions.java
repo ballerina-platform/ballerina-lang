@@ -30,14 +30,14 @@ public class WrappingFormattingOptions {
     private final int maxLineLength;
     private final boolean lineWrap;
     private final boolean simpleBlocksInOneLine;
-    private final boolean simpleMethodsInOneLine;
+    private final boolean simpleFunctionsInOneLine;
 
     private WrappingFormattingOptions(int maxLineLength, boolean lineWrap, boolean simpleBlocksInOneLine,
-                                      boolean simpleMethodsInOneLine) {
+                                      boolean simpleFunctionsInOneLine) {
         this.maxLineLength = maxLineLength;
         this.lineWrap = lineWrap;
         this.simpleBlocksInOneLine = simpleBlocksInOneLine;
-        this.simpleMethodsInOneLine = simpleMethodsInOneLine;
+        this.simpleFunctionsInOneLine = simpleFunctionsInOneLine;
     }
 
     public int maxLineLength() {
@@ -48,8 +48,8 @@ public class WrappingFormattingOptions {
         return simpleBlocksInOneLine;
     }
 
-    public boolean isSimpleMethodsInOneLine() {
-        return simpleMethodsInOneLine;
+    public boolean isSimpleFunctionsInOneLine() {
+        return simpleFunctionsInOneLine;
     }
 
     public boolean lineWrap() {
@@ -64,12 +64,12 @@ public class WrappingFormattingOptions {
 
         private static final String MAX_LINE_LENGTH = "maxLineLength";
         private static final String SIMPLE_BLOCKS_IN_ONE_LINE = "simpleBlocksInOneLine";
-        private static final String SIMPLE_METHODS_IN_ONE_LINE = "simpleMethodsInOneLine";
+        private static final String SIMPLE_METHODS_IN_ONE_LINE = "simpleFunctionsInOneLine";
         private static final String LINE_WRAP = "lineWrap";
         private int maxLineLength = FormatterUtils.getDefaultInt(FormatSection.WRAPPING, MAX_LINE_LENGTH);
         private boolean simpleBlocksInOneLine =
                 FormatterUtils.getDefaultBoolean(FormatSection.WRAPPING, SIMPLE_BLOCKS_IN_ONE_LINE);
-        private boolean simpleMethodsInOneLine =
+        private boolean simpleFunctionsInOneLine =
                 FormatterUtils.getDefaultBoolean(FormatSection.WRAPPING, SIMPLE_METHODS_IN_ONE_LINE);
         private boolean lineWrap = FormatterUtils.getDefaultBoolean(FormatSection.WRAPPING, LINE_WRAP);
 
@@ -88,14 +88,14 @@ public class WrappingFormattingOptions {
             return this;
         }
 
-        public WrappingFormattingOptionsBuilder setSimpleMethodsInOneLine(boolean simpleMethodsInOneLine) {
-            this.simpleMethodsInOneLine = simpleMethodsInOneLine;
+        public WrappingFormattingOptionsBuilder setSimpleFunctionsInOneLine(boolean simpleFunctionsInOneLine) {
+            this.simpleFunctionsInOneLine = simpleFunctionsInOneLine;
             return this;
         }
 
         public WrappingFormattingOptions build() {
             return new WrappingFormattingOptions(maxLineLength, lineWrap, simpleBlocksInOneLine,
-                    simpleMethodsInOneLine);
+                    simpleFunctionsInOneLine);
         }
 
         public WrappingFormattingOptions build(Map<String, Object> configs) throws FormatterException {
@@ -107,8 +107,8 @@ public class WrappingFormattingOptions {
                         setLineWrap(true);
                     }
                     case SIMPLE_BLOCKS_IN_ONE_LINE -> setSimpleBlocksInOneLine((Boolean) wrappingEntry.getValue());
-                    case SIMPLE_METHODS_IN_ONE_LINE -> setSimpleMethodsInOneLine((Boolean) wrappingEntry.getValue());
-                    default -> throw new FormatterException("Invalid wrapping formatting option: " + wrappingKey);
+                    case SIMPLE_METHODS_IN_ONE_LINE -> setSimpleFunctionsInOneLine((Boolean) wrappingEntry.getValue());
+                    default -> throw new FormatterException("invalid wrapping formatting option: " + wrappingKey);
                 }
             }
             return build();

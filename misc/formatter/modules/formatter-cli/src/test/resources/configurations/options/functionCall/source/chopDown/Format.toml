@@ -1,6 +1,6 @@
-[methodCall]
-parametersWrap = "ChopDown"
-alignMultilineParameters = true
+[functionCall]
+argumentsWrap = "ChopDown"
+alignMultilineArguments = true
 newLineAfterLeftParen = true
 
 [wrapping]

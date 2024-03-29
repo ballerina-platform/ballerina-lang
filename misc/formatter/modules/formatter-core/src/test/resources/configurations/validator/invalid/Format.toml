@@ -5,18 +5,18 @@ continuationIndentSize = true
 [wrapping]
 maxLineLength = 120
 simpleBlocksInOneLine = "true"
-simpleMethodsInOneLine = "true"
+simpleFunctionsInOneLine = "true"
 
 [braces]
 classBraceStyle = "NEWLINE"
-methodBraceStyle = "NEWLINE"
+functionBraceStyle = "NEWLINE"
 
-[methodDeclaration]
+[functionDeclaration]
 parametersWrap = "CHOPDOWN"
 paramterExtend = true
 
-[methodCall]
-parametersWrap = "WRAP"
+[functionCall]
+argumentsWrap = "WRAP"
 
 [elseStatement]
 elseOnNewLine = false

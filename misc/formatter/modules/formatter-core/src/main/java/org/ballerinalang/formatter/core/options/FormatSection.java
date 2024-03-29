@@ -24,8 +24,8 @@ import org.ballerinalang.formatter.core.FormatterException;
  */
 public enum FormatSection {
     BRACES("braces"),
-    METHOD_CALL("methodCall"),
-    METHOD_DECLARATION("methodDeclaration"),
+    FUNCTION_CALL("functionCall"),
+    FUNCTION_DECLARATION("functionDeclaration"),
     IF_STATEMENT("ifStatement"),
     IMPORT("import"),
     INDENT("indent"),
@@ -49,6 +49,6 @@ public enum FormatSection {
                 return section;
             }
         }
-        throw new FormatterException("Invalid format section: " + value);
+        throw new FormatterException("invalid format section: " + value);
     }
 }

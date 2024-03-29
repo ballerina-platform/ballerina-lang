@@ -323,7 +323,7 @@ public class FormattingTreeModifier extends TreeModifier {
             functionName = formatToken(functionDefinitionNode.functionName(), 1, 0);
         }
         NodeList<Node> relativeResourcePath = formatNodeList(functionDefinitionNode.relativeResourcePath(), 0, 0, 0, 0);
-        int trailingNL = options.braceFormattingOptions().methodBraceStyle() == BraceStyle.NewLine ? 1 : 0;
+        int trailingNL = options.braceFormattingOptions().functionBraceStyle() == BraceStyle.NewLine ? 1 : 0;
         FunctionSignatureNode functionSignatureNode =
                 formatNode(functionDefinitionNode.functionSignature(), invert(trailingNL), trailingNL);
         FunctionBodyNode functionBodyNode =
@@ -1094,13 +1094,13 @@ public class FormattingTreeModifier extends TreeModifier {
         NameReferenceNode functionName = formatNode(functionCallExpressionNode.functionName(), 0, 0);
         FunctionCallFormattingOptions callOptions = options.functionCallFormattingOptions();
         int prevIndentation = env.currentIndentation;
-        alignOrIndent(callOptions.alignMultilineParameters(),
+        alignOrIndent(callOptions.alignMultilineArguments(),
                 options.indentFormattingOptions().continuationIndentSize());
         Token functionCallOpenPara = formatToken(functionCallExpressionNode.openParenToken(), 0,
                 callOptions.newLineAfterLeftParen() ? 1 : 0);
 
         int closeParenLeadingNL = callOptions.rightParenOnNewLine() ? 1 : 0;
-        int separatorTrailingWS = callOptions.parametersWrap() == WrappingMethod.ChopDown ? 0 : 1;
+        int separatorTrailingWS = callOptions.argumentsWrap() == WrappingMethod.ChopDown ? 0 : 1;
         SeparatedNodeList<FunctionArgumentNode> arguments =
                 formatSeparatedNodeList(functionCallExpressionNode.arguments(), 0, 0, separatorTrailingWS,
                         invert(separatorTrailingWS), 0, closeParenLeadingNL, true);
@@ -4278,7 +4278,7 @@ public class FormattingTreeModifier extends TreeModifier {
             case POSITIONAL_ARG:
             case NAMED_ARG:
             case REST_ARG:
-                if (options.functionCallFormattingOptions().parametersWrap() == WrappingMethod.NoWrap) {
+                if (options.functionCallFormattingOptions().argumentsWrap() == WrappingMethod.NoWrap) {
                     return false;
                 }
                 return true;
@@ -4550,16 +4550,16 @@ public class FormattingTreeModifier extends TreeModifier {
      * Indent the code by the number of white-spaces defined by tab-size.
      */
     private void indent() {
-        indent(1);
+        indent(options.indentFormattingOptions().indentSize());
     }
 
     /**
      * Indent the code by the number of white-spaces defined by tab-size.
      *
-     * @param step Number of tabs.
+     * @param step Number of spaces.
      */
     private void indent(int step) {
-        env.currentIndentation += (options.indentFormattingOptions().indentSize() * step);
+        env.currentIndentation += step;
     }
 
     /**
@@ -4574,7 +4574,7 @@ public class FormattingTreeModifier extends TreeModifier {
      * Undo the indentation of the code by the number of white-spaces defined by tab-size.
      */
     private void unindent() {
-        unindent(1);
+        unindent(options.indentFormattingOptions().indentSize());
     }
 
     /**
@@ -4583,12 +4583,12 @@ public class FormattingTreeModifier extends TreeModifier {
      * @param step Number of tabs.
      */
     private void unindent(int step) {
-        if (env.currentIndentation < (options.indentFormattingOptions().indentSize() * step)) {
+        if (env.currentIndentation < step) {
             env.currentIndentation = 0;
             return;
         }
 
-        env.currentIndentation -= (options.indentFormattingOptions().indentSize() * step);
+        env.currentIndentation -= step;
     }
 
     /**

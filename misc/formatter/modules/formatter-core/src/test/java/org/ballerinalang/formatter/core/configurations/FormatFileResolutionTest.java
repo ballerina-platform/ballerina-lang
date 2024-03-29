@@ -64,20 +64,20 @@ public class FormatFileResolutionTest {
 
     @Test(description = "Test invalid local formatting configuration files",
             expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Failed to retrieve local formatting configuration file.*")
+            expectedExceptionsMessageRegExp = "failed to retrieve local formatting configuration file.*")
     public void invalidLocalFormatFileTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(invalidLocal, invalidLocal.resolve("directory.toml").toString());
     }
 
     @Test(description = "Test invalid remote cached formatting configuration files",
             expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Failed to read cached formatting configuration file")
+            expectedExceptionsMessageRegExp = "failed to read cached formatting configuration file")
     public void invalidRemoteCachedFormatFileTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(resDir.resolve(Path.of("invalidCached")), validRemoteUrl);
     }
 
     @Test(description = "Test invalid remote file protocol", expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Configuration file remote url is not an HTTP url:.*")
+            expectedExceptionsMessageRegExp = "configuration file remote url is not an HTTP url:.*")
     public void invalidRemoteFileProtocol() throws FormatterException {
         Path invalidUrl = resDir.resolve("invalidUrl");
         FormatterUtils.getFormattingConfigurations(invalidUrl, "ftp://example.com/Format.toml");
@@ -85,7 +85,7 @@ public class FormatFileResolutionTest {
 
     @Test(description = "Test invalid remote formatting configuration file url",
             expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Failed to retrieve remote file. HTTP response code:.*")
+            expectedExceptionsMessageRegExp = "failed to retrieve remote file. HTTP response code:.*")
     public void invalidRemoteFormatFileURLTest() throws FormatterException {
         Path invalidUrl = resDir.resolve("invalidUrl");
         FormatterUtils.getFormattingConfigurations(invalidUrl,
@@ -93,19 +93,19 @@ public class FormatFileResolutionTest {
     }
 
     @Test(description = "Test invalid formatting configuration files", expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Failed to retrieve formatting configuration file.*")
+            expectedExceptionsMessageRegExp = "failed to retrieve formatting configuration file.*")
     public void getInvalidFormatFileTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(invalidLocal, invalidLocal.resolve("t.toml").toString());
     }
 
     @Test(description = "Test invalid formatting configuration files", expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Failed to create format configuration cache directory")
+            expectedExceptionsMessageRegExp = "failed to create format configuration cache directory")
     public void failureToCreateFormatCacheFolderTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(resDir.resolve("invalidCacheTarget"), validRemoteUrl);
     }
 
     @Test(description = "Test invalid formatting configuration files", expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Failed to write format configuration cache file")
+            expectedExceptionsMessageRegExp = "failed to write format configuration cache file")
     public void failureToWriteCacheFileTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(resDir.resolve("invalidCacheWrite"), validRemoteUrl);
     }

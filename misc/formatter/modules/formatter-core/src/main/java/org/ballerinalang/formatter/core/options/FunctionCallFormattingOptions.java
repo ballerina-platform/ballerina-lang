@@ -30,25 +30,25 @@ import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultString;
 
 public class FunctionCallFormattingOptions {
 
-    private final WrappingMethod parametersWrap;
-    private final boolean alignMultilineParameters;
+    private final WrappingMethod argumentsWrap;
+    private final boolean alignMultilineArguments;
     private final boolean newLineAfterLeftParen;
     private final boolean rightParenOnNewLine;
 
-    private FunctionCallFormattingOptions(WrappingMethod parametersWrap, boolean alignMultilineParameters,
+    private FunctionCallFormattingOptions(WrappingMethod argumentsWrap, boolean alignMultilineArguments,
                                           boolean newLineAfterLeftParen, boolean rightParenOnNewLine) {
-        this.parametersWrap = parametersWrap;
-        this.alignMultilineParameters = alignMultilineParameters;
+        this.argumentsWrap = argumentsWrap;
+        this.alignMultilineArguments = alignMultilineArguments;
         this.newLineAfterLeftParen = newLineAfterLeftParen;
         this.rightParenOnNewLine = rightParenOnNewLine;
     }
 
-    public WrappingMethod parametersWrap() {
-        return parametersWrap;
+    public WrappingMethod argumentsWrap() {
+        return argumentsWrap;
     }
 
-    public boolean alignMultilineParameters() {
-        return alignMultilineParameters;
+    public boolean alignMultilineArguments() {
+        return alignMultilineArguments;
     }
 
     public boolean newLineAfterLeftParen() {
@@ -68,26 +68,27 @@ public class FunctionCallFormattingOptions {
      */
     public static class FunctionCallFormattingOptionsBuilder {
 
-        private static final String PARAMETERS_WRAP = "parametersWrap";
-        private static final String ALIGN_MULTILINE_PARAMETERS = "alignMultilineParameters";
+        private static final String ARGUMENTS_WRAP = "argumentsWrap";
+        private static final String ALIGN_MULTILINE_ARGUMENTS = "alignMultilineArguments";
         private static final String NEWLINE_AFTER_LEFT_PAREN = "newLineAfterLeftParen";
         private static final String RIGHT_PAREN_ON_NEWLINE = "rightParenOnNewLine";
-        private WrappingMethod parametersWrap =
-                WrappingMethod.valueOf(getDefaultString(FormatSection.METHOD_CALL, PARAMETERS_WRAP));
-        private boolean alignMultilineParameters =
-                getDefaultBoolean(FormatSection.METHOD_CALL, ALIGN_MULTILINE_PARAMETERS);
-        private boolean newLineAfterLeftParen = getDefaultBoolean(FormatSection.METHOD_CALL, NEWLINE_AFTER_LEFT_PAREN);
-        private boolean rightParenOnNewLine = getDefaultBoolean(FormatSection.METHOD_CALL, RIGHT_PAREN_ON_NEWLINE);
+        private WrappingMethod argumentsWrap =
+                WrappingMethod.valueOf(getDefaultString(FormatSection.FUNCTION_CALL, ARGUMENTS_WRAP));
+        private boolean alignMultilineArguments =
+                getDefaultBoolean(FormatSection.FUNCTION_CALL, ALIGN_MULTILINE_ARGUMENTS);
+        private boolean newLineAfterLeftParen =
+                getDefaultBoolean(FormatSection.FUNCTION_CALL, NEWLINE_AFTER_LEFT_PAREN);
+        private boolean rightParenOnNewLine = getDefaultBoolean(FormatSection.FUNCTION_CALL, RIGHT_PAREN_ON_NEWLINE);
 
-        public FunctionCallFormattingOptions.FunctionCallFormattingOptionsBuilder setParametersWrap(
-                WrappingMethod parametersWrap) {
-            this.parametersWrap = parametersWrap;
+        public FunctionCallFormattingOptions.FunctionCallFormattingOptionsBuilder setArgumentsWrap(
+                WrappingMethod argumentsWrap) {
+            this.argumentsWrap = argumentsWrap;
             return this;
         }
 
-        public FunctionCallFormattingOptions.FunctionCallFormattingOptionsBuilder setAlignMultilineParameters(
-                boolean alignMultilineParameters) {
-            this.alignMultilineParameters = alignMultilineParameters;
+        public FunctionCallFormattingOptions.FunctionCallFormattingOptionsBuilder setAlignMultilineArguments(
+                boolean alignMultilineArguments) {
+            this.alignMultilineArguments = alignMultilineArguments;
             return this;
         }
 
@@ -104,7 +105,7 @@ public class FunctionCallFormattingOptions {
         }
 
         public FunctionCallFormattingOptions build() {
-            return new FunctionCallFormattingOptions(parametersWrap, alignMultilineParameters, newLineAfterLeftParen,
+            return new FunctionCallFormattingOptions(argumentsWrap, alignMultilineArguments, newLineAfterLeftParen,
                     rightParenOnNewLine);
         }
 
@@ -112,12 +113,12 @@ public class FunctionCallFormattingOptions {
             for (Map.Entry<String, Object> funcCallEntry : configs.entrySet()) {
                 String funcCallKey = funcCallEntry.getKey();
                 switch (funcCallKey) {
-                    case PARAMETERS_WRAP ->
-                            setParametersWrap(WrappingMethod.fromString((String) funcCallEntry.getValue()));
-                    case ALIGN_MULTILINE_PARAMETERS -> setAlignMultilineParameters((Boolean) funcCallEntry.getValue());
+                    case ARGUMENTS_WRAP ->
+                            setArgumentsWrap(WrappingMethod.fromString((String) funcCallEntry.getValue()));
+                    case ALIGN_MULTILINE_ARGUMENTS -> setAlignMultilineArguments((Boolean) funcCallEntry.getValue());
                     case NEWLINE_AFTER_LEFT_PAREN -> setNewLineAfterLeftParen((Boolean) funcCallEntry.getValue());
                     case RIGHT_PAREN_ON_NEWLINE -> setRightParenOnNewLine((Boolean) funcCallEntry.getValue());
-                    default -> throw new FormatterException("Invalid function call formatting option: " + funcCallKey);
+                    default -> throw new FormatterException("invalid function call formatting option: " + funcCallKey);
                 }
             }
             return build();

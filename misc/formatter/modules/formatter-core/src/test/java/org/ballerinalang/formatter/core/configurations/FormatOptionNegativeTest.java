@@ -44,23 +44,23 @@ import java.util.Map;
 public class FormatOptionNegativeTest {
 
     @Test(expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Invalid Brace Option: serviceBraceStyle")
+            expectedExceptionsMessageRegExp = "invalid Brace Option: serviceBraceStyle")
     public void testInvalidBracesOptions() throws FormatterException {
         Map<String, Object> configs = new HashMap<>() {{
             put("classBraceStyle", "NewLine");
-            put("methodBraceStyle", "EndOfLine");
+            put("functionBraceStyle", "EndOfLine");
             put("serviceBraceStyle", "NewLine");
         }};
         BraceFormattingOptions.builder().build(configs);
     }
 
     @Test(expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Invalid function call formatting option: parametersInLine")
+            expectedExceptionsMessageRegExp = "invalid function call formatting option: parametersInLine")
     public void testInvalidFunctionCallOptions() throws FormatterException {
         Map<String, Object> configs = new HashMap<>() {{
-            put("parametersWrap", "Wrap");
+            put("argumentsWrap", "Wrap");
             put("newLineAfterLeftParen", true);
-            put("alignMultilineParameters", false);
+            put("alignMultilineArguments", false);
             put("rightParenOnNewLine", true);
             put("parametersInLine", true);
         }};
@@ -68,7 +68,7 @@ public class FormatOptionNegativeTest {
     }
 
     @Test(expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Invalid function declaration formatting option: parametersInLine")
+            expectedExceptionsMessageRegExp = "invalid function declaration formatting option: parametersInLine")
     public void testInvalidFunctionDeclarationOptions() throws FormatterException {
         Map<String, Object> configs = new HashMap<>() {{
             put("parametersWrap", "Wrap");
@@ -81,7 +81,7 @@ public class FormatOptionNegativeTest {
     }
 
     @Test(expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Invalid if statement formatting option: conditionOnSameLine")
+            expectedExceptionsMessageRegExp = "invalid if statement formatting option: conditionOnSameLine")
     public void testInvalidIfStatementOptions() throws FormatterException {
         Map<String, Object> configs = new HashMap<>() {{
             put("elseOnNewLine", true);
@@ -91,7 +91,7 @@ public class FormatOptionNegativeTest {
     }
 
     @Test(expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Invalid import formatting option: randomizeImports")
+            expectedExceptionsMessageRegExp = "invalid import formatting option: randomizeImports")
     public void testInvalidImportOptions() throws FormatterException {
         Map<String, Object> configs = new HashMap<>() {{
             put("groupImports", true);
@@ -102,7 +102,7 @@ public class FormatOptionNegativeTest {
     }
 
     @Test(expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Invalid indent formatting option: indentFunctions")
+            expectedExceptionsMessageRegExp = "invalid indent formatting option: indentFunctions")
     public void testInvalidIndentOptions() throws FormatterException {
         Map<String, Object> configs = new HashMap<>() {{
             put("indentSize", -2);
@@ -113,7 +113,7 @@ public class FormatOptionNegativeTest {
     }
 
     @Test(expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Invalid query formatting option: queryOnSameLine")
+            expectedExceptionsMessageRegExp = "invalid query formatting option: queryOnSameLine")
     public void testInvalidQueryOptions() throws FormatterException {
         Map<String, Object> configs = new HashMap<>() {{
             put("alignMultiLineQueries", true);
@@ -123,7 +123,7 @@ public class FormatOptionNegativeTest {
     }
 
     @Test(expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Invalid spacing formatting option: spaceAroundTuple")
+            expectedExceptionsMessageRegExp = "invalid spacing formatting option: spaceAroundTuple")
     public void testInvalidSpacingOptions() throws FormatterException {
         Map<String, Object> configs = new HashMap<>() {{
             put("spaceAfterTypeCast", true);
@@ -134,28 +134,28 @@ public class FormatOptionNegativeTest {
     }
 
     @Test(expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "Invalid wrapping formatting option: wrapSimpleObjects")
+            expectedExceptionsMessageRegExp = "invalid wrapping formatting option: wrapSimpleObjects")
     public void testInvalidWrappingOptions() throws FormatterException {
         Map<String, Object> configs = new HashMap<>() {{
             put("maxLineLength", 120);
             put("simpleBlocksInOneLine", true);
-            put("simpleMethodsInOneLine", true);
+            put("simpleFunctionsInOneLine", true);
             put("wrapSimpleObjects", true);
         }};
         WrappingFormattingOptions.builder().build(configs);
     }
 
-    @Test(expectedExceptions = FormatterException.class, expectedExceptionsMessageRegExp = "Invalid Brace style:.*")
+    @Test(expectedExceptions = FormatterException.class, expectedExceptionsMessageRegExp = "invalid Brace style:.*")
     public void testInvalidBraceStyle() throws FormatterException {
         BraceStyle.fromString("NEWLINE");
     }
 
-    @Test(expectedExceptions = FormatterException.class, expectedExceptionsMessageRegExp = "Invalid wrapping method:.*")
+    @Test(expectedExceptions = FormatterException.class, expectedExceptionsMessageRegExp = "invalid wrapping method:.*")
     public void testInvalidWrappingMethod() throws FormatterException {
         WrappingMethod.fromString("WRAP");
     }
 
-    @Test(expectedExceptions = FormatterException.class, expectedExceptionsMessageRegExp = "Invalid format section:.*")
+    @Test(expectedExceptions = FormatterException.class, expectedExceptionsMessageRegExp = "invalid format section:.*")
     public void testInvalidFormatSection() throws FormatterException {
         FormatSection.fromString("service");
     }
