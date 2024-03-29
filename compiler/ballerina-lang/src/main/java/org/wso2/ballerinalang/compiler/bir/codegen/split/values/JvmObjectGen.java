@@ -154,8 +154,7 @@ public class JvmObjectGen {
             } else {
                 jvmCastGen.addBoxInsn(mv, retType);
             }
-            if (func.name.value.equals("attach") &&
-                Symbols.isFlagOn(func.parameters.get(0).type.flags, Flags.SERVICE)) {
+            if (isListenerAttach(func)) {
                 mv.visitVarInsn(ASTORE, 4);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitTypeInsn(CHECKCAST, B_OBJECT);
@@ -195,6 +194,10 @@ public class JvmObjectGen {
             mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }
+    }
+
+    private static boolean isListenerAttach(BIRNode.BIRFunction func) {
+        return func.name.value.equals("attach") && Symbols.isFlagOn(func.parameters.get(0).type.flags, Flags.SERVICE);
     }
 
     public void createAndSplitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,

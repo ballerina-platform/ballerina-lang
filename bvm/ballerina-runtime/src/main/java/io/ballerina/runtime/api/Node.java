@@ -16,17 +16,17 @@
 
 package io.ballerina.runtime.api;
 
-import java.util.List;
-
 /**
- * External API to be used by the remote-management module to provide Ballerina runtime artifacts.
+ * Represents a Ballerina Node.
  *
  * @since 2201.9.0
  */
-public interface Repository {
+public abstract class Node {
+    public String nodeId;
 
-    public List<Artifact> getArtifacts();
+    public Node(String nodeId) {
+        this.nodeId = nodeId;
+    }
 
-    public Node getNode();
-
+    public abstract Object getDetail(String detailKey);
 }

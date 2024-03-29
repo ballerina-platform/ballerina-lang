@@ -17,6 +17,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Artifact;
+import io.ballerina.runtime.api.Node;
 import io.ballerina.runtime.api.Repository;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
@@ -66,8 +67,8 @@ public class RepositoryImpl implements Repository {
     }
 
     @Override
-    public NodeInfo getNodeInformation() {
-        return new NodeInfo(nodeId, balVersion, balHome, System.getProperty("os.name"),
+    public Node getNode() {
+        return new NodeImpl(nodeId, balVersion, balHome, System.getProperty("os.name"),
                 System.getProperty("os.version"));
     }
 
@@ -115,6 +116,27 @@ public class RepositoryImpl implements Repository {
 
         private void addDetail(String detailsKey, Object value) {
             this.details.put(detailsKey, value);
+        }
+
+        @Override
+        public Object getDetail(String detailKey) {
+            return details.getOrDefault(detailKey, null);
+        }
+    }
+
+    /**
+     * The implementation of Ballerina runtime node.
+     */
+    private static class NodeImpl extends Node {
+        private final Map<String, Object> details;
+
+        public NodeImpl(String nodeId, String balVersion, String balHome, String osName, String osVersion) {
+            super(nodeId);
+            this.details = new HashMap<>();
+            this.details.put("balVersion", balVersion);
+            this.details.put("balHome", balHome);
+            this.details.put("osName", osName);
+            this.details.put("osVersion", osVersion);
         }
 
         @Override
