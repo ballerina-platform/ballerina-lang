@@ -42,9 +42,11 @@ public class RuntimeManagementDesugar {
     private static final CompilerContext.Key<RuntimeManagementDesugar> RUNTIME_MANAGEMENT_DESUGAR_KEY =
             new CompilerContext.Key<>();
     private final boolean runtimeManagementIncluded;
-    private final boolean enableServicePublish;
+    private final boolean serviceCatalogPublish;
+    private final String serviceCatalogVendor;
     private final PackageCache packageCache;
     private PackageID managementPkgID;
+    private PackageID serviceCatalogPkgID;
 
     public static RuntimeManagementDesugar getInstance(CompilerContext context) {
         RuntimeManagementDesugar desugar = context.get(RUNTIME_MANAGEMENT_DESUGAR_KEY);
@@ -58,31 +60,77 @@ public class RuntimeManagementDesugar {
         context.put(RUNTIME_MANAGEMENT_DESUGAR_KEY, this);
         runtimeManagementIncluded = Boolean.parseBoolean(CompilerOptions.getInstance(context)
                 .get(CompilerOptionName.RUNTIME_MANAGEMENT_INCLUDED));
-        enableServicePublish = Boolean.parseBoolean(CompilerOptions.getInstance(context)
-                .get(CompilerOptionName.ENABLE_SERVICE_PUBLISH));
+        serviceCatalogPublish = Boolean.parseBoolean(CompilerOptions.getInstance(context)
+                .get(CompilerOptionName.SERVICE_CATALOG_PUBLISH));
+        serviceCatalogVendor = CompilerOptions.getInstance(context).get(CompilerOptionName.SERVICE_CATALOG_VENDOR);
         packageCache = PackageCache.getInstance(context);
-        final BPackageSymbol symbol = PackageCache.getInstance(context).getSymbol(Names.BALLERINA_ORG.value
-                + Names.ORG_NAME_SEPARATOR.value + Names.RUNTIME_MANAGEMENT.value);
+
+        final BPackageSymbol serviceCatalogPackageSymbol;
+        final BPackageSymbol symbol;
+
+        if (runtimeManagementIncluded || serviceCatalogPublish) {
+            symbol = PackageCache.getInstance(context).getSymbol(Names.BALLERINA_ORG.value
+                    + Names.ORG_NAME_SEPARATOR.value + Names.RUNTIME_MANAGEMENT.value);
+        } else {
+            symbol = null;
+        }
+
+        if (serviceCatalogPublish) {
+            if (serviceCatalogVendor != null && serviceCatalogVendor.equals(Names.WSO2_APIM_CATALOG.getValue())) {
+                serviceCatalogPackageSymbol = PackageCache.getInstance(context)
+                        .getSymbol(Names.BALLERINAX_ORG.value
+                                + Names.ORG_NAME_SEPARATOR.value + Names.WSO2_APIM_CATALOG.value);
+            } else {
+                serviceCatalogPackageSymbol = null;
+            }
+        } else {
+            serviceCatalogPackageSymbol = null;
+        }
+
         if (symbol != null) {
             managementPkgID = symbol.pkgID;
+        }
+        if (serviceCatalogPackageSymbol != null) {
+            serviceCatalogPkgID = serviceCatalogPackageSymbol.pkgID;
         }
     }
 
     void addManagementServiceModuleImport(BLangPackage pkgNode) {
-        if ((runtimeManagementIncluded || enableServicePublish) && (pkgNode.moduleContextDataHolder != null
-                && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT))
+        if ((runtimeManagementIncluded || serviceCatalogPublish)
+                && isContextDataHolderAndProjectKindValid(pkgNode)
                 && managementPkgID != null) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
-            List<BLangIdentifier> pkgNameComps = new ArrayList<>();
-            pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.RUNTIME_MANAGEMENT.value));
-            importDcl.pkgNameComps = pkgNameComps;
-            importDcl.pos = pkgNode.symbol.pos;
-            importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_ORG.value);
-            importDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
-            importDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
-            importDcl.symbol = packageCache.getSymbol(managementPkgID);
-            pkgNode.imports.add(importDcl);
+            if (serviceCatalogVendor != null && serviceCatalogVendor.equals(Names.WSO2_APIM_CATALOG.getValue())) {
+                importWso2APIManagerCatalogModule(pkgNode, importDcl);
+            }
             pkgNode.symbol.imports.add(importDcl.symbol);
         }
+    }
+
+    void addWso2ApiManagerCatalogModuleImport(BLangPackage pkgNode) {
+        if (serviceCatalogPublish
+                && isContextDataHolderAndProjectKindValid(pkgNode)
+                && serviceCatalogPkgID != null) {
+            BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
+
+            pkgNode.symbol.imports.add(importDcl.symbol);
+        }
+    }
+
+    private boolean isContextDataHolderAndProjectKindValid(BLangPackage pkgNode) {
+        return (pkgNode.moduleContextDataHolder != null
+                && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT));
+    }
+
+    private void importWso2APIManagerCatalogModule(BLangPackage pkgNode, BLangImportPackage importDcl) {
+        List<BLangIdentifier> pkgNameComps = new ArrayList<>();
+        pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.WSO2_APIM_CATALOG.value));
+        importDcl.pkgNameComps = pkgNameComps;
+        importDcl.pos = pkgNode.symbol.pos;
+        importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINAX_ORG.value);
+        importDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
+        importDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
+        importDcl.symbol = packageCache.getSymbol(serviceCatalogPkgID);
+        pkgNode.imports.add(importDcl);
     }
 }

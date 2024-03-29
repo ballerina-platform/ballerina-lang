@@ -107,8 +107,12 @@ public class BuildOptions {
         return this.compilationOptions.runtimeManagementIncluded();
     }
 
-    public boolean enableServicePublish() {
-        return this.compilationOptions.enableServicePublish();
+    public boolean serviceCatalogPublish() {
+        return this.compilationOptions.serviceCatalogPublish();
+    }
+
+    public String serviceCatalogVendor() {
+        return this.compilationOptions.serviceCatalogVendor();
     }
 
     CompilationOptions compilationOptions() {
@@ -204,7 +208,8 @@ public class BuildOptions {
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
         buildOptionsBuilder.setRuntimeManagementIncluded(compilationOptions.runtimeManagementIncluded);
-        buildOptionsBuilder.setEnableServicePublish(compilationOptions.enableServicePublish);
+        buildOptionsBuilder.setServiceCatalogPublish(compilationOptions.serviceCatalogPublish);
+        buildOptionsBuilder.setServiceCatalogVendor(compilationOptions.serviceCatalogVendor);
 
         return buildOptionsBuilder.build();
     }
@@ -402,8 +407,16 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setEnableServicePublish(Boolean value) {
-            compilationOptionsBuilder.setEnableServicePublish(value);
+        public BuildOptionsBuilder setServiceCatalogPublish(Boolean value) {
+            compilationOptionsBuilder.setServiceCatalogPublish(value);
+            if (value != null && value.booleanValue()) {
+                compilationOptionsBuilder.setExportOpenAPI(true);
+            }
+            return this;
+        }
+
+        public BuildOptionsBuilder setServiceCatalogVendor(String value) {
+            compilationOptionsBuilder.setServiceCatalogVendor(value);
             return this;
         }
 

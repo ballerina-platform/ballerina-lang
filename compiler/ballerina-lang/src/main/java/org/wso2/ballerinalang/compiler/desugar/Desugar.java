@@ -760,6 +760,7 @@ public class Desugar extends BLangNodeVisitor {
 
         code2CloudDesugar.addCode2CloudModuleImport(pkgNode);
         runtimeManagementDesugar.addManagementServiceModuleImport(pkgNode);
+        runtimeManagementDesugar.addWso2ApiManagerCatalogModuleImport(pkgNode);
 
         createPackageInitFunctions(pkgNode, env);
         // Adding object functions to package level.

@@ -35,6 +35,7 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -159,9 +160,13 @@ public class BuildCommand implements BLauncherCmd {
             "the executable JAR file(s).")
     private Boolean runtimeManagementIncluded;
 
-    @CommandLine.Option(names = "--enable-service-publish", description = "Include ballerina service management " +
+    @CommandLine.Option(names = "--service-catalog-publish", description = "Include ballerina service management " +
             "tools for publishing service data to external service catalogs.")
-    private Boolean enableServicePublish;
+    private Boolean serviceCatalogPublish;
+
+    @CommandLine.Option(names = "--service-catalog-vendor", description = "Include the service catalog vendor to " +
+            "publish service data to external service catalogs.")
+    private String serviceCatalogVendor;
 
     @CommandLine.Option(names = "--list-conflicted-classes",
             description = "list conflicted classes when generating executable")
@@ -210,6 +215,8 @@ public class BuildCommand implements BLauncherCmd {
         if (sticky == null) {
             sticky = false;
         }
+
+        validateServiceCatalogPublishParameters();
 
         // load project
         Project project;
@@ -302,6 +309,14 @@ public class BuildCommand implements BLauncherCmd {
         }
     }
 
+    private void validateServiceCatalogPublishParameters() {
+        if (serviceCatalogVendor != null && !serviceCatalogVendor.equals(Names.WSO2_APIM_CATALOG.getValue())) {
+            CommandUtil.printError(this.errStream, "unsupported value for " +
+                    "'serviceCatalogVendor' under in build options", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+        }
+    }
+
     private BuildOptions constructBuildOptions() {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
@@ -310,7 +325,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setObservabilityIncluded(observabilityIncluded)
                 .setCloud(cloud)
                 .setRuntimeManagementIncluded(runtimeManagementIncluded)
-                .setEnableServicePublish(enableServicePublish)
+                .setServiceCatalogPublish(serviceCatalogPublish)
+                .setServiceCatalogVendor(serviceCatalogVendor)
                 .setDumpBir(dumpBIR)
                 .setDumpBirFile(dumpBIRFile)
                 .setDumpGraph(dumpGraph)

@@ -46,6 +46,7 @@ public class Names {
     public static final Name DEFAULT_PACKAGE = DOT;
     public static final Name TEST_PACKAGE =  new Name("$test");
     public static final Name BALLERINA_ORG = new Name("ballerina");
+    public static final Name BALLERINAX_ORG = new Name("ballerinax");
     public static final Name BALLERINA_INTERNAL_ORG = new Name("ballerinai");
     public static final Name LANG = new Name("lang");
     public static final Name INTERNAL = new Name("__internal");
@@ -77,6 +78,7 @@ public class Names {
     public static final Name ANYDATA = new Name("anydata");
     public static final Name REGEXP = new Name("regexp");
     public static final Name RUNTIME_MANAGEMENT = new Name("runtime.management");
+    public static final Name WSO2_APIM_CATALOG = new Name("wso2.apim.catalog");
     public static final Name UTILS_PACKAGE = new Name("utils");
     public static final Name BUILTIN_ORG = new Name("ballerina");
     public static final Name RUNTIME_PACKAGE = new Name("runtime");

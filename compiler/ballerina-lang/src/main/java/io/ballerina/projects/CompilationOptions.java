@@ -40,14 +40,15 @@ public class CompilationOptions {
     Boolean enableCache;
     Boolean disableSyntaxTree;
     Boolean runtimeManagementIncluded;
-    Boolean enableServicePublish;
+    Boolean serviceCatalogPublish;
+    String serviceCatalogVendor;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                        Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
                        Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree,
-                       Boolean runtimeManagementIncluded, Boolean enableServicePublish) {
+                       Boolean runtimeManagementIncluded, Boolean serviceCatalogPublish, String serviceCatalogVendor) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
@@ -65,7 +66,8 @@ public class CompilationOptions {
         this.enableCache = enableCache;
         this.disableSyntaxTree = disableSyntaxTree;
         this.runtimeManagementIncluded = runtimeManagementIncluded;
-        this.enableServicePublish = enableServicePublish;
+        this.serviceCatalogPublish = serviceCatalogPublish;
+        this.serviceCatalogVendor = serviceCatalogVendor;
     }
 
     public boolean offlineBuild() {
@@ -132,8 +134,11 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.runtimeManagementIncluded);
     }
 
-    boolean enableServicePublish() {
-        return toBooleanDefaultIfNull(this.enableServicePublish);
+    boolean serviceCatalogPublish() {
+        return toBooleanDefaultIfNull(this.serviceCatalogPublish);
+    }
+    String serviceCatalogVendor() {
+        return toStringDefaultIfNull(this.serviceCatalogVendor);
     }
 
     /**
@@ -224,10 +229,15 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setRuntimeManagementIncluded(this.runtimeManagementIncluded);
         }
-        if (theirOptions.enableServicePublish != null) {
-            compilationOptionsBuilder.setEnableServicePublish(theirOptions.enableServicePublish);
+        if (theirOptions.serviceCatalogPublish != null) {
+            compilationOptionsBuilder.setServiceCatalogPublish(theirOptions.serviceCatalogPublish);
         } else {
-            compilationOptionsBuilder.setEnableServicePublish(this.enableServicePublish);
+            compilationOptionsBuilder.setServiceCatalogPublish(this.serviceCatalogPublish);
+        }
+        if (theirOptions.serviceCatalogVendor != null) {
+            compilationOptionsBuilder.setServiceCatalogVendor(theirOptions.serviceCatalogVendor);
+        } else {
+            compilationOptionsBuilder.setServiceCatalogVendor(this.serviceCatalogVendor);
         }
         return compilationOptionsBuilder.build();
     }
@@ -284,7 +294,8 @@ public class CompilationOptions {
         private Boolean enableCache;
         private Boolean disableSyntaxTree;
         private Boolean runtimeManagementIncluded;
-        private Boolean enableServicePublish;
+        private Boolean serviceCatalogPublish;
+        private String serviceCatalogVendor;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -371,8 +382,13 @@ public class CompilationOptions {
             return this;
         }
 
-        public CompilationOptionsBuilder setEnableServicePublish(Boolean value) {
-            enableServicePublish = value;
+        public CompilationOptionsBuilder setServiceCatalogPublish(Boolean value) {
+            serviceCatalogPublish = value;
+            return this;
+        }
+
+        public CompilationOptionsBuilder setServiceCatalogVendor(String value) {
+            serviceCatalogVendor = value;
             return this;
         }
 
@@ -381,7 +397,7 @@ public class CompilationOptions {
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
                     withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
                     exportComponentModel, enableCache, disableSyntaxTree,
-                    runtimeManagementIncluded, enableServicePublish);
+                    runtimeManagementIncluded, serviceCatalogPublish, serviceCatalogVendor);
         }
     }
 }

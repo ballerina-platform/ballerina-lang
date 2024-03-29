@@ -64,7 +64,8 @@ public enum CompilerOptionName {
 
     ENABLE_CACHE("enableCache"),
     RUNTIME_MANAGEMENT_INCLUDED("runtimeManagementIncluded"),
-    ENABLE_SERVICE_PUBLISH("enableServicePublish"),
+    SERVICE_CATALOG_PUBLISH("serviceCatalogPublish"),
+    SERVICE_CATALOG_VENDOR("serviceCatalogVendor"),
 
     /**
      * We've introduced this temporary option to support old-project structure and the new package structure.

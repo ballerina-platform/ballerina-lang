@@ -40,10 +40,11 @@ import java.util.function.Function;
 import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
-import static org.ballerinalang.compiler.CompilerOptionName.ENABLE_SERVICE_PUBLISH;
+import static org.ballerinalang.compiler.CompilerOptionName.SERVICE_CATALOG_PUBLISH;
 import static org.ballerinalang.compiler.CompilerOptionName.RUNTIME_MANAGEMENT_INCLUDED;
 import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
+import static org.ballerinalang.compiler.CompilerOptionName.SERVICE_CATALOG_VENDOR;
 
 /**
  * Compilation at package level by resolving all the dependencies.
@@ -90,7 +91,8 @@ public class PackageCompilation {
         options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
         options.put(CLOUD, compilationOptions.getCloud());
         options.put(RUNTIME_MANAGEMENT_INCLUDED, Boolean.toString(compilationOptions.runtimeManagementIncluded()));
-        options.put(ENABLE_SERVICE_PUBLISH, Boolean.toString(compilationOptions.enableServicePublish()));
+        options.put(SERVICE_CATALOG_PUBLISH, Boolean.toString(compilationOptions.serviceCatalogPublish()));
+        options.put(SERVICE_CATALOG_VENDOR, compilationOptions.serviceCatalogVendor());
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {

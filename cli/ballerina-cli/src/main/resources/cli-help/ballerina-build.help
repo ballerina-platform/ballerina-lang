@@ -63,9 +63,12 @@ OPTIONS
            Include the dependencies that are required to enable runtime package
            management service.
 
-       --enable-service-publish
+       --service-catalog-publish
           Include the dependencies that are required for publishing
           service data to external service catalogs.
+
+       --service-catalog-vendor
+          Include the service catalog vendor to publish service data to external service catalogs.
 
 
 

@@ -119,7 +119,7 @@ public class PackageUtils {
                 .setDumpRawGraphs(false)
                 .setConfigSchemaGen(false)
                 .setRuntimeManagementIncluded(false)
-                .setEnableServicePublish(false);
+                .setServiceCatalogPublish(false);
 
         return buildOptionsBuilder.build();
     }

@@ -72,6 +72,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -452,7 +453,8 @@ public class TestBuildProject extends BaseTest {
         Assert.assertFalse(project.buildOptions().offlineBuild());
         Assert.assertFalse(project.buildOptions().testReport());
         Assert.assertTrue(project.buildOptions().runtimeManagementIncluded());
-        Assert.assertTrue(project.buildOptions().enableServicePublish());
+        Assert.assertTrue(project.buildOptions().serviceCatalogPublish());
+        Assert.assertEquals(project.buildOptions().serviceCatalogVendor(), Names.WSO2_APIM_CATALOG.getValue());
     }
 
     @Test(description = "tests loading a valid build project with build options from toml")

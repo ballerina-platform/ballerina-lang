@@ -349,6 +349,16 @@
         },
         "taintCheck": {
           "type": "boolean"
+        },
+        "serviceCatalogPublish": {
+          "type": "boolean"
+        },
+        "serviceCatalogVendor": {
+          "type": "string",
+          "pattern": "^ballerinax/wso2.apim.catalog$",
+          "message": {
+            "pattern": "unsupported value for 'serviceCatalogVendor' under in build options"
+          }
         }
       }
     }

@@ -643,8 +643,10 @@ public class ManifestBuilder {
                 BuildOptions.OptionName.GRAAL_VM_BUILD_OPTIONS.toString());
         Boolean runtimeManagementIncluded = getBooleanFromBuildOptionsTableNode(tableNode,
                 CompilerOptionName.RUNTIME_MANAGEMENT_INCLUDED.toString());
-        Boolean enableServicePublish = getBooleanFromBuildOptionsTableNode(tableNode,
-                CompilerOptionName.ENABLE_SERVICE_PUBLISH.toString());
+        Boolean serviceCatalogPublish = getBooleanFromBuildOptionsTableNode(tableNode,
+                CompilerOptionName.SERVICE_CATALOG_PUBLISH.toString());
+        String serviceCatalogVendor = getStringFromBuildOptionsTableNode(tableNode,
+                CompilerOptionName.SERVICE_CATALOG_VENDOR.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
@@ -660,7 +662,8 @@ public class ManifestBuilder {
                 .setExportComponentModel(exportComponentModel)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setRuntimeManagementIncluded(runtimeManagementIncluded)
-                .setEnableServicePublish(enableServicePublish);
+                .setServiceCatalogPublish(serviceCatalogPublish)
+                .setServiceCatalogVendor(serviceCatalogVendor);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir);

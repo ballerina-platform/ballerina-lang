@@ -8,4 +8,5 @@ b7aConfigFile="/tmp/ballerina.conf"
 observabilityIncluded = true
 skipTests=true
 runtimeManagementIncluded=true
-enableServicePublish=true
+serviceCatalogPublish=true
+serviceCatalogVendor="ballerinax/module-ballerinax-wso2.apim.catalog"

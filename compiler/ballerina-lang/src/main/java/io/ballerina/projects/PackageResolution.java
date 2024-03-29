@@ -265,11 +265,21 @@ public class PackageResolution {
                     PackageDependencyScope.DEFAULT, DependencyResolutionType.COMPILER_PLUGIN);
             allModuleLoadRequests.add(c2cModuleLoadReq);
         }
-        if (compilationOptions.runtimeManagementIncluded() || compilationOptions.enableServicePublish()) {
+        if (compilationOptions.serviceCatalogPublish()) {
+            String serviceCatalogVendor = compilationOptions.serviceCatalogVendor;
+            if (serviceCatalogVendor != null && serviceCatalogVendor.equals(Names.WSO2_APIM_CATALOG.getValue())) {
+                String moduleName = Names.WSO2_APIM_CATALOG.getValue();
+                ModuleLoadRequest managementModuleLoadReq = new ModuleLoadRequest(
+                    PackageOrg.from(Names.BALLERINAX_ORG.value), moduleName,
+                    PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
+                allModuleLoadRequests.add(managementModuleLoadReq);
+            }
+        }
+        if (compilationOptions.runtimeManagementIncluded() || compilationOptions.serviceCatalogPublish()) {
             String moduleName = Names.RUNTIME_MANAGEMENT.getValue();
             ModuleLoadRequest managementModuleLoadReq = new ModuleLoadRequest(
-                    PackageOrg.from(Names.BALLERINA_ORG.value), moduleName,
-                    PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
+                PackageOrg.from(Names.BALLERINA_ORG.value), moduleName,
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
             allModuleLoadRequests.add(managementModuleLoadReq);
         }
         return allModuleLoadRequests;
