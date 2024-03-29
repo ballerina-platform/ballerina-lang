@@ -140,7 +140,7 @@ public class BArrayType extends BType implements ArrayType {
         }
         ld = new ListDefinition();
         if (hasTypeHoles()) {
-            return ld.define(env, ANY);
+            return ld.resolve(env, ANY);
         }
         SemType elementTypeSemType = eType.semType();
         if (elementTypeSemType == null) {
@@ -153,9 +153,9 @@ public class BArrayType extends BType implements ArrayType {
         //   if size < 0 && not -1 it means T[abs(size)] (and size was inferred)
         //   else it is the fixed size
         if (size != NO_FIXED_SIZE) {
-            return ld.define(env, List.of(elementTypeSemType), Math.abs(size), NEVER, mut);
+            return ld.resolve(env, List.of(elementTypeSemType), Math.abs(size), NEVER, mut);
         } else {
-            return ld.define(env, List.of(), 0, elementTypeSemType, mut);
+            return ld.resolve(env, List.of(), 0, elementTypeSemType, mut);
         }
     }
 

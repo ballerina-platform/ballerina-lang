@@ -85,7 +85,7 @@ public class ListProj {
     // Based on bddEvery
     static SemType listProjBddInnerVal(Context cx, SubtypeData k, Bdd b, Conjunction pos, Conjunction neg) {
         if (b instanceof BddAllOrNothing allOrNothing) {
-            return allOrNothing.isAll() ? listProjPath(cx, k, pos, neg) : NEVER;
+            return allOrNothing.isAll() ? listProjPathInnerVal(cx, k, pos, neg) : NEVER;
         } else {
             BddNode bddNode = (BddNode) b;
             return union(listProjBddInnerVal(cx, k, bddNode.left(), and(bddNode.atom(), pos), neg),
@@ -95,7 +95,7 @@ public class ListProj {
     }
 
     // Based on listFormulaIsEmpty
-    static SemType listProjPath(Context cx, SubtypeData k, Conjunction pos, Conjunction neg) {
+    static SemType listProjPathInnerVal(Context cx, SubtypeData k, Conjunction pos, Conjunction neg) {
         FixedLengthArray members;
         CellSemType rest;
         if (pos == null) {
@@ -139,7 +139,7 @@ public class ListProj {
         List<Integer> indices = ListOps.listSamples(cx, members, rest, neg);
         TwoTuple<List<Integer>, List<Integer>> projSamples = listProjSamples(indices, k);
         TwoTuple<List<CellSemType>, Integer> sampleTypes = ListOps.listSampleTypes(cx, members, rest, indices);
-        return listProjExclude(cx, projSamples.item1.toArray(new Integer[0]),
+        return listProjExcludeInnerVal(cx, projSamples.item1.toArray(new Integer[0]),
                 projSamples.item2.toArray(Integer[]::new),
                 sampleTypes.item1.toArray(SemType[]::new),
                 sampleTypes.item2, neg);
@@ -186,8 +186,8 @@ public class ListProj {
     // `keyIndices` are the indices in `memberTypes` of those samples that belong to the key type.
     // Based on listInhabited
     // Corresponds to phi^x in AMK tutorial generalized for list types.
-    static SemType listProjExclude(Context cx, Integer[] indices, Integer[] keyIndices, SemType[] memberTypes,
-                                   int nRequired, Conjunction neg) {
+    static SemType listProjExcludeInnerVal(Context cx, Integer[] indices, Integer[] keyIndices, SemType[] memberTypes,
+                                           int nRequired, Conjunction neg) {
         SemType p = NEVER;
         if (neg == null) {
             int len = memberTypes.length;
@@ -199,13 +199,13 @@ public class ListProj {
         } else {
             final ListAtomicType nt = cx.listAtomType(neg.atom);
             if (nRequired > 0 && isNever(listMemberAt(nt.members(), nt.rest(), indices[nRequired - 1]))) {
-                return listProjExclude(cx, indices, keyIndices, memberTypes, nRequired, neg.next);
+                return listProjExcludeInnerVal(cx, indices, keyIndices, memberTypes, nRequired, neg.next);
             }
             int negLen = nt.members().fixedLength();
             if (negLen > 0) {
                 int len = memberTypes.length;
                 if (len < indices.length && indices[len] < negLen) {
-                    return listProjExclude(cx, indices, keyIndices, memberTypes, nRequired, neg.next);
+                    return listProjExcludeInnerVal(cx, indices, keyIndices, memberTypes, nRequired, neg.next);
                 }
                 for (int i = nRequired; i < memberTypes.length; i++) {
                     if (indices[i] >= negLen) {
@@ -213,7 +213,7 @@ public class ListProj {
                     }
                     // TODO: think about a way to avoid this allocation here and instead create view and pass it in
                     SemType[] t = Arrays.copyOfRange(memberTypes, 0, i);
-                    p = union(p, listProjExclude(cx, indices, keyIndices, t, nRequired, neg.next));
+                    p = union(p, listProjExcludeInnerVal(cx, indices, keyIndices, t, nRequired, neg.next));
                 }
             }
             for (int i = 0; i < memberTypes.length; i++) {
@@ -222,7 +222,7 @@ public class ListProj {
                     SemType[] t = memberTypes.clone();
                     t[i] = d;
                     // We need to make index i be required
-                    p = union(p, listProjExclude(cx, indices, keyIndices, t, Integer.max(nRequired, i + 1),
+                    p = union(p, listProjExcludeInnerVal(cx, indices, keyIndices, t, Integer.max(nRequired, i + 1),
                             neg.next));
                 }
             }

@@ -67,38 +67,38 @@ public class ListDefinition implements Definition {
 
     public static SemType tupleTypeWrapped(Env env, SemType... members) {
         ListDefinition def = new ListDefinition();
-        return def.define(env, List.of(members), members.length);
+        return def.resolve(env, List.of(members), members.length);
     }
 
     public static SemType tupleTypeWrappedRo(Env env, SemType... members) {
         ListDefinition def = new ListDefinition();
-        return def.define(env, List.of(members), members.length, NEVER, CELL_MUT_NONE);
+        return def.resolve(env, List.of(members), members.length, NEVER, CELL_MUT_NONE);
     }
 
     // Overload define method for commonly used default parameter values
 
-    public SemType define(Env env, List<SemType> initial, int size) {
-        return define(env, initial, size, NEVER, CELL_MUT_LIMITED);
+    public SemType resolve(Env env, List<SemType> initial, int size) {
+        return resolve(env, initial, size, NEVER, CELL_MUT_LIMITED);
     }
 
-    public SemType define(Env env, List<SemType> initial, int fixedLength, SemType rest) {
-        return define(env, initial, fixedLength, rest, CELL_MUT_LIMITED);
+    public SemType resolve(Env env, List<SemType> initial, int fixedLength, SemType rest) {
+        return resolve(env, initial, fixedLength, rest, CELL_MUT_LIMITED);
     }
 
     public static SemType defineListTypeWrapped(Env env, List<SemType> initial, int fixedLength, SemType rest,
                                                 CellAtomicType.CellMutability mut) {
         ListDefinition ld = new ListDefinition();
-        return ld.define(env, initial, fixedLength, rest, mut);
+        return ld.resolve(env, initial, fixedLength, rest, mut);
     }
 
-    public SemType define(Env env, List<SemType> initial, int fixedLength, SemType rest,
-                          CellAtomicType.CellMutability mut) {
+    public SemType resolve(Env env, List<SemType> initial, int fixedLength, SemType rest,
+                           CellAtomicType.CellMutability mut) {
         List<CellSemType> initialCells = initial.stream().map(t -> cellContaining(env, t, mut)).toList();
         CellSemType restCell = cellContaining(env, union(rest, UNDEF), isNever(rest) ? CELL_MUT_NONE : mut);
-        return define(env, initialCells, fixedLength, restCell);
+        return resolve(env, initialCells, fixedLength, restCell);
     }
 
-    private ComplexSemType define(Env env, List<CellSemType> initial, int fixedLength, CellSemType rest) {
+    private ComplexSemType resolve(Env env, List<CellSemType> initial, int fixedLength, CellSemType rest) {
         FixedLengthArray members = fixedLengthNormalize(FixedLengthArray.from(initial, fixedLength));
         ListAtomicType atomicType = ListAtomicType.from(members, rest);
         Atom atom;
@@ -137,15 +137,15 @@ public class ListDefinition implements Definition {
         return complexSemType;
     }
 
-    public SemType define(Env env, List<CellSemType> initial) {
-        return define(env, initial, initial.size(), CellSubtype.roCellContaining(env, union(NEVER, UNDEF)));
+    public SemType resolve(Env env, List<CellSemType> initial) {
+        return resolve(env, initial, initial.size(), CellSubtype.roCellContaining(env, union(NEVER, UNDEF)));
     }
 
-    public SemType define(Env env, SemType rest) {
-        return define(env, List.of(), 0, rest);
+    public SemType resolve(Env env, SemType rest) {
+        return resolve(env, List.of(), 0, rest);
     }
 
-    public SemType define(Env env, List<SemType> initial, SemType rest) {
-        return define(env, initial, initial.size(), rest, CELL_MUT_LIMITED);
+    public SemType resolve(Env env, List<SemType> initial, SemType rest) {
+        return resolve(env, initial, initial.size(), rest, CELL_MUT_LIMITED);
     }
 }
