@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 
@@ -105,5 +106,20 @@ public class RegExpValue implements BRegexpValue, RefValue {
     @Override
     public String toString() {
         return this.stringValue(null);
+    }
+
+    /**
+     * Deep equality check for regular expression.
+     *
+     * @param o The regular expression on the right hand side
+     * @param visitedValues Visited values in order to break cyclic references.
+     * @return True if the regular expressions are equal, else false.
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (!(o instanceof RegExpValue rhsRegExpValue)) {
+            return false;
+        }
+        return this.stringValue(null).equals(rhsRegExpValue.stringValue(null));
     }
 }

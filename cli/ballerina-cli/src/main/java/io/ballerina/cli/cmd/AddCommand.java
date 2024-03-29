@@ -44,9 +44,10 @@ import static io.ballerina.projects.util.ProjectUtils.guessModuleName;
 @CommandLine.Command(name = ADD_COMMAND, description = "Add a new Ballerina module to the current package")
 public class AddCommand implements BLauncherCmd {
 
-    private Path userDir;
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final Path userDir;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
+    private static final String TEST_FILE_SUFFIX = "_test" + ProjectConstants.BLANG_SOURCE_EXT;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -229,8 +230,29 @@ public class AddCommand implements BLauncherCmd {
         // -- mymodule/
         // --- main.bal       <- Contains default main method.
         CommandUtil.applyTemplate(modulePath, template, false);
-        Path source = modulePath.resolve(template.toLowerCase(Locale.getDefault()) + ".bal");
-        Files.move(source, source.resolveSibling(guessModuleName(moduleName) + ".bal"),
+        modifyTestFileName(projectPath, moduleName, template);
+    }
+
+    /**
+     * Modify the file names to have the module name in them.
+     *
+     * @param projectPath project path
+     * @param moduleName  module name
+     * @param template   template
+     * @throws IOException if an error occurs
+     */
+    private void modifyTestFileName(Path projectPath, String moduleName, String template) throws IOException {
+        String validModuleName = guessModuleName(moduleName);
+        String templateLowerCase = template.toLowerCase(Locale.getDefault());
+        Path modulePath = projectPath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
+        Path source = modulePath.resolve(templateLowerCase + ProjectConstants.BLANG_SOURCE_EXT);
+        Files.move(source,
+                source.resolveSibling(validModuleName + ProjectConstants.BLANG_SOURCE_EXT),
+                StandardCopyOption.REPLACE_EXISTING);
+        Path testSource = modulePath.resolve(ProjectConstants.TEST_DIR_NAME)
+                .resolve(templateLowerCase + TEST_FILE_SUFFIX);
+        Files.move(testSource,
+                testSource.resolveSibling(validModuleName + TEST_FILE_SUFFIX),
                 StandardCopyOption.REPLACE_EXISTING);
     }
 }

@@ -36,6 +36,7 @@ import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
+import io.ballerina.runtime.internal.configurable.providers.env.EnvVarProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BFiniteType;
@@ -145,10 +146,45 @@ public class ConfigTest {
                 {new VariableKey(module, "color", COLOR_ENUM,
                         true), BString.class, StringUtils.fromString("GREEN"),
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.color=GREEN")},
+                // Int value given only with env var
+                {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 123L,
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_INTVAR", "123"))},
+                // Byte value given only with env var
+                {new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE, true), Integer.class, 7,
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_BYTEVAR", "7"))},
+                // Float value given only with env var
+                {new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT, true), Double.class, 99.9,
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_FLOATVAR", "99.9"))},
+                // String value given only with env var
+                {new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true), BString.class,
+                        StringUtils.fromString("efg"),
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_STRINGVAR", "efg"))},
+                // Boolean value given only with env var
+                {new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true), Boolean.class, false,
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_BOOLEANVAR", "0"))},
+                // Decimal value given only with env var
+                {new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
+                        new DecimalValue("876.54"),
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_DECIMALVAR",
+                                "876.54"))},
+                // Multiple provider but use the first registered provider ( env var as final value)
+                {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 42L,
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_INTVAR", "13579")),
+                        new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=13677"),
+                        new TomlFileProvider(ROOT_MODULE, getConfigPath("SimpleTypesConfig.toml"), moduleSet)},
+                // Multiple provider but use the first registered provider ( Toml file value as final value)
+                {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 13579L,
+                        new TomlFileProvider(ROOT_MODULE, getConfigPath("SimpleTypesConfig.toml"), moduleSet),
+                        new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=13677"),
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_INTVAR", "13579"))},
+                // Enum value given with env var
+                {new VariableKey(module, "color", COLOR_ENUM,
+                        true), BString.class, StringUtils.fromString("GREEN"),
+                        new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_MYORG_TEST_MODULE_COLOR", "GREEN"))},
         };
     }
 
-    @Test(dataProvider = "cli-args-not-supported-provider")
+    @Test(dataProvider = "not-supported-provider")
     public void testCLIArgUnsupportedErrors(String variableName, Type type, String expectedValue, int errors) {
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
@@ -172,8 +208,8 @@ public class ConfigTest {
 
     }
 
-    @DataProvider(name = "cli-args-not-supported-provider")
-    public Object[][] cliArgsNotSupportedDataProvider() {
+    @DataProvider(name = "not-supported-provider")
+    public Object[][] notSupportedDataProvider() {
         ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT);
         TupleType tupleType =
                 TypeCreator.createTupleType(List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING),
@@ -197,5 +233,29 @@ public class ConfigTest {
                 {"e", new BIntersectionType(ROOT_MODULE, new Type[]{tableType, PredefinedTypes.TYPE_READONLY},
                         tableType, 0, true), "[{\"aa\":2}]", 4},
         };
+    }
+
+    @Test(dataProvider = "not-supported-provider")
+    public void testEnvVarUnsupportedErrors(String variableName, Type type, String expectedValue, int errors) {
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey variableKey = new VariableKey(ROOT_MODULE, variableName, type, null, true);
+        configVarMap.put(ROOT_MODULE,
+                new VariableKey[]{new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, null
+                        , false), variableKey});
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new EnvVarProvider(ROOT_MODULE, Map.of("BAL_CONFIG_VAR_INTVAR", "22")),
+                        new TomlFileProvider(ROOT_MODULE, getConfigPathForNegativeCases(
+                                "UnsupportedCliConfig.toml"), Set.of(ROOT_MODULE))));
+        Map<VariableKey, ConfigValue> valueMap = configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), errors);
+        ConfigValue configValue = valueMap.get(variableKey);
+        if (configValue == null) {
+            Assert.assertNull(expectedValue);
+        } else {
+            Assert.assertEquals(configValue.getValue().toString(), expectedValue);
+        }
+
     }
 }

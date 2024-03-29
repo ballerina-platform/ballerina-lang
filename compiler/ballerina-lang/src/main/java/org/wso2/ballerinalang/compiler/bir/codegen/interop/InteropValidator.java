@@ -82,6 +82,8 @@ public class InteropValidator {
         // find module dependencies path
         Set<Path> moduleDependencyPaths = getPlatformDependencyPaths(
                 moduleId, compilerBackend, PlatformLibraryScope.DEFAULT);
+        moduleDependencyPaths.addAll(getPlatformDependencyPaths(moduleId, compilerBackend,
+                PlatformLibraryScope.PROVIDED));
 
         // Add runtime library
         Path runtimeJar = compilerBackend.runtimeLibrary().path();
@@ -102,9 +104,11 @@ public class InteropValidator {
             return;
         }
         Set<Path> testDependencies = getPlatformDependencyPaths(moduleId, compilerBackend,
-                                                                PlatformLibraryScope.DEFAULT);
+                PlatformLibraryScope.DEFAULT);
         testDependencies.addAll(getPlatformDependencyPaths(moduleId, compilerBackend,
-                                                           PlatformLibraryScope.TEST_ONLY));
+                PlatformLibraryScope.PROVIDED));
+        testDependencies.addAll(getPlatformDependencyPaths(moduleId, compilerBackend,
+                PlatformLibraryScope.TEST_ONLY));
 
         // Add runtime library
         Path runtimeJar = compilerBackend.runtimeLibrary().path();

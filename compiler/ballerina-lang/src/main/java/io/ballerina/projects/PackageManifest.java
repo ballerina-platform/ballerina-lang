@@ -22,6 +22,7 @@ import io.ballerina.projects.internal.model.BalToolDescriptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Collections;
@@ -438,15 +439,15 @@ public class PackageManifest {
      * @since 2201.9.0
      */
     public static class Tool {
-        private final String id;
+        private final Field id;
         private final TomlTableNode optionsTable;
-        private final String filePath;
-        private final String targetModule;
-        private final String type;
+        private final Field filePath;
+        private final Field targetModule;
+        private final Field type;
         private final Toml optionsToml;
         private final boolean hasErrorDiagnostic;
 
-        public Tool(String type, String id, String filePath, String targetModule, Toml optionsToml,
+        public Tool(Field type, Field id, Field filePath, Field targetModule, Toml optionsToml,
                     TomlTableNode optionsTable, boolean hasErrorDiagnostic) {
             this.type = type;
             this.id = id;
@@ -462,7 +463,7 @@ public class PackageManifest {
          *
          * @return the tool id.
          */
-        public String id() {
+        public Field id() {
             return id;
         }
 
@@ -471,7 +472,7 @@ public class PackageManifest {
          *
          * @return the filepath.
          */
-        public String filePath() {
+        public Field filePath() {
             return this.filePath;
         }
 
@@ -480,7 +481,7 @@ public class PackageManifest {
          *
          * @return the tool's target module.
          */
-        public String targetModule() {
+        public Field targetModule() {
             return this.targetModule;
         }
 
@@ -498,7 +499,7 @@ public class PackageManifest {
          *
          * @return the tool type.
          */
-        public String type() {
+        public Field type() {
             return type;
         }
 
@@ -518,6 +519,9 @@ public class PackageManifest {
          */
         public boolean hasErrorDiagnostic() {
             return hasErrorDiagnostic;
+        }
+
+        public record Field(String value, TomlNodeLocation location) {
         }
     }
 

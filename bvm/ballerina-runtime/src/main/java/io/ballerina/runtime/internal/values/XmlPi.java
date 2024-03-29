@@ -25,6 +25,7 @@ import org.apache.axiom.om.OMNode;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * XML nodes containing processing instructions.
@@ -116,6 +117,21 @@ public class XmlPi extends XmlNonElementItem {
     @Override
     public boolean equals(Object obj) {
         return this == obj;
+    }
+
+    /**
+     * Deep equality check for XML Processing Instruction.
+     *
+     * @param o The XML on the right hand side
+     * @param visitedValues Visited values in order to break cyclic references.
+     * @return True if the XML values are equal, else false.
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (!(o instanceof XmlPi rhsXMLPi)) {
+            return false;
+        }
+        return this.getData().equals(rhsXMLPi.getData()) && this.getTarget().equals(rhsXMLPi.getTarget());
     }
 
     @Override

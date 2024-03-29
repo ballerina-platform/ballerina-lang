@@ -1,4 +1,12 @@
 {
+    "AlternateReceiveNode": {
+        "createdYear": "2024",
+        "since": "2201.9.0"
+    },
+    "ReceiveFieldNode": {
+        "createdYear": "2024",
+        "since": "2201.9.0"
+    },
     "ClientResourceActionNode": {
         "createdYear": "2022",
         "since": "2201.2.0"

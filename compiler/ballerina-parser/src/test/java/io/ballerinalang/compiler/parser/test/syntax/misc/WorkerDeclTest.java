@@ -31,6 +31,11 @@ public class WorkerDeclTest extends AbstractMiscTest {
         testFile("worker-decl/worker_decl_source_01.bal", "worker-decl/worker_decl_assert_01.json");
     }
 
+    @Test
+    public void testWorkerDeclWithOnFailClause() {
+        testFile("worker-decl/worker_decl_source_06.bal", "worker-decl/worker_decl_assert_06.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -53,5 +58,9 @@ public class WorkerDeclTest extends AbstractMiscTest {
     public void testInvalidUsageOfNamedWorkers() {
         testFile("worker-decl/worker_decl_source_05.bal", "worker-decl/worker_decl_assert_05.json");
     }
-    
+
+    @Test
+    public void testWorkerWithOnFailClauseRecovery() {
+        testFile("worker-decl/worker_decl_source_07.bal", "worker-decl/worker_decl_assert_07.json");
+    }
 }

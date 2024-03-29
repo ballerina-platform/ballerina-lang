@@ -18,14 +18,14 @@
 
 package io.ballerina.projects;
 
-import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.buildtools.CodeGeneratorTool;
 import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ToolResolutionRequest;
-import io.ballerina.projects.internal.PackageDiagnostic;
-import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.BuildToolUtils;
+import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -34,9 +34,6 @@ import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -47,11 +44,9 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEFAULT_VERSION;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
-import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
  * {@code BuildToolResolution} Model for resolving tool dependencies.
@@ -61,10 +56,12 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 public class BuildToolResolution {
     private static final String PACKAGE_NAME_PREFIX  = "tool_";
     private final PackageContext packageContext;
-    private final List<BuildTool> resolvedTools = new ArrayList<>();
-    private final List<Diagnostic> diagnosticList = new ArrayList<>();
+    private final List<BuildTool> resolvedTools;
+    private final List<Diagnostic> diagnosticList;
 
     private BuildToolResolution(PackageContext packageContext) {
+        resolvedTools = new ArrayList<>();
+        diagnosticList = new ArrayList<>();
         this.packageContext = packageContext;
         resolveToolDependencies();
     }
@@ -102,8 +99,10 @@ public class BuildToolResolution {
         for (ToolContext toolContext: toolContextMap.values()) {
             // Populate the tools needed to resolve
             BuildToolId toolId = BuildToolId.from(toolContext.type().split("\\.")[0]);
+            TomlNodeLocation location = BuildToolUtils.getFirstToolEntryLocation(
+                    toolId.value(), packageContext.packageManifest().tools());
             if (toolIds.add(toolId.value())) {
-                buildTools.add(BuildTool.from(toolId, null, null, null));
+                buildTools.add(BuildTool.from(toolId, null, null, null, location));
             }
         }
         ClassLoader toolClassLoader = this.getClass().getClassLoader();
@@ -130,7 +129,7 @@ public class BuildToolResolution {
         try {
             resolvedTools.addAll(resolveToolVersions(currentProject, resolutionRequiredTools));
         } catch (CentralClientException e) {
-            throw new ProjectException("Failed to resolve tool dependencies: " + e.getMessage());
+            throw new ProjectException("Failed to resolve build tools: " + e.getMessage());
         }
     }
 
@@ -147,7 +146,7 @@ public class BuildToolResolution {
     }
 
     private PackageLockingMode getPackageLockingMode(Project project) {
-        boolean sticky = getSticky(project);
+        boolean sticky = ProjectUtils.getSticky(project);
 
         // new project
         if (project.currentPackage().dependenciesToml().isEmpty()) {
@@ -180,7 +179,8 @@ public class BuildToolResolution {
             PackageName name = tool.name();
             PackageVersion version = tool.version();
             if (tool.org() == null || tool.name() == null) {
-                PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id().value());
+                TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id().value(),
+                        tool.location());
                 diagnosticList.add(diagnostic);
                 continue;
             }
@@ -190,11 +190,13 @@ public class BuildToolResolution {
             if (latestCompVersion.isEmpty()) {
                 String toolIdAndVersionOpt = tool.id().value()
                         + (tool.version() == null ? "" : ":" + tool.version().toString());
-                PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(toolIdAndVersionOpt);
+                TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(toolIdAndVersionOpt,
+                        tool.location());
                 diagnosticList.add(diagnostic);
                 continue;
             }
-            resolvedTools.add(BuildTool.from(id, org, name, PackageVersion.from(latestCompVersion.get())));
+            resolvedTools.add(BuildTool.from(id, org, name,
+                    PackageVersion.from(latestCompVersion.get()), tool.location()));
         }
         return resolvedTools;
     }
@@ -245,20 +247,24 @@ public class BuildToolResolution {
         List<ToolResolutionCentralResponse.ResolvedTool> resolved = packageResolutionResponse.resolved();
         List<ToolResolutionCentralResponse.UnresolvedTool> unresolved = packageResolutionResponse.unresolved();
         for (ToolResolutionCentralResponse.UnresolvedTool tool : unresolved) {
-            PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
+            TomlNodeLocation location = BuildToolUtils.getFirstToolEntryLocation(
+                    tool.id(), packageContext.packageManifest().tools());
+            TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id(), location);
             diagnosticList.add(diagnostic);
         }
         List<BuildTool> resolvedTools = new ArrayList<>();
         for (ToolResolutionCentralResponse.ResolvedTool tool : resolved) {
-            if (tool.id() == null || tool.version() == null || tool.name() == null || tool.org() == null) {
-                PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
+            TomlNodeLocation location = BuildToolUtils.getFirstToolEntryLocation(tool.id(),
+                    packageContext.packageManifest().tools());
+            if (tool.version() == null || tool.name() == null || tool.org() == null) {
+                TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id(), location);
                 diagnosticList.add(diagnostic);
                 continue;
             }
             try {
                 PackageVersion.from(tool.version());
             } catch (ProjectException ignore) {
-                PackageDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id());
+                TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id(), location);
                 diagnosticList.add(diagnostic);
                 continue;
             }
@@ -266,34 +272,11 @@ public class BuildToolResolution {
                     BuildToolId.from(tool.id()),
                     PackageOrg.from(tool.org()),
                     PackageName.from(tool.name()),
-                    PackageVersion.from(tool.version())
+                    PackageVersion.from(tool.version()),
+                    location
             ));
         }
         return resolvedTools;
-    }
-
-    private boolean getSticky(Project project) {
-        boolean sticky = project.buildOptions().sticky();
-        if (sticky) {
-            return true;
-        }
-
-        // set sticky if `build` file exists and `last_update_time` not passed 24 hours
-        Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
-        if (Files.exists(buildFilePath) && buildFilePath.toFile().length() > 0) {
-            try {
-                BuildJson buildJson = readBuildJson(buildFilePath);
-                // if distribution is not same, we anyway return sticky as false
-                if (buildJson != null && buildJson.distributionVersion() != null &&
-                        buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
-                        !buildJson.isExpiredLastUpdateTime()) {
-                    return true;
-                }
-            } catch (IOException | JsonSyntaxException e) {
-                // ignore
-            }
-        }
-        return false;
     }
 
     private void updateLockedToolDependencyVersions(List<BuildTool> unresolvedTools, Project project) {
