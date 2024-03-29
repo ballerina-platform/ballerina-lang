@@ -156,6 +156,11 @@ public class QueryExprWithQueryConstructTypeTest {
         BRunUtil.invoke(result, "testMapConstructNestedQueryWithConflictingKeys");
     }
 
+    @Test(description = "Test map creating query with group by clause having an onConflict error")
+    public void testMapConstructQueryWithConflictingKeys() {
+        BRunUtil.invoke(result, "testMapConstructQueryWithConflictingKeys");
+    }
+
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
         int index = 0;

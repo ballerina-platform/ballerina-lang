@@ -1921,6 +1921,19 @@ function testMapConstructNestedQueryWithConflictingKeys() {
     assertEqual((<error>result[0]).message(), "Error key: 1 iteration: 1");
 }
 
+function testMapConstructQueryWithConflictingKeys() {
+    Customer c1 = {id: 1, name: "Abba", noOfItems: 10};
+    Customer c2 = {id: 2, name: "Jim", noOfItems: 20};
+    Customer c3 = {id: 3, name: "James", noOfItems: 30};
+    Customer c4 = {id: 3, name: "Abba", noOfItems: 40};
+    Customer[] customerList = [c1, c2, c3, c4];
+    anydata|error result = map from var {name, noOfItems} in customerList
+                            group by name
+                            select [name, [noOfItems]]
+                            on conflict error(string `value: ${[noOfItems].toString()}`);
+    assertEqual(result is map<anydata>, true);
+}
+
 function assertEqual(anydata|error actual, anydata|error expected) {
     anydata expectedValue = (expected is error)? (<error> expected).message() : expected;
     anydata actualValue = (actual is error)? (<error> actual).message() : actual;
