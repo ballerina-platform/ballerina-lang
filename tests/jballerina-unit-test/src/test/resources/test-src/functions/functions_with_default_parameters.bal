@@ -315,30 +315,34 @@ function baz1(int a, F2 b = function() returns function() returns int { return f
 }
 
 function baz2(int a, function() returns int b = function() returns int { function (int x = a) returns int f = 
-                                                                         function (int p) returns  int { return p + 1;};
+                                                                         function (int p) returns  int
+                                                                         { return p + 1; };
                                                                          return f(); 
                                                                         }) returns int {
     return a + b();
 }
 
-function baz3(int a, function() returns int b = function() returns int { function (int x = a) returns int f = 
-                                                                         function (int p) returns  int {
-                                                                            function (int c = p) returns int g = 
-                                                                            function (int c) returns int {
-                                                                                return c + 1;
-                                                                            };
-                                                                            return p + g() + 1;
-                                                                         };
+function baz3(int a, int c, function() returns int b = function() returns int { function (int x = a + c) returns int f = 
+                                                                                function (int p) returns  int
+                                                                                { return p + 1; };
+                                                                                return f(); 
+                                                                                }) returns int {
+    return a + b() + c;
+}
+
+function baz4(int a, function() returns int b = function() returns int { function (int x = a) returns int f = 
+                                                                         function (int p) returns  int => p + 1 + a;
                                                                          return f(); 
                                                                         }) returns int {
     return a + b();
 }
 
-function testParamUseAsValueInAnonFuncWithDefaultForNextParam() {
+function testUsingParamInAnonFuncDefaultValueOfSubsequentParam() {
     assertEquality(baz(10), 21);
     assertEquality(baz1(100), 200);
     assertEquality(baz2(10), 21);
-    assertEquality(baz3(10), 32);
+    assertEquality(baz3(10, 20), 61);
+    assertEquality(baz4(10), 31);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
