@@ -293,6 +293,10 @@
                           "kind": "RESOURCE_KEYWORD",
                           "leadingMinutiae": [
                             {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": "    "
                             }

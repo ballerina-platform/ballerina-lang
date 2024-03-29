@@ -33,31 +33,6 @@ public class BLangCompilerConstants {
 
     // java module version
     public static final String JAVA_VERSION = "0.9.0";
-    // lang lib versions
-    public static final String INTERNAL_VERSION = "0.1.0";
-    public static final String ANNOTATIONS_VERSION = "1.0.0";
-    public static final String ARRAY_VERSION = "1.1.0";
-    public static final String DECIMAL_VERSION = "1.0.0";
-    public static final String ERROR_VERSION = "1.0.0";
-    public static final String FLOAT_VERSION = "1.0.0";
-    public static final String FUTURE_VERSION = "1.0.0";
-    public static final String INT_VERSION = "1.1.0";
-    public static final String MAP_VERSION = "1.1.0";
-    public static final String OBJECT_VERSION = "1.0.0";
-    public static final String STREAM_VERSION = "0.4.0";
-    public static final String STRING_VERSION = "1.1.0";
-    public static final String TABLE_VERSION = "0.4.0";
-    public static final String TEST_VERSION = "1.0.0";
-    public static final String TYPEDESC_VERSION = "1.0.0";
-    public static final String VALUE_VERSION = "1.0.0";
-    public static final String XML_VERSION = "0.8.0";
-    public static final String BOOLEAN_VERSION = "1.0.0";
-    public static final String QUERY_VERSION = "0.0.1";
-    public static final String RUNTIME_VERSION = "0.0.1";
-    public static final String TRANSACTION_VERSION = "0.0.1";
-    public static final String TRANSACTION_INTERNAL_VERSION = "1.0.15";
-    public static final String OBSERVE_INTERNAL_VERSION = "1.0.0";
-    public static final String C2C_VERSION = "1.0.0";
 
     private BLangCompilerConstants() {
     }

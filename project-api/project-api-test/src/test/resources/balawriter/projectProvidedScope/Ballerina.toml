@@ -1,0 +1,11 @@
+[package]
+org = "foo"
+name = "pkg_a"
+version = "1.0.0"
+
+[[platform.java17.dependency]]
+groupId = "com.example"
+artifactId = "project1"
+version = "1.0"
+path = "libs/project1-1.0.0.jar"
+scope= "provided"
