@@ -22,8 +22,9 @@ import static io.ballerina.types.PredefinedType.CELL_SEMTYPE_INNER_RO;
 
 /**
  * ListAtomicType node.
+ *
  * @param members for a given list type this represents the required members
- * @param rest for a given list type this represents the rest type. This is NEVER if the list don't have a rest type
+ * @param rest    for a given list type this represents the rest type. This is NEVER if the list don't have a rest type
  * @since 2201.8.0
  */
 public record ListAtomicType(FixedLengthArray members, CellSemType rest) implements AtomicType {

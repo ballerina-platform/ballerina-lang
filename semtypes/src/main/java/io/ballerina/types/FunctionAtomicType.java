@@ -21,12 +21,12 @@ package io.ballerina.types;
  * FunctionAtomicType node.
  *
  * @param paramType semtype of parameters represented as a tuple
- * @param retType semtype of the return value
+ * @param retType   semtype of the return value
  * @since 2201.8.0
  */
 public record FunctionAtomicType(SemType paramType, SemType retType) implements AtomicType {
 
-    public static FunctionAtomicType from(SemType paramType , SemType rest) {
+    public static FunctionAtomicType from(SemType paramType, SemType rest) {
         return new FunctionAtomicType(paramType, rest);
     }
 }

@@ -31,6 +31,7 @@ import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
+import io.ballerina.types.subtypedata.CellSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.Range;
 
@@ -53,7 +54,6 @@ import static io.ballerina.types.PredefinedType.LIST;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.VAL;
 import static io.ballerina.types.PredefinedType.UNDEF;
-import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 import static io.ballerina.types.subtypedata.IntSubtype.intSubtypeContains;
 import static io.ballerina.types.typeops.ListOps.fixedArrayAnyEmpty;
 import static io.ballerina.types.typeops.ListOps.fixedArrayShallowCopy;
@@ -69,7 +69,7 @@ public class ListProj {
     // Untested full implementation of list projection.
 
     // Based on listMemberType
-    public static SemType listProj(Context cx, SemType t, SemType k) {
+    public static SemType listProjInnerVal(Context cx, SemType t, SemType k) {
         if (t instanceof BasicTypeBitSet b) {
             return (b.bitset & LIST.bitset) != 0 ? VAL : NEVER;
         } else {
@@ -77,19 +77,20 @@ public class ListProj {
             if (isNothingSubtype(keyData)) {
                 return NEVER;
             }
-            return listProjBdd(cx, keyData, (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_LIST), null, null);
+            return listProjBddInnerVal(cx, keyData, (Bdd) getComplexSubtypeData((ComplexSemType) t, BT_LIST), null,
+                    null);
         }
     }
 
     // Based on bddEvery
-    static SemType listProjBdd(Context cx, SubtypeData k, Bdd b, Conjunction pos, Conjunction neg) {
+    static SemType listProjBddInnerVal(Context cx, SubtypeData k, Bdd b, Conjunction pos, Conjunction neg) {
         if (b instanceof BddAllOrNothing allOrNothing) {
             return allOrNothing.isAll() ? listProjPath(cx, k, pos, neg) : NEVER;
         } else {
             BddNode bddNode = (BddNode) b;
-            return union(listProjBdd(cx, k, bddNode.left(), and(bddNode.atom(), pos), neg),
-                    union(listProjBdd(cx, k, bddNode.middle(), pos, neg),
-                            listProjBdd(cx, k, bddNode.right(), pos, and(bddNode.atom(), neg))));
+            return union(listProjBddInnerVal(cx, k, bddNode.left(), and(bddNode.atom(), pos), neg),
+                    union(listProjBddInnerVal(cx, k, bddNode.middle(), pos, neg),
+                            listProjBddInnerVal(cx, k, bddNode.right(), pos, and(bddNode.atom(), neg))));
         }
     }
 
@@ -99,7 +100,7 @@ public class ListProj {
         CellSemType rest;
         if (pos == null) {
             members = FixedLengthArray.empty();
-            rest = cellContaining(cx.env, union(VAL, UNDEF));
+            rest = CellSubtype.cellContaining(cx.env, union(VAL, UNDEF));
         } else {
             // combine all the positive tuples using intersection
             ListAtomicType lt = cx.listAtomType(pos.atom);
@@ -130,8 +131,8 @@ public class ListProj {
                 return NEVER;
             }
             // Ensure that we can use isNever on rest in listInhabited
-            if (cellInnerVal(rest) != NEVER && isEmpty(cx, rest)) {
-                rest = cellContaining(cx.env, NEVER);
+            if (!Core.isNever(cellInnerVal(rest)) && isEmpty(cx, rest)) {
+                rest = CellSubtype.roCellContaining(cx.env, NEVER);
             }
         }
         // return listProjExclude(cx, k, members, rest, listConjunction(cx, neg));
@@ -139,8 +140,8 @@ public class ListProj {
         TwoTuple<List<Integer>, List<Integer>> projSamples = listProjSamples(indices, k);
         TwoTuple<List<CellSemType>, Integer> sampleTypes = ListOps.listSampleTypes(cx, members, rest, indices);
         return listProjExclude(cx, projSamples.item1.toArray(new Integer[0]),
-                projSamples.item2.toArray(new Integer[0]),
-                sampleTypes.item1.toArray(new SemType[0]),
+                projSamples.item2.toArray(Integer[]::new),
+                sampleTypes.item1.toArray(SemType[]::new),
                 sampleTypes.item2, neg);
     }
 

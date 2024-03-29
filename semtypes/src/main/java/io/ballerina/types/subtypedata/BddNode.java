@@ -23,10 +23,10 @@ import io.ballerina.types.Bdd;
 /**
  * Internal node of a BDD, which represents a disjunction of conjunctions of atoms.
  *
- * @param atom the atom that this node represents
- * @param left path that include this node's atom positively
+ * @param atom   the atom that this node represents
+ * @param left   path that include this node's atom positively
  * @param middle path that doesn't include this node's atom
- * @param right path that include this node's atom negatively
+ * @param right  path that include this node's atom negatively
  * @since 2201.8.0
  */
 public record BddNode(Atom atom, Bdd left, Bdd middle, Bdd right) implements Bdd {

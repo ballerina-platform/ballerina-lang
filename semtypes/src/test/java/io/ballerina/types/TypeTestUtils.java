@@ -20,11 +20,6 @@ package io.ballerina.types;
 
 import io.ballerina.types.definition.ListDefinition;
 
-import java.util.List;
-
-import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
-import static io.ballerina.types.PredefinedType.NEVER;
-
 public class TypeTestUtils {
 
     static SemType tuple(Env env, SemType ty) {
@@ -36,13 +31,10 @@ public class TypeTestUtils {
     }
 
     static SemType roTuple(Env env, SemType ty) {
-        ListDefinition ld = new ListDefinition();
-        return ld.define(env, List.of(ty), 1, NEVER, CELL_MUT_NONE);
+        return ListDefinition.tupleTypeWrappedRo(env, ty);
     }
 
     static SemType roTuple(Env env, SemType... ty) {
-        ListDefinition ld = new ListDefinition();
-        List<SemType> fixedLengthMembers = List.of(ty);
-        return ld.define(env, fixedLengthMembers, fixedLengthMembers.size(), NEVER, CELL_MUT_NONE);
+        return ListDefinition.tupleTypeWrappedRo(env, ty);
     }
 }

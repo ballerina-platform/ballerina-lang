@@ -19,8 +19,9 @@ package io.ballerina.types;
 
 /**
  * Represent a TypeAtom.
- * @param index index of the type atom. This is unique within a given {@code Env}. {@code RecAtom}'s that refer to this
- *              type atom will also have the same index.
+ *
+ * @param index      index of the type atom. This is unique within a given {@code Env}. {@code RecAtom}'s that refer to
+ *                   this type atom will also have the same index.
  * @param atomicType atomic type representing the actual type represented by this atom.
  * @since 2201.8.0
  */

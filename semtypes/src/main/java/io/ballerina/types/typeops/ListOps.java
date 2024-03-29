@@ -94,13 +94,13 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                     Atom d = p.atom;
                     p = p.next;
                     lt = cx.listAtomType(d);
-                    TwoTuple<FixedLengthArray, SemType>
+                    TwoTuple<FixedLengthArray, CellSemType>
                             intersected = listIntersectWith(cx.env, members, rest, lt.members(), lt.rest());
                     if (intersected == null) {
                         return true;
                     }
                     members = intersected.item1;
-                    rest = (CellSemType) intersected.item2;
+                    rest = intersected.item2;
                 }
             }
             if (fixedArrayAnyEmpty(cx, members)) {
@@ -110,7 +110,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         List<Integer> indices = listSamples(cx, members, rest, neg);
         TwoTuple<List<CellSemType>, Integer> sampleTypes = listSampleTypes(cx, members, rest, indices);
         return !listInhabited(cx, indices.toArray(new Integer[0]),
-                sampleTypes.item1.toArray(new SemType[0]),
+                sampleTypes.item1.toArray(SemType[]::new),
                 sampleTypes.item2, neg);
     }
 
@@ -185,8 +185,9 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         return indices;
     }
 
-    static TwoTuple<FixedLengthArray, SemType> listIntersectWith(Env env, FixedLengthArray members1, CellSemType rest1,
-                                                                 FixedLengthArray members2, CellSemType rest2) {
+    static TwoTuple<FixedLengthArray, CellSemType> listIntersectWith(Env env, FixedLengthArray members1,
+                                                                     CellSemType rest1, FixedLengthArray members2,
+                                                                     CellSemType rest2) {
         if (listLengthsDisjoint(members1, rest1, members2, rest2)) {
             return null;
         }
@@ -197,8 +198,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                                 listMemberAt(members2, rest2, i)))
                         .collect(Collectors.toList());
         return TwoTuple.from(FixedLengthArray.from(initial,
-                        Integer.max(members1.fixedLength(),
-                                members2.fixedLength())),
+                        Integer.max(members1.fixedLength(), members2.fixedLength())),
                 intersectMemberSemType(env, rest1, rest2));
     }
 
@@ -377,9 +377,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             return allOrNothing.isAll() ? accum : NEVER;
         } else {
             BddNode bddNode = (BddNode) b;
-            return Core.union(bddListMemberType(cx,
-                            bddNode.left(),
-                            key,
+            return Core.union(bddListMemberType(cx, bddNode.left(), key,
                             Core.intersect(listAtomicMemberType(cx.listAtomType(bddNode.atom()), key), accum)),
                     Core.union(bddListMemberType(cx, bddNode.middle(), key, accum),
                             bddListMemberType(cx, bddNode.right(), key, accum)));

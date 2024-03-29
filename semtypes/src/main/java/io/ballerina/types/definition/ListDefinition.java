@@ -29,6 +29,7 @@ import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
 import io.ballerina.types.subtypedata.BddNode;
+import io.ballerina.types.subtypedata.CellSubtype;
 import io.ballerina.types.typeops.BddCommonOps;
 
 import java.util.List;
@@ -64,9 +65,14 @@ public class ListDefinition implements Definition {
         }
     }
 
-    public static SemType tuple(Env env, SemType... members) {
+    public static SemType tupleTypeWrapped(Env env, SemType... members) {
         ListDefinition def = new ListDefinition();
         return def.define(env, List.of(members), members.length);
+    }
+
+    public static SemType tupleTypeWrappedRo(Env env, SemType... members) {
+        ListDefinition def = new ListDefinition();
+        return def.define(env, List.of(members), members.length, NEVER, CELL_MUT_NONE);
     }
 
     // Overload define method for commonly used default parameter values
@@ -79,15 +85,20 @@ public class ListDefinition implements Definition {
         return define(env, initial, fixedLength, rest, CELL_MUT_LIMITED);
     }
 
-    public SemType define(Env env, List<SemType> initial, int fixedLength, SemType rest,
-                          CellAtomicType.CellMutability mut) {
-        List<CellSemType> initialCells = initial.stream().map(t -> cellContaining(env, t, mut))
-                .toList();
-        CellSemType restCell = cellContaining(env, union(rest, UNDEF), isNever(rest) ? CELL_MUT_NONE : mut);
-        return defineInner(env, initialCells, fixedLength, restCell);
+    public static SemType defineListTypeWrapped(Env env, List<SemType> initial, int fixedLength, SemType rest,
+                                                CellAtomicType.CellMutability mut) {
+        ListDefinition ld = new ListDefinition();
+        return ld.define(env, initial, fixedLength, rest, mut);
     }
 
-    private ComplexSemType defineInner(Env env, List<CellSemType> initial, int fixedLength, CellSemType rest) {
+    public SemType define(Env env, List<SemType> initial, int fixedLength, SemType rest,
+                          CellAtomicType.CellMutability mut) {
+        List<CellSemType> initialCells = initial.stream().map(t -> cellContaining(env, t, mut)).toList();
+        CellSemType restCell = cellContaining(env, union(rest, UNDEF), isNever(rest) ? CELL_MUT_NONE : mut);
+        return define(env, initialCells, fixedLength, restCell);
+    }
+
+    private ComplexSemType define(Env env, List<CellSemType> initial, int fixedLength, CellSemType rest) {
         FixedLengthArray members = fixedLengthNormalize(FixedLengthArray.from(initial, fixedLength));
         ListAtomicType atomicType = ListAtomicType.from(members, rest);
         Atom atom;
@@ -102,6 +113,7 @@ public class ListDefinition implements Definition {
     }
 
     private FixedLengthArray fixedLengthNormalize(FixedLengthArray array) {
+        // TODO: make this cleaner by using a reverse iterator
         List<CellSemType> initial = array.initial();
         int i = initial.size() - 1;
         if (i <= 0) {
@@ -126,12 +138,11 @@ public class ListDefinition implements Definition {
     }
 
     public SemType define(Env env, List<CellSemType> initial) {
-        return defineInner(env, initial, initial.size(), cellContaining(env, union(NEVER, UNDEF)));
+        return define(env, initial, initial.size(), CellSubtype.roCellContaining(env, union(NEVER, UNDEF)));
     }
 
     public SemType define(Env env, SemType rest) {
-        return defineInner(env, List.of(), 0,
-                cellContaining(env, union(rest, UNDEF), isNever(rest) ? CELL_MUT_NONE : CELL_MUT_LIMITED));
+        return define(env, List.of(), 0, rest);
     }
 
     public SemType define(Env env, List<SemType> initial, SemType rest) {
