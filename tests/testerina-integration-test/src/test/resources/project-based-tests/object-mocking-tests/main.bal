@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import object_mocking.TestHttpClient;
+
 import ballerina/jballerina.java;
 
 TestHttpClient:HttpClient clientEndpoint = new ("http://realurl.com");
@@ -23,6 +23,12 @@ PersonObj pObj = new ("John", "Doe");
 
 function doGet() returns string {
     string result = clientEndpoint->get("/path1");
+    return result;
+}
+
+function doGetResource() returns string {
+    string result = clientEndpoint->/news/mytest;
+    result = clientEndpoint->post("sjsjkd");
     return result;
 }
 
