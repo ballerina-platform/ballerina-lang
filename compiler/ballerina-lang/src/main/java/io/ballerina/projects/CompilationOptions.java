@@ -39,14 +39,14 @@ public class CompilationOptions {
     Boolean exportComponentModel;
     Boolean enableCache;
     Boolean disableSyntaxTree;
-    Boolean runtimeManagementIncluded;
+    Boolean remoteManagement;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                        Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
                        Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree,
-                       Boolean runtimeManagementIncluded) {
+                       Boolean remoteManagement) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
@@ -63,7 +63,7 @@ public class CompilationOptions {
         this.exportComponentModel = exportComponentModel;
         this.enableCache = enableCache;
         this.disableSyntaxTree = disableSyntaxTree;
-        this.runtimeManagementIncluded = runtimeManagementIncluded;
+        this.remoteManagement = remoteManagement;
     }
 
     public boolean offlineBuild() {
@@ -126,8 +126,8 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.enableCache);
     }
 
-    boolean runtimeManagementIncluded() {
-        return toBooleanDefaultIfNull(this.runtimeManagementIncluded);
+    boolean remoteManagement() {
+        return toBooleanDefaultIfNull(this.remoteManagement);
     }
 
     /**
@@ -213,10 +213,10 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setEnableCache(this.enableCache);
         }
-        if (theirOptions.runtimeManagementIncluded != null) {
-            compilationOptionsBuilder.setRuntimeManagementIncluded(theirOptions.runtimeManagementIncluded);
+        if (theirOptions.remoteManagement != null) {
+            compilationOptionsBuilder.setRemoteManagement(theirOptions.remoteManagement);
         } else {
-            compilationOptionsBuilder.setRuntimeManagementIncluded(this.runtimeManagementIncluded);
+            compilationOptionsBuilder.setRemoteManagement(this.remoteManagement);
         }
         return compilationOptionsBuilder.build();
     }
@@ -272,7 +272,7 @@ public class CompilationOptions {
         private Boolean exportComponentModel;
         private Boolean enableCache;
         private Boolean disableSyntaxTree;
-        private Boolean runtimeManagementIncluded;
+        private Boolean remoteManagement;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -354,8 +354,8 @@ public class CompilationOptions {
             return this;
         }
 
-        public CompilationOptionsBuilder setRuntimeManagementIncluded(Boolean value) {
-            runtimeManagementIncluded = value;
+        public CompilationOptionsBuilder setRemoteManagement(Boolean value) {
+            remoteManagement = value;
             return this;
         }
 
@@ -363,7 +363,7 @@ public class CompilationOptions {
             return new CompilationOptions(offline, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
                     withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
-                    exportComponentModel, enableCache, disableSyntaxTree, runtimeManagementIncluded);
+                    exportComponentModel, enableCache, disableSyntaxTree, remoteManagement);
         }
     }
 }

@@ -88,7 +88,7 @@ public class PackageCompilation {
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
         options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
         options.put(CLOUD, compilationOptions.getCloud());
-        options.put(RUNTIME_MANAGEMENT_INCLUDED, Boolean.toString(compilationOptions.runtimeManagementIncluded()));
+        options.put(RUNTIME_MANAGEMENT_INCLUDED, Boolean.toString(compilationOptions.remoteManagement()));
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {

@@ -237,7 +237,7 @@ class PackageContext {
                 .setListConflictedClasses(this.compilationOptions.listConflictedClasses())
                 .setConfigSchemaGen(this.compilationOptions.configSchemaGen())
                 .setEnableCache(this.compilationOptions.enableCache())
-                .setRuntimeManagementIncluded(this.compilationOptions.runtimeManagementIncluded())
+                .setRemoteManagement(this.compilationOptions.remoteManagement())
                 .build();
         CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);
         return PackageCompilation.from(this, mergedOptions);

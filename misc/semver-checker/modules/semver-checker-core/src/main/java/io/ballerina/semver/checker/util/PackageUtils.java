@@ -118,7 +118,7 @@ public class PackageUtils {
                 .setDumpGraph(false)
                 .setDumpRawGraphs(false)
                 .setConfigSchemaGen(false)
-                .setRuntimeManagementIncluded(false);
+                .setRemoteManagement(false);
 
         return buildOptionsBuilder.build();
     }

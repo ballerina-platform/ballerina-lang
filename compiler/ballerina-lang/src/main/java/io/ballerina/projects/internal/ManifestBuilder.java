@@ -641,7 +641,7 @@ public class ManifestBuilder {
                 BuildOptions.OptionName.EXPORT_COMPONENT_MODEL.toString());
         String graalVMBuildOptions = getStringFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.GRAAL_VM_BUILD_OPTIONS.toString());
-        Boolean runtimeManagementIncluded = getBooleanFromBuildOptionsTableNode(tableNode,
+        Boolean remoteManagement = getBooleanFromBuildOptionsTableNode(tableNode,
                 CompilerOptionName.RUNTIME_MANAGEMENT_INCLUDED.toString());
 
         buildOptionsBuilder
@@ -657,7 +657,7 @@ public class ManifestBuilder {
                 .setNativeImage(nativeImage)
                 .setExportComponentModel(exportComponentModel)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
-                .setRuntimeManagementIncluded(runtimeManagementIncluded);
+                .setRemoteManagement(remoteManagement);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir);
