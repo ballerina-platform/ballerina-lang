@@ -25,8 +25,15 @@ import java.util.List;
  */
 public interface Repository {
 
+    /**
+     * Get the list of runtime artifacts.
+     * @return List of artifacts that contains information about the active services and listeners.
+     */
     public List<Artifact> getArtifacts();
 
+    /**
+     * Get the current Ballerina node.
+     * @return Ballerina node.
+     */
     public Node getNode();
-
 }

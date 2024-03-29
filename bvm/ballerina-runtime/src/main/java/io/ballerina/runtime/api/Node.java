@@ -28,5 +28,10 @@ public abstract class Node {
         this.nodeId = nodeId;
     }
 
+    /**
+     * Get a detail of the Ballerina node.
+     * @param detailKey key of the detail.
+     * @return the detail object.
+     */
     public abstract Object getDetail(String detailKey);
 }

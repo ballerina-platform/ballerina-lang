@@ -52,7 +52,6 @@ public class RepositoryImpl implements Repository {
             Artifact artifact = createArtifact(service, listener);
             artifacts.add(artifact);
         }
-
         for (Map.Entry<ObjectValue, ObjectValue> entry : listenerServiceMap.entrySet()) {
             ObjectValue listener = entry.getKey();
             ObjectValue service = entry.getValue();
@@ -62,7 +61,6 @@ public class RepositoryImpl implements Repository {
                 artifacts.add(artifact);
             }
         }
-
         return artifacts;
     }
 
