@@ -1,0 +1,14 @@
+{
+  "organization": "ballerina",
+  "name": "cloud",
+  "version": "2.11.3",
+  "export": [
+    "cloud"
+  ],
+  "ballerina_version": "2201.8.5",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2023R1",
+  "platform": "any",
+  "graalvmCompatible": true,
+  "template": false
+}
