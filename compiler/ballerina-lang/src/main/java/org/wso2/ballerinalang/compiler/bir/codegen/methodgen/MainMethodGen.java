@@ -327,9 +327,9 @@ public class MainMethodGen {
         mv.visitVarInsn(ALOAD, 6);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, configDetailsIndex);
-        mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "paths", "[L" + PATH + ";");
+        mv.visitFieldInsn(GETFIELD, CONFIG_DETAILS, "paths", "[L" + PATH + ";");
         mv.visitVarInsn(ALOAD, configDetailsIndex);
-        mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "configContent", "L" + STRING_VALUE + ";");
+        mv.visitFieldInsn(GETFIELD, CONFIG_DETAILS, "configContent", "L" + STRING_VALUE + ";");
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "initConfigurableVariables", INIT_CONFIGURABLES, false);
     }
 

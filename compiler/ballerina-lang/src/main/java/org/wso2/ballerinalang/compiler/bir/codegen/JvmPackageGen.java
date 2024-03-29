@@ -421,7 +421,7 @@ public class JvmPackageGen {
 
                 generateLockForVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
-                ModuleStopMethodGen moduleStopMethodGen = new ModuleStopMethodGen(symbolTable, jvmTypeGen);
+                ModuleStopMethodGen moduleStopMethodGen = new ModuleStopMethodGen(jvmTypeGen);
                 moduleStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, asyncDataCollector,
                         immediateImports);
             } else {
@@ -752,9 +752,6 @@ public class JvmPackageGen {
         // desugar parameter initialization
         injectDefaultParamInits(module, initMethodGen);
         injectDefaultParamInitsToAttachedFuncs(module, initMethodGen, this);
-
-        // create imported modules flat list
-        List<PackageID> flattenedModuleImports = flattenModuleImports(moduleImports);
 
         BIRFunction mainFunc = getMainFunction(module);
         BIRFunction testExecuteFunc = getTestExecuteFunction(module);

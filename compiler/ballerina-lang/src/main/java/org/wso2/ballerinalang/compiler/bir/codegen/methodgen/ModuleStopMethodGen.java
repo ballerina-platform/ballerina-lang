@@ -28,27 +28,22 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
-import static org.objectweb.asm.Opcodes.AALOAD;
-import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
-import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFLE;
@@ -65,7 +60,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
@@ -73,7 +67,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
@@ -85,9 +78,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_ERROR_RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_STOP_PANIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_STOP_DYNAMIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
@@ -97,15 +88,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  * @since 2.0.0
  */
 public class ModuleStopMethodGen {
-    public static final String SCHEDULER_VAR = "schedulerVar";
     public static final String FUTURE_VAR = "futureVar";
     public static final String ARR_VAR = "arrVar";
-    private final SymbolTable symbolTable;
     private final BIRVarToJVMIndexMap indexMap;
     private final JvmTypeGen jvmTypeGen;
 
-    public ModuleStopMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen) {
-        this.symbolTable = symbolTable;
+    public ModuleStopMethodGen(JvmTypeGen jvmTypeGen) {
         indexMap = new BIRVarToJVMIndexMap(1);
         this.jvmTypeGen = jvmTypeGen;
     }
@@ -142,66 +130,6 @@ public class ModuleStopMethodGen {
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, MODULE_STOP_METHOD, initClass);
         mv.visitEnd();
-    }
-
-    private String generateStopDynamicLambdaBody(ClassWriter cw, String initClass) {
-        String lambdaName = LAMBDA_PREFIX + "stopdynamic";
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName, LAMBDA_STOP_DYNAMIC, null, null);
-        mv.visitCode();
-        MethodGenUtils.callSetDaemonStrand(mv);
-        generateCallSchedulerStopDynamicListeners(mv, lambdaName, initClass);
-        return lambdaName;
-    }
-
-    private void generateCallStopDynamicLambda(MethodVisitor mv, String lambdaName, String moduleInitClass,
-                                               AsyncDataCollector asyncDataCollector) {
-        addRuntimeRegistryAsParameter(mv);
-        int futureIndex = indexMap.addIfNotExists(FUTURE_VAR, symbolTable.anyType);
-        generateMethodBody(mv, moduleInitClass, lambdaName, asyncDataCollector);
-
-        // handle any runtime errors
-        Label labelIf = new Label();
-        mv.visitVarInsn(ALOAD, futureIndex);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
-        mv.visitJumpInsn(IFNULL, labelIf);
-
-        mv.visitVarInsn(ALOAD, futureIndex);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
-        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, HANDLE_STOP_PANIC,
-                           false);
-        Label labelJump = new Label();
-        mv.visitJumpInsn(GOTO, labelJump);
-        mv.visitLabel(labelIf);
-        genHandleErrorReturn(mv, indexMap);
-        mv.visitLabel(labelJump);
-    }
-
-    private void generateCallSchedulerStopDynamicListeners(MethodVisitor mv, String lambdaName, String initClass) {
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, RUNTIME_REGISTRY_CLASS);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_0);
-        mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-        mv.visitMethodInsn(INVOKEVIRTUAL, RUNTIME_REGISTRY_CLASS, "gracefulStop",
-                           SET_STRAND, false);
-        mv.visitInsn(ACONST_NULL);
-        MethodGenUtils.visitReturn(mv, lambdaName, initClass);
-    }
-
-    private void addRuntimeRegistryAsParameter(MethodVisitor mv) {
-        int arrIndex = indexMap.addIfNotExists(ARR_VAR, symbolTable.anyType);
-        mv.visitIntInsn(BIPUSH, 2);
-        mv.visitTypeInsn(ANEWARRAY, OBJECT);
-        mv.visitVarInsn(ASTORE, arrIndex);
-        mv.visitVarInsn(ALOAD, arrIndex);
-        mv.visitInsn(ICONST_1);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(AASTORE);
-        mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
-        mv.visitVarInsn(ALOAD, arrIndex);
     }
 
     private void scheduleStopLambda(MethodVisitor mv, String initClass, String stopFuncName, String moduleClass,
