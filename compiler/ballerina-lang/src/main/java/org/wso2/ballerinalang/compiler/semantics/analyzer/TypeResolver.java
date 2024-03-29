@@ -1457,6 +1457,13 @@ public class TypeResolver {
         }
 
         while (iterator.hasNext()) {
+            bLangEffectiveImpliedType = Types.getImpliedType(effectiveType);
+            if (bLangEffectiveImpliedType.tag == TypeTags.READONLY) {
+                intersectionType.flags = intersectionType.flags | TypeTags.READONLY;
+                effectiveType = iterator.next();
+                bLangEffectiveType = bLangTypeItr.next();
+                continue;
+            }
             BType type = iterator.next();
             BLangType bLangType = bLangTypeItr.next();
             BType typeReferenceType = Types.getImpliedType(type);
@@ -1464,7 +1471,6 @@ public class TypeResolver {
                 intersectionType.flags = intersectionType.flags | TypeTags.READONLY;
                 continue;
             }
-            bLangEffectiveImpliedType = Types.getImpliedType(effectiveType);
             effectiveType = calculateEffectiveType(td, bLangEffectiveType, bLangType, effectiveType, type,
                     bLangEffectiveImpliedType, typeReferenceType);
             if (effectiveType.tag == TypeTags.SEMANTIC_ERROR) {

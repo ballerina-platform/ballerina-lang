@@ -263,14 +263,16 @@ function testRuntimeTypeNameOfIntersectionType() {
 
 type Error error<record { string message; }>;
 
-type ReadonlyTypeDef3 readonly;
+type ReadonlyTypeDef1 readonly;
+type ReadonlyTypeDef2 readonly;
+
 
 type ReadonlyObjectType1 object {
     int atb1;
     function call() returns int;
 };
 
-type IntersectionType1 ReadonlyTypeDef3 & record {|
+type IntersectionType1 ReadonlyTypeDef1 & record {|
     int a;
 |};
 
@@ -278,10 +280,17 @@ type FooType record {|
     int a;
 |};
 
-type IntersectionType2 ReadonlyTypeDef3 & FooType;
-type IntersectionType3 FooType & ReadonlyTypeDef3;
-type IntersectionType4 ReadonlyTypeDef3 & ReadonlyObjectType1;
-type IntersectionType5 ReadonlyObjectType1 & ReadonlyTypeDef3;
+type BarType record {|
+    byte a;
+|};
+
+type IntersectionType2 ReadonlyTypeDef1 & FooType;
+type IntersectionType3 FooType & ReadonlyTypeDef1;
+type IntersectionType4 ReadonlyTypeDef1 & ReadonlyObjectType1;
+type IntersectionType5 ReadonlyObjectType1 & ReadonlyTypeDef1;
+type IntersectionType6 ReadonlyTypeDef1 & ReadonlyTypeDef2 & FooType;
+type IntersectionType7 ReadonlyTypeDef1 & FooType & ReadonlyTypeDef2;
+type ErrIntersection ReadonlyTypeDef1 & error<FooType> & error<BarType>;
 
 function testReadonlyIntersection() {
     IntersectionType1 foo1 = {a: 1};
@@ -304,6 +313,16 @@ function testReadonlyIntersection() {
         function call() returns int => 1;
     };
     assertTrue(<any>obj2 is readonly);
+
+    IntersectionType6 foo4 = {a: 1};
+    assertTrue(<any>foo4 is readonly);
+
+    IntersectionType7 foo5 = {a: 1};
+    assertTrue(<any>foo5 is readonly);
+
+    ErrIntersection err = error("Error", a=12);
+    assertTrue(<any|error>err is readonly);
+    assertTrue(<any>err.detail().a is byte);
 }
 
 function assertError(any|error value, string errorMessage, string expDetailMessage) {
