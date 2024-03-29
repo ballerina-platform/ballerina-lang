@@ -161,19 +161,24 @@ public class DiagnosticAnnotation {
         if (line.length() < maxLength - 3) {
             return new TruncateResult(line, diagnosticStart, diagnosticLength);
         }
+
+        StringBuilder truncatedLineBuilder = new StringBuilder();
+        String ellipsis = "...";
         if (diagnosticStart + diagnosticLength <= maxLength - 3) {
-            return new TruncateResult(line.substring(0, maxLength - 3) + "...", diagnosticStart, diagnosticLength);
+            truncatedLineBuilder.append(line, 0, maxLength - 3).append(ellipsis);
+            return new TruncateResult(truncatedLineBuilder.toString(), diagnosticStart, diagnosticLength);
         }
+
         int diagnosticMid = diagnosticStart + (diagnosticLength / 2);
         int stepsToMoveWindow = Math.max(0, diagnosticMid - (maxLength / 2));
         int border = Math.min(line.length() - 1, stepsToMoveWindow + maxLength - 3);
         int newDiagnosticStart = Math.max(3, diagnosticStart - stepsToMoveWindow);
         int newDiagnosticLength = Math.min(diagnosticLength, maxLength - newDiagnosticStart - 3);
         int stringStart = Math.min(stepsToMoveWindow + 3, border);
-        int stringEnd = border;
 
-        String truncatedLine = "..." + line.substring(stringStart, stringEnd) + "...";
-        return new TruncateResult(truncatedLine, newDiagnosticStart, Math.max(0, newDiagnosticLength));
+        truncatedLineBuilder.append(ellipsis).append(line, stringStart, border).append(ellipsis);
+        return new TruncateResult(truncatedLineBuilder.toString(), newDiagnosticStart,
+                Math.max(0, newDiagnosticLength));
 
     }
 
