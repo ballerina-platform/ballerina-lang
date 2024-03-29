@@ -82,7 +82,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
@@ -123,22 +122,15 @@ public class InitMethodGen {
      * @param cw        class visitor
      * @param pkg       bir package
      * @param initClass module init class
-     * @param depMods   dependent module list
      */
-    public void generateLambdaForPackageInits(ClassWriter cw, BIRNode.BIRPackage pkg, String initClass,
-                                              List<PackageID> depMods) {
+    public void generateLambdaForPackageInit(ClassWriter cw, BIRNode.BIRPackage pkg, String initClass) {
         //need to generate lambda for package Init as well, if exist
         if (!MethodGenUtils.hasInitFunction(pkg)) {
             return;
         }
-
         String funcName = MethodGenUtils.calculateLambdaStopFuncName(pkg.packageID);
         MethodVisitor mv = visitFunction(cw, funcName);
         invokeStopFunction(initClass, mv, funcName);
-        for (PackageID id : depMods) {
-            String jvmClass = JvmCodeGenUtil.getPackageName(id) + MODULE_INIT_CLASS_NAME;
-            generateLambdaForDepModStopFunc(cw, id, jvmClass);
-        }
     }
 
     public void generateLambdaForModuleExecuteFunction(ClassWriter cw, String initClass, JvmCastGen jvmCastGen,
@@ -182,12 +174,6 @@ public class InitMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_EXECUTE_METHOD, methodDesc, false);
         jvmCastGen.addBoxInsn(mv, errorOrNilType);
         MethodGenUtils.visitReturn(mv, lambdaFuncName, initClass);
-    }
-
-    private void generateLambdaForDepModStopFunc(ClassWriter cw, PackageID pkgID, String initClass) {
-        String lambdaName = MethodGenUtils.calculateLambdaStopFuncName(pkgID);
-        MethodVisitor mv = visitFunction(cw, lambdaName);
-        invokeStopFunction(initClass, mv, lambdaName);
     }
 
     private MethodVisitor visitFunction(ClassWriter cw, String funcName) {

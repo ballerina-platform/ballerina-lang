@@ -351,6 +351,7 @@ public class JvmConstants {
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";
     public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
     public static final String MODULE_START_PARENT_ATTEMPTED = "$moduleStartParentAttempted";
+    public static final String NO_OF_DEPENDANT_MODULES = "noOfDependantModules";
     public static final String MODULE_INIT_ATTEMPTED = "$moduleInitAttempted";
     public static final String MODULE_STARTED = "$moduleStarted";
     public static final String WRAPPER_GEN_BB_ID_NAME = "wrapperGen";

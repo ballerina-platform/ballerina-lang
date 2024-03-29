@@ -31,7 +31,9 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 
-import java.util.List;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -48,12 +50,15 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
+import static org.objectweb.asm.Opcodes.IFLE;
 import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.ISUB;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
@@ -63,6 +68,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_IN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_CLASS;
@@ -75,8 +81,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_STOP_PANIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_STOP_DYNAMIC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_STOP_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
@@ -101,34 +107,34 @@ public class ModuleStopMethodGen {
     }
 
     public void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRNode.BIRPackage module,
-                                            List<PackageID> imprtMods, AsyncDataCollector asyncDataCollector) {
+                                            AsyncDataCollector asyncDataCollector, Set<PackageID> immediateImports) {
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MODULE_STOP_METHOD,
-                INIT_RUNTIME_REGISTRY, null, null);
+                MODULE_STOP_METHOD_DESC, null, null);
         mv.visitCode();
-
-        int schedulerIndex = indexMap.addIfNotExists(SCHEDULER_VAR, symbolTable.anyType);
-        // Create a scheduler. A new scheduler is used here, to make the stop function to not to
-        // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
-        mv.visitTypeInsn(NEW, SCHEDULER);
-        mv.visitInsn(DUP);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(ICONST_0);
-        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, JVM_INIT_METHOD, "(IZ)V", false);
-        mv.visitVarInsn(ASTORE, schedulerIndex);
-
         String moduleInitClass = getModuleInitClassName(module.packageID);
         String fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(module.packageID);
-        String lambdaName = generateStopDynamicLambdaBody(cw, initClass);
-        generateCallStopDynamicLambda(mv, lambdaName, moduleInitClass, asyncDataCollector);
+        mv.visitFieldInsn(GETSTATIC, initClass, NO_OF_DEPENDANT_MODULES, "I");
+        mv.visitInsn(ICONST_1);
+        mv.visitInsn(ISUB);
+        mv.visitFieldInsn(PUTSTATIC, initClass, NO_OF_DEPENDANT_MODULES, "I");
+
+        mv.visitFieldInsn(GETSTATIC, initClass, NO_OF_DEPENDANT_MODULES, "I");
+        Label labelIf = new Label();
+        mv.visitJumpInsn(IFLE, labelIf);
+        mv.visitInsn(RETURN);
+        mv.visitLabel(labelIf);
+
         scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
-        int i = imprtMods.size() - 1;
-        while (i >= 0) {
-            PackageID id = imprtMods.get(i);
-            i -= 1;
-            fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(id);
+
+        Iterator<PackageID> immediateImportsIterator = (new LinkedList<>(immediateImports)).descendingIterator();
+        while (immediateImportsIterator.hasNext()) {
+            PackageID id = immediateImportsIterator.next();
             moduleInitClass = getModuleInitClassName(id);
-            scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitMethodInsn(INVOKESTATIC, moduleInitClass, MODULE_STOP_METHOD, MODULE_STOP_METHOD_DESC, false);
         }
+
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, MODULE_STOP_METHOD, initClass);
         mv.visitEnd();
@@ -193,7 +199,7 @@ public class ModuleStopMethodGen {
     private void scheduleStopLambda(MethodVisitor mv, String initClass, String stopFuncName, String moduleClass,
                                     AsyncDataCollector asyncDataCollector) {
         Label labelIf = createIfLabel(mv, moduleClass);
-        mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
+        mv.visitVarInsn(ALOAD, 0);
         mv.visitIntInsn(BIPUSH, 1);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
@@ -213,32 +219,27 @@ public class ModuleStopMethodGen {
         mv.visitInsn(ACONST_NULL);
         jvmTypeGen.loadType(mv, new BNilType());
         MethodGenUtils.submitToScheduler(mv, initClass, "stop", asyncDataCollector);
-        int futureIndex = indexMap.get(FUTURE_VAR);
-        mv.visitVarInsn(ASTORE, futureIndex);
+        mv.visitVarInsn(ASTORE, 1);
 
-        mv.visitVarInsn(ALOAD, futureIndex);
-
+        mv.visitVarInsn(ALOAD, 1);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, STRAND, GET_STRAND);
         mv.visitTypeInsn(NEW, STACK);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
-        int schedulerIndex = indexMap.get(SCHEDULER_VAR);
-        mv.visitVarInsn(ALOAD, schedulerIndex);
+        mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, VOID_METHOD_DESC, false);
-
     }
 
 
     private void genHandleRuntimeErrors(MethodVisitor mv, String moduleClass, Label labelIf) {
-        int futureIndex = indexMap.get(FUTURE_VAR);
-        mv.visitVarInsn(ALOAD, futureIndex);
+        mv.visitVarInsn(ALOAD, 1);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
         mv.visitJumpInsn(IFNULL, labelIf);
         mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_STARTED, "Z");
         mv.visitJumpInsn(IFEQ, labelIf);
 
-        mv.visitVarInsn(ALOAD, futureIndex);
+        mv.visitVarInsn(ALOAD, 1);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, HANDLE_STOP_PANIC,
                            false);

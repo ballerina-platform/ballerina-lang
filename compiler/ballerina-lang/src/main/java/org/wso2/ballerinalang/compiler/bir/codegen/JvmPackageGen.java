@@ -119,6 +119,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_PARENT_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_EP_AVAILABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTE_METHOD;
@@ -315,6 +316,12 @@ public class JvmPackageGen {
 
         mv.visitInsn(ICONST_0);
         mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_START_PARENT_ATTEMPTED, "Z");
+
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, NO_OF_DEPENDANT_MODULES, "I", null, null);
+        fv.visitEnd();
+
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, NO_OF_DEPENDANT_MODULES, "I");
     }
 
     private static void setCurrentModuleField(ClassWriter cw, MethodVisitor mv, JvmConstantsGen jvmConstantsGen,
@@ -378,11 +385,11 @@ public class JvmPackageGen {
         return null;
     }
 
-    private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries,
-                                       String moduleInitClass, String typesClass,
-                                       JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen, JvmConstantsGen jvmConstantsGen,
-                                       Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
-                                       boolean serviceEPAvailable, BIRFunction mainFunc, BIRFunction testExecuteFunc) {
+    private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries, String moduleInitClass,
+                                       String typesClass, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
+                                       JvmConstantsGen jvmConstantsGen, Map<String, JavaClass> jvmClassMapping,
+                                       boolean serviceEPAvailable, BIRFunction mainFunc, BIRFunction testExecuteFunc,
+                                       Set<PackageID> immediateImports) {
         jvmClassMapping.forEach((moduleClass, javaClass) -> {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
@@ -406,7 +413,7 @@ public class JvmPackageGen {
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable, isTestable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc,
                         testExecuteFunc);
-                initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
+                initMethodGen.generateLambdaForPackageInit(cw, module, moduleClass);
                 initMethodGen.generateGracefulExitMethod(cw);
                 if (isTestable) {
                     initMethodGen.generateGetTestExecutionState(cw, moduleClass);
@@ -415,8 +422,8 @@ public class JvmPackageGen {
                 generateLockForVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
                 ModuleStopMethodGen moduleStopMethodGen = new ModuleStopMethodGen(symbolTable, jvmTypeGen);
-                moduleStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
-                                                                asyncDataCollector);
+                moduleStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, asyncDataCollector,
+                        immediateImports);
             } else {
                 cw.visit(V17, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);
@@ -789,7 +796,7 @@ public class JvmPackageGen {
 
         // generate module classes
         generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                jvmClassMapping, flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc);
+                jvmClassMapping, serviceEPAvailable, mainFunc, testExecuteFunc, immediateImports);
 
         List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(module.functions);
         sortedFunctions.sort(NAME_HASH_COMPARATOR);
