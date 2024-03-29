@@ -35,11 +35,11 @@ import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.util.ProjectUtils.CompatibleRange;
 import static io.ballerina.projects.util.ProjectUtils.getLatest;
 
 /**
@@ -100,32 +100,17 @@ public abstract class AbstractPackageRepository implements PackageRepository {
         if (packageDescriptor.isBuiltInPackage()) {
             return packageVersions;
         }
-        CompatibleRange compatibilityRange = getCompatibilityRange(packageDescriptor.version(), packageLockingMode);
-
-        if (compatibilityRange.equals(CompatibleRange.LATEST)) {
-            return packageVersions;
+        SemanticVersion minSemVer = null;
+        PackageVersion packageVersion = packageDescriptor.version();
+        if (packageVersion != null) {
+            minSemVer = SemanticVersion.from(packageVersion.toString());
         }
-
-        SemanticVersion minVersion = SemanticVersion.from(packageDescriptor.version().toString());
-        if (compatibilityRange.equals(CompatibleRange.LOCK_MAJOR)) {
-            return packageVersions.stream().filter(packageVersion -> {
-                SemanticVersion semVerOther = SemanticVersion.from(packageVersion.toString());
-                return (minVersion.major() == semVerOther.major());
-            }).collect(Collectors.toList());
-        }
-
-        if (compatibilityRange.equals(CompatibleRange.LOCK_MINOR)) {
-            return packageVersions.stream().filter(packageVersion -> {
-                SemanticVersion semVerOther = SemanticVersion.from(packageVersion.toString());
-                return (minVersion.major() == semVerOther.major() && minVersion.minor() == semVerOther.minor());
-            }).collect(Collectors.toList());
-        }
-
-        if (packageVersions.contains(packageDescriptor.version())) {
-            return Collections.singletonList(packageDescriptor.version());
-        }
-
-        return Collections.emptyList();
+        List<SemanticVersion> semVers = packageVersions.stream()
+                .map(version -> SemanticVersion.from(version.toString())).toList();
+        CompatibleRange compatibilityRange = ProjectUtils.getCompatibleRange(minSemVer, packageLockingMode);
+        List<SemanticVersion> compatibleVersions = ProjectUtils.getVersionsInCompatibleRange(
+                minSemVer, semVers, compatibilityRange);
+        return compatibleVersions.stream().map(PackageVersion::from).collect(Collectors.toList());
     }
 
     private ImportModuleResponse getImportModuleLoadResponse(ImportModuleRequest importModuleRequest) {
@@ -208,47 +193,5 @@ public abstract class AbstractPackageRepository implements PackageRepository {
             latestVersion = getLatest(latestVersion, pkgVersion);
         }
         return latestVersion;
-    }
-
-    private CompatibleRange getCompatibilityRange(PackageVersion minVersion,
-                                                  PackageLockingMode packageLockingMode) {
-        if (minVersion != null) {
-            SemanticVersion semVer = SemanticVersion.from(minVersion.toString());
-            if (semVer.isInitialVersion()) {
-                if (packageLockingMode.equals(PackageLockingMode.HARD)) {
-                    return CompatibleRange.EXACT;
-                }
-                return CompatibleRange.LOCK_MINOR;
-            }
-            if (packageLockingMode.equals(PackageLockingMode.HARD)) {
-                return CompatibleRange.EXACT;
-            }
-            if (packageLockingMode.equals(PackageLockingMode.MEDIUM)) {
-                return CompatibleRange.LOCK_MINOR;
-            }
-            if (packageLockingMode.equals(PackageLockingMode.SOFT)) {
-                return CompatibleRange.LOCK_MAJOR;
-            }
-        }
-        return CompatibleRange.LATEST;
-    }
-
-    private enum CompatibleRange {
-        /**
-         * Latest stable (if any), else latest pre-release.
-         */
-        LATEST,
-        /**
-         * Latest minor version of the locked major version.
-         */
-        LOCK_MAJOR,
-        /**
-         * Latest patch version of the locked major and minor versions.
-         */
-        LOCK_MINOR,
-        /**
-         * Exact version provided.
-         */
-        EXACT
     }
 }

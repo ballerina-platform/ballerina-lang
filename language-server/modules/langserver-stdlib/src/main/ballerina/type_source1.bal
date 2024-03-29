@@ -37,3 +37,10 @@ public type TestObject1 object {
 public type ErrorOne error<record { int code; }>;
 
 public type ErrorTwo error<record { string[] alternatives; }>;
+
+public type Error1 E1|E2;
+public type E1 distinct error;
+public type E2 distinct error;
+public type E3 distinct error;
+public type Error2 E3|int;
+public type Error Error1|Error2;

@@ -1,0 +1,4 @@
+
+Executing Build Tools
+ERROR [Ballerina.toml:(6:1,10:24)] Build tool 'dummy_tool' cannot be resolved
+

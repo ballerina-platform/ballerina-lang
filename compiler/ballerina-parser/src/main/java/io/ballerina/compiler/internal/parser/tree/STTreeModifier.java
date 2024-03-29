@@ -1039,13 +1039,15 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode workerName = modifyNode(namedWorkerDeclarationNode.workerName);
         STNode returnTypeDesc = modifyNode(namedWorkerDeclarationNode.returnTypeDesc);
         STNode workerBody = modifyNode(namedWorkerDeclarationNode.workerBody);
+        STNode onFailClause = modifyNode(namedWorkerDeclarationNode.onFailClause);
         return namedWorkerDeclarationNode.modify(
                 annotations,
                 transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody);
+                workerBody,
+                onFailClause);
     }
 
     @Override
@@ -1951,6 +1953,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 openBrace,
                 receiveFields,
                 closeBrace);
+    }
+
+    @Override
+    public STAlternateReceiveNode transform(
+            STAlternateReceiveNode alternateReceiveNode) {
+        STNode workers = modifyNode(alternateReceiveNode.workers);
+        return alternateReceiveNode.modify(
+                workers);
     }
 
     @Override
@@ -2913,6 +2923,18 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return memberTypeDescriptorNode.modify(
                 annotations,
                 typeDescriptor);
+    }
+
+    @Override
+    public STReceiveFieldNode transform(
+            STReceiveFieldNode receiveFieldNode) {
+        STNode fieldName = modifyNode(receiveFieldNode.fieldName);
+        STNode colon = modifyNode(receiveFieldNode.colon);
+        STNode peerWorker = modifyNode(receiveFieldNode.peerWorker);
+        return receiveFieldNode.modify(
+                fieldName,
+                colon,
+                peerWorker);
     }
 
     // Tokens
