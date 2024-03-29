@@ -451,22 +451,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
         return funcInvocation;
     }
 
-    private void generateClosureForDefaultValues(String closureName, String paramName, BLangInvocation invocation,
-                                                 BType returnType, BTypeSymbol symbol) {
-        BSymbol owner = getOwner(env);
-        BLangFunction function = createFunction(closureName, invocation.pos, owner.pkgID, owner, returnType);
-        BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
-        returnStmt.expr = types.addConversionExprIfRequired(invocation, function.returnTypeNode.getBType());
-        BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
-        BInvokableSymbol varSymbol = createSimpleVariable(function, lambdaFunction, false);
-        ((BRecordTypeSymbol) symbol).defaultValues.put(Utils.unescapeBallerina(paramName), varSymbol);
-        lambdaFunction.function.flagSet.add(Flag.RECORD);
-        env.enclPkg.symbol.scope.define(function.symbol.name, function.symbol);
-        env.enclPkg.functions.add(function);
-        env.enclPkg.topLevelNodes.add(function);
-        rewrite(lambdaFunction, env);
-    }
-
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
         BTypeSymbol typeSymbol = tupleTypeNode.getBType().tsymbol;
@@ -592,14 +576,16 @@ public class ClosureGenerator extends BLangNodeVisitor {
             String closureName = generateName(varNode.symbol.name.value, env.node);
             varNode.pos = null;
             varNode.expr.pos = null;
-            generateClosureForDefaultValues(closureName, varNode.name.value, varNode);
+            generateClosureForDefaultValues(closureName, varNode.name.value, varNode.expr, varNode.getBType(),
+                                            env.node.getBType().tsymbol);
             result = varNode;
             return;
         }
 
-        if (varNode.symbol != null && Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
+        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
             String closureName = generateName(varNode.symbol.name.value, env.node);
-            generateClosureForDefaultValues(closureName, varNode.name.value, varNode);
+            generateClosureForDefaultValues(closureName, varNode.name.value, varNode.expr, varNode.getBType(),
+                                            env.node.getBType().tsymbol);
         } else {
             rewriteExpr(varNode.expr);
         }
@@ -618,14 +604,14 @@ public class ClosureGenerator extends BLangNodeVisitor {
         return symbolEnv.enclPkg.symbol;
     }
 
-    private void generateClosureForDefaultValues(String closureName, String paramName, BLangSimpleVariable varNode) {
+    private void generateClosureForDefaultValues(String closureName, String paramName, BLangExpression expr,
+                                                 BType returnType, BTypeSymbol symbol) {
         BSymbol owner = getOwner(env);
-        BLangFunction function = createFunction(closureName, varNode.pos, owner.pkgID, owner, varNode.getBType());
+        BLangFunction function = createFunction(closureName, expr.pos, owner.pkgID, owner, returnType);
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
-        returnStmt.expr = types.addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
+        returnStmt.expr = types.addConversionExprIfRequired(expr, function.returnTypeNode.getBType());
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
         BInvokableSymbol varSymbol = createSimpleVariable(function, lambdaFunction, false);
-        BTypeSymbol symbol = env.node.getBType().tsymbol;
         if (symbol.getKind() == SymbolKind.INVOKABLE_TYPE) {
             BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) symbol;
             updateFunctionParams(function, invokableTypeSymbol.params, paramName);

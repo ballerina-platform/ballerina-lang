@@ -234,8 +234,8 @@ function testCyclicRecord() {
 
 function testDefaultValuesOfRecordFieldsWithTypeInclusion() {
     Student student = {};
-    assertEquality("", student.name);
-    assertEquality(0, student.age);
+    assertEquality("anonymous", student.name);
+    assertEquality(20, student.age);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

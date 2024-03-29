@@ -41,6 +41,6 @@ public type ClosedVehicleWithNever record {|
 |};
 
 public type BClosedStudent record {|
-    string name = "";
-    int age = 0;
+    string name = "anonymous";
+    int age = 20;
 |};
