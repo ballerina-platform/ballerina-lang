@@ -113,7 +113,6 @@ public class ListDefinition implements Definition {
     }
 
     private FixedLengthArray fixedLengthNormalize(FixedLengthArray array) {
-        // TODO: make this cleaner by using a reverse iterator
         List<CellSemType> initial = array.initial();
         int i = initial.size() - 1;
         if (i <= 0) {

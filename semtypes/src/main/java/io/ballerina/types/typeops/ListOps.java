@@ -115,6 +115,24 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 sampleTypes.item2, neg);
     }
 
+    public static TwoTuple<List<CellSemType>, Integer> listSampleTypes(Context cx, FixedLengthArray members,
+                                                                       CellSemType rest, List<Integer> indices) {
+        List<CellSemType> memberTypes = new ArrayList<>();
+        int nRequired = 0;
+        for (int i = 0; i < indices.size(); i++) {
+            int index = indices.get(i);
+            CellSemType t = cellContainingInnerVal(cx.env, listMemberAt(members, rest, index));
+            if (Core.isEmpty(cx, t)) {
+                break;
+            }
+            memberTypes.add(t);
+            if (index < members.fixedLength()) {
+                nRequired = i + 1;
+            }
+        }
+        return TwoTuple.from(memberTypes, nRequired);
+    }
+
     // Return a list of sample indices for use as second argument of `listInhabited`.
     // The positive list type P is represented by `members` and `rest`.
     // The negative list types N are represented by `neg`
@@ -202,7 +220,6 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                         Integer.max(members1.fixedLength(), members2.fixedLength())),
                 intersectMemberSemType(env, rest1, rest2));
     }
-
 
     static FixedLengthArray fixedArrayShallowCopy(FixedLengthArray array) {
         return FixedLengthArray.from(array.initial(), array.fixedLength());
@@ -300,22 +317,11 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         return false;
     }
 
-    public static TwoTuple<List<CellSemType>, Integer> listSampleTypes(Context cx, FixedLengthArray members,
-                                                                       CellSemType rest, List<Integer> indices) {
-        List<CellSemType> memberTypes = new ArrayList<>();
-        int nRequired = 0;
-        for (int i = 0; i < indices.size(); i++) {
-            int index = indices.get(i);
-            CellSemType t = cellContainingInnerVal(cx.env, listMemberAt(members, rest, index));
-            if (Core.isEmpty(cx, t)) {
-                break;
-            }
-            memberTypes.add(t);
-            if (index < members.fixedLength()) {
-                nRequired = i + 1;
-            }
+    static CellSemType listMemberAt(FixedLengthArray fixedArray, CellSemType rest, int index) {
+        if (index < fixedArray.fixedLength()) {
+            return fixedArrayGet(fixedArray, index);
         }
-        return TwoTuple.from(memberTypes, nRequired);
+        return rest;
     }
 
     static boolean fixedArrayAnyEmpty(Context cx, FixedLengthArray array) {
@@ -325,13 +331,6 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             }
         }
         return false;
-    }
-
-    static CellSemType listMemberAt(FixedLengthArray fixedArray, CellSemType rest, int index) {
-        if (index < fixedArray.fixedLength()) {
-            return fixedArrayGet(fixedArray, index);
-        }
-        return rest;
     }
 
     private static CellSemType fixedArrayGet(FixedLengthArray members, int index) {

@@ -1917,19 +1917,6 @@ public class BIRPackageSymbolEnter {
             return createSemType(all, some, subtypeList);
         }
 
-        private ListAtomicType readListAtomicType() throws IOException {
-            int initialLength = inputStream.readInt();
-            List<CellSemType> initial = new ArrayList<>(initialLength);
-            for (int i = 0; i < initialLength; i++) {
-                initial.add((CellSemType) readSemType());
-            }
-
-            int fixedLength = inputStream.readInt();
-            FixedLengthArray members = FixedLengthArray.from(initial, fixedLength);
-
-            CellSemType rest = (CellSemType) readSemType();
-            return ListAtomicType.from(members, rest);
-        }
 
         private ProperSubtypeData readProperSubtypeData() throws IOException {
             switch (inputStream.readByte()) {
@@ -2004,7 +1991,7 @@ public class BIRPackageSymbolEnter {
                         atomicType = readCellAtomicType();
                         break;
                     default:
-                        throw new IllegalStateException("Unexpected atomicType kind ");
+                        throw new IllegalStateException("Unexpected atomicType kind");
                 }
                 if (!(atomicType instanceof CellAtomicType)) {
                     typeEnv.insertAtomAtIndex(index, atomicType);
@@ -2040,6 +2027,20 @@ public class BIRPackageSymbolEnter {
 
             CellSemType rest = (CellSemType) readSemType();
             return MappingAtomicType.from(names, types, rest);
+        }
+
+        private ListAtomicType readListAtomicType() throws IOException {
+            int initialLength = inputStream.readInt();
+            List<CellSemType> initial = new ArrayList<>(initialLength);
+            for (int i = 0; i < initialLength; i++) {
+                initial.add((CellSemType) readSemType());
+            }
+
+            int fixedLength = inputStream.readInt();
+            FixedLengthArray members = FixedLengthArray.from(initial, fixedLength);
+
+            CellSemType rest = (CellSemType) readSemType();
+            return ListAtomicType.from(members, rest);
         }
 
         private static ComplexSemType createSemType(int all, int some, ProperSubtypeData[] subtypeList) {
