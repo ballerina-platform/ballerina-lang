@@ -223,7 +223,7 @@ class JMethodResolver {
         }
         if (count == reducedParamCount && paramTypes.length > 0 && isParamAssignableToBArray(paramTypes[0])) {
             return true;
-        } else if((count == (reducedParamCount + 1)) && paramTypes.length > 1 &&
+        } else if ((count == (reducedParamCount + 1)) && paramTypes.length > 1 &&
                 isParamAssignableToBArray(paramTypes[1])) {
             // This is for object interop functions when self is passed as a parameter
             jMethod.setReceiverType(jMethodRequest.receiverType);
