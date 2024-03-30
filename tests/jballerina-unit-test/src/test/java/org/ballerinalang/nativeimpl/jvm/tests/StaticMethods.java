@@ -836,8 +836,4 @@ public class StaticMethods {
     public static Object getResource(Environment env, BObject client, BArray args) {
         return 10;
     }
-
-    public static BString testBundledFuncParams(BArray a) {
-        return StringUtils.fromString("Hello world");
-    }
 }

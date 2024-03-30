@@ -170,6 +170,7 @@ public class PredefinedTypes {
     public static final HandleType TYPE_HANDLE = new BHandleType(TypeConstants.HANDLE_TNAME, EMPTY_MODULE);
     public static final StreamType TYPE_STREAM = new BStreamType(TypeConstants.STREAM_TNAME, TYPE_ANY, TYPE_NULL,
             EMPTY_MODULE);
+    public static final ArrayType TYPE_ANY_ARRAY = new BArrayType(TYPE_ANY);
 
     public static final JsonType TYPE_JSON;
     public static final JsonType TYPE_READONLY_JSON;

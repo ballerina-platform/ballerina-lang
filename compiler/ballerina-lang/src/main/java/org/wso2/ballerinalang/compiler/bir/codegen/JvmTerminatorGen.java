@@ -147,6 +147,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_TH
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_VALUE_ANY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_CONCAT_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ANYDATA_ARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ANY_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WD_CHANNELS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DATA_CHANNEL;
@@ -1338,16 +1339,16 @@ public class JvmTerminatorGen {
     private void genResourcePathArgs(List<BIROperand> pathArgs) {
         int pathVarArrayIndex = this.indexMap.addIfNotExists("$pathVarArray", symbolTable.anyType);
         int bundledArrayIndex = this.indexMap.addIfNotExists("$pathArrayArgs", symbolTable.anyType);
-        genBundledArgs(pathArgs, pathVarArrayIndex, bundledArrayIndex);
+        genBundledArgs(pathArgs, pathVarArrayIndex, bundledArrayIndex, TYPE_ANYDATA_ARRAY);
     }
 
     private void genBundledFunctionArgs(List<BIROperand> args) {
         int functionArgArrayIndex = this.indexMap.addIfNotExists("$functionArgArray", symbolTable.anyType);
         int bundledArrayIndex = this.indexMap.addIfNotExists("$functionArrayArgs", symbolTable.anyType);
-        genBundledArgs(args, functionArgArrayIndex, bundledArrayIndex);
+        genBundledArgs(args, functionArgArrayIndex, bundledArrayIndex, TYPE_ANY_ARRAY);
     }
 
-    private void genBundledArgs(List<BIROperand> args, int argsArrayIndex, int bundledArrayIndex) {
+    private void genBundledArgs(List<BIROperand> args, int argsArrayIndex, int bundledArrayIndex, String fieldName) {
         mv.visitLdcInsn((long) args.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
@@ -1366,7 +1367,7 @@ public class JvmTerminatorGen {
         mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, argsArrayIndex);
-        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPE_ANYDATA_ARRAY, LOAD_ARRAY_TYPE);
+        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, fieldName, LOAD_ARRAY_TYPE);
         mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, INIT_ANYDATA_ARRAY, false);
         mv.visitVarInsn(ASTORE, bundledArrayIndex);
         mv.visitVarInsn(ALOAD, bundledArrayIndex);

@@ -475,10 +475,6 @@ public isolated client class ClientObj {
     } external;
 }
 
-public function testBundledFuncParams(int a, string b, float c) returns string = @java:Method {
-    'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
-} external;
-
 public function testBundleFuncArgsToBArray() returns error? {
     ClientObj cl = new;
     anydata res = check cl->/orderitem/["1234"]/["abcd"]();
@@ -491,7 +487,4 @@ public function testBundleFuncArgsToBArray() returns error? {
     test:assertEquals(res, 10);
     res = check cl->/item/[1]/["asd"](1, 5.2, "123");
     test:assertEquals(res, 1);
-
-    string resStr = testBundledFuncParams(1, "abc", 3.0);
-    test:assertEquals(resStr, "Hello world");
 }

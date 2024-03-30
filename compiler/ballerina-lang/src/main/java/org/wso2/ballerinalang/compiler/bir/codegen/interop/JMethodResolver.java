@@ -34,7 +34,6 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -231,6 +230,9 @@ class JMethodResolver {
 
     private boolean isAcceptingBundledFunctionParamsOnly(JMethodRequest jMethodRequest, JMethod jMethod,
                                                          int reducedParamCount) {
+        if (jMethodRequest.receiverType == null) {
+            return false;
+        }
         int count = jMethod.getParamTypes().length;
         if (count < 1 || jMethodRequest.bFuncParamCount < 1 || jMethodRequest.pathParamCount != 0
                 || count < reducedParamCount || count > reducedParamCount + 2) {
@@ -238,8 +240,7 @@ class JMethodResolver {
         }
         Class<?>[] paramTypes = jMethod.getParamTypes();
         if (!isParamAssignableToBArray(paramTypes[count - 1])
-                || isFirstFunctionParamARestParam(jMethodRequest, jMethod)
-                || !checkAllParamsAnydataAssignable(jMethodRequest)) {
+                || isFirstFunctionParamARestParam(jMethodRequest, jMethod)) {
             return false;
         }
         if (count == reducedParamCount) {
@@ -257,6 +258,9 @@ class JMethodResolver {
     }
 
     private boolean isAcceptingBundledParameters(JMethodRequest jMethodRequest, JMethod jMethod) {
+        if (jMethodRequest.receiverType == null) {
+            return false;
+        }
         // If both path and function parameters are bundled, then the expected jMethod param count will be 3 or 4,
         // since a receiver type parameter will be there with the presence of path parameters.
         int count = jMethod.getParamTypes().length;
@@ -265,8 +269,7 @@ class JMethodResolver {
         }
         Class<?>[] paramTypes = jMethod.getParamTypes();
         if (!isParamAssignableToBArray(paramTypes[count - 1]) || isFirstPathParamARestParam(jMethodRequest, jMethod)
-                || isFirstFunctionParamARestParam(jMethodRequest, jMethod)
-                || !checkAllParamsAnydataAssignable(jMethodRequest)) {
+                || isFirstFunctionParamARestParam(jMethodRequest, jMethod)) {
             return false;
         }
         if ((count == 3) && isParamAssignableToBArray(paramTypes[1])) {
@@ -513,7 +516,6 @@ class JMethodResolver {
     }
 
     private void bundlePathParams(JMethodRequest jMethodRequest, JMethod jMethod) {
-
         List<BVarSymbol> pathParamSymbols = jMethodRequest.pathParamSymbols;
         if (pathParamSymbols.isEmpty()) {
             return;
@@ -523,8 +525,7 @@ class JMethodResolver {
         for (BVarSymbol param : pathParamSymbols) {
             paramTypes.remove(param.type);
         }
-        BArrayType pathParamArrayType = new BArrayType(symbolTable.anydataType);
-        paramTypes.add(initialPathParamIndex, pathParamArrayType);
+        paramTypes.add(initialPathParamIndex, new BArrayType(symbolTable.anydataType));
         jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
         jMethodRequest.bFuncParamCount = jMethodRequest.bFuncParamCount - pathParamSymbols.size() + 1;
         jMethodRequest.pathParamCount = 1;
@@ -536,8 +537,7 @@ class JMethodResolver {
         if (jMethodRequest.bFuncParamCount > jMethodRequest.pathParamCount) {
             paramTypes.subList(jMethodRequest.pathParamCount, jMethodRequest.bFuncParamCount).clear();
         }
-        BArrayType paramArrayType = new BArrayType(symbolTable.anydataType);
-        paramTypes.add(paramArrayType);
+        paramTypes.add(new BArrayType(symbolTable.anyType));
         jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
         jMethodRequest.bFuncParamCount = jMethodRequest.pathParamCount + 1;
         jMethod.hasBundledFunctionParams = true;
@@ -545,9 +545,8 @@ class JMethodResolver {
 
     private void bundleBothPathAndFunctionParameter(JMethodRequest jMethodRequest, JMethod jMethod) {
         List<BType> paramTypes = new ArrayList<>();
-        BArrayType paramArrayType = new BArrayType(symbolTable.anydataType);
-        paramTypes.add(paramArrayType);
-        paramTypes.add(paramArrayType);
+        paramTypes.add(new BArrayType(symbolTable.anydataType));
+        paramTypes.add(new BArrayType(symbolTable.anyType));
         jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
         jMethodRequest.bFuncParamCount = 2;
         jMethodRequest.pathParamCount = 1;
@@ -1073,28 +1072,6 @@ class JMethodResolver {
         return jMethod.isStatic() ? jMethodRequest.bParamTypes[jMethodRequest.pathParamCount].tag == TypeTags.ARRAY :
                 jMethodRequest.bParamTypes[jMethodRequest.pathParamCount + 1].tag == TypeTags.ARRAY &&
                         jMethodRequest.bParamTypes[0].tag == TypeTags.HANDLE;
-    }
-
-    private boolean checkAllParamsAnydataAssignable(JMethodRequest jMethodRequest) {
-        if (jMethodRequest.kind != JMethodKind.METHOD) {
-            return false;
-        }
-        for (int i = 0; i < jMethodRequest.bParamTypes.length; i++) {
-            BType bType = jMethodRequest.bParamTypes[i];
-            switch (Types.getImpliedType(bType).tag) {
-                case TypeTags.INT, TypeTags.BYTE, TypeTags.FLOAT, TypeTags.DECIMAL, TypeTags.STRING,
-                        TypeTags.CHAR_STRING, TypeTags.BOOLEAN, TypeTags.JSON, TypeTags.XML, TypeTags.XML_TEXT,
-                        TypeTags.XML_ELEMENT, TypeTags.XML_COMMENT, TypeTags.XML_PI, TypeTags.NIL, TypeTags.NEVER,
-                        TypeTags.ANYDATA, TypeTags.TYPEDESC, TypeTags.SIGNED8_INT, TypeTags.SIGNED16_INT,
-                        TypeTags.SIGNED32_INT, TypeTags.UNSIGNED8_INT, TypeTags.UNSIGNED16_INT,
-                        TypeTags.UNSIGNED32_INT, TypeTags.REGEXP -> {
-                }
-                default -> {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     private String getParamTypesAsString(ParamTypeConstraint[] constraints) {
