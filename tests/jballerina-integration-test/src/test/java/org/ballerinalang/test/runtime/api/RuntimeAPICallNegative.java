@@ -35,7 +35,7 @@ public class RuntimeAPICallNegative {
     public static void main(String[] args) {
         Module module = new Module("testorg", "function_invocation", "1");
         Runtime balRuntime = Runtime.from(module);
-        balRuntime.invokeMethodAsync("add", new Object[0], new Callback() {
+        balRuntime.invokeMethodAsync("add", new Callback() {
             @Override
             public void notifySuccess(Object result) {
                 out.println(result);

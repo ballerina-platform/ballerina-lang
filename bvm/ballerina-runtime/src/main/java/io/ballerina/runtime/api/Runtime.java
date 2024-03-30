@@ -184,8 +184,8 @@ public abstract class Runtime {
      * Invoke a Ballerina function pointer asynchronously.
      *
      * @param functionName  Name of the function which needs to be invoked.
-     * @param args          Arguments of the Ballerina function.
      * @param callback      Callback which will get notified once the function execution is done.
+     * @param args          Arguments of the Ballerina function.
      */
-    public abstract void invokeMethodAsync(String functionName, Object[] args, Callback callback);
+    public abstract void invokeMethodAsync(String functionName, Callback callback, Object... args);
 }

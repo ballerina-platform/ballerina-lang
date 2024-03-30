@@ -79,7 +79,7 @@ public class BalRuntime extends Runtime {
 
     public void init() {
         invokeConfigInit();
-        invokeMethodAsync("$moduleInit", new Object[1], null, PredefinedTypes.TYPE_NULL, "init");
+        invokeMethodAsync("$moduleInit", null, PredefinedTypes.TYPE_NULL, "init", new Object[1]);
         moduleInitialized = true;
     }
 
@@ -87,25 +87,25 @@ public class BalRuntime extends Runtime {
         if (!moduleInitialized) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_METHOD_CALL, "start");
         }
-        invokeMethodAsync("$moduleStart", new Object[1], null, PredefinedTypes.TYPE_NULL, "start");
+        invokeMethodAsync("$moduleStart", null, PredefinedTypes.TYPE_NULL, "start", new Object[1]);
     }
 
-    public void invokeMethodAsync(String functionName, Object[] args, Callback callback) {
+    public void invokeMethodAsync(String functionName, Callback callback, Object... args) {
         if (!moduleInitialized) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION, functionName);
         }
-        invokeMethodAsync(functionName, args, callback, PredefinedTypes.TYPE_ANY, functionName);
+        invokeMethodAsync(functionName, callback, PredefinedTypes.TYPE_ANY, functionName, args);
     }
 
     public void stop() {
         if (!moduleInitialized) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_METHOD_CALL, "stop");
         }
-        invokeMethodAsync("$moduleStop", new Object[1], null, PredefinedTypes.TYPE_NULL, "stop");
+        invokeMethodAsync("$moduleStop", null, PredefinedTypes.TYPE_NULL, "stop", new Object[1]);
     }
 
-    private void invokeMethodAsync(String functionName, Object[] args, Callback callback, Type returnType,
-                                   String strandName) {
+    private void invokeMethodAsync(String functionName, Callback callback, Type returnType, String strandName,
+                                   Object... args) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
                 module.getName(), module.getMajorVersion(), module.isTestPkg()));
         Function<?, ?> func = o -> valueCreator.call((Strand) (((Object[]) o)[0]), functionName, args);

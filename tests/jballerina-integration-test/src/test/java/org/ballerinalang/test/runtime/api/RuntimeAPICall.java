@@ -41,7 +41,7 @@ public class RuntimeAPICall {
         Runtime balRuntime = Runtime.from(module);
         balRuntime.init();
         balRuntime.start();
-        balRuntime.invokeMethodAsync("add", new Object[]{5L, 7L},
+        balRuntime.invokeMethodAsync("add",
                 new Callback() {
                     @Override
                     public void notifySuccess(Object result) {
@@ -52,7 +52,7 @@ public class RuntimeAPICall {
                     public void notifyFailure(BError error) {
                         out.println("Error: " + error);
                     }
-                });
+                }, 5L, 7L);
 
         BObject person = ValueCreator.createObjectValue(module, "Person", 1001,
                 StringUtils.fromString("John Doe"));
@@ -73,8 +73,7 @@ public class RuntimeAPICall {
         balRuntime = Runtime.from(new Module("testorg", "function_invocation.moduleA", "1"));
         balRuntime.init();
         balRuntime.start();
-        balRuntime.invokeMethodAsync("getPerson", new Object[]{1001L, StringUtils.fromString("John"),
-                        StringUtils.fromString("100m")},
+        balRuntime.invokeMethodAsync("getPerson",
                 new Callback() {
                     @Override
                     public void notifySuccess(Object result) {
@@ -85,7 +84,7 @@ public class RuntimeAPICall {
                     public void notifyFailure(BError error) {
                         out.println("Error: " + error);
                     }
-                });
+                }, 1001L, StringUtils.fromString("John"), StringUtils.fromString("100m"));
         balRuntime.stop();
     }
 }
