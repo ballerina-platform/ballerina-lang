@@ -437,6 +437,20 @@ public function testBalEnvAcceptingMethodRetType() {
     test:assertEquals(mapResult, {"name":"John","age":35,"results":{"Mathematics":99,"Physics":95}});
 }
 
+type A record {|
+    int id;
+    string name;
+    anydata...;
+|};
+
+type B record {|
+    int id;
+    string age;
+    anydata...;
+|};
+
+public type U A|B;
+
 public isolated client class ClientObj {
     isolated resource function get orderitem/[string orderId]/[string itemId](typedesc<anydata> targetType = <>)
                                                             returns targetType|error = @java:Method {
@@ -473,6 +487,22 @@ public isolated client class ClientObj {
         name: "getResourceWithBundledParams",
         paramTypes: ["io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
     } external;
+
+    isolated resource function get abc/[string path1]/[string path2](U u, typedesc<anydata> targetType = <>)
+                                                                returns targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResource",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
+                                    "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
+    } external;
+
+    isolated resource function get def/[string path1]/[string path2](any a, typedesc<anydata> targetType = <>)
+                                                                    returns targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResource",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
+                                    "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
+    } external;
 }
 
 public function testBundleFuncArgsToBArray() returns error? {
@@ -487,4 +517,8 @@ public function testBundleFuncArgsToBArray() returns error? {
     test:assertEquals(res, 10);
     res = check cl->/item/[1]/["asd"](1, 5.2, "123");
     test:assertEquals(res, 1);
+    res = check cl->/abc/["1234"]/["abcd"]({id: 1, name: "John"});
+    test:assertEquals(res, 5);
+    res = check cl->/def/["1234"]/["abcd"](1);
+    test:assertEquals(res, 5);
 }
