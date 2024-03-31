@@ -281,7 +281,7 @@ public class XMLToRecordConverter {
                     AnnotationNode xmlNSNode = getXMLNamespaceNode(xmlNode.getLocalName(), xmlNode.getNodeValue());
                     recordToAnnotationNodes.put(xmlNodeName, xmlNSNode);
                 } else if (!isLeafXMLElementNode(xmlElement)) {
-                    RecordFieldNode recordField = (RecordFieldNode) getRecordField(xmlNode);
+                    Node recordField = getRecordField(xmlNode);
                     recordFields.add(recordField);
                 }
             }
