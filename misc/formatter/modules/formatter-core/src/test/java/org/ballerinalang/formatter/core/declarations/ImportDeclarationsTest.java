@@ -61,7 +61,8 @@ public class ImportDeclarationsTest extends FormatterTest {
                         {"import_declaration_7.bal", this.getTestResourceDir()},
                         {"import_declaration_8.bal", this.getTestResourceDir()},
                         {"import_declaration_9.bal", this.getTestResourceDir()},
-                        {"import_declaration_10.bal", this.getTestResourceDir()}
+                        {"import_declaration_10.bal", this.getTestResourceDir()},
+                        {"import_declaration_11.bal", this.getTestResourceDir()}
                 };
             case "testWithCustomOptions":
                 FormattingOptions optionWithNoGrouping = FormattingOptions.builder()

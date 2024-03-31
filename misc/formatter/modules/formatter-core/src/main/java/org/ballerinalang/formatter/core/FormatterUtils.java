@@ -16,6 +16,7 @@
 package org.ballerinalang.formatter.core;
 
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -27,6 +28,7 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -102,127 +104,58 @@ class FormatterUtils {
             }
         }
         if (prevFirstIndex > 0) {
-            List<MinutiaeList> chunks = getCommentChunks(firstImportNode.leadingMinutiae());
-            int nChunks = chunks.size();
-            if (nChunks == 1 && getCommentCount(chunks.get(0)) == 1) {
-                return;
+            // remove comments from the previous first import
+            ImportDeclarationNode prevFirstImportNode = importNodes.get(prevFirstIndex);
+            MinutiaeList prevLeadingMinutiae = prevFirstImportNode.leadingMinutiae();
+            List<Minutiae> leadingMinutiae = new ArrayList<>();
+            Minutiae prevFirstMinutiae = prevLeadingMinutiae.get(0);
+            if (prevFirstMinutiae.kind() != SyntaxKind.COMMENT_MINUTIAE) {
+                leadingMinutiae.add(prevFirstMinutiae);
             }
 
-            // remove comments from the previous first import
-            ArrayList<Minutiae> leadingMinutiae = new ArrayList<>();
-            if (nChunks == 2) {
-                MinutiaeList lastCommentChunk = chunks.get(1);
-                for (Minutiae minutiae: lastCommentChunk) {
-                    leadingMinutiae.add(minutiae);
-                }
-            }
-            ImportDeclarationNode prevFirstImportNode = importNodes.get(prevFirstIndex);
-            Token prevFirstImportToken = prevFirstImportNode.importKeyword()
-                    .modify(NodeFactory.createMinutiaeList(leadingMinutiae),
-                            prevFirstImportNode.importKeyword().trailingMinutiae());
-            prevFirstImportNode = prevFirstImportNode.modify().withImportKeyword(prevFirstImportToken).apply();
-            importNodes.set(prevFirstIndex, prevFirstImportNode);
+            Token prevFirstImportToken = prevFirstImportNode.importKeyword();
+            Token modifiedPrevFirstImportToken =
+                    prevFirstImportToken.modify(NodeFactory.createMinutiaeList(leadingMinutiae),
+                            prevFirstImportToken.trailingMinutiae());
+            importNodes.set(prevFirstIndex,
+                    prevFirstImportNode.modify().withImportKeyword(modifiedPrevFirstImportToken).apply());
 
             // add leading comments from the previous first import
-            MinutiaeList prevLeadingMinutiae = chunks.get(0);
-            ImportDeclarationNode sortedFirstImportNode = importNodes.get(0);
-            if (hasEmptyLine(firstImportNode.leadingMinutiae()) && !hasEmptyLine(prevLeadingMinutiae)) {
+            prevLeadingMinutiae = firstImportNode.leadingMinutiae();
+            prevFirstMinutiae = prevLeadingMinutiae.get(0);
+            if (prevFirstMinutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                prevLeadingMinutiae = prevLeadingMinutiae.remove(0);
+            }
+            if (!hasEmptyLineAtEnd(prevLeadingMinutiae)) {
                 prevLeadingMinutiae =
                         prevLeadingMinutiae.add(NodeFactory.createEndOfLineMinutiae(System.lineSeparator()));
             }
-            MinutiaeList sortedLeadingMinutiae = sortedFirstImportNode.importKeyword().leadingMinutiae();
-            for (int i = 0; i < sortedLeadingMinutiae.size(); i++) {
-                Minutiae minutiae = sortedLeadingMinutiae.get(i);
-                if (i == 0 && minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
-                    continue;
-                }
+            ImportDeclarationNode sortedFirstImportNode = importNodes.get(0);
+            Token sortedFirstImportToken = sortedFirstImportNode.importKeyword();
+            MinutiaeList sortedLeadingMinutiae = sortedFirstImportToken.leadingMinutiae();
+            for (Minutiae minutiae : sortedLeadingMinutiae) {
                 prevLeadingMinutiae = prevLeadingMinutiae.add(minutiae);
             }
 
-            Token sortedFirstImportToken = sortedFirstImportNode.importKeyword()
-                    .modify(prevLeadingMinutiae, sortedFirstImportNode.importKeyword().trailingMinutiae());
-            sortedFirstImportNode = sortedFirstImportNode.modify().withImportKeyword(sortedFirstImportToken).apply();
-            importNodes.set(0, sortedFirstImportNode);
+            Token modifiedSortedFirstImportToken =
+                    sortedFirstImportToken.modify(prevLeadingMinutiae, sortedFirstImportToken.trailingMinutiae());
+            importNodes.set(0,
+                    sortedFirstImportNode.modify().withImportKeyword(modifiedSortedFirstImportToken).apply());
         }
     }
 
-    private static List<MinutiaeList> getCommentChunks(MinutiaeList minutiaeList) {
-        ArrayList<MinutiaeList> minutiaeLists = new ArrayList<>();
-        ArrayList<Minutiae> currentChunk = new ArrayList<>();
-        int consecutiveNLs = 0;
-        boolean hasNonNLMinutiae = false;
-        int size = minutiaeList.size();
-        int index = size - 1;
-        for (int i = index; i > -1; i--) {
-            Minutiae minutiae = minutiaeList.get(i);
-            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
-                consecutiveNLs++;
-                if (consecutiveNLs > 1 && !hasNonNLMinutiae) {
-                    continue;
-                }
-            } else {
-                consecutiveNLs = 0;
-                hasNonNLMinutiae = true;
-            }
-            if (consecutiveNLs > 1 && hasNonNLMinutiae) {
-                currentChunk.remove(0);
-                minutiaeLists.add(NodeFactory.createMinutiaeList(currentChunk));
-                currentChunk.clear();
-                index = i + 1;
-                break;
-            }
-            currentChunk.add(0, minutiae);
-        }
-        if (currentChunk.size() > 0 && hasNonNLMinutiae) {
-            minutiaeLists.add(NodeFactory.createMinutiaeList(currentChunk));
-        } else if (index > 0) {
-            consecutiveNLs = 0;
-            index = index >= size ? size : index;
-            hasNonNLMinutiae = false;
-            for (int i = 0; i < index; i++) {
-                Minutiae minutiae = minutiaeList.get(i);
-                if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
-                    consecutiveNLs++;
-                } else {
-                    consecutiveNLs = 0;
-                    hasNonNLMinutiae = true;
-                }
-                if (consecutiveNLs < 3) {
-                    currentChunk.add(minutiaeList.get(i));
-                }
-            }
-            if (hasNonNLMinutiae) {
-                MinutiaeList topList = NodeFactory.createMinutiaeList(currentChunk);
-                if (!hasEmptyLine(topList)) {
-                    topList = topList.add(NodeFactory.createEndOfLineMinutiae(System.lineSeparator()));
-                }
-                minutiaeLists.add(0, topList);
-            }
-        }
-        return minutiaeLists;
-    }
-
-    private static String getImportString(ImportDeclarationNode node) {
-        String orgName = node.orgName().isPresent() ? node.orgName().get().toSourceCode() : "";
-        String moduleName = node.moduleName().stream()
-                .map(n -> n.toSourceCode())
+    private static String getImportString(ImportDeclarationNode importDeclarationNode) {
+        Optional<ImportOrgNameNode> orgNameNode = importDeclarationNode.orgName();
+        String orgName = orgNameNode.isPresent() ? orgNameNode.get().toSourceCode() : "";
+        String moduleName = importDeclarationNode.moduleName().stream()
+                .map(Node::toSourceCode)
                 .collect(Collectors.joining("."));
         return orgName + moduleName;
     }
 
-    private static boolean hasEmptyLine(MinutiaeList minutiaeList) {
+    private static boolean hasEmptyLineAtEnd(MinutiaeList minutiaeList) {
         int size = minutiaeList.size();
         return minutiaeList.get(size - 1).kind() == SyntaxKind.END_OF_LINE_MINUTIAE &&
                 minutiaeList.get(size - 2).kind() == SyntaxKind.END_OF_LINE_MINUTIAE;
-    }
-
-    private static int getCommentCount(MinutiaeList minutiaeList) {
-        int count = 0;
-        for (Minutiae minutiae: minutiaeList) {
-            if (minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE) {
-                count += 1;
-            }
-        }
-        return count;
     }
 }

@@ -17,6 +17,9 @@
 // just a random comment
 // for two lines part of this import
 
+// comment 3
+// comment 4
+
 // module imports
 import bas;
 import fos;
@@ -24,8 +27,6 @@ import fos;
 import ballerina/io;
 import ballerina/time;
 import ballerinax/http;
-// comment 3
-// comment 4
 import ballerinax/oracledb;
 
 // bar

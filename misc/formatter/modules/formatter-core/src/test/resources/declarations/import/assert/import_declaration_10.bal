@@ -14,8 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jballerina.java as _;
 // check this
+
+import ballerina/jballerina.java as _;
 import ballerinax/twilio as _;
 
 function bar() {

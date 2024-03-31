@@ -652,8 +652,8 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ImportDeclarationNode transform(ImportDeclarationNode importDeclarationNode) {
         boolean prevPreservedNewLine = env.hasPreservedNewline;
-        setPreserveNewline(importDeclarationNode.textRangeWithMinutiae().startOffset() == 0 &&
-                hasLeadingComments(importDeclarationNode));
+        setPreserveNewline(env.firstImportToFormat);
+        env.firstImportToFormat = false;
         Token importKeyword = formatToken(importDeclarationNode.importKeyword(), 1, 0);
         setPreserveNewline(prevPreservedNewLine);
         boolean hasPrefix = importDeclarationNode.prefix().isPresent();
@@ -4791,6 +4791,7 @@ public class FormattingTreeModifier extends TreeModifier {
             return importDeclarationNodes;
         }
         ImportDeclarationNode firstImport = importDeclarationNodes.get(0);
+        firstImport = (ImportDeclarationNode) firstImport.apply(this);
         List<ImportDeclarationNode> moduleImports = new ArrayList<>();
         List<ImportDeclarationNode> stdLibImports = new ArrayList<>();
         List<ImportDeclarationNode> thirdPartyImports = new ArrayList<>();
