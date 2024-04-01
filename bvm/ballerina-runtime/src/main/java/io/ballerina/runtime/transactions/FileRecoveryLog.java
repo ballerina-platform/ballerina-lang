@@ -149,16 +149,25 @@ public class FileRecoveryLog implements RecoveryLog {
      *
      * @param file The file to initialize the append channel for.
      */
-    private synchronized void initAppendChannel(File file) {
-        try {
-            appendChannel = FileChannel.open(file.toPath(), StandardOpenOption.APPEND);
-            FileLock lock = appendChannel.tryLock();
-            if (lock == null) {
-                stderr.println(ERROR_MESSAGE_PREFIX + " failed to acquire lock on recovery log file " + file.toPath());
+    private void initAppendChannel(File file) {
+        if (appendChannel == null) {
+            synchronized (this) {
+                if (appendChannel == null){
+                    try {
+                        appendChannel = FileChannel.open(file.toPath(), StandardOpenOption.APPEND);
+                        FileLock lock = appendChannel.tryLock();
+                        if (lock == null) {
+                            stderr.println(
+                                    ERROR_MESSAGE_PREFIX + " failed to acquire lock on recovery log file "
+                                            + file.toPath());
+                        }
+                    } catch (IOException e) {
+                        stderr.println(
+                                ERROR_MESSAGE_PREFIX + " failed to acquire lock on recovery log file " + file.toPath() +
+                                        ": " + e.getMessage());
+                    }
+                }
             }
-        } catch (IOException e) {
-            stderr.println(ERROR_MESSAGE_PREFIX + " failed to acquire lock on recovery log file " + file.toPath() + ": "
-                    + e.getMessage());
         }
     }
 
