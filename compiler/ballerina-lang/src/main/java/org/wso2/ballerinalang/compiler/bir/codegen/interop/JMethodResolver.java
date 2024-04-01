@@ -238,11 +238,19 @@ class JMethodResolver {
     }
 
     private boolean hasEquivalentFunctionParamCount(JMethodRequest jMethodRequest, JMethod jMethod) {
-        Class<?>[] paramTypes = jMethod.getParamTypes();
-        int count = paramTypes.length;
-        int reducedParamCount = jMethodRequest.pathParamCount + 1;
+        // Currently, this is only applicable for resource and remote methods which have empty path parameters.
+        // If path parameters are present, this will be handled by 'hasEquivalentPathAndFunctionParamCount' method
+        // by bundling both.
         if (jMethodRequest.receiverType == null || jMethodRequest.pathParamCount != 0
-                || count < reducedParamCount || count > reducedParamCount + 2) {
+                || jMethodRequest.bParamTypes.length == 0) {
+            return false;
+        }
+        Class<?>[] paramTypes = jMethod.getParamTypes();
+        boolean isFirstParamServiceObject = jMethodRequest.bParamTypes[0].tag == TypeTags.SERVICE;
+        // Get the count of parameters of the resource/remote methods by excluding the receiver type.
+        int count = isFirstParamServiceObject ? paramTypes.length - 1 : paramTypes.length;
+        int reducedParamCount = isFirstParamServiceObject ? 2 : 1;
+        if (count < reducedParamCount || count > reducedParamCount + 2) {
             return false;
         }
         if (!isParamAssignableToBArray(paramTypes[count - 1])
@@ -1038,9 +1046,6 @@ class JMethodResolver {
     }
 
     private boolean isFirstFunctionParamARestParam(JMethodRequest jMethodRequest, JMethod jMethod) {
-        if (jMethodRequest.kind != JMethodKind.METHOD) {
-            return false;
-        }
         return jMethod.isStatic() ? jMethodRequest.bParamTypes[jMethodRequest.pathParamCount].tag == TypeTags.ARRAY :
                 jMethodRequest.bParamTypes[jMethodRequest.pathParamCount + 1].tag == TypeTags.ARRAY &&
                         jMethodRequest.bParamTypes[0].tag == TypeTags.HANDLE;

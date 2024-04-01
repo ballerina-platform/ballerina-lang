@@ -503,6 +503,10 @@ public isolated client class ClientObj {
         paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
                                     "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
     } external;
+
+    isolated function getResourceMethod(service object {} serviceObject, string[] path) returns anydata = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    } external;
 }
 
 public function testBundleFuncArgsToBArray() returns error? {
@@ -521,4 +525,6 @@ public function testBundleFuncArgsToBArray() returns error? {
     test:assertEquals(res, 5);
     res = check cl->/def/["1234"]/["abcd"](1);
     test:assertEquals(res, 5);
+    res = cl.getResourceMethod(isolated service object {}, ["orderitem", "1234", "abcd"]);
+    test:assertEquals(res, 1000);
 }

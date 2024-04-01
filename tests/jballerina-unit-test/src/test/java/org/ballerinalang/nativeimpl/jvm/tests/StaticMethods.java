@@ -836,4 +836,8 @@ public class StaticMethods {
     public static Object getResource(Environment env, BObject client, BArray args) {
         return 10;
     }
+
+    public static Object getResourceMethod(BObject service, BArray path) {
+        return 1000;
+    }
 }
