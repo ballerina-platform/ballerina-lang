@@ -48,6 +48,7 @@ import io.ballerina.runtime.internal.values.ValueCreator;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -101,7 +102,7 @@ public class BalRuntime extends Runtime {
         if (!moduleInitialized) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_METHOD_CALL, "stop");
         }
-        invokeMethodAsync("$moduleStop", null, PredefinedTypes.TYPE_NULL, "stop", new Object[1]);
+        invokeMethodAsync("$moduleStop", null, PredefinedTypes.TYPE_NULL, "stop", new Object[2]);
     }
 
     private void invokeMethodAsync(String functionName, Callback callback, Type returnType, String strandName,
@@ -338,8 +339,9 @@ public class BalRuntime extends Runtime {
         ConfigDetails configDetails = LaunchUtils.getConfigurationDetails();
         String funcName = Utils.encodeFunctionIdentifier("$configureInit");
         try {
-            final Method method = configClazz.getDeclaredMethod(funcName, String[].class, Path[].class, String.class);
-            method.invoke(null, new String[]{}, configDetails.paths, configDetails.configContent);
+            final Method method =
+                    configClazz.getDeclaredMethod(funcName, Map.class, String[].class, Path[].class, String.class);
+            method.invoke(null, new HashMap<>(), new String[]{}, configDetails.paths, configDetails.configContent);
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             throw ErrorCreator.createError(StringUtils.fromString("configurable initialization failed due to " +
                     RuntimeUtils.formatErrorMessage(e)), e);
