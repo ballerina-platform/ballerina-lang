@@ -44,10 +44,12 @@ public class TestFunctionVisitor extends NodeVisitor {
 
     private final List<FunctionDefinitionNode> testStaticFunctions;
     private final List<FunctionDefinitionNode> testDynamicFunctions;
+    private final List<FunctionDefinitionNode> normalFunctions;
 
     public TestFunctionVisitor() {
         this.testStaticFunctions = new ArrayList<>();
         this.testDynamicFunctions = new ArrayList<>();
+        this.normalFunctions = new ArrayList<>();
     }
 
     @Override
@@ -79,11 +81,17 @@ public class TestFunctionVisitor extends NodeVisitor {
                     }
                 }
             }
+        } else {
+            normalFunctions.add(functionDefinitionNode);
         }
     }
 
     public List<FunctionDefinitionNode> getTestStaticFunctions() {
         return this.testStaticFunctions;
+    }
+
+    public List<FunctionDefinitionNode> getNormalFunctions() {
+        return normalFunctions;
     }
 
     public List<FunctionDefinitionNode> getTestDynamicFunctions() {
