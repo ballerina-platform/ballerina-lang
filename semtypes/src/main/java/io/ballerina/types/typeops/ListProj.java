@@ -52,13 +52,14 @@ import static io.ballerina.types.Core.isNever;
 import static io.ballerina.types.Core.union;
 import static io.ballerina.types.PredefinedType.LIST;
 import static io.ballerina.types.PredefinedType.NEVER;
-import static io.ballerina.types.PredefinedType.VAL;
 import static io.ballerina.types.PredefinedType.UNDEF;
+import static io.ballerina.types.PredefinedType.VAL;
+import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
 import static io.ballerina.types.subtypedata.IntSubtype.intSubtypeContains;
 import static io.ballerina.types.typeops.ListOps.fixedArrayAnyEmpty;
 import static io.ballerina.types.typeops.ListOps.fixedArrayShallowCopy;
 import static io.ballerina.types.typeops.ListOps.listIntersectWith;
-import static io.ballerina.types.typeops.ListOps.listMemberAt;
+import static io.ballerina.types.typeops.ListOps.listMemberAtInnerVal;
 
 /**
  * Class to hold functions ported from `listProj.bal` file.
@@ -100,7 +101,7 @@ public class ListProj {
         CellSemType rest;
         if (pos == null) {
             members = FixedLengthArray.empty();
-            rest = CellSubtype.cellContaining(cx.env, union(VAL, UNDEF));
+            rest = cellContaining(cx.env, union(VAL, UNDEF));
         } else {
             // combine all the positive tuples using intersection
             ListAtomicType lt = cx.listAtomType(pos.atom);
@@ -119,12 +120,13 @@ public class ListProj {
                     Atom d = p.atom;
                     p = p.next;
                     lt = cx.listAtomType(d);
-                    TwoTuple intersected = listIntersectWith(cx.env, members, rest, lt.members(), lt.rest());
+                    TwoTuple<FixedLengthArray, CellSemType>
+                            intersected = listIntersectWith(cx.env, members, rest, lt.members(), lt.rest());
                     if (intersected == null) {
                         return NEVER;
                     }
-                    members = (FixedLengthArray) intersected.item1;
-                    rest = (CellSemType) intersected.item2;
+                    members = intersected.item1;
+                    rest = intersected.item2;
                 }
             }
             if (fixedArrayAnyEmpty(cx, members)) {
@@ -138,10 +140,11 @@ public class ListProj {
         // return listProjExclude(cx, k, members, rest, listConjunction(cx, neg));
         List<Integer> indices = ListOps.listSamples(cx, members, rest, neg);
         TwoTuple<List<Integer>, List<Integer>> projSamples = listProjSamples(indices, k);
+        indices = projSamples.item1;
         TwoTuple<List<CellSemType>, Integer> sampleTypes = ListOps.listSampleTypes(cx, members, rest, indices);
-        return listProjExcludeInnerVal(cx, projSamples.item1.toArray(new Integer[0]),
+        return listProjExcludeInnerVal(cx, projSamples.item1.toArray(Integer[]::new),
                 projSamples.item2.toArray(Integer[]::new),
-                sampleTypes.item1.toArray(SemType[]::new),
+                sampleTypes.item1.toArray(CellSemType[]::new),
                 sampleTypes.item2, neg);
     }
 
@@ -186,19 +189,19 @@ public class ListProj {
     // `keyIndices` are the indices in `memberTypes` of those samples that belong to the key type.
     // Based on listInhabited
     // Corresponds to phi^x in AMK tutorial generalized for list types.
-    static SemType listProjExcludeInnerVal(Context cx, Integer[] indices, Integer[] keyIndices, SemType[] memberTypes,
-                                           int nRequired, Conjunction neg) {
+    static SemType listProjExcludeInnerVal(Context cx, Integer[] indices, Integer[] keyIndices,
+                                           CellSemType[] memberTypes, int nRequired, Conjunction neg) {
         SemType p = NEVER;
         if (neg == null) {
             int len = memberTypes.length;
             for (int k : keyIndices) {
                 if (k < len) {
-                    p = union(p, memberTypes[k]);
+                    p = union(p, cellInnerVal(memberTypes[k]));
                 }
             }
         } else {
             final ListAtomicType nt = cx.listAtomType(neg.atom);
-            if (nRequired > 0 && isNever(listMemberAt(nt.members(), nt.rest(), indices[nRequired - 1]))) {
+            if (nRequired > 0 && isNever(listMemberAtInnerVal(nt.members(), nt.rest(), indices[nRequired - 1]))) {
                 return listProjExcludeInnerVal(cx, indices, keyIndices, memberTypes, nRequired, neg.next);
             }
             int negLen = nt.members().fixedLength();
@@ -212,15 +215,16 @@ public class ListProj {
                         break;
                     }
                     // TODO: think about a way to avoid this allocation here and instead create view and pass it in
-                    SemType[] t = Arrays.copyOfRange(memberTypes, 0, i);
+                    CellSemType[] t = Arrays.copyOfRange(memberTypes, 0, i);
                     p = union(p, listProjExcludeInnerVal(cx, indices, keyIndices, t, nRequired, neg.next));
                 }
             }
             for (int i = 0; i < memberTypes.length; i++) {
-                SemType d = diff(memberTypes[i], listMemberAt(nt.members(), nt.rest(), indices[i]));
+                SemType d =
+                        diff(cellInnerVal(memberTypes[i]), listMemberAtInnerVal(nt.members(), nt.rest(), indices[i]));
                 if (!Core.isEmpty(cx, d)) {
-                    SemType[] t = memberTypes.clone();
-                    t[i] = d;
+                    CellSemType[] t = memberTypes.clone();
+                    t[i] = cellContaining(cx.env, d);
                     // We need to make index i be required
                     p = union(p, listProjExcludeInnerVal(cx, indices, keyIndices, t, Integer.max(nRequired, i + 1),
                             neg.next));

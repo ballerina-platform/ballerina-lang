@@ -156,6 +156,7 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
     }
 
     public static boolean mappingSubtypeIsEmpty(Context cx, SubtypeData t) {
+        // TODO: this may have a bug (causes a stackoverflow for hard.bal in SemTypeTest)
         return memoSubtypeIsEmpty(cx, cx.mappingMemo,
                 (context, bdd) -> Common.bddEvery(context, bdd, null, null, MappingOps::mappingFormulaIsEmpty),
                 (Bdd) t);

@@ -37,9 +37,9 @@ import java.util.List;
  */
 public record FixedLengthArray(List<CellSemType> initial, int fixedLength) {
 
-    public FixedLengthArray(List<CellSemType> initial, int fixedLength) {
-        this.initial = Collections.unmodifiableList(initial);
-        this.fixedLength = fixedLength;
+    public FixedLengthArray {
+        initial = List.copyOf(initial);
+        assert fixedLength >= 0;
     }
 
     public static FixedLengthArray from(List<CellSemType> initial, int fixedLength) {

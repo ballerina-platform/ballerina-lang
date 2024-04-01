@@ -128,7 +128,7 @@ public class SemTypes {
     }
 
     public static SemType listMemberType(Context context, SemType t, SemType key) {
-        return Core.listMemberType(context, t, key);
+        return Core.listMemberTypeInnerVal(context, t, key);
     }
 
     public static SemType xmlSequence(SemType t) {

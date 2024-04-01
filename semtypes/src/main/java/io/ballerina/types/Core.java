@@ -515,7 +515,7 @@ public final class Core {
     // This is what Castagna calls projection.
     // We will extend this to allow `key` to be a SemType, which will turn into an IntSubtype.
     // If `t` is not a list, NEVER is returned
-    public static SemType listMemberType(Context cx, SemType t, SemType k) {
+    public static SemType listMemberTypeInnerVal(Context cx, SemType t, SemType k) {
         if (t instanceof BasicTypeBitSet b) {
             return (b.bitset & LIST.bitset) != 0 ? VAL : NEVER;
         } else {

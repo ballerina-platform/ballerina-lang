@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static io.ballerina.types.Common.bddSubtypeComplement;
@@ -52,6 +51,7 @@ import static io.ballerina.types.Core.cellInner;
 import static io.ballerina.types.Core.cellInnerVal;
 import static io.ballerina.types.Core.intersectMemberSemType;
 import static io.ballerina.types.PredefinedType.NEVER;
+import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.subtypedata.IntSubtype.intSubtypeContains;
 import static io.ballerina.types.typeops.IntOps.intSubtypeMax;
 import static io.ballerina.types.typeops.IntOps.intSubtypeOverlapRange;
@@ -210,12 +210,16 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         if (listLengthsDisjoint(members1, rest1, members2, rest2)) {
             return null;
         }
-        int max = Integer.max(members1.initial().size(), members2.initial().size());
+        // This is different from nBallerina, but I think assuming we have normalized the FixedLengthArrays we must
+        // consider fixedLengths not the size of initial members. For example consider any[4] and
+        // [int, string, float...]. If we don't consider the fixedLength in the initial part we'll consider only the
+        // first two elements and rest will compare essentially 5th element, meaning we are ignoring 3 and 4 elements
+        int max = Integer.max(members1.fixedLength(), members2.fixedLength());
         List<CellSemType> initial =
                 IntStream.range(0, max)
                         .mapToObj(i -> Core.intersectMemberSemType(env, listMemberAt(members1, rest1, i),
                                 listMemberAt(members2, rest2, i)))
-                        .collect(Collectors.toList());
+                        .toList();
         return TwoTuple.from(FixedLengthArray.from(initial,
                         Integer.max(members1.fixedLength(), members2.fixedLength())),
                 intersectMemberSemType(env, rest1, rest2));
@@ -300,19 +304,19 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         }
     }
 
-    private static SemType listMemberAtInnerVal(FixedLengthArray fixedArray, CellSemType rest, int index) {
+    static SemType listMemberAtInnerVal(FixedLengthArray fixedArray, CellSemType rest, int index) {
         return cellInnerVal(listMemberAt(fixedArray, rest, index));
     }
 
-    private static boolean listLengthsDisjoint(FixedLengthArray members1, SemType rest1,
-                                               FixedLengthArray members2, SemType rest2) {
+    private static boolean listLengthsDisjoint(FixedLengthArray members1, CellSemType rest1,
+                                               FixedLengthArray members2, CellSemType rest2) {
         int len1 = members1.fixedLength();
         int len2 = members2.fixedLength();
         if (len1 < len2) {
-            return Core.isNever(rest1);
+            return Core.isNever(cellInnerVal(rest1));
         }
         if (len2 < len1) {
-            return Core.isNever(rest2);
+            return Core.isNever(cellInnerVal(rest2));
         }
         return false;
     }
@@ -340,6 +344,10 @@ public class ListOps extends CommonOps implements BasicTypeOps {
     }
 
     static SemType listAtomicMemberTypeInnerVal(ListAtomicType atomic, SubtypeData key) {
+        return Core.diff(listAtomicMemberTypeInner(atomic, key), UNDEF);
+    }
+
+    private static SemType listAtomicMemberTypeInner(ListAtomicType atomic, SubtypeData key) {
         return listAtomicMemberTypeAtInner(atomic.members(), atomic.rest(), key);
     }
 

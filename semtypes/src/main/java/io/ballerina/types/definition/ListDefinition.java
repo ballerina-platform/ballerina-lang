@@ -93,12 +93,14 @@ public class ListDefinition implements Definition {
 
     public SemType resolve(Env env, List<SemType> initial, int fixedLength, SemType rest,
                            CellAtomicType.CellMutability mut) {
+        assert rest != null;
         List<CellSemType> initialCells = initial.stream().map(t -> cellContaining(env, t, mut)).toList();
         CellSemType restCell = cellContaining(env, union(rest, UNDEF), isNever(rest) ? CELL_MUT_NONE : mut);
         return resolve(env, initialCells, fixedLength, restCell);
     }
 
     private ComplexSemType resolve(Env env, List<CellSemType> initial, int fixedLength, CellSemType rest) {
+        assert rest != null;
         FixedLengthArray members = fixedLengthNormalize(FixedLengthArray.from(initial, fixedLength));
         ListAtomicType atomicType = ListAtomicType.from(members, rest);
         Atom atom;
