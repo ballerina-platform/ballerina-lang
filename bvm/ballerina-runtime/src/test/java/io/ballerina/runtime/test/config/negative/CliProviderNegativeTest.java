@@ -281,4 +281,57 @@ public class CliProviderNegativeTest {
                         "(float|decimal)'"},
         };
     }
+
+    @Test
+    public void testValueNotProvidedCliArgs() {
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        BString strVal = fromString("test");
+        double floatValue = 3.23;
+        FiniteType finiteType = TypeCreator.createFiniteType("Finite", Set.of(strVal, floatValue), 0);
+        IntersectionType finiteIntersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{finiteType,
+                PredefinedTypes.TYPE_READONLY}, finiteType, 1, true);
+        UnionType unionType = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_INT,
+                PredefinedTypes.TYPE_STRING), true);
+        IntersectionType unionIntersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{unionType,
+                PredefinedTypes.TYPE_READONLY}, unionType, 1, true);
+        IntersectionType xmlIntersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{PredefinedTypes.TYPE_XML,
+                PredefinedTypes.TYPE_READONLY}, PredefinedTypes.TYPE_READONLY_XML, 1, true);
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = {new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true),
+                new VariableKey(ROOT_MODULE, "floatVar", PredefinedTypes.TYPE_FLOAT, true),
+                new VariableKey(ROOT_MODULE, "byteVar", PredefinedTypes.TYPE_BYTE, true),
+                new VariableKey(ROOT_MODULE, "stringVar", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(ROOT_MODULE, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true),
+                new VariableKey(ROOT_MODULE, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true),
+                new VariableKey(ROOT_MODULE, "xmlVar", xmlIntersectionType , true),
+                new VariableKey(ROOT_MODULE, "finiteVar", finiteIntersectionType, true),
+                new VariableKey(ROOT_MODULE, "unionVar", unionIntersectionType, true)
+        };
+        configVarMap.put(ROOT_MODULE, keys);
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new CliProvider(ROOT_MODULE, "-CinvalidVar=123")));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 10);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: value not provided " +
+           "for required configurable variable 'intVar'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(), "error: value not provided " +
+           "for required configurable variable 'floatVar'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(2).toString(), "error: value not provided " +
+           "for required configurable variable 'byteVar'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(3).toString(), "error: value not provided " +
+            "for required configurable variable 'stringVar'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(4).toString(), "error: value not provided " +
+            "for required configurable variable 'booleanVar'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(5).toString(), "error: value not provided " +
+            "for required configurable variable 'decimalVar'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(6).toString(), "error: value not provided " +
+            "for required configurable variable 'xmlVar'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(7).toString(), "error: value not provided " +
+            "for required configurable variable 'finiteVar'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(8).toString(), "error: value not provided " +
+            "for required configurable variable 'unionVar'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(9).toString(), "error: " +
+            "[invalidVar=123] unused command line argument");
+    }
 }

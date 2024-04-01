@@ -480,6 +480,16 @@ public class BIROptimizer {
             this.optimizeNode(workerSend.data, this.env);
         }
 
+        @Override
+        public void visit(BIRTerminator.WorkerAlternateReceive workerReceive) {
+            this.optimizeNode(workerReceive.lhsOp, this.env);
+        }
+
+        @Override
+        public void visit(BIRTerminator.WorkerMultipleReceive workerReceive) {
+            this.optimizeNode(workerReceive.lhsOp, this.env);
+        }
+
         // Non-terminating instructions
 
         @Override

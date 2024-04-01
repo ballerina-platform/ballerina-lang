@@ -33,6 +33,11 @@ public class ReceiveActionTest extends AbstractActionTest {
         testFile("receive-action/receive_action_source_01.bal", "receive-action/receive_action_assert_01.json");
     }
 
+    @Test
+    public void testAlternateReceiveAction() {
+        testFile("receive-action/receive_action_source_04.bal", "receive-action/receive_action_assert_04.json");
+    }
+
     // Recover tests
 
     @Test
@@ -43,5 +48,10 @@ public class ReceiveActionTest extends AbstractActionTest {
     @Test
     public void testInvalidNodeInReceiveAction() {
         testFile("receive-action/receive_action_source_03.bal", "receive-action/receive_action_assert_03.json");
+    }
+
+    @Test
+    public void testAlternateReceiveActionRecovery() {
+        testFile("receive-action/receive_action_source_05.bal", "receive-action/receive_action_assert_05.json");
     }
 }

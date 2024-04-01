@@ -36,6 +36,7 @@ import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +67,7 @@ public class GenericMockObjectValue implements ObjectValue {
             List<String> caseIds = getCaseIds(this.mockObj, funcName, args);
             for (String caseId : caseIds) {
                 if (MockRegistry.getInstance().hasCase(caseId)) {
-                    String hitId = this.mockObj.hashCode() + "-" + funcName;
+                    String hitId = this.mockObj.hashCode() + MockConstants.CASE_ID_DELIMITER + funcName;
                     if (MockRegistry.getInstance().hasHitCount(hitId)) {
                         int currentHit = MockRegistry.getInstance().getMemberFuncHitsMap().get(hitId);
                         MockRegistry.getInstance().getMemberFuncHitsMap().put(hitId, currentHit + 1);
@@ -181,59 +182,105 @@ public class GenericMockObjectValue implements ObjectValue {
     }
 
     private String getCaseIds(BObject mockObj, String fieldName) {
-        return mockObj.hashCode() + "-" + fieldName;
+        return mockObj.hashCode() + MockConstants.CASE_ID_DELIMITER + fieldName;
     }
 
     private List<String> getCaseIds(BObject mockObj, String funcName, Object[] args) {
+        String funcNameOriginal = funcName;
         List<String> caseIdList = new ArrayList<>();
         StringBuilder caseId = new StringBuilder();
+        List<String> functionNames = new ArrayList<>();
+        functionNames.add(funcNameOriginal);
         // args contain an extra boolean value arg after every proper argument.
         // These should be removed before constructing case ids
         args = removeUnnecessaryArgs(args);
+        if (funcName.startsWith(MockConstants.RESOURCE_SEPARATOR)) {
+            int numOfPathSeparators = (int) funcName.chars().filter(ch -> ch ==
+                            MockConstants.PATH_PARAM_PLACEHOLDER.charAt(0)).count();
+            int pathSegmentCount = numOfPathSeparators - (funcName.contains(MockConstants.REST_PARAM_PLACEHOLDER)
+                    ? 1 : 0);
+            funcName = replacePathPlaceHolders(funcName, args, numOfPathSeparators);
+            functionNames.add(funcName);
+            args = Arrays.copyOfRange(args, pathSegmentCount, args.length);
+        }
 
         // 1) add case for function without args
-        caseId.append(mockObj.hashCode()).append("-").append(funcName);
-        caseIdList.add(caseId.toString());
-
-        // 2) add case for function with ANY specified for objects and records
-        for (Object arg : args) {
-            caseId.append("-");
-            if (arg instanceof BObject || arg instanceof RecordType) {
-                caseId.append(MockRegistry.ANY);
-            } else {
-                caseId.append(arg);
-            }
-        }
-        caseIdList.add(caseId.toString());
-        caseId.setLength(0);
-        caseId.append(mockObj.hashCode()).append("-").append(funcName);
-
-        // 3) add case for function with ANY specified for objects
-        for (Object arg : args) {
-            caseId.append("-");
-            if (arg instanceof BObject) {
-                caseId.append(MockRegistry.ANY);
-            } else {
-                caseId.append(arg);
-            }
-        }
-        // skip if entry exists in list
-        if (!caseIdList.contains(caseId.toString())) {
+        for (String function : functionNames) {
+            caseId.append(mockObj.hashCode()).append(MockConstants.CASE_ID_DELIMITER).append(function);
             caseIdList.add(caseId.toString());
+
+            // 2) add case for function with ANY specified for objects and records
+            for (Object arg : args) {
+                caseId.append(MockConstants.CASE_ID_DELIMITER);
+                if (arg instanceof BObject || arg instanceof RecordType) {
+                    caseId.append(MockRegistry.ANY);
+                } else {
+                    caseId.append(arg);
+                }
+            }
+            caseIdList.add(caseId.toString());
+            caseId.setLength(0);
+            caseId.append(mockObj.hashCode()).append(MockConstants.CASE_ID_DELIMITER).append(function);
+
+            // 3) add case for function with ANY specified for objects
+            for (Object arg : args) {
+                caseId.append(MockConstants.CASE_ID_DELIMITER);
+                if (arg instanceof BObject) {
+                    caseId.append(MockRegistry.ANY);
+                } else {
+                    caseId.append(arg);
+                }
+            }
+            // skip if entry exists in list
+            if (!caseIdList.contains(caseId.toString())) {
+                caseIdList.add(caseId.toString());
+            }
+            caseId.setLength(0);
         }
-        caseId.setLength(0);
 
         // 4) add case for return sequence if available
-        caseId.append(mockObj.hashCode()).append("-").append(funcName);
+        if (funcNameOriginal.startsWith(MockConstants.RESOURCE_SEPARATOR)) {
+            funcName = funcNameOriginal;
+        }
+        caseId.append(mockObj.hashCode()).append(MockConstants.CASE_ID_DELIMITER).append(funcName);
         if (MockRegistry.getInstance().hasHitCount(caseId.toString())) {
             int hittingCount = MockRegistry.getInstance().getMemberFuncHitsMap().get(caseId.toString());
-            caseId.append("-").append(hittingCount);
+            caseId.append(MockConstants.CASE_ID_DELIMITER).append(hittingCount);
             caseIdList.add(caseId.toString());
         }
 
         // reversing the list to prioritize cases that have arguments specified
         Collections.reverse(caseIdList);
         return caseIdList;
+    }
+
+    private String replacePathPlaceHolders(String funcName, Object[] args, int caretCount) {
+        StringBuilder newFuncName = new StringBuilder(funcName);
+        BArray restArgs = null;
+        if (funcName.endsWith(MockConstants.REST_PARAM_PLACEHOLDER)) {
+            restArgs = (BArray) args[caretCount - 2];
+        }
+        if (restArgs != null) {
+            newFuncName.setLength(0);
+            String substring = funcName.substring(0, funcName.length() - 2);
+            newFuncName.append(substring);
+            for (int i = 0; i < restArgs.size(); i++) {
+                Object arg = restArgs.get(i);
+                if (arg != null) {
+                    newFuncName.append(arg).append(MockConstants.RESOURCE_SEPARATOR);
+                }
+            }
+            newFuncName.setLength(newFuncName.length() - 1);
+            caretCount -= 2;
+        }
+        for (int i = 0; i < caretCount; i++) {
+            if (args[i] != null) {
+                newFuncName.replace(newFuncName.indexOf(MockConstants.PATH_PARAM_PLACEHOLDER),
+                        newFuncName.indexOf(MockConstants.PATH_PARAM_PLACEHOLDER) + 1,
+                        args[i].toString());
+            }
+        }
+        return newFuncName.toString();
     }
 
     private Object[] removeUnnecessaryArgs(Object[] args) {

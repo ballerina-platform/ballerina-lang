@@ -1808,6 +1808,11 @@
                 {
                     "name": "workerBody",
                     "type": "BlockStatementNode"
+                },
+                {
+                    "name": "onFailClause",
+                    "type": "OnFailClauseNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -3327,12 +3332,24 @@
                 },
                 {
                     "name": "receiveFields",
-                    "type": "NameReferenceNode",
+                    "type": "Node",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeBrace",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "AlternateReceiveNode",
+            "base": "Node",
+            "kind": "ALTERNATE_RECEIVE",
+            "attributes": [
+                {
+                    "name": "workers",
+                    "type": "SimpleNameReferenceNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
                 }
             ]
         },
@@ -4938,6 +4955,25 @@
                 {
                     "name": "typeDescriptor",
                     "type": "TypeDescriptorNode"
+                }
+            ]
+        },
+        {
+            "name": "ReceiveFieldNode",
+            "base": "Node",
+            "kind": "RECEIVE_FIELD",
+            "attributes": [
+                {
+                    "name": "fieldName",
+                    "type": "SimpleNameReferenceNode"
+                },
+                {
+                    "name": "colon",
+                    "type": "Token"
+                },
+                {
+                    "name": "peerWorker",
+                    "type": "SimpleNameReferenceNode"
                 }
             ]
         }
