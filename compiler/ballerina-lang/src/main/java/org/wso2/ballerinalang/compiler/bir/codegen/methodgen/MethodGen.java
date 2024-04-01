@@ -831,7 +831,6 @@ public class MethodGen {
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.NIL:
-            case TypeTags.NEVER:
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
