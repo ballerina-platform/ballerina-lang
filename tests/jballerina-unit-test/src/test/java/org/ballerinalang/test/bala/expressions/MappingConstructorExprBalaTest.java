@@ -84,5 +84,4 @@ public class MappingConstructorExprBalaTest {
         BAssertUtil.validateError(negativeCompileResult, i++, "undefined symbol 'MAPPING_C'", 28, 46);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
-
 }

@@ -8024,7 +8024,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private boolean checkValidJsonOrMapLiteralKeyExpr(BLangExpression keyExpr, boolean computedKey, AnalyzerData data) {
         if (computedKey) {
             return !exprIncompatible(symTable.stringType, keyExpr, data);
-        } else if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
+        }
+        if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
                 (keyExpr.getKind() == NodeKind.LITERAL && (keyExpr).getBType().tag == TypeTags.STRING)) {
             return true;
         }
