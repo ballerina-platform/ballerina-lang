@@ -41,6 +41,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 
+/**
+ * Test cases for the RunBuildToolsTask.
+ *
+ * @since 2201.9.0
+ */
 public class RunBuildToolsTaskTest extends BaseCommandTest {
     private Path buildToolResources;
     private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
@@ -65,6 +70,8 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
                         .resolve("invalid-name-tool-pkg").toString(), testDistCacheDirectory);
         BCompileUtil.compileAndCacheBala(buildToolResources.resolve("tools")
                         .resolve("ballerina-generate-file").toString(), testDistCacheDirectory);
+        BCompileUtil.compileAndCacheBala(buildToolResources.resolve("tools")
+                .resolve("hidden-cmd-tool-pkg").toString(), testDistCacheDirectory);
     }
 
     @Test(description = "Resolve a tool offline", dataProvider = "buildToolProvider")
@@ -110,38 +117,42 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
     @DataProvider(name = "buildToolProvider")
     public Object[][] buildToolProvider() {
         return new Object[][]{
-                {
-                    "project-with-central-build-tool",
-                    "build-tool-offline.txt"
-                },
-                {
-                    "project-with-non-existent-build-tool",
-                    "build-tool-offline-resolve-failed.txt"
-                },
-                {
-                    "fresh-project-with-central-build-tool",
-                    "build-tool-offline-resolve-failed-wo-version.txt"
-                },
-                {
-                    "project-with-2.x-central-build-tool",
-                    "build-tool-offline-with-new-major-version-locked.txt"
-                },
-                {
-                    "project-with-non-existent-subcommand",
-                    "build-tool-non-existent-subcommand.txt"
-                },
-                {
-                    "project-with-invalid-name-build-tool",
-                    "build-tool-invalid-name.txt"
-                },
-                {
-                    "project-with-multilevel-subcommands",
-                    "build-tool-multilevel-subcommands.txt"
-                },
-                {
-                    "project-with-only-subcommands",
-                    "build-tool-only-subcommands.txt"
-                },
+            {
+                "project-with-central-build-tool",
+                "build-tool-offline.txt"
+            },
+            {
+                "project-with-non-existent-build-tool",
+                "build-tool-offline-resolve-failed.txt"
+            },
+            {
+                "fresh-project-with-central-build-tool",
+                "build-tool-offline-resolve-failed-wo-version.txt"
+            },
+            {
+                "project-with-2.x-central-build-tool",
+                "build-tool-offline-with-new-major-version-locked.txt"
+            },
+            {
+                "project-with-non-existent-subcommand",
+                "build-tool-non-existent-subcommand.txt"
+            },
+            {
+                "project-with-invalid-name-build-tool",
+                "build-tool-invalid-name.txt"
+            },
+            {
+                "project-with-multilevel-subcommands",
+                "build-tool-multilevel-subcommands.txt"
+            },
+            {
+                "project-with-only-subcommands",
+                "build-tool-only-subcommands.txt"
+            },
+            {
+                "project-with-hidden-commands",
+                "build-tool-hidden-commands.txt"
+            },
         };
     }
 }

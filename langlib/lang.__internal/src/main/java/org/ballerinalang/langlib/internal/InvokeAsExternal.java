@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.util.BLangCompilerConstants.INTERNAL_VERSION;
 
 /**
  * Native implementation of lang.internal:invokeAsExternal(func, args).
@@ -35,7 +34,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.INTERNAL_VERSION;
 public class InvokeAsExternal {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, "lang.internal",
-            INTERNAL_VERSION, "invokeAsExternal");
+            "0.1.0", "invokeAsExternal");
 
     public static Object invokeAsExternal(Object func, Object[] args) {
 
