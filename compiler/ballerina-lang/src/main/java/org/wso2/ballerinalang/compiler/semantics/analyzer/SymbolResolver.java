@@ -475,8 +475,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             BSymbol symbol = entry.symbol;
             long tag = symbol.tag;
 
-            if (symbol instanceof BXMLNSSymbol bxmlnsSymbol &&
-                    (bxmlnsSymbol.compUnit == null || bxmlnsSymbol.compUnit.equals(compUnit))) {
+            if (isDistinctXMLNSSymbol(symbol, compUnit)) {
                 return symbol;
             }
 
@@ -494,6 +493,14 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         return symTable.notFoundSymbol;
+    }
+
+    private boolean isDistinctXMLNSSymbol(BSymbol symbol, Name compUnit) {
+        if (symbol instanceof BXMLNSSymbol bxmlnsSymbol) {
+            Name xmlnsCompUnit = bxmlnsSymbol.compUnit;
+            return xmlnsCompUnit == null || xmlnsCompUnit.equals(compUnit);
+        }
+        return false;
     }
 
     public BSymbol resolveAnnotation(Location pos, SymbolEnv env, Name pkgAlias, Name annotationName) {

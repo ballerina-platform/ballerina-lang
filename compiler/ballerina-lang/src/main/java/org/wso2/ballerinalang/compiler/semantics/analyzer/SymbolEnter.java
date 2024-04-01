@@ -1195,8 +1195,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         Location nsSymbolPos = prefix.value.isEmpty() ? xmlnsNode.pos : xmlnsNode.prefix.pos;
         BLangIdentifier compUnit = xmlnsNode.compUnit;
         BXMLNSSymbol xmlnsSymbol =
-                Symbols.createXMLNSSymbol(prefix, nsURI, symEnv.enclPkg.symbol.pkgID, symEnv.scope.owner,
-                        nsSymbolPos, getOrigin(prefix), compUnit != null ? names.fromIdNode(xmlnsNode.compUnit) : null);
+                Symbols.createXMLNSSymbol(prefix, nsURI, symEnv.enclPkg.symbol.pkgID, symEnv.scope.owner, nsSymbolPos,
+                        getOrigin(prefix), compUnit != null ? names.fromIdNode(compUnit) : null);
         xmlnsNode.symbol = xmlnsSymbol;
 
         // First check for package-imports with the same alias.

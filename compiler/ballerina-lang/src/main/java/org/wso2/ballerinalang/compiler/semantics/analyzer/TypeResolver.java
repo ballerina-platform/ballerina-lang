@@ -227,23 +227,24 @@ public class TypeResolver {
         for (BLangNode def : moduleDefs) {
             resolvingTypes = new Stack<>();
             resolvingModuleDefs = new Stack<>();
-            if (def.getKind() == NodeKind.CLASS_DEFN) {
-                intersectionTypeList = new HashMap<>();
-                extracted(pkgEnv, (BLangClassDefinition) def, 0);
-                updateEffectiveTypeOfCyclicIntersectionTypes(pkgEnv);
-            } else if (def.getKind() == NodeKind.CONSTANT) {
-                resolveConstant(pkgEnv, modTable, (BLangConstant) def);
-            } else if (def.getKind() == NodeKind.XMLNS) {
-                resolveXMLNS(pkgEnv, (BLangXMLNS) def);
-            } else {
-                BLangTypeDefinition typeDefinition = (BLangTypeDefinition) def;
-                intersectionTypeList = new HashMap<>();
-                resolveTypeDefinition(pkgEnv, modTable, typeDefinition, 0);
-                BType type = typeDefinition.typeNode.getBType();
-                if (typeDefinition.hasCyclicReference) {
-                    updateIsCyclicFlag(type);
+            switch (def.getKind()) {
+                case CLASS_DEFN -> {
+                    intersectionTypeList = new HashMap<>();
+                    extracted(pkgEnv, (BLangClassDefinition) def, 0);
+                    updateEffectiveTypeOfCyclicIntersectionTypes(pkgEnv);
                 }
-                updateEffectiveTypeOfCyclicIntersectionTypes(pkgEnv);
+                case CONSTANT -> resolveConstant(pkgEnv, modTable, (BLangConstant) def);
+                case XMLNS -> resolveXMLNS(pkgEnv, (BLangXMLNS) def);
+                default -> {
+                    BLangTypeDefinition typeDefinition = (BLangTypeDefinition) def;
+                    intersectionTypeList = new HashMap<>();
+                    resolveTypeDefinition(pkgEnv, modTable, typeDefinition, 0);
+                    BType type = typeDefinition.typeNode.getBType();
+                    if (typeDefinition.hasCyclicReference) {
+                        updateIsCyclicFlag(type);
+                    }
+                    updateEffectiveTypeOfCyclicIntersectionTypes(pkgEnv);
+                }
             }
             resolvingTypes.clear();
             resolvingModuleDefs.clear();
