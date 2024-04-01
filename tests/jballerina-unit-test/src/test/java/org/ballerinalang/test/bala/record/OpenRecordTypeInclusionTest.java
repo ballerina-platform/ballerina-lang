@@ -47,6 +47,7 @@ public class OpenRecordTypeInclusionTest {
 
     @BeforeClass
     public void setup() {
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_types");
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_records");
         compileResult = BCompileUtil.compile("test-src/record/open_record_type_inclusion.bal");
     }

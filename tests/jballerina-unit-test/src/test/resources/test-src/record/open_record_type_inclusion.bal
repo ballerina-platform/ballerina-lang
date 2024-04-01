@@ -221,6 +221,33 @@ type Student record {
     *records:BClosedStudent;
 };
 
+type Student1 record {
+    string name = "chiranS";
+    *records:BClosedStudent;
+};
+
+type Foo5 record {
+    *records:BClosedStudent;
+    *records:BClosedPerson;
+    string name = "chiranS";
+    int age = 25;
+};
+
+type Foo6 record {
+    *records:BClosedStudent;
+    *records:BClosedPerson;
+    string name;
+    int age;
+};
+
+type Info record {
+    *records:Info;
+};
+
+type Location record {|
+    *records:Location;
+|};
+
 function testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
     Baz bazRecord = {id: 4};
     Bar barRecord = {body: bazRecord};
@@ -236,6 +263,23 @@ function testDefaultValuesOfRecordFieldsWithTypeInclusion() {
     Student student = {};
     assertEquality("anonymous", student.name);
     assertEquality(20, student.age);
+    Student1 student1 = {};
+    assertEquality("chiranS", student1.name);
+    assertEquality(20, student1.age);
+    Foo5 foo5 = {};
+    assertEquality("chiranS", foo5.name);
+    assertEquality(25, foo5.age);
+    Foo6 foo6 = {name: "sachintha", age: 28};
+    assertEquality("sachintha", foo6.name);
+    assertEquality(28, foo6.age);
+    Info info = {};
+    assertEquality("John", info.name);
+    assertEquality(30, info.age);
+    Location location = {city: "Colombo", country: "Sri Lanka"};
+    assertEquality("Colombo", location.city);
+    assertEquality("Sri Lanka", location.country);
+    assertEquality("abc", location.street);
+    assertEquality(123, location.zipCode);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
