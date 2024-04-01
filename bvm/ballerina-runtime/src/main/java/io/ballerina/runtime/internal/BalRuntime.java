@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.internal;
 
+import io.ballerina.identifier.Utils;
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
@@ -31,14 +33,28 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
+import io.ballerina.runtime.internal.values.ValueCreator;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.function.Function;
+
+import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.CONFIGURATION_CLASS_NAME;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 
 /**
  * Internal implementation of the API used by the interop users to control Ballerina runtime behavior.
@@ -48,9 +64,57 @@ import java.util.function.Function;
 public class BalRuntime extends Runtime {
 
     private final Scheduler scheduler;
+    private final Module module;
+    private boolean moduleInitialized = false;
 
-    public BalRuntime(Scheduler scheduler) {
+    public BalRuntime(Scheduler scheduler, Module module) {
         this.scheduler = scheduler;
+        this.module = module;
+    }
+
+    public BalRuntime(Module module) {
+        this.scheduler = new Scheduler(false);
+        this.module = module;
+    }
+
+    public void init() {
+        invokeConfigInit();
+        invokeMethodAsync("$moduleInit", null, PredefinedTypes.TYPE_NULL, "init", new Object[1]);
+        moduleInitialized = true;
+    }
+
+    public void start() {
+        if (!moduleInitialized) {
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_METHOD_CALL, "start");
+        }
+        invokeMethodAsync("$moduleStart", null, PredefinedTypes.TYPE_NULL, "start", new Object[1]);
+    }
+
+    public void invokeMethodAsync(String functionName, Callback callback, Object... args) {
+        if (!moduleInitialized) {
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FUNCTION_INVOCATION, functionName);
+        }
+        invokeMethodAsync(functionName, callback, PredefinedTypes.TYPE_ANY, functionName, args);
+    }
+
+    public void stop() {
+        if (!moduleInitialized) {
+            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_METHOD_CALL, "stop");
+        }
+        invokeMethodAsync("$moduleStop", null, PredefinedTypes.TYPE_NULL, "stop", new Object[1]);
+    }
+
+    private void invokeMethodAsync(String functionName, Callback callback, Type returnType, String strandName,
+                                   Object... args) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
+                module.getName(), module.getMajorVersion(), module.isTestPkg()));
+        Function<?, ?> func = o -> valueCreator.call((Strand) (((Object[]) o)[0]), functionName, args);
+        FutureValue future = scheduler.createFuture(null, callback, null, returnType, strandName, null);
+        Object[] argsWithStrand = new Object[args.length + 1];
+        argsWithStrand[0] = future.strand;
+        System.arraycopy(args, 0, argsWithStrand, 1, args.length);
+        scheduler.schedule(argsWithStrand, func, future);
+        scheduler.start();
     }
 
     /**
@@ -260,5 +324,39 @@ public class BalRuntime extends Runtime {
             func = o -> objectVal.call((Strand) (((Object[]) o)[0]), methodName, argsWithDefaultValues);
         }
         return func;
+    }
+
+    private void invokeConfigInit() {
+        String configClassName = getConfigClassName(this.module);
+        Class<?> configClazz;
+        try {
+            configClazz = Class.forName(configClassName);
+        } catch (Throwable e) {
+            throw ErrorCreator.createError(StringUtils.fromString("failed to load configuration class :" +
+                    configClassName));
+        }
+        ConfigDetails configDetails = LaunchUtils.getConfigurationDetails();
+        String funcName = Utils.encodeFunctionIdentifier("$configureInit");
+        try {
+            final Method method = configClazz.getDeclaredMethod(funcName, String[].class, Path[].class, String.class);
+            method.invoke(null, new String[]{}, configDetails.paths, configDetails.configContent);
+        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            throw ErrorCreator.createError(StringUtils.fromString("configurable initialization failed due to " +
+                    RuntimeUtils.formatErrorMessage(e)), e);
+        }
+    }
+
+    private static String getConfigClassName(Module module) {
+        String configClassName = CONFIGURATION_CLASS_NAME;
+        String orgName = module.getOrg();
+        String packageName = module.getName();
+        if (!DOT.equals(packageName)) {
+            configClassName = encodeNonFunctionIdentifier(packageName) + "." + module.getMajorVersion() + "." +
+                    configClassName;
+        }
+        if (!ANON_ORG.equals(orgName)) {
+            configClassName = encodeNonFunctionIdentifier(orgName) + "." +  configClassName;
+        }
+        return configClassName;
     }
 }
