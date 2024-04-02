@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.impl.util.SymbolUtils;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -183,7 +184,7 @@ public class LangLibrary {
         for (Map.Entry<Name, Scope.ScopeEntry> nameScopeEntry : langLibModule.scope.entries.entrySet()) {
             BSymbol symbol = nameScopeEntry.getValue().symbol;
 
-            if (symbol.kind != SymbolKind.FUNCTION) {
+            if (symbol.kind != SymbolKind.FUNCTION || symbol.getOrigin() == SymbolOrigin.VIRTUAL) {
                 continue;
             }
 

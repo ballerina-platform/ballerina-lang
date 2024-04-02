@@ -798,6 +798,9 @@ public class MethodGen {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                         GET_BSTRING);
                 mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.NEVER) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_OBJECT);
+                mv.visitVarInsn(ASTORE, index);
             } else if (types.isAssignable(bType, symbolTable.xmlType)) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
                         GET_XML);
@@ -872,7 +875,6 @@ public class MethodGen {
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.NIL:
-            case TypeTags.NEVER:
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
