@@ -47,3 +47,8 @@ type Z record {
 type ReadonlyType readonly;
 type MutableType future<int>;
 type T2 MutableType & ReadonlyType;
+
+function testReadonlyIntersectionImmutability() {
+    ReadonlyType & string[] arr = ["a", "b", "c"];
+    arr.push("d");
+}
