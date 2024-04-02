@@ -379,6 +379,7 @@ public class JsonToRecordMapper {
                 TypeDescriptorNode node2 = (TypeDescriptorNode) entry.getValue().getValue1().typeName();
 
                 TypeDescriptorNode nonAnyDataNode = null;
+                IdentifierToken optionalFieldName = null;
                 boolean alreadyOptionalTypeDesc = false;
 
                 if (node1.kind().equals(SyntaxKind.OPTIONAL_TYPE_DESC)) {
@@ -392,11 +393,13 @@ public class JsonToRecordMapper {
                 } else {
                     Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
                     if (node1.kind().equals(SyntaxKind.ANYDATA_KEYWORD)) {
-                        nonAnyDataNode =
-                                NodeParser.parseTypeDescriptor(node2.toSourceCode() + questionMarkToken.text());
+                        nonAnyDataNode = NodeParser.parseTypeDescriptor(node2.toSourceCode());
+                        optionalFieldName = AbstractNodeFactory.createIdentifierToken(entry.getKey() +
+                                questionMarkToken.text());
                     } else if (node2.kind().equals(SyntaxKind.ANYDATA_KEYWORD)) {
-                        nonAnyDataNode =
-                                NodeParser.parseTypeDescriptor(node1.toSourceCode() + questionMarkToken.text());
+                        nonAnyDataNode = NodeParser.parseTypeDescriptor(node1.toSourceCode());
+                        optionalFieldName = AbstractNodeFactory.createIdentifierToken(entry.getKey() +
+                                questionMarkToken.text());
                     }
                 }
 
@@ -409,6 +412,8 @@ public class JsonToRecordMapper {
                         (RecordFieldNode) getRecordField(jsonEntry, existingFieldNames, updatedFieldNames, isOptional);
                 recordField = recordField.modify()
                         .withTypeName(nonAnyDataNode == null ? unionTypeDescNode : nonAnyDataNode).apply();
+                recordField = recordField.modify()
+                        .withFieldName(optionalFieldName == null ? recordField.fieldName() : optionalFieldName).apply();
                 recordFields.add(recordField);
             } else {
                 Node recordField = getRecordField(jsonEntry, existingFieldNames, updatedFieldNames, isOptional);
