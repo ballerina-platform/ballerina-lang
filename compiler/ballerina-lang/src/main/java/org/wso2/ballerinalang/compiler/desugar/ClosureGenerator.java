@@ -426,17 +426,20 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     private void generateClosuresForDefaultValuesInTypeRefs(BLangRecordTypeNode recordTypeNode,
                                                             BTypeSymbol typeSymbol) {
+        Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) typeSymbol).defaultValues;
+        String typeName = recordTypeNode.symbol.name.value;
         for (BLangType type : recordTypeNode.typeRefs) {
             BRecordType recordType = (BRecordType) Types.getReferredType(type.getBType());
-            Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
-            for (Map.Entry<String, BInvokableSymbol> defaultValue : defaultValues.entrySet()) {
+            Map<String, BInvokableSymbol> defaultValuesOfTypeRef =
+                                                                ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
+            for (Map.Entry<String, BInvokableSymbol> defaultValue : defaultValuesOfTypeRef.entrySet()) {
                 String name = defaultValue.getKey();
-                if (((BRecordTypeSymbol) typeSymbol).defaultValues.containsKey(name)) {
+                if (defaultValues.containsKey(name)) {
                     continue;
                 }
                 BInvokableSymbol symbol = defaultValue.getValue();
                 BLangInvocation invocation = getFunctionPointerInvocation(symbol);
-                String closureName = RECORD_DELIMITER + recordTypeNode.symbol.name.value + RECORD_DELIMITER + name;
+                String closureName = RECORD_DELIMITER + typeName + RECORD_DELIMITER + name;
                 generateClosureForDefaultValues(closureName, name, invocation, symbol.retType, typeSymbol);
             }
         }
@@ -1083,7 +1086,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         rewriteInvocationExpr(invocation);
         BLangInvokableNode encInvokable = env.enclInvokable;
         if (encInvokable == null || !invocation.functionPointerInvocation ||
-                                     env.enclPkg.packageID != invocation.symbol.pkgID) {
+                                                               !env.enclPkg.packageID.equals(invocation.symbol.pkgID)) {
             return;
         }
         updateClosureVariable((BVarSymbol) invocation.symbol, encInvokable, invocation.pos);
