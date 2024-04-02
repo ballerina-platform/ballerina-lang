@@ -90,6 +90,7 @@ import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFGT;
+import static org.objectweb.asm.Opcodes.IF_ICMPEQ;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -114,7 +115,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANNOTATIONS_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
@@ -400,12 +400,26 @@ public class MethodGen {
             mv.visitInsn(ICONST_1);
             mv.visitInsn(IADD);
             mv.visitFieldInsn(PUTSTATIC, moduleClass, NO_OF_DEPENDANT_MODULES, "I");
-            generateFunctionAttemptedBooleanCheck(MODULE_INIT_ATTEMPTED, mv, moduleClass);
+
+            Label labelIf = new Label();
+            mv.visitFieldInsn(GETSTATIC, moduleClass, NO_OF_DEPENDANT_MODULES, "I");
+            mv.visitInsn(ICONST_1);
+            mv.visitJumpInsn(IF_ICMPEQ, labelIf);
+            mv.visitInsn(ACONST_NULL);
+            mv.visitInsn(ARETURN);
+            mv.visitLabel(labelIf);
         }
 
         if (isModuleStartFunction(funcName)) {
             String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
-            generateFunctionAttemptedBooleanCheck(MODULE_START_PARENT_ATTEMPTED, mv, moduleClass);
+            mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_START_PARENT_ATTEMPTED, "Z");
+            Label labelIf = new Label();
+            mv.visitJumpInsn(IFEQ, labelIf);
+            mv.visitInsn(ACONST_NULL);
+            mv.visitInsn(ARETURN);
+            mv.visitLabel(labelIf);
+            mv.visitInsn(ICONST_1);
+            mv.visitFieldInsn(PUTSTATIC, moduleClass, MODULE_START_PARENT_ATTEMPTED, "Z");
         }
 
         if (invocationCountArgVarIndex == -1) {
@@ -421,18 +435,6 @@ public class MethodGen {
             mv.visitVarInsn(ILOAD, invocationCountArgVarIndex);
         }
         mv.visitVarInsn(ISTORE, invocationVarIndex);
-    }
-
-    private void generateFunctionAttemptedBooleanCheck(String staticFieldName, MethodVisitor mv,
-                                                       String moduleClassPath) {
-        mv.visitFieldInsn(GETSTATIC, moduleClassPath, staticFieldName, "Z");
-        Label labelIf = new Label();
-        mv.visitJumpInsn(IFEQ, labelIf);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitInsn(ARETURN);
-        mv.visitLabel(labelIf);
-        mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTSTATIC, moduleClassPath, staticFieldName, "Z");
     }
 
     private void generateFrameStringFieldSet(MethodVisitor mv, String frameName, int rhsVarIndex, String fieldName) {

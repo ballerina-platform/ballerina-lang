@@ -167,7 +167,6 @@ public class ModuleStopMethodGen {
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, VOID_METHOD_DESC, false);
     }
 
-
     private void genHandleRuntimeErrors(MethodVisitor mv, String moduleClass, Label labelJump) {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
