@@ -149,14 +149,12 @@ public class JvmPackageGen {
     private final ConfigMethodGen configMethodGen;
     private final Map<String, BIRFunctionWrapper> birFunctionMap;
     private final Map<String, String> globalVarClassMap;
-    private final Set<PackageID> dependentModules;
     private final BLangDiagnosticLog dlog;
     private final Types types;
 
     JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog, Types types) {
         birFunctionMap = new HashMap<>();
         globalVarClassMap = new HashMap<>();
-        dependentModules = new LinkedHashSet<>();
         this.symbolTable = symbolTable;
         this.packageCache = packageCache;
         this.dlog = dlog;
@@ -450,11 +448,6 @@ public class JvmPackageGen {
         });
     }
 
-    private List<PackageID> flattenModuleImports(Set<PackageID> dependentModuleArray) {
-        dependentModuleArray.addAll(dependentModules);
-        return new ArrayList<>(dependentModuleArray);
-    }
-
     /**
      * Java Class will be generated for each source file. This method add class mappings to globalVar and filters the
      * functions based on their source file name and then returns map of associated java class contents.
@@ -710,41 +703,21 @@ public class JvmPackageGen {
         }
     }
 
-    private void generateDependencyList(BPackageSymbol packageSymbol)  {
-        if (packageSymbol.bir != null) {
-            generate(packageSymbol.bir, false);
-        } else {
-            for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
-                if (importPkgSymbol == null) {
-                    continue;
-                }
-                generateDependencyList(importPkgSymbol);
-            }
-        }
-        dependentModules.add(packageSymbol.pkgID);
-    }
-
-    CompiledJarFile generate(BIRPackage module, boolean isEntry) {
-        if (dependentModules.contains(module.packageID)) {
-            return null;
-        }
-        Set<PackageID> moduleImports = new LinkedHashSet<>();
-        addBuiltinImports(module.packageID, moduleImports);
+    CompiledJarFile generate(BIRPackage module) {
         boolean serviceEPAvailable = module.isListenerAvailable;
         for (BIRNode.BIRImportModule importModule : module.importModules) {
-
             BPackageSymbol pkgSymbol = packageCache.getSymbol(
                     getBvmAlias(importModule.packageID.orgName.value, importModule.packageID.name.value));
-            generateDependencyList(pkgSymbol);
+            if (pkgSymbol.bir != null) {
+                String moduleInitClass =
+                        JvmCodeGenUtil.getModuleLevelClassName(pkgSymbol.bir.packageID, MODULE_INIT_CLASS_NAME);
+                generateClassNameLinking(pkgSymbol.bir, moduleInitClass, false);
+            }
             serviceEPAvailable |= listenerDeclarationFound(pkgSymbol);
         }
         String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME);
         String typesClass = getModuleLevelClassName(module.packageID, MODULE_TYPES_CLASS_NAME);
-        Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, isEntry);
-
-        if (!isEntry) {
-            return null;
-        }
+        Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, true);
 
         // use a map to store class byte values
         final Map<String, byte[]> jarEntries = new HashMap<>();
@@ -845,8 +818,8 @@ public class JvmPackageGen {
                     return true;
                 }
             }
-        } else if (packageSymbol.bir.isListenerAvailable) {
-            return true;
+        } else {
+            return packageSymbol.bir.isListenerAvailable;
         }
         for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
             if (importPkgSymbol != null && listenerDeclarationFound(importPkgSymbol)) {
