@@ -420,16 +420,24 @@ public class ClosureGenerator extends BLangNodeVisitor {
             rewrite(field, recordTypeNode.typeDefEnv);
         }
         recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
-        generateClosuresForDefaultValuesInTypeRefs(recordTypeNode, typeSymbol);
+        //In the BIR, we generate instruction for closures when visiting the lambda function.
+        //Due to that, if the inclusions are in different modules, closures are not created for default values.
+        //Fixed with #41949 issue.
+        generateClosuresForDefaultValuesInTypeInclusions(recordTypeNode);
         result = recordTypeNode;
     }
 
-    private void generateClosuresForDefaultValuesInTypeRefs(BLangRecordTypeNode recordTypeNode,
-                                                            BTypeSymbol typeSymbol) {
+    private void generateClosuresForDefaultValuesInTypeInclusions(BLangRecordTypeNode recordTypeNode) {
+        BTypeSymbol typeSymbol = recordTypeNode.getBType().tsymbol;
         Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) typeSymbol).defaultValues;
         String typeName = recordTypeNode.symbol.name.value;
+        PackageID packageID = typeSymbol.pkgID;
         for (BLangType type : recordTypeNode.typeRefs) {
-            BRecordType recordType = (BRecordType) Types.getReferredType(type.getBType());
+            BType bType = type.getBType();
+            if (packageID.equals(bType.tsymbol.pkgID)) {
+                continue;
+            }
+            BRecordType recordType = (BRecordType) Types.getReferredType(bType);
             Map<String, BInvokableSymbol> defaultValuesOfTypeRef =
                                                                 ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
             for (Map.Entry<String, BInvokableSymbol> defaultValue : defaultValuesOfTypeRef.entrySet()) {
@@ -438,20 +446,11 @@ public class ClosureGenerator extends BLangNodeVisitor {
                     continue;
                 }
                 BInvokableSymbol symbol = defaultValue.getValue();
-                BLangInvocation invocation = getFunctionPointerInvocation(symbol);
+                BLangInvocation invocation = getInvocation(symbol);
                 String closureName = RECORD_DELIMITER + typeName + RECORD_DELIMITER + name;
                 generateClosureForDefaultValues(closureName, name, invocation, symbol.retType, typeSymbol);
             }
         }
-    }
-
-    private BLangInvocation getFunctionPointerInvocation(BInvokableSymbol symbol) {
-        BLangInvocation funcInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        funcInvocation.setBType(symbol.retType);
-        funcInvocation.symbol = symbol;
-        funcInvocation.name = ASTBuilderUtil.createIdentifier(symbol.pos, symbol.name.value);
-        funcInvocation.functionPointerInvocation = true;
-        return funcInvocation;
     }
 
     @Override
