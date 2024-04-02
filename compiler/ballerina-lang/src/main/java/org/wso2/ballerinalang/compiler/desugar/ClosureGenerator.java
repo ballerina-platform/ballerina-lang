@@ -427,9 +427,20 @@ public class ClosureGenerator extends BLangNodeVisitor {
         result = recordTypeNode;
     }
 
+    private List<String> getFieldNames(List<BLangSimpleVariable> fields) {
+        List<String> fieldNames = new ArrayList<>();
+        for(BLangSimpleVariable field : fields) {
+            fieldNames.add(field.name.getValue());
+        }
+        return fieldNames;
+    }
+
     private void generateClosuresForDefaultValuesInTypeInclusions(BLangRecordTypeNode recordTypeNode) {
+        if (recordTypeNode.typeRefs.isEmpty()) {
+            return;
+        }
+        List<String> fieldNames = getFieldNames(recordTypeNode.fields);
         BTypeSymbol typeSymbol = recordTypeNode.getBType().tsymbol;
-        Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) typeSymbol).defaultValues;
         String typeName = recordTypeNode.symbol.name.value;
         PackageID packageID = typeSymbol.pkgID;
         for (BLangType type : recordTypeNode.typeRefs) {
@@ -442,7 +453,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
                                                                 ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
             for (Map.Entry<String, BInvokableSymbol> defaultValue : defaultValuesOfTypeRef.entrySet()) {
                 String name = defaultValue.getKey();
-                if (defaultValues.containsKey(name)) {
+                if (fieldNames.contains(name)) {
                     continue;
                 }
                 BInvokableSymbol symbol = defaultValue.getValue();
