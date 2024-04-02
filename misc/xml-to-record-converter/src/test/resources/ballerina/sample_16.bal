@@ -1,39 +1,77 @@
 type C_Course record {
-    string u\:name;
-    int c\:intake?;
-    string p\:professor?;
+    @xmldata:Namespace {
+    prefix: "u",
+        uri: "http://example.com/university"
+    }
+    string name;
+    @xmldata:Namespace {
+    prefix: "c",
+        uri: "http://example.com/course"
+    }
+    int intake?;
+    @xmldata:Namespace {
+    prefix: "p",
+        uri: "http://example.com/professor"
+    }
+    string professor?;
 };
 
 type D_SubDepartment record {
-    string d\:name;
-    C_Course[] c\:course?;
-    D_SubDepartment[] d\:subDepartment?;
+    @xmldata:Namespace {
+    prefix: "d",
+        uri: "http://example.com/department"
+    }
+    string name;
+    @xmldata:Namespace {
+    prefix: "c",
+        uri: "http://example.com/course"
+    }
+    C_Course[] course?;
+    @xmldata:Namespace {
+    prefix: "d",
+        uri: "http://example.com/department"
+    }
+    D_SubDepartment[] subDepartment?;
 };
 
 type D_Department record {
-    string u\:name;
-    C_Course[] c\:course;
-    D_SubDepartment d\:subDepartment?;
+    @xmldata:Namespace {
+    prefix: "u",
+        uri: "http://example.com/university"
+    }
+    string name;
+    @xmldata:Namespace {
+    prefix: "c",
+        uri: "http://example.com/course"
+    }
+    C_Course[] course;
+    @xmldata:Namespace {
+    prefix: "d",
+        uri: "http://example.com/department"
+    }
+    D_SubDepartment subDepartment?;
 };
 
 type F_Faculty record {
-    string u\:name;
-    D_Department[] d\:department;
+    @xmldata:Namespace {
+    prefix: "u",
+        uri: "http://example.com/university"
+    }
+    string name;
+    @xmldata:Namespace {
+    prefix: "d",
+        uri: "http://example.com/department"
+    }
+    D_Department[] department;
 };
 
 @xmldata:Name {
     value: "university"
 }
 type University record {
-    F_Faculty[] f\:faculty;
-    @xmldata:Attribute
-    string xmlns\:c = "http://example.com/course";
-    @xmldata:Attribute
-    string xmlns\:d = "http://example.com/department";
-    @xmldata:Attribute
-    string xmlns\:f = "http://example.com/faculty";
-    @xmldata:Attribute
-    string xmlns\:p = "http://example.com/professor";
-    @xmldata:Attribute
-    string xmlns\:u = "http://example.com/university";
+    @xmldata:Namespace {
+    prefix: "f",
+        uri: "http://example.com/faculty"
+    }
+    F_Faculty[] faculty;
 };

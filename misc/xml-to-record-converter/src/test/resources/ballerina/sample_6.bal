@@ -21,6 +21,4 @@ type Bookstore record {
     Codes codes;
     @xmldata:Attribute
     string status;
-    @xmldata:Attribute
-    string xmlns\:ns0 = "http://sample.com/test";
 };
