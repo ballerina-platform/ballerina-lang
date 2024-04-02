@@ -18,7 +18,7 @@ import testorg/foo;
 
 xmlns "http://ballerinalang.org" as ns;
 
-function testXMLAttributeAccessNegative() returns error? {
+function testXmlRequiredAttributeAccessNegative() returns error? {
     xml x = xml `<a ns:A="content" id="identity"></a>`;
 
     string _ = check x.foo:XMLD; // const exist but not public
@@ -27,7 +27,7 @@ function testXMLAttributeAccessNegative() returns error? {
     string _ = check x.bar:Y; // non-existing prefix
 }
 
-function testXMLOptionalAttributeAccessNegative() returns error? {
+function testXmlOptionalAttributeAccessNegative() returns error? {
     xml x = xml `<a ns:A="content" id="identity"></a>`;
 
     string? _ = check x?.foo:XMLD;
