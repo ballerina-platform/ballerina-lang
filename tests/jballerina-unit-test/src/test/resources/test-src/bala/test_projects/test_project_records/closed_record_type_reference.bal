@@ -51,6 +51,11 @@ public type Info record {|
     *public_and_private_types:Person;
 |};
 
+public type Info1 record {|
+    string name = "James";
+    *public_and_private_types:Person;
+|};
+
 public type Location record {
     *public_and_private_types:Address;
     string street = "abc";

@@ -420,22 +420,24 @@ public class ClosureGenerator extends BLangNodeVisitor {
             rewrite(field, recordTypeNode.typeDefEnv);
         }
         recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
-        //In the BIR, we generate instruction for closures when visiting the lambda function.
-        //Due to that, if the inclusions are in different modules, closures are not created for default values.
-        //Fixed with #41949 issue.
-        generateClosuresForDefaultValuesInTypeInclusions(recordTypeNode);
+        // In the current implementation, closures generated for default values in inclusions defined in a
+        // separate module are unidentifiable.
+        // Due to that, if the inclusions are in different modules, we generate closures again.
+        // Will be fixed  with #41949 issue.
+        generateClosuresForDefaultValuesInTypeInclusionsFromDifferentModule(recordTypeNode);
         result = recordTypeNode;
     }
 
     private List<String> getFieldNames(List<BLangSimpleVariable> fields) {
         List<String> fieldNames = new ArrayList<>();
-        for(BLangSimpleVariable field : fields) {
+        for (BLangSimpleVariable field : fields) {
             fieldNames.add(field.name.getValue());
         }
         return fieldNames;
     }
 
-    private void generateClosuresForDefaultValuesInTypeInclusions(BLangRecordTypeNode recordTypeNode) {
+    private void generateClosuresForDefaultValuesInTypeInclusionsFromDifferentModule(
+                                                                                   BLangRecordTypeNode recordTypeNode) {
         if (recordTypeNode.typeRefs.isEmpty()) {
             return;
         }
@@ -1096,7 +1098,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         rewriteInvocationExpr(invocation);
         BLangInvokableNode encInvokable = env.enclInvokable;
         if (encInvokable == null || !invocation.functionPointerInvocation ||
-                                                               !env.enclPkg.packageID.equals(invocation.symbol.pkgID)) {
+                !env.enclPkg.packageID.equals(invocation.symbol.pkgID)) {
             return;
         }
         updateClosureVariable((BVarSymbol) invocation.symbol, encInvokable, invocation.pos);

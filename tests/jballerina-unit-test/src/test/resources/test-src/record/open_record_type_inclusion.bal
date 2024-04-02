@@ -244,6 +244,10 @@ type Info record {
     *records:Info;
 };
 
+type Info1 record {
+    *records:Info1;
+};
+
 type Location record {|
     *records:Location;
 |};
@@ -280,6 +284,9 @@ function testDefaultValuesOfRecordFieldsWithTypeInclusion() {
     assertEquality("Sri Lanka", location.country);
     assertEquality("abc", location.street);
     assertEquality(123, location.zipCode);
+    Info1 info1 = {};
+    assertEquality("James", info1.name);
+    assertEquality(30, info1.age);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
