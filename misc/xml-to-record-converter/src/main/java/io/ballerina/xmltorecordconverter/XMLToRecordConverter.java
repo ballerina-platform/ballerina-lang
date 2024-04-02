@@ -182,8 +182,7 @@ public class XMLToRecordConverter {
                                         Map<String, AnnotationNode> recordToAnnotationsNodes,
                                         Map<String, Element> recordToElementNodes,
                                         List<DiagnosticMessage> diagnosticMessages,
-                                        String value,
-                                        boolean hasNameSpace) {
+                                        String value, boolean hasNameSpace) {
         Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
         Token bodyStartDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.OPEN_BRACE_PIPE_TOKEN :
                 SyntaxKind.OPEN_BRACE_TOKEN);
@@ -224,8 +223,7 @@ public class XMLToRecordConverter {
                                                            Map<String, AnnotationNode> recordToAnnotationNodes,
                                                            Map<String, Element> recordToElementNodes,
                                                            List<DiagnosticMessage> diagnosticMessages,
-                                                           String value,
-                                                           boolean hasNameSpace) {
+                                                           String value, boolean hasNameSpace) {
         List<Node> recordFields = new ArrayList<>();
 
         String xmlNodeName = xmlElement.getNodeName();
@@ -277,10 +275,10 @@ public class XMLToRecordConverter {
                 if (xmlElement.getPrefix() != null &&
                         xmlNode.getPrefix() != null &&
                         xmlNode.getPrefix().equals(XMLNS_PREFIX) &&
-                        xmlElement.getPrefix().equals(xmlNode.getLocalName())) {
+                        xmlElement.getPrefix().equals(xmlNode.getLocalName()) && hasNameSpace) {
                     AnnotationNode xmlNSNode = getXMLNamespaceNode(xmlNode.getLocalName(), xmlNode.getNodeValue());
                     recordToAnnotationNodes.put(xmlNodeName, xmlNSNode);
-                } else if (!isLeafXMLElementNode(xmlElement)) {
+                } else if (!isLeafXMLElementNode(xmlElement) && !XMLNS_PREFIX.equals(xmlNode.getPrefix())) {
                     Node recordField = getRecordField(xmlNode);
                     recordFields.add(recordField);
                 }
