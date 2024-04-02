@@ -249,6 +249,16 @@ public class BIRLockOptimizer extends BIRVisitor {
     }
 
     @Override
+    public void visit(BIRTerminator.WorkerAlternateReceive workerAlternateReceive) {
+        // Do nothing
+    }
+
+    @Override
+    public void visit(BIRTerminator.WorkerMultipleReceive workerMultipleReceive) {
+        // Do nothing
+    }
+
+    @Override
     public void visit(BIRNode.BIRBasicBlock birBasicBlock) {
         BIRTerminator terminator = birBasicBlock.terminator;
 

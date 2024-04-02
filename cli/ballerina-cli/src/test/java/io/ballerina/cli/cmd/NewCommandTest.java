@@ -413,7 +413,7 @@ public class NewCommandTest extends BaseCommandTest {
         // - main.bal
 
         Path currentDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        Path relativeToCurrentDir = Paths.get(currentDir.toString(), packagePath.toString()).normalize();
+        Path relativeToCurrentDir = Paths.get(currentDir.toString(), packagePath).normalize();
         Assert.assertTrue(Files.exists(relativeToCurrentDir));
         Assert.assertTrue(Files.exists(relativeToCurrentDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String name = Paths.get(args[0]).getFileName().toString();
@@ -730,6 +730,39 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(
                 packageDir.resolve("target").resolve("bala")
                         .resolve("testorg-sample_tool_template-java17-1.0.0.bala").toFile().exists());
+    }
+
+    @Test(description = "Test new command by pulling a central template with provided platform jars")
+    public void testNewCommandWithProvidedTemplateCentral() throws IOException {
+        String templateArg = "testorg/projectProvidedScope:1.0.0";
+        String packageName = "sample_provided_template";
+        Path packageDir = tmpDir.resolve(packageName);
+        String[] args = {packageDir.toString(), "-t", templateArg};
+        NewCommand newCommand = new NewCommand(printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String expectedTomlContent = "[package]\n" +
+                "org = \"testorg\"\n" +
+                "name = \"sample_provided_template\"\n" +
+                "version = \"1.0.0\"\n" +
+                "export = [\"sample_provided_template\"]\n" +
+                "distribution = \"2201.9.0-SNAPSHOT\"\n" +
+                "\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true\n" +
+                "\n" +
+                "[[platform.java17.dependency]]\n" +
+                "artifactId = \"project1\"\n" +
+                "groupId = \"com.example\"\n" +
+                "version = \"1.0\"\n" +
+                "scope = \"provided\"\n";
+        Assert.assertEquals(
+                readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
+        Assert.assertTrue(readOutput().contains("WARNING: path for the platform dependency project1 with provided " +
+                "scope should be specified in the Ballerina.toml\n" +
+                "Created new package 'sample_provided_template'"));
     }
 
     @Test(description = "Test new command with central template in the local cache")

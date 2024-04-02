@@ -8,7 +8,7 @@ import org.testng.annotations.DataProvider;
 public class SemverDataProvider {
 
     @DataProvider(name = "semverVersions")
-    public Object[][] provideSemverVersions() {
+    public static Object[][] provideSemverVersions() {
         return new Object[][] {
                 { "0.0.4" },
                 { "1.2.3" },
@@ -46,7 +46,7 @@ public class SemverDataProvider {
     }
 
     @DataProvider(name = "invalidSemverVersions")
-    public Object[][] provideInvalidSemverVersions() {
+    public static Object[][] provideInvalidSemverVersions() {
         return new Object[][] {
                 { "1" },
                 { "1.2" },

@@ -18,10 +18,12 @@
 
 package io.ballerina.runtime.internal.util;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
@@ -42,7 +44,9 @@ import java.util.logging.Logger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INTERNAL_ERROR_MESSAGE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * Util methods required for jBallerina runtime.
@@ -150,10 +154,15 @@ public class RuntimeUtils {
     }
 
     public static void handleRuntimeReturnValues(Object returnValue) {
-        if (returnValue instanceof ErrorValue) {
-            ErrorValue errorValue = (ErrorValue) returnValue;
+        if (returnValue instanceof ErrorValue errorValue) {
             errStream.println("error: " + errorValue.getPrintableError());
             Runtime.getRuntime().exit(1);
+        }
+    }
+
+    public static void handleRuntimeErrorReturns(Object returnValue) {
+        if (returnValue instanceof ErrorValue errorValue) {
+            errStream.println("error: " + errorValue.getPrintableError());
         }
     }
 
@@ -243,6 +252,58 @@ public class RuntimeUtils {
     private static boolean isInvalidBallerinaValue(Object value) {
         return (value != null && !(value instanceof Number) && !(value instanceof Boolean) &&
                 !(value instanceof BValue));
+    }
+
+    public static String formatErrorMessage(Throwable e) {
+        if (e instanceof BError error) {
+            return error.getPrintableStackTrace();
+        }
+        return getPrintableStackTrace(e);
+    }
+
+    private static String getPrintableStackTrace(Throwable throwable) {
+        String errorMsg = throwable.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(errorMsg);
+        // Append function/action/resource name with package path (if any)
+        StackTraceElement[] stackTrace = throwable.getStackTrace();
+        if (stackTrace.length == 0) {
+            return sb.toString();
+        }
+        sb.append("\n\tat ");
+        // print first element
+        printStackElement(sb, stackTrace[0], "");
+        for (int i = 1; i < stackTrace.length; i++) {
+            printStackElement(sb, stackTrace[i], "\n\t   ");
+        }
+        return sb.toString();
+    }
+
+    private static void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
+        String pkgName = Utils.decodeIdentifier(stackTraceElement.getClassName());
+        String fileName = stackTraceElement.getFileName();
+        if (fileName == null) {
+            fileName = "unknown-source";
+        }
+        // clean file name from pkgName since we print the file name after the method name.
+        fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
+        fileName = fileName.replace("/", "-");
+        int index = pkgName.lastIndexOf("." + fileName);
+        if (index != -1) {
+            pkgName = pkgName.substring(0, index);
+        }
+
+        sb.append(tab);
+        if (!pkgName.equals(MODULE_INIT_CLASS_NAME)) {
+            sb.append(pkgName).append(":");
+        }
+
+        // Append the method name
+        sb.append(Utils.decodeIdentifier(stackTraceElement.getMethodName()));
+        // Append the filename
+        sb.append("(").append(fileName);
+        // Append the line number
+        sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
     }
 
     private RuntimeUtils() {

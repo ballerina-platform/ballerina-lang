@@ -621,6 +621,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(receiveFieldsNode);
     }
 
+    public T transform(STAlternateReceiveNode alternateReceiveNode) {
+        return transformSyntaxNode(alternateReceiveNode);
+    }
+
     public T transform(STRestDescriptorNode restDescriptorNode) {
         return transformSyntaxNode(restDescriptorNode);
     }
@@ -935,6 +939,10 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STMemberTypeDescriptorNode memberTypeDescriptorNode) {
         return transformSyntaxNode(memberTypeDescriptorNode);
+    }
+
+    public T transform(STReceiveFieldNode receiveFieldNode) {
+        return transformSyntaxNode(receiveFieldNode);
     }
 
     // Tokens

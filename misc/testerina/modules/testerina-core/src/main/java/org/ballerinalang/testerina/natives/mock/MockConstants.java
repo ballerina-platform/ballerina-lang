@@ -40,6 +40,21 @@ public class MockConstants {
     public static final String FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";
     public static final String INVALID_MEMBER_FIELD_ERROR = "InvalidMemberFieldError";
     public static final String NON_PUBLIC_MEMBER_FIELD_ERROR = "NonPublicMemberFieldError";
-
     public static final String FUNCTION_CALL_ERROR = "FunctionCallError";
+    public static final String MOCK_OBJECT = "mockObject";
+    public static final String FUNCTION_NAME = "functionName";
+    public static final String ACCESSOR = "accessor";
+    public static final String PATH_SEPARATOR = "/";
+    public static final String PATH_PARAM_INDICATOR = ":";
+    public static final String ARGS = "args";
+    public static final String RETURN_VALUE = "returnValue";
+    public static final String MEMBER_RESOURCE_FUNCTION_STUB = "MemberResourceFunctionStub";
+    public static final String RESOURCE_SEPARATOR = "$";
+    public static final String RETURN_VALUE_SEQ = "returnValueSeq";
+    public static final String PATH_PARAM_PLACEHOLDER = "^";
+    public static final String RESOURCE_FUNCTION_ARGS = "functionArgs";
+    public static final String PATH_ARGS = "pathArgs";
+    public static final String REST_PARAMETER_INDICATOR = "::";
+    public static final String REST_PARAM_PLACEHOLDER = "^^";
+    public static final String CASE_ID_DELIMITER = "-";
 }

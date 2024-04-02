@@ -25,6 +25,7 @@ import org.apache.axiom.om.OMNode;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * XML nodes containing comment data.
@@ -33,7 +34,7 @@ import java.util.Objects;
  */
 public class XmlComment extends XmlNonElementItem {
 
-    private String data;
+    private final String data;
 
     public XmlComment(String data) {
         this.data = data;
@@ -118,5 +119,20 @@ public class XmlComment extends XmlNonElementItem {
     @Override
     public boolean equals(Object obj) {
         return this == obj;
+    }
+
+    /**
+     * Deep equality check for xml comment.
+     *
+     * @param o The xml comment on the right hand side
+     * @param visitedValues Visited values in order to break cyclic references.
+     * @return True if the xml comments are equal, else false.
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (!(o instanceof XmlComment rhXMLComment)) {
+            return false;
+        }
+        return this.getTextValue().equals(rhXMLComment.getTextValue());
     }
 }

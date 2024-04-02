@@ -1,0 +1,4 @@
+[package]
+org = "sample_org"
+name = "symbol_package_id"
+version = "0.1.0"
