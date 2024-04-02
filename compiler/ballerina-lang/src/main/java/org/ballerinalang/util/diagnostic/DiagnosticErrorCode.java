@@ -424,6 +424,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "invalid.field.binding.pattern.with.non.required.field"),
     INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION("BCE2654", "infer.size.only.supported.in.the.first.dimension"),
     FUNCTION_CALL_SYNTAX_NOT_DEFINED("BCE2655", "function.call.syntax.not.defined"),
+    UNDEFINED_CONSTANT_SYMBOL("BCE2656", "undefined.constant.symbol"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),

@@ -21,12 +21,10 @@ package org.ballerinalang.test.bala.types;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import java.util.Arrays;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
@@ -37,48 +35,41 @@ import static org.testng.Assert.assertEquals;
  * @since 2201.9.0
  */
 public class XMLAttrAccessWithModulePrefixTest {
+
     CompileResult compileResult;
-    CompileResult negative;
 
     @BeforeClass
     public void setup() {
-        CompileResult projectCompileResult =
-                BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
-        if (projectCompileResult.getErrorCount() > 0) {
-            Arrays.stream(projectCompileResult.getDiagnostics()).forEach(System.out::println);
-            Assert.fail("Compilation contains errors");
-        }
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
         compileResult = BCompileUtil.compile("test-src/bala/test_bala/types/xml_attribute_access.bal");
-        negative = BCompileUtil.compile("test-src/bala/test_bala/types/xml_attribute_access_negative.bal");
+    }
+
+    @Test(dataProvider = "xmlAttributeAccessWithModulePrefix")
+    public void testXmlAttributeAccessWithModulePrefix(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider(name = "xmlAttributeAccessWithModulePrefix")
+    public Object[] xmlAttributeAccessWithModulePrefix() {
+        return new Object[]{
+                "testXmlRequiredAttributeAccessWithModulePrefix",
+                "testXmlOptionalAttributeAccessWithModulePrefix",
+                "testXmlAttributeAccessErrors"
+        };
     }
 
     @Test
-    public void testXMLAttributeAccessWithModulePrefix() {
-        BRunUtil.invoke(compileResult, "testXMLAttributeAccessWithModulePrefix");
-    }
-
-    @Test
-    public void testOptionalXMLAttributeAccessWithModulePrefix() {
-        BRunUtil.invoke(compileResult, "testOptionalXMLAttributeAccessWithModulePrefix");
-    }
-
-    @Test
-    public void testXMLAttributeAccessErrors() {
-        BRunUtil.invoke(compileResult, "testXMLAttributeAccessErrors");
-    }
-
-    @Test
-    public void testXMLAttributeAccessCompileNegative() {
+    public void testXmlAttributeAccessCompileNegative() {
+        CompileResult negative =
+                BCompileUtil.compile("test-src/bala/test_bala/types/xml_attribute_access_negative.bal");
         int i = 0;
         validateError(negative, i++, "attempt to refer to non-accessible symbol 'XMLD'", 24, 22);
-        validateError(negative, i++, "undefined symbol 'foo:XMLD'", 24, 22);
-        validateError(negative, i++, "undefined symbol 'foo:XMLE'", 25, 22);
-        validateError(negative, i++, "undefined symbol 'foo:XMLG'", 26, 22);
+        validateError(negative, i++, "undefined constant symbol 'foo:XMLE'", 25, 22);
+        validateError(negative, i++, "undefined constant symbol 'foo:XMLG'", 26, 22);
         validateError(negative, i++, "cannot find the prefix 'bar'", 27, 24);
         validateError(negative, i++, "attempt to refer to non-accessible symbol 'XMLD'", 33, 23);
-        validateError(negative, i++, "undefined symbol 'foo:XMLD'", 33, 23);
-        validateError(negative, i++, "undefined symbol 'foo:XMLE'", 34, 23);
-        validateError(negative, i++, "undefined symbol 'foo:XMLG'", 35, 23);
+        validateError(negative, i++, "undefined constant symbol 'foo:XMLE'", 34, 23);
+        validateError(negative, i++, "undefined constant symbol 'foo:XMLG'", 35, 23);
         validateError(negative, i++, "cannot find the prefix 'bar'", 36, 26);
         assertEquals(negative.getErrorCount(), i);
     }
@@ -86,7 +77,5 @@ public class XMLAttrAccessWithModulePrefixTest {
     @AfterClass
     public void tearDown() {
         compileResult = null;
-        negative = null;
     }
-
 }

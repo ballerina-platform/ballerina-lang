@@ -987,6 +987,27 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     }
 
     /**
+     * Return the symbol with the given name even with a different package.
+     *
+     * @param scope     current scope
+     * @param name      symbol name
+     * @param expSymTag expected symbol type/tag
+     * @return resolved symbol
+     */
+    public BSymbol lookupPossibleMemberSymbol(Scope scope, Name name, long expSymTag) {
+        ScopeEntry entry = scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & expSymTag) != expSymTag) {
+                entry = entry.next;
+                continue;
+            }
+            return entry.symbol;
+        }
+
+        return symTable.notFoundSymbol;
+    }
+
+    /**
      * Resolve and return the namespaces visible to the given environment, as a map.
      *
      * @param env Environment to get the visible namespaces

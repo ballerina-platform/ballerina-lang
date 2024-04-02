@@ -5974,12 +5974,17 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BSymbol findXMLNamespaceFromPackageConst(String localname, String prefix,
                                                      BPackageSymbol pkgSymbol, Location pos, AnalyzerData data) {
         // Resolve a const from module scope.
-        BSymbol constSymbol = symResolver.lookupMemberSymbol(pos, pkgSymbol.scope, data.env,
-                Names.fromString(localname), SymTag.CONSTANT);
+        BSymbol constSymbol =
+                symResolver.lookupPossibleMemberSymbol(pkgSymbol.scope, names.fromString(localname), SymTag.CONSTANT);
         if (constSymbol == symTable.notFoundSymbol) {
             if (!missingNodesHelper.isMissingNode(prefix) && !missingNodesHelper.isMissingNode(localname)) {
-                dlog.error(pos, DiagnosticErrorCode.UNDEFINED_SYMBOL, prefix + ":" + localname);
+                dlog.error(pos, DiagnosticErrorCode.UNDEFINED_CONSTANT_SYMBOL, prefix + ":" + localname);
             }
+            return null;
+        }
+
+        if (!data.env.enclPkg.packageID.equals(pkgSymbol.pkgID) && !Symbols.isPublic(constSymbol)) {
+            dlog.error(pos, DiagnosticErrorCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, constSymbol.name);
             return null;
         }
 
