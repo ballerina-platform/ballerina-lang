@@ -286,8 +286,8 @@ public class XMLToRecordConverter {
         }
         if (isLeafXMLElementNode(xmlElement) && xmlElement.getAttributes().getLength() > 0) {
             Token fieldType = AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
-            IdentifierToken fieldName = value != null ? AbstractNodeFactory.createIdentifierToken(value) :
-                    AbstractNodeFactory.createIdentifierToken(escapeIdentifier("#content"));
+            IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(value == null ?
+                    escapeIdentifier("#content") : value);
             Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
             RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null, fieldType,
                     fieldName, null, semicolon);
@@ -405,8 +405,8 @@ public class XMLToRecordConverter {
         TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
 
         if (!hasNameSpace) {
-            return NodeFactory.createRecordFieldNode(null, null, fieldTypeName, fieldName,
-                    optionalFieldToken,semicolonToken);
+            return NodeFactory.createRecordFieldNode(null, null, fieldTypeName, fieldName, optionalFieldToken,
+                    semicolonToken);
         }
         return xmlElementNode.getPrefix() == null ? NodeFactory.createRecordFieldNode(null, null, fieldTypeName,
                 fieldName, optionalFieldToken, semicolonToken) : NodeFactory.createRecordFieldNode(
