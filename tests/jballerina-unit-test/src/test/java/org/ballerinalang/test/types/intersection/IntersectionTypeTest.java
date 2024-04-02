@@ -87,7 +87,7 @@ public class IntersectionTypeTest {
                       45);
         validateError(result, index++, "incompatible types: 'Y' is not a record", 42, 6);
         validateError(result, index++, "invalid intersection type " +
-                        "'ImmutableType & ReadonlyType': no intersection", 49, 9);
+                        "'MutableType & ReadonlyType': no intersection", 49, 9);
 
         assertEquals(result.getErrorCount(), index);
     }

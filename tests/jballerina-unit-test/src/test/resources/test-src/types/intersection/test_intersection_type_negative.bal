@@ -45,5 +45,5 @@ type Z record {
 };
 
 type ReadonlyType readonly;
-type ImmutableType future<int>;
-type T2 ImmutableType & ReadonlyType;
+type MutableType future<int>;
+type T2 MutableType & ReadonlyType;
