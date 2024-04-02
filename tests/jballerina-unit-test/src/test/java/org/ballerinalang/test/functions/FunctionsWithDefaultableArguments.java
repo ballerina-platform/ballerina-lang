@@ -265,6 +265,11 @@ public class FunctionsWithDefaultableArguments {
         BRunUtil.invoke(result, "testFuncWithSpreadFieldInMappingConstructorForDefaultValue");
     }
 
+    @Test
+    public void testUsingParamInAnonFuncDefaultValueOfSubsequentParam() {
+        BRunUtil.invoke(result, "testUsingParamInAnonFuncDefaultValueOfSubsequentParam");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
