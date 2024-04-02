@@ -23,30 +23,24 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.configurable.providers.ConfigUtils;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 
-import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_ARG_REGEX;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_PREFIX;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_CLI_ARGS_AMBIGUITY;
@@ -55,32 +49,25 @@ import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_CLI_UNUSED_
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_CLI_VARIABLE_AMBIGUITY;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_INCOMPATIBLE_TYPE;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_INVALID_BYTE_RANGE;
-import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
 
 /**
- * This class implements @{@link ConfigProvider} tp provide values for configurable variables through cli args.
+ * This class implements @{@link ConfigProvider} to provide values for configurable variables through cli args.
  *
  * @since 2.0.0
  */
 public class CliProvider implements ConfigProvider {
-
-    private final String[] cliConfigArgs;
-
     private final Map<String, String> cliVarKeyValueMap;
-
     private final Map<String, VariableKey> markedCliKeyVariableMap;
-
     private final Module rootModule;
 
     public CliProvider(Module rootModule, String... cliConfigArgs) {
         this.rootModule = rootModule;
-        this.cliConfigArgs = cliConfigArgs;
-        this.cliVarKeyValueMap = new HashMap<>();
+        this.cliVarKeyValueMap = filterCliArgs(cliConfigArgs);
         this.markedCliKeyVariableMap = new HashMap<>();
     }
 
-    @Override
-    public void initialize() {
+    private Map<String, String> filterCliArgs(String[] cliConfigArgs) {
+        Map<String, String> argMap = new HashMap<>();
         for (String cliConfigArg : cliConfigArgs) {
             if (cliConfigArg.startsWith(CLI_PREFIX)) {
                 String configKeyValue = cliConfigArg.substring(2);
@@ -90,10 +77,16 @@ public class CliProvider implements ConfigProvider {
                     if (key.endsWith("\\")) {
                         key = key + " ";
                     }
-                    cliVarKeyValueMap.put(key, keyValuePair[1]);
+                    argMap.put(key, keyValuePair[1]);
                 }
             }
         }
+        return argMap;
+    }
+
+    @Override
+    public void initialize() {
+        // do nothing
     }
 
     @Override
@@ -227,93 +220,16 @@ public class CliProvider implements ConfigProvider {
         CliArg cliArg = getCliArg(module, key);
         BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
         boolean isEnum = SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM);
-        if (!isEnum && !containsSupportedMembers(unionType)) {
+        if (!isEnum && ConfigUtils.containsUnsupportedMembers(unionType)) {
             throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, unionType);
         }
         if (cliArg.value == null) {
             return Optional.empty();
         }
         if (isEnum) {
-            return getCliConfigValue(getFiniteValue(key, unionType, cliArg));
+            return getCliConfigValue(ConfigUtils.getFiniteValue(key, unionType, cliArg.value, cliArg.toString()));
         }
-        return getCliConfigValue(getUnionValue(key, unionType, cliArg));
-    }
-
-    private Object getUnionValue(VariableKey key, BUnionType unionType, CliArg cliArg) {
-        List<Object> matchingValues = getConvertibleMemberValues(cliArg.value, unionType);
-        if (matchingValues.size() == 1) {
-            return matchingValues.get(0);
-        }
-        String typeName = decodeIdentifier(unionType.toString());
-        if (matchingValues.isEmpty()) {
-            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, typeName, cliArg.value);
-        }
-        throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, cliArg, key.variable, typeName);
-    }
-
-    private List<Object> getConvertibleMemberValues(String value, UnionType unionType) {
-        List<Object> matchingValues = new ArrayList<>();
-        for (Type type : unionType.getMemberTypes()) {
-            switch (TypeUtils.getImpliedType(type).getTag()) {
-                case TypeTags.BYTE_TAG:
-                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToByte, value);
-                    break;
-                case TypeTags.INT_TAG:
-                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToInt, value);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToBoolean, value);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToFloat, value);
-                    break;
-                case TypeTags.DECIMAL_TAG:
-                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToDecimal, value);
-                    break;
-                case TypeTags.STRING_TAG:
-                    convertAndGetValuesFromString(matchingValues, StringUtils::fromString, value);
-                    break;
-                default:
-                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToXml, value);
-            }
-        }
-        return matchingValues;
-    }
-
-    private void convertAndGetValuesFromString(List<Object> matchingValues, Function<String, Object> convertFunc,
-                                               String value) {
-        Object unionValue;
-        try {
-            unionValue = convertFunc.apply(value);
-        } catch (NumberFormatException | BError e) {
-            return;
-        }
-        matchingValues.add(unionValue);
-    }
-
-    private BString getFiniteValue(VariableKey key, BUnionType unionType, CliArg cliArg) {
-        BString stringVal = StringUtils.fromString(cliArg.value);
-        List<Type> memberTypes = unionType.getMemberTypes();
-        for (Type type : memberTypes) {
-            if (((BFiniteType) type).valueSpace.contains(stringVal)) {
-                return stringVal;
-            }
-        }
-        throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable,
-                decodeIdentifier(unionType.toString()), cliArg.value);
-    }
-
-    private boolean containsSupportedMembers(BUnionType unionType) {
-        for (Type memberType : unionType.getMemberTypes()) {
-            if (!isCliSupported(TypeUtils.getImpliedType(memberType).getTag())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean isCliSupported(int tag) {
-        return tag <= TypeTags.BOOLEAN_TAG || TypeTags.isXMLTypeTag(tag);
+        return getCliConfigValue(ConfigUtils.getUnionValue(key, unionType, cliArg.value, cliArg.toString()));
     }
 
     @Override
@@ -328,26 +244,8 @@ public class CliProvider implements ConfigProvider {
         } else {
             type = (BFiniteType) key.type;
         }
-        Object value = getFiniteBalValue(cliArg, type, key);
+        Object value = ConfigUtils.getFiniteBalValue(cliArg.value, type, key, cliArg.toString());
         return getCliConfigValue(value);
-    }
-
-    public static Object getFiniteBalValue(CliArg arg, BFiniteType finiteType, VariableKey key) {
-        List<Object> matchingValues = new ArrayList<>();
-        for (Object value : finiteType.getValueSpace()) {
-            String stringValue = value.toString();
-            if (stringValue.equals(arg.value)) {
-                matchingValues.add(value);
-            }
-        }
-        if (matchingValues.size() == 1) {
-            return matchingValues.get(0);
-        }
-        String typeName = decodeIdentifier(finiteType.toString());
-        if (matchingValues.isEmpty()) {
-            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, arg, key.variable, typeName, arg.value);
-        }
-        throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, arg, key.variable, typeName);
     }
 
     @Override

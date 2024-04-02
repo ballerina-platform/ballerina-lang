@@ -112,7 +112,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TOML_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIG_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRANSACTION_CONTEXT_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
@@ -289,8 +289,8 @@ public class JvmSignatures {
     public static final String INIT_RECEIVE_FIELD = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";)V";
     public static final String INIT_CLI_SPEC = "(L" + OPTION + ";[L" + OPERAND + ";[L" + STRING_VALUE + ";)V";
     public static final String INIT_CONFIG = "([L" + STRING_VALUE + ";[L" + PATH + ";L" + STRING_VALUE + ";)V";
-    public static final String INIT_CONFIGURABLES =
-            "(L" + MODULE + ";L" + MAP + ";[L" + STRING_VALUE + ";[L" + PATH + ";L" + STRING_VALUE + ";)V";
+    public static final String INIT_CONFIGURABLES = "(L" + MODULE + ";L" + MAP + ";[L" + STRING_VALUE + ";[L"
+                                                    + PATH + ";L" + STRING_VALUE + ";)V";
     public static final String INIT_TEST_ARGS = "([L" + STRING_VALUE + ";)V";
     public static final String INIT_DECIMAL = "(L" + BIG_DECIMAL + ";)V";
     public static final String INIT_ERROR = "(L" + B_STRING_VALUE + ";)V";
@@ -501,9 +501,9 @@ public class JvmSignatures {
     public static final String CREATE_RE_QUANTIFIER = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";)L"
             + REG_EXP_QUANTIFIER + ";";
     public static final String GRACEFUL_EXIT_METHOD = "(L" + STRAND_CLASS + ";)V";
-    public static final String GET_TOML_DETAILS = "()L" + TOML_DETAILS + ";";
+    public static final String GET_CONFIG_DETAILS = "()L" + CONFIG_DETAILS + ";";
     public static final String GET_TEST_CONFIG_PATH = "(L" + MODULE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
-            ";)L" + TOML_DETAILS + ";";
+                                                      ";)L" + CONFIG_DETAILS + ";";
     public static final String SET_DEFAULT_VALUE_METHOD = "(L" + STRING_VALUE + ";L" + B_FUNCTION_POINTER + ";)V";
     public static final String ADD_SERVICE_LISTENER = "(L" + B_OBJECT + ";L" + B_OBJECT + ";L" + OBJECT + ";)V";
     public static final String ALT_RECEIVE_CALL = "(L" + STRAND_CLASS + ";[L" + STRING_VALUE + ";)L" + OBJECT + ";";

@@ -25,6 +25,9 @@ configurable boolean booleanVar = ?;
 configurable decimal decimalVar = ?;
 configurable xml & readonly xmlVar = ?;
 
+configurable string files = "abc+def.txt";
+configurable string data = "Hindu-123";
+
 enum Colors {
     RED,
     GREEN
@@ -56,6 +59,9 @@ function testSimpleValues() {
 
     byte result2 = 22;
     test:assertEquals(byteVar, result2);
+
+    test:assertEquals("pqr-1.toml", files);
+    test:assertEquals("intVar=bbb", data);
 }
 
 function testXmlValues() {
