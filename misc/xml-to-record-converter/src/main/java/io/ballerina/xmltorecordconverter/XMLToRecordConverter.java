@@ -155,7 +155,7 @@ public class XMLToRecordConverter {
                 }).toList();
 
         NodeList<ModuleMemberDeclarationNode> moduleMembers =
-                AbstractNodeFactory.createNodeList(new ArrayList<>(typeDefNodes));;
+                AbstractNodeFactory.createNodeList(new ArrayList<>(typeDefNodes));
 
         Token eofToken = AbstractNodeFactory.createIdentifierToken("");
         ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
@@ -414,7 +414,7 @@ public class XMLToRecordConverter {
     }
 
     private static Node getRecordField(org.w3c.dom.Node xmlAttributeNode) {
-        Token typeName = AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);;
+        Token typeName = AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
         TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
         IdentifierToken fieldName =
                 AbstractNodeFactory.createIdentifierToken(escapeIdentifier(xmlAttributeNode.getLocalName()));
