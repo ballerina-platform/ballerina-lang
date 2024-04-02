@@ -102,7 +102,7 @@ public class BalRuntime extends Runtime {
         if (!moduleInitialized) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_METHOD_CALL, "stop");
         }
-        invokeMethodAsync("$moduleStop", null, PredefinedTypes.TYPE_NULL, "stop", new Object[2]);
+        invokeMethodAsync("$moduleStop", null, PredefinedTypes.TYPE_NULL, "stop", new Scheduler(false), null);
     }
 
     private void invokeMethodAsync(String functionName, Callback callback, Type returnType, String strandName,
