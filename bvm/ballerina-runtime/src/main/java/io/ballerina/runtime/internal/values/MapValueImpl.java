@@ -283,6 +283,15 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                                                   INVALID_READONLY_VALUE_UPDATE)));
     }
 
+    public V putForcefully(K key, V value) {
+        return putValue(key, value);
+    }
+
+    public void setTypeForcefully(Type type) {
+        this.type = type;
+        this.referredType = getImpliedType(type);
+    }
+
     protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {
         Map<String, BFunctionPointer<Object, ?>> defaultValues = new HashMap<>();
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {

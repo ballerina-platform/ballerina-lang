@@ -143,10 +143,13 @@ function testFromJsonWithTypeXML() {
 type Student4 record {
     int id;
     xml x;
+    xml[] xmlArray;
+    map<xml> mapXml;
 };
 
 function testFromJsonWithTypeRecordWithXMLField() {
-    Student4 student = {id: 1, x: xml `<book>DJ</book>`};
+    Student4 student = {id: 1, x: xml `<book>DJ</book>`, xmlArray: [xml `<book>DJ</book>`, xml `<book>DJ2</book>`],
+    mapXml: {"val1": xml `<book>DJ</book>`, "val2": xml `<book2>DJ2</book2>`}};
     json j = <json> student.toJson();
     Student4|error ss = j.fromJsonWithType(Student4);
     assertEquality(ss is Student4, true);

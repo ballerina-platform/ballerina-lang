@@ -55,7 +55,9 @@ public class RuntimeAPITest {
                 "async",
                 "utils",
                 "identifier_utils",
-                "environment"
+                "environment",
+                "stream",
+                "json"
         };
     }
 
@@ -64,9 +66,7 @@ public class RuntimeAPITest {
         CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/no_strand");
         final Scheduler scheduler = new Scheduler(false);
         AtomicReference<Throwable> exceptionRef = new AtomicReference<>();
-        Thread thread1 = new Thread(() -> {
-            BRunUtil.runOnSchedule(strandResult, "main", scheduler);
-        });
+        Thread thread1 = new Thread(() -> BRunUtil.runOnSchedule(strandResult, "main", scheduler));
         Thread thread2 = new Thread(() -> {
             try {
                 Thread.sleep(1000);
