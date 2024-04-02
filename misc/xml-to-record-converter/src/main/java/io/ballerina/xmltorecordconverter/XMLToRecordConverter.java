@@ -61,9 +61,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -228,20 +230,17 @@ public class XMLToRecordConverter {
 
         String xmlNodeName = xmlElement.getNodeName();
         org.w3c.dom.NodeList xmlNodeList = xmlElement.getChildNodes();
+        NamedNodeMap xmlAttributesMap = xmlElement.getAttributes();
+        Set<String> attributeNames = new HashSet<>();
+        for (int j = 0; j < xmlAttributesMap.getLength(); j++) {
+            attributeNames.add(xmlAttributesMap.item(j).getNodeName());
+        }
         for (int i = 0; i < xmlNodeList.getLength(); i++) {
             org.w3c.dom.Node xmlNode = xmlNodeList.item(i);
 
             if (xmlNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
                 Element xmlElementNode = (Element) xmlNode;
-                NamedNodeMap xmlAttributesMap = xmlElement.getAttributes();
-                boolean hasAttributeWithSameName = false;
-                for (int j = 0; j < xmlAttributesMap.getLength(); j++) {
-                    if(xmlAttributesMap.item(j).getNodeName().equals(xmlElementNode.getNodeName())) {
-                        hasAttributeWithSameName = true;
-                        break;
-                    }
-                }
-                if (hasAttributeWithSameName) {
+                if (attributeNames.contains(xmlElementNode.getNodeName())) {
                     continue;
                 }
                 boolean isLeafXMLElementNode = isLeafXMLElementNode(xmlElementNode);
@@ -268,7 +267,6 @@ public class XMLToRecordConverter {
                 }
             }
         }
-        NamedNodeMap xmlAttributesMap = xmlElement.getAttributes();
         for (int i = 0; i < xmlAttributesMap.getLength(); i++) {
             org.w3c.dom.Node xmlNode = xmlAttributesMap.item(i);
             if (xmlNode.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE) {
@@ -410,7 +408,7 @@ public class XMLToRecordConverter {
         }
         return xmlElementNode.getPrefix() == null ? NodeFactory.createRecordFieldNode(null, null, fieldTypeName,
                 fieldName, optionalFieldToken, semicolonToken) : NodeFactory.createRecordFieldNode(
-                        metadataNode, null, fieldTypeName, fieldName, optionalFieldToken,semicolonToken);
+                        metadataNode, null, fieldTypeName, fieldName, optionalFieldToken, semicolonToken);
     }
 
     private static Node getRecordField(org.w3c.dom.Node xmlAttributeNode) {
