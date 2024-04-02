@@ -659,7 +659,6 @@ public class JvmPackageGen {
     private void clearPackageGenInfo() {
         birFunctionMap.clear();
         globalVarClassMap.clear();
-        dependentModules.clear();
     }
 
     public BIRFunctionWrapper lookupBIRFunctionWrapper(String lookupKey) {
