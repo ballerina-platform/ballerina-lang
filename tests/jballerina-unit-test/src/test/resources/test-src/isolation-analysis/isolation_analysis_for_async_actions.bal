@@ -1,20 +1,4 @@
-type UserRegistration record {
-    string name;
-    string email;
-};
-
-class Obj {
-    int x = 1;
-    function fn() {
-    }
-}
-
 service / on new Listener() {
-
-    resource function get h1(UserRegistration user) {
-        Obj obj = new;
-        _ = start sendEmailNotification(getObj(obj));
-    }
 
     resource function post h2(string[] arr) {
         _ = start callFunction(arr.clone());
@@ -26,12 +10,7 @@ service / on new Listener() {
     }
 }
 
-function getObj(Obj obj) returns Obj => obj;
-
 isolated function callFunction(string[] arr) {
-}
-
-isolated function sendEmailNotification(object {} ob) returns error? {
 }
 
 class Listener {

@@ -4150,7 +4150,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         for (BLangExpression dependsOnArg : functionIsolationInferenceInfo.dependsOnFuncCallArgExprs) {
-            if (!isIsolatedExpression(dependsOnArg, false, true, new ArrayList<>(), true,
+            if (!isIsolatedExpression(dependsOnArg, false, false, new ArrayList<>(), true,
                     publiclyExposedObjectTypes, classDefinitions, moduleLevelVariables, new HashSet<>())) {
                 return false;
             }

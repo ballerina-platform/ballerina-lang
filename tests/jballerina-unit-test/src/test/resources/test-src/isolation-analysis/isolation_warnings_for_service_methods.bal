@@ -43,6 +43,11 @@ service on new Listener() {
     resource function post path(T1 t1) {
         _ = start mutableValueAccess(t1.arg1);
     }
+
+    resource function post path2(T1 t1) {
+        NonIsolatedObj obj = new;
+        _ = start modifyObject(getObj(obj));
+    }
 }
 
 isolated service "ser2" on new Listener() {
@@ -69,6 +74,11 @@ isolated service "ser2" on new Listener() {
     resource function post path(T1 t1) {
         _ = start mutableValueAccess(t1.arg1);
     }
+
+    resource function post path2(T1 t1) {
+        NonIsolatedObj obj = new;
+        _ = start modifyObject(getObj(obj));
+    }
 }
 
 // Inferred isolated.
@@ -93,6 +103,11 @@ service "ser3" on new Listener() {
 
     resource function post path(T1 t1) {
         _ = start mutableValueAccess(t1.arg1);
+    }
+
+    resource function post path2(T1 t1) {
+        NonIsolatedObj obj = new;
+        _ = start modifyObject(getObj(obj));
     }
 }
 
@@ -120,6 +135,11 @@ service "ser4" on new Listener() {
 
     resource function post path(T1 t1) {
         _ = start mutableValueAccess(t1.arg1);
+    }
+
+    resource function post path2(T1 t1) {
+        NonIsolatedObj obj = new;
+        _ = start modifyObject(getObj(obj));
     }
 }
 
@@ -150,6 +170,11 @@ service class Serv1 {
     resource function post path(T1 t1) {
         _ = start mutableValueAccess(t1.arg1);
     }
+
+    resource function post path2(T1 t1) {
+        NonIsolatedObj obj = new;
+        _ = start modifyObject(getObj(obj));
+    }
 }
 
 isolated service class Serv2 {
@@ -176,6 +201,11 @@ isolated service class Serv2 {
     resource function post path(T1 t1) {
         _ = start mutableValueAccess(t1.arg1);
     }
+
+    resource function post path2(T1 t1) {
+        NonIsolatedObj obj = new;
+        _ = start modifyObject(getObj(obj));
+    }
 }
 
 // Inferred isolated.
@@ -200,6 +230,11 @@ service class Serv3 {
 
     resource function post path(T1 t1) {
         _ = start mutableValueAccess(t1.arg1);
+    }
+
+    resource function post path2(T1 t1) {
+        NonIsolatedObj obj = new;
+        _ = start modifyObject(getObj(obj));
     }
 }
 
@@ -227,6 +262,11 @@ service class Serv4 {
 
     resource function post path(T1 t1) {
         _ = start mutableValueAccess(t1.arg1);
+    }
+
+    resource function post path2(T1 t1) {
+        NonIsolatedObj obj = new;
+        _ = start modifyObject(getObj(obj));
     }
 }
 
@@ -257,6 +297,11 @@ var s1 = service object {
     resource function post path(T1 t1) {
         _ = start mutableValueAccess(t1.arg1);
     }
+
+    resource function post path2(T1 t1) {
+        NonIsolatedObj obj = new;
+        _ = start modifyObject(getObj(obj));
+    }
 };
 
 var s2 = isolated service object {
@@ -283,6 +328,11 @@ var s2 = isolated service object {
     resource function post path(T1 t1) {
         _ = start mutableValueAccess(t1.arg1);
     }
+
+    resource function post path2(T1 t1) {
+        NonIsolatedObj obj = new;
+        _ = start modifyObject(getObj(obj));
+    }
 };
 
 var s3 = service object {
@@ -306,6 +356,11 @@ var s3 = service object {
 
     resource function post path(T1 t1) {
         _ = start mutableValueAccess(t1.arg1);
+    }
+
+    resource function post path2(T1 t1) {
+        NonIsolatedObj obj = new;
+        _ = start modifyObject(getObj(obj));
     }
 };
 
@@ -333,6 +388,11 @@ service object {} s4 = service object {
 
     resource function post path(T1 t1) {
         _ = start mutableValueAccess(t1.arg1);
+    }
+
+    resource function post path2(T1 t1) {
+        NonIsolatedObj obj = new;
+        _ = start modifyObject(getObj(obj));
     }
 };
 
@@ -414,9 +474,21 @@ var s6 = isolated service object {
 isolated function mutableValueAccess(string[] value) {
 }
 
+isolated function modifyObject(object {} obj) {
+}
+
 type T1 record {|
     string[] arg1;
 |};
+
+class NonIsolatedObj {
+    int x = 1;
+
+    function fn() {
+    }
+}
+
+function getObj(NonIsolatedObj obj) returns NonIsolatedObj => obj;
 
 public class Listener {
     public isolated function 'start() returns error? {
