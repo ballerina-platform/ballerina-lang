@@ -93,7 +93,7 @@ public class XMLToRecordConverter {
 
     public static XMLToRecordResponse convertXMLToRecord(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
                                                          boolean forceFormatRecordFields, String value,
-                                                         boolean hasNameSpace) {
+                                                         boolean withNameSpaces) {
         Map<String, NonTerminalNode> recordToTypeDescNodes = new LinkedHashMap<>();
         Map<String, AnnotationNode> recordToAnnotationNodes = new LinkedHashMap<>();
         Map<String, Element> recordToElementNodes = new LinkedHashMap<>();
@@ -112,7 +112,7 @@ public class XMLToRecordConverter {
 
             Element rootElement = doc.getDocumentElement();
             generateRecords(rootElement, isClosed, recordToTypeDescNodes, recordToAnnotationNodes,
-                    recordToElementNodes, diagnosticMessages, value, hasNameSpace);
+                    recordToElementNodes, diagnosticMessages, value, withNameSpaces);
         } catch (ParserConfigurationException parserConfigurationException) {
             DiagnosticMessage message = DiagnosticMessage.xmlToRecordConverter100(null);
             diagnosticMessages.add(message);
@@ -174,7 +174,7 @@ public class XMLToRecordConverter {
 
     public static XMLToRecordResponse convert(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
                                               boolean forceFormatRecordFields) {
-        return convertXMLToRecord(xmlValue, isRecordTypeDesc, isClosed, forceFormatRecordFields, null, false);
+        return convertXMLToRecord(xmlValue, isRecordTypeDesc, isClosed, forceFormatRecordFields, null, true);
     }
 
     private static void generateRecords(Element xmlElement, boolean isClosed,
@@ -182,7 +182,7 @@ public class XMLToRecordConverter {
                                         Map<String, AnnotationNode> recordToAnnotationsNodes,
                                         Map<String, Element> recordToElementNodes,
                                         List<DiagnosticMessage> diagnosticMessages,
-                                        String value, boolean hasNameSpace) {
+                                        String value, boolean withNameSpace) {
         Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
         Token bodyStartDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.OPEN_BRACE_PIPE_TOKEN :
                 SyntaxKind.OPEN_BRACE_TOKEN);
@@ -190,7 +190,7 @@ public class XMLToRecordConverter {
         String xmlNodeName = xmlElement.getNodeName();
 
         List<Node> recordFields = getRecordFieldsForXMLElement(xmlElement, isClosed, recordToTypeDescNodes,
-                recordToAnnotationsNodes, recordToElementNodes, diagnosticMessages, value, hasNameSpace);
+                recordToAnnotationsNodes, recordToElementNodes, diagnosticMessages, value, withNameSpace);
         if (recordToTypeDescNodes.containsKey(xmlNodeName)) {
             RecordTypeDescriptorNode previousRecordTypeDescriptorNode =
                     (RecordTypeDescriptorNode) recordToTypeDescNodes.get(xmlNodeName);
@@ -223,7 +223,7 @@ public class XMLToRecordConverter {
                                                            Map<String, AnnotationNode> recordToAnnotationNodes,
                                                            Map<String, Element> recordToElementNodes,
                                                            List<DiagnosticMessage> diagnosticMessages,
-                                                           String value, boolean hasNameSpace) {
+                                                           String value, boolean withNameSpace) {
         List<Node> recordFields = new ArrayList<>();
 
         String xmlNodeName = xmlElement.getNodeName();
@@ -247,9 +247,9 @@ public class XMLToRecordConverter {
                 boolean isLeafXMLElementNode = isLeafXMLElementNode(xmlElementNode);
                 if (!isLeafXMLElementNode || xmlElementNode.getAttributes().getLength() > 0) {
                     generateRecords(xmlElementNode, isClosed, recordToTypeDescNodes, recordToAnnotationNodes,
-                            recordToElementNodes, diagnosticMessages, null, hasNameSpace);
+                            recordToElementNodes, diagnosticMessages, null, withNameSpace);
                 }
-                RecordFieldNode recordField = getRecordField(xmlElementNode, false, hasNameSpace);
+                RecordFieldNode recordField = getRecordField(xmlElementNode, false, withNameSpace);
                 if (recordFields.stream().anyMatch(recField -> ((RecordFieldNode) recField).fieldName().text()
                         .equals(recordField.fieldName().text()))) {
                     int indexOfRecordFieldNode = IntStream.range(0, recordFields.size())
@@ -275,7 +275,7 @@ public class XMLToRecordConverter {
                 if (xmlElement.getPrefix() != null &&
                         xmlNode.getPrefix() != null &&
                         xmlNode.getPrefix().equals(XMLNS_PREFIX) &&
-                        xmlElement.getPrefix().equals(xmlNode.getLocalName()) && hasNameSpace) {
+                        xmlElement.getPrefix().equals(xmlNode.getLocalName()) && withNameSpace) {
                     AnnotationNode xmlNSNode = getXMLNamespaceNode(xmlNode.getLocalName(), xmlNode.getNodeValue());
                     recordToAnnotationNodes.put(xmlNodeName, xmlNSNode);
                 } else if (!isLeafXMLElementNode(xmlElement) && !XMLNS_PREFIX.equals(xmlNode.getPrefix())) {
