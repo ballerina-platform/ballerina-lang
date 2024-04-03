@@ -267,4 +267,8 @@ public class Target {
         Files.createDirectories(nativeConfigPath);
         return nativeConfigPath;
     }
+
+    public void cleanBinTests() throws IOException {
+        ProjectUtils.deleteDirectory(this.binPath.resolve(ProjectConstants.TEST_DIR_NAME));
+    }
 }
