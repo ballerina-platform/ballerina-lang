@@ -14,27 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const A = 1;
-const string|int B = A;
-const C = 2;
-const E = "";
+xmlns "http://example1.com" as ns0;
 
-xmlns A as ns0;
-xmlns B as ns1;
-xmlns D as ns2;
-xmlns E as ns3;
-
-function foo() {
-    xmlns C as ns4;
-    xmlns F as ns5;
+function testXMLNSUsage() {
+    xmlns "http://example2.com" as ns1;
+    string _ = ns0:doc;
+    string _ = ns1:doc;
+    {
+        xmlns "http://example3.com" as ns2;
+        string _ = ns2:foo;
+    }
 }
-
-type G record {|
-    int a;
-|};
-
-const X = G;
-xmlns X as ns;
-
-const Z = K;
-xmlns Z as ns6;

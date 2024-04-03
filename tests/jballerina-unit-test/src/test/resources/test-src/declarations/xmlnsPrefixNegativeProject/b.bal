@@ -14,27 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const A = 1;
-const string|int B = A;
-const C = 2;
-const E = "";
-
-xmlns A as ns0;
-xmlns B as ns1;
-xmlns D as ns2;
-xmlns E as ns3;
-
-function foo() {
-    xmlns C as ns4;
-    xmlns F as ns5;
+function testXMLNSUsageInAnotherFileNegative() {
+    _ = ns0:doc;
+    _ = ns1:doc;
+    _ = ns2:doc;
 }
-
-type G record {|
-    int a;
-|};
-
-const X = G;
-xmlns X as ns;
-
-const Z = K;
-xmlns Z as ns6;
