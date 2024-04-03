@@ -99,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
 import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -120,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -210,6 +212,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_INSERTIONS;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_STRINGS;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isInParameterList;
 
 /**
  * @since 0.94
@@ -470,12 +473,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, symTable.intType, data);
         }
-        BType exprType = checkExpr(xmlNavigation.expr, symTable.xmlType, data);
-
-        if (Types.getImpliedType(exprType).tag == TypeTags.UNION) {
-            dlog.error(xmlNavigation.pos, DiagnosticErrorCode.TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS,
-                       xmlNavigation.expr.getBType());
-        }
+        checkExpr(xmlNavigation.expr, symTable.xmlType, data);
 
         BType actualType = xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN
                 ? symTable.xmlType : symTable.xmlElementSeqType;
@@ -489,14 +487,20 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private void checkXMLNamespacePrefixes(List<BLangXMLElementFilter> filters, AnalyzerData data) {
+        Map<Name, BXMLNSSymbol> nameBXMLNSSymbolMap = symResolver.resolveAllNamespaces(data.env);
+        BXMLNSSymbol defaultNSSymbol = nameBXMLNSSymbolMap.get(Names.fromString(XMLConstants.DEFAULT_NS_PREFIX));
+        boolean hasDefaultNS = defaultNSSymbol != null;
         for (BLangXMLElementFilter filter : filters) {
-            if (!filter.namespace.isEmpty()) {
-                Name nsName = names.fromString(filter.namespace);
-                BSymbol nsSymbol = symResolver.lookupSymbolInPrefixSpace(data.env, nsName);
-                filter.namespaceSymbol = nsSymbol;
-                if (nsSymbol.getKind() != SymbolKind.XMLNS) {
+            String namespace = filter.namespace;
+            if (!namespace.isEmpty()) {
+                Name nsName = Names.fromString(namespace);
+                BXMLNSSymbol nsSymbol = nameBXMLNSSymbolMap.get(nsName);
+                if (nsSymbol == null) {
                     dlog.error(filter.nsPos, DiagnosticErrorCode.CANNOT_FIND_XML_NAMESPACE, nsName);
                 }
+                filter.namespaceSymbol = nsSymbol;
+            } else if (hasDefaultNS) {
+                filter.namespaceSymbol = defaultNSSymbol;
             }
         }
     }
@@ -1522,26 +1526,74 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         switch(expression.getKind()) {
             case LITERAL:
             case NUMERIC_LITERAL:
-            case STRING_TEMPLATE_LITERAL:
             case XML_ELEMENT_LITERAL:
             case XML_TEXT_LITERAL:
-            case LIST_CONSTRUCTOR_EXPR:
             case TABLE_CONSTRUCTOR_EXPR:
-            case RECORD_LITERAL_EXPR:
-            case TYPE_CONVERSION_EXPR:
-            case UNARY_EXPR:
-            case BINARY_EXPR:
-            case TYPE_TEST_EXPR:
-            case TERNARY_EXPR:
             case REG_EXP_TEMPLATE_LITERAL:
                 return true;
             case SIMPLE_VARIABLE_REF:
-                return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+                BSymbol varSymbol = ((BLangSimpleVarRef) expression).symbol;
+                return varSymbol == null || (varSymbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+            case STRING_TEMPLATE_LITERAL:
+                return checkNestedConstExpr(((BLangStringTemplateLiteral) expression).exprs);
+            case TERNARY_EXPR:
+                BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) expression;
+                return isConstExpression(ternaryExpr.expr) && isConstExpression(ternaryExpr.thenExpr) &&
+                        isConstExpression(ternaryExpr.elseExpr);
+            case UNARY_EXPR:
+                return isConstExpression(((BLangUnaryExpr) expression).expr);
+            case BINARY_EXPR:
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expression;
+                return isConstExpression(binaryExpr.lhsExpr) && isConstExpression(binaryExpr.rhsExpr);
             case GROUP_EXPR:
                 return isConstExpression(((BLangGroupExpr) expression).expression);
+            case TYPE_CONVERSION_EXPR:
+                return isConstExpression(((BLangTypeConversionExpr) expression).expr);
+            case TYPE_TEST_EXPR:
+                return isConstExpression(((BLangTypeTestExpr) expression).expr);
+            case LIST_CONSTRUCTOR_EXPR:
+                return checkNestedConstExpr(((BLangListConstructorExpr) expression).exprs);
+            case LIST_CONSTRUCTOR_SPREAD_OP:
+                return isConstExpression(((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expression).expr);
+            case RECORD_LITERAL_EXPR:
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
+                List<RecordLiteralNode.RecordField> fields = recordLiteral.getFields();
+                for (RecordLiteralNode.RecordField field : fields) {
+                    switch (field.getKind()) {
+                        case RECORD_LITERAL_KEY_VALUE -> {
+                            if (!isConstExpression(((BLangRecordKeyValueField) field).valueExpr) ||
+                                    !isConstExpression(((BLangRecordKeyValueField) field).key.expr)) {
+                                return false;
+                            }
+                        }
+                        case RECORD_LITERAL_SPREAD_OP -> {
+                            if (!isConstExpression(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr)) {
+                                return false;
+                            }
+                        }
+                        case SIMPLE_VARIABLE_REF -> {
+                            if (!isConstExpression(((BLangRecordVarNameField) field))) {
+                                return false;
+                            }
+                        }
+                        default -> {
+                            // Ignore the default case
+                        }
+                    }
+                }
+                return true;
             default:
                 return false;
         }
+    }
+
+    private boolean checkNestedConstExpr(List<? extends BLangExpression> expressions) {
+        for (BLangExpression expr : expressions) {
+            if (!isConstExpression(expr)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private BLangExpression getRecordKeyValueField(BLangRecordLiteral recordLiteral,
@@ -1559,7 +1611,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
         }
-
         return null;
     }
 
@@ -2911,6 +2962,137 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     @Override
+    public void visit(BLangAlternateWorkerReceive altWorkerReceive, AnalyzerData data) {
+        for (BLangWorkerReceive bLangWorkerReceive : altWorkerReceive.getWorkerReceives()) {
+            bLangWorkerReceive.accept(this, data);
+        }
+        altWorkerReceive.setBType(data.expType);
+        data.resultType = data.expType;
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive, AnalyzerData data) {
+        BType compatibleType = validateAndGetMultipleReceiveCompatibleType(data.expType, multipleWorkerReceive, data);
+        if (symTable.semanticError.tag == compatibleType.tag) {
+            data.resultType = symTable.semanticError;
+            return;
+        }
+
+        multipleWorkerReceive.setBType(compatibleType);
+
+        if (TypeTags.RECORD == compatibleType.tag) {
+            BRecordType recordType = (BRecordType) compatibleType;
+            for (BLangMultipleWorkerReceive.BLangReceiveField receiveFiled : multipleWorkerReceive.getReceiveFields()) {
+                BField bField = recordType.fields.get(receiveFiled.getKey().value);
+                BType receiveFieldExpType;
+                if (bField != null) {
+                    receiveFieldExpType = bField.type;
+                } else {
+                    receiveFieldExpType = recordType.restFieldType;
+                }
+
+                checkExpr(receiveFiled.getWorkerReceive(), receiveFieldExpType, data);
+            }
+            data.resultType = compatibleType;
+            return;
+        }
+
+        BType receiveFieldExpType;
+        if (TypeTags.MAP == compatibleType.tag) {
+            receiveFieldExpType = ((BMapType) compatibleType).constraint;
+        } else {
+            assert TypeTags.READONLY == compatibleType.tag;
+            receiveFieldExpType = compatibleType;
+        }
+
+        for (BLangMultipleWorkerReceive.BLangReceiveField receiveFiled : multipleWorkerReceive.getReceiveFields()) {
+            checkExpr(receiveFiled.getWorkerReceive(), receiveFieldExpType, data);
+        }
+        data.resultType = compatibleType;
+    }
+
+    private BType validateAndGetMultipleReceiveCompatibleType(BType bType,
+                                                              BLangMultipleWorkerReceive multipleWorkerReceive,
+                                                              AnalyzerData data) {
+        HashSet<String> multipleReceiveFieldNames = new HashSet<>();
+        for (BLangMultipleWorkerReceive.BLangReceiveField receiveField : multipleWorkerReceive.getReceiveFields()) {
+            BLangIdentifier key = receiveField.getKey();
+            String fieldName = key.value;
+            if (!multipleReceiveFieldNames.add(fieldName)) {
+                dlog.error(key.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_MULTIPLE_RECEIVE, fieldName);
+            }
+        }
+
+        BType impliedType = Types.getImpliedType(bType);
+        if (impliedType.tag == TypeTags.NONE) {
+            dlog.error(multipleWorkerReceive.pos, DiagnosticErrorCode.RECEIVE_ACTION_NOT_SUPPORTED_WITH_VAR);
+            return symTable.semanticError;
+        }
+
+        if (impliedType.tag != TypeTags.UNION) {
+            BType compatibleType = getMappingConstructorCompatibleNonUnionType(impliedType, data);
+            if (symTable.semanticError.tag == compatibleType.tag || (TypeTags.RECORD == compatibleType.tag &&
+                    !fieldsCompatibleWithRecord(multipleReceiveFieldNames, (BRecordType) compatibleType))) {
+                dlog.error(multipleWorkerReceive.pos, DiagnosticErrorCode.MULTIPLE_RECEIVE_COMPATIBLE_TYPE_NOT_FOUND,
+                        impliedType);
+                return symTable.semanticError;
+            }
+            return compatibleType;
+        }
+
+        List<BType> compatibleTypes = new ArrayList<>();
+        for (BType memberType : ((BUnionType) impliedType).getMemberTypes()) {
+            BType impType = Types.getImpliedType(memberType);
+            BType compatibleType = getMappingConstructorCompatibleNonUnionType(impType, data);
+
+            if (TypeTags.RECORD == compatibleType.tag &&
+                    !fieldsCompatibleWithRecord(multipleReceiveFieldNames, (BRecordType) compatibleType)) {
+                continue;
+            }
+
+            if (symTable.semanticError.tag != compatibleType.tag) {
+                compatibleTypes.add(compatibleType);
+            }
+        }
+
+        if (compatibleTypes.isEmpty()) {
+            dlog.error(multipleWorkerReceive.pos, DiagnosticErrorCode.MULTIPLE_RECEIVE_COMPATIBLE_TYPE_NOT_FOUND,
+                    impliedType);
+            return symTable.semanticError;
+        }
+
+        if (compatibleTypes.size() > 1) {
+            dlog.error(multipleWorkerReceive.pos, DiagnosticErrorCode.AMBIGUOUS_TYPES, impliedType);
+            return symTable.semanticError;
+        }
+
+        return compatibleTypes.get(0);
+    }
+
+    private boolean fieldsCompatibleWithRecord(HashSet<String> fieldNames, BRecordType recordType) {
+        HashSet<String> clonedFieldNames = new HashSet<>(fieldNames);
+        for (BField field : recordType.fields.values()) {
+            if (!types.isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type)) {
+                // matching up field names against the record fields
+                if (clonedFieldNames.remove(field.name.value)) {
+                    continue;
+                }
+
+                if (Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+                    return false;
+                }
+            }
+        }
+
+        if (!clonedFieldNames.isEmpty()) {
+            // matching the remaining field names to record rest field
+            return recordType.restFieldType != null && recordType.restFieldType.tag != TypeTags.NONE;
+        }
+
+        return true;
+    }
+
+    @Override
     public void visit(BLangWorkerReceive workerReceiveExpr, AnalyzerData data) {
         BSymbol symbol =
                 symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(workerReceiveExpr.workerIdentifier));
@@ -2924,9 +3106,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             workerReceiveExpr.workerType = symbol.type;
             workerReceiveExpr.workerSymbol = symbol;
         }
-        // The receive expression cannot be assigned to var, since we cannot infer the type.
+        // The receive-action cannot be assigned to var, since we cannot infer the type.
         if (symTable.noType == data.expType) {
-            this.dlog.error(workerReceiveExpr.pos, DiagnosticErrorCode.INVALID_USAGE_OF_RECEIVE_EXPRESSION);
+            this.dlog.error(workerReceiveExpr.pos, DiagnosticErrorCode.RECEIVE_ACTION_NOT_SUPPORTED_WITH_VAR);
         }
         // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
         // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
@@ -3339,11 +3521,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return findEnclosingInvokableEnv(env.enclEnv, recordTypeNode);
         }
         return env;
-    }
-
-    private boolean isFunctionArgument(BSymbol symbol, List<BLangSimpleVariable> params) {
-        return params.stream().anyMatch(param -> (param.symbol.name.equals(symbol.name) &&
-                Types.getImpliedType(param.getBType()).tag == Types.getImpliedType(symbol.type).tag));
     }
 
     @Override
@@ -6678,7 +6855,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private boolean searchClosureVariableInExpressions(BSymbol symbol, Location pos, SymbolEnv env,
                                                        BLangInvokableNode encInvokable, BLangNode bLangNode) {
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
-                && !isFunctionArgument(symbol, encInvokable.requiredParams)) {
+                && !isInParameterList(symbol, encInvokable.requiredParams)) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
             BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol);
             if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
@@ -6689,7 +6866,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (bLangNode.getKind() == NodeKind.ARROW_EXPR
-                && !isFunctionArgument(symbol, ((BLangArrowFunction) bLangNode).params)) {
+                && !isInParameterList(symbol, ((BLangArrowFunction) bLangNode).params)) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
             BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol);
             if (resolvedSymbol != symTable.notFoundSymbol) {
@@ -7622,10 +7799,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     BLangExpression spreadExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
                     checkExpr(spreadExpr, data);
 
+                    BRecordType mappingRecordType = (BRecordType) mappingType;
                     BType spreadExprType = Types.getImpliedType(spreadExpr.getBType());
                     if (spreadExprType.tag == TypeTags.MAP) {
                         return types.checkType(spreadExpr.pos, ((BMapType) spreadExprType).constraint,
-                                getAllFieldType((BRecordType) mappingType),
+                                getAllFieldType(mappingRecordType),
                                 DiagnosticErrorCode.INCOMPATIBLE_TYPES);
                     }
 
@@ -7635,8 +7813,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         return symTable.semanticError;
                     }
 
+                    BRecordType spreadRecordType = (BRecordType) spreadExprType;
                     boolean errored = false;
-                    for (BField bField : ((BRecordType) spreadExprType).fields.values()) {
+                    for (BField bField : spreadRecordType.fields.values()) {
                         BType specFieldType = bField.type;
                         if (types.isNeverTypeOrStructureTypeWithARequiredNeverMember(specFieldType)) {
                             continue;
@@ -7644,7 +7823,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         BSymbol fieldSymbol = symResolver.resolveStructField(spreadExpr.pos, data.env, bField.name,
                                                                              mappingType.tsymbol);
                         BType expectedFieldType = checkRecordLiteralKeyByName(spreadExpr.pos, fieldSymbol, bField.name,
-                                                                              (BRecordType) mappingType);
+                                mappingRecordType);
                         if (expectedFieldType != symTable.semanticError &&
                                 !types.isAssignable(specFieldType, expectedFieldType)) {
                             dlog.error(spreadExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES_FIELD,
@@ -7653,6 +7832,21 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                 errored = true;
                             }
                         }
+                    }
+                    if (!spreadRecordType.sealed) {
+                         if (mappingRecordType.sealed) {
+                             dlog.error(spreadExpr.pos,
+                                     DiagnosticErrorCode.INVALID_SPREAD_FIELD_TO_CREATE_CLOSED_RECORD_FROM_OPEN_RECORD,
+                                     spreadRecordType);
+                             errored = true;
+                         } else if (!types.isAssignable(spreadRecordType.restFieldType,
+                                 mappingRecordType.restFieldType)) {
+                             dlog.error(spreadExpr.pos,
+                                     DiagnosticErrorCode.INVALID_SPREAD_FIELD_REST_FIELD_MISMATCH,
+                                     spreadRecordType, spreadRecordType.restFieldType,
+                                     mappingRecordType.restFieldType);
+                             errored = true;
+                         }
                     }
                     return errored ? symTable.semanticError : symTable.noType;
                 } else {
@@ -8639,7 +8833,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             indexBasedAccessExpr.originalType = symTable.charStringType;
             actualType = symTable.charStringType;
-        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
+        } else if (types.isAssignable(varRefType, symTable.xmlType)) {
             if (indexBasedAccessExpr.isLValue) {
                 indexExpr.setBType(symTable.semanticError);
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_XML_SEQUENCE);

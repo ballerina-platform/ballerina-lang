@@ -7,6 +7,7 @@ import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBalaTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
@@ -247,8 +248,10 @@ public class PackCommand implements BLauncherCmd {
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
+                .addTask(new RunBuildToolsTask(outStream), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream, true, isPackageModified, buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, true, false,
+                        isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateBalaTask(outStream))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();

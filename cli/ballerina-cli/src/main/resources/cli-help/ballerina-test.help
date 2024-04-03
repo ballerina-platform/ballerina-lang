@@ -90,6 +90,17 @@ OPTIONS
        --graalvm-build-options
             Additional build options to be passed to the GraalVM native image.
 
+       --parallel
+            Enable parallel execution of tests. A test should satisfy the following conditions to be
+            executed in parallel:
+                - Test function should be isolated.
+                - If it is a data provider test,
+                    - The data provider of a test function should be isolated.
+                    - Test function parameters should be read-only type.
+                - Respective set-up, and tear-down functions (before, after, before-each, after-each, before-groups,
+                  after-groups) of the test function should be isolated.
+            Parallel test execution is an experimental feature which supports only a limited set of functionality.
+
 
 ARGUMENTS
        (-Ckey=value)...

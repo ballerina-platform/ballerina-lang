@@ -7,25 +7,31 @@ Running Tests
 
 	invalid-data-provider-test3.bal
 
+	testInvalidTupleDataProvider:0 has failed.
+
+
 		[fail] testInvalidTupleDataProvider#0:
 
 		    [fail data provider for the function testInvalidTupleDataProvider]
-			error {ballerina/test:0}ExecutionError ("error("{ballerina/lang.function}IncompatibleArguments",message="arguments of incompatible types: argument list '(string,int)' cannot be passed to function expecting parameter list '(string,string)'")
+			 error {ballerina/test:0}ExecutionError ("error("{ballerina/lang.function}IncompatibleArguments",message="arguments of incompatible types: argument list '(string,int)' cannot be passed to function expecting parameter list '(string,string)'")
 				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
-				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 339
-				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 136
-				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 123
-				callableName: executeTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 83
-				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 58
-				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 48
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 137
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 122
+				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 112
+				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 65
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 28
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
 				callableName: __execute__  fileName: invalid-data-provider-test3.bal lineNumber: 36
 			",functionName="testInvalidTupleDataProvider")
-				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 349
-				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 136
-				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 123
-				callableName: executeTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 83
-				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 58
-				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 48
+				callableName: handleTestFuncOutput moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 326
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 138
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 122
+				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 112
+				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 65
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 28
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
 				callableName: __execute__  fileName: invalid-data-provider-test3.bal lineNumber: 36
 			
 
@@ -33,4 +39,6 @@ Running Tests
 		0 passing
 		1 failing
 		0 skipped
+
+		Test execution time :*****s
 error: there are test failures

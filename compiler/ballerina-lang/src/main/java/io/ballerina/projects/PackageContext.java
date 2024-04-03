@@ -52,6 +52,7 @@ class PackageContext {
 
     private final CompilationOptions compilationOptions;
     private ModuleContext defaultModuleContext;
+
     /**
      * This variable holds the dependency graph cached in a project.
      * At the moment, we cache the dependency graph in a bala file.
@@ -61,6 +62,7 @@ class PackageContext {
     private Set<PackageDependency> packageDependencies;
     private DependencyGraph<ModuleDescriptor> moduleDependencyGraph;
     private PackageResolution packageResolution;
+    private BuildToolResolution buildToolResolution;
     private PackageCompilation packageCompilation;
 
     // TODO Try to reuse the unaffected compilations if possible
@@ -96,7 +98,6 @@ class PackageContext {
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
         this.pkgDescDependencyGraph = pkgDescDependencyGraph;
-
     }
 
     static PackageContext from(Project project, PackageConfig packageConfig, CompilationOptions compilationOptions) {
@@ -108,12 +109,12 @@ class PackageContext {
 
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
                           packageConfig.dependencyManifest(),
-                          packageConfig.ballerinaToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                          packageConfig.dependenciesToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                          packageConfig.cloudToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                          packageConfig.compilerPluginToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                          packageConfig.balToolToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                          packageConfig.packageMd().map(c -> MdDocumentContext.from(c)).orElse(null),
+                          packageConfig.ballerinaToml().map(TomlDocumentContext::from).orElse(null),
+                          packageConfig.dependenciesToml().map(TomlDocumentContext::from).orElse(null),
+                          packageConfig.cloudToml().map(TomlDocumentContext::from).orElse(null),
+                          packageConfig.compilerPluginToml().map(TomlDocumentContext::from).orElse(null),
+                          packageConfig.balToolToml().map(TomlDocumentContext::from).orElse(null),
+                          packageConfig.packageMd().map(MdDocumentContext::from).orElse(null),
                           compilationOptions, moduleContextMap, packageConfig.packageDescDependencyGraph());
     }
 
@@ -257,6 +258,21 @@ class PackageContext {
         packageResolution = PackageResolution.from(this, compilationOptions);
         return packageResolution;
     }
+
+    PackageResolution getResolution(CompilationOptions compilationOptions, boolean isCacheEnabled) {
+        if (!isCacheEnabled || packageResolution == null) {
+                packageResolution = PackageResolution.from(this, compilationOptions);
+        }
+        return packageResolution;
+    }
+
+    BuildToolResolution getBuildToolResolution() {
+        if (buildToolResolution == null) {
+            buildToolResolution = BuildToolResolution.from(this);
+        }
+        return buildToolResolution;
+    }
+
     Collection<PackageDependency> packageDependencies() {
         return packageDependencies;
     }

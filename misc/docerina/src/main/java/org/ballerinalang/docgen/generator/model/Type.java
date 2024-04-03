@@ -95,6 +95,8 @@ public class Type {
     @Expose
     public String description;
     @Expose
+    public List<String> descriptionSections;
+    @Expose
     public String category;
     @Expose
     public boolean isAnonymousUnionType;
@@ -626,9 +628,10 @@ public class Type {
         this.category = "builtin";
     }
 
-    public Type(String name, String description, boolean isDeprecated) {
+    public Type(String name, String description, List<String> descriptionSections, boolean isDeprecated) {
         this.name = name;
         this.description = description;
+        this.descriptionSections = descriptionSections;
         this.isDeprecated = isDeprecated;
     }
 

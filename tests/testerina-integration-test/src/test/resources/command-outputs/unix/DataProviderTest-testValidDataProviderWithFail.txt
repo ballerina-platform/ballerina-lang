@@ -6,6 +6,12 @@ WARNING [tests/new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
 Running Tests with Coverage
 
 	dataproviders
+
+	intDataProviderTest:Case1 has failed.
+
+
+	intDataProviderTest:Case2 has failed.
+
 		[pass] intDataProviderTest#Case3
 
 		[fail] intDataProviderTest#Case1:
@@ -37,10 +43,14 @@ Running Tests with Coverage
 		2 failing
 		0 skipped
 
+		Test execution time :*****s
+
 	dataproviders.module1
 
 
 		No tests found
+
+		Test execution time :*****s
 
 Generating Test Report
 	data-providers/target/report/test_results.json

@@ -24,7 +24,7 @@ import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
-import io.ballerina.cli.task.RunBallerinaPreBuildToolsTask;
+import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
@@ -281,11 +281,13 @@ public class BuildCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
-                .addTask(new RunBallerinaPreBuildToolsTask(outStream))
+                // Run build tools
+                .addTask(new RunBuildToolsTask(outStream), isSingleFileBuild)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, false, true,
+                        isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, this.output))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();

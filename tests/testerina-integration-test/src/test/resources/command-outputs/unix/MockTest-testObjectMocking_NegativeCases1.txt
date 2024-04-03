@@ -1,17 +1,20 @@
 Compiling source
 	intg_tests/object_mocking:0.0.0
-WARNING [modules/TestHttpClient/main.bal:(54:45,54:82)] this function should explicitly return a value
-WARNING [main.bal:(47:5,47:47)] unused variable 'closeErr'
+WARNING [modules/TestHttpClient/main.bal:(64:45,64:82)] this function should explicitly return a value
+WARNING [main.bal:(53:5,53:47)] unused variable 'closeErr'
 
 Running Tests with Coverage
 
 	object_mocking
 
+	testDefaultIncompatibleArgs has failed.
+
+
 		[fail] testDefaultIncompatibleArgs:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("incorrect type of argument provided at position '1' to mock the function 'get()'")
-				callableName: validateArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 346
-				callableName: withArguments moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 132
+				callableName: validateArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 535
+				callableName: withArguments moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 160
 				callableName: testDefaultIncompatibleArgs moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 56
 				callableName: testDefaultIncompatibleArgs$lambda3$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 7
 			
@@ -20,6 +23,8 @@ Running Tests with Coverage
 		0 passing
 		1 failing
 		0 skipped
+
+		Test execution time :*****s
 
 Generating Test Report*****project-based-tests/object-mocking-tests/target/report/test_results.json
 

@@ -16,41 +16,37 @@
 
 string[] filterGroups = [];
 string[] filterDisableGroups = [];
-string[] filterTests = [];
-map<string?> filterTestModules = {};
-map<string[]> filterSubTests = {};
-string moduleName = "";
-string packageName = "";
-boolean hasFilteredTests = false;
-string targetPath = "";
 boolean terminate = false;
 boolean listGroups = false;
+final TestOptions testOptions = new ();
 
 public function setTestOptions(string inTargetPath, string inPackageName, string inModuleName, string inReport,
         string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed,
-        string inListGroups) {
-    targetPath = inTargetPath;
-    packageName = inPackageName;
-    moduleName = inModuleName;
+        string inListGroups, string inIsParallelExecution) {
+    testOptions.setModuleName(inModuleName);
+    testOptions.setPackageName(inPackageName);
+    testOptions.setTargetPath(inTargetPath);
     filterGroups = parseStringArrayInput(inGroups);
     filterDisableGroups = parseStringArrayInput(inDisableGroups);
     boolean rerunFailed = parseBooleanInput(inRerunFailed, "rerun-failed");
     boolean testReport = parseBooleanInput(inReport, "test-report");
     boolean codeCoverage = parseBooleanInput(inCoverage, "code-coverage");
     listGroups = parseBooleanInput(inListGroups, "list-groups");
+    boolean isParallelExecution = parseBooleanInput(inIsParallelExecution, "isParallelExecution");
+    executionManager.setParallelExecutionStatus(isParallelExecution);
 
     if rerunFailed {
         error? err = parseRerunJson();
         if err is error {
             println("error: " + err.message());
-            exitCode = 1;
+            enableExit();
             return;
         }
-        hasFilteredTests = true;
+        testOptions.setHasFilteredTests(true);
     } else {
         string[] singleExecTests = parseStringArrayInput(inTests);
-        filterKeyBasedTests(inPackageName, moduleName, singleExecTests);
-        hasFilteredTests = filterTests.length() > 0;
+        filterKeyBasedTests(inPackageName, inModuleName, singleExecTests);
+        testOptions.setHasFilteredTests(testOptions.getFilterTestSize() > 0);
     }
 
     if testReport || codeCoverage {
@@ -64,25 +60,27 @@ function filterKeyBasedTests(string packageName, string moduleName, string[] tes
     foreach string testName in tests {
         string updatedName = testName;
         string? prefix = ();
-        if (containsModulePrefix(packageName, moduleName, testName)) {
+        if containsModulePrefix(packageName, moduleName, testName) {
             int separatorIndex = <int>updatedName.indexOf(MODULE_SEPARATOR);
             prefix = updatedName.substring(0, separatorIndex);
             updatedName = updatedName.substring(separatorIndex + 1);
         }
-        if (containsDataKeySuffix(updatedName)) {
+        if containsDataKeySuffix(updatedName) {
             int separatorIndex = <int>updatedName.indexOf(DATA_KEY_SEPARATOR);
             string suffix = updatedName.substring(separatorIndex + 1);
             string testPart = updatedName.substring(0, separatorIndex);
-            if (filterSubTests.hasKey(updatedName) && filterSubTests[updatedName] is string[]) {
-                string[] subTestList = <string[]>filterSubTests[testPart];
+            if testOptions.isFilterSubTestsContains(updatedName) && testOptions.getFilterSubTest(updatedName)
+            is string[] {
+                string[] subTestList = <string[]>testOptions.getFilterSubTest(testPart);
                 subTestList.push(suffix);
+                testOptions.addFilterSubTest(testPart, subTestList);
             } else {
-                filterSubTests[testPart] = [suffix];
+                testOptions.addFilterSubTest(testPart, [suffix]);
             }
             updatedName = testPart;
         }
-        filterTests.push(updatedName);
-        filterTestModules[updatedName] = prefix;
+        testOptions.addFilterTest(updatedName);
+        testOptions.setFilterTestModule(updatedName, prefix);
     }
 }
 
@@ -96,8 +94,18 @@ function parseBooleanInput(string input, string variableName) returns boolean {
     return booleanVariable;
 }
 
+function parseIntegerInput(string input, string variableName) returns int {
+    int|error intVariable = int:fromString(input);
+    if intVariable is error {
+        println(string `Invalid '${variableName}' parameter: ${intVariable.message()}`);
+        terminate = true;
+        return 0;
+    }
+    return intVariable;
+}
+
 function parseRerunJson() returns error? {
-    string rerunJsonFilePath = targetPath + "/" + RERUN_JSON_FILE;
+    string rerunJsonFilePath = testOptions.getTargetPath() + "/" + RERUN_JSON_FILE;
 
     // if there are no previous `bal test`` runs
     if !fileExists(rerunJsonFilePath) {
@@ -112,17 +120,17 @@ function parseRerunJson() returns error? {
         // but they are abstracted from the user
         return error("error while running failed tests : Invalid failed test data. Please run `bal test` command.");
     }
-    ModuleRerunJson? moduleRerunJson = rerunJson[moduleName];
+    ModuleRerunJson? moduleRerunJson = rerunJson[testOptions.getModuleName()];
     if moduleRerunJson is () {
         return error("error while running failed tests : Invalid failed test data. Please run `bal test` command.");
     }
-    filterTests = moduleRerunJson.testNames;
-    filterTestModules = moduleRerunJson.testModuleNames;
-    filterSubTests = moduleRerunJson.subTestNames;
+    testOptions.setFilterTests(moduleRerunJson.testNames);
+    testOptions.setFilterTestModules(moduleRerunJson.testModuleNames);
+    testOptions.setFilterSubTests(moduleRerunJson.subTestNames);
 }
 
-function readRerunJson() returns map<ModuleRerunJson>|error {
-    string|error content = trap readContent(targetPath + "/" + RERUN_JSON_FILE);
+isolated function readRerunJson() returns map<ModuleRerunJson>|error {
+    string|error content = trap readContent(testOptions.getTargetPath() + "/" + RERUN_JSON_FILE);
     if content is error {
         return content;
     }
@@ -130,15 +138,15 @@ function readRerunJson() returns map<ModuleRerunJson>|error {
 }
 
 function containsModulePrefix(string packageName, string moduleName, string testName) returns boolean {
-    if (containsAPrefix(testName)) {
+    if containsAPrefix(testName) {
         return isPrefixInCorrectFormat(packageName, moduleName, testName);
     }
     return false;
 }
 
 function containsAPrefix(string testName) returns boolean {
-    if (testName.includes(MODULE_SEPARATOR)) {
-        if (containsDataKeySuffix(testName)) {
+    if testName.includes(MODULE_SEPARATOR) {
+        if containsDataKeySuffix(testName) {
             return testName.indexOf(MODULE_SEPARATOR) < testName.indexOf(DATA_KEY_SEPARATOR);
         }
         return true;
@@ -155,6 +163,7 @@ function isPrefixInCorrectFormat(string packageName, string moduleName, string t
     return prefix.includes(packageName) || prefix.includes(packageName + DOT + moduleName);
 }
 
-function getFullModuleName() returns string {
-    return packageName == moduleName ? packageName : packageName + DOT + moduleName;
+isolated function getFullModuleName() returns string {
+    return testOptions.getPackageName() == testOptions.getModuleName() ? testOptions.getPackageName()
+        : testOptions.getPackageName() + DOT + testOptions.getModuleName();
 }

@@ -27,6 +27,7 @@ import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 
 /**
  * Run command tests.
@@ -167,6 +168,18 @@ public class RunCommandTest extends BaseCommandTest {
         Files.delete(tempFile);
     }
 
+    @Test(description = "Run a project with a build tool execution")
+    public void testRunProjectWithBuildTool() throws IOException {
+        Path projectPath = this.testResources.resolve("proper-build-tool");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("run-project-with-build-tool.txt"));
+    }
+
     @Test(description = "Run a valid ballerina project with invalid argument")
     public void testRunCommandWithInvalidArg() {
         Path projectPath = this.testResources.resolve("validRunProject");
@@ -195,6 +208,23 @@ public class RunCommandTest extends BaseCommandTest {
 
         // No assertions required since the command will fail upon expected behavior
         runCommand.execute();
+    }
+
+    @Test(description = "Run a valid ballerina project with provided scope platform jars")
+    public void testRunProjectWithProvidedJars() throws IOException {
+        Path resourcePath = this.testResources.resolve("projectWithProvidedDependency");
+        BCompileUtil.compileAndCacheBala(resourcePath.resolve("pkg_a"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        Path projectPath = resourcePath.resolve("pkg_b");
+        System.setProperty("user.dir", projectPath.toString());
+
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        runCommand.execute();
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("run-project-with-provided-dep.txt"));
+
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
     @Test(description = "Run a jar file")

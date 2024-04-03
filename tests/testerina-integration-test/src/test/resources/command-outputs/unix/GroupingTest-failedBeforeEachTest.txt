@@ -6,7 +6,7 @@ Compiling source
 Running Tests
 
 	failed-before-each-with-groups.bal
-	[fail] beforeEachFunction[before each test function for the test]:
+	[fail] beforeEachFunction[before each function for the test]:
 	    error {ballerina/test:0}TestError ("Before each function failed.")
 			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 			callableName: assertFail moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 232
@@ -18,4 +18,6 @@ Running Tests
 		0 passing
 		0 failing
 		4 skipped
+
+		Test execution time :*****s
 error: there are test failures

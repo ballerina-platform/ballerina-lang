@@ -30,12 +30,10 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsolationAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -64,7 +62,6 @@ public class CompilerPhaseRunner {
     private final ConstantPropagation constantPropagation;
     private final DocumentationAnalyzer documentationAnalyzer;
     private final CompilerPluginRunner compilerPluginRunner;
-    private final ObservabilitySymbolCollector observabilitySymbolCollector;
     private final Desugar desugar;
     private final BIRGen birGenerator;
     private final BIREmitter birEmitter;
@@ -95,7 +92,6 @@ public class CompilerPhaseRunner {
         this.documentationAnalyzer = DocumentationAnalyzer.getInstance(context);
         this.constantPropagation = ConstantPropagation.getInstance(context);
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
-        this.observabilitySymbolCollector = ObservabilitySymbolCollectorRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
         this.birEmitter = BIREmitter.getInstance(context);

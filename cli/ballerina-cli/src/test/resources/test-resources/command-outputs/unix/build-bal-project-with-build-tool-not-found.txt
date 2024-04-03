@@ -1,0 +1,6 @@
+
+Executing Build Tools
+ERROR [Ballerina.toml:(6:1,9:26)] Build tool 'grpc' cannot be resolved
+
+Compiling source
+	foo/winery:0.1.0

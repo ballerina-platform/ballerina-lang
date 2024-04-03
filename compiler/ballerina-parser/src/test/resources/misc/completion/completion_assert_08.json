@@ -1189,15 +1189,32 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "kind": "RECEIVE_FIELD",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "a"
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "a",
+                                              "leadingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": "        "
+                                                }
+                                              ]
+                                            }
+                                          ]
                                         },
                                         {
-                                          "kind": "COLON_TOKEN"
+                                          "kind": "COLON_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "     "
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "SIMPLE_NAME_REFERENCE",

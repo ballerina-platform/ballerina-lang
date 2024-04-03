@@ -23,6 +23,7 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CreateDependencyGraphTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
@@ -109,6 +110,7 @@ public class GraphCommand implements BLauncherCmd {
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(true, false), isSingleFileProject())
+                .addTask(new RunBuildToolsTask(outStream), isSingleFileProject())
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 .addTask(new CreateDependencyGraphTask(outStream, errStream))
                 .build();

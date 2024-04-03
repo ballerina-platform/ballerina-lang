@@ -5,6 +5,9 @@ WARNING [main.bal:(36:5,36:19)] unused variable 'b'
 Running Tests with Coverage
 
 	foo
+
+	testMain: has failed.
+
 		[pass] testFunc
 
 		[fail] testMain:
@@ -21,6 +24,8 @@ Running Tests with Coverage
 		1 failing
 		1 skipped
 
+		Test execution time :*****s
+
 	foo.bar.tests
 		[pass] testBarAdd
 
@@ -28,6 +33,8 @@ Running Tests with Coverage
 		1 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****s
 
 	foo.math
 		[pass] testFunction1
@@ -37,6 +44,8 @@ Running Tests with Coverage
 		2 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****s
 
 Generating Test Report*****project-based-tests\test-report-tests\target\report\test_results.json
 

@@ -176,11 +176,9 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
         for (ModuleId moduleId : pack.moduleIds()) {
             Module module = pack.module(moduleId);
             String moduleName = module.moduleName().toString();
+            List<String> mockedFunctionList = new ArrayList<>();
             for (DocumentId documentId : module.testDocumentIds()) {
                 Document document = module.document(documentId);
-                String documentName = moduleName + "/" + document.name().replace(BAL_EXTENSION, "")
-                        .replace("/", ".");
-                List<String> mockedFunctionList = new ArrayList<>();
                 Node rootNode = document.syntaxTree().rootNode();
                 TestFunctionVisitor testFunctionVisitor = new TestFunctionVisitor();
                 rootNode.accept(testFunctionVisitor);
@@ -211,7 +209,21 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                         }
                     }
                 }
-                testFileMockedFunctionMapping.put(documentName, mockedFunctionList);
+            }
+            for (DocumentId documentId : module.testDocumentIds()) {
+                Document document = module.document(documentId);
+                String documentName = moduleName + "/" + document.name().replace(BAL_EXTENSION, "")
+                        .replace("/", ".");
+                Node rootNode = document.syntaxTree().rootNode();
+                TestFunctionVisitor testFunctionVisitor = new TestFunctionVisitor();
+                rootNode.accept(testFunctionVisitor);
+                testFileMockedFunctionMapping.put(documentName, new ArrayList<>());
+                for (FunctionDefinitionNode func : testFunctionVisitor.getNormalFunctions()) {
+                    if (!mockedFunctionList.contains(func.functionName().text())) {
+                        continue;
+                    }
+                    testFileMockedFunctionMapping.get(documentName).add(func.functionName().text());
+                }
             }
         }
         Path cachePath = pack.project().targetDir().resolve("cache").resolve("tests_cache")

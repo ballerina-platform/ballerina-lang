@@ -23,6 +23,7 @@ import io.ballerina.cli.task.CleanTargetCacheDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.task.RunNativeImageTestTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
@@ -132,6 +133,10 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "start in remote debugging mode")
     private String debugPort;
 
+    @CommandLine.Option(names = "--parallel", description = "enable parallel execution of tests",
+            defaultValue = "false")
+    private boolean isParallelExecution;
+
     @CommandLine.Option(names = "--list-groups", description = "list the groups available in the tests")
     private boolean listGroups;
 
@@ -225,6 +230,9 @@ public class TestCommand implements BLauncherCmd {
 
         if (sticky == null) {
             sticky = false;
+        }
+        if (isParallelExecution) {
+            this.outStream.println("WARNING: Running tests in parallel is an experimental feature");
         }
 
         // load project
@@ -329,6 +337,17 @@ public class TestCommand implements BLauncherCmd {
                     "flag is not set");
         }
 
+        // Run pre-build tasks to have the project reloaded.
+        // In code coverage generation, the module map is duplicated.
+        // Therefore, the project needs to be reloaded beforehand to provide the latest project instance
+        // which has the newly generated code for code coverage calculation.
+        // Hence, below tasks are executed before extracting the module map from the project.
+        TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
+                .addTask(new RunBuildToolsTask(outStream), isSingleFile) // run build tools
+                .build();
+        preBuildTaskExecutor.executeTasks(project);
+
         Iterable<Module> originalModules = project.currentPackage().modules();
         Map<String, Module> moduleMap = new HashMap<>();
 
@@ -340,16 +359,16 @@ public class TestCommand implements BLauncherCmd {
         boolean isPackageModified = isProjectUpdated(project);
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, false, false,
+                        isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList, testList,
-                        includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs),
+                        includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs, isParallelExecution),
                         project.buildOptions().nativeImage())
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, coverageFormat, moduleMap, listGroups),
+                        testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution),
                         !project.buildOptions().nativeImage())
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();

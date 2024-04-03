@@ -1335,13 +1335,16 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(namedWorkerDeclarationNode.returnTypeDesc().orElse(null));
         BlockStatementNode workerBody =
                 modifyNode(namedWorkerDeclarationNode.workerBody());
+        OnFailClauseNode onFailClause =
+                modifyNode(namedWorkerDeclarationNode.onFailClause().orElse(null));
         return namedWorkerDeclarationNode.modify(
                 annotations,
                 transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody);
+                workerBody,
+                onFailClause);
     }
 
     @Override
@@ -2461,7 +2464,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ReceiveFieldsNode receiveFieldsNode) {
         Token openBrace =
                 modifyToken(receiveFieldsNode.openBrace());
-        SeparatedNodeList<NameReferenceNode> receiveFields =
+        SeparatedNodeList<Node> receiveFields =
                 modifySeparatedNodeList(receiveFieldsNode.receiveFields());
         Token closeBrace =
                 modifyToken(receiveFieldsNode.closeBrace());
@@ -2469,6 +2472,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openBrace,
                 receiveFields,
                 closeBrace);
+    }
+
+    @Override
+    public AlternateReceiveNode transform(
+            AlternateReceiveNode alternateReceiveNode) {
+        SeparatedNodeList<SimpleNameReferenceNode> workers =
+                modifySeparatedNodeList(alternateReceiveNode.workers());
+        return alternateReceiveNode.modify(
+                workers);
     }
 
     @Override
@@ -3673,6 +3685,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return memberTypeDescriptorNode.modify(
                 annotations,
                 typeDescriptor);
+    }
+
+    @Override
+    public ReceiveFieldNode transform(
+            ReceiveFieldNode receiveFieldNode) {
+        SimpleNameReferenceNode fieldName =
+                modifyNode(receiveFieldNode.fieldName());
+        Token colon =
+                modifyToken(receiveFieldNode.colon());
+        SimpleNameReferenceNode peerWorker =
+                modifyNode(receiveFieldNode.peerWorker());
+        return receiveFieldNode.modify(
+                fieldName,
+                colon,
+                peerWorker);
     }
 
     // Tokens

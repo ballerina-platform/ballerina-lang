@@ -22,4 +22,6 @@ Running Tests
 		5 passing
 		0 failing
 		0 skipped
+
+		Test execution time :*****s
 error: there are test failures

@@ -6,6 +6,9 @@ WARNING [tests\new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
 Running Tests with Coverage
 
 	dataproviders
+
+	testDividingValuesNegative:2 has failed.
+
 		[pass] testDividingValuesNegative#0
 		[pass] testDividingValuesNegative#1
 		[pass] testDividingValuesNegative#3
@@ -15,16 +18,18 @@ Running Tests with Coverage
 		[fail] testDividingValuesNegative#2:
 
 		    [fail data provider for the function testDividingValuesNegative]
-			error {ballerina/test:0}ExecutionError ("error("{ballerina}DivisionByZero",message=" / by zero")
+			 error {ballerina/test:0}ExecutionError ("error("{ballerina}DivisionByZero",message=" / by zero")
 				callableName: testDividingValuesNegative moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 191
 				callableName: testDividingValuesNegative$lambda14$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 18
 			",functionName="testDividingValuesNegative")
-				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 349
-				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 136
-				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 123
-				callableName: executeTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 83
-				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 58
-				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 48
+				callableName: handleTestFuncOutput moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 326
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 138
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 122
+				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 112
+				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 65
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 28
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
 				callableName: __execute__ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 27
 			
 
@@ -33,10 +38,14 @@ Running Tests with Coverage
 		1 failing
 		0 skipped
 
+		Test execution time :*****s
+
 	dataproviders.module1
 
 
 		No tests found
+
+		Test execution time :*****s
 
 Generating Test Report
 	data-providers\target\report\test_results.json

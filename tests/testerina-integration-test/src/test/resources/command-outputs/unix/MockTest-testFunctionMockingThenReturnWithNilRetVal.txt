@@ -4,13 +4,16 @@ Compiling source
 Running Tests with Coverage
 
 	function_mocking
+
+	testFunctionMock3 has failed.
+
 		[pass] testFunctionMock
 		[pass] testFunctionMock2
 
 		[fail] testFunctionMock3:
 
 		    error {ballerina/test:0}FunctionCallError ("no return value or action registered for function")
-				callableName: mockHandler moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 383
+				callableName: mockHandler moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 590
 				callableName: testFunctionMock3 moduleName: intg_tests.function_mocking$test.0.tests.tests fileName: tests/tests.bal lineNumber: 43
 				callableName: testFunctionMock3$lambda2$ moduleName: intg_tests.function_mocking$test.0.tests.test_execute-generated_*****lineNumber: 6
 			
@@ -19,6 +22,8 @@ Running Tests with Coverage
 		2 passing
 		1 failing
 		0 skipped
+
+		Test execution time :*****s
 
 Generating Test Report
 	function-mocking-tests-then-return-with-nil-ret-val/target/report/test_results.json

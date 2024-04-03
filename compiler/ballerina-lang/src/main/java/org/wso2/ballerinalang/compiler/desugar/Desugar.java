@@ -129,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBinding
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -169,6 +170,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -219,6 +221,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSendReceiveExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -361,6 +364,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String GENERATED_ERROR_VAR = "$error$";
     private static final String HAS_KEY = "hasKey";
     private static final String CREATE_RECORD_VALUE = "createRecordFromMap";
+    private static final String CHANNEL_AUTO_CLOSE_FUNC_NAME = "autoClose";
 
     public static final String XML_INTERNAL_SELECT_DESCENDANTS = "selectDescendants";
     public static final String XML_INTERNAL_CHILDREN = "children";
@@ -413,6 +417,9 @@ public class Desugar extends BLangNodeVisitor {
     private int funcParamCount = 1;
     private boolean isVisitingQuery;
     private boolean desugarToReturn;
+
+    // Worker related variables
+    private Set<BLangWorkerSendReceiveExpr.Channel> channelsWithinIfStmt = new LinkedHashSet<>();
 
     // Safe navigation related variables
     private Stack<BLangMatchStatement> matchStmtStack = new Stack<>();
@@ -648,8 +655,8 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.startFunction = ASTBuilderUtil.createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
                                                                                       Names.START_FUNCTION_SUFFIX,
                                                                                       symTable);
-        pkgNode.stopFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(pkgNode.pos, alias,
-                                                                              Names.STOP_FUNCTION_SUFFIX);
+        pkgNode.stopFunction = ASTBuilderUtil.createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
+                                                                              Names.STOP_FUNCTION_SUFFIX, symTable);
         // Create invokable symbol for init function
         createInvokableSymbol(pkgNode.initFunction, env);
         // Create invokable symbol for start function
@@ -3470,11 +3477,99 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
+        Set<BLangWorkerSendReceiveExpr.Channel> prevChannels = this.channelsWithinIfStmt;
         ifNode.expr = rewriteExpr(ifNode.expr);
+
+        Set<BLangWorkerSendReceiveExpr.Channel> ifBlockChannels = new LinkedHashSet<>();
+        this.channelsWithinIfStmt = ifBlockChannels;
         ifNode.body = rewrite(ifNode.body, env);
+
+        Set<BLangWorkerSendReceiveExpr.Channel> elseBlockChannels = new LinkedHashSet<>();
+        this.channelsWithinIfStmt = elseBlockChannels;
         ifNode.elseStmt = rewrite(ifNode.elseStmt, env);
 
+        addWorkerChannelAutoCloseStmts(ifNode, ifBlockChannels, elseBlockChannels);
+
+        prevChannels.addAll(ifBlockChannels);
+        prevChannels.addAll(elseBlockChannels);
+        this.channelsWithinIfStmt = prevChannels;
         result = ifNode;
+    }
+
+    /**
+     * We need to close the channels that the send actions are not going to execute in the if-else block.
+     * This method will add channel auto close function calls at the beginning of if and/or else blocks.
+     * <p>
+     * If else will be generated as follows:
+     * <p>
+     * <code>
+     * if expr {
+     * autoClose(string ... channelIds);
+     * stmti1;
+     * stmti2;
+     * ...
+     * } else {
+     * autoClose(string ... channelIds);
+     * stmtj1;
+     * stmtj2;
+     * ...
+     * }
+     * </code>
+     *
+     * @param ifNode            if-else node
+     * @param ifBlockChannels   channels used in if block
+     * @param elseBlockChannels channels used in else block
+     */
+    private void addWorkerChannelAutoCloseStmts(BLangIf ifNode,
+                                                Set<BLangWorkerSendReceiveExpr.Channel> ifBlockChannels,
+                                                Set<BLangWorkerSendReceiveExpr.Channel> elseBlockChannels) {
+        if (!elseBlockChannels.isEmpty()) {
+            ifNode.body.stmts.add(0, generateChannelAutoCloseStmt(elseBlockChannels));
+        }
+        if (!ifBlockChannels.isEmpty()) {
+            // Three cases to handle:
+            // 1) No else block
+            // 2) There is an else block
+            // 3) Else block itself is an if-else node
+
+            BLangStatement elseStmt = ifNode.elseStmt;
+
+            if (elseStmt == null) {
+                List<BLangStatement> stmts =
+                        new ArrayList<>(Collections.singletonList(generateChannelAutoCloseStmt(ifBlockChannels)));
+                ifNode.elseStmt = rewrite(ASTBuilderUtil.createBlockStmt(symTable.builtinPos, stmts), env);
+            } else if (elseStmt.getKind() == NodeKind.BLOCK) {
+                ((BLangBlockStmt) elseStmt).stmts.add(0, generateChannelAutoCloseStmt(ifBlockChannels));
+            } else {
+                assert elseStmt.getKind() == NodeKind.IF;
+                List<BLangStatement> stmts = new ArrayList<>(2);
+                stmts.add(generateChannelAutoCloseStmt(ifBlockChannels));
+                stmts.add(elseStmt);
+                ifNode.elseStmt = rewrite(ASTBuilderUtil.createBlockStmt(elseStmt.pos, stmts), env);
+            }
+        }
+    }
+
+    private BLangExpressionStmt generateChannelAutoCloseStmt(Set<BLangWorkerSendReceiveExpr.Channel> channels) {
+        List<BLangExpression> restArgs = generateChannelIdLiteralList(channels);
+        BLangInvocation funcInvocation = createLangLibInvocationNode(CHANNEL_AUTO_CLOSE_FUNC_NAME, new ArrayList<>(),
+                restArgs, symTable.nilType, symTable.builtinPos);
+        funcInvocation.internal = true;
+
+        BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+        exprStmt.internal = true;
+        exprStmt.expr = funcInvocation;
+        exprStmt.pos = symTable.builtinPos;
+        return rewrite(exprStmt, env);
+    }
+
+    private List<BLangExpression> generateChannelIdLiteralList(Set<BLangWorkerSendReceiveExpr.Channel> channels) {
+        List<BLangExpression> exprs = new ArrayList<>();
+        for (BLangWorkerSendReceiveExpr.Channel channel : channels) {
+            BLangLiteral channelIdLiteral = createStringLiteral(symTable.builtinPos, channel.channelId());
+            exprs.add(channelIdLiteral);
+        }
+        return exprs;
     }
 
     @Override
@@ -6433,7 +6528,7 @@ public class Desugar extends BLangNodeVisitor {
         } else if (types.isSubTypeOfList(varRefType)) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                     indexAccessExpr.indexExpr);
-        } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
+        } else if (types.isAssignable(varRefType, symTable.xmlType)) {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (types.isAssignable(varRefType, symTable.stringType)) {
@@ -8175,13 +8270,25 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
         asyncSendExpr.expr = visitCloneInvocation(rewriteExpr(asyncSendExpr.expr), asyncSendExpr.expr.getBType());
+        this.channelsWithinIfStmt.add(asyncSendExpr.getChannel());
         result = asyncSendExpr;
     }
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
         syncSendExpr.expr = visitCloneInvocation(rewriteExpr(syncSendExpr.expr), syncSendExpr.expr.getBType());
+        this.channelsWithinIfStmt.add(syncSendExpr.getChannel());
         result = syncSendExpr;
+    }
+
+    @Override
+    public void visit(BLangAlternateWorkerReceive altWorkerReceive) {
+        result = altWorkerReceive;
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        result = multipleWorkerReceive;
     }
 
     @Override
@@ -8308,25 +8415,16 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private ArrayList<BLangExpression> expandFilters(List<BLangXMLElementFilter> filters) {
-        Map<Name, BXMLNSSymbol> nameBXMLNSSymbolMap = symResolver.resolveAllNamespaces(env);
-        BXMLNSSymbol defaultNSSymbol = nameBXMLNSSymbolMap.get(names.fromString(XMLConstants.DEFAULT_NS_PREFIX));
-        String defaultNS = defaultNSSymbol != null ? defaultNSSymbol.namespaceURI : null;
-
         ArrayList<BLangExpression> args = new ArrayList<>();
         for (BLangXMLElementFilter filter : filters) {
-            BSymbol nsSymbol = symResolver.lookupSymbolInPrefixSpace(env, names.fromString(filter.namespace));
-            if (nsSymbol == symTable.notFoundSymbol) {
-                if (defaultNS != null && !filter.name.equals("*")) {
-                    String expandedName = createExpandedQName(defaultNS, filter.name);
-                    args.add(createStringLiteral(filter.elemNamePos, expandedName));
-                } else {
-                    args.add(createStringLiteral(filter.elemNamePos, filter.name));
-                }
+            BSymbol nsSymbol = filter.namespaceSymbol;
+            String filterName = filter.name;
+            if (nsSymbol != null &&
+                    !(filter.namespace.equals(XMLConstants.DEFAULT_NS_PREFIX) && filterName.equals("*"))) {
+                String expandedName = createExpandedQName(((BXMLNSSymbol) nsSymbol).namespaceURI, filterName);
+                args.add(createStringLiteral(filter.elemNamePos, expandedName));
             } else {
-                BXMLNSSymbol bxmlnsSymbol = (BXMLNSSymbol) nsSymbol;
-                String expandedName = createExpandedQName(bxmlnsSymbol.namespaceURI, filter.name);
-                BLangLiteral stringLiteral = createStringLiteral(filter.elemNamePos, expandedName);
-                args.add(stringLiteral);
+                args.add(createStringLiteral(filter.elemNamePos, filterName));
             }
         }
         return args;
@@ -8900,7 +8998,15 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangInvocation createLangLibInvocationNode(String functionName,
-                                                        List<BLangExpression> args,
+                                                        List<BLangExpression> requiredArgs,
+                                                        BType retType,
+                                                        Location pos) {
+        return createLangLibInvocationNode(functionName, requiredArgs, new ArrayList<>(), retType, pos);
+    }
+
+    private BLangInvocation createLangLibInvocationNode(String functionName,
+                                                        List<BLangExpression> requiredArgs,
+                                                        List<BLangExpression> restArgs,
                                                         BType retType,
                                                         Location pos) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
@@ -8915,9 +9021,8 @@ public class Desugar extends BLangNodeVisitor {
         invocationNode.symbol = symResolver.lookupMethodInModule(symTable.langInternalModuleSymbol,
                 names.fromString(functionName), env);
 
-        ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
-        requiredArgs.addAll(args);
-        invocationNode.requiredArgs = requiredArgs;
+        invocationNode.requiredArgs = new ArrayList<>(requiredArgs);
+        invocationNode.restArgs = new ArrayList<>(restArgs);
 
         invocationNode.setBType(retType != null ? retType : ((BInvokableSymbol) invocationNode.symbol).retType);
         invocationNode.langLibInvocation = true;
@@ -9758,9 +9863,9 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         // position information is not passed to remove code coverage for record/class definition
-        expr.pos = null;
-        fieldName.pos = null;
-        fieldSymbol.pos = null;
+        expr.pos = this.symTable.builtinPos;
+        fieldName.pos =  this.symTable.builtinPos;
+        fieldSymbol.pos =  this.symTable.builtinPos;
         assignmentStmt.expr = expr;
         assignmentStmt.pos = function.pos;
         assignmentStmt.setVariable(fieldAccess);
@@ -9832,7 +9937,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (!(accessExpr.errorSafeNavigation || accessExpr.nilSafeNavigation)) {
             BType originalType = Types.getImpliedType(accessExpr.originalType);
-            if (TypeTags.isXMLTypeTag(originalType.tag) || isMapJson(originalType, false)) {
+            if (isMapJson(originalType, false)) {
                 accessExpr.setBType(BUnionType.create(null, originalType, symTable.errorType));
             } else {
                 accessExpr.setBType(originalType);

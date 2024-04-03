@@ -17,13 +17,13 @@
 type AnnotationProcessor function (string name, function f) returns boolean;
 
 AnnotationProcessor[] annotationProcessors = [
-    processConfigAnnotation,
     processBeforeSuiteAnnotation,
     processAfterSuiteAnnotation,
     processBeforeEachAnnotation,
     processAfterEachAnnotation,
     processBeforeGroupsAnnotation,
-    processAfterGroupsAnnotation
+    processAfterGroupsAnnotation,
+    processConfigAnnotation
 ];
 
 public function registerTest(string name, function f) {
@@ -46,28 +46,115 @@ public function registerTest(string name, function f) {
 function processConfigAnnotation(string name, function f) returns boolean {
     TestConfig? config = (typeof f).@Config;
     if config != () {
+        // Evaluate the test function to determine the parallelizability of the test function.
+        boolean isTestFunctionIsolated = f is isolated function;
+        boolean isDataProviderIsolated = true;
+        boolean isTestFunctionParamSafe = true;
+        string[] reasonForSerialExecution = [];
+        boolean isSatisfiedParallelizableConditions = isBeforeAfterFuncSetIsolated(config,
+                reasonForSerialExecution) && isTestFunctionIsolated;
         DataProviderReturnType? params = ();
         error? diagnostics = ();
         if config.dataProvider != () {
             var providerFn = config.dataProvider;
-
             if providerFn is function () returns (DataProviderReturnType?) {
+                isDataProviderIsolated = (<function>providerFn is isolated function);
+                isTestFunctionParamSafe = isFunctionParamConcurrencySafe(f);
+                isSatisfiedParallelizableConditions = isSatisfiedParallelizableConditions
+                                                                && isDataProviderIsolated && isTestFunctionParamSafe;
+
                 DataProviderReturnType providerOutput = providerFn();
-                params = providerOutput;
+                params = <DataProviderReturnType>providerOutput;
             } else {
                 diagnostics = error("Failed to execute the data provider");
             }
         }
-        boolean enabled = config.enable && (filterGroups.length() == 0 ? true : hasGroup(config.groups, filterGroups))
-            && (filterDisableGroups.length() == 0 ? true : !hasGroup(config.groups, filterDisableGroups)) && hasTest(name);
-        config.groups.forEach('group => groupStatusRegistry.incrementTotalTest('group, enabled));
 
-        testRegistry.addFunction(name = name, executableFunction = f, params = params, before = config.before,
-            after = config.after, groups = config.groups, diagnostics = diagnostics, dependsOn = config.dependsOn,
-            enabled = enabled, dependsOnCount = config.dependsOn.length(), config = config);
-        return true;
+        // Register the reason for serial execution.
+        if !isTestFunctionIsolated {
+            reasonForSerialExecution.push("non-isolated test function");
+        }
+        if !isDataProviderIsolated {
+            reasonForSerialExecution.push("non-isolated data-provider function");
+        }
+        if !isTestFunctionParamSafe {
+            reasonForSerialExecution.push("unsafe test parameters");
+        }
+
+        // If the test function is not parallelizable, then print the reason for serial execution.
+        if !isSatisfiedParallelizableConditions && !(config?.serialExecution == () ? false : true)
+                                                                    && executionManager.isParallelExecutionEnabled() {
+            println(string `WARNING: Test function '${name}' cannot be parallelized, reason: ${string:'join(", ",
+            ...reasonForSerialExecution)}`);
+        }
+
+        boolean enabled = config.enable && (filterGroups.length() == 0 ? true : hasGroup(config.groups, filterGroups))
+            && (filterDisableGroups.length() == 0 ? true : !hasGroup(config.groups, filterDisableGroups))
+            && hasTest(name);
+        config.groups.forEach('group => groupStatusRegistry.incrementTotalTest('group, enabled));
+        dataDrivenTestParams[name] = params;
+        testRegistry.addFunction(name = name, executableFunction = f, before = config.before,
+            after = config.after, groups = config.groups.cloneReadOnly(), diagnostics = diagnostics,
+            dependsOn = config.dependsOn.cloneReadOnly(), serialExecution = ((config?.serialExecution != ())
+            || !isSatisfiedParallelizableConditions || !executionManager.isParallelExecutionEnabled()),
+            config = config.cloneReadOnly());
+        executionManager.createTestFunctionMetaData(functionName = name, dependsOnCount = config.dependsOn.length(),
+            enabled = enabled);
     }
     return false;
+}
+
+function isBeforeAfterFuncSetIsolated(TestConfig config, string[] reasonForSerialExecution) returns boolean {
+    boolean isBeforeAfterFunctionSetIsolated = true;
+    (function () returns any|error)? before = config.before;
+    if before !is () {
+        if before !is isolated function () returns any|error {
+            isBeforeAfterFunctionSetIsolated = false;
+            reasonForSerialExecution.push("non-isolated before function");
+        }
+    }
+    (function () returns any|error)? after = config.after;
+    if after !is () {
+        if after !is isolated function () returns any|error {
+            isBeforeAfterFunctionSetIsolated = false;
+            reasonForSerialExecution.push("non-isolated after function");
+        }
+    }
+    foreach string 'group in config.groups {
+        TestFunction[]? beforeGroupFunctions = beforeGroupsRegistry.getFunctions('group);
+        if beforeGroupFunctions !is () {
+            foreach TestFunction beforeGroupFunction in beforeGroupFunctions {
+                if beforeGroupFunction.executableFunction !is isolated function {
+                    isBeforeAfterFunctionSetIsolated = false;
+                    reasonForSerialExecution.push("non-isolated before-groups function");
+                }
+            }
+        }
+        TestFunction[]? afterGroupFunctions = afterGroupsRegistry.getFunctions('group);
+        if afterGroupFunctions !is () {
+            foreach TestFunction afterGroupFunction in afterGroupFunctions {
+                if afterGroupFunction.executableFunction !is isolated function {
+                    isBeforeAfterFunctionSetIsolated = false;
+                    reasonForSerialExecution.push("non-isolated after-groups function");
+                }
+            }
+        }
+    }
+    TestFunction[] beforeEachFunctions = beforeEachRegistry.getFunctions();
+    foreach TestFunction beforeEachFunction in beforeEachFunctions {
+        if beforeEachFunction.executableFunction !is isolated function {
+            isBeforeAfterFunctionSetIsolated = false;
+            reasonForSerialExecution.push("non-isolated before-each function");
+        }
+    }
+    TestFunction[] afterEachFunctions = afterEachRegistry.getFunctions();
+    foreach TestFunction afterEachFunction in afterEachFunctions {
+        if afterEachFunction.executableFunction !is isolated function {
+            isBeforeAfterFunctionSetIsolated = false;
+            reasonForSerialExecution.push("non-isolated after-each function");
+        }
+    }
+    return isBeforeAfterFunctionSetIsolated;
 }
 
 function processBeforeSuiteAnnotation(string name, function f) returns boolean {
@@ -135,21 +222,19 @@ function hasGroup(string[] groups, string[] filter) returns boolean {
     return false;
 }
 
-function hasTest(string name) returns boolean {
-    if hasFilteredTests {
+isolated function hasTest(string name) returns boolean {
+    if testOptions.getHasFilteredTests() {
         string testName = name;
-        int? testIndex = filterTests.indexOf(testName);
+        int? testIndex = testOptions.getFilterTestIndex(testName);
         if testIndex == () {
-            foreach string filter in filterTests {
-                if (filter.includes(WILDCARD)) {
+            foreach string filter in testOptions.getFilterTests() {
+                if filter.includes(WILDCARD) {
                     boolean|error wildCardMatch = matchWildcard(testName, filter);
-                    if (wildCardMatch is boolean && wildCardMatch && matchModuleName(filter)) {
-                            return true;
-                    } 
+                    return (wildCardMatch is boolean && wildCardMatch && matchModuleName(filter));
                 }
             }
             return false;
-        } else if (matchModuleName(testName)) {
+        } else if matchModuleName(testName) {
             return true;
         }
         return false;
@@ -157,7 +242,7 @@ function hasTest(string name) returns boolean {
     return true;
 }
 
-function matchModuleName(string testName) returns boolean {
-    string? filterModule = filterTestModules[testName];
+isolated function matchModuleName(string testName) returns boolean {
+    string? filterModule = testOptions.getFilterTestModule(testName);
     return filterModule == () ? true : filterModule == getFullModuleName();
 }

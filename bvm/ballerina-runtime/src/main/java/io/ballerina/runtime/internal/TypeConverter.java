@@ -23,7 +23,11 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.FiniteType;
+import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.utils.XmlUtils;
@@ -53,8 +57,10 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RegExpValue;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -228,22 +234,20 @@ public class TypeConverter {
             default:
                 return false;
         }
-        switch (targetType.getTag()) {
-            case TypeTags.SIGNED32_INT_TAG:
-                return TypeChecker.isSigned32LiteralValue(val);
-            case TypeTags.SIGNED16_INT_TAG:
-                return TypeChecker.isSigned16LiteralValue(val);
-            case TypeTags.SIGNED8_INT_TAG:
-                return TypeChecker.isSigned8LiteralValue(val);
-            case TypeTags.UNSIGNED32_INT_TAG:
-                return TypeChecker.isUnsigned32LiteralValue(val);
-            case TypeTags.UNSIGNED16_INT_TAG:
-                return TypeChecker.isUnsigned16LiteralValue(val);
-            case TypeTags.UNSIGNED8_INT_TAG:
-                return TypeChecker.isUnsigned8LiteralValue(val);
-            default:
-                return false;
-        }
+        return isConvertibleToIntRange(targetType, val);
+    }
+
+    public static boolean isConvertibleToIntRange(Type targetType, long val) {
+        return switch (targetType.getTag()) {
+            case TypeTags.INT_TAG -> true;
+            case TypeTags.SIGNED32_INT_TAG -> TypeChecker.isSigned32LiteralValue(val);
+            case TypeTags.SIGNED16_INT_TAG -> TypeChecker.isSigned16LiteralValue(val);
+            case TypeTags.SIGNED8_INT_TAG -> TypeChecker.isSigned8LiteralValue(val);
+            case TypeTags.UNSIGNED32_INT_TAG -> TypeChecker.isUnsigned32LiteralValue(val);
+            case TypeTags.UNSIGNED16_INT_TAG -> TypeChecker.isUnsigned16LiteralValue(val);
+            case TypeTags.UNSIGNED8_INT_TAG -> TypeChecker.isUnsigned8LiteralValue(val);
+            default -> false;
+        };
     }
 
     static boolean isConvertibleToChar(Object value) {
@@ -368,12 +372,12 @@ public class TypeConverter {
 
         for (Type memType : memberTypes) {
             if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
-                return getConvertibleType(inputValue, memType, varName, unresolvedValues, errors, false);
+                return getConvertibleType(inputValue, memType, varName, new HashSet<>(unresolvedValues), errors, false);
             }
         }
         for (Type memType : memberTypes) {
             Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
-                    unresolvedValues, errors, allowNumericConversion);
+                    new HashSet<>(unresolvedValues), errors, allowNumericConversion);
             if (convertibleTypeInUnion != null) {
                 return convertibleTypeInUnion;
             }
@@ -391,7 +395,7 @@ public class TypeConverter {
         for (Type memType : memberTypes) {
             initialErrorCount = errors.size();
             Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
-                    unresolvedValues, errors, allowNumericConversion);
+                    new HashSet<>(unresolvedValues), errors, allowNumericConversion);
             currentErrorListSize = errors.size();
             if (convertibleTypeInUnion != null) {
                 errors.subList(initialErrorListSize - 1, currentErrorListSize).clear();
@@ -1270,5 +1274,40 @@ public class TypeConverter {
     }
 
     private TypeConverter() {
+    }
+
+    static List<Type> getXmlTargetTypes(Type targetType) {
+        List<Type> xmlTargetTypes = new ArrayList<>();
+        return switch (targetType.getTag()) {
+            case TypeTags.XML_TAG, TypeTags.XML_PI_TAG, TypeTags.XML_COMMENT_TAG, TypeTags.XML_ELEMENT_TAG,
+                    TypeTags.XML_TEXT_TAG -> {
+                xmlTargetTypes.add(targetType);
+                yield xmlTargetTypes;
+            }
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG -> {
+                xmlTargetTypes.addAll(getXmlTargetTypes(((ReferenceType) targetType).getReferredType()));
+                yield xmlTargetTypes;
+            }
+            case TypeTags.INTERSECTION_TAG -> {
+                xmlTargetTypes.addAll(getXmlTargetTypes(((IntersectionType) targetType).getEffectiveType()));
+                yield xmlTargetTypes;
+            }
+            case TypeTags.UNION_TAG -> {
+                for (Type memberType : ((UnionType) targetType).getMemberTypes()) {
+                    xmlTargetTypes.addAll(getXmlTargetTypes(memberType));
+                }
+                yield xmlTargetTypes;
+            }
+            case TypeTags.FINITE_TYPE_TAG -> {
+                for (Object o : ((FiniteType) targetType).getValueSpace()) {
+                    if (TypeTags.isXMLTypeTag(TypeChecker.getType(o).getTag())) {
+                        xmlTargetTypes.add(targetType);
+                        yield xmlTargetTypes;
+                    }
+                }
+                yield xmlTargetTypes;
+            }
+            default -> xmlTargetTypes;
+        };
     }
 }
