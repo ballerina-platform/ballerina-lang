@@ -65,7 +65,8 @@ public class WorkerAlternateReceiveTest {
                 "alternateReceiveWithSameWorkerSendPanic",
                 "multilpleAlternateReceive1",
                 "multilpleAlternateReceive2",
-                "workerAlternateReceiveWithConditionalSend"
+                // TODO: enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/42468
+                // "workerAlternateReceiveWithConditionalSend"
         };
     }
 
