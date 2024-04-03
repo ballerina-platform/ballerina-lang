@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -159,6 +160,10 @@ public final class JvmCodeGenUtil {
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
+    public static Boolean isDuplicateCodegen = false;
+    public static Boolean isTestablePkgCodeGen = false;
+    public static HashMap<String, PackageID> duplicatePkgsMap = new HashMap<>();
+    public static Boolean dontAddDuplicatePrefix = false;
 
     static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
         String mapDesc = getMapsDesc(size);
@@ -304,7 +309,24 @@ public final class JvmCodeGenUtil {
         if (!orgName.equalsIgnoreCase("$anon")) {
             packageName = orgName + separator + packageName;
         }
+
+        if (isDuplicateReferenceInsideDuplicate(packageID) || isDuplicateReferenceInsideTestablePkg(packageID)) {
+            if (!dontAddDuplicatePrefix) {
+                packageName = "DUPLICATE_" + packageName;
+            }
+        }
+
         return packageName;
+    }
+
+    private static Boolean isDuplicateReferenceInsideTestablePkg(PackageID referencePkgID) {
+        return isTestablePkgCodeGen && duplicatePkgsMap
+                .containsKey(referencePkgID.orgName + referencePkgID.getNameComps().toString());
+    }
+
+    private static Boolean isDuplicateReferenceInsideDuplicate(PackageID referencePkgID) {
+        return isDuplicateCodegen && duplicatePkgsMap
+                .containsKey(referencePkgID.orgName + referencePkgID.getNameComps().toString());
     }
 
     public static String getModuleLevelClassName(PackageID packageID, String sourceFileName) {

@@ -44,6 +44,7 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.bytecodeOptimizer.NativeDependencyOptimizer;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -228,7 +229,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
         if (this.packageContext.project().buildOptions().optimizeCodegen()) {
             registerUnusedBIRNodes();
-            optimizeUnusedBIRPackages();
+            optimizeAndCodegen();
         }
         // add compilation diagnostics
         diagnostics.addAll(moduleDiagnostics);
@@ -263,6 +264,8 @@ public class JBallerinaBackend extends CompilerBackend {
         System.out.println("Duration for unused BIR node analysis : " + (endTime - startTime) + "ms");
     }
 
+
+    //TODO optimize the logic here
     private void markTestDependenciesForDuplicateBIRGen() {
         for (int i = pkgResolution.topologicallySortedModuleList().size() - 1; i >= 0; i--) {
             ModuleContext moduleContext = pkgResolution.topologicallySortedModuleList().get(i);
@@ -276,12 +279,29 @@ public class JBallerinaBackend extends CompilerBackend {
                     collectDependencies(bLangPackage.getTestablePkg().symbol, testablePkgDependencies);
 
                     buildPkgDependencies.stream()
-                            .filter(testablePkgDependencies::contains)
-                            .forEach(pkgSymbol -> pkgSymbol.shouldGenerateDuplicateBIR = true);
+                            .filter(testablePkgDependencies::contains).filter(this::isNotWhiteListedPkg)
+                            .forEach(pkgSymbol -> {
+                                pkgSymbol.shouldGenerateDuplicateBIR = true;
+                                // Have to use a hashmap because the pkgIds get mutated later
+                                JvmCodeGenUtil.duplicatePkgsMap.put(
+                                        pkgSymbol.pkgID.orgName + pkgSymbol.pkgID.getNameComps().toString(),
+                                        pkgSymbol.pkgID);
+                            });
                 }
                 return;
             }
         }
+    }
+
+    private boolean isNotWhiteListedPkg(BPackageSymbol pkgSymbol) {
+        HashSet<String> whiteListedPkgNames =
+                new HashSet<>(Arrays.asList("ballerina/observe", "ballerina/jballerina", "ballerina/lang"));
+        for (String pkgName : whiteListedPkgNames) {
+            if (pkgSymbol.pkgID.toString().contains(pkgName)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void collectDependencies(BPackageSymbol pkgSymbol, Set<BPackageSymbol> currentDependencies) {
@@ -292,7 +312,7 @@ public class JBallerinaBackend extends CompilerBackend {
         });
     }
 
-    private void optimizeUnusedBIRPackages() {
+    private void optimizeAndCodegen() {
         // Codegen cannot be done in the inverted order of the topologicallySortedModuleList.
         // Therefore, we had to move it into another for loop.
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
@@ -300,6 +320,12 @@ public class JBallerinaBackend extends CompilerBackend {
                 if (moduleContext.isUsed()) {
                     // Generate optimized thin JAR byte streams.
                     performOptimizedCodeGen(moduleContext);
+                } else if (!this.packageContext.project().buildOptions().skipTests()) {
+                    moduleContext.bLangPackage().symbol.shouldGenerateDuplicateBIR = false;
+                    String dupId = moduleContext.bLangPackage().packageID.orgName +
+                            moduleContext.bLangPackage().packageID.getNameComps().toString();
+                    JvmCodeGenUtil.duplicatePkgsMap.remove(dupId);
+                    performCodeGen(moduleContext, moduleContext.getCompilationCache());
                 } else {
                     updateUnusedPkgMaps(moduleContext);
                 }
@@ -571,7 +597,7 @@ public class JBallerinaBackend extends CompilerBackend {
             if (originalJarFile == null) {
                 throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
             }
-            String jarFileName = "UNOPTIMIZED_" + getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
+            String jarFileName = getJarFileName(moduleContext) + "_DUPLICATE" + JAR_FILE_NAME_SUFFIX;
             try {
                 ByteArrayOutputStream byteStream = JarWriter.write(originalJarFile, getResources(moduleContext));
                 moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, jarFileName, byteStream);

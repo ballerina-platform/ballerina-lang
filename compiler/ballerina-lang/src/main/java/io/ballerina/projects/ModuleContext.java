@@ -489,7 +489,11 @@ class ModuleContext {
     }
 
     public boolean isWhiteListedModule() {
-        return this.moduleId.moduleName().contains("observe") || isDriverModule();
+        return isObserveModule() || isDriverModule() || isJBallerinaModule();
+    }
+
+    private boolean isObserveModule() {
+        return this.moduleId.moduleName().contains("observe");
     }
 
     private boolean isDriverModule() {
@@ -505,7 +509,7 @@ class ModuleContext {
     }
 
     private boolean shouldOptimizeCodegen() {
-        return this.project().buildOptions().optimizeCodegen() && !this.isLangLibModule() && !isJBallerinaModule();
+        return this.project().buildOptions().optimizeCodegen() && !this.isLangLibModule() && !isWhiteListedModule();
     }
 
     private static boolean shouldGenerateBir(ModuleContext moduleContext, CompilerContext compilerContext) {
