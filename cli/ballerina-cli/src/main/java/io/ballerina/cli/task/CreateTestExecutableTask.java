@@ -19,7 +19,6 @@ package io.ballerina.cli.task;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.BuildUtils;
 import io.ballerina.cli.utils.NativeUtils;
-import io.ballerina.cli.utils.TestSuiteCreatingArgs;
 import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -60,7 +59,6 @@ import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.cli.utils.NativeUtils.modifyJarForFunctionMock;
 import static io.ballerina.cli.utils.TestUtils.createTestSuitesForProject;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
-import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MODIFIED_JAR_SUFFIX;
 
 /**
@@ -71,42 +69,32 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.MODIFIED_JA
 
 public class CreateTestExecutableTask implements Task {
     private final transient PrintStream out;
-    private Path currentDir;
-    private final String includesInCoverage;
-    private final String excludesInCoverage;
     private String groupList;
     private String disableGroupList;
     private boolean report;
     private boolean coverage;
-    private String coverageReportFormat;
     private boolean isRerunTestExecution;
     private String singleExecTests;
-    private Map<String, Module> coverageModules;
     private boolean listGroups;
     private final List<String> cliArgs;
+    private final boolean isParallelExecution;
 
-    public CreateTestExecutableTask(PrintStream out, String includesInCoverage,
-                                    String excludesInCoverage, String groupList, String disableGroupList,
-                                    String coverageReportFormat, String singleExecTests,
-                                    Map<String, Module> coverageModules, boolean listGroups, String[] cliArgs) {
+    public CreateTestExecutableTask(PrintStream out, String groupList, String disableGroupList, String singleExecTests,
+                                    boolean listGroups, String[] cliArgs, boolean isParallelExecution) {
         this.out = out;
-        this.includesInCoverage = includesInCoverage;
-        this.excludesInCoverage = excludesInCoverage;
         this.groupList = groupList;
         this.disableGroupList = disableGroupList;
         this.report = false;    // This is set to false because the report is not generated in this task
         this.coverage = false;  // This is set to false because the coverage is not generated in this task
-        this.coverageReportFormat = coverageReportFormat;
         this.isRerunTestExecution = false; // This is set to false because the tests are not rerun in this task
         this.singleExecTests = singleExecTests;
-        this.coverageModules = coverageModules;
         this.listGroups = listGroups;
         this.cliArgs = List.of(cliArgs);
+        this.isParallelExecution = isParallelExecution;
     }
 
     @Override
     public void execute(Project project) {
-        this.currentDir = Paths.get(System.getProperty(USER_DIR));
         Target target = getTarget(project);
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
@@ -189,7 +177,12 @@ public class CreateTestExecutableTask implements Task {
 
         String jarName = project.currentPackage().packageName().toString();
         if (jarName.equals(ProjectConstants.DOT)) {
-            jarName = getFileNameWithoutExtension(project.sourceRoot().getFileName());
+            Optional<Path> projectSourceRootFileName = Optional.ofNullable(project.sourceRoot().getFileName());
+            if (projectSourceRootFileName.isPresent()) {
+                jarName = getFileNameWithoutExtension(projectSourceRootFileName.get());
+            } else {
+                throw new IllegalStateException("unable to resolve project source root");
+            }
         }
 
         Path testExecutablePath = getTestExecutableBasePath(target).resolve(
@@ -255,22 +248,31 @@ public class CreateTestExecutableTask implements Task {
             HashSet<JarLibrary> filteredTestDependencies = new HashSet<>();
             requiredDependencies.forEach(neededDependency -> {
                 String comparingStr = MODIFIED_JAR_SUFFIX;
-                String requiredDependencyFileName = neededDependency.getFileName().toString();
-                if (!requiredDependencyFileName.contains(comparingStr)) {
-                    return;
+                Optional<Path> neededDependencyFileName = Optional.ofNullable(neededDependency.getFileName());
+                if (neededDependencyFileName.isPresent()) {
+                    String requiredDependencyFileName = neededDependencyFileName.get().toString();
+                    if (!requiredDependencyFileName.contains(comparingStr)) {
+                        return;
+                    }
+                    String originalFileName = requiredDependencyFileName.replace(comparingStr, "");
+                    Optional<JarLibrary> foundDependency = testDependencies.stream().filter(dep -> {
+                        Optional<Path> depFileName = Optional.ofNullable(dep.path().getFileName());
+                        if (depFileName.isPresent()) {
+                            return depFileName.get().toString().contains(originalFileName) &&
+                                    !depFileName.get().toString().contains(TesterinaConstants.TESTABLE);
+                        }
+                        throw new IllegalStateException("unable to resolve dependency file name");
+                    }).findFirst();
+                    if (!foundDependency.isPresent()) {
+                        return;
+                    }
+                    JarLibrary modifiedJarLibrary = new JarLibrary(neededDependency,
+                            foundDependency.get().scope());
+                    filteredTestDependencies.add(modifiedJarLibrary);
+                    testDependencies.remove(foundDependency.get());
+                } else {
+                    throw new IllegalStateException("unable to resolve dependency file name");
                 }
-                String originalFileName = requiredDependencyFileName.replace(comparingStr, "");
-                Optional<JarLibrary> foundDependency = testDependencies.stream().filter(dep ->
-                        dep.path().getFileName().toString().contains(originalFileName) &&
-                                !dep.path().getFileName().toString().contains(TesterinaConstants.TESTABLE)
-                ).findFirst();
-                if (!foundDependency.isPresent()) {
-                    return;
-                }
-                JarLibrary modifiedJarLibrary = new JarLibrary(neededDependency,
-                        foundDependency.get().scope());
-                filteredTestDependencies.add(modifiedJarLibrary);
-                testDependencies.remove(foundDependency.get());
             });
 
             // Add the remaining dependencies
@@ -302,9 +304,8 @@ public class CreateTestExecutableTask implements Task {
         TestProcessor testProcessor = new TestProcessor(jBallerinaBackend.jarResolver());
         List<String> moduleNamesList = new ArrayList<>();
         List<String> mockClassNames = new ArrayList<>();
-        boolean hasTests = createTestSuitesForProject(
-                new TestSuiteCreatingArgs(project, target, testProcessor, testSuiteMap, moduleNamesList, mockClassNames,
-                        this.isRerunTestExecution, this.report, this.coverage));
+        boolean hasTests = createTestSuitesForProject(project, target, testProcessor, testSuiteMap, moduleNamesList,
+                mockClassNames, this.isRerunTestExecution, this.report, this.coverage);
         if (hasTests) {
             // Now write the map to a json file
             try {
@@ -335,7 +336,7 @@ public class CreateTestExecutableTask implements Task {
                 this.coverage, this.groupList,
                 this.disableGroupList, this.singleExecTests,
                 this.isRerunTestExecution, this.listGroups,
-                this.cliArgs, false
+                this.cliArgs, false, this.isParallelExecution
         );
 
         // Write the cmdArgs to a file in path
@@ -357,9 +358,14 @@ public class CreateTestExecutableTask implements Task {
                 target = new Target(project.targetDir());
             } else {
                 target = new Target(project.targetDir());
-                target.setOutputPath(target.path().resolve(
-                        getFileNameWithoutExtension(project.sourceRoot().getFileName()) + BLANG_COMPILED_JAR_EXT
-                ));
+                Optional<Path> fileName = Optional.ofNullable(project.sourceRoot().getFileName());
+                if (fileName.isPresent()) {
+                    target.setOutputPath(target.path().resolve(
+                            getFileNameWithoutExtension(fileName.get()) + BLANG_COMPILED_JAR_EXT
+                    ));
+                } else {
+                    throw new IllegalStateException("unable to resolve target path");
+                }
             }
         } catch (IOException e) {
             throw createLauncherException("unable to resolve target path:" + e.getMessage());

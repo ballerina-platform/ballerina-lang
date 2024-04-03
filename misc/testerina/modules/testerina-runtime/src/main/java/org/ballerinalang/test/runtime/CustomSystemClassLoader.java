@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -48,7 +49,7 @@ public class CustomSystemClassLoader extends ClassLoader {
             if (is == null) {
                 throw new RuntimeException("Error reading " + ProjectConstants.EXCLUDED_CLASSES_FILE);
             }
-            try(BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+            try(BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     excludedClasses.add(line);
@@ -100,15 +101,14 @@ public class CustomSystemClassLoader extends ClassLoader {
     private byte[] getClassBytes(String classFileName) throws IOException {
         String path = File.separator + classFileName.replace('.', File.separatorChar)
                 + ProjectConstants.JAVA_CLASS_EXT;
-        InputStream is = BTestMain.class.getResourceAsStream(path);
-
-        int size = Objects.requireNonNull(is).available();
-        byte[] buff = new byte[size];
-
-        DataInputStream dis = new DataInputStream(is);
-        dis.readFully(buff);
-        dis.close();
-
+        byte[] buff;
+        try (InputStream is = BTestMain.class.getResourceAsStream(path)) {
+            int size = Objects.requireNonNull(is).available();
+            buff = new byte[size];
+            try (DataInputStream dis = new DataInputStream(is)) {
+                dis.readFully(buff);
+            }
+        }
         return buff;
     }
 }

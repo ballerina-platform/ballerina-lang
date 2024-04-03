@@ -19,7 +19,6 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
-import io.ballerina.cli.utils.TestSuiteCreatingArgs;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
@@ -28,7 +27,6 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
@@ -103,6 +101,7 @@ public class RunTestsTask implements Task {
     private Map<String, Module> coverageModules;
     private boolean listGroups;
     private final List<String> cliArgs;
+    private final boolean isParallelExecution;
     TestReport testReport;
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");
@@ -201,9 +200,8 @@ public class RunTestsTask implements Task {
         Map<String, TestSuite> testSuiteMap = new HashMap<>();
         List<String> mockClassNames = new ArrayList<>();
 
-        boolean hasTests = createTestSuitesForProject(
-                new TestSuiteCreatingArgs(project, target, testProcessor, testSuiteMap, moduleNamesList, mockClassNames,
-                        this.isRerunTestExecution, this.report, this.coverage));
+        boolean hasTests = createTestSuitesForProject(project, target, testProcessor, testSuiteMap, moduleNamesList,
+                mockClassNames, this.isRerunTestExecution, this.report, this.coverage);
 
         writeToTestSuiteJson(testSuiteMap, testsCachePath);
 
@@ -293,7 +291,7 @@ public class RunTestsTask implements Task {
         appendRequiredArgs(cmdArgs, target.path().toString(), jacocoAgentJarPath,
                 testSuiteJsonPath.toString(), this.report, this.coverage,
                 this.groupList, this.disableGroupList, this.singleExecTests, this.isRerunTestExecution,
-                this.listGroups, this.cliArgs, false);
+                this.listGroups, this.cliArgs, false, isParallelExecution);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();

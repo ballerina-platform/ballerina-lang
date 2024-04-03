@@ -237,10 +237,6 @@ public class JarResolver {
         return allJarFileForTestExec;
     }
 
-    public JarLibrary createJacocoAgentJarLibrary(String agentJarPath) {
-        return new JarLibrary(Path.of(agentJarPath), PlatformLibraryScope.DEFAULT, getPackageName(rootPackageContext));
-    }
-
     public ClassLoader getClassLoaderWithRequiredJarFilesForExecution() {
         if (classLoaderWithAllJars != null) {
             return classLoaderWithAllJars;
