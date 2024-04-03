@@ -34,7 +34,7 @@ public class FormattingOptions {
     private final IndentFormattingOptions indentFormattingOptions;
     private final WrappingFormattingOptions wrappingFormattingOptions;
     private final BraceFormattingOptions braceFormattingOptions;
-    private final FunctionDeclFormattingOptions functionDeclFormattingOptions;
+    private final FunctionDefFormattingOptions functionDefFormattingOptions;
     private final FunctionCallFormattingOptions functionCallFormattingOptions;
     private final IfStatementFormattingOptions ifStatementFormattingOptions;
     private final SpacingFormattingOptions spacingFormattingOptions;
@@ -45,7 +45,7 @@ public class FormattingOptions {
     private FormattingOptions(IndentFormattingOptions indentFormattingOptions,
                               WrappingFormattingOptions wrappingFormattingOptions,
                               BraceFormattingOptions braceFormattingOptions,
-                              FunctionDeclFormattingOptions functionDeclFormattingOptions,
+                              FunctionDefFormattingOptions functionDefFormattingOptions,
                               FunctionCallFormattingOptions functionCallFormattingOptions,
                               IfStatementFormattingOptions ifStatementFormattingOptions,
                               SpacingFormattingOptions spacingFormattingOptions,
@@ -55,7 +55,7 @@ public class FormattingOptions {
         this.indentFormattingOptions = indentFormattingOptions;
         this.wrappingFormattingOptions = wrappingFormattingOptions;
         this.braceFormattingOptions = braceFormattingOptions;
-        this.functionDeclFormattingOptions = functionDeclFormattingOptions;
+        this.functionDefFormattingOptions = functionDefFormattingOptions;
         this.functionCallFormattingOptions = functionCallFormattingOptions;
         this.ifStatementFormattingOptions = ifStatementFormattingOptions;
         this.spacingFormattingOptions = spacingFormattingOptions;
@@ -84,8 +84,8 @@ public class FormattingOptions {
         return braceFormattingOptions;
     }
 
-    public FunctionDeclFormattingOptions functionDeclFormattingOptions() {
-        return functionDeclFormattingOptions;
+    public FunctionDefFormattingOptions functionDefFormattingOptions() {
+        return functionDefFormattingOptions;
     }
 
     public FunctionCallFormattingOptions functionCallFormattingOptions() {
@@ -122,8 +122,8 @@ public class FormattingOptions {
         private IndentFormattingOptions indentFormattingOptions = IndentFormattingOptions.builder().build();
         private WrappingFormattingOptions wrappingFormattingOptions = WrappingFormattingOptions.builder().build();
         private BraceFormattingOptions braceFormattingOptions = BraceFormattingOptions.builder().build();
-        private FunctionDeclFormattingOptions functionDeclFormattingOptions =
-                FunctionDeclFormattingOptions.builder().build();
+        private FunctionDefFormattingOptions functionDefFormattingOptions =
+                FunctionDefFormattingOptions.builder().build();
         private FunctionCallFormattingOptions functionCallFormattingOptions =
                 FunctionCallFormattingOptions.builder().build();
         private IfStatementFormattingOptions ifStatementFormattingOptions =
@@ -175,7 +175,7 @@ public class FormattingOptions {
 
         public FormattingOptions build() {
             return new FormattingOptions(indentFormattingOptions, wrappingFormattingOptions, braceFormattingOptions,
-                    functionDeclFormattingOptions, functionCallFormattingOptions, ifStatementFormattingOptions,
+                    functionDefFormattingOptions, functionCallFormattingOptions, ifStatementFormattingOptions,
                     spacingFormattingOptions, forceFormattingOptions, importFormattingOptions, queryFormattingOptions);
         }
 
@@ -197,8 +197,8 @@ public class FormattingOptions {
                     case INDENT -> indentFormattingOptions = IndentFormattingOptions.builder().build(configs);
                     case WRAPPING -> wrappingFormattingOptions = WrappingFormattingOptions.builder().build(configs);
                     case BRACES -> braceFormattingOptions = BraceFormattingOptions.builder().build(configs);
-                    case FUNCTION_DECLARATION ->
-                            functionDeclFormattingOptions = FunctionDeclFormattingOptions.builder().build(configs);
+                    case FUNCTION_DEFINITION ->
+                            functionDefFormattingOptions = FunctionDefFormattingOptions.builder().build(configs);
                     case FUNCTION_CALL ->
                             functionCallFormattingOptions = FunctionCallFormattingOptions.builder().build(configs);
                     case IF_STATEMENT ->

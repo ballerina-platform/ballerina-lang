@@ -25,7 +25,7 @@ import org.ballerinalang.formatter.core.FormatterException;
 public enum FormatSection {
     BRACES("braces"),
     FUNCTION_CALL("functionCall"),
-    FUNCTION_DECLARATION("functionDeclaration"),
+    FUNCTION_DEFINITION("functionDefinition"),
     IF_STATEMENT("ifStatement"),
     IMPORT("import"),
     INDENT("indent"),

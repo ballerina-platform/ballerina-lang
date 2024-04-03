@@ -23,7 +23,7 @@ import org.ballerinalang.formatter.core.options.BraceFormattingOptions;
 import org.ballerinalang.formatter.core.options.BraceStyle;
 import org.ballerinalang.formatter.core.options.FormatSection;
 import org.ballerinalang.formatter.core.options.FunctionCallFormattingOptions;
-import org.ballerinalang.formatter.core.options.FunctionDeclFormattingOptions;
+import org.ballerinalang.formatter.core.options.FunctionDefFormattingOptions;
 import org.ballerinalang.formatter.core.options.IfStatementFormattingOptions;
 import org.ballerinalang.formatter.core.options.ImportFormattingOptions;
 import org.ballerinalang.formatter.core.options.IndentFormattingOptions;
@@ -68,8 +68,8 @@ public class FormatOptionNegativeTest {
     }
 
     @Test(expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "invalid function declaration formatting option: parametersInLine")
-    public void testInvalidFunctionDeclarationOptions() throws FormatterException {
+            expectedExceptionsMessageRegExp = "invalid function definition formatting option: parametersInLine")
+    public void testInvalidFunctionDefinitionOptions() throws FormatterException {
         Map<String, Object> configs = new HashMap<>() {{
             put("parametersWrap", "Wrap");
             put("newLineAfterLeftParen", true);
@@ -77,7 +77,7 @@ public class FormatOptionNegativeTest {
             put("rightParenOnNewLine", true);
             put("parametersInLine", true);
         }};
-        FunctionDeclFormattingOptions.builder().build(configs);
+        FunctionDefFormattingOptions.builder().build(configs);
     }
 
     @Test(expectedExceptions = FormatterException.class,

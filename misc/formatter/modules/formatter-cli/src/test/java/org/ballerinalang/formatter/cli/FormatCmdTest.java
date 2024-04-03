@@ -103,40 +103,39 @@ public class FormatCmdTest {
 
     @DataProvider(name = "provideConfigurationProjects")
     private Object[][] provideConfigurationProjects() {
+        Path basePath = RES_DIR.resolve(Path.of("configurations", "options"));
         return new Object[][]{
                 {"brace", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "brace", "source", "project"))
+                        basePath.resolve(Path.of("brace", "source", "project"))
                 )},
                 {"functionCall", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "functionCall", "source", "chopDown")),
-                        RES_DIR.resolve(Path.of("configurations", "options", "functionCall", "source", "noWrap")),
-                        RES_DIR.resolve(Path.of("configurations", "options", "functionCall", "source", "wrap"))
+                        basePath.resolve(Path.of("functionCall", "source", "chopDown")),
+                        basePath.resolve(Path.of("functionCall", "source", "noWrap")),
+                        basePath.resolve(Path.of("functionCall", "source", "wrap"))
                 )},
-                {"functionDeclaration", List.of(
-                        RES_DIR.resolve(
-                                Path.of("configurations", "options", "functionDeclaration", "source", "chopDown")),
-                        RES_DIR.resolve(
-                                Path.of("configurations", "options", "functionDeclaration", "source", "noWrap")),
-                        RES_DIR.resolve(Path.of("configurations", "options", "functionDeclaration", "source", "wrap"))
+                {"functionDefinition", List.of(
+                        basePath.resolve(Path.of("functionDefinition", "source", "chopDown")),
+                        basePath.resolve(Path.of("functionDefinition", "source", "noWrap")),
+                        basePath.resolve(Path.of("functionDefinition", "source", "wrap"))
                 )},
                 {"ifStatement", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "ifStatement", "source", "ifelse"))
+                        basePath.resolve(Path.of("ifStatement", "source", "ifelse"))
                 )},
                 {"imports", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "imports", "source", "project"))
+                        basePath.resolve(Path.of("imports", "source", "project"))
                 )},
                 {"indent", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "indent", "source", "project"))
+                        basePath.resolve(Path.of("indent", "source", "project"))
                 )},
                 {"query", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "query", "source", "project"))
+                        basePath.resolve(Path.of("query", "source", "project"))
                 )}
                 ,
                 {"spacing", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "spacing", "source", "project"))
+                        basePath.resolve(Path.of("spacing", "source", "project"))
                 )},
                 {"wrapping", List.of(
-                        RES_DIR.resolve(Path.of("configurations", "options", "wrapping", "source", "project"))
+                        basePath.resolve(Path.of("wrapping", "source", "project"))
                 )}
         };
     }

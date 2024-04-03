@@ -36,7 +36,7 @@ public class FormatFileResolutionTest {
     private final Path resDir = Path.of("src", "test", "resources", "configurations", "resolution");
     private final String validRemoteUrl =
             "https://gist.githubusercontent.com/ballerina-bot/ae54cc7303e9d474d730d732c1594c61/raw" +
-                    "/db0909d0b66f97cd0035f19bcb7cde9a239f5d54/format.toml";
+                    "/8dc3204aec3f158105a811a6a67488bef45ff742/format.toml";
     private final Path validRemote = resDir.resolve("validRemote");
     private final Path withTarget = resDir.resolve("withTarget");
     private final Path invalidLocal = resDir.resolve("invalidLocal");

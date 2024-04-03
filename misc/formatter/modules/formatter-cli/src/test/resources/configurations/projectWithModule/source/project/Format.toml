@@ -5,7 +5,7 @@ continuationIndentSize = 4
 maxLineLength = 80
 
 
-[functionDeclaration]
+[functionDefinition]
 alignMultilineParameters = true
 newLineAfterLeftParen = true
 

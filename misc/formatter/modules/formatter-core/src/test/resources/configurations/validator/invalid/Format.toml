@@ -11,7 +11,7 @@ simpleFunctionsInOneLine = "true"
 classBraceStyle = "NEWLINE"
 functionBraceStyle = "NEWLINE"
 
-[functionDeclaration]
+[functionDefinition]
 parametersWrap = "CHOPDOWN"
 paramterExtend = true
 

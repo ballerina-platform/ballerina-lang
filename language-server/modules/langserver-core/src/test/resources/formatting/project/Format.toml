@@ -6,7 +6,7 @@ maxLineLength = 80
 simpleBlocksInOneLine = true
 simpleFunctionsInOneLine = true
 
-[functionDeclaration]
+[functionDefinition]
 alignMultilineParameters = true
 
 [ifStatement]

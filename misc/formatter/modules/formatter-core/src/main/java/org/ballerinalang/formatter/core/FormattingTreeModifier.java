@@ -252,7 +252,7 @@ import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.formatter.core.options.BraceStyle;
 import org.ballerinalang.formatter.core.options.FormattingOptions;
 import org.ballerinalang.formatter.core.options.FunctionCallFormattingOptions;
-import org.ballerinalang.formatter.core.options.FunctionDeclFormattingOptions;
+import org.ballerinalang.formatter.core.options.FunctionDefFormattingOptions;
 import org.ballerinalang.formatter.core.options.WrappingMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -374,7 +374,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public FunctionSignatureNode transform(FunctionSignatureNode functionSignatureNode) {
         int parenTrailingNL = 0;
-        FunctionDeclFormattingOptions funcOptions = options.functionDeclFormattingOptions();
+        FunctionDefFormattingOptions funcOptions = options.functionDefFormattingOptions();
         if (hasNonWSMinutiae(functionSignatureNode.openParenToken().trailingMinutiae()) ||
                 funcOptions.newLineAfterLeftParen()) {
             parenTrailingNL++;
@@ -4269,7 +4269,7 @@ public class FormattingTreeModifier extends TreeModifier {
             case REQUIRED_PARAM:
             case REST_PARAM:
             case RETURN_TYPE_DESCRIPTOR:
-                if (options.functionDeclFormattingOptions().parametersWrap() == WrappingMethod.NoWrap) {
+                if (options.functionDefFormattingOptions().parametersWrap() == WrappingMethod.NoWrap) {
                     return false;
                 }
                 return true;

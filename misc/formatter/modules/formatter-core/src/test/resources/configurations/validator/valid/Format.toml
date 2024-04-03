@@ -11,7 +11,7 @@ simpleFunctionsInOneLine = true
 classBraceStyle = "NewLine"
 functionBraceStyle = "NewLine"
 
-[functionDeclaration]
+[functionDefinition]
 parametersWrap = "ChopDown"
 alignMultilineParameters = true
 newLineAfterLeftParen = false
