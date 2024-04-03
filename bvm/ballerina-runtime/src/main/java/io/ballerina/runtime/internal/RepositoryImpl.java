@@ -83,6 +83,7 @@ public class RepositoryImpl implements Repository {
         artifact.addDetail("resources", serviceType.getResourceMethods());
         artifact.addDetail("remotes", serviceType.getRemoteMethods());
         artifact.addDetail("annotations", serviceType.getAnnotations());
+        artifact.addDetail("package", serviceType.getPackage());
         return artifact;
     }
 
