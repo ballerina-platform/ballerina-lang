@@ -1,11 +1,11 @@
 type Main_Location record {
     @xmldata:Namespace {
-    prefix: "main",
+        prefix: "main",
         uri: "http://example.com/main"
     }
     string city;
     @xmldata:Namespace {
-    prefix: "main",
+        prefix: "main",
         uri: "http://example.com/main"
     }
     string state;
@@ -13,12 +13,12 @@ type Main_Location record {
 
 type Main_CompanyInfo record {
     @xmldata:Namespace {
-    prefix: "main",
+        prefix: "main",
         uri: "http://example.com/main"
     }
     string name;
     @xmldata:Namespace {
-    prefix: "main",
+        prefix: "main",
         uri: "http://example.com/main"
     }
     Main_Location location;
@@ -64,7 +64,7 @@ type Mixed record {
 }
 type Root_Root record {
     @xmldata:Namespace {
-    prefix: "main",
+        prefix: "main",
         uri: "http://example.com/main"
     }
     Main_CompanyInfo companyInfo;
