@@ -1,3 +1,4 @@
+import testorg/utils;
 
 type BooleanArray boolean[];
 type StringArray string[];
@@ -46,6 +47,11 @@ public function functionAnyRestParam(any... z) returns any[] {
     return z;
 }
 
+// ------------------- Test function signature with invocation as default value of a parameter
+
+public function funcWithInvocationAsDefaultValueOfParam(int a = utils:foo()) returns int {
+    return a;
+}
 
 // ------------------- Test function signature with union types for default parameter
 
