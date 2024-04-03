@@ -786,7 +786,7 @@ public final class Core {
         ListDefinition listDef = new ListDefinition();
         MappingDefinition mapDef = new MappingDefinition();
         SemType j = union(PredefinedType.SIMPLE_OR_STRING, union(listDef.getSemType(env), mapDef.getSemType(env)));
-        listDef.resolve(env, j);
+        listDef.defineListTypeWrapped(env, j);
         MappingDefinition.defineMappingTypeWrapped(mapDef, env, new ArrayList<>(), j);
         return j;
     }
@@ -803,7 +803,7 @@ public final class Core {
         SemType tableTy = TableSubtype.tableContaining(mapDef.getSemType(env));
         SemType ad = union(union(SIMPLE_OR_STRING, union(XML, tableTy)),
                 union(listDef.getSemType(env), mapDef.getSemType(env)));
-        listDef.resolve(env, ad);
+        listDef.defineListTypeWrapped(env, ad);
         MappingDefinition.defineMappingTypeWrapped(mapDef, env, new ArrayList<>(), ad);
         context.anydataMemo = ad;
         return ad;

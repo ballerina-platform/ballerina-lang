@@ -30,8 +30,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import static io.ballerina.types.PredefinedType.IMPLEMENTED_ANY_TYPE;
-import static io.ballerina.types.PredefinedType.IMPLEMENTED_TYPES;
-import static io.ballerina.types.PredefinedType.VAL_READONLY;
 
 /**
  * @since 0.94
@@ -79,14 +77,5 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     public String toString() {
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
-    }
-
-    // FIXME: remove this override
-    @Override
-    public SemType semType() {
-        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
-            return Core.intersect(IMPLEMENTED_ANY_TYPE, VAL_READONLY);
-        }
-        return IMPLEMENTED_ANY_TYPE;
     }
 }

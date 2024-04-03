@@ -278,7 +278,7 @@ public class SemTypeCoreTest {
         SemType t1 = PredefinedType.basicType(BasicTypeCode.BT_LIST); // TODO: type should be LIST_RO
         Env env = new Env();
         ListDefinition ld = new ListDefinition();
-        SemType t2 = ld.resolve(env, new ArrayList<>(), 0, PredefinedType.VAL);
+        SemType t2 = ld.defineListTypeWrapped(env, new ArrayList<>(), 0, PredefinedType.VAL);
         SemType t = Core.diff(t1, t2);
         Context cx = Core.typeCheckContext(env);
         boolean b = Core.isEmpty(cx, t);
@@ -305,7 +305,7 @@ public class SemTypeCoreTest {
         ListDefinition def = new ListDefinition();
         SemType t = def.getSemType(env);
         List<SemType> members = f.apply(env, t);
-        return def.resolve(env, members, members.size());
+        return def.defineListTypeWrapped(env, members, members.size());
     }
 
     @Test

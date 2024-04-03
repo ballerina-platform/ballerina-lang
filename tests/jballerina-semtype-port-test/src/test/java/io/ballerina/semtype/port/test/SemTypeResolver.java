@@ -185,9 +185,9 @@ public class SemTypeResolver {
         }
         int size = from(mod, td.sizes.get(dimensions - 1));
         if (size == -1) {
-            return ld.resolve(cx.env, List.of(), 0, eType);
+            return ld.defineListTypeWrapped(cx.env, List.of(), 0, eType);
         } else {
-            return ld.resolve(cx.env, List.of(eType), size, PredefinedType.NEVER);
+            return ld.defineListTypeWrapped(cx.env, List.of(eType), size, PredefinedType.NEVER);
         }
     }
 
@@ -205,11 +205,12 @@ public class SemTypeResolver {
     }
 
     private SemType resolveListInner(Context cx, int size, SemType eType) {
+        ListDefinition ld = new ListDefinition();
         if (size != -1) {
-            return ListDefinition.defineListTypeWrapped(cx.env, List.of(eType), 1, PredefinedType.NEVER,
+            return ld.defineListTypeWrapped(cx.env, List.of(eType), 1, PredefinedType.NEVER,
                     CellAtomicType.CellMutability.CELL_MUT_LIMITED);
         } else {
-            return ListDefinition.defineListTypeWrapped(cx.env, List.of(), 0, eType,
+            return ld.defineListTypeWrapped(cx.env, List.of(), 0, eType,
                     CellAtomicType.CellMutability.CELL_MUT_LIMITED);
         }
     }
@@ -226,8 +227,7 @@ public class SemTypeResolver {
                         .toList();
         SemType rest = td.restParamType != null ? resolveTypeDesc(cx, mod, defn, depth + 1, td.restParamType) :
                 PredefinedType.NEVER;
-        return ld.resolve(cx.env, memberSemTypes, memberSemTypes.size(),
-                rest);
+        return ld.defineListTypeWrapped(cx.env, memberSemTypes, memberSemTypes.size(), rest);
     }
 
     private SemType resolveTypeDesc(Context cx, BLangValueType td) {

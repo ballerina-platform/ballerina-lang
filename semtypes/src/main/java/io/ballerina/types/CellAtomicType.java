@@ -17,9 +17,6 @@
  */
 package io.ballerina.types;
 
-import io.ballerina.types.subtypedata.AllOrNothingSubtype;
-import io.ballerina.types.subtypedata.BddNode;
-
 import static io.ballerina.types.Core.getComplexSubtypeData;
 import static io.ballerina.types.SemTypes.isSubtypeSimple;
 

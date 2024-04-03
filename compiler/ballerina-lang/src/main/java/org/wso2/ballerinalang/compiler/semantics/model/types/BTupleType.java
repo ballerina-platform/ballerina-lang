@@ -262,7 +262,7 @@ public class BTupleType extends BType implements TupleType {
         }
         ld = new ListDefinition();
         if (hasTypeHoles()) {
-            return ld.resolve(env, ANY);
+            return ld.defineListTypeWrapped(env, ANY);
         }
         boolean isReadonly = Symbols.isFlagOn(flags, Flags.READONLY);
         CellAtomicType.CellMutability mut = isReadonly ? CELL_MUT_NONE : CELL_MUT_LIMITED;
@@ -271,7 +271,7 @@ public class BTupleType extends BType implements TupleType {
                 throw new IllegalStateException("Both members and rest type can't be null");
             }
             SemType restSemType = restType.semType();
-            return ld.resolve(env, List.of(), 0, Objects.requireNonNullElse(restSemType, NEVER), mut);
+            return ld.defineListTypeWrapped(env, List.of(), 0, Objects.requireNonNullElse(restSemType, NEVER), mut);
         }
         List<SemType> memberSemTypes = new ArrayList<>(members.size());
         for (BTupleMember member : members) {
@@ -286,6 +286,6 @@ public class BTupleType extends BType implements TupleType {
         if (restSemType == null) {
             restSemType = NEVER;
         }
-        return ld.resolve(env, memberSemTypes, memberSemTypes.size(), restSemType, mut);
+        return ld.defineListTypeWrapped(env, memberSemTypes, memberSemTypes.size(), restSemType, mut);
     }
 }
