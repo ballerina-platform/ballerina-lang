@@ -34,12 +34,4 @@ public record BddNode(Atom atom, Bdd left, Bdd middle, Bdd right) implements Bdd
     public static BddNode create(Atom atom, Bdd left, Bdd middle, Bdd right) {
         return new BddNode(atom, left, middle, right);
     }
-
-    public boolean isSimpleBddNode() {
-        if (left instanceof BddAllOrNothing leftNode && middle instanceof BddAllOrNothing middleNode &&
-                right instanceof BddAllOrNothing rightNode) {
-            return leftNode.isAll() && middleNode.isNothing() && rightNode.isNothing();
-        }
-        return false;
-    }
 }

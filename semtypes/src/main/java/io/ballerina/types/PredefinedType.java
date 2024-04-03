@@ -27,6 +27,7 @@ import java.util.StringJoiner;
 import static io.ballerina.types.BasicTypeCode.BT_CELL;
 import static io.ballerina.types.BasicTypeCode.BT_LIST;
 import static io.ballerina.types.ComplexSemType.createComplexSemType;
+import static io.ballerina.types.Core.intersect;
 import static io.ballerina.types.Core.union;
 import static io.ballerina.types.TypeAtom.createTypeAtom;
 import static io.ballerina.types.subtypedata.XmlSubtype.XML_PRIMITIVE_COMMENT_RO;
@@ -106,6 +107,7 @@ public class PredefinedType {
                     | (1 << BasicTypeCode.BT_STRING.code));
 
     public static final SemType IMPLEMENTED_TYPES = union(SIMPLE_OR_STRING, LIST);
+    public static final SemType IMPLEMENTED_ANY_TYPE = intersect(ANY, IMPLEMENTED_TYPES);
 
     public static final int BDD_REC_ATOM_READONLY = 0;
     private static final BddNode BDD_SUBTYPE_RO = BddCommonOps.bddAtom(RecAtom.createRecAtom(BDD_REC_ATOM_READONLY));

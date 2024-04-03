@@ -40,26 +40,8 @@ public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicTy
         if (!isSubtypeSimple(ty, PredefinedType.CELL)) {
             return null;
         }
-        return bddCellAtomicType((Bdd) getComplexSubtypeData((ComplexSemType) ty, BasicTypeCode.BT_CELL),
+        return Core.bddCellAtomicType((Bdd) getComplexSubtypeData((ComplexSemType) ty, BasicTypeCode.BT_CELL),
                 PredefinedType.CELL_ATOMIC_VAL);
-    }
-
-    private static CellAtomicType bddCellAtomicType(Bdd bdd, CellAtomicType top) {
-        if (bdd instanceof AllOrNothingSubtype allOrNothingSubtype) {
-            if (allOrNothingSubtype.isAllSubtype()) {
-                return top;
-            }
-            return null;
-        }
-        BddNode bddNode = (BddNode) bdd;
-        if (bddNode.isSimpleBddNode()) {
-            return cellAtom(bddNode.atom());
-        }
-        return null;
-    }
-
-    private static CellAtomicType cellAtom(Atom atom) {
-        return (CellAtomicType) ((TypeAtom) atom).atomicType();
     }
 
     public static CellAtomicType from(SemType ty, CellMutability mut) {

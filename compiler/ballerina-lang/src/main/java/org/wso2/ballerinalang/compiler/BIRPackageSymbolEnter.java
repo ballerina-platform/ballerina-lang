@@ -167,7 +167,6 @@ import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
  */
 public class BIRPackageSymbolEnter {
 
-    private static final int SOME_CELL = 1 << 0x11;
     private final PackageCache packageCache;
     private final SymbolResolver symbolResolver;
     private final SymbolTable symTable;

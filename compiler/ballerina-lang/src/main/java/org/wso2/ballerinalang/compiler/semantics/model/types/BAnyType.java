@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import static io.ballerina.types.PredefinedType.IMPLEMENTED_ANY_TYPE;
 import static io.ballerina.types.PredefinedType.IMPLEMENTED_TYPES;
 import static io.ballerina.types.PredefinedType.VAL_READONLY;
 
@@ -38,7 +39,7 @@ import static io.ballerina.types.PredefinedType.VAL_READONLY;
 public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
     public BAnyType(BTypeSymbol tsymbol) {
-        this(tsymbol, VAL_READONLY);
+        this(tsymbol, IMPLEMENTED_ANY_TYPE);
     }
 
     private BAnyType(BTypeSymbol tsymbol, SemType semType) {
@@ -46,17 +47,17 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     }
 
     public BAnyType(BTypeSymbol tsymbol, Name name, long flag) {
-        this(tsymbol, name, flag, VAL_READONLY);
+        this(tsymbol, name, flag, IMPLEMENTED_ANY_TYPE);
     }
 
     public BAnyType(BTypeSymbol tsymbol, Name name, long flags, SemType semType) {
-        super(TypeTags.ANY, tsymbol, VAL_READONLY);
+        super(TypeTags.ANY, tsymbol, semType);
         this.name = name;
         this.flags = flags;
     }
 
     public static BAnyType newNilLiftedBAnyType(BTypeSymbol tsymbol) {
-        return new BAnyType(tsymbol, Core.diff(VAL_READONLY, PredefinedType.NIL));
+        return new BAnyType(tsymbol, Core.diff(IMPLEMENTED_ANY_TYPE, PredefinedType.NIL));
     }
 
     @Override
@@ -80,12 +81,12 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
                 getKind().typeName().concat(" & readonly");
     }
 
+    // FIXME: remove this override
     @Override
     public SemType semType() {
-        SemType implementedAnyType = Core.intersect(PredefinedType.ANY, IMPLEMENTED_TYPES);
         if (Symbols.isFlagOn(flags, Flags.READONLY)) {
-            return Core.intersect(implementedAnyType, VAL_READONLY);
+            return Core.intersect(IMPLEMENTED_ANY_TYPE, VAL_READONLY);
         }
-        return implementedAnyType;
+        return IMPLEMENTED_ANY_TYPE;
     }
 }

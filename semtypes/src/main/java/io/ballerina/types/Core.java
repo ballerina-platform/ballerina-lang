@@ -606,7 +606,7 @@ public final class Core {
         }
     }
 
-    private static CellAtomicType bddCellAtomicType(Bdd bdd, CellAtomicType top) {
+    static CellAtomicType bddCellAtomicType(Bdd bdd, CellAtomicType top) {
         if (bdd instanceof BddAllOrNothing allOrNothing) {
             if (allOrNothing.isAll()) {
                 return top;
