@@ -98,8 +98,10 @@ public class BTestMain {
             }
             out.println();
 
-            try (InputStream is = isFatJarExecution ? BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR
-                        + testSuiteJsonPath) : null) {
+            try (InputStream is = isFatJarExecution ?
+                    BTestMain.class.getResourceAsStream(TesterinaConstants.PATH_SEPARATOR
+                        + testSuiteJsonPath)
+                    : null) {
                 BufferedReader br;
                 if (is != null) {
                     br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
@@ -225,8 +227,7 @@ public class BTestMain {
 
         if (isFatJarExecution) {
             classLoader = createModifiedCustomClassLoader(modifiedClassDef);
-        }
-        else {
+        } else {
             classLoader = createClassLoader(jarFilePaths, modifiedClassDef);
         }
 

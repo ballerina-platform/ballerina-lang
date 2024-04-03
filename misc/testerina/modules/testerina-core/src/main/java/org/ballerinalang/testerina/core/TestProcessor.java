@@ -156,8 +156,7 @@ public class TestProcessor {
         // If not a cloud build, add the test execution dependencies
         if (module.project().buildOptions().cloud().isEmpty()) {
             addTestExecutionDependencies(module, jarResolver, testSuite);
-        }
-        else if (module.project().buildOptions().nativeImage()) {
+        } else if (module.project().buildOptions().nativeImage()) {
             // If it is a cloud build, add the test execution dependencies only if native image is enabled
             addTestExecutionDependencies(module, jarResolver, testSuite);
         }

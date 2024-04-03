@@ -19,12 +19,10 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
-import io.ballerina.cli.utils.DebugUtils;
 import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -63,7 +61,6 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
-import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_ENV_KEY;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
@@ -553,7 +550,7 @@ public class TestCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Test the emission of multiple testable fat jars for a project with mocks when " +
-            "both cloud and graalvm flags are enabled")
+            "both cloud and graalvm flags are enabled", priority = 1)
     public void testEmissionOfMultipleFatJarsForProjectWithMockingForCloudAndGraalVM() throws IOException {
         Path projectPath = this.testResources.resolve("projectWithMocks");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
@@ -571,14 +568,15 @@ public class TestCommandTest extends BaseCommandTest {
         List<File> testableJars = Files.list(mainArgsFile.getParent()).filter(path -> path.toString().endsWith(".jar"))
                 .map(Path::toFile).toList();
         Assert.assertEquals(testableJars.size(), 2);   //2 because default module and 1 sub module
-        List<String> jarFileNames = Arrays.asList("projectWithMocks-testable.jar", "projectWithMocks.mod1-testable.jar");
+        List<String> jarFileNames = Arrays.asList("projectWithMocks-testable.jar",
+                "projectWithMocks.mod1-testable.jar");
         for (File testableJar : testableJars) {
             Assert.assertTrue(jarFileNames.contains(testableJar.getName()));
         }
     }
 
     @Test(description = "Test the execution of multiple testable fat jars for a project with tests and mocks",
-            dependsOnMethods = "testEmissionOfMultipleFatJarsForProjectWithMockingForCloudAndGraalVM")
+            dependsOnMethods = "testEmissionOfMultipleFatJarsForProjectWithMockingForCloudAndGraalVM", priority = 1)
     public void testExecutionOfMultipleTestableFatJarsForProjectWithTestsAndMocks() throws IOException {
         Path projectPath = this.testResources.resolve("projectWithMocks");
         Path mainArgsFile = projectPath.resolve("target").resolve("bin").resolve("tests")

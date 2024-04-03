@@ -307,7 +307,7 @@ public class TestUtils {
 
             hasTests = true;
 
-            if (isRerunTestExecution) {
+            if (!isRerunTestExecution) {
                 clearFailedTestsJson(target.path());
             }
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {

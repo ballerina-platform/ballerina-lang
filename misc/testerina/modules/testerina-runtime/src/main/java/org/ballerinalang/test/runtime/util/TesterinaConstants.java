@@ -107,7 +107,7 @@ public class TesterinaConstants {
     }
 
     /**
-     * RuntimeArgs identifies the indices of the BTestMain arg
+     * RuntimeArgs identifies the indices of the BTestMain arg.
      *
      * @since 2201.9.0
      */
