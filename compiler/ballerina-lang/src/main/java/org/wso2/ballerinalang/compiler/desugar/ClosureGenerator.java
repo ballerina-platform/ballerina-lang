@@ -437,7 +437,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
     }
 
     private void generateClosuresForDefaultValuesInTypeInclusionsFromDifferentModule(
-                                                                                   BLangRecordTypeNode recordTypeNode) {
+            BLangRecordTypeNode recordTypeNode) {
         if (recordTypeNode.typeRefs.isEmpty()) {
             return;
         }
@@ -452,7 +452,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             }
             BRecordType recordType = (BRecordType) Types.getReferredType(bType);
             Map<String, BInvokableSymbol> defaultValuesOfTypeRef =
-                                                                ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
+                    ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
             for (Map.Entry<String, BInvokableSymbol> defaultValue : defaultValuesOfTypeRef.entrySet()) {
                 String name = defaultValue.getKey();
                 if (fieldNames.contains(name)) {
@@ -591,16 +591,14 @@ public class ClosureGenerator extends BLangNodeVisitor {
             String closureName = generateName(varNode.symbol.name.value, env.node);
             varNode.pos = null;
             varNode.expr.pos = null;
-            generateClosureForDefaultValues(closureName, varNode.name.value, varNode.expr, varNode.getBType(),
-                                            env.node.getBType().tsymbol);
+            generateClosureForDefaultValues(closureName, varNode.name.value, varNode);
             result = varNode;
             return;
         }
 
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
             String closureName = generateName(varNode.symbol.name.value, env.node);
-            generateClosureForDefaultValues(closureName, varNode.name.value, varNode.expr, varNode.getBType(),
-                                            env.node.getBType().tsymbol);
+            generateClosureForDefaultValues(closureName, varNode.name.value, varNode);
         } else {
             rewriteExpr(varNode.expr);
         }
@@ -617,6 +615,11 @@ public class ClosureGenerator extends BLangNodeVisitor {
             return symbolEnv.enclInvokable.symbol;
         }
         return symbolEnv.enclPkg.symbol;
+    }
+
+    private void generateClosureForDefaultValues(String closureName, String paramName, BLangSimpleVariable varNode) {
+        generateClosureForDefaultValues(closureName, paramName, varNode.expr, varNode.getBType(),
+                                        env.node.getBType().tsymbol);
     }
 
     private void generateClosureForDefaultValues(String closureName, String paramName, BLangExpression expr,
