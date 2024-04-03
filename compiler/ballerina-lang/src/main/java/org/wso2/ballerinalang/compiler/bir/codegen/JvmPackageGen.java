@@ -99,6 +99,7 @@ import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isTestablePkgCodeGen;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
@@ -149,7 +150,6 @@ public class JvmPackageGen {
     private final Set<PackageID> dependentModules;
     private final BLangDiagnosticLog dlog;
     private final Types types;
-    public Boolean isDuplicateGeneration = false;
 
     JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog, Types types) {
         birFunctionMap = new HashMap<>();
@@ -691,10 +691,16 @@ public class JvmPackageGen {
     }
 
     private void generateDependencyList(BPackageSymbol packageSymbol)  {
-        BIRPackage birPackage = isDuplicateGeneration ? packageSymbol.duplicateBir : packageSymbol.bir;
+        BIRPackage birPackage =
+                ((JvmCodeGenUtil.isDuplicateCodegen) && packageSymbol.duplicateBir != null) ? packageSymbol.duplicateBir :
+                        packageSymbol.bir;
 
         if (birPackage != null) {
+            if (isTestablePkgCodeGen) {
+                JvmCodeGenUtil.dontAddDuplicatePrefix = true;
+            }
             generate(birPackage, false);
+            JvmCodeGenUtil.dontAddDuplicatePrefix = false;
         } else {
             for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
                 if (importPkgSymbol == null) {
@@ -703,6 +709,23 @@ public class JvmPackageGen {
                 generateDependencyList(importPkgSymbol);
             }
         }
+
+        if (isTestablePkgCodeGen && packageSymbol.shouldGenerateDuplicateBIR) {
+            birPackage = packageSymbol.duplicateBir;
+            if (birPackage != null) {
+                generate(birPackage, false);
+            } else {
+                for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
+                    if (importPkgSymbol == null) {
+                        continue;
+                    }
+                    generateDependencyList(importPkgSymbol);
+                }
+            }
+            PackageID DUPLICATE_pkgID = new PackageID(new Name("DUPLICATE_" + packageSymbol.pkgID.getOrgName().value),
+                        packageSymbol.pkgID.getName(), packageSymbol.pkgID.getPackageVersion());
+            dependentModules.add(DUPLICATE_pkgID);
+        }
         dependentModules.add(packageSymbol.pkgID);
     }
 
@@ -710,6 +733,7 @@ public class JvmPackageGen {
         if (dependentModules.contains(module.packageID)) {
             return null;
         }
+        boolean prevDontAddDuplicatePrefix = JvmCodeGenUtil.dontAddDuplicatePrefix;
         Set<PackageID> moduleImports = new LinkedHashSet<>();
         addBuiltinImports(module.packageID, moduleImports);
         boolean serviceEPAvailable = module.isListenerAvailable;
@@ -720,6 +744,8 @@ public class JvmPackageGen {
             generateDependencyList(pkgSymbol);
             serviceEPAvailable |= listenerDeclarationFound(pkgSymbol);
         }
+        JvmCodeGenUtil.dontAddDuplicatePrefix = prevDontAddDuplicatePrefix;
+
         String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME);
         String typesClass = getModuleLevelClassName(module.packageID, MODULE_TYPES_CLASS_NAME);
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, isEntry);
@@ -741,6 +767,10 @@ public class JvmPackageGen {
         BIRFunction mainFunc = getMainFunction(module);
         BIRFunction testExecuteFunc = getTestExecuteFunction(module);
 
+        if (JvmCodeGenUtil.isTestablePkgCodeGen) {
+            JvmCodeGenUtil.dontAddDuplicatePrefix = true;
+        }
+
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(birFunctionMap, jvmClassMapping, moduleInitClass, module,
                 flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc);
@@ -751,6 +781,8 @@ public class JvmPackageGen {
                 typeHashVisitor, jvmTypeGen);
         configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, jvmConstantsGen,
                                              typeHashVisitor, jarEntries, symbolTable);
+
+        JvmCodeGenUtil.dontAddDuplicatePrefix = false;
 
         // generate the shutdown listener class.
         new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries);

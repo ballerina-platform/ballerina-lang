@@ -555,6 +555,7 @@ public class RunTestsTask implements Task {
 
         List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
         dependencies.removeAll(jarList);
+        dependencies.removeAll(jarResolver.duplicateJarPaths);
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.stream().map(Path::toString).forEach(classPath::add);
