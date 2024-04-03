@@ -26,11 +26,15 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -64,6 +68,7 @@ public class JarResolver {
     private final List<PlatformLibrary> providedPlatformLibs;
 
     private ClassLoader classLoaderWithAllJars;
+    public HashSet<Path> duplicateJarPaths = new HashSet<>();
 
     JarResolver(JBallerinaBackend jBalBackend, PackageResolution pkgResolution) {
         this.jBalBackend = jBalBackend;
@@ -163,6 +168,16 @@ public class JarResolver {
             PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
                     packageContext.packageId(), packageContext.moduleContext(moduleId).moduleName());
             libraryPaths.add(new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext)));
+
+            for (PackageID duplicatePkgID : JvmCodeGenUtil.duplicatePkgsMap.values()) {
+                if (duplicatePkgID.getName().value.equals(moduleId.moduleName())) {
+                    Path duplicatePath =
+                            Paths.get(generatedJarLibrary.path().toAbsolutePath().toString().replace(".jar", "_DUPLICATE.jar"));
+                    libraryPaths.add(new JarLibrary(duplicatePath, scope, getPackageName(packageContext)));
+                    duplicateJarPaths.add(duplicatePath);
+                    break;
+                }
+            }
         }
     }
 
