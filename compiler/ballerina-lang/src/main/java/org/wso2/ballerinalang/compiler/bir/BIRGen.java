@@ -313,6 +313,8 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.accept(this);
 
         this.birOptimizer.optimizePackage(birPkg);
+
+        //TODO stop duplicate birgen for testable pkgs. It is not needed
         if (!astPkg.moduleContextDataHolder.skipTests() && astPkg.hasTestablePackage()) {
             astPkg.getTestablePkgs().forEach(testPkg -> {
                 BIRPackage testBirPkg = new BIRPackage(testPkg.pos, testPkg.packageID.orgName,
@@ -324,6 +326,8 @@ public class BIRGen extends BLangNodeVisitor {
                 if (!isDuplicateGeneration) {
                     testPkg.symbol.bir = testBirPkg;
                 } else {
+                    // Technically this should never hit
+                    //TODO find a way to restrict duplicate generation for tests
                     testPkg.symbol.duplicateBir = testBirPkg;
                 }
                 testBirPkg.importModules.add(new BIRNode.BIRImportModule(null, testPkg.packageID.orgName,

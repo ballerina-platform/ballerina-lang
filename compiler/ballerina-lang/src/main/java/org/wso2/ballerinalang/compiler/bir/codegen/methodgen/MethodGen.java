@@ -178,6 +178,10 @@ public class MethodGen {
     public void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
                                String moduleClassName, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
+        if (JvmCodeGenUtil.isTestablePkgCodeGen && birFunc.name.value.equals("$moduleInit")) {
+            JvmCodeGenUtil.dontAddDuplicatePrefix = true;
+        }
+
         if (JvmCodeGenUtil.isExternFunc(birFunc)) {
             ExternalMethodGen.genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
                     jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
@@ -186,6 +190,7 @@ public class MethodGen {
             genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
                     attachedType, asyncDataCollector, false);
         }
+        JvmCodeGenUtil.dontAddDuplicatePrefix = false;
     }
 
     public void genJMethodWithBObjectMethodCall(BIRFunction func, ClassWriter cw, BIRPackage module,
