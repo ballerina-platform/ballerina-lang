@@ -246,7 +246,7 @@ public class XMLToRecordConverter {
                 boolean isLeafXMLElementNode = isLeafXMLElementNode(xmlElementNode);
                 if (!isLeafXMLElementNode || xmlElementNode.getAttributes().getLength() > 0) {
                     generateRecords(xmlElementNode, isClosed, recordToTypeDescNodes, recordToAnnotationNodes,
-                            recordToElementNodes, diagnosticMessages, null, withNameSpace);
+                            recordToElementNodes, diagnosticMessages, value, withNameSpace);
                 }
                 RecordFieldNode recordField = getRecordField(xmlElementNode, false, withNameSpace);
                 if (recordFields.stream().anyMatch(recField -> ((RecordFieldNode) recField).fieldName().text()
