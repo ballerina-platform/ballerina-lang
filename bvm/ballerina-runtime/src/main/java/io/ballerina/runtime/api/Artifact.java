@@ -16,6 +16,8 @@
 
 package io.ballerina.runtime.api;
 
+import java.util.Map;
+
 /**
  * Represents a Ballerina artifact.
  *
@@ -41,4 +43,11 @@ public abstract class Artifact {
      * @return the detail object.
      */
     public abstract Object getDetail(String detailKey);
+
+    /**
+     * Get all details of the Ballerina artifact.
+     * @return a map of all details.
+     */
+    public abstract Map<String, Object> getAllDetails();
+
 }

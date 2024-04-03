@@ -25,6 +25,7 @@ import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.values.ObjectValue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,10 +81,7 @@ public class RepositoryImpl implements Repository {
         listeners.add(listener);
         BServiceType serviceType = (BServiceType) TypeUtils.getImpliedType(service.getOriginalType());
         artifact.addDetail("attachPoint", serviceType.attachPoint);
-        artifact.addDetail("resources", serviceType.getResourceMethods());
-        artifact.addDetail("remotes", serviceType.getRemoteMethods());
-        artifact.addDetail("annotations", serviceType.getAnnotations());
-        artifact.addDetail("package", serviceType.getPackage());
+        artifact.addDetail("service", service);
         return artifact;
     }
 
@@ -107,6 +105,7 @@ public class RepositoryImpl implements Repository {
      * The implementation of Ballerina runtime artifacts.
      */
     private static class ArtifactImpl extends Artifact {
+
         private final Map<String, Object> details;
 
         public ArtifactImpl(String name, ArtifactType type) {
@@ -122,12 +121,18 @@ public class RepositoryImpl implements Repository {
         public Object getDetail(String detailKey) {
             return details.getOrDefault(detailKey, null);
         }
+
+        @Override
+        public Map<String, Object> getAllDetails() {
+            return Collections.unmodifiableMap(details);
+        }
     }
 
     /**
      * The implementation of Ballerina runtime node.
      */
     private static class NodeImpl extends Node {
+
         private final Map<String, Object> details;
 
         public NodeImpl(String nodeId, String balVersion, String balHome, String osName, String osVersion) {
@@ -142,6 +147,11 @@ public class RepositoryImpl implements Repository {
         @Override
         public Object getDetail(String detailKey) {
             return details.getOrDefault(detailKey, null);
+        }
+
+        @Override
+        public Map<String, Object> getAllDetails() {
+            return Collections.unmodifiableMap(details);
         }
     }
 }
