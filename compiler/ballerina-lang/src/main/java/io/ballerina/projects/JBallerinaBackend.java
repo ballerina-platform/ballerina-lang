@@ -210,7 +210,7 @@ public class JBallerinaBackend extends CompilerBackend {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
-            new EmitResult(false, diagnosticResult, null);
+            return new EmitResult(false, diagnosticResult, null);
         }
 
         List<Diagnostic> emitResultDiagnostics = new ArrayList<>();
@@ -228,7 +228,7 @@ public class JBallerinaBackend extends CompilerBackend {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
-            new EmitResult(false, diagnosticResult, null);
+            return new EmitResult(false, diagnosticResult, null);
         }
 
         if (testEmitArgs.outputType() == OutputType.TEST) {

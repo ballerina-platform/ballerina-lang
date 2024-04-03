@@ -42,6 +42,7 @@ import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
+import org.ballerinalang.testerina.core.TestProcessor;
 import org.jacoco.core.analysis.IClassCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.data.ExecutionData;
@@ -63,6 +64,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -277,36 +279,51 @@ public class TestUtils {
 
     /**
      * Create test suites for the project.
-     * @param testSuiteCreatingArgs Arguments to use in creating test suites
+     * @param project Project
+     * @param target Target
+     * @param testProcessor Test processor to create test suites
+     * @param testSuiteMap  Test suite map that is used to store test suites
+     * @param moduleNamesList   List of module names that will be created
+     * @param mockClassNames    List of mock class names that will be created
+     * @param isRerunTestExecution  Whether to rerun test execution
+     * @param report    Whether to report
+     * @param coverage  Whether to generate coverage
      * @return                    Whether the project has tests
      */
-    public static boolean createTestSuitesForProject(TestSuiteCreatingArgs testSuiteCreatingArgs) {
+    public static boolean createTestSuitesForProject(Project project, Target target, TestProcessor testProcessor,
+                                                     Map<String, TestSuite> testSuiteMap, List<String> moduleNamesList,
+                                                     List<String> mockClassNames, boolean isRerunTestExecution,
+                                                     boolean report, boolean coverage) {
         boolean hasTests = false;
         for (ModuleDescriptor moduleDescriptor :
-                testSuiteCreatingArgs.project().currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
-            Module module = testSuiteCreatingArgs.project().currentPackage().module(moduleDescriptor.name());
+                project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+            Module module = project.currentPackage().module(moduleDescriptor.name());
             ModuleName moduleName = module.moduleName();
 
-            TestSuite suite = testSuiteCreatingArgs.testProcessor().testSuite(module).orElse(null);
+            TestSuite suite = testProcessor.testSuite(module).orElse(null);
             if (suite == null) {
                 continue;
             }
 
             hasTests = true;
 
-            if (!testSuiteCreatingArgs.isRerunTestExecution()) {
-                clearFailedTestsJson(testSuiteCreatingArgs.target().path());
+            if (isRerunTestExecution) {
+                clearFailedTestsJson(target.path());
             }
-            if (testSuiteCreatingArgs.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                suite.setSourceFileName(testSuiteCreatingArgs.project().sourceRoot().getFileName().toString());
+            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                Optional<Path> sourceRootFileName = Optional.ofNullable(project.sourceRoot().getFileName());
+                if (sourceRootFileName.isPresent()) {
+                    suite.setSourceFileName(sourceRootFileName.get().toString());
+                } else {
+                    throw new IllegalStateException("Source root file name is not present");
+                }
             }
-            suite.setReportRequired(testSuiteCreatingArgs.report() || testSuiteCreatingArgs.coverage());
-            String resolvedModuleName =
-                    getResolvedModuleName(module, moduleName);
-            testSuiteCreatingArgs.testSuiteMap().put(resolvedModuleName, suite);
-            testSuiteCreatingArgs.moduleNamesList().add(resolvedModuleName);
+            suite.setReportRequired(report || coverage);
+            String resolvedModuleName = getResolvedModuleName(module, moduleName);
+            testSuiteMap.put(resolvedModuleName, suite);
+            moduleNamesList.add(resolvedModuleName);
 
-            addMockClasses(suite, testSuiteCreatingArgs.mockClassNames());
+            addMockClasses(suite, mockClassNames);
         }
         return hasTests;
     }
@@ -399,7 +416,8 @@ public class TestUtils {
                                           String testSuiteJsonPath, boolean report,
                                           boolean coverage, String groupList, String disableGroupList,
                                           String singleExecTests, boolean isRerunTestExecution,
-                                          boolean listGroups, List<String> cliArgs, boolean isFatJarExecution) {
+                                          boolean listGroups, List<String> cliArgs, boolean isFatJarExecution,
+                                          boolean isParallelExecution) {
 
         cmdArgs.add(Boolean.toString(isFatJarExecution));
         cmdArgs.add(testSuiteJsonPath);
@@ -412,6 +430,7 @@ public class TestUtils {
         cmdArgs.add(singleExecTests != null ? singleExecTests : "");
         cmdArgs.add(Boolean.toString(isRerunTestExecution));
         cmdArgs.add(Boolean.toString(listGroups));
+        cmdArgs.add(Boolean.toString(isParallelExecution));
         cmdArgs.addAll(cliArgs);
     }
 
@@ -438,9 +457,9 @@ public class TestUtils {
 
     private static String getFunctionToMockClassName(String id) {
         String functionToMockClassName;
-        if (id.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
+        if (!id.contains(MOCK_LEGACY_DELIMITER)) {
             functionToMockClassName = id.substring(0, id.indexOf(MOCK_FN_DELIMITER));
-        } else if (id.indexOf(MOCK_FN_DELIMITER) == -1) {
+        } else if (!id.contains(MOCK_FN_DELIMITER)) {
             functionToMockClassName = id.substring(0, id.indexOf(MOCK_LEGACY_DELIMITER));
         } else {
             if (id.indexOf(MOCK_FN_DELIMITER) < id.indexOf(MOCK_LEGACY_DELIMITER)) {
