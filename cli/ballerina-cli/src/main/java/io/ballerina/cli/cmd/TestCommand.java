@@ -19,6 +19,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
+import io.ballerina.cli.task.CleanTargetBinTestsDirTask;
 import io.ballerina.cli.task.CleanTargetCacheDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateTestExecutableTask;
@@ -358,6 +359,7 @@ public class TestCommand implements BLauncherCmd {
         // Hence, below tasks are executed before extracting the module map from the project.
         TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
+                .addTask(new CleanTargetBinTestsDirTask(), (isSingleFile || project.buildOptions().cloud().isEmpty()))
                 .addTask(new RunBuildToolsTask(outStream), isSingleFile) // run build tools
                 .build();
         preBuildTaskExecutor.executeTasks(project);
@@ -375,14 +377,15 @@ public class TestCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, false,isPackageModified,
-                        buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, false, false,
+                        isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
-                .addTask(new CreateTestExecutableTask(outStream, includes, excludes, groupList,
-                                disableGroupList, coverageFormat, testList, moduleMap, listGroups, cliArgs),
+                .addTask(new CreateTestExecutableTask(outStream, groupList, disableGroupList, testList, listGroups,
+                                cliArgs, isParallelExecution),
                         project.buildOptions().cloud().isEmpty())
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs, isParallelExecution),
+                                testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs,
+                                isParallelExecution),
                         (project.buildOptions().nativeImage() ||
                         !project.buildOptions().cloud().isEmpty()))
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
