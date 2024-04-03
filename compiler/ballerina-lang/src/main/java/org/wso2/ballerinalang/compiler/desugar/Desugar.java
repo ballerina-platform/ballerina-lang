@@ -5127,6 +5127,32 @@ public class Desugar extends BLangNodeVisitor {
         return kind == TypeKind.ARRAY || kind == TypeKind.TUPLE;
     }
 
+    // We desguar certain foreach loops to hardcoded while loops to avoid having to use an iterator. This shouldn't
+    // create any observable difference in behavior and should be faster than using iterators. Currently, we support
+    // this optimization for two kinds foreach loops,
+    // 1) Range expressions
+    //    foreach int i in m ..< n {
+    //         // code;
+    //     } will become,
+    //     int $index$ = m;
+    //     int $indexMax$ = n;
+    //     while $index$ < $indexMax$ {
+    //         int i = $index$;
+    //         $index$ = $index$ + 1;
+    //         // code;
+    //     }
+    // 2) Foreach over lists
+    //     foreach float f in [1.0, 2.0, 3.0] {
+    //         // code;
+    //     } will become,
+    //     float[] $data$ = [1.0, 2.0, 3.0];
+    //     int $index$ = 0;
+    //     int $indexMax$ = $data$.length();
+    //     while $index$ < $indexMax$ {
+    //         float f = $data$[$index$];
+    //         $index$ = $index$ + 1;
+    //         // code;
+    //     }
     private BLangBlockStmt desugarForeachToWhileWithoutIterator(BLangForeach foreach) {
         Location pos = foreach.pos;
         BLangBlockStmt scopeBlock = ASTBuilderUtil.createBlockStmt(pos);
