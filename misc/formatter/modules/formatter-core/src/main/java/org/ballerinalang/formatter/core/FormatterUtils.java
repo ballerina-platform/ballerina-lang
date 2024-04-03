@@ -89,68 +89,75 @@ class FormatterUtils {
     }
 
     /**
-     * Swap leading minutiae of the first import in the code and the first import when sorted.
+     * Swap leading minutiae of the first import in original code and the first import when sorted.
      *
-     * @param firstImportNode First ImportDeclarationNode in user code
+     * @param firstImportNode First ImportDeclarationNode in original code
      * @param importNodes     Sorted formatted ImportDeclarationNode nodes
      */
     static void swapLeadingMinutiae(ImportDeclarationNode firstImportNode, List<ImportDeclarationNode> importNodes) {
-        String firstImportStr = getImportString(firstImportNode);
         int prevFirstIndex = -1;
+        Optional<ImportOrgNameNode> orgNameNode = firstImportNode.orgName();
+        String firstImportOrgName = orgNameNode.isPresent() ? orgNameNode.get().toSourceCode() : "";
+        String firstImportModuleName = getImportModuleName(firstImportNode);
         for (int i = 0; i < importNodes.size(); i++) {
-            if (firstImportStr.equals(getImportString(importNodes.get(i)))) {
+            if (isImportsEqual(firstImportOrgName, firstImportModuleName, importNodes.get(i))) {
                 prevFirstIndex = i;
                 break;
             }
         }
-        if (prevFirstIndex > 0) {
-            // remove comments from the previous first import
-            ImportDeclarationNode prevFirstImportNode = importNodes.get(prevFirstIndex);
-            MinutiaeList prevLeadingMinutiae = prevFirstImportNode.leadingMinutiae();
-            List<Minutiae> leadingMinutiae = new ArrayList<>();
-            Minutiae prevFirstMinutiae = prevLeadingMinutiae.get(0);
-            if (prevFirstMinutiae.kind() != SyntaxKind.COMMENT_MINUTIAE) {
-                leadingMinutiae.add(prevFirstMinutiae);
-            }
-
-            Token prevFirstImportToken = prevFirstImportNode.importKeyword();
-            Token modifiedPrevFirstImportToken =
-                    prevFirstImportToken.modify(NodeFactory.createMinutiaeList(leadingMinutiae),
-                            prevFirstImportToken.trailingMinutiae());
-            importNodes.set(prevFirstIndex,
-                    prevFirstImportNode.modify().withImportKeyword(modifiedPrevFirstImportToken).apply());
-
-            // add leading comments from the previous first import
-            prevLeadingMinutiae = firstImportNode.leadingMinutiae();
-            prevFirstMinutiae = prevLeadingMinutiae.get(0);
-            if (prevFirstMinutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
-                prevLeadingMinutiae = prevLeadingMinutiae.remove(0);
-            }
-            if (!hasEmptyLineAtEnd(prevLeadingMinutiae)) {
-                prevLeadingMinutiae =
-                        prevLeadingMinutiae.add(NodeFactory.createEndOfLineMinutiae(System.lineSeparator()));
-            }
-            ImportDeclarationNode sortedFirstImportNode = importNodes.get(0);
-            Token sortedFirstImportToken = sortedFirstImportNode.importKeyword();
-            MinutiaeList sortedLeadingMinutiae = sortedFirstImportToken.leadingMinutiae();
-            for (Minutiae minutiae : sortedLeadingMinutiae) {
-                prevLeadingMinutiae = prevLeadingMinutiae.add(minutiae);
-            }
-
-            Token modifiedSortedFirstImportToken =
-                    sortedFirstImportToken.modify(prevLeadingMinutiae, sortedFirstImportToken.trailingMinutiae());
-            importNodes.set(0,
-                    sortedFirstImportNode.modify().withImportKeyword(modifiedSortedFirstImportToken).apply());
+        if (prevFirstIndex == 0) {
+            return;
         }
+        // remove comments from the previous first import
+        ImportDeclarationNode prevFirstImportNode = importNodes.get(prevFirstIndex);
+        MinutiaeList prevLeadingMinutiae = prevFirstImportNode.leadingMinutiae();
+        List<Minutiae> leadingMinutiae = new ArrayList<>();
+        Minutiae prevFirstMinutiae = prevLeadingMinutiae.get(0);
+        if (prevFirstMinutiae.kind() != SyntaxKind.COMMENT_MINUTIAE) {
+            leadingMinutiae.add(prevFirstMinutiae);
+            prevLeadingMinutiae = prevLeadingMinutiae.remove(0);
+        }
+
+        Token prevFirstImportToken = prevFirstImportNode.importKeyword();
+        Token modifiedPrevFirstImportToken =
+                prevFirstImportToken.modify(NodeFactory.createMinutiaeList(leadingMinutiae),
+                        prevFirstImportToken.trailingMinutiae());
+        importNodes.set(prevFirstIndex,
+                prevFirstImportNode.modify().withImportKeyword(modifiedPrevFirstImportToken).apply());
+
+        // add leading comments from the previous first import
+        if (!hasEmptyLineAtEnd(prevLeadingMinutiae)) {
+            prevLeadingMinutiae =
+                    prevLeadingMinutiae.add(NodeFactory.createEndOfLineMinutiae(System.lineSeparator()));
+        }
+        ImportDeclarationNode sortedFirstImportNode = importNodes.get(0);
+        Token sortedFirstImportToken = sortedFirstImportNode.importKeyword();
+        MinutiaeList sortedLeadingMinutiae = sortedFirstImportToken.leadingMinutiae();
+        for (int i = 0; i < sortedLeadingMinutiae.size(); i++) {
+            Minutiae minutiae = sortedLeadingMinutiae.get(i);
+            if (i == 0 && minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                continue;
+            }
+            prevLeadingMinutiae = prevLeadingMinutiae.add(minutiae);
+        }
+        Token modifiedSortedFirstImportToken =
+                sortedFirstImportToken.modify(prevLeadingMinutiae, sortedFirstImportToken.trailingMinutiae());
+        importNodes.set(0,
+                sortedFirstImportNode.modify().withImportKeyword(modifiedSortedFirstImportToken).apply());
     }
 
-    private static String getImportString(ImportDeclarationNode importDeclarationNode) {
-        Optional<ImportOrgNameNode> orgNameNode = importDeclarationNode.orgName();
-        String orgName = orgNameNode.isPresent() ? orgNameNode.get().toSourceCode() : "";
-        String moduleName = importDeclarationNode.moduleName().stream()
-                .map(Node::toSourceCode)
-                .collect(Collectors.joining("."));
-        return orgName + moduleName;
+    private static boolean isImportsEqual(String firstImportOrgName, String firstImportModuleName,
+                                          ImportDeclarationNode secondImportNode) {
+        Optional<ImportOrgNameNode> orgNameNode = secondImportNode.orgName();
+        String importOrgName = orgNameNode.isPresent() ? orgNameNode.get().toSourceCode() : "";
+        if (firstImportOrgName.equals(importOrgName)) {
+            return firstImportModuleName.equals(getImportModuleName(secondImportNode));
+        }
+        return false;
+    }
+
+    private static String getImportModuleName(ImportDeclarationNode importDeclarationNode) {
+        return importDeclarationNode.moduleName().stream().map(Node::toSourceCode).collect(Collectors.joining("."));
     }
 
     private static boolean hasEmptyLineAtEnd(MinutiaeList minutiaeList) {

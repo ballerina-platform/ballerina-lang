@@ -85,9 +85,4 @@ public class FormattingEnv {
      * Reference to the next node that needs to be wrapped.
      */
     Node nodeToWrap = null;
-
-    /**
-     * Flag indicating the first import node that is formatted.
-     */
-    boolean firstImportToFormat = true;
 }
