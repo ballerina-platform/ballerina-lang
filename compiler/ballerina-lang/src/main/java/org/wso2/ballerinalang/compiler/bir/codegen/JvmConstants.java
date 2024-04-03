@@ -226,6 +226,7 @@ public class JvmConstants {
     public static final String RUNTIME_REGISTRY_CLASS = "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
     public static final String REG_EXP_FACTORY = "io/ballerina/runtime/internal/regexp/RegExpFactory";
+    public static final String REPOSITORY_IMPL = "io/ballerina/runtime/internal/RepositoryImpl";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -431,6 +432,9 @@ public class JvmConstants {
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
     public static final String DISPLAY_ANNOTATION = "display";
     public static final String RECORD_CHECKPOINT_METHOD = "recordCheckpoint";
+    public static final String BALLERINA_HOME = "ballerina.home";
+    public static final String BALLERINA_VERSION = "ballerina.version";
+
     // visibility flags
     public static final int BAL_PUBLIC = 1;
     public static final int BAL_NATIVE = 2;

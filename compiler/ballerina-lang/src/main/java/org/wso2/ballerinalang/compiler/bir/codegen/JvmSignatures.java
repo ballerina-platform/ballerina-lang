@@ -505,9 +505,11 @@ public class JvmSignatures {
     public static final String GET_TEST_CONFIG_PATH = "(L" + MODULE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
                                                       ";)L" + CONFIG_DETAILS + ";";
     public static final String SET_DEFAULT_VALUE_METHOD = "(L" + STRING_VALUE + ";L" + B_FUNCTION_POINTER + ";)V";
+    public static final String ADD_SERVICE_LISTENER = "(L" + B_OBJECT + ";L" + B_OBJECT + ";L" + OBJECT + ";)V";
     public static final String ALT_RECEIVE_CALL = "(L" + STRAND_CLASS + ";[L" + STRING_VALUE + ";)L" + OBJECT + ";";
     public static final String MULTIPLE_RECEIVE_CALL = "(L" + STRAND_CLASS + ";[L" + RECEIVE_FIELD + ";L" + TYPE +
             ";)L" + OBJECT + ";";
+    public static final String ADD_BALLERINA_INFO = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";)V";
 
     private JvmSignatures() {
     }
