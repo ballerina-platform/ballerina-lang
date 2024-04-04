@@ -56,10 +56,10 @@ import java.util.Set;
 public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Add Isolated Qualifier";
-    private static final String NON_ISOLATED_WITHIN_LOCK_DIAGNOSTIC = "BCE3961";
+    private static final String DIAGNOSTIC_CODE_3961 = "BCE3961";
     private static final String ANONYMOUS_FUNCTION_EXPRESSION = "Anonymous function expression";
     private static final Set<String> DIAGNOSTIC_CODES =
-            Set.of("BCE3946", "BCE3947", "BCE3950", NON_ISOLATED_WITHIN_LOCK_DIAGNOSTIC);
+            Set.of("BCE3946", "BCE3947", "BCE3950", DIAGNOSTIC_CODE_3961);
 
     @Override
     public boolean validate(Diagnostic diagnostic,
@@ -156,7 +156,7 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
         return diagnostics.stream().anyMatch(diagnostic -> !currentDiagnostic.equals(diagnostic) &&
                 DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
                 PositionUtil.isWithinLineRange(diagnostic.location().lineRange(), node.lineRange())) &&
-                currentDiagnostic.diagnosticInfo().code().equals(NON_ISOLATED_WITHIN_LOCK_DIAGNOSTIC);
+                currentDiagnostic.diagnosticInfo().code().equals(DIAGNOSTIC_CODE_3961);
     }
 
     @Override
