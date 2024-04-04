@@ -49,6 +49,9 @@ public class WorkerFailTest {
                 "possible deadlocks", 74, 17);
         validateError(result, index++, receiveNotAllowedError, 79, 15);
         validateError(result, index++, receiveNotAllowedError, 81, 21);
+        validateError(result, index++, receiveNotAllowedError, 93, 13);
+        validateError(result, index++, receiveNotAllowedError, 94, 16);
+        validateError(result, index++, receiveNotAllowedError, 94, 19);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
