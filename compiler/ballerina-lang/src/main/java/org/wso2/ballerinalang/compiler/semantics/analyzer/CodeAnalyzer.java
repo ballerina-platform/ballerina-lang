@@ -1966,12 +1966,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private boolean isSendAllowedContext(BLangNode bLangNode) {
-        return isReceiveAllowedContext(bLangNode) || bLangNode.getKind() == NodeKind.IF;
+        return isReceiveAllowedContext(bLangNode) ||
+                bLangNode.getKind() == NodeKind.IF ||
+                bLangNode.getKind() == NodeKind.ON_FAIL;
     }
 
     private boolean isReceiveAllowedContext(BLangNode bLangNode) {
         return switch (bLangNode.getKind()) {
-            case BLOCK_FUNCTION_BODY, BLOCK, ON_FAIL, DO_STMT -> true;
+            case BLOCK_FUNCTION_BODY, BLOCK, DO_STMT -> true;
             default -> false;
         };
     }
