@@ -103,3 +103,33 @@ function testWorkerOnFailWithSend() returns int {
 function returnOne() returns int => 1;
 
 function returnIntArr() returns int[] => [2, 3, 4, 5];
+
+public function testAsyncSendInsideWorkerOnFail() returns int|error {
+    worker w1 {
+        check error("err");
+    } on fail {
+        17 -> w2;
+    }
+
+    worker w2 returns int|error {
+        int x = check <- w1;
+        return x;
+    }
+
+    return wait w2;
+}
+
+public function testSyncSendInsideWorkerOnFail() returns int|error {
+    worker w1 {
+        check error("err");
+    } on fail {
+        -8 ->> w2;
+    }
+
+    worker w2 returns int|error {
+        int x = check <- w1;
+        return x;
+    }
+
+    return wait w2;
+}
