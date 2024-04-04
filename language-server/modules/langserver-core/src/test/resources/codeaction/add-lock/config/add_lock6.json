@@ -14,14 +14,14 @@
           "range": {
             "start": {
               "line": 4,
-              "character": 8
+              "character": 0
             },
             "end": {
-              "line": 4,
-              "character": 32
+              "line": 5,
+              "character": 0
             }
           },
-          "newText": "lock {\n\t        self.arr.push(inputArr);\n        }"
+          "newText": "        lock {\n\t        self.arr.push(inputArr);\n        }\n"
         }
       ],
       "resolvable": false

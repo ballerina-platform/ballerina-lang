@@ -14,14 +14,14 @@
           "range": {
             "start": {
               "line": 3,
-              "character": 4
+              "character": 0
             },
             "end": {
-              "line": 3,
-              "character": 23
+              "line": 4,
+              "character": 0
             }
           },
-          "newText": "lock {\n\t    mp[\"a\"] = inputArr;\n    }"
+          "newText": "    lock {\n\t    mp[\"a\"] = inputArr;\n    }\n"
         }
       ],
       "resolvable": false

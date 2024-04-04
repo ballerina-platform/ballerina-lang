@@ -24,6 +24,8 @@ import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -109,15 +111,19 @@ public class AddLockCodeAction implements DiagnosticBasedCodeActionProvider {
     }
 
     private static TextEdit getTextEdit(Node node) {
-        LinePosition startLinePosition = node.lineRange().startLine();
+        TextDocument textDocument = node.syntaxTree().textDocument();
+        TextRange textRange = node.textRangeWithMinutiae();
+        LinePosition startLinePosition = textDocument.linePositionFrom(textRange.startOffset());
+        LinePosition endLinePosition = textDocument.linePositionFrom(textRange.endOffset());
         Position startPosition = PositionUtil.toPosition(startLinePosition);
-        Position endPosition = PositionUtil.toPosition(node.lineRange().endLine());
+        Position endPosition = PositionUtil.toPosition(endLinePosition);
 
-        String spaces = " ".repeat(startLinePosition.offset());
+        String spaces = " ".repeat(node.lineRange().startLine().offset());
         String statement = node.toSourceCode();
         String indentedStatement = statement.substring(0, statement.length() - 1).replace("\n", "\n\t") + "\n";
 
-        String editText = "lock {" + CommonUtil.LINE_SEPARATOR + "\t" + indentedStatement + spaces + "}";
+        String editText =
+                spaces + "lock {" + CommonUtil.LINE_SEPARATOR + "\t" + indentedStatement + spaces + "}" + "\n";
         return new TextEdit(new Range(startPosition, endPosition), editText);
     }
 

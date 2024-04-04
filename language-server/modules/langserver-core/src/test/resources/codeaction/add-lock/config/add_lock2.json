@@ -14,14 +14,14 @@
           "range": {
             "start": {
               "line": 4,
-              "character": 8
+              "character": 0
             },
             "end": {
-              "line": 4,
-              "character": 23
+              "line": 5,
+              "character": 0
             }
           },
-          "newText": "lock {\n\t        _ = self.i + 1;\n        }"
+          "newText": "        lock {\n\t        _ = self.i + 1;\n        }\n"
         }
       ],
       "resolvable": false

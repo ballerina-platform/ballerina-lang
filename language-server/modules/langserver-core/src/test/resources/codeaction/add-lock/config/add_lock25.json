@@ -1,10 +1,10 @@
 {
   "position": {
-    "line": 4,
-    "character": 20
+    "line": 5,
+    "character": 9
   },
-  "source": "add_lock4.bal",
-  "description": "Wrap in a lock statement for accessing a mutable storage",
+  "source": "add_lock25.bal",
+  "description": "Wrap in a lock statement for a statement with a comment",
   "expected": [
     {
       "title": "Surround with lock",
@@ -13,15 +13,15 @@
         {
           "range": {
             "start": {
-              "line": 4,
+              "line": 3,
               "character": 0
             },
             "end": {
-              "line": 5,
+              "line": 6,
               "character": 0
             }
           },
-          "newText": "        lock {\n\t        return self.mp.get(\"a\");\n        }\n"
+          "newText": "    lock {\n\t    // Comment1\n\t    // Comment2\n\t    _ = i + 2;\n    }\n"
         }
       ],
       "resolvable": false

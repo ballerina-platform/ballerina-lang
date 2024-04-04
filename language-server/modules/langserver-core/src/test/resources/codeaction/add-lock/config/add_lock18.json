@@ -14,14 +14,14 @@
           "range": {
             "start": {
               "line": 3,
-              "character": 4
+              "character": 0
             },
             "end": {
-              "line": 5,
-              "character": 18
+              "line": 6,
+              "character": 0
             }
           },
-          "newText": "lock {\n\t    int[] listResult = from var el in arr\n\t        where el > 10\n\t        select el;\n    }"
+          "newText": "    lock {\n\t    int[] listResult = from var el in arr\n\t        where el > 10\n\t        select el;\n    }\n"
         }
       ],
       "resolvable": false
