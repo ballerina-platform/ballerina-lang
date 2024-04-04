@@ -1,0 +1,5 @@
+
+Executing Build Tools
+ERROR [Ballerina.toml:(6:1,10:24)] Build tool command 'missing_interface_dummy_tool' not found
+WARNING: Execution of 'missing_interface_dummy_tool:main_dummy' is skipped due to errors
+

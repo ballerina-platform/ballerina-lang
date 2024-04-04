@@ -1,0 +1,5 @@
+[tool]
+id="missing_interface_dummy_tool"
+
+[[dependency]]
+path="./resources/sample-dummy-build-tool-1.4.0.jar"
