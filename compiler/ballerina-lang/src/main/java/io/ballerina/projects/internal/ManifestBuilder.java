@@ -692,7 +692,7 @@ public class ManifestBuilder {
         String graalVMBuildOptions = getStringFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.GRAAL_VM_BUILD_OPTIONS.toString());
         Boolean remoteManagement = getBooleanFromBuildOptionsTableNode(tableNode,
-                CompilerOptionName.RUNTIME_MANAGEMENT_INCLUDED.toString());
+                CompilerOptionName.REMOTE_MANAGEMENT.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
