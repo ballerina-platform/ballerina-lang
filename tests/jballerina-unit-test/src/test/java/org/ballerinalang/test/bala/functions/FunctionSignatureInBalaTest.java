@@ -368,8 +368,8 @@ public class FunctionSignatureInBalaTest {
     }
 
     @Test
-    public void testFuncWithDefaultValueOfParamFromDifferentModule() {
-        BRunUtil.invoke(compileResult, "testFuncWithDefaultValueOfParamFromDifferentModule");
+    public void testFuncCallingFuncFromDifferentModuleAsParamDefault() {
+        BRunUtil.invoke(compileResult, "testFuncCallingFuncFromDifferentModuleAsParamDefault");
     }
     
     @Test

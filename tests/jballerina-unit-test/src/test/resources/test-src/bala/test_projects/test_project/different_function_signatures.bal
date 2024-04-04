@@ -49,7 +49,7 @@ public function functionAnyRestParam(any... z) returns any[] {
 
 // ------------------- Test function signature with call of function from a different module as parameter default
 
-public function funcWithDefaultValueOfParamFromDifferentModule(int a = utils:foo()) returns int {
+public function funcCallingFuncFromDifferentModuleAsParamDefault(int a = utils:foo()) returns int {
     return a;
 }
 
