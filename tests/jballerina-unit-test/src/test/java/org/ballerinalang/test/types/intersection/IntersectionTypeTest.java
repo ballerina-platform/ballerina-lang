@@ -87,8 +87,10 @@ public class IntersectionTypeTest {
                       45);
         validateError(result, index++, "incompatible types: 'Y' is not a record", 42, 6);
         validateError(result, index++, "invalid intersection type " +
-                        "'MutableType & ReadonlyType': no intersection", 49, 9);
+                        "'FutureType & ReadonlyType': no intersection", 49, 9);
         validateError(result, index++, "cannot update 'readonly' value of type '(string[] & readonly)'", 53, 5);
+        validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'int[]'", 63, 30);
+        validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Foo'", 65, 28);
 
         assertEquals(result.getErrorCount(), index);
     }

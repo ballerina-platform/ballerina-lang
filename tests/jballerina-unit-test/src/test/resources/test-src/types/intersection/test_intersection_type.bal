@@ -328,12 +328,17 @@ function testReadonlyIntersection() {
 
     ReadonlyTypeDef1 & string[] value2 = ["1", "2", "3"];
     assertTrue(<any>value2 is readonly);
+    assertTrue(<any>value2 is ReadonlyTypeDef1 & string[]);
 
     ReadonlyTypeDef1 & map<string> value3 = {"a": "1", "b": "2"};
     assertTrue(<any>value3 is readonly);
+    assertTrue(<any>value3 is ReadonlyTypeDef1 & map<string>);
 
     ReadonlyTypeDef1 & ReadonlyTypeDef2 & map<string> value4 = {"a": "1", "b": "2"};
     assertTrue(<any>value4 is readonly);
+
+    string[] value5 = ["1", "2", "3"];
+    assertFalse(<any>value4 is ReadonlyTypeDef1 & string[]);
 }
 
 function assertError(any|error value, string errorMessage, string expDetailMessage) {
