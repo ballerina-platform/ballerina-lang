@@ -390,17 +390,12 @@ public class JsonToRecordMapper {
                     OptionalTypeDescriptorNode optionalTypeDescNode = (OptionalTypeDescriptorNode) node2;
                     node2 = (TypeDescriptorNode) optionalTypeDescNode.typeDescriptor();
                     alreadyOptionalTypeDesc = true;
-                } else {
-                    Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
-                    if (node1.kind().equals(SyntaxKind.ANYDATA_KEYWORD)) {
-                        nonAnyDataNode = NodeParser.parseTypeDescriptor(node2.toSourceCode());
-                        optionalFieldName = AbstractNodeFactory.createIdentifierToken(entry.getKey() +
-                                questionMarkToken.text());
-                    } else if (node2.kind().equals(SyntaxKind.ANYDATA_KEYWORD)) {
-                        nonAnyDataNode = NodeParser.parseTypeDescriptor(node1.toSourceCode());
-                        optionalFieldName = AbstractNodeFactory.createIdentifierToken(entry.getKey() +
-                                questionMarkToken.text());
-                    }
+                } else if (node1.kind().equals(SyntaxKind.ANYDATA_KEYWORD) ||
+                            node2.kind().equals(SyntaxKind.ANYDATA_KEYWORD)) {
+                    nonAnyDataNode = NodeParser.parseTypeDescriptor(node1.kind().equals(SyntaxKind.ANYDATA_KEYWORD) ?
+                            node2.toSourceCode() : node1.toSourceCode());
+                    optionalFieldName = AbstractNodeFactory.createIdentifierToken(entry.getKey() +
+                            SyntaxKind.QUESTION_MARK_TOKEN.stringValue());
                 }
 
                 List<TypeDescriptorNode> typeDescNodesSorted =
@@ -411,9 +406,9 @@ public class JsonToRecordMapper {
                 RecordFieldNode recordField =
                         (RecordFieldNode) getRecordField(jsonEntry, existingFieldNames, updatedFieldNames, isOptional);
                 recordField = recordField.modify()
-                        .withTypeName(nonAnyDataNode == null ? unionTypeDescNode : nonAnyDataNode).apply();
-                recordField = recordField.modify()
-                        .withFieldName(optionalFieldName == null ? recordField.fieldName() : optionalFieldName).apply();
+                        .withTypeName(nonAnyDataNode == null ? unionTypeDescNode : nonAnyDataNode)
+                        .withFieldName(optionalFieldName == null ? recordField.fieldName() : optionalFieldName)
+                        .apply();
                 recordFields.add(recordField);
             } else {
                 Node recordField = getRecordField(jsonEntry, existingFieldNames, updatedFieldNames, isOptional);
