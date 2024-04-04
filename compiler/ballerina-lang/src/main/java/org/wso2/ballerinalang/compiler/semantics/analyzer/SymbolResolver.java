@@ -2455,11 +2455,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     public BType getPotentialIntersection(Types.IntersectionContext intersectionContext,
                                            BType lhsType, BType rhsType, SymbolEnv env) {
-        if (lhsType == symTable.readonlyType) {
+        if (Types.getImpliedType(lhsType) == symTable.readonlyType) {
             return rhsType;
         }
 
-        if (rhsType == symTable.readonlyType) {
+        if (Types.getImpliedType(rhsType) == symTable.readonlyType) {
             return lhsType;
         }
 
