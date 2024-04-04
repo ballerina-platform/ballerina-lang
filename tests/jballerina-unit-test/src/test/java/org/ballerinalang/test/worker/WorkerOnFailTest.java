@@ -22,10 +22,13 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
+
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Tests the worker on fail clause.
@@ -35,11 +38,13 @@ import java.util.Arrays;
 public class WorkerOnFailTest {
 
     private CompileResult result;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
-        this.result = BCompileUtil.compile("test-src/workers/worker-on-fail.bal");
+        result = BCompileUtil.compile("test-src/workers/worker-on-fail.bal");
         Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
+        resultNegative = BCompileUtil.compile("test-src/workers/worker-on-fail-negative.bal");
     }
 
     @Test
@@ -77,4 +82,37 @@ public class WorkerOnFailTest {
         Assert.assertEquals(ret, 1);
     }
 
+    @Test
+    public void asyncSendInsideWorkerOnFail() {
+        Object returns = BRunUtil.invoke(result, "testAsyncSendInsideWorkerOnFail");
+        long ret = (long) returns;
+        Assert.assertEquals(ret, 17);
+    }
+
+    @Test
+    public void syncSendInsideWorkerOnFail() {
+        Object returns = BRunUtil.invoke(result, "testSyncSendInsideWorkerOnFail");
+        long ret = (long) returns;
+        Assert.assertEquals(ret, -8);
+    }
+
+    @Test
+    public void onFailNegative() {
+        String errMsg = "incompatible types: expected 'int', found '(int|ballerina/lang.error:0.0.0:NoMessage)'";
+        int index = 0;
+        validateError(resultNegative, index++, errMsg, 26, 17);
+        validateError(resultNegative, index++, errMsg, 41, 17);
+        validateError(resultNegative, index++, errMsg, 66, 17);
+        validateError(resultNegative, index++, errMsg, 67, 17);
+        validateError(resultNegative, index++, errMsg, 68, 17);
+        validateError(resultNegative, index++, errMsg, 69, 17);
+        validateError(resultNegative, index++, errMsg, 70, 17);
+        Assert.assertEquals(resultNegative.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void afterClass() {
+        result = null;
+        resultNegative = null;
+    }
 }
