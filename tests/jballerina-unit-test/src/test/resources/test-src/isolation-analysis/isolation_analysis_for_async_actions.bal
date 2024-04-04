@@ -25,6 +25,14 @@ service / on new Listener() {
         string[] newArray = [...arr];
         _ = start callFunction(newArray.clone());
     }
+
+    resource function get h4() {
+        _ = start fn();
+    }
+}
+
+function fn(any x = ()) returns any {
+    _ = start fn(fn());
 }
 
 isolated function callFunction(string[] arr) {
