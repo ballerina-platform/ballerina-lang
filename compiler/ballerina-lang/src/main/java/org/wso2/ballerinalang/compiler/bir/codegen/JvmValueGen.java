@@ -136,13 +136,13 @@ public class JvmValueGen {
     private final Types types;
 
     JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen,
-                TypeHashVisitor typeHashVisitor, Types types) {
+                TypeHashVisitor typeHashVisitor, Types types, boolean isRemoteMgtEnabled) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.methodGen = methodGen;
         this.booleanType = jvmPackageGen.symbolTable.booleanType;
         this.jvmRecordGen = new JvmRecordGen(jvmPackageGen.symbolTable);
-        this.jvmObjectGen = new JvmObjectGen();
+        this.jvmObjectGen = new JvmObjectGen(isRemoteMgtEnabled);
         this.typeHashVisitor = typeHashVisitor;
         this.types = types;
     }
@@ -193,8 +193,7 @@ public class JvmValueGen {
         return (field.symbol.flags & BAL_OPTIONAL) == BAL_OPTIONAL;
     }
 
-    void generateValueClasses(Map<String, byte[]> jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen,
-                              boolean isRemoteMgtEnabled) {
+    void generateValueClasses(Map<String, byte[]> jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen) {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.forEach(optionalTypeDef -> {
             if (optionalTypeDef.type.tag == TypeTags.TYPEREFDESC) {
@@ -207,7 +206,7 @@ public class JvmValueGen {
                     Symbols.isFlagOn(optionalTypeDef.type.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) optionalTypeDef.type;
                 this.createObjectValueClasses(objectType, className, optionalTypeDef, jvmConstantsGen,
-                        asyncDataCollector, jarEntries, isRemoteMgtEnabled);
+                        asyncDataCollector, jarEntries);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
                 byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, jvmConstantsGen
@@ -473,7 +472,7 @@ public class JvmValueGen {
 
     private void createObjectValueClasses(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
                                           JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
-                                          Map<String, byte[]> jarEntries, boolean isRemoteMgtEnabled) {
+                                          Map<String, byte[]> jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().fileName(), null);
 
@@ -496,7 +495,7 @@ public class JvmValueGen {
         }
 
         this.createObjectInit(cw, fields, className);
-        jvmObjectGen.createAndSplitCallMethod(cw, attachedFuncs, className, jvmCastGen, isRemoteMgtEnabled);
+        jvmObjectGen.createAndSplitCallMethod(cw, attachedFuncs, className, jvmCastGen);
         jvmObjectGen.createAndSplitGetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetOnInitializationMethod(cw, fields, className);

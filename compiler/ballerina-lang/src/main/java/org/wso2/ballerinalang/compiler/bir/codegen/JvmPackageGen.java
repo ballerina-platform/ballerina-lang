@@ -760,9 +760,10 @@ public class JvmPackageGen {
         rewriteRecordInits(module.typeDefs);
 
         // generate object/record value classes
-        JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);
+        JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types,
+                isRemoteMgtEnabled);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
-        valueGen.generateValueClasses(jarEntries, jvmConstantsGen, jvmTypeGen, isRemoteMgtEnabled);
+        valueGen.generateValueClasses(jarEntries, jvmConstantsGen, jvmTypeGen);
 
         // generate frame classes
         frameClassGen.generateFrameClasses(module, jarEntries);

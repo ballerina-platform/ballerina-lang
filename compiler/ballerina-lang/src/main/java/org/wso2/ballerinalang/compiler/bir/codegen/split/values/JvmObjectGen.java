@@ -83,10 +83,16 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc
  */
 public class JvmObjectGen {
 
+    private final boolean isRemoteMgtEnabled;
+
+    public JvmObjectGen(boolean isRemoteMgtEnabled) {
+        this.isRemoteMgtEnabled = isRemoteMgtEnabled;
+    }
+
     static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
 
     public void createAndSplitCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
-                                         JvmCastGen jvmCastGen, boolean isRemoteMgtEnabled) {
+                                         JvmCastGen jvmCastGen) {
         int bTypesCount = 0;
         int methodCount = 0;
         MethodVisitor mv = null;
@@ -154,7 +160,7 @@ public class JvmObjectGen {
             } else {
                 jvmCastGen.addBoxInsn(mv, retType);
             }
-            if (isListenerAttach(func, isRemoteMgtEnabled)) {
+            if (isListenerAttach(func)) {
                 mv.visitVarInsn(ASTORE, 4);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitTypeInsn(CHECKCAST, B_OBJECT);
@@ -196,7 +202,7 @@ public class JvmObjectGen {
         }
     }
 
-    private static boolean isListenerAttach(BIRNode.BIRFunction func, boolean isRemoteMgtEnabled) {
+    private boolean isListenerAttach(BIRNode.BIRFunction func) {
         return isRemoteMgtEnabled && func.name.value.equals("attach")
                 && Symbols.isFlagOn(func.parameters.get(0).type.flags, Flags.SERVICE);
     }

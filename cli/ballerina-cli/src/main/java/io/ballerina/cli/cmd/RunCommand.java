@@ -86,7 +86,7 @@ public class RunCommand implements BLauncherCmd {
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
 
-    @CommandLine.Option(names = "--remote-management", description = "package management service in the " +
+    @CommandLine.Option(names = "--remote-management", description = "enable management service in the " +
             "executable when run is used with a source file or a module.")
     private Boolean remoteManagement;
 
