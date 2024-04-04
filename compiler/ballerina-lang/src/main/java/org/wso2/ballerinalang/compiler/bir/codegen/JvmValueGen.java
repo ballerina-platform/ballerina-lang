@@ -194,7 +194,7 @@ public class JvmValueGen {
     }
 
     void generateValueClasses(Map<String, byte[]> jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen,
-                              boolean remoteManagement) {
+                              boolean isRemoteMgtEnabled) {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.forEach(optionalTypeDef -> {
             if (optionalTypeDef.type.tag == TypeTags.TYPEREFDESC) {
@@ -207,7 +207,7 @@ public class JvmValueGen {
                     Symbols.isFlagOn(optionalTypeDef.type.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) optionalTypeDef.type;
                 this.createObjectValueClasses(objectType, className, optionalTypeDef, jvmConstantsGen,
-                        asyncDataCollector, jarEntries, remoteManagement);
+                        asyncDataCollector, jarEntries, isRemoteMgtEnabled);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
                 byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, jvmConstantsGen
@@ -473,7 +473,7 @@ public class JvmValueGen {
 
     private void createObjectValueClasses(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
                                           JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
-                                          Map<String, byte[]> jarEntries, boolean remoteManagement) {
+                                          Map<String, byte[]> jarEntries, boolean isRemoteMgtEnabled) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().fileName(), null);
 
@@ -496,7 +496,7 @@ public class JvmValueGen {
         }
 
         this.createObjectInit(cw, fields, className);
-        jvmObjectGen.createAndSplitCallMethod(cw, attachedFuncs, className, jvmCastGen, remoteManagement);
+        jvmObjectGen.createAndSplitCallMethod(cw, attachedFuncs, className, jvmCastGen, isRemoteMgtEnabled);
         jvmObjectGen.createAndSplitGetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetOnInitializationMethod(cw, fields, className);

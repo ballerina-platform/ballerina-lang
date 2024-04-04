@@ -59,16 +59,16 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
-    public CompiledJarFile generate(BLangPackage bLangPackage, boolean remoteManagement) {
+    public CompiledJarFile generate(BLangPackage bLangPackage, boolean isRemoteMgtEnabled) {
         // generate module
-        return generate(bLangPackage.symbol, remoteManagement);
+        return generate(bLangPackage.symbol, isRemoteMgtEnabled);
     }
 
-    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage, boolean remoteManagement) {
-        return generate(bLangTestablePackage.symbol, remoteManagement);
+    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage, boolean isRemoteMgtEnabled) {
+        return generate(bLangTestablePackage.symbol, isRemoteMgtEnabled);
     }
 
-    private CompiledJarFile generate(BPackageSymbol packageSymbol, boolean remoteManagement) {
+    private CompiledJarFile generate(BPackageSymbol packageSymbol, boolean isRemoteMgtEnabled) {
         // Desugar BIR to include the observations
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
@@ -77,7 +77,8 @@ public class CodeGenerator {
         BIRGenUtils.rearrangeBasicBlocks(packageSymbol.bir);
 
         dlog.setCurrentPackageId(packageSymbol.pkgID);
-        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types, remoteManagement);
+        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types,
+                isRemoteMgtEnabled);
 
         //Rewrite identifier names with encoding special characters
         HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);

@@ -149,10 +149,10 @@ public class JvmPackageGen {
     private final Set<PackageID> dependentModules;
     private final BLangDiagnosticLog dlog;
     private final Types types;
-    private final boolean remoteManagement;
+    private final boolean isRemoteMgtEnabled;
 
     JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog, Types types,
-                  boolean remoteManagement) {
+                  boolean isRemoteMgtEnabled) {
         birFunctionMap = new HashMap<>();
         globalVarClassMap = new HashMap<>();
         dependentModules = new LinkedHashSet<>();
@@ -160,7 +160,7 @@ public class JvmPackageGen {
         this.packageCache = packageCache;
         this.dlog = dlog;
         this.types = types;
-        this.remoteManagement = remoteManagement;
+        this.isRemoteMgtEnabled = isRemoteMgtEnabled;
         methodGen = new MethodGen(this, types);
         initMethodGen = new InitMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
@@ -762,7 +762,7 @@ public class JvmPackageGen {
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
-        valueGen.generateValueClasses(jarEntries, jvmConstantsGen, jvmTypeGen, remoteManagement);
+        valueGen.generateValueClasses(jarEntries, jvmConstantsGen, jvmTypeGen, isRemoteMgtEnabled);
 
         // generate frame classes
         frameClassGen.generateFrameClasses(module, jarEntries);
