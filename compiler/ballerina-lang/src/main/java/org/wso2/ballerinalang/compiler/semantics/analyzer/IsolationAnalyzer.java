@@ -1289,12 +1289,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
         }
 
+        if (this.inIsolatedStartAction
+                && !isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(symbol.owner, symbol.getType())) {
+            inferredIsolated = false;
+            return;
+        }
+
         if (!recordFieldDefaultValue && !objectFieldDefaultValueRequiringIsolation && enclInvokable != null &&
                 isReferenceToVarDefinedInSameInvokable(symbol.owner, enclInvokable.symbol)) {
-            if (this.inIsolatedStartAction
-                    && !isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(symbol.owner, symbol.getType())) {
-                inferredIsolated = false;
-            }
             return;
         }
 
