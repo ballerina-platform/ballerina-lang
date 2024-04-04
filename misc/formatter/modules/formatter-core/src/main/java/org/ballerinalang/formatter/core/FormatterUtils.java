@@ -28,7 +28,6 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -95,21 +94,20 @@ class FormatterUtils {
      * @param importNodes     Sorted formatted ImportDeclarationNode nodes
      */
     static void swapLeadingMinutiae(ImportDeclarationNode firstImportNode, List<ImportDeclarationNode> importNodes) {
-        int prevFirstIndex = -1;
-        Optional<ImportOrgNameNode> orgNameNode = firstImportNode.orgName();
-        String firstImportOrgName = orgNameNode.isPresent() ? orgNameNode.get().toSourceCode() : "";
+        int prevFirstImportIndex = -1;
+        String firstImportOrgName = firstImportNode.orgName().map(ImportOrgNameNode::toSourceCode).orElse("");
         String firstImportModuleName = getImportModuleName(firstImportNode);
         for (int i = 0; i < importNodes.size(); i++) {
-            if (isImportsEqual(firstImportOrgName, firstImportModuleName, importNodes.get(i))) {
-                prevFirstIndex = i;
+            if (doesImportMatch(firstImportOrgName, firstImportModuleName, importNodes.get(i))) {
+                prevFirstImportIndex = i;
                 break;
             }
         }
-        if (prevFirstIndex == 0) {
+        if (prevFirstImportIndex == 0) {
             return;
         }
         // remove comments from the previous first import
-        ImportDeclarationNode prevFirstImportNode = importNodes.get(prevFirstIndex);
+        ImportDeclarationNode prevFirstImportNode = importNodes.get(prevFirstImportIndex);
         MinutiaeList prevLeadingMinutiae = prevFirstImportNode.leadingMinutiae();
         List<Minutiae> leadingMinutiae = new ArrayList<>();
         Minutiae prevFirstMinutiae = prevLeadingMinutiae.get(0);
@@ -122,7 +120,7 @@ class FormatterUtils {
         Token modifiedPrevFirstImportToken =
                 prevFirstImportToken.modify(NodeFactory.createMinutiaeList(leadingMinutiae),
                         prevFirstImportToken.trailingMinutiae());
-        importNodes.set(prevFirstIndex,
+        importNodes.set(prevFirstImportIndex,
                 prevFirstImportNode.modify().withImportKeyword(modifiedPrevFirstImportToken).apply());
 
         // add leading comments from the previous first import
@@ -146,14 +144,9 @@ class FormatterUtils {
                 sortedFirstImportNode.modify().withImportKeyword(modifiedSortedFirstImportToken).apply());
     }
 
-    private static boolean isImportsEqual(String firstImportOrgName, String firstImportModuleName,
-                                          ImportDeclarationNode secondImportNode) {
-        Optional<ImportOrgNameNode> orgNameNode = secondImportNode.orgName();
-        String importOrgName = orgNameNode.isPresent() ? orgNameNode.get().toSourceCode() : "";
-        if (firstImportOrgName.equals(importOrgName)) {
-            return firstImportModuleName.equals(getImportModuleName(secondImportNode));
-        }
-        return false;
+    private static boolean doesImportMatch(String orgName, String moduleName, ImportDeclarationNode importDeclNode) {
+        String importDeclOrgName = importDeclNode.orgName().map(ImportOrgNameNode::toSourceCode).orElse("");
+        return orgName.equals(importDeclOrgName) && moduleName.equals(getImportModuleName(importDeclNode));
     }
 
     private static String getImportModuleName(ImportDeclarationNode importDeclarationNode) {

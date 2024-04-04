@@ -291,7 +291,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ModulePartNode transform(ModulePartNode modulePartNode) {
-        NodeList<ImportDeclarationNode> imports = sortAndGroupImportDeclarationNodes(modulePartNode.imports());
+        NodeList<ImportDeclarationNode> imports = arrangeAndFormatImportDeclarations(modulePartNode.imports());
         NodeList<ModuleMemberDeclarationNode> members =
                 formatMemberDeclarations(modulePartNode.members(), n -> isMultilineModuleMember(n));
         Token eofToken = formatToken(modulePartNode.eofToken(), 0, 0);
@@ -4782,11 +4782,12 @@ public class FormattingTreeModifier extends TreeModifier {
         return minutiae != null && minutiae.kind() == kind;
     }
 
-    private NodeList<ImportDeclarationNode> sortAndGroupImportDeclarationNodes(
+    private NodeList<ImportDeclarationNode> arrangeAndFormatImportDeclarations(
             NodeList<ImportDeclarationNode> importDeclarationNodes) {
         if (importDeclarationNodes.isEmpty()) {
             return importDeclarationNodes;
         }
+
         ImportDeclarationNode firstImport = importDeclarationNodes.get(0);
         // moduleImports would collect only module level imports if grouping is enabled,
         // and would collect all imports otherwise
@@ -4825,6 +4826,7 @@ public class FormattingTreeModifier extends TreeModifier {
         imports.addAll(thirdPartyImportNodes.stream().collect(Collectors.toList()));
 
         if (hasLeadingComments(firstImport)) {
+            // This is to ensure license header remains at top of the file
             swapLeadingMinutiae(firstImport, imports);
         }
 
