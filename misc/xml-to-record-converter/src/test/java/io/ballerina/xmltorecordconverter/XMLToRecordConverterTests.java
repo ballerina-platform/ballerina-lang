@@ -149,6 +149,16 @@ public class XMLToRecordConverterTests {
     private final Path sample21Bal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_21.bal");
 
+    private final Path sample22XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_22.xml");
+    private final Path sample22Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_22.bal");
+
+    private final Path sample23XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_23.xml");
+    private final Path sample23Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_23.bal");
+
     private static final String XMLToRecordServiceEP = "xmlToRecord/convert";
 
 
@@ -347,6 +357,24 @@ public class XMLToRecordConverterTests {
         String generatedCodeBlock = XMLToRecordConverter.convertXMLToRecord(xmlFileContent, false, false, false,
                 null, true).getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample21Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithoutNamespacePrefix")
+    public void testXMLWithoutNamespacePrefix() throws IOException {
+        String xmlFileContent = Files.readString(sample22XML);
+        String generatedCodeBlock = XMLToRecordConverter.convertXMLToRecord(xmlFileContent, false, false, false,
+                null, true).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample22Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testXMLWithConflictingElementAndAttributeNames")
+    public void testXMLWithConflictingElementAndAttributeNames() throws IOException {
+        String xmlFileContent = Files.readString(sample23XML);
+        String generatedCodeBlock = XMLToRecordConverter.convertXMLToRecord(xmlFileContent, false, false, false,
+                null, true).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample23Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 

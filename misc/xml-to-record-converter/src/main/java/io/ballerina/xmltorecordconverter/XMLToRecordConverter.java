@@ -94,7 +94,8 @@ public class XMLToRecordConverter {
     private static final String COLON = ":";
 
     public static XMLToRecordResponse convertXMLToRecord(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
-                                                         boolean forceFormatRecordFields, String value,
+                                                         boolean forceFormatRecordFields,
+                                                         String fieldNameForLeafAttribute,
                                                          boolean withNameSpaces) {
         Map<String, NonTerminalNode> recordToTypeDescNodes = new LinkedHashMap<>();
         Map<String, AnnotationNode> recordToAnnotationNodes = new LinkedHashMap<>();
@@ -114,7 +115,7 @@ public class XMLToRecordConverter {
 
             Element rootElement = doc.getDocumentElement();
             generateRecords(rootElement, isClosed, recordToTypeDescNodes, recordToAnnotationNodes,
-                    recordToElementNodes, diagnosticMessages, value, withNameSpaces);
+                    recordToElementNodes, diagnosticMessages, fieldNameForLeafAttribute, withNameSpaces);
         } catch (ParserConfigurationException parserConfigurationException) {
             DiagnosticMessage message = DiagnosticMessage.xmlToRecordConverter100(null);
             diagnosticMessages.add(message);
@@ -174,6 +175,15 @@ public class XMLToRecordConverter {
         return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
     }
 
+    /**
+     * This method converts the provided XML value to a record.
+     *
+     * @param xmlValue The XML value to be converted to a record.
+     * @param isRecordTypeDesc Whether the record is a type descriptor.
+     * @param isClosed Whether the record is closed or not.
+     * @param forceFormatRecordFields Whether to force format the result.
+     * @return {@link XMLToRecordResponse} The response object containing the converted record.
+     */
     public static XMLToRecordResponse convert(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
                                               boolean forceFormatRecordFields) {
         return convertXMLToRecord(xmlValue, isRecordTypeDesc, isClosed, forceFormatRecordFields, null, true);
@@ -184,7 +194,7 @@ public class XMLToRecordConverter {
                                         Map<String, AnnotationNode> recordToAnnotationsNodes,
                                         Map<String, Element> recordToElementNodes,
                                         List<DiagnosticMessage> diagnosticMessages,
-                                        String value, boolean withNameSpace) {
+                                        String fieldNameForLeafAttribute, boolean withNameSpace) {
         Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
         Token bodyStartDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.OPEN_BRACE_PIPE_TOKEN :
                 SyntaxKind.OPEN_BRACE_TOKEN);
@@ -192,7 +202,8 @@ public class XMLToRecordConverter {
         String xmlNodeName = xmlElement.getNodeName();
 
         List<Node> recordFields = getRecordFieldsForXMLElement(xmlElement, isClosed, recordToTypeDescNodes,
-                recordToAnnotationsNodes, recordToElementNodes, diagnosticMessages, value, withNameSpace);
+                recordToAnnotationsNodes, recordToElementNodes, diagnosticMessages, fieldNameForLeafAttribute,
+                withNameSpace);
         if (recordToTypeDescNodes.containsKey(xmlNodeName)) {
             RecordTypeDescriptorNode previousRecordTypeDescriptorNode =
                     (RecordTypeDescriptorNode) recordToTypeDescNodes.get(xmlNodeName);
@@ -225,28 +236,20 @@ public class XMLToRecordConverter {
                                                            Map<String, AnnotationNode> recordToAnnotationNodes,
                                                            Map<String, Element> recordToElementNodes,
                                                            List<DiagnosticMessage> diagnosticMessages,
-                                                           String value, boolean withNameSpace) {
+                                                           String fieldNameForLeafAttribute, boolean withNameSpace) {
         List<Node> recordFields = new ArrayList<>();
 
         String xmlNodeName = xmlElement.getNodeName();
         org.w3c.dom.NodeList xmlNodeList = xmlElement.getChildNodes();
-        NamedNodeMap xmlAttributesMap = xmlElement.getAttributes();
-        Set<String> attributeNames = new HashSet<>();
-        for (int j = 0; j < xmlAttributesMap.getLength(); j++) {
-            attributeNames.add(xmlAttributesMap.item(j).getNodeName());
-        }
         for (int i = 0; i < xmlNodeList.getLength(); i++) {
             org.w3c.dom.Node xmlNode = xmlNodeList.item(i);
 
             if (xmlNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
                 Element xmlElementNode = (Element) xmlNode;
-                if (attributeNames.contains(xmlElementNode.getNodeName())) {
-                    continue;
-                }
                 boolean isLeafXMLElementNode = isLeafXMLElementNode(xmlElementNode);
                 if (!isLeafXMLElementNode || xmlElementNode.getAttributes().getLength() > 0) {
                     generateRecords(xmlElementNode, isClosed, recordToTypeDescNodes, recordToAnnotationNodes,
-                            recordToElementNodes, diagnosticMessages, value, withNameSpace);
+                            recordToElementNodes, diagnosticMessages, fieldNameForLeafAttribute, withNameSpace);
                 }
                 RecordFieldNode recordField = getRecordField(xmlElementNode, false, withNameSpace);
                 if (recordFields.stream().anyMatch(recField -> ((RecordFieldNode) recField).fieldName().text()
@@ -267,16 +270,27 @@ public class XMLToRecordConverter {
                 }
             }
         }
+        NamedNodeMap xmlAttributesMap = xmlElement.getAttributes();
+        Set<String> elementNames = new HashSet<>();
+        for (int j = 0; j < xmlNodeList.getLength(); j++) {
+            elementNames.add(xmlNodeList.item(j).getNodeName());
+        }
         for (int i = 0; i < xmlAttributesMap.getLength(); i++) {
             org.w3c.dom.Node xmlNode = xmlAttributesMap.item(i);
             if (xmlNode.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE) {
-                if (xmlElement.getPrefix() != null &&
-                        xmlNode.getPrefix() != null &&
-                        xmlNode.getPrefix().equals(XMLNS_PREFIX) &&
-                        xmlElement.getPrefix().equals(xmlNode.getLocalName()) && withNameSpace) {
-                    AnnotationNode xmlNSNode = getXMLNamespaceNode(xmlNode.getLocalName(), xmlNode.getNodeValue());
+                if ((xmlNode.getPrefix() == null &&
+                        XMLNS_PREFIX.equals(xmlNode.getLocalName())) || (XMLNS_PREFIX.equals(xmlNode.getPrefix()) &&
+                                xmlNode.getLocalName().equals(xmlElement.getPrefix()))) {
+                    String prefix = null;
+                    if (xmlElement.getPrefix() != null && xmlElement.getPrefix().equals(xmlNode.getLocalName())) {
+                        prefix = xmlNode.getLocalName();
+                    }
+                    AnnotationNode xmlNSNode = getXMLNamespaceNode(prefix, xmlNode.getNodeValue());
                     recordToAnnotationNodes.put(xmlNodeName, xmlNSNode);
                 } else if (!isLeafXMLElementNode(xmlElement) && !XMLNS_PREFIX.equals(xmlNode.getPrefix())) {
+                    if (elementNames.contains(xmlNode.getNodeName())) {
+                        continue;
+                    }
                     Node recordField = getRecordField(xmlNode);
                     recordFields.add(recordField);
                 }
@@ -284,8 +298,8 @@ public class XMLToRecordConverter {
         }
         if (isLeafXMLElementNode(xmlElement) && xmlElement.getAttributes().getLength() > 0) {
             Token fieldType = AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
-            IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(value == null ?
-                    escapeIdentifier("#content") : value);
+            IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(fieldNameForLeafAttribute == null ?
+                    escapeIdentifier("#content") : fieldNameForLeafAttribute);
             Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
             RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null, fieldType,
                     fieldName, null, semicolon);
@@ -380,7 +394,7 @@ public class XMLToRecordConverter {
     }
 
     private static RecordFieldNode getRecordField(Element xmlElementNode, boolean isOptionalField,
-                                                  boolean hasNameSpace) {
+                                                  boolean withNameSpace) {
         Token typeName;
         Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
         IdentifierToken fieldName =
@@ -402,11 +416,11 @@ public class XMLToRecordConverter {
         MetadataNode metadataNode = NodeFactory.createMetadataNode(null, annotationNodes);
         TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
 
-        if (!hasNameSpace) {
+        if (!withNameSpace) {
             return NodeFactory.createRecordFieldNode(null, null, fieldTypeName, fieldName, optionalFieldToken,
                     semicolonToken);
         }
-        return xmlElementNode.getPrefix() == null ? NodeFactory.createRecordFieldNode(null, null, fieldTypeName,
+        return xmlElementNode.getNamespaceURI() == null ? NodeFactory.createRecordFieldNode(null, null, fieldTypeName,
                 fieldName, optionalFieldToken, semicolonToken) : NodeFactory.createRecordFieldNode(
                         metadataNode, null, fieldTypeName, fieldName, optionalFieldToken, semicolonToken);
     }
@@ -576,16 +590,19 @@ public class XMLToRecordConverter {
         Token closeBrace = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
         MinutiaeList emptyMinutiaeList = AbstractNodeFactory.createEmptyMinutiaeList();
 
-        IdentifierToken prefixFieldName = AbstractNodeFactory.createIdentifierToken("prefix");
-        LiteralValueToken prefixLiteralToken =
-                NodeFactory.createLiteralValueToken(SyntaxKind.STRING_LITERAL_TOKEN, String.format("\"%s\"", prefix),
-                        emptyMinutiaeList, emptyMinutiaeList);
-        BasicLiteralNode prefixValueExpr =
-                NodeFactory.createBasicLiteralNode(SyntaxKind.STRING_LITERAL, prefixLiteralToken);
-        MappingFieldNode prefixMappingField =
-                NodeFactory.createSpecificFieldNode(null, prefixFieldName, colon, prefixValueExpr);
-        mappingFields.add(prefixMappingField);
-        mappingFields.add(NodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
+        if (prefix != null) {
+            IdentifierToken prefixFieldName = AbstractNodeFactory.createIdentifierToken("prefix");
+            LiteralValueToken prefixLiteralToken =
+                    NodeFactory.createLiteralValueToken(SyntaxKind.STRING_LITERAL_TOKEN,
+                            String.format("\"%s\"", prefix), emptyMinutiaeList, emptyMinutiaeList);
+            BasicLiteralNode prefixValueExpr =
+                    NodeFactory.createBasicLiteralNode(SyntaxKind.STRING_LITERAL, prefixLiteralToken);
+            MappingFieldNode prefixMappingField =
+                    NodeFactory.createSpecificFieldNode(null, prefixFieldName, colon, prefixValueExpr);
+            mappingFields.add(prefixMappingField);
+            mappingFields.add(NodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
+        }
+
         IdentifierToken uriFieldName = AbstractNodeFactory.createIdentifierToken("uri");
         LiteralValueToken uriLiteralToken =
                 NodeFactory.createLiteralValueToken(SyntaxKind.STRING_LITERAL_TOKEN, String.format("\"%s\"", uri),
