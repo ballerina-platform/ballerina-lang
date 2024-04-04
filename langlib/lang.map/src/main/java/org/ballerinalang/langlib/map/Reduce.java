@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+import static org.ballerinalang.langlib.map.util.Constants.MAP_VERSION;
 
 /**
  * Native implementation of lang.map:reduce(map&lt;Type&gt;, function, Type1).

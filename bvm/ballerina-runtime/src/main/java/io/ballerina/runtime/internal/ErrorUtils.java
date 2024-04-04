@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_ERROR_PKG_ID;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB;
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.INCOMPATIBLE_CONVERT_OPERATION;
@@ -186,5 +187,12 @@ public class ErrorUtils {
         throw createError(getModulePrefixedReason(FLOAT_LANG_LIB,
                 ErrorReasons.INVALID_FRACTION_DIGITS_ERROR),
                 ErrorHelper.getErrorDetails(ErrorCodes.INVALID_FRACTION_DIGITS));
+    }
+
+    public static BError createNoMessageError(String chnlName) {
+        String[] splitWorkers = chnlName.split(":")[0].split("->");
+        return createError(BALLERINA_LANG_ERROR_PKG_ID, "NoMessage", ErrorReasons.NO_MESSAGE_ERROR,
+                null, ErrorHelper.getErrorDetails(ErrorCodes.NO_MESSAGE_ERROR,
+                        StringUtils.fromString(splitWorkers[0]), StringUtils.fromString(splitWorkers[1])));
     }
 }

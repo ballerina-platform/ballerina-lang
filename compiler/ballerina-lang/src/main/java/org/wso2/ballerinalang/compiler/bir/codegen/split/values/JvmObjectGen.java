@@ -27,9 +27,11 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,9 +44,13 @@ import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
@@ -52,17 +58,20 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.castToJavaString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CALLS_PER_CLIENT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPOSITORY_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_SERVICE_LISTENER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOBJECT_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CHECK_FIELD_UPDATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_FOR_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_SET;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_BSTRING_RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_SAME_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
@@ -145,6 +154,21 @@ public class JvmObjectGen {
             } else {
                 jvmCastGen.addBoxInsn(mv, retType);
             }
+            if (isListenerAttach(func)) {
+                mv.visitVarInsn(ASTORE, 4);
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitTypeInsn(CHECKCAST, B_OBJECT);
+                mv.visitVarInsn(ALOAD, 3);
+                mv.visitInsn(ICONST_0);
+                mv.visitInsn(AALOAD);
+                mv.visitTypeInsn(CHECKCAST, B_OBJECT);
+                mv.visitVarInsn(ALOAD, 3);
+                mv.visitInsn(ICONST_1);
+                mv.visitInsn(AALOAD);
+                mv.visitMethodInsn(INVOKESTATIC, REPOSITORY_IMPL, "addServiceListener", ADD_SERVICE_LISTENER,
+                        false);
+                mv.visitVarInsn(ALOAD, 4);
+            }
             mv.visitInsn(ARETURN);
             i += 1;
             bTypesCount++;
@@ -172,9 +196,13 @@ public class JvmObjectGen {
         }
     }
 
+    private static boolean isListenerAttach(BIRNode.BIRFunction func) {
+        return func.name.value.equals("attach") && Symbols.isFlagOn(func.parameters.get(0).type.flags, Flags.SERVICE);
+    }
+
     public void createAndSplitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                         JvmCastGen jvmCastGen) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", PASS_BSTRING_RETURN_OBJECT,
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", PASS_B_STRING_RETURN_OBJECT,
                 PASS_OBJECT_RETURN_SAME_TYPE, null);
         mv.visitCode();
         int selfIndex = 0;

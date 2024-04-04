@@ -24,7 +24,9 @@ import io.ballerina.projects.CodeModifierResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageResolution;
+import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
@@ -44,6 +46,8 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -59,21 +63,24 @@ public class CompileTask implements Task {
     private final transient PrintStream out;
     private final transient PrintStream err;
     private final boolean compileForBalPack;
+    private final boolean compileForBalBuild;
     private final boolean isPackageModified;
     private final boolean cachesEnabled;
 
     public CompileTask(PrintStream out, PrintStream err) {
-        this(out, err, false, true, false);
+        this(out, err, false, false, true, false);
     }
 
     public CompileTask(PrintStream out,
                        PrintStream err,
                        boolean compileForBalPack,
+                       boolean compileForBalBuild,
                        boolean isPackageModified,
                        boolean cachesEnabled) {
         this.out = out;
         this.err = err;
         this.compileForBalPack = compileForBalPack;
+        this.compileForBalBuild = compileForBalBuild;
         this.isPackageModified = isPackageModified;
         this.cachesEnabled = cachesEnabled;
     }
@@ -99,6 +106,9 @@ public class CompileTask implements Task {
         try {
             printWarningForHigherDistribution(project);
             List<Diagnostic> diagnostics = new ArrayList<>();
+            if (this.compileForBalBuild) {
+                addDiagnosticForProvidedPlatformLibs(project, diagnostics);
+            }
             long start = 0;
 
             if (project.currentPackage().compilationOptions().dumpGraph()
@@ -218,6 +228,8 @@ public class CompileTask implements Task {
                     err.println(d);
                 }
             });
+            // Add tool resolution diagnostics to diagnostics
+            diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
             // Report build tool execution diagnostics
             if (project.getToolContextMap() != null) {
                 for (ToolContext tool : project.getToolContextMap().values()) {
@@ -288,6 +300,27 @@ public class CompileTask implements Task {
                 PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
                         project.currentPackage().descriptor().name().toString());
                 err.println(diagnostic);
+            }
+        }
+    }
+
+    private void addDiagnosticForProvidedPlatformLibs(Project project, List<Diagnostic> diagnostics) {
+        Map<String, PackageManifest.Platform> platforms = project.currentPackage().manifest().platforms();
+        for (PackageManifest.Platform javaPlatform : platforms.values()) {
+            if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
+                continue;
+            }
+            for (Map<String, Object> dependency : javaPlatform.dependencies()) {
+                if (Objects.equals(dependency.get("scope"), PlatformLibraryScope.PROVIDED.getStringValue())) {
+                    DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                            ProjectDiagnosticErrorCode.INVALID_PROVIDED_SCOPE_IN_BUILD.diagnosticId(),
+                            String.format("'%s' scope for platform dependencies is not allowed with package build%n",
+                                    PlatformLibraryScope.PROVIDED.getStringValue()),
+                            DiagnosticSeverity.ERROR);
+                    diagnostics.add(new PackageDiagnostic(diagnosticInfo,
+                            project.currentPackage().descriptor().name().toString()));
+                    return;
+                }
             }
         }
     }

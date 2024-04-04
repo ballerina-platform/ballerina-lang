@@ -418,9 +418,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         typeChecker.checkExpr(xmlnsNode.namespaceURI, currentEnv, symTable.stringType, data.prevEnvs,
                 data.commonAnalyzerData);
-        // Namespace node already having the symbol means we are inside an init-function,
-        // and the symbol has already been declared by the original statement.
-        if (xmlnsNode.symbol == null) {
+        // For module-level XML namespace declarations the symbol is already defined at symbol enter.
+        if (currentEnv.node.getKind() != NodeKind.PACKAGE) {
             symbolEnter.defineNode(xmlnsNode, currentEnv);
         }
     }

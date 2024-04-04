@@ -70,7 +70,7 @@ public class RunExecutor implements LSCommandExecutor {
         try { // Can't use resource style due to SpotBugs bug.
             byte[] buffer = new byte[1024];
             int count;
-            while ((count = in.read(buffer)) > 0) {
+            while ((count = in.read(buffer)) >= 0) {
                 String str = new String(buffer, 0, count, StandardCharsets.UTF_8);
                 client.logTrace(new LogTraceParams(str, channel));
             }

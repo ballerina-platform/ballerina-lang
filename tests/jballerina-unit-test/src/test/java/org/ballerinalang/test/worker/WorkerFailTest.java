@@ -32,11 +32,50 @@ import static org.ballerinalang.test.BAssertUtil.validateWarning;
 public class WorkerFailTest {
 
     @Test
-    public void invalidWorkerSendReceive() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worker-send-receive.bal");
-        String message = Arrays.toString(result.getDiagnostics());
-        Assert.assertEquals(result.getErrorCount(), 1);
-        Assert.assertTrue(message.contains(" interactions are invalid"), message);
+    public void testSendReceiveAllowedSyntacticPositions() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/send-receive-allowed-positions.bal");
+        String sendNotAllowedError = "worker send statement position not supported yet, " +
+                "must be a top level statement in a worker";
+        String receiveNotAllowedError = "invalid worker receive statement position, " +
+                "must be a top level statement in a worker";
+        int index = 0;
+        validateError(result, index++, sendNotAllowedError, 20, 13);
+        validateError(result, index++, sendNotAllowedError, 24, 13);
+        validateError(result, index++, "using send action within the lock statement is not allowed to prevent " +
+                "possible deadlocks", 28, 13);
+        validateError(result, index++, receiveNotAllowedError, 66, 17);
+        validateError(result, index++, receiveNotAllowedError, 70, 17);
+        validateError(result, index++, "using receive action within the lock statement is not allowed to prevent " +
+                "possible deadlocks", 74, 17);
+        validateError(result, index++, receiveNotAllowedError, 79, 15);
+        validateError(result, index++, receiveNotAllowedError, 81, 21);
+        Assert.assertEquals(result.getErrorCount(), index);
+    }
+
+    @Test
+    public void testMismatchInSendReceivePairing() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/send-receive-mismatch.bal");
+        String invalidSendErrMsg = "invalid worker send, no matching worker receive";
+        String invalidReceiveErrMsg = "invalid worker receive, no matching worker send";
+        int index = 0;
+        validateError(result, index++, invalidSendErrMsg, 19, 9);
+        validateError(result, index++, invalidSendErrMsg, 23, 9);
+        validateError(result, index++, invalidReceiveErrMsg, 29, 17);
+        validateError(result, index++, invalidReceiveErrMsg, 33, 20);
+        validateError(result, index++, invalidSendErrMsg, 45, 9);
+        validateError(result, index++, invalidReceiveErrMsg, 60, 21);
+        validateError(result, index++, invalidReceiveErrMsg, 70, 34);
+        validateError(result, index++, invalidReceiveErrMsg, 83, 20);
+        validateError(result, index++, invalidReceiveErrMsg, 83, 27);
+        validateError(result, index++, invalidReceiveErrMsg, 83, 34);
+        validateError(result, index++, invalidSendErrMsg, 87, 9);
+        validateWarning(result, index++, "unused variable 'b'", 95, 13);
+        validateError(result, index++, invalidReceiveErrMsg, 97, 17);
+        validateWarning(result, index++, "unused variable 'b'", 101, 13);
+        validateWarning(result, index++, "unused variable 'a'", 106, 13);
+        validateWarning(result, index++, "unused variable 'b'", 107, 13);
+        Assert.assertEquals(result.getErrorCount(), index - 4);
+        Assert.assertEquals(result.getWarnCount(), 4);
     }
 
     @Test
@@ -77,11 +116,21 @@ public class WorkerFailTest {
     }
 
     @Test
-    public void invalidSendWithReturnTest() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-return.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        String message = result.getDiagnostics()[0].message();
-        Assert.assertTrue(message.contains("can not be used after a non-error return"), message);
+    public void testSendReceiveFailureType() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/send-receive-failure-type.bal");
+        int index = 0;
+        validateError(result, index++, "incompatible types: expected 'int', " +
+                "found '(int|ballerina/lang.error:0.0.0:NoMessage)'", 49, 15);
+        validateError(result, index++, "incompatible types: expected 'int', " +
+                "found '(ErrorA|int|ballerina/lang.error:0.0.0:NoMessage)'", 50, 15);
+        validateError(result, index++, "incompatible types: expected 'int', " +
+                "found '(ErrorA|ErrorB|string|ballerina/lang.error:0.0.0:NoMessage)'", 51, 15);
+        validateError(result, index++, "incompatible types: expected 'int', found '(ErrorA|ErrorB|int)'", 71, 15);
+        validateError(result, index++, "incompatible types: expected 'int', " +
+                "found '(ErrorA|ErrorB|int|ballerina/lang.error:0.0.0:NoMessage)'", 86, 15);
+        validateError(result, index++, "incompatible types: expected '()', found 'ErrorA?'", 119, 14);
+        validateError(result, index++, "incompatible types: expected '()', found '(ErrorA|ErrorB)?'", 120, 14);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 
     @Test
@@ -137,24 +186,6 @@ public class WorkerFailTest {
         validateError(result, 1, "incompatible types: expected 'int', found '(E1|int)'", 38, 17);
         validateError(result, 2, "incompatible types: expected 'string', found '(E1|E2|string)'", 43, 20);
         validateWarning(result, 3, "unused variable 'err'", 47, 5);
-    }
-
-    @Test
-    public void invalidSendInIf() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-in-if.bal");
-        String message = Arrays.toString(result.getDiagnostics());
-        Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("worker send statement position not supported yet, " +
-                "must be a top level statement in a worker"), message);
-    }
-
-    @Test
-    public void invalidSyncSendInIf() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-sync-send-in-if.bal");
-        String message = Arrays.toString(result.getDiagnostics());
-        Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("worker send statement position not supported yet, " +
-                "must be a top level statement in a worker"), message);
     }
 
     @Test
@@ -232,15 +263,6 @@ public class WorkerFailTest {
     @Test
     public void invalidAsyncSendInFork() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-async-send-in-fork.bal");
-        String message = Arrays.toString(result.getDiagnostics());
-        Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("worker send statement position not supported yet, " +
-                "must be a top level statement in a worker"), message);
-    }
-
-    @Test
-    public void invalidSyncSendInFork() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-sync-send-in-fork.bal");
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1, message);
         Assert.assertTrue(message.contains("worker send statement position not supported yet, " +

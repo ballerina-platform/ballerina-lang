@@ -76,6 +76,9 @@ public class NewCommandTest extends BaseCommandTest {
 
         Path testTemplatesDir = testResources.resolve("balacache-template");
         Files.walkFileTree(testTemplatesDir, new Copy(testTemplatesDir, centralCache));
+
+        Files.createDirectories(this.tmpDir.resolve("dir1"));
+        Files.createDirectories(this.tmpDir.resolve("dir2/dir1"));
     }
 
     @AfterClass
@@ -83,10 +86,18 @@ public class NewCommandTest extends BaseCommandTest {
         ProjectUtils.deleteDirectory(centralCache);
     }
 
-    @Test(description = "Create a new project")
-    public void testNewCommand() throws IOException {
+    @DataProvider(name = "validPaths")
+    public Object[][] validPaths() {
+        return new Object[][] {
+                { "projectA"},
+                { "dir1/projectA" },
+                { "dir2/dir1/projectA" }
+        };
+    }
+    @Test(description = "Create a new project", dataProvider = "validPaths")
+    public void testNewCommandWithAbsolutePaths(String packagePath) throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = tmpDir.resolve("project_name");
+        Path packageDir = tmpDir.resolve(packagePath);
         String[] args = {packageDir.toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
@@ -189,8 +200,12 @@ public class NewCommandTest extends BaseCommandTest {
     @Test(description = "Create a new project in an existing directory containing .bal files with default template")
     public void testNewCommandInExistingDirectoryWithExistingBalFilesForDefaultTemplate() throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
-                resolve("directoryWithBalFilesForDefaultTemplate");
+        Path packageDir = Files.createDirectory(this.tmpDir.resolve("directoryWithBalFiles"));
+        Path srcDirectory = testResources.resolve(
+                ProjectConstants.EXISTING_PACKAGE_FILES_DIR).resolve("directoryWithBalFiles");
+
+        Files.walkFileTree(srcDirectory, new Copy(srcDirectory, packageDir));
+
         String[] args = {packageDir.toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
@@ -214,7 +229,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "observabilityIncluded = true\n";
         Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
 
-        Assert.assertFalse(Files.exists(packageDir.resolve("main.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
         Assert.assertFalse(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
@@ -236,7 +251,6 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(".devcontainer.json")));
         String devcontainerContent = Files.readString(packageDir.resolve(".devcontainer.json"));
         Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
-        ProjectUtils.deleteAllButOneInDirectory(packageDir, "main2.bal");
     }
 
     @Test(description = "Create a new project in an existing directory containing .bal files with service template")
@@ -248,8 +262,8 @@ public class NewCommandTest extends BaseCommandTest {
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("Existing .bal files found"));
+        String readOutput = readOutput();
+        Assert.assertTrue(readOutput.contains("existing .bal files found"), readOutput);
     }
 
     @DataProvider(name = "directoriesWithExistingPackageFiles")
@@ -274,7 +288,8 @@ public class NewCommandTest extends BaseCommandTest {
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("Existing " + existing + " file/directory(s) were found"));
+        String readOutput = readOutput();
+        Assert.assertTrue(readOutput.contains("existing " + existing + " file/directory(s) were found"), readOutput);
     }
 
     @Test(description = "New package in an existing directory with existing package files using default template")
@@ -322,8 +337,8 @@ public class NewCommandTest extends BaseCommandTest {
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("Directory already contains a Ballerina project"));
+        String readOutput = readOutput();
+        Assert.assertTrue(readOutput.contains("directory already contains a Ballerina project"), readOutput);
     }
 
     @Test(description = "Create a new project inside an existing directory with an invalid name")
@@ -398,7 +413,7 @@ public class NewCommandTest extends BaseCommandTest {
         // - main.bal
 
         Path currentDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        Path relativeToCurrentDir = Paths.get(currentDir.toString(), packagePath.toString()).normalize();
+        Path relativeToCurrentDir = Paths.get(currentDir.toString(), packagePath).normalize();
         Assert.assertTrue(Files.exists(relativeToCurrentDir));
         Assert.assertTrue(Files.exists(relativeToCurrentDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String name = Paths.get(args[0]).getFileName().toString();
@@ -437,10 +452,10 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
     }
 
-    @Test(description = "Test new command with main template")
-    public void testNewCommandWithMain() throws IOException {
+    @Test(description = "Test new command with main template", dataProvider = "validPaths")
+    public void testNewCommandWithMain(String packagePath) throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = tmpDir.resolve("main_sample");
+        Path packageDir = tmpDir.resolve(packagePath + "_main");
         String[] args = {packageDir.toString(), "-t", "main"};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
@@ -476,10 +491,10 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
-    @Test(description = "Test new command with service template")
-    public void testNewCommandWithService() throws IOException {
+    @Test(description = "Test new command with service template", dataProvider = "validPaths")
+    public void testNewCommandWithService(String packagePath) throws IOException {
         // Test if no arguments was passed in
-        Path packageDir = tmpDir.resolve("service_sample");
+        Path packageDir = tmpDir.resolve(packagePath + "_svc");
         String[] args = {packageDir.toString(), "-t", "service"};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
@@ -511,10 +526,10 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
-    @Test(description = "Test new command with lib template")
-    public void testNewCommandWithLib() throws IOException {
+    @Test(description = "Test new command with lib template", dataProvider = "validPaths")
+    public void testNewCommandWithLib(String packagePath) throws IOException {
         // Test if no arguments was passed in
-        Path packageDir = tmpDir.resolve("lib_sample");
+        Path packageDir = tmpDir.resolve(packagePath + "_lib");
         String[] args = {packageDir.toString(), "-t", "lib"};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
@@ -537,15 +552,16 @@ public class NewCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
 
+        String packageName = Paths.get(args[0]).getFileName().toString();
         String expectedTomlContent = "[package]\n" +
                 "org = \"" + System.getProperty("user.name").replaceAll("[^a-zA-Z0-9_]", "_") + "\"\n" +
-                "name = \"lib_sample\"\n" +
+                "name = \"" + packageName + "\"\n" +
                 "version = \"0.1.0\"\n" +
                 "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"" +
                 "\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve("lib_sample.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(packageName + ".bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
 
@@ -639,7 +655,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
         String buildOutput = readOutput().replaceAll("\r", "");
-        Assert.assertEquals(buildOutput, "package name is derived as '" + derivedPkgName + "'. " +
+        Assert.assertEquals(buildOutput, "Package name is derived as '" + derivedPkgName + "'. " +
                 "Edit the Ballerina.toml to change it.\n\n" +
                 "Created new package '" + derivedPkgName + "' at " + packageDir + ".\n");
     }
@@ -714,6 +730,39 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(
                 packageDir.resolve("target").resolve("bala")
                         .resolve("testorg-sample_tool_template-java17-1.0.0.bala").toFile().exists());
+    }
+
+    @Test(description = "Test new command by pulling a central template with provided platform jars")
+    public void testNewCommandWithProvidedTemplateCentral() throws IOException {
+        String templateArg = "testorg/projectProvidedScope:1.0.0";
+        String packageName = "sample_provided_template";
+        Path packageDir = tmpDir.resolve(packageName);
+        String[] args = {packageDir.toString(), "-t", templateArg};
+        NewCommand newCommand = new NewCommand(printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String expectedTomlContent = "[package]\n" +
+                "org = \"testorg\"\n" +
+                "name = \"sample_provided_template\"\n" +
+                "version = \"1.0.0\"\n" +
+                "export = [\"sample_provided_template\"]\n" +
+                "distribution = \"2201.9.0-SNAPSHOT\"\n" +
+                "\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true\n" +
+                "\n" +
+                "[[platform.java17.dependency]]\n" +
+                "artifactId = \"project1\"\n" +
+                "groupId = \"com.example\"\n" +
+                "version = \"1.0\"\n" +
+                "scope = \"provided\"\n";
+        Assert.assertEquals(
+                readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
+        Assert.assertTrue(readOutput().contains("WARNING: path for the platform dependency project1 with provided " +
+                "scope should be specified in the Ballerina.toml\n" +
+                "Created new package 'sample_provided_template'"));
     }
 
     @Test(description = "Test new command with central template in the local cache")
@@ -832,7 +881,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(readOutput().contains("Created new package"));
 
-        System.setProperty("user.dir", packageDir.toString());
+//        System.setProperty("user.dir", packageDir.toString());
         BuildCommand buildCommand = new BuildCommand(packageDir, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
         try {
@@ -1231,7 +1280,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
         String buildOutput = readOutput().replaceAll("\r", "");
-        Assert.assertEquals(buildOutput, "package name is derived as '" + derivedPkgName + "'. " +
+        Assert.assertEquals(buildOutput, "Package name is derived as '" + derivedPkgName + "'. " +
                 "Edit the Ballerina.toml to change it.\n\n" +
                 "Created new package '" + derivedPkgName + "' at " + packageDir + ".\n");
     }

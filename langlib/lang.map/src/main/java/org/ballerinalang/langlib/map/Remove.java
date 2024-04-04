@@ -30,8 +30,8 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.langlib.map.util.Constants.REMOVE;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
-import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 
 /**
  * Extern function to remove element from the map.
