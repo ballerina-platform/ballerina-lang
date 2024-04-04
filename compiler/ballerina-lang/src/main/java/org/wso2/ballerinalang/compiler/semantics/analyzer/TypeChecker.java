@@ -212,6 +212,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_INSERTIONS;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_STRINGS;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isInParameterList;
 
 /**
  * @since 0.94
@@ -2575,7 +2576,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (!erroredExpType) {
                     reportIncompatibleMappingConstructorError(mappingConstructor, bType, data);
                 }
-                validateSpecifiedFields(mappingConstructor, symTable.semanticError, data);
+                defineInferredRecordType(mappingConstructor, symTable.noType, data);
                 return symTable.semanticError;
             } else if (compatibleTypes.size() != 1) {
                 dlog.error(mappingConstructor.pos, DiagnosticErrorCode.AMBIGUOUS_TYPES, bType);
@@ -3520,11 +3521,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return findEnclosingInvokableEnv(env.enclEnv, recordTypeNode);
         }
         return env;
-    }
-
-    private boolean isFunctionArgument(BSymbol symbol, List<BLangSimpleVariable> params) {
-        return params.stream().anyMatch(param -> (param.symbol.name.equals(symbol.name) &&
-                Types.getImpliedType(param.getBType()).tag == Types.getImpliedType(symbol.type).tag));
     }
 
     @Override
@@ -6859,7 +6855,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private boolean searchClosureVariableInExpressions(BSymbol symbol, Location pos, SymbolEnv env,
                                                        BLangInvokableNode encInvokable, BLangNode bLangNode) {
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
-                && !isFunctionArgument(symbol, encInvokable.requiredParams)) {
+                && !isInParameterList(symbol, encInvokable.requiredParams)) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
             BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol);
             if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
@@ -6870,7 +6866,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (bLangNode.getKind() == NodeKind.ARROW_EXPR
-                && !isFunctionArgument(symbol, ((BLangArrowFunction) bLangNode).params)) {
+                && !isInParameterList(symbol, ((BLangArrowFunction) bLangNode).params)) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
             BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol);
             if (resolvedSymbol != symTable.notFoundSymbol) {
@@ -7960,9 +7956,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         Name fieldName;
 
         if (computedKey) {
-            checkExpr(keyExpr, symTable.stringType, data);
-
-            if (keyExpr.getBType() == symTable.semanticError) {
+            if (exprIncompatible(symTable.stringType, keyExpr, data)) {
                 return new TypeSymbolPair(null, symTable.semanticError);
             }
 
@@ -8025,13 +8019,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private boolean checkValidJsonOrMapLiteralKeyExpr(BLangExpression keyExpr, boolean computedKey, AnalyzerData data) {
         if (computedKey) {
-            checkExpr(keyExpr, symTable.stringType, data);
-
-            if (keyExpr.getBType() == symTable.semanticError) {
-                return false;
-            }
-            return true;
-        } else if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
+            return !exprIncompatible(symTable.stringType, keyExpr, data);
+        }
+        if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
                 (keyExpr.getKind() == NodeKind.LITERAL && (keyExpr).getBType().tag == TypeTags.STRING)) {
             return true;
         }

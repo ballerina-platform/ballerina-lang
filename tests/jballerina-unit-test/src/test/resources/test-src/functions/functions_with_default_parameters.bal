@@ -300,6 +300,56 @@ function value2(record {|int a; int b;|} x) returns int {
     return x.a + x.b;
 }
 
+type F1 function() returns int;
+
+type F2 function() returns function() returns int;
+
+function baz(int a, F1 b = function() returns int { return a + 1; }) returns int {
+    return a + b();
+}
+
+function baz1(int a, F2 b = function() returns function() returns int {
+            return function() returns int {
+                return a;
+            };
+        }) returns int {
+    F1 f = b();
+    return a + f();
+}
+
+function baz2(int a, function() returns int b = function() returns int {
+            function (int x = a) returns int f = function(int p) returns int {
+                return p + 1;
+            };
+            return f();
+        }) returns int {
+    return a + b();
+}
+
+function baz3(int a, int c, function() returns int b = function() returns int {
+            function (int x = a + c) returns int f = function(int p) returns int {
+                return p + 1;
+            };
+            return f();
+        }) returns int {
+    return a + b() + c;
+}
+
+function baz4(int a, function() returns int b = function() returns int {
+            function(int x = a) returns int f = function(int p) returns int => p + 1 + a;
+            return f();
+        }) returns int {
+    return a + b();
+}
+
+function testUsingParamInAnonFuncDefaultValueOfSubsequentParam() {
+    assertEquality(baz(10), 21);
+    assertEquality(baz1(100), 200);
+    assertEquality(baz2(10), 21);
+    assertEquality(baz3(10, 20), 61);
+    assertEquality(baz4(10), 31);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

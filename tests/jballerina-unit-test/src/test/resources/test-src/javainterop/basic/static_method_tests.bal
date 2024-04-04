@@ -436,3 +436,95 @@ public function testBalEnvAcceptingMethodRetType() {
     map<any> mapResult = getMapFromFutureResult("John", 35, {"Mathematics": 99, "Physics": 95});
     test:assertEquals(mapResult, {"name":"John","age":35,"results":{"Mathematics":99,"Physics":95}});
 }
+
+type A record {|
+    int id;
+    string name;
+    anydata...;
+|};
+
+type B record {|
+    int id;
+    string age;
+    anydata...;
+|};
+
+public type U A|B;
+
+public isolated client class ClientObj {
+    isolated resource function get orderitem/[string orderId]/[string itemId](typedesc<anydata> targetType = <>)
+                                                            returns targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResource",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
+                                    "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
+    } external;
+
+    isolated resource function get orderitem/[string id](int i, float f, decimal d, string s,
+                                        typedesc<anydata> targetType = <>) returns targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResource",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
+                                    "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
+    } external;
+
+    isolated resource function get vendor/[string product]/[string itemId](typedesc<anydata> targetType = <>)
+                                                                returns targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResourceWithBundledParams",
+        paramTypes: ["io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray",
+                                                                    "io.ballerina.runtime.api.values.BArray"]
+    } external;
+
+    isolated resource function get vendor(int i, float f, string s, typedesc<anydata> targetType = <>) returns targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResource",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray"]
+    } external;
+
+    isolated resource function get item/[int id]/[string desc](int i, float f, string s, typedesc<anydata> targetType = <>) returns targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResourceWithBundledParams",
+        paramTypes: ["io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
+    } external;
+
+    isolated resource function get abc/[string path1]/[string path2](U u, typedesc<anydata> targetType = <>)
+                                                                returns targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResource",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
+                                    "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
+    } external;
+
+    isolated resource function get def/[string path1]/[string path2](any a, typedesc<anydata> targetType = <>)
+                                                                    returns targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResource",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
+                                    "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
+    } external;
+
+    isolated function getResourceMethod(service object {} serviceObject, string[] path) returns anydata = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    } external;
+}
+
+public function testBundleFuncArgsToBArray() returns error? {
+    ClientObj cl = new;
+    anydata res = check cl->/orderitem/["1234"]/["abcd"]();
+    test:assertEquals(res, 5);
+    res = check cl->/orderitem/["1234"](1, 5.2, 7.4, "123");
+    test:assertEquals(res, 5);
+    res = check cl->/vendor/["product"]/["itemId"]();
+    test:assertEquals(res, 1);
+    res = check cl->/vendor(1, 5.2, "123");
+    test:assertEquals(res, 10);
+    res = check cl->/item/[1]/["asd"](1, 5.2, "123");
+    test:assertEquals(res, 1);
+    res = check cl->/abc/["1234"]/["abcd"]({id: 1, name: "John"});
+    test:assertEquals(res, 5);
+    res = check cl->/def/["1234"]/["abcd"](1);
+    test:assertEquals(res, 5);
+    res = cl.getResourceMethod(isolated service object {}, ["orderitem", "1234", "abcd"]);
+    test:assertEquals(res, 1000);
+}

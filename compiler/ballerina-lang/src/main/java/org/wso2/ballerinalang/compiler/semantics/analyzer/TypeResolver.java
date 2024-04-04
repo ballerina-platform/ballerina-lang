@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -213,31 +214,37 @@ public class TypeResolver {
     public void defineBTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
         this.pkgEnv = pkgEnv;
         typePrecedence = 0;
-        for (BLangNode typeAndClassDef : moduleDefs) {
-            String typeOrClassName = symEnter.getTypeOrClassName(typeAndClassDef);
+        for (BLangNode moduleDef : moduleDefs) {
+            if (moduleDef.getKind() == NodeKind.XMLNS) {
+                continue;
+            }
+            String typeOrClassName = symEnter.getTypeOrClassName(moduleDef);
             if (!modTable.containsKey(typeOrClassName)) {
-                modTable.put(typeOrClassName, typeAndClassDef);
+                modTable.put(typeOrClassName, moduleDef);
             }
         }
 
         for (BLangNode def : moduleDefs) {
             resolvingTypes = new Stack<>();
             resolvingModuleDefs = new Stack<>();
-            if (def.getKind() == NodeKind.CLASS_DEFN) {
-                intersectionTypeList = new HashMap<>();
-                extracted(pkgEnv, (BLangClassDefinition) def, 0);
-                updateEffectiveTypeOfCyclicIntersectionTypes(pkgEnv);
-            } else if (def.getKind() == NodeKind.CONSTANT) {
-                resolveConstant(pkgEnv, modTable, (BLangConstant) def);
-            } else {
-                BLangTypeDefinition typeDefinition = (BLangTypeDefinition) def;
-                intersectionTypeList = new HashMap<>();
-                resolveTypeDefinition(pkgEnv, modTable, typeDefinition, 0);
-                BType type = typeDefinition.typeNode.getBType();
-                if (typeDefinition.hasCyclicReference) {
-                    updateIsCyclicFlag(type);
+            switch (def.getKind()) {
+                case CLASS_DEFN -> {
+                    intersectionTypeList = new HashMap<>();
+                    extracted(pkgEnv, (BLangClassDefinition) def, 0);
+                    updateEffectiveTypeOfCyclicIntersectionTypes(pkgEnv);
                 }
-                updateEffectiveTypeOfCyclicIntersectionTypes(pkgEnv);
+                case CONSTANT -> resolveConstant(pkgEnv, modTable, (BLangConstant) def);
+                case XMLNS -> resolveXMLNS(pkgEnv, (BLangXMLNS) def);
+                default -> {
+                    BLangTypeDefinition typeDefinition = (BLangTypeDefinition) def;
+                    intersectionTypeList = new HashMap<>();
+                    resolveTypeDefinition(pkgEnv, modTable, typeDefinition, 0);
+                    BType type = typeDefinition.typeNode.getBType();
+                    if (typeDefinition.hasCyclicReference) {
+                        updateIsCyclicFlag(type);
+                    }
+                    updateEffectiveTypeOfCyclicIntersectionTypes(pkgEnv);
+                }
             }
             resolvingTypes.clear();
             resolvingModuleDefs.clear();
@@ -1977,6 +1984,33 @@ public class TypeResolver {
         resolvingConstants.remove(constant);
         resolvedConstants.add(constant);
         checkUniqueness(constant);
+    }
+
+    public void resolveXMLNS(SymbolEnv symEnv, BLangXMLNS xmlnsNode) {
+        if (xmlnsNode.namespaceURI.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) xmlnsNode.namespaceURI;
+            varRef.symbol = getSymbolOfVarRef(varRef.pos, symEnv, names.fromIdNode(varRef.pkgAlias),
+                            names.fromIdNode(varRef.variableName));
+        }
+        symEnter.defineXMLNS(symEnv, xmlnsNode);
+    }
+
+    public BSymbol getSymbolOfVarRef(Location pos, SymbolEnv env, Name pkgAlias, Name varName) {
+        if (pkgAlias == Names.EMPTY && modTable.containsKey(varName.value)) {
+            // modTable contains the available constants in current module.
+            BLangNode node = modTable.get(varName.value);
+            if (node.getKind() == NodeKind.CONSTANT) {
+                if (!resolvedConstants.contains((BLangConstant) node)) {
+                    resolveConstant(env, modTable, (BLangConstant) node);
+                }
+            } else {
+                dlog.error(pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+                return symTable.notFoundSymbol;
+            }
+        }
+
+        // Search and get the referenced variable from different module.
+        return symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgAlias, varName);
     }
 
     private void checkUniqueness(BLangConstant constant) {
