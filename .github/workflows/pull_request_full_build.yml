@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-      - runtime-mgt
 
 jobs:
   build-lang:
