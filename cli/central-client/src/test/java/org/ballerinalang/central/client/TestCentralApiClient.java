@@ -36,6 +36,9 @@ import org.ballerinalang.central.client.model.PackageNameResolutionResponse;
 import org.ballerinalang.central.client.model.PackageResolutionRequest;
 import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.ballerinalang.central.client.model.PackageSearchResult;
+import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
+import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
+import org.ballerinalang.central.client.model.ToolSearchResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -83,6 +86,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     private static final String TEST_BAL_VERSION = "slp5";
     private static final String ANY_PLATFORM = "any";
     private static final String TEST_BALA_NAME = "sf-any.bala";
+    private static final String TEST_TOOL_BALA_NAME = "baz-toolbox-java17-0.1.0.bala";
     private static final String OUTPUT_BALA = "output.bala";
     private static final String WINERY = "winery";
     private static final String ACCESS_TOKEN = "273cc9f6-c333-36ab-aa2q-f08e9513ff5y";
@@ -719,24 +723,25 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test search package name resolution")
     public void testPackageNameResolution() throws IOException, CentralClientException {
-        String resString = "{\n" +
-                "   \"resolvedModules\":[\n" +
-                "      {\n" +
-                "         \"organization\":\"shehanpa\",\n" +
-                "         \"moduleName\":\"fb\",\n" +
-                "         \"version\":\"0.7.0\",\n" +
-                "         \"packageName\":\"fb\"\n" +
-                "      }\n" +
-                "   ],\n" +
-                "   \"unresolvedModules\":[\n" +
-                "      {\n" +
-                "         \"organization\":\"hevayo\",\n" +
-                "         \"moduleName\":\"fb\",\n" +
-                "         \"version\":null,\n" +
-                "         \"reason\":\"package not found\"\n" +
-                "      }\n" +
-                "   ]\n" +
-                "}";
+        String resString = """
+                {
+                   "resolvedModules":[
+                      {
+                         "organization":"shehanpa",
+                         "moduleName":"fb",
+                         "version":"0.7.0",
+                         "packageName":"fb"
+                      }
+                   ],
+                   "unresolvedModules":[
+                      {
+                         "organization":"hevayo",
+                         "moduleName":"fb",
+                         "version":null,
+                         "reason":"package not found"
+                      }
+                   ]
+                }""";
         Request mockRequest = new Request.Builder()
                 .get()
                 .url("https://localhost:9090/registry/packages/resolve-modules")
@@ -764,5 +769,153 @@ public class TestCentralApiClient extends CentralAPIClient {
 
         PackageNameResolutionResponse.Module unresolvedModule = packageResolutionResponse.unresolvedModules().get(0);
         Assert.assertNull(unresolvedModule.getPackageName());
+    }
+
+    @Test(description = "Test tool version resolution")
+    public void testToolResolution() throws IOException, CentralClientException {
+        String resString = "{\"resolved\":" +
+                "[{\"id\":\"health\", \"orgName\":\"ballerinax\", \"name\":\"health\", \"version\":\"2.1.1\"}, " +
+                "{\"id\":\"edi\", \"orgName\":\"ballerina\", \"name\":\"editoolspackage\", \"version\":\"1.0.0\"}], " +
+                "\"unresolved\":" +
+                "[{\"id\":\"blah\", \"version\":\"1.0.0\", " +
+                "\"reason\":\"unexpected error occured while searching for org name of tool id: blah\"}]}";
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/tools/resolve-dependencies")
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_OK)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get(APPLICATION_JSON),
+                        resString
+                ))
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+        ToolResolutionCentralRequest toolResolutionRequest = new ToolResolutionCentralRequest();
+        toolResolutionRequest.addTool("health", "2.1.0", ToolResolutionCentralRequest.Mode.MEDIUM);
+        toolResolutionRequest.addTool("edi", "1.0.0", ToolResolutionCentralRequest.Mode.SOFT);
+        toolResolutionRequest.addTool("blah", "1.0.0", ToolResolutionCentralRequest.Mode.HARD);
+        ToolResolutionCentralResponse toolResolutionResponse = this.resolveToolDependencies(
+                toolResolutionRequest, ANY_PLATFORM, TEST_BAL_VERSION);
+
+        ToolResolutionCentralResponse.ResolvedTool resolvedTool = toolResolutionResponse.resolved().get(0);
+        Assert.assertEquals(resolvedTool.id(), "health");
+        Assert.assertEquals(resolvedTool.org(), "ballerinax");
+        Assert.assertEquals(resolvedTool.name(), "health");
+        Assert.assertEquals(resolvedTool.version(), "2.1.1");
+
+        resolvedTool = toolResolutionResponse.resolved().get(1);
+        Assert.assertEquals(resolvedTool.id(), "edi");
+        Assert.assertEquals(resolvedTool.org(), "ballerina");
+        Assert.assertEquals(resolvedTool.name(), "editoolspackage");
+        Assert.assertEquals(resolvedTool.version(), "1.0.0");
+
+        ToolResolutionCentralResponse.UnresolvedTool unresolvedTool = toolResolutionResponse.unresolved().get(0);
+        Assert.assertEquals(unresolvedTool.id(), "blah");
+        Assert.assertEquals(unresolvedTool.version(), "1.0.0");
+    }
+
+    @Test(description = "Test search tool")
+    public void testSearchTool() throws IOException, CentralClientException {
+        Path toolSearchJsonPath = UTILS_TEST_RESOURCES.resolve("toolSearch.json");
+
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/tools/?q=foo")
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_OK)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get(APPLICATION_JSON),
+                        Files.readString(toolSearchJsonPath)
+                ))
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+        ToolSearchResult toolSearchResult = this.searchTool("health", ANY_PLATFORM, TEST_BAL_VERSION);
+        Assert.assertNotNull(toolSearchResult);
+        Assert.assertEquals(toolSearchResult.getTools().size(), 1);
+        Assert.assertEquals(toolSearchResult.getTools().get(0).getBalToolId(), "health");
+        Assert.assertEquals(toolSearchResult.getTools().get(0).getOrganization(), "ballerinax");
+    }
+
+    @Test(description = "Test pull tool")
+    public void testPullTool() throws IOException, CentralClientException {
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_TOOL_BALA_NAME);
+        File balaFile = new File(String.valueOf(balaPath));
+        String balaFileName = "attachment; filename=baz-toolbox-java17-0.1.0.bala";
+
+        try (InputStream ignored = new FileInputStream(balaFile)) {
+            Request mockRequest = new Request.Builder()
+                    .get()
+                    .url("https://localhost:9090/registry/tools/sample_tool/0.1.0")
+                    .addHeader(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                    .build();
+            String toolBalaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/toolbox/0.1.0/" +
+                    "baz-toolbox-java17-0.1.0.bala";
+            ResponseBody mockResponseBody = ResponseBody.create(MediaType.parse("application/json"), "{\n" +
+                    "    \"organization\": \"baz\",\n" +
+                    "    \"name\": \"toolbox\",\n" +
+                    "    \"version\": \"0.1.0\",\n" +
+                    "    \"balaURL\": \"" + toolBalaUrl + "\",\n" +
+                    "    \"platform\": \"java17\"\n}");
+            Response mockResponse = new Response.Builder()
+                    .request(mockRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_OK)
+                    .addHeader(LOCATION, this.balaUrl)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .addHeader(DIGEST, "sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4")
+                    .message("")
+                    .body(mockResponseBody)
+                    .build();
+            Request mockDownloadBalaRequest = new Request.Builder()
+                    .get()
+                    .url(toolBalaUrl)
+                    .header(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .build();
+            Response mockDownloadBalaResponse = new Response.Builder()
+                    .request(mockDownloadBalaRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_OK)
+                    .message("")
+                    .body(ResponseBody.create(
+                            MediaType.get(APPLICATION_OCTET_STREAM),
+                            Files.readAllBytes(balaPath)
+                    ))
+                    .build();
+
+            when(this.remoteCall.execute()).thenReturn(mockResponse, mockDownloadBalaResponse);
+            when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+            System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+            this.pullTool("sample_tool", "0.1.0", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
+
+            Path balaDir = TMP_DIR.resolve("baz").resolve("toolbox").resolve("0.1.0").resolve("java17");
+            Assert.assertTrue(balaDir.toFile().exists());
+            Assert.assertTrue(balaDir.resolve("bala.json").toFile().exists());
+            Assert.assertTrue(balaDir.resolve("modules").toFile().exists());
+            Assert.assertTrue(balaDir.resolve("dependency-graph.json").toFile().exists());
+            Assert.assertTrue(balaDir.resolve("package.json").toFile().exists());
+            Assert.assertTrue(balaDir.resolve("package.json").toFile().exists());
+            Assert.assertTrue(balaDir.resolve("tool").resolve("bal-tool.json").toFile().exists());
+            Assert.assertTrue(balaDir.resolve("tool").resolve("libs").resolve("CompPluginRunnerCommand-1.0.0.jar")
+                    .toFile().exists());
+        } finally {
+            cleanTmpDir();
+        }
     }
 }

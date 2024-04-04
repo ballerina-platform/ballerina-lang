@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 4,
+    "character": 12
+  },
+  "source": "add_lock2.bal",
+  "description": "Wrap in a lock statement for a simple class variable",
+  "expected": [
+    {
+      "title": "Surround with lock",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 0
+            },
+            "end": {
+              "line": 5,
+              "character": 0
+            }
+          },
+          "newText": "        lock {\n\t        _ = self.i + 1;\n        }\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
