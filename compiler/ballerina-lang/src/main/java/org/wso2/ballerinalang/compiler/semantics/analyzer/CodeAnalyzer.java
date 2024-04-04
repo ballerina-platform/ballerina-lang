@@ -2168,18 +2168,19 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode, AnalyzerData data) {
         // Validate worker receive
-        validateActionParentNode(workerReceiveNode.pos, workerReceiveNode);
+        Location workerReceivePos = workerReceiveNode.pos;
+        validateActionParentNode(workerReceivePos, workerReceiveNode);
         BSymbol sender =
                 symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(workerReceiveNode.workerIdentifier));
         if ((sender.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
             sender = symTable.notFoundSymbol;
         }
-        verifyPeerCommunication(workerReceiveNode.pos, sender, workerReceiveNode.workerIdentifier.value, data.env);
+        verifyPeerCommunication(workerReceivePos, sender, workerReceiveNode.workerIdentifier.value, data.env);
 
         WorkerActionSystem was = data.workerActionSystemStack.peek();
 
         if (data.withinLockBlock) {
-            this.dlog.error(workerReceiveNode.pos,
+            this.dlog.error(workerReceivePos,
                             DiagnosticErrorCode.WORKER_RECEIVE_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT);
             was.hasErrors = true;
         }
@@ -2187,16 +2188,16 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         String workerName = workerReceiveNode.workerIdentifier.getValue();
         if (data.withinQuery || (!isReceiveAllowedLocation(data.env.enclInvokable.body, data.env.node) &&
                 !data.inInternallyDefinedBlockStmt)) {
-            this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.INVALID_WORKER_RECEIVE_POSITION);
+            this.dlog.error(workerReceivePos, DiagnosticErrorCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
         }
 
         if (!this.workerExists(workerReceiveNode.workerType, workerName, data.env)) {
-            this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
+            this.dlog.error(workerReceivePos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
 
-        workerReceiveNode.matchingSendsError = createAccumulatedErrorTypeForMatchingSyncSend(data);
+        workerReceiveNode.matchingSendsError = createAccumulatedErrorTypeForMatchingSyncSend(data, workerReceivePos);
         was.addWorkerAction(workerReceiveNode);
     }
 
@@ -2234,12 +2235,23 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    public BType createAccumulatedErrorTypeForMatchingSyncSend(AnalyzerData data) {
+    public BType createAccumulatedErrorTypeForMatchingSyncSend(AnalyzerData data, Location workerReceivePos) {
         LinkedHashSet<BType> returnTypesUpToNow = data.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<>();
+
+        boolean hasNonErrorReturn = false;
         for (BType returnType : returnTypesUpToNow) {
-            addErrorTypesToSet(returnType,  returnTypeAndSendType);
+            if (hasNonErrorType(returnType)) {
+                hasNonErrorReturn = true;
+            } else {
+                returnTypeAndSendType.add(returnType);
+            }
         }
+
+        if (hasNonErrorReturn) {
+            dlog.error(workerReceivePos, DiagnosticErrorCode.WORKER_RECEIVE_AFTER_NON_ERROR_RETURN);
+        }
+
         returnTypeAndSendType.add(symTable.nilType);
         if (returnTypeAndSendType.size() > 1) {
             return BUnionType.create(null, returnTypeAndSendType);
