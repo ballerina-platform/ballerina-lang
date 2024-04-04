@@ -47,7 +47,7 @@ public function functionAnyRestParam(any... z) returns any[] {
     return z;
 }
 
-// ------------------- Test function signature with invocation as default value of a parameter
+// ------------------- Test function signature with call of function from a different module as parameter default
 
 public function funcWithInvocationAsDefaultValueOfParam(int a = utils:foo()) returns int {
     return a;
