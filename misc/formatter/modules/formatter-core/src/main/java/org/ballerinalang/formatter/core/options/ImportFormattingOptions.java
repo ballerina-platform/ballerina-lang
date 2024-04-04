@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (http://wso2.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.formatter.core;
+package org.ballerinalang.formatter.core.options;
+
+import org.ballerinalang.formatter.core.FormatterException;
+
+import java.util.Map;
+
+import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
 
 /**
  * A model for formatting and optimizing imports by the API user, that could be passed onto the formatter.
@@ -21,6 +27,7 @@ package org.ballerinalang.formatter.core;
  * @since 2201.8.0
  */
 public class ImportFormattingOptions {
+
     private boolean groupImports;
     private boolean sortImports;
     private boolean removeUnusedImports;
@@ -31,11 +38,11 @@ public class ImportFormattingOptions {
         this.removeUnusedImports = removeUnusedImports;
     }
 
-    public boolean getGroupImports() {
+    public boolean groupImports() {
         return groupImports;
     }
 
-    public boolean getSortImports() {
+    public boolean sortImports() {
         return sortImports;
     }
 
@@ -51,9 +58,13 @@ public class ImportFormattingOptions {
      * A builder for the {@code ImportFormattingOptions}.
      */
     public static class ImportFormattingOptionsBuilder {
-        private boolean groupImports = true;
-        private boolean sortImports = true;
-        private boolean removeUnusedImports = false;
+
+        private static final String GROUP_IMPORTS = "groupImports";
+        private static final  String SORT_IMPORTS = "sortImports";
+        private static final String REMOVE_UNUSED_IMPORTS = "removeUnusedImports";
+        private boolean groupImports = getDefaultBoolean(FormatSection.IMPORT, GROUP_IMPORTS);
+        private boolean sortImports = getDefaultBoolean(FormatSection.IMPORT, SORT_IMPORTS);
+        private boolean removeUnusedImports = getDefaultBoolean(FormatSection.IMPORT, REMOVE_UNUSED_IMPORTS);
 
         public ImportFormattingOptions.ImportFormattingOptionsBuilder setGroupImports(boolean groupImports) {
             this.groupImports = groupImports;
@@ -62,7 +73,7 @@ public class ImportFormattingOptions {
 
         public ImportFormattingOptions.ImportFormattingOptionsBuilder setSortImports(boolean sortImports) {
             this.sortImports = sortImports;
-            return  this;
+            return this;
         }
 
         public ImportFormattingOptions.ImportFormattingOptionsBuilder setRemoveUnusedImports(
@@ -73,6 +84,18 @@ public class ImportFormattingOptions {
 
         public ImportFormattingOptions build() {
             return new ImportFormattingOptions(groupImports, sortImports, removeUnusedImports);
+        }
+
+        public ImportFormattingOptions build(Map<String, Object> configs) throws FormatterException {
+            for (Map.Entry<String, Object> importEntry : configs.entrySet()) {
+                String importKey = importEntry.getKey();
+                switch (importKey) {
+                    case SORT_IMPORTS -> setSortImports((Boolean) importEntry.getValue());
+                    case GROUP_IMPORTS -> setGroupImports((Boolean) importEntry.getValue());
+                    default -> throw new FormatterException("invalid import formatting option: " + importKey);
+                }
+            }
+            return build();
         }
     }
 }
