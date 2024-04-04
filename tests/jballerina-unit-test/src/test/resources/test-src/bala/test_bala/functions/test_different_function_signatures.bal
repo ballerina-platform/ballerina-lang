@@ -87,8 +87,8 @@ function testInvokeFuncWithAnyRestParam1() returns any[] {
 
 // ------------------- Test function signature with invocation as default value of parameter
 
-function funcWithInvocationAsDefaultValueOfParam() {
-    assertValueEquality(101, foo:funcWithInvocationAsDefaultValueOfParam());
+function testFuncWithDefaultValueOfParamFromDifferentModule() {
+    assertValueEquality(101, foo:funcWithDefaultValueOfParamFromDifferentModule());
 }
 
 // ------------------- Test function signature with union types for default parameter
