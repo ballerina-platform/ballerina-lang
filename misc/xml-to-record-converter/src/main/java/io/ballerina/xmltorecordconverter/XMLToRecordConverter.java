@@ -95,8 +95,7 @@ public class XMLToRecordConverter {
 
     public static XMLToRecordResponse convertXMLToRecord(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
                                                          boolean forceFormatRecordFields,
-                                                         String fieldNameForLeafAttribute,
-                                                         boolean withNameSpaces) {
+                                                         String textFieldName, boolean withNameSpaces) {
         Map<String, NonTerminalNode> recordToTypeDescNodes = new LinkedHashMap<>();
         Map<String, AnnotationNode> recordToAnnotationNodes = new LinkedHashMap<>();
         Map<String, Element> recordToElementNodes = new LinkedHashMap<>();
@@ -115,7 +114,7 @@ public class XMLToRecordConverter {
 
             Element rootElement = doc.getDocumentElement();
             generateRecords(rootElement, isClosed, recordToTypeDescNodes, recordToAnnotationNodes,
-                    recordToElementNodes, diagnosticMessages, fieldNameForLeafAttribute, withNameSpaces);
+                    recordToElementNodes, diagnosticMessages, textFieldName, withNameSpaces);
         } catch (ParserConfigurationException parserConfigurationException) {
             DiagnosticMessage message = DiagnosticMessage.xmlToRecordConverter100(null);
             diagnosticMessages.add(message);
@@ -181,12 +180,12 @@ public class XMLToRecordConverter {
      * @param xmlValue The XML value to be converted to a record.
      * @param isRecordTypeDesc Whether the record is a type descriptor.
      * @param isClosed Whether the record is closed or not.
-     * @param forceFormatRecordFields Whether to force format the result.
+     * @param textFieldName Whether to force format the result.
      * @return {@link XMLToRecordResponse} The response object containing the converted record.
      */
     public static XMLToRecordResponse convert(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
-                                              boolean forceFormatRecordFields) {
-        return convertXMLToRecord(xmlValue, isRecordTypeDesc, isClosed, forceFormatRecordFields, null, true);
+                                              boolean textFieldName) {
+        return convertXMLToRecord(xmlValue, isRecordTypeDesc, isClosed, textFieldName, null, true);
     }
 
     private static void generateRecords(Element xmlElement, boolean isClosed,
@@ -194,7 +193,7 @@ public class XMLToRecordConverter {
                                         Map<String, AnnotationNode> recordToAnnotationsNodes,
                                         Map<String, Element> recordToElementNodes,
                                         List<DiagnosticMessage> diagnosticMessages,
-                                        String fieldNameForLeafAttribute, boolean withNameSpace) {
+                                        String textFieldName, boolean withNameSpace) {
         Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
         Token bodyStartDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.OPEN_BRACE_PIPE_TOKEN :
                 SyntaxKind.OPEN_BRACE_TOKEN);
@@ -202,7 +201,7 @@ public class XMLToRecordConverter {
         String xmlNodeName = xmlElement.getNodeName();
 
         List<Node> recordFields = getRecordFieldsForXMLElement(xmlElement, isClosed, recordToTypeDescNodes,
-                recordToAnnotationsNodes, recordToElementNodes, diagnosticMessages, fieldNameForLeafAttribute,
+                recordToAnnotationsNodes, recordToElementNodes, diagnosticMessages, textFieldName,
                 withNameSpace);
         if (recordToTypeDescNodes.containsKey(xmlNodeName)) {
             RecordTypeDescriptorNode previousRecordTypeDescriptorNode =
@@ -236,7 +235,7 @@ public class XMLToRecordConverter {
                                                            Map<String, AnnotationNode> recordToAnnotationNodes,
                                                            Map<String, Element> recordToElementNodes,
                                                            List<DiagnosticMessage> diagnosticMessages,
-                                                           String fieldNameForLeafAttribute, boolean withNameSpace) {
+                                                           String textFieldName, boolean withNameSpace) {
         List<Node> recordFields = new ArrayList<>();
 
         String xmlNodeName = xmlElement.getNodeName();
@@ -249,7 +248,7 @@ public class XMLToRecordConverter {
                 boolean isLeafXMLElementNode = isLeafXMLElementNode(xmlElementNode);
                 if (!isLeafXMLElementNode || xmlElementNode.getAttributes().getLength() > 0) {
                     generateRecords(xmlElementNode, isClosed, recordToTypeDescNodes, recordToAnnotationNodes,
-                            recordToElementNodes, diagnosticMessages, fieldNameForLeafAttribute, withNameSpace);
+                            recordToElementNodes, diagnosticMessages, textFieldName, withNameSpace);
                 }
                 RecordFieldNode recordField = getRecordField(xmlElementNode, false, withNameSpace);
                 if (recordFields.stream().anyMatch(recField -> ((RecordFieldNode) recField).fieldName().text()
@@ -298,8 +297,8 @@ public class XMLToRecordConverter {
         }
         if (isLeafXMLElementNode(xmlElement) && xmlElement.getAttributes().getLength() > 0) {
             Token fieldType = AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
-            IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(fieldNameForLeafAttribute == null ?
-                    escapeIdentifier("#content") : fieldNameForLeafAttribute);
+            IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(textFieldName == null ?
+                    escapeIdentifier("#content") : textFieldName);
             Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
             RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null, fieldType,
                     fieldName, null, semicolon);
