@@ -109,21 +109,24 @@ class FormatterUtils {
         // remove comments from the previous first import
         ImportDeclarationNode prevFirstImportNode = importNodes.get(prevFirstImportIndex);
         MinutiaeList prevFirstLeadingMinutiae = prevFirstImportNode.leadingMinutiae();
+
         MinutiaeList prevFirstNewLeadingMinutiae = NodeFactory.createEmptyMinutiaeList();
         Minutiae prevFirstMinutiae = prevFirstLeadingMinutiae.get(0);
-        if (prevFirstMinutiae.kind() != SyntaxKind.COMMENT_MINUTIAE) {
+        if (prevFirstMinutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
             // if the prevFirstImport now is the first of a group of imports, handle the added leading newline
             prevFirstNewLeadingMinutiae = prevFirstNewLeadingMinutiae.add(prevFirstMinutiae);
             prevFirstLeadingMinutiae = prevFirstLeadingMinutiae.remove(0);
         }
+
         importNodes.set(prevFirstImportIndex,
                 modifyImportDeclLeadingMinutiae(prevFirstImportNode, prevFirstNewLeadingMinutiae));
 
         if (!hasEmptyLineAtEnd(prevFirstLeadingMinutiae)) {
-            // adds a new line to after prevFirstImport's leading minutiae if not present
+            // adds a newline after prevFirstImport's leading minutiae if not present
             prevFirstLeadingMinutiae =
                     prevFirstLeadingMinutiae.add(NodeFactory.createEndOfLineMinutiae(System.lineSeparator()));
         }
+
         ImportDeclarationNode newFirstImportNode = importNodes.get(0);
         MinutiaeList newFirstLeadingMinutiae = newFirstImportNode.importKeyword().leadingMinutiae();
         for (int i = 0; i < newFirstLeadingMinutiae.size(); i++) {
@@ -134,6 +137,7 @@ class FormatterUtils {
             }
             prevFirstLeadingMinutiae = prevFirstLeadingMinutiae.add(minutiae);
         }
+
         importNodes.set(0, modifyImportDeclLeadingMinutiae(newFirstImportNode, prevFirstLeadingMinutiae));
     }
 
