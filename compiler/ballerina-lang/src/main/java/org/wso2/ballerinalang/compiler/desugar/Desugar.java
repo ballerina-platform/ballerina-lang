@@ -383,7 +383,6 @@ public class Desugar extends BLangNodeVisitor {
     private TransactionDesugar transactionDesugar;
     private ObservabilityDesugar observabilityDesugar;
     private Code2CloudDesugar code2CloudDesugar;
-    private RuntimeManagementDesugar runtimeManagementDesugar;
     private AnnotationDesugar annotationDesugar;
     private Types types;
     private Names names;
@@ -461,7 +460,6 @@ public class Desugar extends BLangNodeVisitor {
         this.transactionDesugar = TransactionDesugar.getInstance(context);
         this.observabilityDesugar = ObservabilityDesugar.getInstance(context);
         this.code2CloudDesugar = Code2CloudDesugar.getInstance(context);
-        this.runtimeManagementDesugar = RuntimeManagementDesugar.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
         this.largeMethodSplitter = LargeMethodSplitter.getInstance(context);
         this.types = Types.getInstance(context);
@@ -766,7 +764,6 @@ public class Desugar extends BLangNodeVisitor {
         observabilityDesugar.addObserveInternalModuleImport(pkgNode);
 
         code2CloudDesugar.addCode2CloudModuleImport(pkgNode);
-        runtimeManagementDesugar.addManagementServiceModuleImport(pkgNode);
 
         createPackageInitFunctions(pkgNode, env);
         // Adding object functions to package level.

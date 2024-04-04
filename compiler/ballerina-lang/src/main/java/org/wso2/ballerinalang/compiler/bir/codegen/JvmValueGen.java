@@ -193,7 +193,8 @@ public class JvmValueGen {
         return (field.symbol.flags & BAL_OPTIONAL) == BAL_OPTIONAL;
     }
 
-    void generateValueClasses(Map<String, byte[]> jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen) {
+    void generateValueClasses(Map<String, byte[]> jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen,
+                              boolean remoteManagement) {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.forEach(optionalTypeDef -> {
             if (optionalTypeDef.type.tag == TypeTags.TYPEREFDESC) {
@@ -205,8 +206,8 @@ public class JvmValueGen {
             if (optionalTypeDef.type.tag == TypeTags.OBJECT &&
                     Symbols.isFlagOn(optionalTypeDef.type.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) optionalTypeDef.type;
-                this.createObjectValueClasses(objectType, className, optionalTypeDef, jvmConstantsGen
-                        , asyncDataCollector, jarEntries);
+                this.createObjectValueClasses(objectType, className, optionalTypeDef, jvmConstantsGen,
+                        asyncDataCollector, jarEntries, remoteManagement);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
                 byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, jvmConstantsGen
@@ -472,7 +473,7 @@ public class JvmValueGen {
 
     private void createObjectValueClasses(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
                                           JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
-                                          Map<String, byte[]> jarEntries) {
+                                          Map<String, byte[]> jarEntries, boolean remoteManagement) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().fileName(), null);
 
@@ -495,7 +496,7 @@ public class JvmValueGen {
         }
 
         this.createObjectInit(cw, fields, className);
-        jvmObjectGen.createAndSplitCallMethod(cw, attachedFuncs, className, jvmCastGen);
+        jvmObjectGen.createAndSplitCallMethod(cw, attachedFuncs, className, jvmCastGen, remoteManagement);
         jvmObjectGen.createAndSplitGetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetOnInitializationMethod(cw, fields, className);

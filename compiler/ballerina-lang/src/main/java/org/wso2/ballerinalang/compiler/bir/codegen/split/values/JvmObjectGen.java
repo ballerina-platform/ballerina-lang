@@ -86,7 +86,7 @@ public class JvmObjectGen {
     static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
 
     public void createAndSplitCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
-                                         JvmCastGen jvmCastGen) {
+                                         JvmCastGen jvmCastGen, boolean remoteManagement) {
         int bTypesCount = 0;
         int methodCount = 0;
         MethodVisitor mv = null;
@@ -154,7 +154,7 @@ public class JvmObjectGen {
             } else {
                 jvmCastGen.addBoxInsn(mv, retType);
             }
-            if (isListenerAttach(func)) {
+            if (isListenerAttach(func, remoteManagement)) {
                 mv.visitVarInsn(ASTORE, 4);
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitTypeInsn(CHECKCAST, B_OBJECT);
@@ -196,8 +196,9 @@ public class JvmObjectGen {
         }
     }
 
-    private static boolean isListenerAttach(BIRNode.BIRFunction func) {
-        return func.name.value.equals("attach") && Symbols.isFlagOn(func.parameters.get(0).type.flags, Flags.SERVICE);
+    private static boolean isListenerAttach(BIRNode.BIRFunction func, boolean remoteManagement) {
+        return remoteManagement && func.name.value.equals("attach")
+                && Symbols.isFlagOn(func.parameters.get(0).type.flags, Flags.SERVICE);
     }
 
     public void createAndSplitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
