@@ -210,7 +210,7 @@ public class JBallerinaBackend extends CompilerBackend {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
-            return new EmitResult(false, diagnosticResult, null);
+            return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), generatedArtifact);
         }
 
         List<Diagnostic> emitResultDiagnostics = new ArrayList<>();
@@ -221,30 +221,29 @@ public class JBallerinaBackend extends CompilerBackend {
             default -> throw new RuntimeException("Unexpected output type: " + outputType);
         };
 
-        return getEmitResult(filePath, generatedArtifact, BalCommand.BUILD);
+        return getEmitResult(filePath, generatedArtifact, BalCommand.BUILD, emitResultDiagnostics);
     }
 
     public EmitResult emit(TestEmitArgs testEmitArgs) {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
-            return new EmitResult(false, diagnosticResult, null);
+            return new EmitResult(false, new DefaultDiagnosticResult(new ArrayList<>()), null);
         }
 
         if (testEmitArgs.outputType() == OutputType.TEST) {
             generatedArtifact = emitTestExecutable(testEmitArgs.filePath(), testEmitArgs.jarDependencies(),
-                    testEmitArgs.testSuiteJsonPath(),
-                    testEmitArgs.jsonCopyPath(),
+                    testEmitArgs.testSuiteJsonPath(), testEmitArgs.jsonCopyPath(),
                     testEmitArgs.excludedClasses(), testEmitArgs.classPathTextCopyPath());
         } else {
             throw new RuntimeException("Unexpected output type: " + testEmitArgs.outputType());
         }
 
-        return getEmitResult(testEmitArgs.filePath(), generatedArtifact, BalCommand.TEST);
+        return getEmitResult(testEmitArgs.filePath(), generatedArtifact, BalCommand.TEST, new ArrayList<>());
     }
 
-    public EmitResult getEmitResult(Path filePath, Path generatedArtifact, BalCommand balCommand) {
-        ArrayList<Diagnostic> emitDiagnostics = new ArrayList<>();
+    private EmitResult getEmitResult(Path filePath, Path generatedArtifact, BalCommand balCommand,
+                                    List<Diagnostic> emitDiagnostics) {
         if (filePath != null) {
             List<Diagnostic> pluginDiagnostics = notifyCompilationCompletion(filePath, balCommand);
             if (!pluginDiagnostics.isEmpty()) {
@@ -252,8 +251,7 @@ public class JBallerinaBackend extends CompilerBackend {
             }
         }
         List<Diagnostic> allDiagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
-        jarResolver().diagnosticResult().diagnostics().stream().forEach(
-                diagnostic -> emitDiagnostics.add(diagnostic));
+        emitDiagnostics.addAll(jarResolver().diagnosticResult().diagnostics());
         allDiagnostics.addAll(emitDiagnostics);
         diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
 
