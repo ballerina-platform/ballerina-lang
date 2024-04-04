@@ -83,12 +83,14 @@ import static org.objectweb.asm.Opcodes.FCONST_0;
 import static org.objectweb.asm.Opcodes.FLOAD;
 import static org.objectweb.asm.Opcodes.FSTORE;
 import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IADD;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFGT;
+import static org.objectweb.asm.Opcodes.IF_ICMPEQ;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -116,6 +118,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_AN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_PARENT_ATTEMPTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NO_OF_DEPENDANT_MODULES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SELF_INSTANCE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
@@ -174,10 +178,6 @@ public class MethodGen {
     public void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
                                String moduleClassName, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
-        if (JvmCodeGenUtil.isTestablePkgCodeGen && birFunc.name.value.equals("$moduleInit")) {
-            JvmCodeGenUtil.dontAddDuplicatePrefix = true;
-        }
-
         if (JvmCodeGenUtil.isExternFunc(birFunc)) {
             ExternalMethodGen.genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
                     jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
@@ -186,7 +186,6 @@ public class MethodGen {
             genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
                     attachedType, asyncDataCollector, false);
         }
-        JvmCodeGenUtil.dontAddDuplicatePrefix = false;
     }
 
     public void genJMethodWithBObjectMethodCall(BIRFunction func, ClassWriter cw, BIRPackage module,
@@ -285,7 +284,7 @@ public class MethodGen {
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
         mv.visitCode();
 
-        visitModuleStartFunction(module.packageID, funcName, mv);
+        visitStartFunction(module.packageID, funcName, mv);
 
         Label methodStartLabel = new Label();
         mv.visitLabel(methodStartLabel);
@@ -307,7 +306,8 @@ public class MethodGen {
         mv.visitJumpInsn(IFGT, resumeLabel);
 
         // set function invocation variable
-        setFunctionInvocationVar(localVarOffset, mv, invocationVarIndex, invocationCountArgVarIndex);
+        setFunctionInvocationVar(localVarOffset, mv, invocationVarIndex, invocationCountArgVarIndex, module.packageID,
+                funcName);
         // set channel details to strand.
         setChannelDetailsToStrand(func, localVarOffset, mv, invocationVarIndex);
 
@@ -392,7 +392,36 @@ public class MethodGen {
     }
 
     private void setFunctionInvocationVar(int localVarOffset, MethodVisitor mv, int invocationVarIndex,
-                                          int invocationCountArgVarIndex) {
+                                          int invocationCountArgVarIndex, PackageID packageID, String funcName) {
+
+        if (isModuleInitFunction(funcName)) {
+            String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+            mv.visitFieldInsn(GETSTATIC, moduleClass, NO_OF_DEPENDANT_MODULES, "I");
+            mv.visitInsn(ICONST_1);
+            mv.visitInsn(IADD);
+            mv.visitFieldInsn(PUTSTATIC, moduleClass, NO_OF_DEPENDANT_MODULES, "I");
+
+            Label labelIf = new Label();
+            mv.visitFieldInsn(GETSTATIC, moduleClass, NO_OF_DEPENDANT_MODULES, "I");
+            mv.visitInsn(ICONST_1);
+            mv.visitJumpInsn(IF_ICMPEQ, labelIf);
+            mv.visitInsn(ACONST_NULL);
+            mv.visitInsn(ARETURN);
+            mv.visitLabel(labelIf);
+        }
+
+        if (isModuleStartFunction(funcName)) {
+            String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+            mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_START_PARENT_ATTEMPTED, "Z");
+            Label labelIf = new Label();
+            mv.visitJumpInsn(IFEQ, labelIf);
+            mv.visitInsn(ACONST_NULL);
+            mv.visitInsn(ARETURN);
+            mv.visitLabel(labelIf);
+            mv.visitInsn(ICONST_1);
+            mv.visitFieldInsn(PUTSTATIC, moduleClass, MODULE_START_PARENT_ATTEMPTED, "Z");
+        }
+
         if (invocationCountArgVarIndex == -1) {
             mv.visitVarInsn(ALOAD, localVarOffset);
             mv.visitInsn(DUP);
@@ -422,8 +451,8 @@ public class MethodGen {
         return retType;
     }
 
-    private void visitModuleStartFunction(PackageID packageID, String funcName, MethodVisitor mv) {
-        if (!isModuleStartFunction(funcName)) {
+    private void visitStartFunction(PackageID packageID, String funcName, MethodVisitor mv) {
+        if (!isStartFunction(funcName)) {
             return;
         }
         mv.visitInsn(ICONST_1);
@@ -710,7 +739,7 @@ public class MethodGen {
                     false);
         }
         //set module start success to true for $_init class
-        if (isModuleStartFunction(funcName) && terminator.kind == InstructionKind.RETURN) {
+        if (isStartFunction(funcName) && terminator.kind == InstructionKind.RETURN) {
             mv.visitInsn(ICONST_1);
             mv.visitFieldInsn(PUTSTATIC, JvmCodeGenUtil.getModuleLevelClassName(module.packageID,
                             MODULE_INIT_CLASS_NAME),
@@ -724,9 +753,19 @@ public class MethodGen {
                         .encodeModuleSpecialFuncName(".<testinit>"));
     }
 
-    private boolean isModuleStartFunction(String functionName) {
+    private boolean isStartFunction(String functionName) {
         return functionName
                 .equals(MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.START_FUNCTION_SUFFIX));
+    }
+
+    private boolean isModuleInitFunction(String functionName) {
+        return functionName
+                .equals(MethodGenUtils.encodeModuleSpecialFuncName(JvmConstants.MODULE_INIT_METHOD));
+    }
+
+    private boolean isModuleStartFunction(String functionName) {
+        return functionName
+                .equals(MethodGenUtils.encodeModuleSpecialFuncName(JvmConstants.MODULE_START_METHOD));
     }
 
     private void genGetFrameOnResumeIndex(int localVarOffset, MethodVisitor mv, String frameName) {

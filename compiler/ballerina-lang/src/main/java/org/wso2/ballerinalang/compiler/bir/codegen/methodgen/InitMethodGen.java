@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.Opcodes.AALOAD;
@@ -81,7 +82,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
@@ -122,22 +122,15 @@ public class InitMethodGen {
      * @param cw        class visitor
      * @param pkg       bir package
      * @param initClass module init class
-     * @param depMods   dependent module list
      */
-    public void generateLambdaForPackageInits(ClassWriter cw, BIRNode.BIRPackage pkg, String initClass,
-                                              List<PackageID> depMods) {
+    public void generateLambdaForPackageInit(ClassWriter cw, BIRNode.BIRPackage pkg, String initClass) {
         //need to generate lambda for package Init as well, if exist
         if (!MethodGenUtils.hasInitFunction(pkg)) {
             return;
         }
-
         String funcName = MethodGenUtils.calculateLambdaStopFuncName(pkg.packageID);
         MethodVisitor mv = visitFunction(cw, funcName);
         invokeStopFunction(initClass, mv, funcName);
-        for (PackageID id : depMods) {
-            String jvmClass = JvmCodeGenUtil.getPackageName(id) + MODULE_INIT_CLASS_NAME;
-            generateLambdaForDepModStopFunc(cw, id, jvmClass);
-        }
     }
 
     public void generateLambdaForModuleExecuteFunction(ClassWriter cw, String initClass, JvmCastGen jvmCastGen,
@@ -181,12 +174,6 @@ public class InitMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_EXECUTE_METHOD, methodDesc, false);
         jvmCastGen.addBoxInsn(mv, errorOrNilType);
         MethodGenUtils.visitReturn(mv, lambdaFuncName, initClass);
-    }
-
-    private void generateLambdaForDepModStopFunc(ClassWriter cw, PackageID pkgID, String initClass) {
-        String lambdaName = MethodGenUtils.calculateLambdaStopFuncName(pkgID);
-        MethodVisitor mv = visitFunction(cw, lambdaName);
-        invokeStopFunction(initClass, mv, lambdaName);
     }
 
     private MethodVisitor visitFunction(ClassWriter cw, String funcName) {
@@ -238,7 +225,7 @@ public class InitMethodGen {
 
     public void enrichPkgWithInitializers(Map<String, BIRFunctionWrapper> birFunctionMap,
                                           Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
-                                          BIRNode.BIRPackage pkg, List<PackageID> moduleImports,
+                                          BIRNode.BIRPackage pkg, Set<PackageID> moduleImports,
                                           boolean serviceEPAvailable, BIRNode.BIRFunction mainFunc,
                                           BIRNode.BIRFunction testExecuteFunc) {
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
@@ -421,7 +408,7 @@ public class InitMethodGen {
         return null;
     }
 
-    private BIRNode.BIRFunction generateDefaultFunction(List<PackageID> imprtMods, BIRNode.BIRPackage pkg,
+    private BIRNode.BIRFunction generateDefaultFunction(Set<PackageID> imprtMods, BIRNode.BIRPackage pkg,
                                                         String funcName, String initName) {
         nextId = 0;
         nextVarId = 0;
@@ -438,9 +425,8 @@ public class InitMethodGen {
 
         BIRNode.BIRVariableDcl boolVal = addAndGetNextVar(modInitFunc, symbolTable.booleanType);
         BIROperand boolRef = new BIROperand(boolVal);
-
+        String initFuncName = MethodGenUtils.encodeModuleSpecialFuncName(funcName);
         for (PackageID id : imprtMods) {
-            String initFuncName = MethodGenUtils.encodeModuleSpecialFuncName(initName);
             addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef, boolRef);
         }
 

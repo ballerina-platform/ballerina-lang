@@ -183,6 +183,7 @@ public class NativeDependencyOptimizer {
                 BufferedReader reader =
                         new BufferedReader(new InputStreamReader(originalJarFile.getInputStream(currentEntry)));
                 whitelistReflectionClasses(reader);
+                reader.close();
             }
         }
 

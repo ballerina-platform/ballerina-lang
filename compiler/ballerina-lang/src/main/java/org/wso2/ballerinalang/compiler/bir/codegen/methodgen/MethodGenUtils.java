@@ -55,7 +55,7 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
  * @since 2.0.0
  */
 public class MethodGenUtils {
-    static final String FRAMES = "frames";
+    public static final String FRAMES = "frames";
     static final String INIT_FUNCTION_SUFFIX = ".<init>";
     static final String STOP_FUNCTION_SUFFIX = ".<stop>";
     static final String START_FUNCTION_SUFFIX = ".<start>";
@@ -73,7 +73,7 @@ public class MethodGenUtils {
         return func.name.value.equals(encodeModuleSpecialFuncName(INIT_FUNCTION_SUFFIX));
     }
 
-    static void submitToScheduler(MethodVisitor mv, String moduleClassName, String workerName,
+    public static void submitToScheduler(MethodVisitor mv, String moduleClassName, String workerName,
                                   AsyncDataCollector asyncDataCollector) {
         String metaDataVarName = JvmCodeGenUtil.getStrandMetadataVarName(MAIN_METHOD);
         asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo(MAIN_METHOD));
@@ -83,7 +83,7 @@ public class MethodGenUtils {
                 SCHEDULE_LOCAL, false);
     }
 
-    static void visitReturn(MethodVisitor mv, String funcName, String className) {
+    public static void visitReturn(MethodVisitor mv, String funcName, String className) {
         mv.visitInsn(ARETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, className);
         mv.visitEnd();
@@ -120,7 +120,7 @@ public class MethodGenUtils {
         return LAMBDA_PREFIX + Utils.encodeFunctionIdentifier(funcName);
     }
 
-    static void callSetDaemonStrand(MethodVisitor mv) {
+    public static void callSetDaemonStrand(MethodVisitor mv) {
         // set daemon strand
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_0);

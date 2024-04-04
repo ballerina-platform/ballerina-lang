@@ -99,6 +99,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAKE_CONCAT_WITH_CONSTANTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRINGS_PER_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OVERFLOW_LINE_NUMBER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_OF_HEADING_WITH_SEMICOLON;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
@@ -165,7 +167,6 @@ public class JvmCodeGenUtil {
     public static Boolean isDuplicateCodegen = false;
     public static Boolean isTestablePkgCodeGen = false;
     public static HashMap<String, PackageID> duplicatePkgsMap = new HashMap<>();
-    public static Boolean dontAddDuplicatePrefix = false;
 
     static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
         String mapDesc = getMapsDesc(size);
@@ -208,6 +209,10 @@ public class JvmCodeGenUtil {
 
     public static String rewriteVirtualCallTypeName(String value) {
         return Utils.encodeFunctionIdentifier(cleanupObjectTypeName(value));
+    }
+
+    public static boolean isModuleInitializerMethod(String methodName) {
+        return methodName.equals(MODULE_INIT_METHOD) || methodName.equals(MODULE_START_METHOD);
     }
 
     private static String cleanupBalExt(String name) {
@@ -357,9 +362,7 @@ public class JvmCodeGenUtil {
         }
 
         if (isDuplicateReferenceInsideDuplicate(packageID) || isDuplicateReferenceInsideTestablePkg(packageID)) {
-            if (!dontAddDuplicatePrefix) {
-                packageName = "DUPLICATE_" + packageName;
-            }
+            packageName = "DUPLICATE_" + packageName;
         }
 
         return packageName;
