@@ -26,7 +26,6 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -106,42 +105,43 @@ class FormatterUtils {
         if (prevFirstImportIndex == 0) {
             return;
         }
+
         // remove comments from the previous first import
         ImportDeclarationNode prevFirstImportNode = importNodes.get(prevFirstImportIndex);
-        MinutiaeList prevLeadingMinutiae = prevFirstImportNode.leadingMinutiae();
-        List<Minutiae> leadingMinutiae = new ArrayList<>();
-        Minutiae prevFirstMinutiae = prevLeadingMinutiae.get(0);
+        MinutiaeList prevFirstLeadingMinutiae = prevFirstImportNode.leadingMinutiae();
+        MinutiaeList prevFirstNewLeadingMinutiae = NodeFactory.createEmptyMinutiaeList();
+        Minutiae prevFirstMinutiae = prevFirstLeadingMinutiae.get(0);
         if (prevFirstMinutiae.kind() != SyntaxKind.COMMENT_MINUTIAE) {
-            leadingMinutiae.add(prevFirstMinutiae);
-            prevLeadingMinutiae = prevLeadingMinutiae.remove(0);
+            // if the prevFirstImport now is the first of a group of imports, handle the added leading newline
+            prevFirstNewLeadingMinutiae = prevFirstNewLeadingMinutiae.add(prevFirstMinutiae);
+            prevFirstLeadingMinutiae = prevFirstLeadingMinutiae.remove(0);
         }
-
-        Token prevFirstImportToken = prevFirstImportNode.importKeyword();
-        Token modifiedPrevFirstImportToken =
-                prevFirstImportToken.modify(NodeFactory.createMinutiaeList(leadingMinutiae),
-                        prevFirstImportToken.trailingMinutiae());
         importNodes.set(prevFirstImportIndex,
-                prevFirstImportNode.modify().withImportKeyword(modifiedPrevFirstImportToken).apply());
+                modifyImportDeclLeadingMinutiae(prevFirstImportNode, prevFirstNewLeadingMinutiae));
 
-        // add leading comments from the previous first import
-        if (!hasEmptyLineAtEnd(prevLeadingMinutiae)) {
-            prevLeadingMinutiae =
-                    prevLeadingMinutiae.add(NodeFactory.createEndOfLineMinutiae(System.lineSeparator()));
+        if (!hasEmptyLineAtEnd(prevFirstLeadingMinutiae)) {
+            // adds a new line to after prevFirstImport's leading minutiae if not present
+            prevFirstLeadingMinutiae =
+                    prevFirstLeadingMinutiae.add(NodeFactory.createEndOfLineMinutiae(System.lineSeparator()));
         }
-        ImportDeclarationNode sortedFirstImportNode = importNodes.get(0);
-        Token sortedFirstImportToken = sortedFirstImportNode.importKeyword();
-        MinutiaeList sortedLeadingMinutiae = sortedFirstImportToken.leadingMinutiae();
-        for (int i = 0; i < sortedLeadingMinutiae.size(); i++) {
-            Minutiae minutiae = sortedLeadingMinutiae.get(i);
+        ImportDeclarationNode newFirstImportNode = importNodes.get(0);
+        MinutiaeList newFirstLeadingMinutiae = newFirstImportNode.importKeyword().leadingMinutiae();
+        for (int i = 0; i < newFirstLeadingMinutiae.size(); i++) {
+            Minutiae minutiae = newFirstLeadingMinutiae.get(i);
             if (i == 0 && minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                // since we added a new line after prevFirstImport's leading minutiae we can skip th newline here
                 continue;
             }
-            prevLeadingMinutiae = prevLeadingMinutiae.add(minutiae);
+            prevFirstLeadingMinutiae = prevFirstLeadingMinutiae.add(minutiae);
         }
-        Token modifiedSortedFirstImportToken =
-                sortedFirstImportToken.modify(prevLeadingMinutiae, sortedFirstImportToken.trailingMinutiae());
-        importNodes.set(0,
-                sortedFirstImportNode.modify().withImportKeyword(modifiedSortedFirstImportToken).apply());
+        importNodes.set(0, modifyImportDeclLeadingMinutiae(newFirstImportNode, prevFirstLeadingMinutiae));
+    }
+
+    private static ImportDeclarationNode modifyImportDeclLeadingMinutiae(ImportDeclarationNode importDecl,
+                                                                         MinutiaeList leadingMinutiae) {
+        Token importToken = importDecl.importKeyword();
+        Token modifiedImportToken = importToken.modify(leadingMinutiae, importToken.trailingMinutiae());
+        return importDecl.modify().withImportKeyword(modifiedImportToken).apply();
     }
 
     private static boolean doesImportMatch(String orgName, String moduleName, ImportDeclarationNode importDeclNode) {
