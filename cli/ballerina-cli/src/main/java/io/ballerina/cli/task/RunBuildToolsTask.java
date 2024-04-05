@@ -57,6 +57,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -103,6 +104,7 @@ public class RunBuildToolsTask implements Task {
                 .diagnostics().stream().filter(diagnostic -> diagnostic.diagnosticInfo().code()
                         .startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX)).toList();
         toolManifestDiagnostics.forEach(outStream::println);
+        List<Diagnostic> toolDiagnostics = new ArrayList<>(toolManifestDiagnostics);
 
         // Read the build tool entries specified the Ballerina.toml
         List<Tool> toolEntries = project.currentPackage().manifest().tools();
@@ -126,6 +128,7 @@ public class RunBuildToolsTask implements Task {
             return;
         }
         buildToolResolution.getDiagnosticList().forEach(outStream::println);
+        toolDiagnostics.addAll(buildToolResolution.getDiagnosticList());
         List<BuildTool> resolvedTools = buildToolResolution.getResolvedTools();
         List<BuildTool> centralDeliveredResolvedTools = resolvedTools.stream().filter(tool -> !DEFAULT_VERSION
                 .equals(tool.version().toString())).toList();
@@ -196,6 +199,7 @@ public class RunBuildToolsTask implements Task {
             try {
                 this.outStream.printf("\t%s(%s)%n", toolEntry.type().value(), toolEntry.id().value());
                 targetTool.get().execute(toolContext);
+                toolDiagnostics.addAll(toolContext.diagnostics());
                 for (Diagnostic d : toolContext.diagnostics()) {
                     if (d.toString().contains("(1:1,1:1)")) {
                         outStream.println(new PackageDiagnostic(d.diagnosticInfo(), toolContext.toolId()));
@@ -206,6 +210,13 @@ public class RunBuildToolsTask implements Task {
             } catch (Exception e) {
                 throw createLauncherException(e.getMessage());
             }
+        }
+
+        // Exit if there is any error diagnostic
+        boolean hasErrors = toolDiagnostics.stream()
+                .anyMatch(d -> d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR));
+        if (hasErrors) {
+            throw createLauncherException("build tool execution contains errors");
         }
         // Reload the project to load the generated code
         reloadProject(project);
