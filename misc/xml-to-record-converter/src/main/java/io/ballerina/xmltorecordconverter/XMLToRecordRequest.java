@@ -29,6 +29,8 @@ public class XMLToRecordRequest {
     private boolean isRecordTypeDesc;
     private boolean isClosed;
     private boolean forceFormatRecordFields;
+    private String textFieldName;
+    private boolean withNameSpace;
 
     public XMLToRecordRequest(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
                                boolean forceFormatRecordFields) {
@@ -68,5 +70,21 @@ public class XMLToRecordRequest {
 
     public void setForceFormatRecordFields(boolean forceFormatRecordFields) {
         this.forceFormatRecordFields = forceFormatRecordFields;
+    }
+
+    public String getTextFieldName() {
+        return textFieldName;
+    }
+
+    public void setTextFieldName(String textFieldName) {
+        this.textFieldName = textFieldName;
+    }
+
+    public boolean getIsWithNameSpace() {
+        return withNameSpace;
+    }
+
+    public void setIsWithNameSpace(boolean withNameSpace) {
+        this.withNameSpace = withNameSpace;
     }
 }

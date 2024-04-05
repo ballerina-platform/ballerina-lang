@@ -93,9 +93,9 @@ public class XMLToRecordConverter {
     private static final String XMLDATA = "xmldata";
     private static final String COLON = ":";
 
-    public static XMLToRecordResponse convertXMLToRecord(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
-                                                         boolean forceFormatRecordFields,
-                                                         String textFieldName, boolean withNameSpaces) {
+    public static XMLToRecordResponse convert(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
+                                              boolean forceFormatRecordFields,
+                                              String textFieldName, boolean withNameSpaces) {
         Map<String, NonTerminalNode> recordToTypeDescNodes = new LinkedHashMap<>();
         Map<String, AnnotationNode> recordToAnnotationNodes = new LinkedHashMap<>();
         Map<String, Element> recordToElementNodes = new LinkedHashMap<>();
@@ -180,12 +180,12 @@ public class XMLToRecordConverter {
      * @param xmlValue The XML value to be converted to a record.
      * @param isRecordTypeDesc Whether the record is a type descriptor.
      * @param isClosed Whether the record is closed or not.
-     * @param textFieldName Whether to force format the result.
+     * @param forceFormatRecordFields Whether to force format the result.
      * @return {@link XMLToRecordResponse} The response object containing the converted record.
      */
     public static XMLToRecordResponse convert(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
-                                              boolean textFieldName) {
-        return convertXMLToRecord(xmlValue, isRecordTypeDesc, isClosed, textFieldName, null, true);
+                                              boolean forceFormatRecordFields) {
+        return convert(xmlValue, isRecordTypeDesc, isClosed, forceFormatRecordFields, null, true);
     }
 
     private static void generateRecords(Element xmlElement, boolean isClosed,
