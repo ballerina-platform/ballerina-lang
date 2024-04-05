@@ -43,6 +43,7 @@ public class RepositoryImpl implements Repository {
     private static final String nodeId = generateNodeId();
     private static String balHome;
     private static String balVersion;
+    private static boolean isRemoteEnabled = false;
 
     @Override
     public List<Artifact> getArtifacts() {
@@ -86,15 +87,19 @@ public class RepositoryImpl implements Repository {
     }
 
     public static void addServiceListener(BObject listener, BObject service, Object attachPoint) {
+        if (!isRemoteEnabled) {
+            return;
+        }
         BServiceType serviceType = (BServiceType) service.getType();
         serviceType.attachPoint = attachPoint;
         serviceListenerMap.put((ObjectValue) service, (ObjectValue) listener);
         listenerServiceMap.put((ObjectValue) listener, (ObjectValue) service);
     }
 
-    public static void addBallerinaInformation(String balHome, String balVersion) {
+    public static void addBallerinaRuntimeInformation(String balHome, String balVersion, boolean isRemoteEnabled) {
         RepositoryImpl.balHome = balHome;
         RepositoryImpl.balVersion = balVersion;
+        RepositoryImpl.isRemoteEnabled = isRemoteEnabled;
     }
 
     private static String generateNodeId() {
