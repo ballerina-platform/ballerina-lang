@@ -2476,6 +2476,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
+        // We rewrite the varRef of the BLangAssignment to a IndexBasedAssignment if it is a FieldBasedAssignment.
+        // Therefore we must do the shouldWidenExpressionTypeWithNil check before that.
         boolean addNilToCastingType = shouldWidenExpressionTypeWithNil(assignNode);
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
