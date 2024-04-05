@@ -335,7 +335,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(basicObjectJson);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false, null);
+                false, false, false, null, false);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
@@ -350,7 +350,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(nullObjectJson);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false, null);
+                false, false, false, null, false);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
@@ -365,7 +365,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(basicSchemaJson);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false, null);
+                false, false, false, null, false);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
@@ -380,7 +380,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(invalidSchemaJson);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false, null);
+                false, false, false, null, false);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
@@ -395,7 +395,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(invalidJson);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false, null);
+                false, false, false, null, false);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
@@ -412,7 +412,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(nullJson);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false, null);
+                false, false, false, null, false);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
@@ -430,7 +430,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(sample10Json);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false, sample10Bal.toUri().toString());
+                false, false, false, sample10Bal.toUri().toString(), false);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
