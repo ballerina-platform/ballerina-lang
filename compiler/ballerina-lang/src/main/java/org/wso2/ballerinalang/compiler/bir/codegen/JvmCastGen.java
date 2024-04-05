@@ -86,7 +86,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_UNSIGNED_INT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NUMBER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_VALUE;
@@ -1331,7 +1331,7 @@ public class JvmCastGen {
                 break;
             case TypeTags.MAP:
             case TypeTags.RECORD:
-                targetTypeClass = MAP_VALUE;
+                targetTypeClass = MAP_VALUE_IMPL;
                 break;
             case TypeTags.TABLE:
                 targetTypeClass = TABLE_VALUE;

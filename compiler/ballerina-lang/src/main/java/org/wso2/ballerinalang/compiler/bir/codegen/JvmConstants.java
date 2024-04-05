@@ -226,6 +226,7 @@ public class JvmConstants {
     public static final String RUNTIME_REGISTRY_CLASS = "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
     public static final String REG_EXP_FACTORY = "io/ballerina/runtime/internal/regexp/RegExpFactory";
+    public static final String REPOSITORY_IMPL = "io/ballerina/runtime/internal/RepositoryImpl";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -264,6 +265,7 @@ public class JvmConstants {
     // types related constants
     public static final String TYPES_ERROR = "TYPE_ERROR";
     public static final String TYPE_ANYDATA_ARRAY = "TYPE_ANYDATA_ARRAY";
+    public static final String TYPE_ANY_ARRAY = "TYPE_ANY_ARRAY";
 
     // error related constants
     public static final String PANIC_FIELD = "panic";
@@ -436,6 +438,16 @@ public class JvmConstants {
     public static final String RECORD_CHECKPOINT_METHOD = "recordCheckpoint";
     public static final String MODULE_INITIALIZER_METHOD_DESC =
             "(Lio/ballerina/runtime/internal/scheduling/Strand;)Ljava/lang/Object;";
+    public static final String BALLERINA_HOME = "ballerina.home";
+    public static final String BALLERINA_VERSION = "ballerina.version";
+    public static final String GET_ELEMENT_OR_NIL = "getElementOrNil";
+    public static final String GET_ELEMENT = "getElement";
+    public static final String FILL_AND_GET = "fillAndGet";
+    public static final String GET_BOXED_VALUE = "get";
+    public static final String GET_UNBOXED_INT_VALUE = "getUnboxedIntValue";
+    public static final String GET_UNBOXED_FLOAT_VALUE = "getUnboxedFloatValue";
+    public static final String GET_STRING_VALUE = "getStringValue";
+    public static final String GET_UNBOXED_BOOLEAN_VALUE = "getUnboxedBooleanValue";
     // visibility flags
     public static final int BAL_PUBLIC = 1;
     public static final int BAL_NATIVE = 2;

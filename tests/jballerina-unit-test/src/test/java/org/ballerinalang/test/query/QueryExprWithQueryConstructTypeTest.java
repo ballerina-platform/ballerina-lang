@@ -131,6 +131,36 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
+    @Test(description = "Test map creating query with on conflict with variable reference")
+    public void testQueryConstructingMapWithOnConflictsWithVarRef() {
+        BRunUtil.invoke(result, "testQueryConstructingMapWithOnConflictsWithVarRef");
+    }
+
+    @Test(description = "Test table creating query with on conflict with variable reference")
+    public void testQueryConstructingTableWithOnConflictsWithVarRef() {
+        BRunUtil.invoke(result, "testQueryConstructingTableWithOnConflictsWithVarRef");
+    }
+
+    @Test(description = "Test table creating with on conflict error referred from a function param")
+    public void testTableConstructQueryWithNonConflictingKeys() {
+        BRunUtil.invoke(result, "testTableConstructQueryWithNonConflictingKeys");
+    }
+
+    @Test(description = "Test table creating with conflicting keys and onConflict error referred from function param")
+    public void testTableConstructQueryWithConflictingKeys() {
+        BRunUtil.invoke(result, "testTableConstructQueryWithConflictingKeys");
+    }
+
+    @Test(description = "Test table creating nested query with conflicting keys and onConflict error")
+    public void testMapConstructNestedQueryWithConflictingKeys() {
+        BRunUtil.invoke(result, "testMapConstructNestedQueryWithConflictingKeys");
+    }
+
+    @Test(description = "Test map creating query with group by clause having an onConflict error")
+    public void testMapConstructQueryWithConflictingKeys() {
+        BRunUtil.invoke(result, "testMapConstructQueryWithConflictingKeys");
+    }
+
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
         int index = 0;

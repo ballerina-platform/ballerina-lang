@@ -15,24 +15,47 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.TableType;
+import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BListInitialValueEntry;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.commons.TypeValuePair;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
+import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
+import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
-import org.apache.commons.lang3.StringEscapeUtils;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
+import io.ballerina.runtime.internal.values.TableValueImpl;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -41,55 +64,61 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.Charset;
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
+import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.api.utils.JsonUtils.NonStringValueProcessingMode.FROM_JSON_DECIMAL_STRING;
 import static io.ballerina.runtime.api.utils.JsonUtils.NonStringValueProcessingMode.FROM_JSON_FLOAT_STRING;
+import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
+import static io.ballerina.runtime.internal.ValueUtils.createRecordValueWithDefaultValues;
 
 /**
- * This class represents a JSON parser.
+ * This class represents a {@link InputStream} parser which creates a value of the given target type
+ * which should be a subtype of {@link io.ballerina.runtime.api.types.AnydataType} type. The {@link InputStream} should
+ * only contain a sequence of characters that can be parsed as {@link io.ballerina.runtime.api.types.JsonType},
+ * otherwise a {@link BError} is thrown.
  *
- * @since 0.995.0
+ * @since 2201.9.0
  */
-@SuppressWarnings("unchecked")
 public class JsonParser {
 
-    private static ThreadLocal<StateMachine> tlStateMachine = new ThreadLocal<StateMachine>() {
-        @Override
-        public StateMachine initialValue() {
-            return new StateMachine();
-        }
-    };
+    private static final ThreadLocal<JsonStateMachine> tlStateMachine =
+            ThreadLocal.withInitial(JsonStateMachine::new);
 
-    /**
-     * Parses the contents in the given {@link InputStream} and returns a json.
-     *
-     * @param in input stream which contains the JSON content
-     * @return JSON structure
-     * @throws BError for any parsing error
-     */
-    public static Object parse(InputStream in) throws BError {
-        Object jsonObj = parse(in, Charset.defaultCharset().name());
-        return changeForBString(jsonObj);
+    private JsonParser() {
     }
 
     /**
-     * Parses the contents in the given {@link InputStream} and returns a json.
+     * Parses the contents in the given {@link InputStream} and returns a value of the given target type.
      *
-     * @param in          input stream which contains the JSON content
-     * @param charsetName the character set name of the input stream
-     * @return JSON structure
+     * @param in input stream which contains the content
+     * @return value of the given target type
      * @throws BError for any parsing error
      */
-    public static Object parse(InputStream in, String charsetName) throws BError {
+    public static Object parse(InputStream in, Type targetType) throws BError {
+        return parse(in, Charset.defaultCharset().name(), targetType);
+    }
+
+    /**
+     * Parses the contents in the given {@link InputStream} and returns a value of the given target type.
+     *
+     * @param in          input stream which contains the content
+     * @param charsetName the character set name of the input stream
+     * @return value of the given target type
+     * @throws BError for any parsing error
+     */
+    public static Object parse(InputStream in, String charsetName, Type targetType) throws BError {
         try {
-            Object jsonObj = parse(new InputStreamReader(new BufferedInputStream(in), charsetName),
-                                   JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
-            return changeForBString(jsonObj);
+            return parse(new InputStreamReader(new BufferedInputStream(in), charsetName), targetType);
         } catch (IOException e) {
-            throw ErrorCreator
-                    .createError(StringUtils.fromString(("Error in parsing JSON data: " + e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString(("error in parsing input stream: "
+                                                                   + e.getMessage())));
         }
     }
 
@@ -101,479 +130,517 @@ public class JsonParser {
      * @throws BError for any parsing error
      */
     public static Object parse(String jsonStr) throws BError {
-        return parse(new StringReader(jsonStr), JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
+        return JsonParser.parse(jsonStr, PredefinedTypes.TYPE_JSON);
     }
 
     /**
-     * Parses the contents in the given string and returns a json.
+     * Parses the contents in the given string and returns a value of the given target type.
      *
-     * @param jsonStr the string which contains the JSON content
+     * @param str the string which contains the content
+     * @return value of the given target type
+     * @throws BError for any parsing error
+     */
+    public static Object parse(String str, Type targetType) throws BError {
+        return parse(new StringReader(str), targetType);
+    }
+
+    /**
+     * Parses the contents in the given {@link Reader} and a value of the given target type.
+     *
+     * @param reader reader which contains the content
      * @param mode    the mode to use when processing numeric values
-     * @return JSON   value if parsing is successful
+     * @return value of the given target type
      * @throws BError for any parsing error
      */
-    public static Object parse(String jsonStr, JsonUtils.NonStringValueProcessingMode mode) throws BError {
-        return parse(new StringReader(jsonStr), mode);
-    }
-
-    private static Object changeForBString(Object jsonObj) {
-        if (jsonObj instanceof String) {
-            return StringUtils.fromString((String) jsonObj);
-        }
-        return jsonObj;
-    }
-
-    /**
-     * Parses the contents in the given {@link Reader} and returns a json.
-     *
-     * @param reader reader which contains the JSON content
-     * @param mode   the mode to use when processing numeric values
-     * @return JSON structure
-     * @throws BError for any parsing error
-     */
-    public static Object parse(Reader reader, JsonUtils.NonStringValueProcessingMode mode) throws BError {
-        StateMachine sm = tlStateMachine.get();
+    public static Object parse(Reader reader, Type targetType, JsonUtils.NonStringValueProcessingMode mode)
+            throws BError {
+        JsonStateMachine sm = tlStateMachine.get();
         try {
-            sm.setMode(mode);
+            sm.addTargetType(targetType);
+            JsonStateMachine.mode = mode;
             return sm.execute(reader);
         } finally {
-            // Need to reset the state machine before leaving. Otherwise references to the created
-            // JSON values will be maintained and the java GC will not happen properly.
+            // Need to reset the state machine before leaving. Otherwise, references to the created
+            // values will be maintained and the java GC will not happen properly.
             sm.reset();
+            tlStateMachine.remove();
         }
     }
 
     /**
-     * Represents a JSON parser related exception.
+     * Parses the contents in the given {@link Reader} into a value of JSON type.
+     *
+     * @param reader reader which contains the content
+     * @param mode   the mode to use when processing numeric values
+     * @return value of the JSON type
+     * @throws BError for any parsing error
      */
-    private static class JsonParserException extends Exception {
-
-        private static final long serialVersionUID = 6359022327525293320L;
-
-        public JsonParserException(String msg) {
-            super(msg);
-        }
-
+    public static Object parse(Reader reader, JsonUtils.NonStringValueProcessingMode mode) {
+        return parse(reader, getTargetType(mode), mode);
     }
 
     /**
-     * Represents the state machine used for JSON parsing.
+     * Parses the contents in the given {@link Reader} and a value of the given target type.
+     *
+     * @param reader reader which contains the content
+     * @return value of the given target type
+     * @throws BError for any parsing error
      */
-    private static class StateMachine {
+    public static Object parse(Reader reader, Type targetType) throws BError {
+        return parse(reader, targetType, JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
+    }
 
-        private static final char CR = 0x000D;
-        private static final char NEWLINE = 0x000A;
-        private static final char HZ_TAB = 0x0009;
-        private static final char SPACE = 0x0020;
-        private static final char BACKSPACE = 0x0008;
-        private static final char FORMFEED = 0x000C;
-        private static final char QUOTES = '"';
-        private static final char REV_SOL = '\\';
-        private static final char SOL = '/';
-        private static final char EOF = (char) -1;
-        private static final String NULL = "null";
-        private static final String TRUE = "true";
-        private static final String FALSE = "false";
+    private static Type getTargetType(JsonUtils.NonStringValueProcessingMode mode) {
+        Type targetType;
+        if (mode == FROM_JSON_DECIMAL_STRING) {
+            targetType = PredefinedTypes.TYPE_JSON_DECIMAL;
+        } else if (mode == FROM_JSON_FLOAT_STRING) {
+            targetType = PredefinedTypes.TYPE_JSON_FLOAT;
+        } else {
+            targetType = PredefinedTypes.TYPE_JSON;
+        }
+        return targetType;
+    }
 
-        private static final State DOC_START_STATE = new DocumentStartState();
-        private static final State DOC_END_STATE = new DocumentEndState();
-        private static final State FIRST_FIELD_READY_STATE = new FirstFieldReadyState();
-        private static final State NON_FIRST_FIELD_READY_STATE = new NonFirstFieldReadyState();
-        private static final State FIELD_NAME_STATE = new FieldNameState();
-        private static final State END_FIELD_NAME_STATE = new EndFieldNameState();
-        private static final State FIELD_VALUE_READY_STATE = new FieldValueReadyState();
-        private static final State STRING_FIELD_VALUE_STATE = new StringFieldValueState();
-        private static final State NON_STRING_FIELD_VALUE_STATE = new NonStringFieldValueState();
-        private static final State NON_STRING_VALUE_STATE = new NonStringValueState();
-        private static final State STRING_VALUE_STATE = new StringValueState();
-        private static final State FIELD_END_STATE = new FieldEndState();
-        private static final State STRING_AE_ESC_CHAR_PROCESSING_STATE = new StringAEEscapedCharacterProcessingState();
-        private static final State STRING_AE_PROCESSING_STATE = new StringAEProcessingState();
-        private static final State FIELD_NAME_UNICODE_HEX_PROCESSING_STATE = new FieldNameUnicodeHexProcessingState();
-        private static final State FIRST_ARRAY_ELEMENT_READY_STATE = new FirstArrayElementReadyState();
-        private static final State NON_FIRST_ARRAY_ELEMENT_READY_STATE = new NonFirstArrayElementReadyState();
-        private static final State STRING_ARRAY_ELEMENT_STATE = new StringArrayElementState();
-        private static final State NON_STRING_ARRAY_ELEMENT_STATE = new NonStringArrayElementState();
-        private static final State ARRAY_ELEMENT_END_STATE = new ArrayElementEndState();
-        private static final State STRING_FIELD_ESC_CHAR_PROCESSING_STATE =
-                new StringFieldEscapedCharacterProcessingState();
-        private static final State STRING_VAL_ESC_CHAR_PROCESSING_STATE =
-                new StringValueEscapedCharacterProcessingState();
-        private static final State FIELD_NAME_ESC_CHAR_PROCESSING_STATE =
-                new FieldNameEscapedCharacterProcessingState();
-        private static final State STRING_FIELD_UNICODE_HEX_PROCESSING_STATE =
-                new StringFieldUnicodeHexProcessingState();
-        private static final State STRING_VALUE_UNICODE_HEX_PROCESSING_STATE =
-                new StringValueUnicodeHexProcessingState();
-        private JsonUtils.NonStringValueProcessingMode mode = JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING;
-        private Type definedJsonType = PredefinedTypes.TYPE_JSON;
+    /**
+     * Represents the state machine used for input stream parsing.
+     */
+    private static class JsonStateMachine extends StateMachine {
 
+        private static final String UNSUPPORTED_TYPE = "unsupported type: ";
+        private static final String ARRAY_SIZE_MISMATCH = "array size is not enough for the provided values";
+        private static final String TUPLE_SIZE_MISMATCH = "tuple size is not enough for the provided values";
+        private static final String UNEXPECTED_END_OF_THE_INPUT_STREAM = "unexpected end of the input stream";
+        private static final String UNRECOGNIZED_TOKEN = "unrecognized token '";
 
-        private Object currentJsonNode;
-        private Deque<Object> nodesStack;
-        private Deque<String> fieldNames;
+        // targetTypes list will always have effective referred types because we add only the implied types
+        // if the target type is union we put the union type inside targetTypes list and do not add more types,
+        // and we create a json value and convert to the target type
+        // json, finite, anydata types will be handled the same way as union types, but they do not need conversion
+        List<Type> targetTypes = new ArrayList<>();
+        List<Integer> listIndices = new ArrayList<>(); // we keep only the current indices of arrays and tuples
+        private int nodesStackSizeWhenUnionStarts = -1; // when we come across a union target type we set this value
+        private static JsonUtils.NonStringValueProcessingMode mode =
+                JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING;
 
-        private StringBuilder hexBuilder = new StringBuilder(4);
-        private char[] charBuff = new char[1024];
-        private int charBuffIndex;
-
-        private int index;
-        private int line;
-        private int column;
-        private char currentQuoteChar;
-
-        StateMachine() {
-            reset();
+        JsonStateMachine() {
+            super("input stream", new FieldNameState(), new StringValueState(), new StringFieldValueState(),
+                    new StringArrayElementState());
         }
 
+        @Override
         public void reset() {
-            this.index = 0;
-            this.currentJsonNode = null;
-            this.line = 1;
-            this.column = 0;
-            this.nodesStack = new ArrayDeque<>();
-            this.fieldNames = new ArrayDeque<>();
-            this.setMode(JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
+            super.reset();
+            this.targetTypes.clear();
+            this.nodesStackSizeWhenUnionStarts = -1;
+            this.listIndices.clear();
         }
 
-        private void setMode(JsonUtils.NonStringValueProcessingMode mode) {
-            this.mode = mode;
-            if (this.mode == FROM_JSON_DECIMAL_STRING) {
-                definedJsonType = PredefinedTypes.TYPE_JSON_DECIMAL;
-            } else if (this.mode == FROM_JSON_FLOAT_STRING) {
-                definedJsonType = PredefinedTypes.TYPE_JSON_FLOAT;
-            } else {
-                definedJsonType = PredefinedTypes.TYPE_JSON;
-            }
+        private void addTargetType(Type type) {
+            this.targetTypes.add(TypeUtils.getImpliedType(type));
         }
 
-        private static boolean isWhitespace(char ch) {
-            return ch == SPACE || ch == HZ_TAB || ch == NEWLINE || ch == CR;
+        private static ParserException getConversionError(Type targetType, String inputValue) {
+            return new ParserException("value '" + inputValue + "' cannot be converted to '" + targetType + "'");
         }
 
-        private static void throwExpected(String... chars) throws JsonParserException {
-            throw new JsonParserException("expected '" + String.join("' or '", chars) + "'");
-        }
-
-        private void processLocation(char ch) {
-            if (ch == '\n') {
-                this.line++;
-                this.column = 0;
-            } else {
-                this.column++;
-            }
-        }
-
-        public Object execute(Reader reader) throws BError {
-            State currentState = DOC_START_STATE;
-            try {
-                char[] buff = new char[1024];
-                int count;
-                while ((count = reader.read(buff)) > 0) {
-                    this.index = 0;
-                    while (this.index < count) {
-                        currentState = currentState.transition(this, buff, this.index, count);
-                    }
+        private static Object convertValues(Type targetType, String inputValue) throws ParserException {
+            return switch (targetType.getTag()) {
+                case TypeTags.INT_TAG, TypeTags.SIGNED32_INT_TAG, TypeTags.SIGNED16_INT_TAG,
+                        TypeTags.SIGNED8_INT_TAG, TypeTags.UNSIGNED32_INT_TAG, TypeTags.UNSIGNED16_INT_TAG,
+                        TypeTags.UNSIGNED8_INT_TAG ->
+                        convertToInt(targetType, inputValue);
+                case TypeTags.DECIMAL_TAG -> convertToDecimal(targetType, inputValue);
+                case TypeTags.FLOAT_TAG -> convertToFloat(targetType, inputValue);
+                case TypeTags.BOOLEAN_TAG -> convertToBoolean(targetType, inputValue);
+                case TypeTags.NULL_TAG -> convertToNull(targetType, inputValue);
+                case TypeTags.BYTE_TAG -> convertToByte(targetType, inputValue);
+                case TypeTags.UNION_TAG, TypeTags.FINITE_TYPE_TAG -> {
+                    Object jsonVal = getNonStringValueAsJson(inputValue);
+                    yield convert(jsonVal, targetType);
                 }
-                currentState = currentState.transition(this, new char[] { EOF }, 0, 1);
-                if (currentState != DOC_END_STATE) {
-                    throw ErrorCreator.createError(StringUtils.fromString("invalid JSON document"));
-                }
-                return this.currentJsonNode;
-            } catch (IOException e) {
-                throw ErrorCreator.createError(StringUtils.fromString("Error reading JSON: " + e.getMessage()));
-            } catch (JsonParserException e) {
-                throw ErrorCreator.createError(StringUtils.fromString(e.getMessage() + " at line: " + this.line + " " +
-                                                                              "column: " + this.column));
-            }
+                case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG -> getNonStringValueAsJson(inputValue);
+                // case TypeTags.STRING_TAG cannot come inside this method, an error needs to be thrown.
+                default -> throw getConversionError(targetType, inputValue);
+            };
         }
 
-        private void append(char ch) {
+        private static int convertToByte(Type targetType, String inputValue) throws ParserException {
             try {
-                this.charBuff[this.charBuffIndex] = ch;
-                this.charBuffIndex++;
-            } catch (ArrayIndexOutOfBoundsException e) {
-                /* this approach is faster than checking for the size by ourself */
-                this.growCharBuff();
-                this.charBuff[this.charBuffIndex++] = ch;
+                int parsedInt = Integer.parseInt(inputValue);
+                if (!TypeChecker.isByteLiteral(parsedInt)) {
+                    throw getConversionError(targetType, inputValue);
+                }
+                return parsedInt;
+            } catch (NumberFormatException e) {
+                throw getConversionError(targetType, inputValue);
             }
         }
 
-        private void growCharBuff() {
-            char[] newBuff = new char[charBuff.length * 2];
-            System.arraycopy(this.charBuff, 0, newBuff, 0, this.charBuff.length);
-            this.charBuff = newBuff;
+        private static Object convertToNull(Type targetType, String inputValue) throws ParserException {
+            if (inputValue.charAt(0) == 'n' && StateMachine.NULL.equals(inputValue)) {
+                return null;
+            } else {
+                throw getConversionError(targetType, inputValue);
+            }
         }
 
-        private State finalizeObject() {
+        private static Boolean convertToBoolean(Type targetType, String inputValue) throws ParserException {
+            char ch = inputValue.charAt(0);
+            if (ch == 't' && StateMachine.TRUE.equals(inputValue)) {
+                return Boolean.TRUE;
+            } else if (ch == 'f' && StateMachine.FALSE.equals(inputValue)) {
+                return Boolean.FALSE;
+            } else {
+                throw getConversionError(targetType, inputValue);
+            }
+        }
+
+        private static double convertToFloat(Type targetType, String inputValue) throws ParserException {
+            try {
+                return Double.parseDouble(inputValue);
+            } catch (NumberFormatException e) {
+                throw getConversionError(targetType, inputValue);
+            }
+        }
+
+        private static DecimalValue convertToDecimal(Type targetType, String inputValue) throws ParserException {
+            try {
+                return new DecimalValue(inputValue);
+            } catch (NumberFormatException e) {
+                throw getConversionError(targetType, inputValue);
+            }
+        }
+
+        private static long convertToInt(Type targetType, String inputValue) throws ParserException {
+            try {
+                long parsedLong = Long.parseLong(inputValue);
+                if (!TypeConverter.isConvertibleToIntRange(targetType, parsedLong)) {
+                    throw getConversionError(targetType, inputValue);
+                }
+                return parsedLong;
+            } catch (NumberFormatException e) {
+                throw getConversionError(targetType, inputValue);
+            }
+        }
+
+        protected State finalizeObject() throws ParserException {
+            Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
+            switch (targetType.getTag()) {
+                case TypeTags.UNION_TAG, TypeTags.TABLE_TAG, TypeTags.FINITE_TYPE_TAG ->
+                        processUnionTableFiniteType(targetType);
+                case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG -> processJsonAnydataType();
+                case TypeTags.MAP_TAG -> this.targetTypes.remove(this.targetTypes.size() - 1);
+                case TypeTags.RECORD_TYPE_TAG -> {
+                    this.targetTypes.remove(this.targetTypes.size() - 1);
+                    processRecordType(targetType);
+                }
+                case TypeTags.ARRAY_TAG -> {
+                    this.targetTypes.remove(this.targetTypes.size() - 1);
+                    processArrayType((ArrayType) targetType);
+                }
+                default -> processTupleType((TupleType) targetType);
+            }
+
             if (this.nodesStack.isEmpty()) {
                 return DOC_END_STATE;
             }
-
             Object parentNode = this.nodesStack.pop();
-            if (TypeUtils.getImpliedType(TypeChecker.getType(parentNode)).getTag() == TypeTags.MAP_TAG) {
-                ((MapValueImpl<BString, Object>) parentNode).put(StringUtils.fromString(fieldNames.pop()),
-                                                                 currentJsonNode);
-                currentJsonNode = parentNode;
-                return FIELD_END_STATE;
-            }
-            ((ArrayValue) parentNode).append(changeForBString(currentJsonNode));
-            currentJsonNode = parentNode;
-            return ARRAY_ELEMENT_END_STATE;
+
+            Type parentTargetType = this.targetTypes.get(this.targetTypes.size() - 1);
+            return switch (parentTargetType.getTag()) {
+                case TypeTags.RECORD_TYPE_TAG, TypeTags.MAP_TAG -> {
+                    ((MapValueImpl<BString, Object>) parentNode).putForcefully(
+                            StringUtils.fromString(fieldNames.pop()), currentJsonNode);
+                    this.currentJsonNode = parentNode;
+                    yield FIELD_END_STATE;
+                }
+                case TypeTags.ARRAY_TAG -> {
+                    int listIndex = this.listIndices.get(this.listIndices.size() - 1);
+                    ((ArrayValueImpl) parentNode).addRefValue(listIndex, currentJsonNode);
+                    this.listIndices.set(this.listIndices.size() - 1, listIndex + 1);
+                    this.currentJsonNode = parentNode;
+                    yield ARRAY_ELEMENT_END_STATE;
+                }
+                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
+                        TypeTags.FINITE_TYPE_TAG -> {
+                    if (TypeUtils.getImpliedType(TypeChecker.getType(parentNode)).getTag() == TypeTags.MAP_TAG) {
+                        ((MapValueImpl<BString, Object>) parentNode).putForcefully(
+                                StringUtils.fromString(fieldNames.pop()), currentJsonNode);
+                        this.currentJsonNode = parentNode;
+                        yield FIELD_END_STATE;
+                    }
+                    ArrayValueImpl arrayValue = (ArrayValueImpl) parentNode;
+                    arrayValue.addRefValueForcefully(arrayValue.size(), this.currentJsonNode);
+                    this.currentJsonNode = parentNode;
+                    yield ARRAY_ELEMENT_END_STATE;
+                }
+                default -> {
+                    int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
+                    ((TupleValueImpl) parentNode).addRefValue(tupleListIndex, currentJsonNode);
+                    this.listIndices.set(this.listIndices.size() - 1, tupleListIndex + 1);
+                    this.currentJsonNode = parentNode;
+                    yield ARRAY_ELEMENT_END_STATE;
+                }
+            };
         }
 
-        private State initNewObject() {
-            if (currentJsonNode != null) {
-                this.nodesStack.push(currentJsonNode);
+        private void processTupleType(TupleType targetType) throws ParserException {
+            this.targetTypes.remove(this.targetTypes.size() - 1);
+            int tupleListIndex = this.listIndices.remove(this.listIndices.size() - 1);
+            int targetTupleSize = targetType.getTupleTypes().size();
+            if (targetTupleSize > tupleListIndex) {
+                throw new ParserException("missing required number of values for the '" + targetType
+                                          + "' tuple");
             }
-            currentJsonNode = new MapValueImpl<>(new BMapType(definedJsonType));
+        }
+
+        private void processArrayType(ArrayType targetType) throws ParserException {
+            int listIndex = this.listIndices.remove(this.listIndices.size() - 1);
+            int targetSize = targetType.getSize();
+            if (targetType.getState() == ArrayType.ArrayState.CLOSED && targetSize > listIndex &&
+                !targetType.hasFillerValue()) {
+                throw new ParserException("missing required number of values for the '" + targetType +
+                                          "' array which does not have a filler value");
+            }
+        }
+
+        private void processRecordType(Type targetType) throws ParserException {
+            BRecordType recordType = (BRecordType) targetType;
+            BMap<BString, Object> constructedMap = (BMap<BString, Object>) this.currentJsonNode;
+            List<String> notProvidedFields = new ArrayList<>();
+            for (Map.Entry<String, Field> stringFieldEntry : recordType.getFields().entrySet()) {
+                String fieldName = stringFieldEntry.getKey();
+                BString bFieldName = StringUtils.fromString(fieldName);
+                if (constructedMap.containsKey(bFieldName)) {
+                    continue;
+                }
+                long fieldFlags = stringFieldEntry.getValue().getFlags();
+                if (SymbolFlags.isFlagOn(fieldFlags, SymbolFlags.REQUIRED)) {
+                    throw new ParserException("missing required field '" + fieldName + "' of type '"
+                                              + stringFieldEntry.getValue().getFieldType().toString() +
+                                              "' in record '" + targetType + "'");
+                } else if (!SymbolFlags.isFlagOn(fieldFlags, SymbolFlags.OPTIONAL)) {
+                    notProvidedFields.add(fieldName);
+                }
+            }
+            BMap<BString, Object> recordValue = createRecordValueWithDefaultValues(recordType.getPackage(),
+                    recordType.getName(), notProvidedFields);
+            for (Map.Entry<BString, Object> fieldEntry : constructedMap.entrySet()) {
+                recordValue.populateInitialValue(fieldEntry.getKey(), fieldEntry.getValue());
+            }
+            if (recordType.isReadOnly()) {
+                recordValue.freezeDirect();
+            }
+            this.currentJsonNode = recordValue;
+        }
+
+        private void processJsonAnydataType() {
+            if (this.nodesStackSizeWhenUnionStarts == this.nodesStack.size()) {
+                this.targetTypes.remove(this.targetTypes.size() - 1);
+            }
+        }
+
+        private void processUnionTableFiniteType(Type targetType) {
+            if (this.nodesStackSizeWhenUnionStarts == this.nodesStack.size()) {
+                this.targetTypes.remove(this.targetTypes.size() - 1);
+                this.currentJsonNode = convert(this.currentJsonNode, targetType);
+            }
+        }
+
+        protected State initNewObject() throws ParserException {
+            if (charBuffIndex != 0) {
+                throw new ParserException(UNRECOGNIZED_TOKEN +  "{'");
+            }
+            if (this.currentJsonNode != null) {
+                handleCurrentJsonNodeForObject();
+            }
+            Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
+            initializeCurrentJsonNodeForObject(targetType);
             return FIRST_FIELD_READY_STATE;
         }
 
-        private State initNewArray() {
-            if (currentJsonNode != null) {
-                this.nodesStack.push(currentJsonNode);
+        private void initializeCurrentJsonNodeForObject(Type targetType) throws ParserException {
+            int targetTypeTag = targetType.getTag();
+            switch (targetTypeTag) {
+                case TypeTags.MAP_TAG, TypeTags.RECORD_TYPE_TAG ->
+                        this.currentJsonNode = new MapValueImpl<>(targetType);
+                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
+                        TypeTags.FINITE_TYPE_TAG -> {
+                    if (targetType.isReadOnly() && (targetTypeTag == TypeTags.JSON_TAG ||
+                                                    targetTypeTag == TypeTags.ANYDATA_TAG)) {
+                        this.currentJsonNode = new MapValueImpl<>(
+                                new BMapType(PredefinedTypes.TYPE_READONLY_JSON, true));
+                    } else {
+                        this.currentJsonNode = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
+                    }
+                    if (this.nodesStackSizeWhenUnionStarts == -1) {
+                        this.nodesStackSizeWhenUnionStarts = this.nodesStack.size();
+                    }
+                }
+                default -> throw new ParserException(UNSUPPORTED_TYPE + targetType + "'");
             }
-            currentJsonNode = new ArrayValueImpl(new BArrayType(definedJsonType));
+        }
+
+        private void handleCurrentJsonNodeForObject() throws ParserException {
+            this.nodesStack.push(currentJsonNode);
+            Type lastTargetType = this.targetTypes.get(this.targetTypes.size() - 1);
+            switch (lastTargetType.getTag()) {
+                case TypeTags.ARRAY_TAG:
+                    int listIndex = this.listIndices.get(this.listIndices.size() - 1);
+                    ArrayType arrayType = (ArrayType) lastTargetType;
+                    int targetSize = arrayType.getSize();
+                    if (arrayType.getState() == ArrayType.ArrayState.CLOSED && targetSize <= listIndex) {
+                        throw new ParserException("'" + arrayType + "' " + ARRAY_SIZE_MISMATCH);
+                    }
+                    Type elementType = TypeUtils.getImpliedType(arrayType.getElementType());
+                    this.addTargetType(elementType);
+                    break;
+                case TypeTags.TUPLE_TAG:
+                    int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
+                    TupleType tupleType = (TupleType) lastTargetType;
+                    List<Type> tupleTypes = tupleType.getTupleTypes();
+                    int targetTupleSize = tupleTypes.size();
+                    Type tupleRestType = tupleType.getRestType();
+                    boolean noRestType = tupleRestType == null;
+                    Type tupleElementType;
+                    if (targetTupleSize <= tupleListIndex) {
+                        if (noRestType) {
+                            throw new ParserException("'" + tupleType + "' tuple " + TUPLE_SIZE_MISMATCH);
+                        } else {
+                            tupleElementType = TypeUtils.getImpliedType(tupleRestType);
+                        }
+                    } else {
+                        tupleElementType = TypeUtils.getImpliedType(tupleTypes.get(tupleListIndex));
+                    }
+                    this.addTargetType(tupleElementType);
+                    break;
+                case TypeTags.MAP_TAG:
+                    this.addTargetType(((MapType) lastTargetType).getConstrainedType());
+                    break;
+                case TypeTags.RECORD_TYPE_TAG:
+                    BRecordType recordType = (BRecordType) lastTargetType;
+                    String fieldName = this.fieldNames.getFirst();
+                    Map<String, Field> fields = recordType.getFields();
+                    Field field = fields.get(fieldName);
+                    if (field == null) {
+                        this.addTargetType(recordType.restFieldType);
+                    } else {
+                        this.addTargetType(field.getFieldType());
+                    }
+                    break;
+                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
+                        TypeTags.FINITE_TYPE_TAG:
+                    break;
+                default:
+                    throw new ParserException(UNSUPPORTED_TYPE + lastTargetType + "'");
+            }
+        }
+
+        protected State initNewArray() throws ParserException {
+            if (charBuffIndex != 0) {
+                throw new ParserException(UNRECOGNIZED_TOKEN +  "['");
+            }
+            if (this.currentJsonNode != null) {
+                handleCurrentJsonNodeForArray();
+            }
+            Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
+            initializeCurrentJsonNodeForArray(targetType);
             return FIRST_ARRAY_ELEMENT_READY_STATE;
         }
 
-        /**
-         * A specific state in the JSON parsing state machine.
-         */
-        private interface State {
-
-            /**
-             * Input given to the current state for a transition.
-             * 
-             * @param sm the state machine
-             * @param buff the input characters for the current state
-             * @param i the location from the character should be read from
-             * @param count the number of characters to read from the buffer
-             * @return the new resulting state
-             */
-            State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException;
-
-        }
-
-        /**
-         * Represents the JSON document start state.
-         */
-        private static class DocumentStartState implements State {
-
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                char ch;
-                State state = null;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if (ch == '{') {
-                        state = sm.initNewObject();
-                    } else if (ch == '[') {
-                        state = sm.initNewArray();
-                    } else if (StateMachine.isWhitespace(ch)) {
-                        state = this;
-                        continue;
-                    } else if (ch == QUOTES) {
-                        sm.currentQuoteChar = ch;
-                        state = STRING_VALUE_STATE;
-                    } else if (ch == EOF) {
-                        throw new JsonParserException("empty JSON document");
+        private void initializeCurrentJsonNodeForArray(Type targetType) throws ParserException {
+            int targetTypeTag = targetType.getTag();
+            switch (targetTypeTag) {
+                case TypeTags.ARRAY_TAG:
+                    this.currentJsonNode = new ArrayValueImpl((ArrayType) targetType);
+                    this.listIndices.add(0);
+                    break;
+                case TypeTags.TUPLE_TAG:
+                    this.currentJsonNode = new TupleValueImpl((TupleType) targetType);
+                    this.listIndices.add(0);
+                    break;
+                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
+                        TypeTags.FINITE_TYPE_TAG:
+                    if (targetType.isReadOnly() && (targetTypeTag == TypeTags.JSON_TAG ||
+                                                    targetTypeTag == TypeTags.ANYDATA_TAG)) {
+                        this.currentJsonNode = new ArrayValueImpl(new BArrayType(
+                                PredefinedTypes.TYPE_READONLY_JSON, true));
                     } else {
-                        state = NON_STRING_VALUE_STATE;
+                        this.currentJsonNode = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
+                    }
+                    if (this.nodesStackSizeWhenUnionStarts == -1) {
+                        this.nodesStackSizeWhenUnionStarts = this.nodesStack.size();
                     }
                     break;
-                }
-                if (state == NON_STRING_VALUE_STATE) {
-                    sm.index = i;
-                } else {
-                    sm.index = i + 1;
-                }
-                return state;
-            }
+                default:
+                    throw new ParserException("target type is not array type");
 
+            }
         }
 
-        /**
-         * Represents the JSON document end state.
-         */
-        private static class DocumentEndState implements State {
-
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                char ch;
-                State state = null;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if (StateMachine.isWhitespace(ch) || ch == EOF) {
-                        state = this;
-                        continue;
+        private void handleCurrentJsonNodeForArray() throws ParserException {
+            this.nodesStack.push(currentJsonNode);
+            Type lastTargetType = this.targetTypes.get(this.targetTypes.size() - 1);
+            switch (lastTargetType.getTag()) {
+                case TypeTags.ARRAY_TAG:
+                    int listIndex = this.listIndices.get(this.listIndices.size() - 1);
+                    ArrayType arrayType = (ArrayType) lastTargetType;
+                    int targetSize = arrayType.getSize();
+                    if (arrayType.getState() == ArrayType.ArrayState.CLOSED && targetSize <= listIndex) {
+                        throw new ParserException("'" + arrayType + "' " + ARRAY_SIZE_MISMATCH);
                     }
-                    throw new JsonParserException("JSON document has already ended");
-                }
-                sm.index = i + 1;
-                return state;
-            }
-
-        }
-
-        /**
-         * Represents the state just before the first object field is defined.
-         */
-        private static class FirstFieldReadyState implements State {
-
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                char ch;
-                State state = null;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if (ch == QUOTES) {
-                        state = FIELD_NAME_STATE;
-                        sm.currentQuoteChar = ch;
-                    } else if (StateMachine.isWhitespace(ch)) {
-                        state = this;
-                        continue;
-                    } else if (ch == '}') {
-                        state = sm.finalizeObject();
+                    Type elementType = TypeUtils.getImpliedType(arrayType.getElementType());
+                    this.addTargetType(elementType);
+                    break;
+                case TypeTags.TUPLE_TAG:
+                    int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
+                    TupleType tupleType = (TupleType) lastTargetType;
+                    List<Type> tupleTypes = tupleType.getTupleTypes();
+                    int targetTupleSize = tupleTypes.size();
+                    Type tupleRestType = tupleType.getRestType();
+                    boolean noRestType = tupleRestType == null;
+                    Type tupleElementType;
+                    if (targetTupleSize <= tupleListIndex) {
+                        if (noRestType) {
+                            throw new ParserException("'" + tupleType + "' " + TUPLE_SIZE_MISMATCH);
+                        } else {
+                            tupleElementType = TypeUtils.getImpliedType(tupleRestType);
+                        }
                     } else {
-                        StateMachine.throwExpected("\"", "}");
+                        tupleElementType = TypeUtils.getImpliedType(tupleTypes.get(tupleListIndex));
+                    }
+                    this.addTargetType(tupleElementType);
+                    break;
+                case TypeTags.MAP_TAG:
+                    this.addTargetType(((MapType) lastTargetType).getConstrainedType());
+                    break;
+                case TypeTags.RECORD_TYPE_TAG:
+                    BRecordType recordType = (BRecordType) lastTargetType;
+                    String fieldName = this.fieldNames.getFirst();
+                    Map<String, Field> fields = recordType.getFields();
+                    Field field = fields.get(fieldName);
+                    if (field == null) {
+                        this.addTargetType(recordType.restFieldType);
+                    } else {
+                        this.addTargetType(field.getFieldType());
                     }
                     break;
-                }
-                sm.index = i + 1;
-                return state;
-            }
-
-        }
-
-        /**
-         * Represents the state just before the first array element is defined.
-         */
-        private static class FirstArrayElementReadyState implements State {
-
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                State state = null;
-                char ch;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if (StateMachine.isWhitespace(ch)) {
-                        state = this;
-                        continue;
-                    } else if (ch == QUOTES) {
-                        state = STRING_ARRAY_ELEMENT_STATE;
-                        sm.currentQuoteChar = ch;
-                    } else if (ch == '{') {
-                        state = sm.initNewObject();
-                    } else if (ch == '[') {
-                        state = sm.initNewArray();
-                    } else if (ch == ']') {
-                        state = sm.finalizeObject();
-                    } else {
-                        state = NON_STRING_ARRAY_ELEMENT_STATE;
-                    }
+                case TypeTags.UNION_TAG, TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.TABLE_TAG,
+                        TypeTags.FINITE_TYPE_TAG:
                     break;
-                }
-                if (state == NON_STRING_ARRAY_ELEMENT_STATE) {
-                    sm.index = i;
-                } else {
-                    sm.index = i + 1;
-                }
-                return state;
+                default:
+                    throw new ParserException(UNSUPPORTED_TYPE + lastTargetType + "'");
             }
-
-        }
-
-        /**
-         * Represents the state just before a non-first object field is defined.
-         */
-        private static class NonFirstFieldReadyState implements State {
-
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                State state = null;
-                char ch;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if (ch == QUOTES) {
-                        sm.currentQuoteChar = ch;
-                        state = FIELD_NAME_STATE;
-                    } else if (StateMachine.isWhitespace(ch)) {
-                        state = this;
-                        continue;
-                    } else {
-                        StateMachine.throwExpected("\"");
-                    }
-                    break;
-                }
-                sm.index = i + 1;
-                return state;
-            }
-
-        }
-
-        /**
-         * Represents the state just before a non-first array element is defined.
-         */
-        private static class NonFirstArrayElementReadyState implements State {
-
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                State state = null;
-                char ch;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if (StateMachine.isWhitespace(ch)) {
-                        state = this;
-                        continue;
-                    } else if (ch == QUOTES) {
-                        state = STRING_ARRAY_ELEMENT_STATE;
-                        sm.currentQuoteChar = ch;
-                    } else if (ch == '{') {
-                        state = sm.initNewObject();
-                    } else if (ch == '[') {
-                        state = sm.initNewArray();
-                    } else if (ch == ']') {
-                        throw new JsonParserException("expected an array element");
-                    } else {
-                        state = NON_STRING_ARRAY_ELEMENT_STATE;
-                    }
-                    break;
-                }
-                if (state == NON_STRING_ARRAY_ELEMENT_STATE) {
-                    sm.index = i;
-                } else {
-                    sm.index = i + 1;
-                }
-                return state;
-            }
-
-        }
-
-        private String value() {
-            String result = new String(this.charBuff, 0, this.charBuffIndex);
-            this.charBuffIndex = 0;
-            return result;
-        }
-
-        private void processFieldName() {
-            this.fieldNames.push(this.value());
         }
 
         /**
          * Represents the state during a field name.
          */
-        private static class FieldNameState implements State {
+        protected static class FieldNameState implements State {
 
             @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
                 char ch;
                 State state = null;
                 for (; i < count; i++) {
@@ -581,87 +648,39 @@ public class JsonParser {
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
                         sm.processFieldName();
+                        processFieldNameValue(sm);
                         state = END_FIELD_NAME_STATE;
                     } else if (ch == REV_SOL) {
                         state = FIELD_NAME_ESC_CHAR_PROCESSING_STATE;
                     } else if (ch == EOF) {
-                        throw new JsonParserException("unexpected end of JSON document");
+                        throw new ParserException(UNEXPECTED_END_OF_THE_INPUT_STREAM);
                     } else {
                         sm.append(ch);
                         state = this;
-                        continue;
                     }
-                    break;
+                    if (ch == sm.currentQuoteChar || ch == REV_SOL) {
+                        break;
+                    }
                 }
                 sm.index = i + 1;
                 return state;
             }
 
-        }
-
-        /**
-         * Represents the state where a field name definition has ended.
-         */
-        private static class EndFieldNameState implements State {
-
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                State state = null;
-                char ch;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if (StateMachine.isWhitespace(ch)) {
-                        state = this;
-                        continue;
-                    } else if (ch == ':') {
-                        state = FIELD_VALUE_READY_STATE;
-                    } else {
-                        StateMachine.throwExpected(":");
+            private static void processFieldNameValue(StateMachine sm) throws ParserException {
+                JsonStateMachine ssm = (JsonStateMachine) sm;
+                Type parentTargetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
+                // maps can have any field name
+                // for unions, json, anydata also we do nothing
+                if (parentTargetType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                    BRecordType recordType = (BRecordType) parentTargetType;
+                    String fieldName = sm.fieldNames.getFirst();
+                    Map<String, Field> fields = recordType.getFields();
+                    Field field = fields.get(fieldName);
+                    if (field == null && recordType.sealed) {
+                        throw new ParserException("field '" + fieldName + "' cannot be added to" +
+                                                  " the closed record '" + recordType + "'");
                     }
-                    break;
                 }
-                sm.index = i + 1;
-                return state;
-            }
-
-        }
-
-        /**
-         * Represents the state where a field value is about to be defined.
-         */
-        private static class FieldValueReadyState implements State {
-
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                State state = null;
-                char ch;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if (StateMachine.isWhitespace(ch)) {
-                        state = this;
-                        continue;
-                    } else if (ch == QUOTES) {
-                        state = STRING_FIELD_VALUE_STATE;
-                        sm.currentQuoteChar = ch;
-                    } else if (ch == '{') {
-                        state = sm.initNewObject();
-                    } else if (ch == '[') {
-                        state = sm.initNewArray();
-                    } else if (ch == ']' || ch == '}') {
-                        throw new JsonParserException("expected a field value");
-                    } else {
-                        state = NON_STRING_FIELD_VALUE_STATE;
-                    }
-                    break;
-                }
-                if (state == NON_STRING_FIELD_VALUE_STATE) {
-                    sm.index = i;
-                } else {
-                    sm.index = i + 1;
-                }
-                return state;
             }
 
         }
@@ -669,32 +688,71 @@ public class JsonParser {
         /**
          * Represents the state during a string field value is defined.
          */
-        private static class StringFieldValueState implements State {
+        protected static class StringFieldValueState implements State {
 
             @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
-                        ((MapValueImpl<BString, Object>) sm.currentJsonNode).put(
-                                StringUtils.fromString(sm.fieldNames.pop()), StringUtils.fromString(sm.value()));
+                        processQuoteCharacter(sm);
                         state = FIELD_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_FIELD_ESC_CHAR_PROCESSING_STATE;
                     } else if (ch == EOF) {
-                        throw new JsonParserException("unexpected end of JSON document");
+                        throw new ParserException(UNEXPECTED_END_OF_THE_INPUT_STREAM);
                     } else {
                         sm.append(ch);
                         state = this;
-                        continue;
                     }
-                    break;
+                    if (ch == sm.currentQuoteChar || ch == REV_SOL) {
+                        break;
+                    }
                 }
                 sm.index = i + 1;
                 return state;
+            }
+
+            private static void processQuoteCharacter(StateMachine sm) throws ParserException {
+                JsonStateMachine ssm = (JsonStateMachine) sm;
+                Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
+                Object bString = StringUtils.fromString(sm.value());
+                switch (targetType.getTag()) {
+                    case TypeTags.MAP_TAG:
+                        try {
+                            bString = ValueConverter.getConvertedStringValue((BString) bString,
+                                    ((MapType) targetType).getConstrainedType());
+                        } catch (BError e) {
+                            throw new ParserException(e.getMessage());
+                        }
+                        break;
+                    case TypeTags.RECORD_TYPE_TAG:
+                        // in records, when processing the field name, target type is added to targetTypes list.
+                        Type fieldType = getFieldType(sm, (BRecordType) targetType);
+                        try {
+                            bString = ValueConverter.getConvertedStringValue((BString) bString, fieldType);
+                        } catch (BError e) {
+                            throw new ParserException(e.getMessage());
+                        }
+                        break;
+                    case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG, TypeTags.TABLE_TAG,
+                            TypeTags.FINITE_TYPE_TAG:
+                        break;
+                    default:
+                        throw new ParserException(UNSUPPORTED_TYPE + targetType + "'");
+                }
+                ((MapValueImpl<BString, Object>) sm.currentJsonNode).putForcefully(
+                        StringUtils.fromString(sm.fieldNames.pop()), bString);
+            }
+
+            private static Type getFieldType(StateMachine sm, BRecordType targetType) {
+                String fieldName = sm.fieldNames.getFirst();
+                Map<String, Field> fields = targetType.getFields();
+                Field field = fields.get(fieldName);
+                return field == null ? targetType.restFieldType : field.getFieldType();
             }
 
         }
@@ -702,111 +760,67 @@ public class JsonParser {
         /**
          * Represents the state during a string array element is defined.
          */
-        private static class StringArrayElementState implements State {
+        protected static class StringArrayElementState implements State {
 
             @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
-                        ((ArrayValue) sm.currentJsonNode).append(changeForBString(sm.value()));
+                        processQuoteCharacter(sm);
                         state = ARRAY_ELEMENT_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_AE_ESC_CHAR_PROCESSING_STATE;
                     } else if (ch == EOF) {
-                        throw new JsonParserException("unexpected end of JSON document");
+                        throw new ParserException(UNEXPECTED_END_OF_THE_INPUT_STREAM);
                     } else {
                         sm.append(ch);
                         state = this;
-                        continue;
                     }
-                    break;
+                    if (ch == sm.currentQuoteChar || ch == REV_SOL) {
+                        break;
+                    }
                 }
                 sm.index = i + 1;
                 return state;
             }
 
-        }
-
-        /**
-         * Represents the state during a non-string field value is defined.
-         */
-        private static class NonStringFieldValueState implements State {
-
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                State state = null;
-                char ch;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if (ch == '{') {
-                        state = sm.initNewObject();
-                    } else if (ch == '[') {
-                        state = sm.initNewArray();
-                    } else if (ch == '}' || ch == ']') {
-                        sm.processNonStringValue(ValueType.FIELD);
-                        state = sm.finalizeObject();
-                    } else if (ch == ',') {
-                        sm.processNonStringValue(ValueType.FIELD);
-                        state = NON_FIRST_FIELD_READY_STATE;
-                    } else if (StateMachine.isWhitespace(ch)) {
-                        sm.processNonStringValue(ValueType.FIELD);
-                        state = FIELD_END_STATE;
-                    } else if (ch == EOF) {
-                        throw new JsonParserException("unexpected end of JSON document");
-                    } else {
-                        sm.append(ch);
-                        state = this;
-                        continue;
-                    }
-                    break;
+            private static void processQuoteCharacter(StateMachine sm) throws ParserException {
+                JsonStateMachine ssm = (JsonStateMachine) sm;
+                Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
+                BString bString = StringUtils.fromString(sm.value());
+                int listIndex;
+                switch (targetType.getTag()) {
+                    case TypeTags.ARRAY_TAG:
+                        listIndex = ssm.listIndices.get(ssm.listIndices.size() - 1);
+                        try {
+                            ((ArrayValueImpl) sm.currentJsonNode)
+                                    .convertStringAndAddRefValue(listIndex, bString);
+                        } catch (BError e) {
+                            throw new ParserException(e.getMessage());
+                        }
+                        ssm.listIndices.set(ssm.listIndices.size() - 1, listIndex + 1);
+                        break;
+                    case TypeTags.TUPLE_TAG:
+                        listIndex = ssm.listIndices.get(ssm.listIndices.size() - 1);
+                        try {
+                            ((TupleValueImpl) sm.currentJsonNode)
+                                    .convertStringAndAddRefValue(listIndex, bString);
+                        } catch (BError e) {
+                            throw new ParserException(e.getMessage());
+                        }
+                        ssm.listIndices.set(ssm.listIndices.size() - 1, listIndex + 1);
+                        break;
+                    case TypeTags.JSON_TAG, TypeTags.ANYDATA_TAG, TypeTags.UNION_TAG, TypeTags.FINITE_TYPE_TAG:
+                        ArrayValueImpl arrayValue = (ArrayValueImpl) sm.currentJsonNode;
+                        arrayValue.addRefValueForcefully(arrayValue.size(), bString);
+                        break;
+                    default:
+                        throw new ParserException(UNSUPPORTED_TYPE + targetType + "'");
                 }
-                sm.index = i + 1;
-                return state;
-            }
-
-        }
-
-        /**
-         * Represents the state during a non-string array element is defined.
-         */
-        private static class NonStringArrayElementState implements State {
-
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                State state = null;
-                char ch;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if (ch == '{') {
-                        state = sm.initNewObject();
-                    } else if (ch == '[') {
-                        state = sm.initNewArray();
-                    } else if (ch == ']') {
-                        sm.processNonStringValue(ValueType.ARRAY_ELEMENT);
-                        state = sm.finalizeObject();
-                    } else if (ch == ',') {
-                        sm.processNonStringValue(ValueType.ARRAY_ELEMENT);
-                        state = NON_FIRST_ARRAY_ELEMENT_READY_STATE;
-                    } else if (StateMachine.isWhitespace(ch)) {
-                        sm.processNonStringValue(ValueType.ARRAY_ELEMENT);
-                        state = ARRAY_ELEMENT_END_STATE;
-                    } else if (ch == EOF) {
-                        throw new JsonParserException("unexpected end of JSON document");
-                    } else {
-                        sm.append(ch);
-                        state = this;
-                        continue;
-                    }
-                    break;
-                }
-                sm.index = i + 1;
-                return state;
             }
 
         }
@@ -814,459 +828,347 @@ public class JsonParser {
         /**
          * Represents the state during a string value is defined.
          */
-        private static class StringValueState implements State {
+        protected static class StringValueState implements State {
 
             @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
+            public State transition(StateMachine sm, char[] buff, int i, int count) throws ParserException {
                 State state = null;
                 char ch;
                 for (; i < count; i++) {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
-                        sm.currentJsonNode = changeForBString(sm.value());
+                        processStringValue(sm);
                         state = DOC_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_VAL_ESC_CHAR_PROCESSING_STATE;
                     } else if (ch == EOF) {
-                        throw new JsonParserException("unexpected end of JSON document");
+                        throw new ParserException(UNEXPECTED_END_OF_THE_INPUT_STREAM);
                     } else {
                         sm.append(ch);
                         state = this;
-                        continue;
                     }
-                    break;
+                    if (ch == sm.currentQuoteChar || ch == REV_SOL) {
+                        break;
+                    }
                 }
                 sm.index = i + 1;
                 return state;
             }
 
-        }
-
-        private enum ValueType {
-            FIELD, VALUE, ARRAY_ELEMENT
-        }
-
-        private void processNonStringValue(ValueType type) throws JsonParserException {
-            String str = value();
-            if (str.indexOf('.') >= 0) {
-                try {
-                    switch (mode) {
-                        case FROM_JSON_FLOAT_STRING:
-                            setValueToJsonType(type, Double.parseDouble(str));
-                            break;
-                        case FROM_JSON_DECIMAL_STRING:
-                            setValueToJsonType(type, new DecimalValue(str));
-                            break;
-                        default:
-                            if (isNegativeZero(str)) {
-                                setValueToJsonType(type, Double.parseDouble(str));
-                            } else {
-                                setValueToJsonType(type, new DecimalValue(str));
-                            }
-                            break;
+            private static void processStringValue(StateMachine sm) throws ParserException {
+                JsonStateMachine ssm = (JsonStateMachine) sm;
+                Type targetType = ssm.targetTypes.get(ssm.targetTypes.size() - 1);
+                BString bString = StringUtils.fromString(sm.value());
+                if (ssm.nodesStackSizeWhenUnionStarts == -1) {
+                    try {
+                        sm.currentJsonNode = ValueConverter.getConvertedStringValue(bString, targetType);
+                    } catch (BError e) {
+                        throw new ParserException(e.getMessage());
                     }
-                } catch (NumberFormatException ignore) {
-                    throw new JsonParserException("unrecognized token '" + str + "'");
+                } else {
+                    sm.currentJsonNode = bString;
                 }
+            }
+
+        }
+
+        private static Object getNonStringValueAsJson(String str) throws ParserException {
+            if (str.indexOf('.') >= 0) {
+                return getFloatingPointValue(str);
             } else {
                 char ch = str.charAt(0);
                 if (ch == 't' && TRUE.equals(str)) {
-                    switch (type) {
-                        case ARRAY_ELEMENT:
-                            ((ArrayValue) this.currentJsonNode).append(Boolean.TRUE);
-                            break;
-                        case FIELD:
-                            ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                    StringUtils.fromString(this.fieldNames.pop()), Boolean.TRUE);
-                            break;
-                        case VALUE:
-                            currentJsonNode = Boolean.TRUE;
-                            break;
-                        default:
-                            break;
-                    }
+                    return Boolean.TRUE;
                 } else if (ch == 'f' && FALSE.equals(str)) {
-                    switch (type) {
-                        case ARRAY_ELEMENT:
-                            ((ArrayValue) this.currentJsonNode).append(Boolean.FALSE);
-                            break;
-                        case FIELD:
-                            ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                    StringUtils.fromString(this.fieldNames.pop()), Boolean.FALSE);
-                            break;
-                        case VALUE:
-                            currentJsonNode = Boolean.FALSE;
-                            break;
-                        default:
-                            break;
-                    }
+                    return Boolean.FALSE;
                 } else if (ch == 'n' && NULL.equals(str)) {
-                    switch (type) {
-                        case ARRAY_ELEMENT:
-                            ((ArrayValue) this.currentJsonNode).append(null);
-                            break;
-                        case FIELD:
-                            ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                    StringUtils.fromString(this.fieldNames.pop()), null);
-                            break;
-                        case VALUE:
-                            currentJsonNode = null;
-                            break;
-                        default:
-                            break;
-                    }
+                    return null;
                 } else {
-                    try {
-                        switch (mode) {
-                            case FROM_JSON_FLOAT_STRING:
-                                setValueToJsonType(type, Double.parseDouble(str));
-                                break;
-                            case FROM_JSON_DECIMAL_STRING:
-                                setValueToJsonType(type, new DecimalValue(str));
-                                break;
-                            default:
-                                if (isNegativeZero(str)) {
-                                    setValueToJsonType(type, Double.parseDouble(str));
-                                } else if (isExponential(str)) {
-                                    setValueToJsonType(type, new DecimalValue(str));
-                                } else {
-                                    setValueToJsonType(type, Long.parseLong(str));
-                                }
-                                break;
-                        }
-                    } catch (NumberFormatException ignore) {
-                        throw new JsonParserException("unrecognized token '" + str + "'");
-                    }
+                    return getNumericValue(str);
                 }
             }
         }
 
-        private boolean isExponential(String str) {
-            return str.contains("e") || str.contains("E");
+        private static Object getNumericValue(String str) throws ParserException {
+            try {
+                if (isNegativeZero(str) || mode == FROM_JSON_FLOAT_STRING) {
+                    return Double.parseDouble(str);
+                } else if (isExponential(str) || mode == FROM_JSON_DECIMAL_STRING) {
+                    return new DecimalValue(str);
+                } else {
+                    return Long.parseLong(str);
+                }
+            } catch (NumberFormatException ignore) {
+                throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
+            }
         }
 
-        private void setValueToJsonType(ValueType type, Object value) {
+        private static Object getFloatingPointValue(String str) throws ParserException {
+            try {
+                if (isNegativeZero(str) || mode == FROM_JSON_FLOAT_STRING) {
+                    return Double.parseDouble(str);
+                } else {
+                    return new DecimalValue(str);
+                }
+            } catch (NumberFormatException ignore) {
+                throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
+            }
+        }
+
+        private void processNonStringValueAsJson(String str, ValueType type) throws ParserException {
+            setValueToJsonType(type, getNonStringValueAsJson(str));
+        }
+
+        void processNonStringValue(ValueType type) throws ParserException {
+            String str = value();
+            Type targetType = this.targetTypes.get(this.targetTypes.size() - 1);
+            Type referredType = TypeUtils.getImpliedType(targetType);
+            switch (referredType.getTag()) {
+                case TypeTags.UNION_TAG, TypeTags.FINITE_TYPE_TAG -> {
+                    processNonStringValueAsJson(str, type);
+                    if (this.nodesStackSizeWhenUnionStarts == -1) {
+                        this.currentJsonNode = convert(this.currentJsonNode, targetType);
+                    }
+                }
+                case TypeTags.ANYDATA_TAG, TypeTags.JSON_TAG, TypeTags.TABLE_TAG ->
+                        processNonStringValueAsJson(str, type);
+                case TypeTags.ARRAY_TAG -> processArrayType(str, (ArrayType) referredType);
+                case TypeTags.TUPLE_TAG -> processTupleType(str, (TupleType) referredType);
+                case TypeTags.MAP_TAG -> processMapType(str, (MapType) referredType);
+                case TypeTags.RECORD_TYPE_TAG -> processRecordType(str, (BRecordType) referredType);
+                default -> this.currentJsonNode = convertValues(referredType, str);
+            }
+        }
+
+        private void processRecordType(String str, BRecordType referredType) throws ParserException {
+            if (this.currentJsonNode == null) {
+                throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
+            }
+            String fieldName = this.fieldNames.pop();
+            Map<String, Field> fields = referredType.getFields();
+            Field field = fields.get(fieldName);
+            Type fieldType = field == null ? referredType.restFieldType : field.getFieldType();
+            ((MapValueImpl<BString, Object>) this.currentJsonNode).putForcefully(
+                    StringUtils.fromString(fieldName), convertValues(TypeUtils.getImpliedType(fieldType), str));
+        }
+
+        private void processMapType(String str, MapType referredType) throws ParserException {
+            if (this.currentJsonNode == null) {
+                throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
+            }
+            Type constrainedType = TypeUtils.getImpliedType(referredType.getConstrainedType());
+            ((MapValueImpl<BString, Object>) this.currentJsonNode).putForcefully(
+                    StringUtils.fromString(this.fieldNames.pop()), convertValues(constrainedType, str));
+        }
+
+        private void processTupleType(String str, TupleType referredType) throws ParserException {
+            if (this.currentJsonNode == null) {
+                throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
+            }
+            int tupleListIndex = this.listIndices.get(this.listIndices.size() - 1);
+            List<Type> tupleTypes = referredType.getTupleTypes();
+            int targetTupleSize = tupleTypes.size();
+            Type tupleRestType = referredType.getRestType();
+            boolean noRestType = tupleRestType == null;
+            Type tupleElementType;
+            if (targetTupleSize <= tupleListIndex) {
+                if (noRestType) {
+                    throw new ParserException("'" + referredType + "' " + TUPLE_SIZE_MISMATCH);
+                } else {
+                    tupleElementType = TypeUtils.getImpliedType(tupleRestType);
+                }
+            } else {
+                tupleElementType = TypeUtils.getImpliedType(tupleTypes.get(tupleListIndex));
+            }
+            ((TupleValueImpl) this.currentJsonNode).addRefValueForcefully(tupleListIndex,
+                    convertValues(tupleElementType, str));
+            this.listIndices.set(this.listIndices.size() - 1, tupleListIndex + 1);
+        }
+
+        private void processArrayType(String str, ArrayType referredType) throws ParserException {
+            if (this.currentJsonNode == null) {
+                throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
+            }
+            int listIndex = this.listIndices.get(this.listIndices.size() - 1);
+            Type elementType = TypeUtils.getImpliedType(referredType.getElementType());
+            ((ArrayValueImpl) this.currentJsonNode).addRefValue(listIndex, convertValues(elementType, str));
+            this.listIndices.set(this.listIndices.size() - 1, listIndex + 1);
+        }
+
+        void setValueToJsonType(ValueType type, Object value) {
             switch (type) {
                 case ARRAY_ELEMENT:
-                    ((ArrayValue) this.currentJsonNode).append(value);
+                    ArrayValueImpl arrayValue = (ArrayValueImpl) this.currentJsonNode;
+                    arrayValue.addRefValueForcefully(arrayValue.size(), value);
                     break;
                 case FIELD:
-                    ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
+                    ((MapValueImpl<BString, Object>) this.currentJsonNode).putForcefully(
                             StringUtils.fromString(this.fieldNames.pop()), value);
                     break;
                 default:
-                    currentJsonNode = value;
+                    this.currentJsonNode = value;
                     break;
             }
         }
 
-        private boolean isNegativeZero(String str) {
-            return '-' == str.charAt(0) && 0 == Double.parseDouble(str);
+        private static Object convert(Object value, Type targetType) {
+            return convert(value, targetType, new HashSet<>());
         }
 
-        /**
-         * Represents the state during a non-string value is defined.
-         */
-        private static class NonStringValueState implements State {
+        private static Object convert(Object value, Type targetType, Set<TypeValuePair> unresolvedValues) {
 
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                State state = null;
-                char ch;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if (StateMachine.isWhitespace(ch) || ch == EOF) {
-                        sm.currentJsonNode = null;
-                        sm.processNonStringValue(ValueType.VALUE);
-                        state = DOC_END_STATE;
-                    } else {
-                        sm.append(ch);
-                        state = this;
-                        continue;
-                    }
-                    break;
+            if (value == null) {
+                return handleNullConversion(targetType);
+            }
+
+            Type sourceType = TypeUtils.getImpliedType(TypeChecker.getType(value));
+
+            TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
+            if (unresolvedValues.contains(typeValuePair)) {
+                throw createError(ErrorReasons.BALLERINA_PREFIXED_CYCLIC_VALUE_REFERENCE_ERROR,
+                        ErrorHelper.getErrorMessage(ErrorCodes.CYCLIC_VALUE_REFERENCE, sourceType));
+            }
+            unresolvedValues.add(typeValuePair);
+
+            List<String> errors = new ArrayList<>();
+            Type convertibleType = TypeConverter.getConvertibleType(value, targetType, null,
+                    new HashSet<>(), errors, true);
+            if (convertibleType == null) {
+                throw CloneUtils.createConversionError(value, targetType, errors);
+            }
+
+            Object newValue = handleConversion(value, targetType, unresolvedValues, convertibleType, sourceType);
+
+            unresolvedValues.remove(typeValuePair);
+            return newValue;
+        }
+
+        private static Object handleConversion(Object value, Type targetType, Set<TypeValuePair> unresolvedValues,
+                                               Type convertibleType, Type sourceType) {
+            Type matchingType = TypeUtils.getImpliedType(convertibleType);
+            // source type can't be tuple, record and table in the stream parser
+            return switch (sourceType.getTag()) {
+                case TypeTags.MAP_TAG ->
+                        convertMap((MapValueImpl<BString, Object>) value, matchingType, convertibleType,
+                                unresolvedValues);
+                case TypeTags.ARRAY_TAG ->
+                        convertArray((ArrayValueImpl) value, matchingType, convertibleType, unresolvedValues);
+                case TypeTags.TABLE_TAG, TypeTags.RECORD_TYPE_TAG, TypeTags.TUPLE_TAG ->
+                        throw createConversionError(value, targetType);
+                default -> handleDefaultConversion(value, targetType, sourceType, matchingType);
+            };
+        }
+
+        private static Object handleDefaultConversion(Object value, Type targetType, Type sourceType,
+                                                      Type matchingType) {
+            if (TypeChecker.isRegExpType(targetType) && matchingType.getTag() == TypeTags.STRING_TAG) {
+                try {
+                    return RegExpFactory.parse(((BString) value).getValue());
+                } catch (BError e) {
+                    throw createConversionError(value, targetType, e.getMessage());
                 }
-                sm.index = i + 1;
-                return state;
+            }
+            if (TypeChecker.checkIsType(value, matchingType)) {
+                return value;
             }
 
+            // handle primitive values
+            if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
+                // has to be a numeric conversion.
+                return TypeConverter.convertValues(matchingType, value);
+            }
+            // should never reach here
+            throw createConversionError(value, targetType);
         }
 
-        /**
-         * Represents the state where an object field has ended.
-         */
-        private static class FieldEndState implements State {
+        private static Object handleNullConversion(Type targetType) {
+            if (TypeUtils.getImpliedType(targetType).isNilable()) {
+                return null;
+            }
+            throw createError(ErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
+                    ErrorHelper.getErrorDetails(ErrorCodes.CANNOT_CONVERT_NIL, targetType));
+        }
 
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                State state = null;
-                char ch;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if (StateMachine.isWhitespace(ch)) {
-                        state = this;
-                        continue;
-                    } else if (ch == ',') {
-                        state = NON_FIRST_FIELD_READY_STATE;
-                    } else if (ch == '}') {
-                        state = sm.finalizeObject();
-                    } else {
-                        StateMachine.throwExpected(",", "}");
+        private static Object convertArray(ArrayValueImpl array, Type targetType, Type targetRefType,
+                                           Set<TypeValuePair> unresolvedValues) {
+            switch (targetType.getTag()) {
+                case TypeTags.ARRAY_TAG:
+                    ArrayType arrayType = (ArrayType) targetType;
+                    ArrayValueImpl newArray = new ArrayValueImpl(targetRefType, arrayType.getSize());
+                    for (int i = 0; i < array.size(); i++) {
+                        newArray.addRefValueForcefully(i, convert(array.getRefValue(i), arrayType.getElementType(),
+                                unresolvedValues));
                     }
-                    break;
-                }
-                sm.index = i + 1;
-                return state;
-            }
-
-        }
-
-        /**
-         * Represents the state where an array element has ended.
-         */
-        private static class ArrayElementEndState implements State {
-
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                State state = null;
-                char ch;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if (StateMachine.isWhitespace(ch)) {
-                        state = this;
-                        continue;
-                    } else if (ch == ',') {
-                        state = NON_FIRST_ARRAY_ELEMENT_READY_STATE;
-                    } else if (ch == ']') {
-                        state = sm.finalizeObject();
-                    } else {
-                        StateMachine.throwExpected(",", "]");
+                    return newArray;
+                case TypeTags.TUPLE_TAG:
+                    TupleType tupleType = (TupleType) targetType;
+                    int minLen = tupleType.getTupleTypes().size();
+                    BListInitialValueEntry[] tupleValues = new BListInitialValueEntry[array.size()];
+                    for (int i = 0; i < array.size(); i++) {
+                        Type elementType = (i < minLen) ? tupleType.getTupleTypes().get(i) : tupleType.getRestType();
+                        tupleValues[i] = ValueCreator.createListInitialValueEntry(convert(array.getRefValue(i),
+                                elementType, unresolvedValues));
                     }
-                    break;
-                }
-                sm.index = i + 1;
-                return state;
-            }
-
-        }
-
-        /**
-         * Represents the state where an escaped unicode character in hex format is processed
-         * from a object string field.
-         */
-        private static class StringFieldUnicodeHexProcessingState extends UnicodeHexProcessingState {
-
-            @Override
-            protected State getSourceState() {
-                return STRING_FIELD_VALUE_STATE;
-            }
-
-        }
-
-        /**
-         * Represents the state where an escaped unicode character in hex format is processed
-         * from an array string field.
-         */
-        private static class StringAEProcessingState extends UnicodeHexProcessingState {
-
-            @Override
-            protected State getSourceState() {
-                return STRING_ARRAY_ELEMENT_STATE;
-            }
-
-        }
-
-        /**
-         * Represents the state where an escaped unicode character in hex format is processed
-         * from a string value.
-         */
-        private static class StringValueUnicodeHexProcessingState extends UnicodeHexProcessingState {
-
-            @Override
-            protected State getSourceState() {
-                return STRING_VALUE_STATE;
-            }
-
-        }
-
-        /**
-         * Represents the state where an escaped unicode character in hex format is processed
-         * from a field name.
-         */
-        private static class FieldNameUnicodeHexProcessingState extends UnicodeHexProcessingState {
-
-            @Override
-            protected State getSourceState() {
-                return FIELD_NAME_STATE;
-            }
-
-        }
-
-        /**
-         * Represents the state where an escaped unicode character in hex format is processed.
-         */
-        private abstract static class UnicodeHexProcessingState implements State {
-
-            protected abstract State getSourceState();
-
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                State state = null;
-                char ch;
-                for (; i < count; i++) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f')) {
-                        sm.hexBuilder.append(ch);
-                        if (sm.hexBuilder.length() >= 4) {
-                            sm.append(this.extractUnicodeChar(sm));
-                            this.reset(sm);
-                            state = this.getSourceState();
-                            break;
-                        }
-                        state = this;
-                        continue;
+                    return new TupleValueImpl(targetRefType, tupleValues);
+                case TypeTags.TABLE_TAG:
+                    TableType tableType = (TableType) targetType;
+                    for (int i = 0; i < array.size(); i++) {
+                        Object bMap = convert(array.get(i), tableType.getConstrainedType(), unresolvedValues);
+                        array.setRefValueForcefully(i, bMap);
                     }
-                    this.reset(sm);
-                    throw new JsonParserException("expected the hexadecimal value of a unicode character");
-                }
-                sm.index = i + 1;
-                return state;
+                    array.setArrayRefTypeForcefully(TypeCreator.createArrayType(tableType.getConstrainedType()),
+                            array.size());
+                    BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
+                    return new TableValueImpl<>(targetRefType, array, (ArrayValue) fieldNames);
+                default:
+                    // should never reach here
+                    throw createConversionError(array, targetType);
             }
-
-            private void reset(StateMachine sm) {
-                sm.hexBuilder.setLength(0);
-            }
-
-            private char extractUnicodeChar(StateMachine sm) {
-                return StringEscapeUtils.unescapeJava("\\u" + sm.hexBuilder.toString()).charAt(0);
-            }
-
         }
 
-        /**
-         * Represents the state where an escaped character is processed in a object string field.
-         */
-        private static class StringFieldEscapedCharacterProcessingState extends EscapedCharacterProcessingState {
-
-            @Override
-            protected State getSourceState() {
-                return STRING_FIELD_VALUE_STATE;
-            }
-
-        }
-
-        /**
-         * Represents the state where an escaped character is processed in an array string field.
-         */
-        private static class StringAEEscapedCharacterProcessingState extends EscapedCharacterProcessingState {
-
-            @Override
-            protected State getSourceState() {
-                return STRING_ARRAY_ELEMENT_STATE;
-            }
-
-        }
-
-        /**
-         * Represents the state where an escaped character is processed in a string value.
-         */
-        private static class StringValueEscapedCharacterProcessingState extends EscapedCharacterProcessingState {
-
-            @Override
-            protected State getSourceState() {
-                return STRING_VALUE_STATE;
-            }
-
-        }
-
-        /**
-         * Represents the state where an escaped character is processed in a field name.
-         */
-        private static class FieldNameEscapedCharacterProcessingState extends EscapedCharacterProcessingState {
-
-            @Override
-            protected State getSourceState() {
-                return FIELD_NAME_STATE;
-            }
-
-        }
-
-        /**
-         * Represents the state where an escaped character is processed.
-         */
-        private abstract static class EscapedCharacterProcessingState implements State {
-
-            protected abstract State getSourceState();
-
-            @Override
-            public State transition(StateMachine sm, char[] buff, int i, int count) throws JsonParserException {
-                State state = null;
-                char ch;
-                if (i < count) {
-                    ch = buff[i];
-                    sm.processLocation(ch);
-                    switch (ch) {
-                        case '"':
-                            sm.append(QUOTES);
-                            state = this.getSourceState();
-                            break;
-                        case '\\':
-                            sm.append(REV_SOL);
-                            state = this.getSourceState();
-                            break;
-                        case '/':
-                            sm.append(SOL);
-                            state = this.getSourceState();
-                            break;
-                        case 'b':
-                            sm.append(BACKSPACE);
-                            state = this.getSourceState();
-                            break;
-                        case 'f':
-                            sm.append(FORMFEED);
-                            state = this.getSourceState();
-                            break;
-                        case 'n':
-                            sm.append(NEWLINE);
-                            state = this.getSourceState();
-                            break;
-                        case 'r':
-                            sm.append(CR);
-                            state = this.getSourceState();
-                            break;
-                        case 't':
-                            sm.append(HZ_TAB);
-                            state = this.getSourceState();
-                            break;
-                        case 'u':
-                            if (this.getSourceState() == STRING_FIELD_VALUE_STATE) {
-                                state = STRING_FIELD_UNICODE_HEX_PROCESSING_STATE;
-                            } else if (this.getSourceState() == STRING_VALUE_STATE) {
-                                state = STRING_VALUE_UNICODE_HEX_PROCESSING_STATE;
-                            } else if (this.getSourceState() == FIELD_NAME_STATE) {
-                                state = FIELD_NAME_UNICODE_HEX_PROCESSING_STATE;
-                            } else if (this.getSourceState() == STRING_ARRAY_ELEMENT_STATE) {
-                                state = STRING_AE_PROCESSING_STATE;
-                            } else {
-                                throw new JsonParserException("unknown source '" + this.getSourceState() +
-                                        "' in escape char processing state");
-                            }
-                            break;
-                        default:
-                            throw new JsonParserException("expected escaped characters");
+        private static Object convertMap(MapValueImpl<BString, Object> map, Type targetType, Type targetRefType,
+                                         Set<TypeValuePair> unresolvedValues) {
+            Set<Map.Entry<BString, Object>> mapEntrySet = map.entrySet();
+            switch (targetType.getTag()) {
+                case TypeTags.MAP_TAG:
+                    Type constraintType = ((MapType) targetType).getConstrainedType();
+                    for (Map.Entry<BString, Object> entry : mapEntrySet) {
+                        Object newValue = convert(entry.getValue(), constraintType, unresolvedValues);
+                        map.putForcefully(entry.getKey(), newValue);
                     }
-                }
-                sm.index = i + 1;
-                return state;
+                    map.setTypeForcefully(targetRefType);
+                    return map;
+                case TypeTags.RECORD_TYPE_TAG:
+                    RecordType recordType = (RecordType) targetType;
+                    Type restFieldType = recordType.getRestFieldType();
+                    Map<String, Type> targetTypeField = new HashMap<>();
+                    for (Field field : recordType.getFields().values()) {
+                        targetTypeField.put(field.getFieldName(), field.getFieldType());
+                    }
+                    for (Map.Entry<BString, Object> entry : mapEntrySet) {
+                        Type fieldType = targetTypeField.getOrDefault(entry.getKey().toString(), restFieldType);
+                        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues);
+                        map.putForcefully(entry.getKey(), newValue);
+                    }
+                    Optional<IntersectionType> intersectionType =
+                            ((BRecordType) TypeUtils.getImpliedType(targetRefType)).getIntersectionType();
+                    if (targetRefType.isReadOnly() && intersectionType.isPresent() && !map.getType().isReadOnly()) {
+                        Type mutableType = ReadOnlyUtils.getMutableType((BIntersectionType) intersectionType.get());
+                        MapValueImpl<BString, Object> bMapValue = (MapValueImpl<BString, Object>)
+                                ValueUtils.createRecordValue(mutableType.getPackage(), mutableType.getName(), map);
+                        bMapValue.freezeDirect();
+                        return bMapValue;
+                    }
+                    return ValueUtils.createRecordValue(targetRefType.getPackage(), targetRefType.getName(), map);
+                default:
+                    // should never reach here
+                    throw createConversionError(map, targetType);
             }
-
         }
-
     }
 
+
+
 }
+

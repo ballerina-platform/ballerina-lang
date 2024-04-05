@@ -129,7 +129,23 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     public Long getIntValue(BString key) {
-        return (Long) get(key);
+        Object value = get(key);
+        if (value instanceof Integer) { // field is an int subtype
+            return ((Integer) value).longValue();
+        }
+        return (Long) value;
+    }
+
+    public long getUnboxedIntValue(BString key) {
+        return getIntValue(key);
+    }
+
+    public double getUnboxedFloatValue(BString key) {
+        return getFloatValue(key);
+    }
+
+    public boolean getUnboxedBooleanValue(BString key) {
+        return getBooleanValue(key);
     }
 
     public Double getFloatValue(BString key) {
@@ -281,6 +297,15 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                                        StringUtils
                                                 .fromString(errMessage).concat(ErrorHelper.getErrorMessage(
                                                   INVALID_READONLY_VALUE_UPDATE)));
+    }
+
+    public V putForcefully(K key, V value) {
+        return putValue(key, value);
+    }
+
+    public void setTypeForcefully(Type type) {
+        this.type = type;
+        this.referredType = getImpliedType(type);
     }
 
     protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {

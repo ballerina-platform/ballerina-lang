@@ -154,6 +154,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_CONCAT_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ANYDATA_ARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ANY_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WD_CHANNELS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DATA_CHANNEL;
@@ -693,6 +694,10 @@ public class JvmTerminatorGen {
         if (resourcePathArgs != null && !resourcePathArgs.isEmpty()) {
             genResourcePathArgs(resourcePathArgs);
         }
+        List<BIROperand> functionArgs = callIns.functionArgs;
+        if (functionArgs != null && !functionArgs.isEmpty()) {
+            genBundledFunctionArgs(functionArgs);
+        }
         if (callIns.isInternal) {
             this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
         }
@@ -827,8 +832,7 @@ public class JvmTerminatorGen {
         BIRNode.BIRVariableDcl selfArg = callIns.args.get(0).variableDcl;
         BType selfArgRefType = JvmCodeGenUtil.getImpliedType(selfArg.type);
         if (selfArgRefType.tag == TypeTags.OBJECT  || selfArgRefType.tag == TypeTags.UNION) {
-            this.genVirtualCall(callIns, JvmCodeGenUtil.isBallerinaBuiltinModule(
-                    packageID.orgName.getValue(), packageID.name.getValue()), localVarOffset);
+            this.genVirtualCall(callIns, localVarOffset);
         } else {
             // then this is a function attached to a built-in type
             this.genBuiltinTypeAttachedFuncCall(callIns, packageID, localVarOffset);
@@ -910,7 +914,7 @@ public class JvmTerminatorGen {
         this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, encodedMethodName, methodDesc, false);
     }
 
-    private void genVirtualCall(BIRTerminator.Call callIns, boolean isBuiltInModule, int localVarOffset) {
+    private void genVirtualCall(BIRTerminator.Call callIns, int localVarOffset) {
         // load self
         BIRNode.BIRVariableDcl selfArg = callIns.args.get(0).variableDcl;
         this.loadVar(selfArg);
@@ -921,7 +925,6 @@ public class JvmTerminatorGen {
 
         // load the function name as the second argument
         this.mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(callIns.name.value));
-
         // create an Object[] for the rest params
         int argsCount = callIns.args.size() - 1;
         this.mv.visitLdcInsn((long) (argsCount));
@@ -1437,15 +1440,24 @@ public class JvmTerminatorGen {
     private void genResourcePathArgs(List<BIROperand> pathArgs) {
         int pathVarArrayIndex = this.indexMap.addIfNotExists("$pathVarArray", symbolTable.anyType);
         int bundledArrayIndex = this.indexMap.addIfNotExists("$pathArrayArgs", symbolTable.anyType);
+        genBundledArgs(pathArgs, pathVarArrayIndex, bundledArrayIndex, TYPE_ANYDATA_ARRAY);
+    }
 
-        mv.visitLdcInsn((long) pathArgs.size());
+    private void genBundledFunctionArgs(List<BIROperand> args) {
+        int functionArgArrayIndex = this.indexMap.addIfNotExists("$functionArgArray", symbolTable.anyType);
+        int bundledArrayIndex = this.indexMap.addIfNotExists("$functionArrayArgs", symbolTable.anyType);
+        genBundledArgs(args, functionArgArrayIndex, bundledArrayIndex, TYPE_ANY_ARRAY);
+    }
+
+    private void genBundledArgs(List<BIROperand> args, int argsArrayIndex, int bundledArrayIndex, String fieldName) {
+        mv.visitLdcInsn((long) args.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
-        mv.visitVarInsn(ASTORE, pathVarArrayIndex);
+        mv.visitVarInsn(ASTORE, argsArrayIndex);
 
         int i = 0;
-        for (BIROperand arg : pathArgs) {
-            mv.visitVarInsn(ALOAD, pathVarArrayIndex);
+        for (BIROperand arg : args) {
+            mv.visitVarInsn(ALOAD, argsArrayIndex);
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
             this.loadVar(arg.variableDcl);
@@ -1453,11 +1465,10 @@ public class JvmTerminatorGen {
             mv.visitInsn(AASTORE);
             i++;
         }
-
         mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
         mv.visitInsn(DUP);
-        mv.visitVarInsn(ALOAD, pathVarArrayIndex);
-        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPE_ANYDATA_ARRAY, LOAD_ARRAY_TYPE);
+        mv.visitVarInsn(ALOAD, argsArrayIndex);
+        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, fieldName, LOAD_ARRAY_TYPE);
         mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, INIT_ANYDATA_ARRAY, false);
         mv.visitVarInsn(ASTORE, bundledArrayIndex);
         mv.visitVarInsn(ALOAD, bundledArrayIndex);

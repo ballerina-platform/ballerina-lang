@@ -47,10 +47,10 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.jsonmapper.diagnostic.DiagnosticMessage;
 import io.ballerina.jsonmapper.diagnostic.DiagnosticUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.formatter.core.ForceFormattingOptions;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
-import org.ballerinalang.formatter.core.FormattingOptions;
+import org.ballerinalang.formatter.core.options.ForceFormattingOptions;
+import org.ballerinalang.formatter.core.options.FormattingOptions;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.javatuples.Pair;
 

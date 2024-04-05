@@ -295,6 +295,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean inferredIsolated = true;
     private boolean inLockStatement = false;
+    private boolean inIsolatedStartAction = false;
     private final Stack<LockInfo> copyInLockInfoStack = new Stack<>();
     private final Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
     private final Map<BSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
@@ -1288,6 +1289,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
         }
 
+        if (this.inIsolatedStartAction
+                && !isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(symbol.owner, symbol.getType())) {
+            inferredIsolated = false;
+            return;
+        }
+
         if (!recordFieldDefaultValue && !objectFieldDefaultValueRequiringIsolation && enclInvokable != null &&
                 isReferenceToVarDefinedInSameInvokable(symbol.owner, enclInvokable.symbol)) {
             return;
@@ -2096,7 +2103,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isolatedFunctionCall) {
+            boolean prevInIsolationStartAction = this.inIsolatedStartAction;
+            this.inIsolatedStartAction = inStartAction;
             analyzeArgIsolatedness(invocationExpr, requiredArgs, restArgs, symbol, expectsIsolation);
+            this.inIsolatedStartAction = prevInIsolationStartAction;
             return;
         }
 
@@ -4142,7 +4152,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         for (BLangExpression dependsOnArg : functionIsolationInferenceInfo.dependsOnFuncCallArgExprs) {
-            if (!isIsolatedExpression(dependsOnArg)) {
+            if (!isIsolatedExpression(dependsOnArg, false, false, new ArrayList<>(), true,
+                    publiclyExposedObjectTypes, classDefinitions, moduleLevelVariables, unresolvedSymbols)) {
                 return false;
             }
         }

@@ -3024,7 +3024,7 @@ public class TypeChecker {
         return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG || typeTag == TypeTags.JSON_TAG;
     }
 
-    static boolean isRegExpType(Type targetType) {
+    public static boolean isRegExpType(Type targetType) {
         if (targetType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             Type referredType = ((BTypeReferenceType) targetType).getReferredType();
             Module referredTypePackage = referredType.getPackage();

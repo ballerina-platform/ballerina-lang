@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 27,
+    "character": 24
+  },
+  "source": "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source2.bal",
+  "expected": [
+    {
+      "title": "Add isolated qualifier to 'testFunctionWithInput'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 14
+            },
+            "end": {
+              "line": 6,
+              "character": 14
+            }
+          },
+          "newText": "isolated "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
