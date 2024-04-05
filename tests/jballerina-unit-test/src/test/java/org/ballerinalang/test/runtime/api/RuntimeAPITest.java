@@ -103,6 +103,7 @@ public class RuntimeAPITest {
         Thread thread1 = new Thread(() -> {
             try {
                 CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/runtime_mgt");
+                Thread.sleep(5000);
                 BRunUtil.runOnSchedule(strandResult, "main", scheduler);
             } catch (Throwable e) {
                 exceptionRef.set(e);
