@@ -391,7 +391,8 @@ public class JvmPackageGen {
                     }
                 }
 
-                MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, asyncDataCollector);
+                MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, asyncDataCollector,
+                        isRemoteMgtEnabled);
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable, isTestable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc,
                         testExecuteFunc);
@@ -760,8 +761,7 @@ public class JvmPackageGen {
         rewriteRecordInits(module.typeDefs);
 
         // generate object/record value classes
-        JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types,
-                isRemoteMgtEnabled);
+        JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
         valueGen.generateValueClasses(jarEntries, jvmConstantsGen, jvmTypeGen);
 
