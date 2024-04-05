@@ -136,13 +136,13 @@ public class JvmValueGen {
     private final Types types;
 
     JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen,
-                TypeHashVisitor typeHashVisitor, Types types, boolean isRemoteMgtEnabled) {
+                TypeHashVisitor typeHashVisitor, Types types) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.methodGen = methodGen;
         this.booleanType = jvmPackageGen.symbolTable.booleanType;
         this.jvmRecordGen = new JvmRecordGen(jvmPackageGen.symbolTable);
-        this.jvmObjectGen = new JvmObjectGen(isRemoteMgtEnabled);
+        this.jvmObjectGen = new JvmObjectGen();
         this.typeHashVisitor = typeHashVisitor;
         this.types = types;
     }
