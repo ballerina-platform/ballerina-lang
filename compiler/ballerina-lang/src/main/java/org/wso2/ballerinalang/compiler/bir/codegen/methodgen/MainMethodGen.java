@@ -140,7 +140,8 @@ public class MainMethodGen {
     private final AsyncDataCollector asyncDataCollector;
     private final boolean isRemoteMgtEnabled;
 
-    public MainMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, AsyncDataCollector asyncDataCollector, boolean isRemoteMgtEnabled) {
+    public MainMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, AsyncDataCollector asyncDataCollector,
+                         boolean isRemoteMgtEnabled) {
         this.symbolTable = symbolTable;
         // add main string[] args param first
         indexMap = new BIRVarToJVMIndexMap(1);
