@@ -98,11 +98,16 @@ public class RuntimeAPITest {
 
     @Test
     public void testRuntimeManagementAPI() {
-        CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/runtime_mgt");
         AtomicReference<Throwable> exceptionRef = new AtomicReference<>();
         final Scheduler scheduler = new Scheduler(false);
         Thread thread1 = new Thread(() -> {
-            BRunUtil.runOnSchedule(strandResult, "main", scheduler);
+            try {
+                CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/runtime_mgt");
+                Thread.sleep(5000);
+                BRunUtil.runOnSchedule(strandResult, "main", scheduler);
+            } catch (Throwable e) {
+                exceptionRef.set(e);
+            }
         });
         Thread thread2 = new Thread(() -> {
             try {
