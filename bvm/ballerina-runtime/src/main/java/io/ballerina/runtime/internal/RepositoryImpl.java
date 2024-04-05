@@ -87,7 +87,7 @@ public class RepositoryImpl implements Repository {
     }
 
     public static void addServiceListener(BObject listener, BObject service, Object attachPoint) {
-        if (isRemoteEnabled) {
+        if (!isRemoteEnabled) {
             return;
         }
         BServiceType serviceType = (BServiceType) service.getType();
