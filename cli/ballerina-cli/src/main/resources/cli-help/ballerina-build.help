@@ -64,7 +64,6 @@ OPTIONS
            management service.
 
 
-
 EXAMPLES
        Build the current package. This will generate an 'app.jar' file in the
        'target/bin' directory.
