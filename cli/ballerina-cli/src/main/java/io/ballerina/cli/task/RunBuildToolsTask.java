@@ -213,14 +213,10 @@ public class RunBuildToolsTask implements Task {
         }
 
         // Exit if there is any error diagnostic
-        boolean hasErrors = false;
-        for (Diagnostic d : toolDiagnostics) {
-            if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                hasErrors = true;
-            }
-        }
+        boolean hasErrors = toolDiagnostics.stream()
+                .anyMatch(d -> d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR));
         if (hasErrors) {
-            throw createLauncherException("compilation contains errors");
+            throw createLauncherException("build tool execution contains errors");
         }
         // Reload the project to load the generated code
         reloadProject(project);
