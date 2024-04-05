@@ -155,6 +155,10 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
 
+    @CommandLine.Option(names = "--remote-management", description = "enable service management tools in " +
+            "the executable JAR file(s).")
+    private Boolean remoteManagement;
+
     @CommandLine.Option(names = "--list-conflicted-classes",
             description = "list conflicted classes when generating executable")
     private Boolean listConflictedClasses;
@@ -302,6 +306,7 @@ public class BuildCommand implements BLauncherCmd {
                 .setOffline(offline)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setCloud(cloud)
+                .setRemoteManagement(remoteManagement)
                 .setDumpBir(dumpBIR)
                 .setDumpBirFile(dumpBIRFile)
                 .setDumpGraph(dumpGraph)
