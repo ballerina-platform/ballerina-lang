@@ -164,6 +164,11 @@ public class XMLToRecordConverterTests {
     private final Path sample24Bal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_24.bal");
 
+    private final Path sample25XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_25.xml");
+    private final Path sample25Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_25.bal");
+
     private static final String XMLToRecordServiceEP = "xmlToRecord/convert";
 
 
@@ -397,11 +402,25 @@ public class XMLToRecordConverterTests {
         Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
         String xmlValue = Files.readString(sample0XML);
 
-        XMLToRecordRequest request = new XMLToRecordRequest(xmlValue, false, false, false);
+        XMLToRecordRequest request = new XMLToRecordRequest(xmlValue, false, false, false, null, true);
         CompletableFuture<?> result = serviceEndpoint.request(XMLToRecordServiceEP, request);
         XMLToRecordResponse response = (XMLToRecordResponse) result.get();
         String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample0Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test xml record request with text field name and without namespace")
+    public void testXMLToRecordServiceWithFieldNameAndWithoutNamespace()
+            throws IOException, ExecutionException, InterruptedException {
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+        String xmlValue = Files.readString(sample25XML);
+
+        XMLToRecordRequest request = new XMLToRecordRequest(xmlValue, false, false, false, "__text", false);
+        CompletableFuture<?> result = serviceEndpoint.request(XMLToRecordServiceEP, request);
+        XMLToRecordResponse response = (XMLToRecordResponse) result.get();
+        String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample25Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 }
