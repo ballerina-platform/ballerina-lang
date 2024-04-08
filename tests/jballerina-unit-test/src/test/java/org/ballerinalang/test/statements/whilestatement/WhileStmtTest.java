@@ -257,6 +257,8 @@ public class WhileStmtTest {
                 "incompatible types: expected 'ErrorTypeA', found 'ErrorTypeB'", 17, 12);
         BAssertUtil.validateError(onfailNegativeCompileResult, index++,
                 "incompatible types: expected '(ErrorTypeA|ErrorTypeB)', found 'ErrorTypeA'", 41, 12);
+        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "error binding patterns are not yet supported" +
+                " in 'on fail' clauses", 72, 15);
         BAssertUtil.validateError(onfailNegativeCompileResult, index++, "invalid error variable; " +
                 "expecting an error type but found '(SampleComplexError|SampleError)' in type definition", 72, 15);
         Assert.assertEquals(onfailNegativeCompileResult.getDiagnostics().length, index);
@@ -324,7 +326,7 @@ public class WhileStmtTest {
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 
-    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider")
+    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider", enabled = false)
     public void testOnFailWithErrorBP(String funcName) {
         BRunUtil.invoke(onfailCompileResult, funcName);
     }

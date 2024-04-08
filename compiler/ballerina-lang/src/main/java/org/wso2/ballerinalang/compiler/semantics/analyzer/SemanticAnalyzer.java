@@ -3907,6 +3907,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                                                               Names.fromString(anonModelHelper.getNextErrorVarKey(
                                                                       onFailEnv.enclPkg.packageID)),
                                                               onFailEnv, true);
+                dlog.error(errorVar.pos, DiagnosticErrorCode.ERROR_BINDING_PATTERN_NOT_YET_SUPPORTED_IN_ON_FAIL);
             }
         }
 

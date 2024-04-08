@@ -87,7 +87,7 @@ public class ForeachOnFailTests {
         Assert.assertEquals(result.toString(), expected);
     }
 
-    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider")
+    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider", enabled = false)
     public void testOnFailWithErrorBP(String funcName) {
         BRunUtil.invoke(program, funcName);
     }

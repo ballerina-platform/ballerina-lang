@@ -74,7 +74,7 @@ public class LocksWithOnFailTest {
         BRunUtil.invoke(compileResult, "onFailLockWithinLockWithoutVariable");
     }
 
-    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider")
+    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider", enabled = false)
     public void testOnFailWithErrorBP(String funcName) {
         BRunUtil.invoke(compileResult, funcName);
     }
@@ -108,6 +108,8 @@ public class LocksWithOnFailTest {
     public void testNegative() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/lock/lock-on-fail-negative.bal");
         int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "error binding patterns are not yet supported in " +
+                "'on fail' clauses", 39, 15);
         BAssertUtil.validateError(resultNegative, i++, "invalid error variable; expecting an " +
                 "error type but found '(SampleComplexError|SampleError)' in type definition", 39, 15);
         Assert.assertEquals(resultNegative.getErrorCount(), i);

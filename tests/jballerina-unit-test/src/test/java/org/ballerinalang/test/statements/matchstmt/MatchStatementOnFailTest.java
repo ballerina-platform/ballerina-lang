@@ -71,7 +71,7 @@ public class MatchStatementOnFailTest {
         BRunUtil.invoke(result, "testVarInMatchPatternWithinOnfail", new Object[]{});
     }
 
-    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider")
+    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider", enabled = false)
     public void testOnFailWithErrorBP(String funcName) {
         BRunUtil.invoke(result, funcName);
     }
@@ -112,6 +112,8 @@ public class MatchStatementOnFailTest {
                 "expected 'ErrorTypeA', found 'ErrorTypeB'", 59, 15);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: " +
                 "expected '(ErrorTypeA|ErrorTypeB)', found 'ErrorTypeB'", 94, 15);
+        BAssertUtil.validateError(resultNegative, i++, "error binding patterns are not yet supported in" +
+                " 'on fail' clauses", 125, 15);
         BAssertUtil.validateError(resultNegative, i++, "invalid error variable; expecting an error " +
                 "type but found '(SampleComplexError|SampleError)' in type definition", 125, 15);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
