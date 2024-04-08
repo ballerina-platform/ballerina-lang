@@ -76,15 +76,7 @@ public class XMLToRecordRequest {
         return textFieldName;
     }
 
-    public void setTextFieldName(String textFieldName) {
-        this.textFieldName = textFieldName;
-    }
-
     public boolean getIsWithNameSpace() {
         return withNameSpace;
-    }
-
-    public void setIsWithNameSpace(boolean withNameSpace) {
-        this.withNameSpace = withNameSpace;
     }
 }
