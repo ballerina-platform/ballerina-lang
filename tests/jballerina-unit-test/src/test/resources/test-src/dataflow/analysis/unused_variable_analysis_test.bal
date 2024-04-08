@@ -421,18 +421,18 @@ function f19() {
     record {@annotOne {value: n4} string x;} k2 = {x: ""}; // unused `k2`
 }
 
-type SampleError error<record {|int code; string reason;|}>;
+// type SampleError error<record {|int code; string reason;|}>;
 
-function testUnusedVariablesInErrorBindingPatternsOfOnFailClauses() {
-    int i = 2;
+// function testUnusedVariablesInErrorBindingPatternsOfOnFailClauses() {
+//     int i = 2;
 
-    while i <= 2 {
-        do {
-            fail error SampleError("error!", code = 20, reason = "deadlock condition");
-        } on fail var error(msg1, code = errCode1, reason = errReason1) {
+//     while i <= 2 {
+//         do {
+//             fail error SampleError("error!", code = 20, reason = "deadlock condition");
+//         } on fail var error(msg1, code = errCode1, reason = errReason1) {
 
-        }
-        i = i + 1;
-    } on fail SampleError error(msg2, cause, code = errCode2, reason = errReason2) {
-    }
-}
+//         }
+//         i = i + 1;
+//     } on fail SampleError error(msg2, cause, code = errCode2, reason = errReason2) {
+//     }
+// }

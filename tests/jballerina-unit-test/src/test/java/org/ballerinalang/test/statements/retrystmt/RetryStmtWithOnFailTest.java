@@ -46,7 +46,7 @@ public class RetryStmtWithOnFailTest {
         BRunUtil.invoke(programFile, "testRetryStatement", params);
     }
 
-    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider")
+    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider", enabled = false)
     public void testOnFailWithErrorBP(String funcName) {
         BRunUtil.invoke(programFile, funcName);
     }
@@ -83,6 +83,8 @@ public class RetryStmtWithOnFailTest {
                 "expected 'ErrorTypeA', found 'ErrorTypeB'", 14, 14);
         BAssertUtil.validateError(negativeFile1, index++, "incompatible types: " +
                 "expected '(ErrorTypeA|ErrorTypeB)', found 'ErrorTypeA'", 36, 12);
+        BAssertUtil.validateError(negativeFile1, index++, "error binding patterns are not yet supported in " +
+                "'on fail' clauses", 66, 15);
         BAssertUtil.validateError(negativeFile1, index++, "invalid error variable; " +
                 "expecting an error type but found '(SampleComplexError|SampleError)' in type definition", 66, 15);
         Assert.assertEquals(negativeFile1.getDiagnostics().length, index);

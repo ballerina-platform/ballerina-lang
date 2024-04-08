@@ -818,6 +818,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected"),
     INSTANTIATION_ERROR("BCE4058", "instantiation.error"),
     INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4059", "invalid.binding.pattern.in.on.fail"),
+    ERROR_BINDING_PATTERN_NOT_YET_SUPPORTED_IN_ON_FAIL("BCE4060", "error.binding.pattern.not.yet.supported.in.on.fail")
     ;
 
     private String diagnosticId;
