@@ -1008,6 +1008,54 @@ function functionWithCheckpanicInDoClause(1|2 val) returns [int, Error]? {
 }
 
 function fn(1|2 val) returns int|error => val == 1 ? 1 : error("error!");
+
+function testOnFailWithCaptureBPAgainstMultipleCheckExprs() {
+    int f1Result = f1("1");
+    assertEquality(1, f1Result);
+
+    f1Result = f1("2");
+    assertEquality(2, f1Result);
+
+    f1Result = f1("3");
+    assertEquality(3, f1Result);
+
+    f1Result = f1("4");
+    assertEquality(4, f1Result);
+}
+
+function f1(string str) returns int {
+    do {
+        check f2(str);
+        check f2(str);
+    } on fail error e {
+        string message = e.message();
+        match message {
+            "Error 1" => {
+                return 1;
+            }
+            "Error 2" => {
+                return 2;
+            }
+        }
+        return 3;
+    }
+    return 4;
+}
+
+function f2(string str) returns error? {
+    match str {
+        "1" => {
+            return error("Error 1");
+        }
+        "2" => {
+            return error("Error 2");
+        }
+        "3" => {
+            return error("Error 3");
+        }
+    }
+}
+
 //-------------------------------------------------------------------------------
 
 type AssertionError error;

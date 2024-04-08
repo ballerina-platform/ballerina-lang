@@ -52,6 +52,11 @@ public class OnFailClauseTest {
         BRunUtil.invoke(result, "testOnFailWithCheckpanicOfDifferentErrorInDoClause");
     }
 
+    @Test
+    public void testOnFailWithCaptureBPAgainstMultipleCheckExprs() {
+        BRunUtil.invoke(result, "testOnFailWithCaptureBPAgainstMultipleCheckExprs");
+    }
+
     @Test(description = "Test on-fail clause negative cases - v1")
     public void testOnFailClauseNegativeCaseV1() {
         CompileResult negativeResult = BCompileUtil.compile(
