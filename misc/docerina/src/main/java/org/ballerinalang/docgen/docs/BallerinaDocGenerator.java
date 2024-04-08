@@ -71,6 +71,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -91,6 +92,7 @@ public class BallerinaDocGenerator {
     private static final String BALLERINA_DOC_UI_ZIP_FILE_NAME = "ballerina-doc-ui.zip";
     private static final String BUILTIN_TYPES_DESCRIPTION_DIR = "builtin-types-descriptions";
     private static final String BUILTIN_KEYWORDS_DESCRIPTION_DIR = "keywords-descriptions";
+    private static final String CONTENT_TYPE = "application/json";
     private static final String DOCS_FOLDER_NAME = "docs";
     private static final String ICON_NAME = "icon.png";
     private static final String JSON_KEY_HASH_VALUE = "hashValue";
@@ -275,7 +277,8 @@ public class BallerinaDocGenerator {
                 .url(source)
                 .build();
         try (Response response = client.newCall(request).execute()) {
-            if (response.code() != HTTP_OK || response.body() == null) {
+            if (response.code() != HTTP_OK || response.body() == null ||
+                    !Objects.equals(response.header("content-type"), CONTENT_TYPE)) {
                 throw new IOException("Response failed with status code: " + response.code());
             }
             ResponseBody responseBody = response.body();
