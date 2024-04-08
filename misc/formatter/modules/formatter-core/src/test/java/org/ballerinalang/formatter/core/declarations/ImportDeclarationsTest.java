@@ -16,8 +16,8 @@
 package org.ballerinalang.formatter.core.declarations;
 
 import org.ballerinalang.formatter.core.FormatterTest;
-import org.ballerinalang.formatter.core.FormattingOptions;
-import org.ballerinalang.formatter.core.ImportFormattingOptions;
+import org.ballerinalang.formatter.core.options.FormattingOptions;
+import org.ballerinalang.formatter.core.options.ImportFormattingOptions;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 

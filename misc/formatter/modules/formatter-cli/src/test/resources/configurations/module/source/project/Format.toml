@@ -1,0 +1,14 @@
+[indent]
+indentSize = 2
+
+[wrapping]
+maxLineLength = 120
+
+[braces]
+functionBraceStyle = "NewLine"
+
+[ifStatement]
+elseOnNewLine = true
+
+[spacing]
+alignConsecutiveDefinitions = true

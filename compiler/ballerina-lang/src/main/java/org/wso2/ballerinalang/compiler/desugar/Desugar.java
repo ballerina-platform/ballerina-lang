@@ -341,6 +341,7 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createState
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariable;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariableRef;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isAssignmentToOptionalField;
 import static org.wso2.ballerinalang.compiler.util.Names.GENERATED_INIT_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
@@ -2476,15 +2477,29 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        boolean fieldAccessLVExpr = assignNode.varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR;
+        // We rewrite the varRef of the BLangAssignment to a IndexBasedAssignment if it is a FieldBasedAssignment.
+        // Therefore we must do the shouldWidenExpressionTypeWithNil check before that.
+        boolean addNilToCastingType = shouldWidenExpressionTypeWithNil(assignNode);
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
         BType castingType = assignNode.varRef.getBType();
-        if (fieldAccessLVExpr) {
+        if (addNilToCastingType) {
             castingType = types.addNilForNillableAccessType(castingType);
         }
         assignNode.expr = types.addConversionExprIfRequired(rewriteExpr(assignNode.expr), castingType);
         result = assignNode;
+    }
+
+    private static boolean shouldWidenExpressionTypeWithNil(BLangAssignment assignNode) {
+        if (!assignNode.expr.getBType().isNullable() || !isAssignmentToOptionalField(assignNode)) {
+            return false;
+        }
+        // If we are assigning to an optional field we have a field based access on a record
+        BLangFieldBasedAccess fieldAccessNode = (BLangFieldBasedAccess) assignNode.varRef;
+        BRecordType recordType = (BRecordType) Types.getImpliedType(fieldAccessNode.expr.getBType());
+        BField field = recordType.fields.get(fieldAccessNode.field.value);
+        BType fieldType = Types.getImpliedType(field.getType());
+        return TypeTags.isSimpleBasicType(fieldType.tag);
     }
 
     @Override

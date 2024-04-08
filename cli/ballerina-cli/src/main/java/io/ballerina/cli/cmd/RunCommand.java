@@ -86,6 +86,10 @@ public class RunCommand implements BLauncherCmd {
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
 
+    @CommandLine.Option(names = "--remote-management", description = "enable management service in the " +
+            "executable when run is used with a source file or a module.")
+    private Boolean remoteManagement;
+
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
@@ -282,6 +286,7 @@ public class RunCommand implements BLauncherCmd {
                 .setSkipTests(true)
                 .setTestReport(false)
                 .setObservabilityIncluded(observabilityIncluded)
+                .setRemoteManagement(remoteManagement)
                 .setSticky(sticky)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)

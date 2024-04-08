@@ -25,7 +25,9 @@ import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
@@ -1186,7 +1188,7 @@ public class CommandUtil {
         if (packageCompilation.getResolution().diagnosticResult().hasErrors()) {
             return true;
         }
-        if (!hasProvidedPlatformDeps(packageCompilation)) {
+        if (!hasProvidedPlatformDeps(balaProject.currentPackage())) {
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
             Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
             if (!backendDiagnostics.isEmpty()) {
@@ -1204,7 +1206,15 @@ public class CommandUtil {
         }
     }
 
-    private static boolean hasProvidedPlatformDeps(PackageCompilation packageCompilation) {
+    private static boolean hasProvidedPlatformDeps(Package pkg) {
+        for (PackageManifest.Platform platform: pkg.manifest().platforms().values()) {
+            for (Map<String, Object> dependency: platform.dependencies()) {
+                if (PlatformLibraryScope.PROVIDED.getStringValue().equals(dependency.get("scope"))) {
+                    return true;
+                }
+            }
+        }
+        PackageCompilation packageCompilation = pkg.getCompilation();
         Set<Object> providedDeps = new HashSet<>();
         packageCompilation.getResolution().allDependencies()
                 .stream()
@@ -1213,7 +1223,7 @@ public class CommandUtil {
                 .flatMap(pkgManifest -> pkgManifest.platforms().values().stream())
                 .filter(Objects::nonNull)
                 .flatMap(pkgPlatform -> pkgPlatform.dependencies().stream())
-                .filter(dependency -> "provided".equals(dependency.get("scope")))
+                .filter(dependency -> PlatformLibraryScope.PROVIDED.equals(dependency.get("scope")))
                 .forEach(providedDeps::add);
 
         return !providedDeps.isEmpty();

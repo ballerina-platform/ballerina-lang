@@ -120,6 +120,10 @@ public class CommandConstants {
 
     public static final String CHANGE_PARAM_TYPE_TITLE = "Change parameter '%s' type to '%s'";
 
+    public static final String ADD_PRIVATE_QUALIFIER = "Add private qualifier";
+
+    public static final String MAKE_VARIABLE_IMMUTABLE = "Add %s to the variable";
+
     public static final String CREATE_VAR_TYPE_GUARD_TITLE = "Create variable and type guard";
 
     public static final String TYPE_GUARD_TITLE = "Type guard variable '%s'";
@@ -153,6 +157,8 @@ public class CommandConstants {
     public static final String CREATE_ON_FAIL_CLAUSE = "Create on fail clause";
 
     public static final String SURROUND_WITH_DO_ON_FAIL = "Surround with do/on-fail";
+
+    public static final String SURROUND_WITH_LOCK = "Surround with lock";
 
     public static final String CONVERT_MODULE_VAR_TO_LISTENER_DECLARATION =
             "Convert module variable '%s' to listener declaration";

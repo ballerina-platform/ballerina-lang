@@ -119,6 +119,14 @@ public class IsolationAnalysisTest {
     }
 
     @Test
+    public void testIsolationAnalysisForAsyncActions() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/isolation-analysis/isolation_analysis_for_async_actions.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        Assert.assertEquals(result.getWarnCount(), 0);
+    }
+
+    @Test
     public void testIsolatedFunctionsSemanticNegative() {
         CompileResult result =
                 BCompileUtil.compile("test-src/isolation-analysis/isolation_analysis_semantic_negative.bal");
