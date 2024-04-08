@@ -4414,6 +4414,55 @@ function testTableToJsonConversion() {
                                 "\"c\":\"xyz\"}, {\"a\":5, \"b\":{\"x\":[45.6, \"asd\"]}, \"d\":10.0, \"e\":12.5}]");
 }
 
+type Basic record {|
+    int id?;
+|};
+
+type PersonRec record {|
+    string name;
+    int age?;
+    Basic ...;
+|};
+
+type StudentRec record {|
+    *PersonRec;
+    int studentId;
+    string code?;
+|};
+
+type PartTimeStudent record {|
+    *PersonRec;
+    string:Char code?;
+    StudentRec s;
+|};
+
+type StudentResearcher record {|
+    *PersonRec;
+    string code?;
+|};
+
+type StudentTutor record {|
+    *PersonRec;
+|};
+
+type S StudentTutor|StudentResearcher|PartTimeStudent;
+
+function testCloneWithTypeWithUnionOfRecordsWithTypeInclusion() returns error? {
+    json student = {
+        name: "Anne",
+        code: "A",
+        s: {
+            name: "Anne",
+            studentId: 1001
+        }
+    };
+    S s = check student.cloneWithType();
+    assertTrue(s is PartTimeStudent);
+    assertFalse(s is StudentResearcher);
+    assertFalse(s is StudentTutor);
+    assert(s.toString(), "{\"code\":\"A\",\"s\":{\"studentId\":1001,\"name\":\"Anne\"},\"name\":\"Anne\"}");
+}
+
 ///////////////////////// Tests for `ensureType()` ///////////////////////////
 
 json p = {
