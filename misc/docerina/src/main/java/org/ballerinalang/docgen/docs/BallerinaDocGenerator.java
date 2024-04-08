@@ -307,10 +307,19 @@ public class BallerinaDocGenerator {
                 copyDocUIToProjectDir(output, zipFilePath);
             } else {
                 File sourceDir = Path.of(System.getProperty("ballerina.home"), "lib", "tools", "doc-ui").toFile();
-                try {
-                    FileUtils.copyDirectory(sourceDir, output.toFile());
-                } catch (IOException ex) {
-                    log.error("Failed to copy the API doc UI", ex);
+                if (sourceDir.exists()) {
+                    try {
+                        FileUtils.copyDirectory(sourceDir, output.toFile());
+                    } catch (IOException ex) {
+                        log.error("Failed to copy the API doc UI", ex);
+                    }
+                } else {
+                    try {
+                        FileUtils.copyInputStreamToFile(BallerinaDocGenerator.class
+                                .getResourceAsStream("/doc-ui/index.html"), output.resolve("index.html").toFile());
+                    } catch (IOException ex) {
+                        log.error("Failed to copy the API doc UI", ex);
+                    }
                 }
             }
         } finally {
