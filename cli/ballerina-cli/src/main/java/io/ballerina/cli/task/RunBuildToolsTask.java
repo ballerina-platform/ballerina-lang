@@ -322,7 +322,7 @@ public class RunBuildToolsTask implements Task {
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
                 RepoUtils.getBallerinaVersion(), false);
         boolean isPulled = Boolean.parseBoolean(toolInfo[0]);

@@ -234,7 +234,7 @@ public class PushCommand implements BLauncherCmd {
                         settings.getProxy().password(), getAccessTokenOfCLI(settings),
                         settings.getCentral().getConnectTimeout(),
                         settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                        settings.getCentral().getCallTimeout());
+                        settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
                 if (balaPath == null) {
                     pushPackage(project, client);
                 } else {
