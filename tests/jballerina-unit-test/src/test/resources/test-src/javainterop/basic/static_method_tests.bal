@@ -508,12 +508,20 @@ public isolated client class ClientObj {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
 
-    resource isolated function get albums/[int id](string s, Person person, typedesc<any> targetType = <>) returns
+    resource isolated function get albums/[int id](Person person, string s, typedesc<any> targetType = <>) returns
                                                                                     targetType|error = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
         name: "getResource",
         paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
                                     "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
+    } external;
+
+    resource isolated function get albums(Person person, string s, typedesc<any> targetType = <>) returns
+                                                                                    targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResource",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
+                                                                            "io.ballerina.runtime.api.values.BArray"]
     } external;
 }
 
@@ -535,6 +543,8 @@ public function testBundleFuncArgsToBArray() returns error? {
     test:assertEquals(res, 5);
     res = cl.getResourceMethod(isolated service object {}, ["orderitem", "1234", "abcd"]);
     test:assertEquals(res, 1000);
-    res = check cl->/albums/[1]("123", new Person(29));
+    res = check cl->/albums/[1](new Person(29), "123");
     test:assertEquals(res, 5);
+    res = check cl->/albums(new Person(29), "123");
+    test:assertEquals(res, 10);
 }
