@@ -172,7 +172,7 @@ public class SemTypeResolver {
         if (td.defn != null) {
             return td.defn.getSemType(cx.env);
         }
-        FunctionDefinition fd = new FunctionDefinition(cx.env);
+        FunctionDefinition fd = new FunctionDefinition();
         td.defn = fd;
         List<SemType> params =
                 td.params.stream().map(param -> resolveTypeDesc(cx, mod, defn, depth + 1, param.typeNode))

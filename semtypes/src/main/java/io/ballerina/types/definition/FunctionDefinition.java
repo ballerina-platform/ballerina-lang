@@ -17,40 +17,56 @@
  */
 package io.ballerina.types.definition;
 
+import io.ballerina.types.Atom;
 import io.ballerina.types.BasicTypeCode;
+import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Definition;
 import io.ballerina.types.Env;
 import io.ballerina.types.FunctionAtomicType;
-import io.ballerina.types.PredefinedType;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
-import io.ballerina.types.typeops.BddCommonOps;
+import io.ballerina.types.subtypedata.BddNode;
+
+import static io.ballerina.types.PredefinedType.basicSubtype;
+import static io.ballerina.types.typeops.BddCommonOps.bddAtom;
 
 /**
  * Represent function type desc.
  *
  * @since 2201.8.0
  */
-public class FunctionDefinition implements Definition {
+public final class FunctionDefinition implements Definition {
 
-    private RecAtom atom;
+    private RecAtom rec;
     private SemType semType;
-
-    // TODO: this shouldn't take env as an argument
-    public FunctionDefinition(Env env) {
-        FunctionAtomicType dummy = FunctionAtomicType.from(PredefinedType.NEVER, PredefinedType.NEVER);
-        this.atom = env.recFunctionAtom();
-        this.semType = PredefinedType.basicSubtype(BasicTypeCode.BT_FUNCTION, BddCommonOps.bddAtom(this.atom));
-    }
 
     @Override
     public SemType getSemType(Env env) {
-        return this.semType;
+        if (semType != null) {
+            return semType;
+        }
+        RecAtom rec = env.recFunctionAtom();
+        this.rec = rec;
+        return this.createSemType(rec);
+    }
+
+    private SemType createSemType(Atom rec) {
+        BddNode bdd = bddAtom(rec);
+        ComplexSemType s = basicSubtype(BasicTypeCode.BT_FUNCTION, bdd);
+        this.semType = s;
+        return s;
     }
 
     public SemType define(Env env, SemType args, SemType ret) {
-        FunctionAtomicType t = FunctionAtomicType.from(args, ret);
-        env.setRecFunctionAtomType(this.atom, t);
-        return this.semType;
+        FunctionAtomicType atomicType = FunctionAtomicType.from(args, ret);
+        Atom atom;
+        RecAtom rec = this.rec;
+        if (rec != null) {
+            atom = rec;
+            env.setRecFunctionAtomType(rec, atomicType);
+        } else {
+            atom = env.functionAtom(atomicType);
+        }
+        return this.createSemType(atom);
     }
 }

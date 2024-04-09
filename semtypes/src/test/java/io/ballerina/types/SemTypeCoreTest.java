@@ -203,7 +203,7 @@ public class SemTypeCoreTest {
     }
 
     private SemType func(Env env, SemType args, SemType ret) {
-        FunctionDefinition def = new FunctionDefinition(env);
+        FunctionDefinition def = new FunctionDefinition();
         return def.define(env, args, ret);
     }
 
