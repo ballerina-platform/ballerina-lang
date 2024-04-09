@@ -237,7 +237,7 @@ public class BuildToolResolution {
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout());
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
         String supportedPlatform = Arrays.stream(JvmTarget.values())
                 .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
