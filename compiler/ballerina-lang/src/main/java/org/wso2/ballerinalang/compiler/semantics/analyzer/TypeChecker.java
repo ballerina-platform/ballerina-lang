@@ -2738,7 +2738,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private void determineDefaultValues(Map<String, BType> typesOfDefaultValues, BRecordType mutableType,
                                         AnalyzerData data) {
-        if (mutableType.tsymbol == null || mutableType.tsymbol.pkgID == PackageID.DEFAULT) {
+        if (mutableType.tsymbol == null || mutableType.tsymbol.pkgID == data.env.enclPkg.packageID) {
             // TODO: Eliminate the need for this logic by addressing the issue identified in #41764.
             findDefaultValuesFromEnclosingPackage(data.env.enclPkg.typeDefinitions, mutableType, data,
                                                   typesOfDefaultValues);
