@@ -169,16 +169,24 @@ public class JarResolver {
                     packageContext.packageId(), packageContext.moduleContext(moduleId).moduleName());
             libraryPaths.add(new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext)));
 
-            PlatformLibrary generatedOptimizedLibrary = jBalBackend.codeGeneratedOptimizedLibrary(
-                    packageContext.packageId(), moduleContext.moduleName());
-            for (PackageID duplicatePkgID : JvmCodeGenUtil.duplicatePkgsMap.values()) {
-                if (duplicatePkgID.getName().value.equals(moduleId.moduleName())) {
-                    Path duplicatePath = Paths.get(
-                            generatedOptimizedLibrary.path().toAbsolutePath().toString().replace(".jar", "_OPTIMIZED.jar"));
-                    libraryPaths.add(new JarLibrary(duplicatePath, scope, getPackageName(packageContext)));
-                    duplicateJarPaths.add(duplicatePath);
-                    break;
-                }
+            if (!duplicateJarPaths.isEmpty()) {
+                addOptimizedLibraryPaths(packageContext, scope, libraryPaths, moduleContext, moduleId);
+            }
+        }
+    }
+
+    private void addOptimizedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
+                                          Set<JarLibrary> libraryPaths, ModuleContext moduleContext,
+                                          ModuleId moduleId) {
+        PlatformLibrary generatedOptimizedLibrary = jBalBackend.codeGeneratedOptimizedLibrary(
+                packageContext.packageId(), moduleContext.moduleName());
+        for (PackageID duplicatePkgID : JvmCodeGenUtil.duplicatePkgsMap.values()) {
+            if (duplicatePkgID.getName().value.equals(moduleId.moduleName())) {
+                Path duplicatePath = Paths.get(
+                        generatedOptimizedLibrary.path().toAbsolutePath().toString().replace(".jar", "_OPTIMIZED.jar"));
+                libraryPaths.add(new JarLibrary(duplicatePath, scope, getPackageName(packageContext)));
+                duplicateJarPaths.add(duplicatePath);
+                break;
             }
         }
     }
