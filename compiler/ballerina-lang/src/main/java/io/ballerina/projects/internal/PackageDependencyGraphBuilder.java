@@ -104,15 +104,16 @@ public class PackageDependencyGraphBuilder {
         // Add the correct version of the dependent to the graph.
         Vertex dependentVertex = new Vertex(node.org(), node.name());
         return addNewVertex(dependentVertex,
-                new DependencyNode(node, scope, dependencyResolvedType, true), false);
+                new DependencyNode(node, scope, dependencyResolvedType, true, false), false);
     }
 
     public NodeStatus addUnresolvedDependency(PackageDescriptor dependent,
                                               PackageDescriptor dependency,
                                               PackageDependencyScope dependencyScope,
-                                              DependencyResolutionType dependencyResolvedType) {
+                                              DependencyResolutionType dependencyResolvedType,
+                                              boolean isNewSubGraph) {
         return addDependencyInternal(dependent,
-                new DependencyNode(dependency, dependencyScope, dependencyResolvedType),
+                new DependencyNode(dependency, dependencyScope, dependencyResolvedType, false, isNewSubGraph),
                 true);
     }
 
@@ -121,16 +122,17 @@ public class PackageDependencyGraphBuilder {
                                               PackageDependencyScope dependencyScope,
                                               DependencyResolutionType dependencyResolvedType) {
         return addDependencyInternal(dependent,
-                new DependencyNode(dependency, dependencyScope, dependencyResolvedType, true),
+                new DependencyNode(dependency, dependencyScope, dependencyResolvedType, true, false),
                 false);
     }
 
     public NodeStatus addResolvedDependency(PackageDescriptor dependent,
                                             PackageDescriptor dependency,
                                             PackageDependencyScope dependencyScope,
-                                            DependencyResolutionType dependencyResolvedType) {
+                                            DependencyResolutionType dependencyResolvedType,
+                                            boolean isNewSubGraph) {
         return addDependencyInternal(dependent,
-                new DependencyNode(dependency, dependencyScope, dependencyResolvedType),
+                new DependencyNode(dependency, dependencyScope, dependencyResolvedType, false, isNewSubGraph),
                 false);
     }
 
@@ -293,7 +295,8 @@ public class PackageDependencyGraphBuilder {
                         existingPkgDep.pkgDesc(),
                         existingPkgDep.scope(),
                         existingPkgDep.resolutionType(),
-                        true);
+                        true,
+                        false);
                 nodeStatus = NodeStatus.ACCEPTED;
             } else {
                 // If the existing dependency scope is DEFAULT, use it. Otherwise use the new dependency scope.
@@ -308,7 +311,11 @@ public class PackageDependencyGraphBuilder {
                                 DependencyResolutionType.SOURCE :
                                 newPkgDep.resolutionType();
 
-                resolvedPkgDep = new DependencyNode(resolvedPkgDesc, depScope, resolutionType);
+                // If existing or new dependency belongs to a new sub-graph, mark the new dependency as belonging to a
+                // new sub-graph.
+                boolean isNewSubGraph = existingPkgDep.isNewSubGraph() || newPkgDep.isNewSubGraph();
+
+                resolvedPkgDep = new DependencyNode(resolvedPkgDesc, depScope, resolutionType, false, isNewSubGraph);
                 nodeStatus = getNodeStatus(vertex, existingPkgDep, newPkgDep, unresolved);
             }
         }

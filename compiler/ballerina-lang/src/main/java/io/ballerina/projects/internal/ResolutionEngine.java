@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Responsible for creating the dependency graph with automatic version updates.
@@ -74,7 +73,6 @@ public class ResolutionEngine {
         this.packageResolver = packageResolver;
         this.moduleResolver = moduleResolver;
         this.resolutionOptions = resolutionOptions;
-
         this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
         this.diagnostics = new ArrayList<>();
         this.dependencyGraphDump = "";
@@ -120,8 +118,10 @@ public class ResolutionEngine {
             PackageVersion depVersion;
             String repository;
             boolean errorNode = false;
+            boolean isNewSubGraph = false;
             PackageDescriptor depPkgDesc = directPkgDependency.pkgDesc();
             if (directPkgDependency.dependencyKind() == ModuleResolver.DirectPackageDependencyKind.NEW) {
+                isNewSubGraph = true;
                 // This blendedDep may be resolved from the local repository as well.
                 Optional<BlendedManifest.Dependency> blendedDepOptional = blendedManifest.dependency(
                         depPkgDesc.org(), depPkgDesc.name());
@@ -155,15 +155,14 @@ public class ResolutionEngine {
             }
             directDeps.add(new ResolutionEngine.DependencyNode(
                     PackageDescriptor.from(depPkgDesc.org(), depPkgDesc.name(), depVersion, repository),
-                    directPkgDependency.scope(), directPkgDependency.resolutionType(), errorNode));
+                    directPkgDependency.scope(), directPkgDependency.resolutionType(), errorNode, isNewSubGraph));
         }
 
         return directDeps;
     }
 
     private void populateStaticDependencyGraph(Collection<DependencyNode> directDependencies) {
-        List<DependencyNode> errorNodes = directDependencies.stream()
-                .filter(DependencyNode::errorNode).collect(Collectors.toList());
+        List<DependencyNode> errorNodes = directDependencies.stream().filter(DependencyNode::errorNode).toList();
         for (DependencyNode errorNode : errorNodes) {
             graphBuilder.addErroneousDependency(
                     rootPkgDesc, errorNode.pkgDesc, errorNode.scope, errorNode.resolutionType);
@@ -174,35 +173,38 @@ public class ResolutionEngine {
         this.unresolvedDeps = new HashSet<>();
         Set<DependencyNode> resolvedDeps = new HashSet<>();
         for (PackageMetadataResponse resolutionResp : pkgMetadataResponses) {
+            ResolutionRequest resolutionRequest = resolutionResp.packageLoadRequest();
+            DependencyResolutionType resolutionType = resolutionRequest.resolutionType();
+            PackageDependencyScope scope = resolutionRequest.scope();
+            boolean isNewSubGraph = directDependencies.stream().filter(dep -> dep.pkgDesc().org().equals(
+                    resolutionRequest.packageDescriptor().org()) && dep.pkgDesc().name().equals(
+                            resolutionRequest.packageDescriptor().name()))
+                    .findFirst()
+                    .map(DependencyNode::isNewSubGraph)
+                    .orElse(false);
             if (resolutionResp.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
                 // TODO Report diagnostics
                 if (resolutionOptions.dumpRawGraphs() || resolutionOptions.dumpGraph()) {
-                    ResolutionRequest resolutionRequest = resolutionResp.packageLoadRequest();
                     DependencyNode dependencyNode = new DependencyNode(
-                            resolutionRequest.packageDescriptor(),
-                            resolutionRequest.scope(),
-                            resolutionRequest.resolutionType());
+                            resolutionRequest.packageDescriptor(), scope, resolutionType, false, isNewSubGraph);
                     unresolvedDeps.add(dependencyNode);
                     graphBuilder.addUnresolvedDirectDepToRawGraph(dependencyNode);
                 }
                 continue;
             }
-            ResolutionRequest resolutionReq = resolutionResp.packageLoadRequest();
             PackageDescriptor resolvedPkgDesc = resolutionResp.resolvedDescriptor();
-            DependencyResolutionType resolutionType = resolutionReq.resolutionType();
-            PackageDependencyScope scope = resolutionReq.scope();
 
             // Merge the dependency graph only if the node is accepted by the graphBuilder
             NodeStatus nodeStatus = graphBuilder.addResolvedDependency(rootPkgDesc,
-                    resolvedPkgDesc, scope, resolutionType);
+                    resolvedPkgDesc, scope, resolutionType, isNewSubGraph);
             if (nodeStatus == NodeStatus.ACCEPTED) {
                 mergeGraph(resolvedPkgDesc,
                         resolutionResp.dependencyGraph().orElseThrow(
                                 () -> new IllegalStateException("Graph cannot be null in the resolved dependency: " +
-                                        resolvedPkgDesc.toString())),
-                        scope, resolutionType);
+                                        resolvedPkgDesc)),
+                        scope, resolutionType, isNewSubGraph);
             }
-            resolvedDeps.add(new DependencyNode(resolvedPkgDesc, scope, resolutionType));
+            resolvedDeps.add(new DependencyNode(resolvedPkgDesc, scope, resolutionType, false, isNewSubGraph));
         }
         if (resolutionOptions.dumpRawGraphs() || resolutionOptions.dumpGraph()) {
             HashSet<DependencyNode> unresolvedNodes = new HashSet<>(graphBuilder.getAllDependencies());
@@ -239,6 +241,11 @@ public class ResolutionEngine {
                 if (dependency.isPresent() && (dependency.get().isFromLocalRepository() ||
                         dependency.get().isFromCustomRepository())) {
                     lockingMode = PackageLockingMode.HARD;
+                } else if (!resolutionOptions.sticky()) {
+                    // If the direct dependency was not a dependency in the previous build,
+                    // we should allow it to be resolved to the latest compatible version.
+                    // However, if the user has explicitly given `sticky` flag, we should stick with HARD locking mode.
+                    lockingMode = PackageLockingMode.SOFT;
                 }
             }
             resolutionRequests.add(ResolutionRequest.from(pkgDesc, directDependency.scope(),
@@ -251,7 +258,7 @@ public class ResolutionEngine {
     private void mergeGraph(PackageDescriptor rootNode,
                             DependencyGraph<PackageDescriptor> dependencyGraph,
                             PackageDependencyScope scope,
-                            DependencyResolutionType resolutionType) {
+                            DependencyResolutionType resolutionType, boolean isNewSubGraph) {
         Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
         for (PackageDescriptor directDep : directDependencies) {
             NodeStatus nodeStatus;
@@ -262,15 +269,17 @@ public class ResolutionEngine {
                 // we need to always get the dependency graph of built-in packages from the current distribution
                 dependencyGraphFinal = getBuiltInPkgDescDepGraph(scope, directDep);
                 // Builtin package versions are always resolved
-                nodeStatus = graphBuilder.addResolvedDependency(rootNode, directDep, scope, resolutionType);
+                nodeStatus = graphBuilder.addResolvedDependency(
+                        rootNode, directDep, scope, resolutionType, isNewSubGraph);
             } else {
                 dependencyGraphFinal = dependencyGraph;
-                nodeStatus = graphBuilder.addUnresolvedDependency(rootNode, directDep, scope, resolutionType);
+                nodeStatus = graphBuilder.addUnresolvedDependency(
+                        rootNode, directDep, scope, resolutionType, isNewSubGraph);
             }
 
             // Merge the dependency graph only if the node is accepted by the graphBuilder
             if (nodeStatus == NodeStatus.ACCEPTED) {
-                mergeGraph(directDep, dependencyGraphFinal, scope, resolutionType);
+                mergeGraph(directDep, dependencyGraphFinal, scope, resolutionType, isNewSubGraph);
             }
         }
     }
@@ -318,7 +327,8 @@ public class ResolutionEngine {
                         unresolvedNode.pkgDesc,
                         unresolvedNode.scope,
                         unresolvedNode.resolutionType,
-                        true));
+                        true,
+                        false));
                 continue;
             }
             unresolvedRequests.add(resolutionRequest);
@@ -354,9 +364,21 @@ public class ResolutionEngine {
      */
     private ResolutionRequest getRequestForUnresolvedNode(DependencyNode unresolvedNode,
                                                           BlendedManifest.Dependency blendedDep) {
+        // 1. We use the global locking mode by default.
+        // 2. If the sticky flag is enabled or if the dependency isfrom the local repository,
+        //  we use HARD locking mode.
+        // 3. If the dependency is in a sub-graph of a newly added direct dependency, locking mode is SOFT.
+        PackageLockingMode lockingMode = resolutionOptions.packageLockingMode();
+        if (resolutionOptions.sticky()) {
+            lockingMode = PackageLockingMode.HARD;
+        } else if (blendedDep != null && (blendedDep.isFromLocalRepository() || blendedDep.isFromCustomRepository())) {
+            lockingMode = PackageLockingMode.HARD;
+        } else if (unresolvedNode.isNewSubGraph) {
+            lockingMode = PackageLockingMode.SOFT;
+        }
         if (blendedDep == null) {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
-                    unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode());
+                    unresolvedNode.resolutionType(), lockingMode);
         }
 
         if (blendedDep.isError()) {
@@ -370,15 +392,13 @@ public class ResolutionEngine {
                 unresolvedNode.pkgDesc().version());
         if (versionCompResult == VersionCompatibilityResult.GREATER_THAN ||
                 versionCompResult == VersionCompatibilityResult.EQUAL) {
-            PackageLockingMode lockingMode = resolutionOptions.sticky() || blendedDep.isFromLocalRepository() ?
-                    PackageLockingMode.HARD : resolutionOptions.packageLockingMode();
             PackageDescriptor blendedDepPkgDesc = PackageDescriptor.from(blendedDep.org(), blendedDep.name(),
                     blendedDep.version(), blendedDep.repository());
             return ResolutionRequest.from(blendedDepPkgDesc, unresolvedNode.scope(),
                     unresolvedNode.resolutionType(), lockingMode);
         } else if (versionCompResult == VersionCompatibilityResult.LESS_THAN) {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
-                    unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode());
+                    unresolvedNode.resolutionType(), lockingMode);
         } else {
             // Blended Dep version is incompatible with the unresolved node.
             // We report a diagnostic and return null.
@@ -461,9 +481,8 @@ public class ResolutionEngine {
         NodeStatus nodeStatus = graphBuilder.addResolvedNode(pkgDesc, scope, resolvedType);
         if (nodeStatus == NodeStatus.ACCEPTED) {
             mergeGraph(pkgDesc, resolutionResp.dependencyGraph().orElseThrow(
-                    () -> new IllegalStateException("Graph cannot be null in the resolved dependency: " +
-                            pkgDesc.toString())),
-                    scope, resolvedType);
+                    () -> new IllegalStateException("Graph cannot be null in the resolved dependency: " + pkgDesc)),
+                    scope, resolvedType, false);
         }
 
         // Remove from the unresolved nodes list for dumping the raw graph
@@ -540,6 +559,7 @@ public class ResolutionEngine {
         private final PackageDependencyScope scope;
         private final DependencyResolutionType resolutionType;
         private final boolean isError;
+        private final boolean isNewSubGraph;
 
         public DependencyNode(PackageDescriptor pkgDesc,
                               PackageDependencyScope scope,
@@ -548,16 +568,19 @@ public class ResolutionEngine {
             this.scope = Objects.requireNonNull(scope);
             this.resolutionType = Objects.requireNonNull(resolutionType);
             this.isError = false;
+            this.isNewSubGraph = false;
         }
 
         public DependencyNode(PackageDescriptor pkgDesc,
                               PackageDependencyScope scope,
                               DependencyResolutionType resolutionType,
-                              boolean errorNode) {
+                              boolean errorNode,
+                              boolean isNewGraph) {
             this.pkgDesc = Objects.requireNonNull(pkgDesc);
             this.scope = Objects.requireNonNull(scope);
             this.resolutionType = Objects.requireNonNull(resolutionType);
             this.isError = errorNode;
+            this.isNewSubGraph = isNewGraph;
         }
 
         public DependencyNode(PackageDescriptor pkgDesc) {
@@ -578,6 +601,10 @@ public class ResolutionEngine {
 
         public boolean errorNode() {
             return isError;
+        }
+
+        public boolean isNewSubGraph() {
+            return isNewSubGraph;
         }
 
         @Override
