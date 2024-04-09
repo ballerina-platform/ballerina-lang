@@ -36,6 +36,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -43,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -244,8 +246,11 @@ class JMethodResolver {
         int count = paramTypes.length;
         int reducedParamCount = jMethodRequest.pathParamCount + 1;
         int functionParamCount = jMethodRequest.bFuncParamCount - jMethodRequest.pathParamCount;
+        // TODO: Remove 'Symbols.isFlagOn(jMethodRequest.bParamTypes[0].flags, Flags.SERVICE)' check after fixing
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/42456.
         if (jMethodRequest.receiverType == null || functionParamCount < 1
-                || count < reducedParamCount || count > reducedParamCount + 2) {
+                || count < reducedParamCount || count > reducedParamCount + 2
+                || Symbols.isFlagOn(jMethodRequest.bParamTypes[0].flags, Flags.SERVICE)) {
             return false;
         }
         if (!isParamAssignableToBArray(paramTypes[count - 1])
