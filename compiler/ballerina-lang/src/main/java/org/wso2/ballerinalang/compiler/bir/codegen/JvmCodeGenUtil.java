@@ -160,8 +160,8 @@ public final class JvmCodeGenUtil {
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
-    public static Boolean isDuplicateCodegen = false;
-    public static Boolean isTestablePkgCodeGen = false;
+    public static Boolean isOptimizedCodegen = false;
+    public static Boolean isRootPkgCodeGen = false;
     public static HashMap<String, PackageID> duplicatePkgsMap = new HashMap<>();
     public static Boolean dontAddDuplicatePrefix = false;
 
@@ -310,22 +310,20 @@ public final class JvmCodeGenUtil {
             packageName = orgName + separator + packageName;
         }
 
-        if (isDuplicateReferenceInsideDuplicate(packageID) || isDuplicateReferenceInsideTestablePkg(packageID)) {
-            if (!dontAddDuplicatePrefix) {
-                packageName = "DUPLICATE_" + packageName;
-            }
+        if (isOptimizedReferenceInsideOptimizedPkg(packageID) || isOptimizedReferenceInsideRootPkg(packageID)) {
+            packageName = "OPTIMIZED_" + packageName;
         }
 
         return packageName;
     }
 
-    private static Boolean isDuplicateReferenceInsideTestablePkg(PackageID referencePkgID) {
-        return isTestablePkgCodeGen && duplicatePkgsMap
+    private static Boolean isOptimizedReferenceInsideRootPkg(PackageID referencePkgID) {
+        return isRootPkgCodeGen && duplicatePkgsMap
                 .containsKey(referencePkgID.orgName + referencePkgID.getNameComps().toString());
     }
 
-    private static Boolean isDuplicateReferenceInsideDuplicate(PackageID referencePkgID) {
-        return isDuplicateCodegen && duplicatePkgsMap
+    private static Boolean isOptimizedReferenceInsideOptimizedPkg(PackageID referencePkgID) {
+        return isOptimizedCodegen && duplicatePkgsMap
                 .containsKey(referencePkgID.orgName + referencePkgID.getNameComps().toString());
     }
 

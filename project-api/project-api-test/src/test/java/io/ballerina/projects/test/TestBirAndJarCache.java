@@ -164,10 +164,9 @@ public class TestBirAndJarCache {
         }
 
         @Override
-        public void cachePlatformSpecificLibrary(CompilerBackend compilerBackend,
-                                                 String libraryName,
-                                                 ByteArrayOutputStream libraryContent) {
-            super.cachePlatformSpecificLibrary(compilerBackend, libraryName, libraryContent);
+        public void cachePlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName,
+                                                 ByteArrayOutputStream libraryContent, boolean isOptimizedLibrary) {
+            super.cachePlatformSpecificLibrary(compilerBackend, libraryName, libraryContent, isOptimizedLibrary);
             jarCachedCount++;
         }
     }
