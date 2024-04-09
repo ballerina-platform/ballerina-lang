@@ -158,7 +158,7 @@ public class DiagnosticAnnotation {
     }
 
     protected static TruncateResult truncate(String line, int maxLength, int diagnosticStart, int diagnosticLength) {
-        if (line.length() < maxLength - 3) {
+        if (line.length() <= maxLength) {
             return new TruncateResult(line, diagnosticStart, diagnosticLength);
         }
 

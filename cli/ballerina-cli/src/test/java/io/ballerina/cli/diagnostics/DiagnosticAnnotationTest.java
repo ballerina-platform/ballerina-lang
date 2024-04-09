@@ -36,6 +36,7 @@ public class DiagnosticAnnotationTest {
         int importantPartStart = 15;
         int importantPartLength = 7;
         Map<Integer, String> truncatedLines = new HashMap<>();
+        truncatedLines.put(49, "This is a long message that needs to be truncated");
         truncatedLines.put(30, "This is a long message that...");
         truncatedLines.put(25, "This is a long message...");
         truncatedLines.put(20, "...ong message th...");
@@ -44,7 +45,7 @@ public class DiagnosticAnnotationTest {
         truncatedLines.put(5, "......");
         truncatedLines.put(0, "......");
 
-        int[] lengths = {30, 25, 20, 13, 10, 5, 0};
+        int[] lengths = {49, 30, 25, 20, 13, 10, 5, 0};
         for (int length : lengths) {
             DiagnosticAnnotation.TruncateResult truncatedMessage =
                     DiagnosticAnnotation.truncate(message, length, importantPartStart, importantPartLength);

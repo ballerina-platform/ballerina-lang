@@ -71,7 +71,7 @@ public class AnnotateDiagnostics {
                                 document, packageDiagnostic, diagnosticCodeNumber, terminalWidth, colorEnabled));
             }
         }
-        DiagnosticAnnotation diagnosticAnnotation = getDiagnosticLineFromSyntaxAPI(
+        DiagnosticAnnotation diagnosticAnnotation = getDiagnosticAnnotation(
                 document, diagnostic.location(), diagnostic.diagnosticInfo().severity(), terminalWidth, colorEnabled);
         return Ansi.ansi().render(diagnosticToString(diagnostic, colorEnabled) + NEW_LINE + diagnosticAnnotation);
 
@@ -124,9 +124,9 @@ public class AnnotateDiagnostics {
         return String.format(formatString, severityString, message, code != null ? code : "");
     }
 
-    private static DiagnosticAnnotation getDiagnosticLineFromSyntaxAPI(Document document, Location location,
-                                                                       DiagnosticSeverity severity, int terminalWidth,
-                                                                       boolean colorEnabled) {
+    private static DiagnosticAnnotation getDiagnosticAnnotation(Document document, Location location,
+                                                                DiagnosticSeverity severity, int terminalWidth,
+                                                                boolean colorEnabled) {
         TextDocument textDocument = document.textDocument();
         LocationDetails locationDetails = getLocationDetails(location);
         boolean isMultiline = locationDetails.startLine != locationDetails.endLine;
@@ -163,7 +163,7 @@ public class AnnotateDiagnostics {
         if (diagnosticCode == INVALID_TOKEN_CODE) {
             return getInvalidTokenAnnotation(textDocument, locationDetails, color, colorEnabled, terminalWidth);
         }
-        return getDiagnosticLineFromSyntaxAPI(document, location, DiagnosticSeverity.ERROR, terminalWidth,
+        return getDiagnosticAnnotation(document, location, DiagnosticSeverity.ERROR, terminalWidth,
                 colorEnabled);
     }
 
