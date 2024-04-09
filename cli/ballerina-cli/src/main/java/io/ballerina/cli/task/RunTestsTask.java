@@ -293,46 +293,8 @@ public class RunTestsTask implements Task {
 
         // Cleanup temp cache for SingleFileProject
         cleanTempCache(project, cachesRoot);
-        if (project.buildOptions().optimizeCodegen()) {
-            testSuiteMap.values().forEach(this::cleanCaches);
-        }
         if (project.buildOptions().dumpBuildTime()) {
             BuildTime.getInstance().testingExecutionDuration = System.currentTimeMillis() - start;
-        }
-    }
-
-    private void cleanCaches(TestSuite testSuite) {
-        List<File> dirsToBeDeleted = new ArrayList<>();
-        System.out.println();
-        testSuite.getTestExecutionDependencies().forEach(
-                dependency -> {
-                    // TODO find the proper constants for the cache locations
-                    if (!dependency.contains("observe") && (dependency.startsWith(
-                            "C:\\Users\\Thushara Piyasekara\\.ballerina\\repositories\\central.ballerina.io\\cache-2201.9.0-SNAPSHOT\\ballerina\\") ||
-                            dependency.contains(
-                                    "C:\\Users\\BALLER~1\\BALLER~1\\DISTRI~1\\zip\\JBALLE~1\\build\\EXTRAC~1\\JBALLE~1.0-S\\bin\\..\\repo\\cache\\ballerina\\test\\0.0.0\\java17\\ballerina-test-0.0.0.jar"))) {
-                        try {
-                            File dependencyJarFile = new File(dependency);
-                            File parentCache = dependencyJarFile.getParentFile().getParentFile().getParentFile();
-                            dirsToBeDeleted.add(parentCache);
-                            System.out.println("size of " + dependencyJarFile.getName() + " : " +
-                                    Files.size(dependencyJarFile.toPath()) / 1024 + " KB");
-                        } catch (NoSuchFileException e) {
-                            // Do nothing
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-        );
-        System.out.println();
-        try {
-            for (File file : dirsToBeDeleted) {
-                FileUtils.deleteDirectory(file);
-                System.out.println("deleted  " + file.getPath());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
