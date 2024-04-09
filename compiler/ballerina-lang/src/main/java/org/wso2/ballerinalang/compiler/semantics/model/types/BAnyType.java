@@ -30,11 +30,14 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import static io.ballerina.types.PredefinedType.IMPLEMENTED_ANY_TYPE;
+import static io.ballerina.types.PredefinedType.VAL_READONLY;
 
 /**
  * @since 0.94
  */
 public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
+
+    private boolean isNilLifted = false;
 
     public BAnyType(BTypeSymbol tsymbol) {
         this(tsymbol, IMPLEMENTED_ANY_TYPE);
@@ -55,7 +58,9 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     }
 
     public static BAnyType newNilLiftedBAnyType(BTypeSymbol tsymbol) {
-        return new BAnyType(tsymbol, Core.diff(IMPLEMENTED_ANY_TYPE, PredefinedType.NIL));
+        BAnyType result = new BAnyType(tsymbol, Core.diff(IMPLEMENTED_ANY_TYPE, PredefinedType.NIL));
+        result.isNilLifted = true;
+        return result;
     }
 
     @Override
@@ -77,5 +82,19 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     public String toString() {
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
+    }
+
+    @Override
+    public SemType semType() {
+        SemType semType;
+        if (Symbols.isFlagOn(flags, Flags.READONLY)) {
+            semType = Core.intersect(IMPLEMENTED_ANY_TYPE, VAL_READONLY);
+        } else {
+            semType = IMPLEMENTED_ANY_TYPE;
+        }
+        if (isNilLifted) {
+            semType = Core.diff(semType, PredefinedType.NIL);
+        }
+        return semType;
     }
 }
