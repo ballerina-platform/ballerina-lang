@@ -60,6 +60,15 @@ public abstract class CompilerBackend {
     public abstract PlatformLibrary codeGeneratedLibrary(PackageId packageId, ModuleName moduleName);
 
     /**
+     * Returns the generated optimized platform library of the specified module.
+     *
+     * @param packageId  the {@code PackageId} of the package
+     * @param moduleName the name of the module in the package
+     * @return the generated optimized platform library of the specified module
+     */
+    public abstract PlatformLibrary codeGeneratedOptimizedLibrary(PackageId packageId, ModuleName moduleName);
+
+    /**
      * Returns the generated platform library of the specified module required to run tests.
      *
      * @param packageId  the {@code PackageId} of the package

@@ -180,15 +180,14 @@ public class BuildLangLib {
 
             @Override
             public Optional<Path> getPlatformSpecificLibrary(CompilerBackend compilerBackend,
-                                                             String libraryName) {
+                                                             String libraryName, boolean isOptimizedLibrary) {
                 return Optional.empty();
             }
 
             @Override
-            public void cachePlatformSpecificLibrary(CompilerBackend compilerBackend,
-                                                     String libraryName,
-                                                     ByteArrayOutputStream libraryContent) {
-                fsCache.cachePlatformSpecificLibrary(compilerBackend, libraryName, libraryContent);
+            public void cachePlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName,
+                                                     ByteArrayOutputStream libraryContent, boolean isOptimizedLibrary) {
+                fsCache.cachePlatformSpecificLibrary(compilerBackend, libraryName, libraryContent, isOptimizedLibrary);
             }
         });
 
