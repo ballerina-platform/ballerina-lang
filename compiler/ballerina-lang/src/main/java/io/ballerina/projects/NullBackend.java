@@ -73,6 +73,11 @@ public class NullBackend extends CompilerBackend {
     }
 
     @Override
+    public PlatformLibrary codeGeneratedOptimizedLibrary(PackageId packageId, ModuleName moduleName) {
+        return null;
+    }
+
+    @Override
     public PlatformLibrary codeGeneratedTestLibrary(PackageId packageId, ModuleName moduleName) {
         return null;
     }
