@@ -55,13 +55,13 @@ public class FileSystemCache extends CompilationCache {
     private final Path cacheDirPath;
     private Path birPath;
     private Path packageCacheDirPath;
-    private static Path buildProjectCachDirPath;
+    private static Path buildProjectCacheDirPath;
 
     public FileSystemCache(Project project, Path cacheDirPath) {
         super(project);
         this.cacheDirPath = cacheDirPath;
         if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-            buildProjectCachDirPath = cacheDirPath;
+            buildProjectCacheDirPath = cacheDirPath;
         }
     }
 
@@ -175,7 +175,7 @@ public class FileSystemCache extends CompilationCache {
     private Path optimizedPackageCacheDirPath() {
         Package currentPkg = project.currentPackage();
         PackageManifest pkgDescriptor = currentPkg.manifest();
-        return buildProjectCachDirPath.resolve(pkgDescriptor.org().value())
+        return buildProjectCacheDirPath.resolve(pkgDescriptor.org().value())
                 .resolve(pkgDescriptor.name().value())
                 .resolve(pkgDescriptor.version().toString());
     }
