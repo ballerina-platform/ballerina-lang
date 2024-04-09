@@ -238,19 +238,14 @@ class JMethodResolver {
     }
 
     private boolean hasEquivalentFunctionParamCount(JMethodRequest jMethodRequest, JMethod jMethod) {
-        // Currently, this is only applicable for resource and remote methods which have empty path parameters.
-        // If path parameters are present, this will be handled by 'hasEquivalentPathAndFunctionParamCount' method
-        // by bundling both.
-        if (jMethodRequest.receiverType == null || jMethodRequest.pathParamCount != 0
-                || jMethodRequest.bParamTypes.length == 0) {
-            return false;
-        }
+        // This is only applicable for resource and remote methods which have at least one function
+        // parameter other than path parameters and the bundling of path parameters is not required.
         Class<?>[] paramTypes = jMethod.getParamTypes();
-        boolean isFirstParamServiceObject = jMethodRequest.bParamTypes[0].tag == TypeTags.SERVICE;
-        // Get the count of parameters of the resource/remote methods by excluding the receiver type.
-        int count = isFirstParamServiceObject ? paramTypes.length - 1 : paramTypes.length;
-        int reducedParamCount = isFirstParamServiceObject ? 2 : 1;
-        if (count < reducedParamCount || count > reducedParamCount + 2) {
+        int count = paramTypes.length;
+        int reducedParamCount = jMethodRequest.pathParamCount + 1;
+        int functionParamCount = jMethodRequest.bFuncParamCount - jMethodRequest.pathParamCount;
+        if (jMethodRequest.receiverType == null || functionParamCount < 1
+                || count < reducedParamCount || count > reducedParamCount + 2) {
             return false;
         }
         if (!isParamAssignableToBArray(paramTypes[count - 1])
@@ -263,10 +258,12 @@ class JMethodResolver {
             // This is for object interop functions when self is passed as a parameter
             jMethod.setReceiverType(jMethodRequest.receiverType);
             return true;
+        } else if (count == (reducedParamCount + 2)) {
+            // This is for object interop functions when both BalEnv and self is passed as parameters.
+            jMethod.setReceiverType(jMethodRequest.receiverType);
+            return jMethod.isBalEnvAcceptingMethod();
         }
-        // This is for object interop functions when both BalEnv and self is passed as parameters.
-        jMethod.setReceiverType(jMethodRequest.receiverType);
-        return jMethod.isBalEnvAcceptingMethod();
+        return false;
     }
 
     private boolean isParamAssignableToBArray(Class<?> paramType) {
