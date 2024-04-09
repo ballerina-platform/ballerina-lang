@@ -223,7 +223,6 @@ public class PackageResolution {
                     PackageDependencyScope.DEFAULT, DependencyResolutionType.COMPILER_PLUGIN);
             allModuleLoadRequests.add(c2cModuleLoadReq);
         }
-
         return allModuleLoadRequests;
     }
 
