@@ -36,6 +36,7 @@ public class FunctionDefinition implements Definition {
     private RecAtom atom;
     private SemType semType;
 
+    // TODO: this shouldn't take env as an argument
     public FunctionDefinition(Env env) {
         FunctionAtomicType dummy = FunctionAtomicType.from(PredefinedType.NEVER, PredefinedType.NEVER);
         this.atom = env.recFunctionAtom();
