@@ -99,17 +99,18 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         if (!currentInvocationData.moduleIsUsed) {
             currentInvocationData.registerNodes(usedTypeDefAnalyzer, pkgNode.symbol.bir);
 
-            if (pkgNode.hasTestablePackage()) {
-                // since the testablePkg can access the nodes of parent package, we can merge the invocationData of both
-                // testable and parent packages
-                BPackageSymbol testableSymbol = pkgNode.getTestablePkg().symbol;
-                currentInvocationData.testablePkgInvocationData = testableSymbol.invocationData;
+        }
+        // All testablePkgs will be considered as root pkgs by default.
+        if (pkgNode.hasTestablePackage()) {
+            // since the testablePkg can access the nodes of parent package, we can merge the invocationData of both
+            // testable and parent packages
+            BPackageSymbol testableSymbol = pkgNode.getTestablePkg().symbol;
+            currentInvocationData.testablePkgInvocationData = testableSymbol.invocationData;
 
-                testableSymbol.invocationData.registerNodes(usedTypeDefAnalyzer, testableSymbol.bir);
-                // Analyzing testablePkg should be done first because it is the root of the dependency graph
-                for (BIRNode.BIRDocumentableNode node : testableSymbol.invocationData.startPointNodes) {
-                    visitNode(node);
-                }
+            testableSymbol.invocationData.registerNodes(usedTypeDefAnalyzer, testableSymbol.bir);
+            // Analyzing testablePkg should be done first because it is the root of the dependency graph
+            for (BIRNode.BIRDocumentableNode node : testableSymbol.invocationData.startPointNodes) {
+                visitNode(node);
             }
         }
 

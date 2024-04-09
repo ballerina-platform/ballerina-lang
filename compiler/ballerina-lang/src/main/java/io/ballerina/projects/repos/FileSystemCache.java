@@ -24,6 +24,7 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
 
@@ -54,10 +55,14 @@ public class FileSystemCache extends CompilationCache {
     private final Path cacheDirPath;
     private Path birPath;
     private Path packageCacheDirPath;
+    private static Path buildProjectCachDirPath;
 
     public FileSystemCache(Project project, Path cacheDirPath) {
         super(project);
         this.cacheDirPath = cacheDirPath;
+        if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
+            buildProjectCachDirPath = cacheDirPath;
+        }
     }
 
     @Override
@@ -92,9 +97,11 @@ public class FileSystemCache extends CompilationCache {
     }
 
     @Override
-    public Optional<Path> getPlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName) {
+    public Optional<Path> getPlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName,
+                                                     boolean isOptimizedLibrary) {
         String libraryFileName = libraryName + compilerBackend.libraryFileExtension();
-        Path targetPlatformCacheDirPath = getTargetPlatformCacheDirPath(compilerBackend);
+        Path targetPlatformCacheDirPath = isOptimizedLibrary ? getOptimizedTargetPlatformCacheDirPath(compilerBackend) :
+                getTargetPlatformCacheDirPath(compilerBackend);
         Path jarFilePath = targetPlatformCacheDirPath.resolve(libraryFileName);
         return Optional.of(jarFilePath);
     }
@@ -102,9 +109,10 @@ public class FileSystemCache extends CompilationCache {
     @Override
     public void cachePlatformSpecificLibrary(CompilerBackend compilerBackend,
                                              String libraryName,
-                                             ByteArrayOutputStream libraryContent) {
+                                             ByteArrayOutputStream libraryContent, boolean isOptimizedLibrary) {
         String libraryFileName = libraryName + compilerBackend.libraryFileExtension();
-        Path targetPlatformCacheDirPath = getTargetPlatformCacheDirPath(compilerBackend);
+        Path targetPlatformCacheDirPath = isOptimizedLibrary ? getOptimizedTargetPlatformCacheDirPath(compilerBackend) :
+                getTargetPlatformCacheDirPath(compilerBackend);
         // Create directories
         createDirectories(targetPlatformCacheDirPath);
         Path jarFilePath = targetPlatformCacheDirPath.resolve(libraryFileName);
@@ -121,6 +129,11 @@ public class FileSystemCache extends CompilationCache {
     private Path getTargetPlatformCacheDirPath(CompilerBackend compilerBackend) {
         String targetPlatformCode = compilerBackend.targetPlatform().code();
         return packageCacheDirPath().resolve(targetPlatformCode);
+    }
+
+    private Path getOptimizedTargetPlatformCacheDirPath(CompilerBackend compilerBackend) {
+        String targetPlatformCode = compilerBackend.targetPlatform().code();
+        return optimizedPackageCacheDirPath().resolve(targetPlatformCode);
     }
 
     private void createDirectories(Path dirPath) {
@@ -157,6 +170,14 @@ public class FileSystemCache extends CompilationCache {
                 .resolve(pkgDescriptor.name().value())
                 .resolve(pkgDescriptor.version().toString());
         return packageCacheDirPath;
+    }
+
+    private Path optimizedPackageCacheDirPath() {
+        Package currentPkg = project.currentPackage();
+        PackageManifest pkgDescriptor = currentPkg.manifest();
+        return buildProjectCachDirPath.resolve(pkgDescriptor.org().value())
+                .resolve(pkgDescriptor.name().value())
+                .resolve(pkgDescriptor.version().toString());
     }
 
     /**

@@ -502,13 +502,18 @@ public class JBallerinaBackend extends CompilerBackend {
 
     @Override
     public PlatformLibrary codeGeneratedLibrary(PackageId packageId, ModuleName moduleName) {
-        return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT, JAR_FILE_NAME_SUFFIX);
+        return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT, JAR_FILE_NAME_SUFFIX, false);
+    }
+
+    @Override
+    public PlatformLibrary codeGeneratedOptimizedLibrary(PackageId packageId, ModuleName moduleName) {
+        return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT, JAR_FILE_NAME_SUFFIX, true);
     }
 
     @Override
     public PlatformLibrary codeGeneratedTestLibrary(PackageId packageId, ModuleName moduleName) {
         return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT,
-                TEST_JAR_FILE_NAME_SUFFIX + JAR_FILE_NAME_SUFFIX);
+                TEST_JAR_FILE_NAME_SUFFIX + JAR_FILE_NAME_SUFFIX, false);
     }
 
     @Override
@@ -538,7 +543,7 @@ public class JBallerinaBackend extends CompilerBackend {
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
-            compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
+            compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream, false);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
         }
@@ -556,7 +561,7 @@ public class JBallerinaBackend extends CompilerBackend {
                 isRemoteMgtEnabled);
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
-            compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
+            compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream, false);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
         }
@@ -573,21 +578,24 @@ public class JBallerinaBackend extends CompilerBackend {
             if (bLangPackage.getErrorCount() > 0) {
                 return;
             }
-            CompiledJarFile originalJarFile = jvmCodeGenerator.generate(bLangPackage, true);
+            CompiledJarFile originalJarFile = jvmCodeGenerator.generate(bLangPackage, false);
             bLangPackage.symbol.bir = optimizableBirPkg;
 
             if (originalJarFile == null) {
                 throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
             }
-            String jarFileName = getJarFileName(moduleContext) + "_DUPLICATE" + JAR_FILE_NAME_SUFFIX;
+            String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
             try {
                 ByteArrayOutputStream byteStream = JarWriter.write(originalJarFile, getResources(moduleContext));
-                moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, jarFileName, byteStream);
+                moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, jarFileName, byteStream, false);
             } catch (IOException e) {
                 throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
             }
         }
 
+        if (isRootModule(moduleContext)) {
+            JvmCodeGenUtil.isRootPkgCodeGen = true;
+        }
         long birOptimizeDeletionTimeStart = System.currentTimeMillis();
         optimizeBirPackage(bLangPackage.symbol);
         long birOptimizeDeletionTimeEnd = System.currentTimeMillis();
@@ -597,15 +605,19 @@ public class JBallerinaBackend extends CompilerBackend {
         if (bLangPackage.getErrorCount() > 0) {
             return;
         }
-        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, false);
+        CompiledJarFile compiledJarFile =
+                jvmCodeGenerator.generate(bLangPackage, bLangPackage.symbol.shouldGenerateDuplicateBIR);
         if (compiledJarFile == null) {
             throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
+        if (bLangPackage.symbol.shouldGenerateDuplicateBIR) {
+            jarFileName = getJarFileName(moduleContext) + "_OPTIMIZED" + JAR_FILE_NAME_SUFFIX;
+        }
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
             if (!this.packageContext.project().buildOptions().skipTests()) {
-                moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, jarFileName, byteStream);
+                moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, jarFileName, byteStream, true);
             } else {
                 optimizedJarStreams.putIfAbsent(jarFileName, byteStream);
             }
@@ -627,13 +639,11 @@ public class JBallerinaBackend extends CompilerBackend {
         // TODO do the merging inside usedBIRNodeAnalyzer
         bLangPackage.testablePkgs.get(0).symbol.invocationData = bLangPackage.symbol.invocationData;
 
-        optimizeBirPackage(bLangPackage.testablePkgs.get(0).symbol);
-
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
-            moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
+            moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, testJarFileName, byteStream, true);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
         }
@@ -1026,13 +1036,13 @@ public class JBallerinaBackend extends CompilerBackend {
     private PlatformLibrary codeGeneratedLibrary(PackageId packageId,
                                                  ModuleName moduleName,
                                                  PlatformLibraryScope scope,
-                                                 String fileNameSuffix) {
+                                                 String fileNameSuffix, boolean isOptimizedLibrary) {
         Package pkg = packageCache.getPackageOrThrow(packageId);
         ProjectEnvironment projectEnvironment = pkg.project().projectEnvironmentContext();
         CompilationCache compilationCache = projectEnvironment.getService(CompilationCache.class);
         String jarFileName = getJarFileName(pkg.packageContext().moduleContext(moduleName)) + fileNameSuffix;
         Optional<Path> platformSpecificLibrary = compilationCache.getPlatformSpecificLibrary(
-                this, jarFileName);
+                this, jarFileName, isOptimizedLibrary);
         return new JarLibrary(platformSpecificLibrary.orElseThrow(
                 () -> new IllegalStateException("Cannot find the generated jar library for module: " + moduleName)),
                 scope);
