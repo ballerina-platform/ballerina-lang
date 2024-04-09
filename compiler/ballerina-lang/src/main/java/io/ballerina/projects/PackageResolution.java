@@ -450,6 +450,9 @@ public class PackageResolution {
     private ResolutionOptions getResolutionOptions(PackageContext rootPackageContext,
                                                    CompilationOptions compilationOptions) {
         boolean sticky = ProjectUtils.getSticky(rootPackageContext.project());
+        if (sticky && isNewImportAdded()) {
+            sticky = false;
+        }
         this.autoUpdate = !sticky;
         PackageLockingMode packageLockingMode;
         SemanticVersion prevDistributionVersion = rootPackageContext.dependencyManifest().distributionVersion();
@@ -495,6 +498,35 @@ public class PackageResolution {
                 .setDumpRawGraphs(compilationOptions.dumpRawGraphs())
                 .setPackageLockingMode(packageLockingMode)
                 .build();
+    }
+
+    private boolean isNewImportAdded() {
+        if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
+            return false;
+        }
+        // If there are new imports, && sticky is set due to build timestamp, set sticky to false.
+        LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
+        for (ModuleLoadRequest request : moduleLoadRequests) {
+            PackageOrg pkgOrg = request.orgName().orElse(rootPackageContext.packageOrg());
+            String moduleName = request.moduleName();
+            Collection<PackageName> possiblePkgNames = ProjectUtils.getPossiblePackageNames(
+                    pkgOrg, moduleName);
+            // We ignore new builtin imports.
+            if (ProjectUtils.isBuiltInPackage(pkgOrg, moduleName)) {
+                continue;
+            }
+            boolean isImportNew = true;
+            for (PackageName possiblePkgName : possiblePkgNames) {
+                if (rootPackageContext.dependencyManifest().dependency(pkgOrg, possiblePkgName).isPresent()) {
+                    isImportNew = false;
+                    break;
+                }
+            }
+            if (isImportNew) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isNewUpdateDistribution(SemanticVersion prevDistributionVersion,
