@@ -28,6 +28,7 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
     implementation "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
+    implementation project(':toml-parser')
 
     testImplementation 'com.google.code.gson:gson'
     testImplementation 'org.testng:testng'

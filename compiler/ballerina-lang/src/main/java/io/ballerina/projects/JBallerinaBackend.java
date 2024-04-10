@@ -500,7 +500,8 @@ public class JBallerinaBackend extends CompilerBackend {
         if (bLangPackage.getErrorCount() > 0) {
             return;
         }
-        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, false);
+        boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
+        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage, false, isRemoteMgtEnabled);
         if (compiledJarFile == null) {
             throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }
@@ -521,7 +522,8 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
-        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
+        CompiledJarFile compiledTestJarFile =
+                jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0), isRemoteMgtEnabled);
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream, false);
@@ -532,6 +534,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     public void performOptimizedCodeGen(ModuleContext moduleContext) {
         BLangPackage bLangPackage = moduleContext.bLangPackage();
+        boolean isRemoteMgtEnabled = moduleContext.project().buildOptions().compilationOptions().remoteManagement();
 
         if (bLangPackage.symbol.shouldGenerateDuplicateBIR) {
             // Duplicate codegen
@@ -541,7 +544,7 @@ public class JBallerinaBackend extends CompilerBackend {
             if (bLangPackage.getErrorCount() > 0) {
                 return;
             }
-            CompiledJarFile originalJarFile = jvmCodeGenerator.generate(bLangPackage, false);
+            CompiledJarFile originalJarFile = jvmCodeGenerator.generate(bLangPackage, false, isRemoteMgtEnabled);
             bLangPackage.symbol.bir = optimizableBirPkg;
 
             if (originalJarFile == null) {
@@ -569,7 +572,8 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
         CompiledJarFile compiledJarFile =
-                jvmCodeGenerator.generate(bLangPackage, bLangPackage.symbol.shouldGenerateDuplicateBIR);
+                jvmCodeGenerator.generate(bLangPackage, bLangPackage.symbol.shouldGenerateDuplicateBIR,
+                        isRemoteMgtEnabled);
         if (compiledJarFile == null) {
             throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }
@@ -603,7 +607,8 @@ public class JBallerinaBackend extends CompilerBackend {
         bLangPackage.testablePkgs.get(0).symbol.invocationData = bLangPackage.symbol.invocationData;
 
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
-        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
+        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0),
+                isRemoteMgtEnabled);
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
             moduleContext.getCompilationCache().cachePlatformSpecificLibrary(this, testJarFileName, byteStream, true);

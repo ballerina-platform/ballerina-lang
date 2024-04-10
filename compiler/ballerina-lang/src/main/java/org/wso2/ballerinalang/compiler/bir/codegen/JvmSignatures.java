@@ -386,7 +386,14 @@ public class JvmSignatures {
     public static final String OBJECT_TYPE_DUPLICATE = "()L" + OBJECT_TYPE_IMPL + ";";
     public static final String OBJECT_TYPE_IMPL_INIT = "(L" + TYPE + ";)V";
     public static final String PANIC_IF_IN_LOCK = "(L" + STRAND_CLASS + ";)V";
-    public static final String PASS_BSTRING_RETURN_OBJECT = "(L" + B_STRING_VALUE + ";)L" + OBJECT + ";";
+    public static final String PASS_B_STRING_RETURN_OBJECT = "(L" + B_STRING_VALUE + ";)L" + OBJECT + ";";
+    public static final String PASS_B_STRING_RETURN_LONG = "(L" + B_STRING_VALUE + ";)L" + LONG_VALUE + ";";
+    public static final String PASS_B_STRING_RETURN_UNBOXED_LONG = "(L" + B_STRING_VALUE + ";)J";
+    public static final String PASS_B_STRING_RETURN_DOUBLE = "(L" + B_STRING_VALUE + ";)L" + DOUBLE_VALUE + ";";
+    public static final String PASS_B_STRING_RETURN_UNBOXED_DOUBLE = "(L" + B_STRING_VALUE + ";)D";
+    public static final String PASS_B_STRING_RETURN_B_STRING = "(L" + B_STRING_VALUE + ";)L" + B_STRING_VALUE + ";";
+    public static final String PASS_B_STRING_RETURN_BOOLEAN = "(L" + B_STRING_VALUE + ";)L" + BOOLEAN_VALUE + ";";
+    public static final String PASS_B_STRING_RETURN_UNBOXED_BOOLEAN = "(L" + B_STRING_VALUE + ";)Z";
     public static final String PASS_OBJECT_RETURN_OBJECT = "(L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String PASS_OBJECT_RETURN_SAME_TYPE = "(L" + OBJECT + ";)TV;";
     public static final String POPULATE_ATTACHED_FUNCTION = "([L" + METHOD_TYPE_IMPL + ";)V";
@@ -507,9 +514,11 @@ public class JvmSignatures {
     public static final String GET_TEST_CONFIG_PATH = "(L" + MODULE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
                                                       ";)L" + CONFIG_DETAILS + ";";
     public static final String SET_DEFAULT_VALUE_METHOD = "(L" + STRING_VALUE + ";L" + B_FUNCTION_POINTER + ";)V";
+    public static final String ADD_SERVICE_LISTENER = "(L" + B_OBJECT + ";L" + B_OBJECT + ";L" + OBJECT + ";)V";
     public static final String ALT_RECEIVE_CALL = "(L" + STRAND_CLASS + ";[L" + STRING_VALUE + ";)L" + OBJECT + ";";
     public static final String MULTIPLE_RECEIVE_CALL = "(L" + STRAND_CLASS + ";[L" + RECEIVE_FIELD + ";L" + TYPE +
             ";)L" + OBJECT + ";";
+    public static final String ADD_BALLERINA_INFO = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";Z)V";
 
     private JvmSignatures() {
     }

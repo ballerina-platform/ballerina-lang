@@ -1990,17 +1990,17 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return false;
     }
 
-    private boolean withinIf(BLangFunctionBody enclInvokableBody, BLangNode node) {
+    private boolean withinIfOrOnFail(BLangFunctionBody enclInvokableBody, BLangNode node) {
         if (enclInvokableBody == node) {
             return false;
         }
 
         BLangNode parentNode = node.parent;
-        if (parentNode.getKind() == NodeKind.IF) {
+        if (parentNode.getKind() == NodeKind.IF || parentNode.getKind() == NodeKind.ON_FAIL) {
             return true;
         }
 
-        return withinIf(enclInvokableBody, parentNode);
+        return withinIfOrOnFail(enclInvokableBody, parentNode);
     }
 
     private boolean isDefaultWorkerCommunication(String workerIdentifier) {
@@ -2058,15 +2058,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        boolean withinIf = !invalidSendPos && withinIf(data.env.enclInvokable.body, data.env.node);
-        setWorkerSendSendTypeDetails(asyncSendExpr, asyncSendExpr.expr.getBType(), withinIf, data);
+        boolean withinIfOrOnFail = !invalidSendPos && withinIfOrOnFail(data.env.enclInvokable.body, data.env.node);
+        setWorkerSendSendTypeDetails(asyncSendExpr, asyncSendExpr.expr.getBType(), withinIfOrOnFail, data);
         was.addWorkerAction(asyncSendExpr);
         analyzeExpr(asyncSendExpr.expr, data);
         validateActionParentNode(asyncSendExpr.pos, asyncSendExpr.expr);
     }
 
     private void setWorkerSendSendTypeDetails(BLangWorkerSendExpr workerSendExpr, BType exprType,
-                                              boolean withinIf, AnalyzerData data) {
+                                              boolean withinIfOrOnFail, AnalyzerData data) {
         Set<BType> returnTypesUpToNow = data.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<>() {
             {
@@ -2091,7 +2091,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         BType sendType;
-        boolean noMessagePossible = withinIf || hasNonErrorReturn;
+        boolean noMessagePossible = withinIfOrOnFail || hasNonErrorReturn;
         if (noMessagePossible) {
             // There is a possibility that the send action may not be executed, thus adding NoMessageError type.
             BSymbol noMsgErrSymbol = symTable.langErrorModuleSymbol.scope.
@@ -2144,8 +2144,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         syncSendExpr.setBType(BUnionType.create(null, symTable.nilType, symTable.errorType));
-        boolean withinIf = !invalidSendPos && withinIf(data.env.enclInvokable.body, data.env.node);
-        setWorkerSendSendTypeDetails(syncSendExpr, syncSendExpr.expr.getBType(), withinIf, data);
+        boolean withinIfOrOnFail = !invalidSendPos && withinIfOrOnFail(data.env.enclInvokable.body, data.env.node);
+        setWorkerSendSendTypeDetails(syncSendExpr, syncSendExpr.expr.getBType(), withinIfOrOnFail, data);
         was.addWorkerAction(syncSendExpr);
         analyzeExpr(syncSendExpr.expr, data);
     }

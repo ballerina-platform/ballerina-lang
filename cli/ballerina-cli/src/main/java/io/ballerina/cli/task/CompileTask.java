@@ -31,7 +31,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.SemanticVersion;
-import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.PackageDiagnostic;
@@ -230,12 +229,6 @@ public class CompileTask implements Task {
             });
             // Add tool resolution diagnostics to diagnostics
             diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
-            // Report build tool execution diagnostics
-            if (project.getToolContextMap() != null) {
-                for (ToolContext tool : project.getToolContextMap().values()) {
-                    diagnostics.addAll(tool.diagnostics());
-                }
-            }
             boolean hasErrors = false;
             for (Diagnostic d : diagnostics) {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {

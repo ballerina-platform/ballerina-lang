@@ -61,6 +61,8 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_HOME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_VERSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
@@ -86,6 +88,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPOSITORY_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
@@ -98,6 +101,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_ARGU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_CONFIG_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_BALLERINA_INFO;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_SHUTDOWN_HOOK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_CONFIG_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN_ARGS;
@@ -141,13 +145,16 @@ public class MainMethodGen {
     private final BIRVarToJVMIndexMap indexMap;
     private final JvmTypeGen jvmTypeGen;
     private final AsyncDataCollector asyncDataCollector;
+    private final boolean isRemoteMgtEnabled;
 
-    public MainMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, AsyncDataCollector asyncDataCollector) {
+    public MainMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, AsyncDataCollector asyncDataCollector,
+                         boolean isRemoteMgtEnabled) {
         this.symbolTable = symbolTable;
         // add main string[] args param first
         indexMap = new BIRVarToJVMIndexMap(1);
         this.jvmTypeGen = jvmTypeGen;
         this.asyncDataCollector = asyncDataCollector;
+        this.isRemoteMgtEnabled = isRemoteMgtEnabled;
     }
 
     public void generateMainMethod(BIRNode.BIRFunction userMainFunc, ClassWriter cw, BIRNode.BIRPackage pkg,
@@ -164,7 +171,7 @@ public class MainMethodGen {
 
         // check for java compatibility
         generateJavaCompatibilityCheck(mv);
-
+        generateBallerinaRuntimeInformation(mv);
         invokeConfigInit(mv, pkg.packageID);
         // start all listeners and TRAP signal handler
         startListenersAndSignalHandler(mv, serviceEPAvailable);
@@ -196,6 +203,20 @@ public class MainMethodGen {
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, "main", initClass);
         mv.visitEnd();
+    }
+
+    private void generateBallerinaRuntimeInformation(MethodVisitor mv) {
+        String property = System.getProperty(BALLERINA_HOME);
+        mv.visitLdcInsn(property == null ? "" : property);
+        property = System.getProperty(BALLERINA_VERSION);
+        mv.visitLdcInsn(property == null ? "" : property);
+        if (isRemoteMgtEnabled) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, REPOSITORY_IMPL, "addBallerinaRuntimeInformation", ADD_BALLERINA_INFO,
+                false);
     }
 
     private void generateExecuteFunctionCall(String initClass, MethodVisitor mv, BIRNode.BIRFunction userMainFunc,

@@ -2576,7 +2576,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (!erroredExpType) {
                     reportIncompatibleMappingConstructorError(mappingConstructor, bType, data);
                 }
-                validateSpecifiedFields(mappingConstructor, symTable.semanticError, data);
+                defineInferredRecordType(mappingConstructor, symTable.noType, data);
                 return symTable.semanticError;
             } else if (compatibleTypes.size() != 1) {
                 dlog.error(mappingConstructor.pos, DiagnosticErrorCode.AMBIGUOUS_TYPES, bType);
@@ -6506,7 +6506,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = types.checkType(checkedExpr, actualType, data.expType);
     }
 
-    private void resetImpConversionExpr(BLangExpression expr, BType actualType, BType targetType) {
+    protected void resetImpConversionExpr(BLangExpression expr, BType actualType, BType targetType) {
         expr.impConversionExpr = null;
         types.setImplicitCastExpr(expr, actualType, targetType);
     }
@@ -7956,9 +7956,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         Name fieldName;
 
         if (computedKey) {
-            checkExpr(keyExpr, symTable.stringType, data);
-
-            if (keyExpr.getBType() == symTable.semanticError) {
+            if (exprIncompatible(symTable.stringType, keyExpr, data)) {
                 return new TypeSymbolPair(null, symTable.semanticError);
             }
 
@@ -8021,13 +8019,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private boolean checkValidJsonOrMapLiteralKeyExpr(BLangExpression keyExpr, boolean computedKey, AnalyzerData data) {
         if (computedKey) {
-            checkExpr(keyExpr, symTable.stringType, data);
-
-            if (keyExpr.getBType() == symTable.semanticError) {
-                return false;
-            }
-            return true;
-        } else if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
+            return !exprIncompatible(symTable.stringType, keyExpr, data);
+        }
+        if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
                 (keyExpr.getKind() == NodeKind.LITERAL && (keyExpr).getBType().tag == TypeTags.STRING)) {
             return true;
         }

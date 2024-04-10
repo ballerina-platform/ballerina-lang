@@ -324,6 +324,7 @@ public class BRunUtil {
         String classPathString = System.getProperty("java.class.path") + classPath;
         // Create an argument file for Windows to mitigate the long classpath issue.
         if (IS_WINDOWS) {
+            classPathString = classPathString.replace(" ", "%20");
             String classPathArgs = "classPathArgs";
             try {
                 File classPathArgsFile = File.createTempFile(classPathArgs, ".txt");

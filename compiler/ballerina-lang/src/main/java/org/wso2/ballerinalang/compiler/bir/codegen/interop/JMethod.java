@@ -48,6 +48,7 @@ class JMethod {
     private Executable method;
     private BType receiverType;
     public boolean hasBundledPathParams = false;
+    public boolean hasBundledFunctionParams = false;
 
     private JMethod(JMethodKind kind, Executable executable, BType receiverType) {
 

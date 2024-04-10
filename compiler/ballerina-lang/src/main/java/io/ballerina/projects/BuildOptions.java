@@ -103,6 +103,10 @@ public class BuildOptions {
         return this.compilationOptions.getCloud();
     }
 
+    public boolean remoteManagement() {
+        return this.compilationOptions.remoteManagement();
+    }
+
     CompilationOptions compilationOptions() {
         return this.compilationOptions;
     }
@@ -200,6 +204,7 @@ public class BuildOptions {
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
         buildOptionsBuilder.setOptimizeCodegen(compilationOptions.optimizeCodegen);
+        buildOptionsBuilder.setRemoteManagement(compilationOptions.remoteManagement);
 
         return buildOptionsBuilder.build();
     }
@@ -394,6 +399,12 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setOptimizeCodegen(Boolean value) {
             compilationOptionsBuilder.setOptimizeCodegen(value);
+            return this;
+        }
+
+
+        public BuildOptionsBuilder setRemoteManagement(Boolean value) {
+            compilationOptionsBuilder.setRemoteManagement(value);
             return this;
         }
 

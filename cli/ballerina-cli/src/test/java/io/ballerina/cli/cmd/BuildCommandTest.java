@@ -1197,7 +1197,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 {
                         "build-tool-with-invalid-missing-toml-properties",
                         "build-tool-with-invalid-missing-toml-properties.txt",
-                        "error: compilation contains errors"
+                        "error: build tool execution contains errors"
                 },
                 {
                         "build-tool-with-invalid-missing-optional-toml-properties",
@@ -1207,12 +1207,12 @@ public class BuildCommandTest extends BaseCommandTest {
                 {
                         "build-tool-with-diagnostics",
                         "build-tool-with-diagnostics.txt",
-                        "error: compilation contains errors"
+                        "error: build tool execution contains errors"
                 },
                 {
                         "build-tool-with-recurring-tool-properties",
                         "build-tool-with-recurring-tool-properties.txt",
-                        "error: compilation contains errors"
+                        "error: build tool execution contains errors"
                 }
         };
     }
@@ -1259,7 +1259,7 @@ public class BuildCommandTest extends BaseCommandTest {
             String buildLog = readOutput(true);
             Assert.assertEquals(buildLog.replaceAll("\r", ""),
                     getOutput("build-bal-project-with-build-tool-not-found.txt"));
-            Assert.assertEquals("error: compilation contains errors", e.getDetailedMessages().get(0));
+            Assert.assertEquals("error: build tool execution contains errors", e.getDetailedMessages().get(0));
         }
     }
 

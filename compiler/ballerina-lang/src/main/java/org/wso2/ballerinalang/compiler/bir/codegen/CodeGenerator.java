@@ -59,16 +59,16 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
-    public CompiledJarFile generate(BLangPackage bLangPackage, Boolean isDuplicateGeneration) {
+    public CompiledJarFile generate(BLangPackage bLangPackage, Boolean isDuplicateGeneration, boolean isRemoteMgtEnabled) {
         // generate module
-        return generate(bLangPackage.symbol, isDuplicateGeneration);
+        return generate(bLangPackage.symbol, isDuplicateGeneration, isRemoteMgtEnabled);
     }
 
-    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage) {
-        return generate(bLangTestablePackage.symbol, false);
+    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage, boolean isRemoteMgtEnabled) {
+        return generate(bLangTestablePackage.symbol, false, isRemoteMgtEnabled);
     }
 
-    private CompiledJarFile generate(BPackageSymbol packageSymbol, Boolean isDuplicateGeneration) {
+    private CompiledJarFile generate(BPackageSymbol packageSymbol, Boolean isDuplicateGeneration, boolean isRemoteMgtEnabled) {
         // Desugar BIR to include the observations
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
@@ -80,7 +80,8 @@ public class CodeGenerator {
         BIRGenUtils.rearrangeBasicBlocks(packageSymbol.bir);
 
         dlog.setCurrentPackageId(packageSymbol.pkgID);
-        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types);
+        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types,
+                isRemoteMgtEnabled);
 
         //Rewrite identifier names with encoding special characters
         HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);

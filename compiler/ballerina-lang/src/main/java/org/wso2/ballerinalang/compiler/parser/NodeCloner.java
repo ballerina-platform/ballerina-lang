@@ -450,6 +450,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.namespaceURI = clone(source.namespaceURI);
         clone.prefix = source.prefix;
+        clone.compUnit = source.compUnit;
     }
 
     @Override

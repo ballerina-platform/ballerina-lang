@@ -1,0 +1,8 @@
+<example:library xmlns:example="http://example.com/library" xmlns:book="http://example.com/book" xmlns:author="http://example.com/author">
+    <book:bookList>
+        <book:bookItem>
+            <author:authorName>Value 1</author:authorName>
+            <author:authorName>Value 2</author:authorName>
+        </book:bookItem>
+    </book:bookList>
+</example:library>
