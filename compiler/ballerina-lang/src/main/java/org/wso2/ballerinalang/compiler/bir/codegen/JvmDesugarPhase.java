@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
+import io.ballerina.types.Env;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -61,9 +62,9 @@ public class JvmDesugarPhase {
     private JvmDesugarPhase() {
     }
 
-    public static void addDefaultableBooleanVarsToSignature(BIRFunction func) {
-        func.type = new BInvokableType(func.type.paramTypes, func.type.restType,
-                                       func.type.retType, func.type.tsymbol);
+    public static void addDefaultableBooleanVarsToSignature(Env env, BIRFunction func) {
+        func.type =
+                new BInvokableType(env, func.type.paramTypes, func.type.restType, func.type.retType, func.type.tsymbol);
         BInvokableType type = func.type;
         func.type.paramTypes = updateParamTypesWithDefaultableBooleanVar(func.type.paramTypes,
                                                                          type.restType);
@@ -94,7 +95,7 @@ public class JvmDesugarPhase {
         return paramTypes;
     }
 
-    static void rewriteRecordInits(List<BIRTypeDefinition> typeDefs) {
+    static void rewriteRecordInits(Env env, List<BIRTypeDefinition> typeDefs) {
         for (BIRTypeDefinition typeDef : typeDefs) {
             BType recordType = JvmCodeGenUtil.getImpliedType(typeDef.type);
             if (recordType.tag != TypeTags.RECORD) {
@@ -102,12 +103,12 @@ public class JvmDesugarPhase {
             }
             List<BIRFunction> attachFuncs = typeDef.attachedFuncs;
             for (BIRFunction func : attachFuncs) {
-                rewriteRecordInitFunction(func, (BRecordType) recordType);
+                rewriteRecordInitFunction(env, func, (BRecordType) recordType);
             }
         }
     }
 
-    private static void rewriteRecordInitFunction(BIRFunction func, BRecordType recordType) {
+    private static void rewriteRecordInitFunction(Env env, BIRFunction func, BRecordType recordType) {
 
         BIRVariableDcl receiver = func.receiver;
 
@@ -129,7 +130,7 @@ public class JvmDesugarPhase {
 
         List<BType> updatedParamTypes = Lists.of(receiver.type);
         updatedParamTypes.addAll(func.type.paramTypes);
-        func.type = new BInvokableType(updatedParamTypes, func.type.restType, func.type.retType, null);
+        func.type = new BInvokableType(env, updatedParamTypes, func.type.restType, func.type.retType, null);
 
         List<BIRVariableDcl> localVars = func.localVars;
         List<BIRVariableDcl> updatedLocalVars = new ArrayList<>();

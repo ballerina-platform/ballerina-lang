@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Env;
 import org.ballerinalang.model.types.InvokableType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -26,6 +27,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,21 +38,34 @@ public class BInvokableType extends BType implements InvokableType {
     public List<BType> paramTypes;
     public BType restType;
     public BType retType;
+    public final Env env;
 
-    public BInvokableType(List<BType> paramTypes, BType restType, BType retType, BTypeSymbol tsymbol) {
+    public BInvokableType(Env env, List<BType> paramTypes, BType restType, BType retType, BTypeSymbol tsymbol) {
         super(TypeTags.INVOKABLE, tsymbol, Flags.READONLY);
-        this.paramTypes = paramTypes;
+        this.paramTypes = Collections.unmodifiableList(paramTypes);
         this.restType = restType;
         this.retType = retType;
+        this.env = env;
     }
 
-    public BInvokableType(List<BType> paramTypes, BType retType, BTypeSymbol tsymbol) {
-        this(paramTypes, null, retType, tsymbol);
+    public BInvokableType(Env env, List<BType> paramTypes, BType retType, BTypeSymbol tsymbol) {
+        this(env, paramTypes, null, retType, tsymbol);
     }
 
-    public BInvokableType(BTypeSymbol tSymbol) {
+    public BInvokableType(Env env, BTypeSymbol tSymbol) {
         super(TypeTags.INVOKABLE, tSymbol, Flags.READONLY);
-        this.paramTypes = new ArrayList<>();
+        this.paramTypes = List.of();
+        this.env = env;
+    }
+
+    public void addParamType(BType type) {
+        List<BType> newParams = new ArrayList<>(paramTypes);
+        newParams.add(type);
+        paramTypes = Collections.unmodifiableList(newParams);
+    }
+
+    public void setParamTypes(List<BType> paramTypes) {
+        this.paramTypes = Collections.unmodifiableList(paramTypes);
     }
 
     @Override

@@ -610,8 +610,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 isTransactionFailedVariable.symbol);
         List<BType> paramTypes = new ArrayList<>();
         paramTypes.add(symTable.booleanType);
-        BInvokableType type = new BInvokableType(paramTypes, symTable.booleanType,
-                                                 null);
+        BInvokableType type = new BInvokableType(symTable.typeEnv(), paramTypes, symTable.booleanType, null);
         BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(
                 names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
                 symTable.builtinPos, VIRTUAL);

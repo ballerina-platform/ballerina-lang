@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.util;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Env;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
@@ -139,14 +140,12 @@ public class TypeDefBuilderHelper {
                                                                    Name suffix,
                                                                    SymbolTable symTable,
                                                                    BType type) {
-        return createInitFunctionForStructureType(symbol, env, names, suffix, type, symTable.nilType);
+        return createInitFunctionForStructureType(symTable.typeEnv(), symbol, env, names, suffix, type,
+                symTable.nilType);
     }
 
-    public static BLangFunction createInitFunctionForStructureType(BSymbol symbol,
-                                                                   SymbolEnv env,
-                                                                   Names names,
-                                                                   Name suffix,
-                                                                   BType type,
+    public static BLangFunction createInitFunctionForStructureType(Env typeEnv, BSymbol symbol, SymbolEnv env,
+                                                                   Names names, Name suffix, BType type,
                                                                    BType returnType) {
         String structTypeName = type.tsymbol.name.value;
         BLangFunction initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(null, structTypeName, suffix);
@@ -162,7 +161,7 @@ public class TypeDefBuilderHelper {
         initFunction.flagSet.add(Flag.ATTACHED);
 
         // Create the function type
-        initFunction.setBType(new BInvokableType(new ArrayList<>(), returnType, null));
+        initFunction.setBType(new BInvokableType(typeEnv, List.of(), returnType, null));
 
         // Create the function symbol
         Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));

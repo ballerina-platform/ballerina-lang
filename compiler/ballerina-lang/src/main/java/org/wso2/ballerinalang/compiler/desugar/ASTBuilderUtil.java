@@ -862,9 +862,9 @@ public class ASTBuilderUtil {
                 new ArrayList<>((List<BAnnotationAttachmentSymbol>) invokableSymbol.getAnnotations()));
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        BInvokableType dupInvokableType = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
-                                                          prevFuncType.restType, prevFuncType.retType,
-                                                          prevFuncType.tsymbol);
+        BInvokableType dupInvokableType =
+                new BInvokableType(invokableSymbol.getType().env, List.copyOf(prevFuncType.paramTypes),
+                        prevFuncType.restType, prevFuncType.retType, prevFuncType.tsymbol);
 
         if (Symbols.isFlagOn(invokableSymbol.flags, Flags.ISOLATED)) {
             dupFuncSymbol.flags |= Flags.ISOLATED;
@@ -912,8 +912,8 @@ public class ASTBuilderUtil {
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        BType newFuncType = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes), prevFuncType.restType,
-                                               prevFuncType.retType, prevFuncType.tsymbol);
+        BType newFuncType = new BInvokableType(invokableSymbol.getType().env, List.copyOf(prevFuncType.paramTypes),
+                prevFuncType.restType, prevFuncType.retType, prevFuncType.tsymbol);
         newFuncType.addFlags(prevFuncType.getFlags());
         dupFuncSymbol.type = newFuncType;
         return dupFuncSymbol;

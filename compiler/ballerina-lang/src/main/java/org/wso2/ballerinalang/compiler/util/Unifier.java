@@ -413,7 +413,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
         }
 
-        BType type = new BInvokableType(paramTypes, newRestType, retType, null);
+        BType type = new BInvokableType(originalType.env, paramTypes, newRestType, retType, null);
         setFlags(type, originalType.getFlags());
         return type;
     }

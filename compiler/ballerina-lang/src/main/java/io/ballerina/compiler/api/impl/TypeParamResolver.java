@@ -312,7 +312,8 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         }
 
         invokableTypeSymbol.returnType = newReturnType;
-        BInvokableType type = new BInvokableType(newParamTypes, newRestParamType, newReturnType, invokableTypeSymbol);
+        BInvokableType type = new BInvokableType(typeInSymbol.env, newParamTypes, newRestParamType, newReturnType,
+                invokableTypeSymbol);
         invokableTypeSymbol.type = type;
 
         return type;

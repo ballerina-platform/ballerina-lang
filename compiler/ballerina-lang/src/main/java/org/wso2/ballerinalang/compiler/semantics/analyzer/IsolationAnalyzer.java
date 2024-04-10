@@ -2228,8 +2228,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                                                                                    tsymbol.pkgID, null, tsymbol.owner,
                                                                                    tsymbol.pos, tsymbol.origin);
             dupInvokableTypeSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
-            BInvokableType dupInvokableType = new BInvokableType(invokableType.paramTypes, invokableType.restType,
-                                                                 invokableType.retType, dupInvokableTypeSymbol);
+            BInvokableType dupInvokableType =
+                    new BInvokableType(symTable.typeEnv(), invokableType.paramTypes, invokableType.restType,
+                            invokableType.retType, dupInvokableTypeSymbol);
             dupInvokableType.addFlags(Flags.ISOLATED);
             dupInvokableTypeSymbol.type = dupInvokableType;
             argExpr.setBType(dupInvokableType);

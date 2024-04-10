@@ -1035,7 +1035,7 @@ public class TypeParamAnalyzer {
             return expType;
         }
 
-        BInvokableType invokableType = new BInvokableType(paramTypes, restType,
+        BInvokableType invokableType = new BInvokableType(expType.env, paramTypes, restType,
                 matchingBoundType, invokableTypeSymbol);
 
         invokableTypeSymbol.returnType = invokableType.retType;

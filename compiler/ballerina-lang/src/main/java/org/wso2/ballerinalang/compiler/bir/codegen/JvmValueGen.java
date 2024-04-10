@@ -171,7 +171,7 @@ public class JvmValueGen {
                     initMethodGen.resetIds();
                 }
             } else {
-                addDefaultableBooleanVarsToSignature(birFunc);
+                addDefaultableBooleanVarsToSignature(jvmPackageGen.symbolTable.typeEnv(), birFunc);
                 initMethodGen.resetIds();
             }
         }

@@ -1439,7 +1439,7 @@ public class BIRPackageSymbolEnter {
                     bMapType.constraint = readTypeFromCp();
                     return bMapType;
                 case TypeTags.INVOKABLE:
-                    BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
+                    BInvokableType bInvokableType = new BInvokableType(typeEnv, List.of(), null, null, null);
                     bInvokableType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                             env.pkgSymbol.pkgID, null,
                             env.pkgSymbol.owner, symTable.builtinPos,

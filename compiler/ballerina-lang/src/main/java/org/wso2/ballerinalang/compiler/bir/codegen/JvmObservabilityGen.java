@@ -360,7 +360,7 @@ class JvmObservabilityGen {
             }
             Name lambdaName = new Name(LAMBDA_PREFIX + "observability" + lambdaIndex++ + "$" +
                     asyncCallIns.name.getValue().replace(".", "_"));
-            BInvokableType bInvokableType = new BInvokableType(argTypes, null,
+            BInvokableType bInvokableType = new BInvokableType(symbolTable.typeEnv(), argTypes, null,
                     returnType, null);
             BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
                     func.workerName, 0, VIRTUAL);
