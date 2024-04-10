@@ -21,8 +21,8 @@ public class TupleVsArrayReadonlyErrorConsistencyTest {
     public void setup() {
         resultWithTupleUpdateMethod =
                 BCompileUtil.compile("test-src/types/readonly/test_tuple_vs_array_readonly_violation_consistency.bal");
-        resultWithoutTupleUpdateMethod = BCompileUtil.compile(
-                "test-src/types/readonly/test_tuple_vs_array_readonly_violation_consistency_without_tuple_Update_method.bal");
+        resultWithoutTupleUpdateMethod = BCompileUtil.compile("test-src/types/readonly/" +
+                "test_tuple_vs_array_readonly_violation_consistency_without_tuple_Update_method.bal");
     }
 
     @Test(expectedExceptions = BLangTestException.class,
