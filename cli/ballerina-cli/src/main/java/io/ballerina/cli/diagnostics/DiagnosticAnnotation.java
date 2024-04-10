@@ -88,8 +88,10 @@ public class DiagnosticAnnotation {
                             colorEnabled) + NEW_LINE;
 
         }
+        String startLine = lines.get(0);
+        String endLine = lines.get(lines.size() - 1);
 
-        int maxLineLength = Math.max(lines.get(0).length(), lines.get(lines.size() - 1).length());
+        int maxLineLength = Math.max(startLine.length(), endLine.length());
         int endDigitsNum = (int) Math.log10(startLineNumber + lines.size() - 1) + 1;
         String padding;
         String paddingWithColon;
@@ -100,11 +102,11 @@ public class DiagnosticAnnotation {
             padding = " ".repeat(endDigitsNum + 1);
             paddingWithColon = " :" + " ".repeat(endDigitsNum - 1);
         }
-        int tabsInLastLine = countTabChars(lines.get(lines.size() - 1), this.endOffset);
-        lines.set(lines.size() - 1, replaceTabs(lines.get(lines.size() - 1), this.endOffset));
+        int tabsInLastLine = countTabChars(endLine, this.endOffset);
+        endLine = replaceTabs(endLine, this.endOffset);
         int maxLength = terminalWidth - endDigitsNum - 3;
-        TruncateResult result1 = truncate(lines.get(0), maxLength, start, length);
-        TruncateResult result2 = truncate(lines.get(lines.size() - 1), maxLength, 0,
+        TruncateResult result1 = truncate(startLine, maxLength, start, length);
+        TruncateResult result2 = truncate(endLine, maxLength, 0,
                 endOffset + 3 * tabsInLastLine);
 
         if (lines.size() == 2) {

@@ -21,10 +21,12 @@ package io.ballerina.cli.diagnostics;
 import io.ballerina.compiler.internal.diagnostics.StringDiagnosticProperty;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.TextDocument;
@@ -59,21 +61,21 @@ public class AnnotateDiagnostics {
 
     public static Ansi renderDiagnostic(Diagnostic diagnostic, Document document, int terminalWidth,
                                         boolean colorEnabled) {
-
-        String diagnosticCode = diagnostic.diagnosticInfo().code();
+        DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
+        String diagnosticCode = diagnosticInfo.code();
         terminalWidth = terminalWidth == 0 ? NO_TRUNCATE_WIDTH : terminalWidth;
         if (diagnostic instanceof PackageDiagnostic packageDiagnostic && diagnosticCode != null &&
                 diagnosticCode.startsWith(COMPILER_ERROR_PREFIX)) {
             int diagnosticCodeNumber = Integer.parseInt(diagnosticCode.substring(3));
             if (diagnosticCodeNumber < SYNTAX_ERROR_CODE_THRESHOLD) {
-                return Ansi.ansi()
-                        .render(diagnosticToString(diagnostic, colorEnabled) + NEW_LINE + getSyntaxDiagnosticAnnotation(
+                return renderAnsi(
+                        diagnosticToString(diagnostic, colorEnabled) + NEW_LINE + getSyntaxDiagnosticAnnotation(
                                 document, packageDiagnostic, diagnosticCodeNumber, terminalWidth, colorEnabled));
             }
         }
         DiagnosticAnnotation diagnosticAnnotation = getDiagnosticAnnotation(
-                document, diagnostic.location(), diagnostic.diagnosticInfo().severity(), terminalWidth, colorEnabled);
-        return Ansi.ansi().render(diagnosticToString(diagnostic, colorEnabled) + NEW_LINE + diagnosticAnnotation);
+                document, diagnostic.location(), diagnosticInfo.severity(), terminalWidth, colorEnabled);
+        return renderAnsi(diagnosticToString(diagnostic, colorEnabled) + NEW_LINE + diagnosticAnnotation);
 
     }
 
@@ -86,18 +88,19 @@ public class AnnotateDiagnostics {
     }
 
     public static Ansi renderDiagnostic(Diagnostic diagnostic, boolean colorEnabled) {
-        return Ansi.ansi().render(diagnosticToString(diagnostic, colorEnabled));
+        return renderAnsi(diagnosticToString(diagnostic, colorEnabled));
     }
 
     public static Map<String, Document> getDocumentMap(Package currentPackage) {
         Map<String, Document> documentMap = new HashMap<>();
         currentPackage.moduleIds().forEach(moduleId -> {
+            Module module = currentPackage.module(moduleId);
             Consumer<DocumentId> consumer = documentId -> {
-                Document document = currentPackage.module(moduleId).document(documentId);
-                documentMap.put(getDocumentPath(document.module().moduleName(), document.name()), document);
+                Document document = module.document(documentId);
+                documentMap.put(getDocumentPath(module.moduleName(), document.name()), document);
             };
-            currentPackage.module(moduleId).documentIds().forEach(consumer);
-            currentPackage.module(moduleId).testDocumentIds().forEach(consumer);
+            module.documentIds().forEach(consumer);
+            module.testDocumentIds().forEach(consumer);
         });
 
         return documentMap;
@@ -112,16 +115,18 @@ public class AnnotateDiagnostics {
     }
 
     private static String diagnosticToString(Diagnostic diagnostic, boolean colorEnabled) {
-        DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
+        DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
+        DiagnosticSeverity severity = diagnosticInfo.severity();
         String severityString = severity.toString();
         String color = SEVERITY_COLORS.get(severity);
         String message = diagnostic.toString().substring(severityString.length());
-        String code = diagnostic.diagnosticInfo().code();
+        String code = diagnosticInfo.code();
         boolean isMultiline = diagnostic.message().contains(NEW_LINE);
+        boolean isCodeNotNull = code != null;
         String formatString = getColoredString("%s", color, colorEnabled) + "%s" +
-                (code != null ? (isMultiline ? NEW_LINE + "(%s)" : " (%s)") : "");
+                (isCodeNotNull ? (isMultiline ? NEW_LINE + "(%s)" : " (%s)") : "");
 
-        return String.format(formatString, severityString, message, code != null ? code : "");
+        return String.format(formatString, severityString, message, isCodeNotNull ? code : "");
     }
 
     private static DiagnosticAnnotation getDiagnosticAnnotation(Document document, Location location,
@@ -236,6 +241,10 @@ public class AnnotateDiagnostics {
         int endLine = location.lineRange().endLine().line();
         int endOffset = location.lineRange().endLine().offset();
         return new LocationDetails(startLine, startOffset, endLine, endOffset);
+    }
+
+    private static Ansi renderAnsi(String message) {
+        return Ansi.ansi().render(message);
     }
 
     /**
