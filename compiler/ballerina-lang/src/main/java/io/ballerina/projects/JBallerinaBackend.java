@@ -611,9 +611,7 @@ public class JBallerinaBackend extends CompilerBackend {
             }
         }
 
-        if (isRootModule(moduleContext)) {
-            JvmCodeGenUtil.isRootPkgCodeGen = true;
-        }
+        JvmCodeGenUtil.isRootPkgCodeGen = isRootModule(moduleContext);
         long birOptimizeDeletionTimeStart = System.currentTimeMillis();
         optimizeBirPackage(bLangPackage.symbol);
         long birOptimizeDeletionTimeEnd = System.currentTimeMillis();
@@ -683,7 +681,7 @@ public class JBallerinaBackend extends CompilerBackend {
         birPackage.importModules.removeIf(module -> unusedPackageIDs.contains(module.packageID));
         birPackage.functions.removeIf(currentFunc -> currentFunc.getUsedState() == UsedState.UNUSED);
         birPackage.typeDefs.removeIf(typeDef -> typeDef.getUsedState() == UsedState.UNUSED);
-        optimizeImmutableTypeDefs(invocationData);
+        optimizeImmutableTypeDefs(invocationData, bPackageSymbol.pkgID);
 
         // FP optimization for functions with default params
         birPackage.globalVars.removeIf(gVar -> gVar.getUsedState() == UsedState.UNUSED);
@@ -692,18 +690,23 @@ public class JBallerinaBackend extends CompilerBackend {
         // TODO Attached function optimization with polymorphism handling
     }
 
-    private void optimizeImmutableTypeDefs(UsedBIRNodeAnalyzer.InvocationData invocationData) {
+    private void optimizeImmutableTypeDefs(UsedBIRNodeAnalyzer.InvocationData invocationData, PackageID pkgID) {
         HashSet<BIRNode.BIRTypeDefinition> deadTypeDefs = new HashSet<>(invocationData.unusedTypeDefs);
+        Map<SelectivelyImmutableReferenceType, BIntersectionType> immutableTypeMap =
+                symbolTable.immutableTypeMaps.get(getPackageIdString(pkgID));
 
         deadTypeDefs.forEach(deadTypeDef -> {
             if (Flags.unMask(deadTypeDef.type.flags).contains(Flag.READONLY)) {
-                Map<SelectivelyImmutableReferenceType, BIntersectionType> immutableTypeMap =
-                        symbolTable.immutableTypeMaps.get(getPackageIdString(deadTypeDef.type.tsymbol.pkgID));
                 if (immutableTypeMap != null) {
                     deadTypeDef.referencedTypes.forEach(immutableTypeMap::remove);
                 }
             }
         });
+
+        // Some types don't have an associated BIRTypeDefinition. These types have to be removed manually.
+        if (immutableTypeMap != null) {
+            immutableTypeMap.entrySet().removeIf(entry -> !entry.getValue().isUsed);
+        }
     }
 
     public static String getPackageIdString(PackageID packageID) {
