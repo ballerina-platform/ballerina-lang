@@ -283,7 +283,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (astPkg.symbol.shouldGenerateDuplicateBIR) {
             genBIR(astPkg, true);
-            // If we don't flip the BIRs, the global var references between pkgs will use the new BIRNodes as references.
+            // If we don't flip the BIRs the global var references between pkgs will use the new BIRNodes as references.
             // This breaks the usedBIRNodeAnalyzer
             flipBIRs(astPkg);
         }

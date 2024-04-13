@@ -12,7 +12,8 @@ import java.util.HashSet;
 
 public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer.AnalyzerData> {
 
-    private static final CompilerContext.Key<UsedTypeDefAnalyzer> BIR_TYPE_DEF_ANALYZER_KEY = new CompilerContext.Key<>();
+    private static final CompilerContext.Key<UsedTypeDefAnalyzer> BIR_TYPE_DEF_ANALYZER_KEY =
+            new CompilerContext.Key<>();
     private final HashMap<BType, BIRNode.BIRTypeDefinition> globalTypeDefPool = new HashMap<>();
     private final HashSet<BType> visitedTypes = new HashSet<>();
     private PackageCache pkgCache;
@@ -50,11 +51,11 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
         data.shouldAnalyzeChildren = prevShouldAnalyzeChildren;
     }
 
-
     // Since bRecordTypes can have related anon functions for default values we have to mark them as used as well
     @Override
     public void analyzeType(BType bType, AnalyzerData data) {
-        HashSet<UsedBIRNodeAnalyzer.FunctionPointerData> fpDataSet = usedBIRNodeAnalyzer.currentInvocationData.getFpData(bType);
+        HashSet<UsedBIRNodeAnalyzer.FunctionPointerData> fpDataSet =
+                usedBIRNodeAnalyzer.currentInvocationData.getFpData(bType);
         if (fpDataSet != null) {
             fpDataSet.forEach(fpData -> {
                 fpData.lambdaPointerVar.markAsUsed();
@@ -123,7 +124,8 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
         }
 
         if (!childTypeDefNode.isInSamePkg(usedBIRNodeAnalyzer.currentPkgID)) {
-            usedBIRNodeAnalyzer.getInvocationData(childTypeDefNode.getPackageID()).startPointNodes.add(childTypeDefNode);
+            usedBIRNodeAnalyzer.getInvocationData(childTypeDefNode.getPackageID()).startPointNodes.add(
+                    childTypeDefNode);
             visitedTypes.remove(bType);
             data.shouldAnalyzeChildren = false;
             return;

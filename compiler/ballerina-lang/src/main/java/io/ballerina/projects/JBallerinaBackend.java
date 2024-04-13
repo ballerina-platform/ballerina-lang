@@ -45,7 +45,7 @@ import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
-import org.wso2.ballerinalang.compiler.bir.codegen.bytecodeOptimizer.NativeDependencyOptimizer;
+import org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer.NativeDependencyOptimizer;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
@@ -132,7 +132,6 @@ public class JBallerinaBackend extends CompilerBackend {
     protected final HashSet<PackageId> unusedPackageIds = new HashSet<>();
     protected final HashSet<ModuleId> unusedModuleIds = new HashSet<>();
     protected final HashMap<PackageId, HashSet<String>> pkgWiseUsedNativeClassPaths = new HashMap<>();
-    private static long birOptimizeDeletionTimeTotal = 0;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return from(packageCompilation, jdkVersion, true);
@@ -177,7 +176,8 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
 
-        if (this.packageContext.project().buildOptions().optimizeCodegen() && !this.packageContext.project().buildOptions().skipTests()) {
+        if (this.packageContext.project().buildOptions().optimizeCodegen() &&
+                !this.packageContext.project().buildOptions().skipTests()) {
             markTestDependenciesForDuplicateBIRGen();
         }
         List<Diagnostic> diagnostics = new ArrayList<>();
@@ -243,7 +243,6 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void registerUnusedBIRNodes() {
-        long startTime = System.currentTimeMillis();
         UsedBIRNodeAnalyzer usedBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
 
         // Reversed the for loop because used BIRNode analysis should start from the root module.
@@ -260,8 +259,7 @@ public class JBallerinaBackend extends CompilerBackend {
             }
         }
 
-        long endTime = System.currentTimeMillis();
-        System.out.println("Duration for unused BIR node analysis : " + (endTime - startTime) + "ms");
+        CodeGenOptimizationReportEmitter.emitBirOptimizationDuration();
     }
 
 
@@ -305,7 +303,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void collectDependencies(BPackageSymbol pkgSymbol, Set<BPackageSymbol> currentDependencies) {
-        pkgSymbol.imports.forEach(dependency->{
+        pkgSymbol.imports.forEach(dependency -> {
             if (currentDependencies.add(dependency)) {
                 collectDependencies(dependency, currentDependencies);
             }
@@ -334,7 +332,6 @@ public class JBallerinaBackend extends CompilerBackend {
                 moduleContext.cleanBLangPackage();
             }
         }
-        System.out.println("Duration for unused BIR node deletion : " + (birOptimizeDeletionTimeTotal) + "ms");
     }
 
     // Build project module and testable modules are considered root module
@@ -352,7 +349,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     /**
-     * Omitting the LangLibs and other modules that does not have BIRPkgNodes
+     * Omitting the LangLibs and other modules that does not have BIRPkgNodes.
      */
     private boolean platformLibraryGenerated(ModuleContext moduleContext) {
         return moduleContext.currentCompilationState() == ModuleCompilationState.PLATFORM_LIBRARY_GENERATED;
@@ -611,11 +608,10 @@ public class JBallerinaBackend extends CompilerBackend {
             }
         }
 
-        JvmCodeGenUtil.isRootPkgCodeGen = isRootModule(moduleContext);
-        long birOptimizeDeletionTimeStart = System.currentTimeMillis();
+        if (isRootModule(moduleContext)) {
+            JvmCodeGenUtil.isRootPkgCodeGen = true;
+        }
         optimizeBirPackage(bLangPackage.symbol);
-        long birOptimizeDeletionTimeEnd = System.currentTimeMillis();
-        birOptimizeDeletionTimeTotal += (birOptimizeDeletionTimeEnd - birOptimizeDeletionTimeStart);
 
         interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
         if (bLangPackage.getErrorCount() > 0) {
@@ -670,13 +666,14 @@ public class JBallerinaBackend extends CompilerBackend {
         BIRNode.BIRPackage birPackage = bPackageSymbol.bir;
 
         if (!invocationData.moduleIsUsed) {
-            // This error is thrown if the compiler tries to pack an UNUSED thin JAR to the final executable with --optimize flag
+            // Thrown if the compiler tries to pack an UNUSED thin JAR to the final executable with --optimize flag
             throw new IllegalStateException(
                     String.format(
                             "BIR Package %s should not be packed to final executable because it is not used!",
                             bPackageSymbol.getName()));
         }
 
+        CodeGenOptimizationReportEmitter.emitInvocationData(bPackageSymbol);
         bPackageSymbol.imports.removeIf(pkgSymbol -> pkgSymbol != null && unusedPackageIDs.contains(pkgSymbol.pkgID));
         birPackage.importModules.removeIf(module -> unusedPackageIDs.contains(module.packageID));
         birPackage.functions.removeIf(currentFunc -> currentFunc.getUsedState() == UsedState.UNUSED);
@@ -867,7 +864,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
             outStream.close();
 
-            long nativeOptStartTime = System.currentTimeMillis();
+            CodeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
             ZipFile birOptimizedFatJar = new ZipFile(birOptimizedJarPath);
 
             HashSet<String> startPoints = new HashSet<>();
@@ -883,13 +880,9 @@ public class JBallerinaBackend extends CompilerBackend {
             nativeDependencyOptimizer.copyUsedEntries();
             optimizedJarStream.close();
 
-            long nativeOptEndTime = System.currentTimeMillis();
-            float optimizedJarSize =
-                    Files.size(Path.of(executableFilePath.toString().replace(".jar", "_OPTIMIZED.jar"))) / (1024f*1024f);
-
-            System.out.println("Duration for Bytecode Optimization (analysis + deletion) : " +
-                    (nativeOptEndTime - nativeOptStartTime) + "ms");
-            System.out.printf("Optimized file size : %f MB%n", optimizedJarSize);
+            CodeGenOptimizationReportEmitter.flipNativeOptimizationTimer();
+            CodeGenOptimizationReportEmitter.emitNativeOptimizationDuration();
+            CodeGenOptimizationReportEmitter.emitOptimizedExecutableSize(executableFilePath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -922,6 +915,7 @@ public class JBallerinaBackend extends CompilerBackend {
                 jarStream = new JarInputStream(Files.newInputStream(rootModuleJarFile.path()));
             }
             Manifest mf = jarStream.getManifest();
+            jarStream.close();
             mainClassName = (String) mf.getMainAttributes().get(Attributes.Name.MAIN_CLASS);
         } catch (IOException e) {
             throw new RuntimeException("Generated jar file cannot be found for the module: " +
@@ -1059,13 +1053,12 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private ByteArrayOutputStream getOptimizedStream(String pathName) {
-        ByteArrayOutputStream optimizedStream = null;
-        for (String entryName : this.optimizedJarStreams.keySet()) {
-            if (pathName.contains(entryName)) {
-                optimizedStream = this.optimizedJarStreams.get(entryName);
+        for (Map.Entry<String, ByteArrayOutputStream> entry : this.optimizedJarStreams.entrySet()) {
+            if (pathName.contains(entry.getKey())) {
+                return entry.getValue();
             }
         }
-        return optimizedStream;
+        return null;
     }
 
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {
