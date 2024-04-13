@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeOptimizer;
+package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
@@ -58,7 +58,7 @@ public class ClassNodeVisitor extends ClassNode {
     }
 
     protected void analyzeClass() {
-        this.reader.accept(this,0);
+        this.reader.accept(this, 0);
     }
 
     protected Set<String> getDependentClasses() {
@@ -66,7 +66,7 @@ public class ClassNodeVisitor extends ClassNode {
     }
 
     /**
-     * Visit class's super class and implemented interfaces to the list of used dependency classes
+     * Visit class's super class and implemented interfaces to the list of used dependency classes.
      */
     @Override
     public void visit(int version, int access, String name, String signature, String superName,
@@ -128,7 +128,7 @@ public class ClassNodeVisitor extends ClassNode {
     }
 
     /**
-     * Visit class level fields and add field types to class-level dependencies
+     * Visit class level fields and add field types to class-level dependencies.
      */
     @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
@@ -144,7 +144,7 @@ public class ClassNodeVisitor extends ClassNode {
     }
 
     /**
-     * Create a MethodGraphNode for each method in a class and adds it to the method list
+     * Create a MethodGraphNode for each method in a class and adds it to the method list.
      */
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
