@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeOptimizer;
+package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -40,6 +40,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+/**
+ * Optimizes a given JAR on class file level.
+ *
+ * @since 2201.9.0
+ */
 public class NativeDependencyOptimizer {
 
     private static final String CLASS = ".class";
@@ -63,21 +68,22 @@ public class NativeDependencyOptimizer {
 
     /**
      * key = implementation class name value = interface class name Since one interface can be implemented by more than
-     * one child class, it is possible to have duplicate values
+     * one child class, it is possible to have duplicate values.
      * <p>
-     * TODO find a way to modify the service provider files and delete the lines containing the UNUSED implementations of interfaces
+     * TODO modify the service provider files and delete the lines containing the UNUSED implementations of interfaces
      */
     private static final Map<String, String> implementationWiseAllServiceProviders = new HashMap<>();
 
     /**
-     * key = used interface value = used implementation
+     * key = used interface value = used implementation.
      */
     private static final Map<String, HashSet<String>> interfaceWiseAllServiceProviders = new HashMap<>();
     private static final Set<String> usedSpInterfaces = new HashSet<>();
     private static final Gson gson = new Gson();
     private final Set<String> startPointClasses;
     private final Stack<String> usedClassesStack;
-    private final Set<String> externalClasses = new HashSet<>();  // TODO use this when modularizing the NativeDependencyOptimizer
+    // TODO use externalClasses field when modularizing the NativeDependencyOptimizer
+    private final Set<String> externalClasses = new HashSet<>();
     private final Set<String> visitedClasses = new HashSet<>();
     private final ZipFile originalJarFile;
     private final ZipArchiveOutputStream optimizedJarStream;
@@ -180,9 +186,10 @@ public class NativeDependencyOptimizer {
             }
 
             if (isReflectionConfig(currentEntry.getName())) {
-                BufferedReader reader =
-                        new BufferedReader(new InputStreamReader(originalJarFile.getInputStream(currentEntry)));
-                whitelistReflectionClasses(reader);
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(originalJarFile.getInputStream(currentEntry), StandardCharsets.UTF_8))) {
+                    whitelistReflectionClasses(reader);
+                }
             }
         }
 

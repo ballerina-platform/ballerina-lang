@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeOptimizer;
+package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Type;

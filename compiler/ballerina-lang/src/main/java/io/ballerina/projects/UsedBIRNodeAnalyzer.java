@@ -34,11 +34,8 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -92,6 +89,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     }
 
     public void analyze(BLangPackage pkgNode) {
+        CodeGenOptimizationReportEmitter.flipBirOptimizationTimer(pkgNode.packageID);
+
         currentInvocationData = pkgNode.symbol.invocationData;
         pkgWiseInvocationData.putIfAbsent(pkgNode.packageID, currentInvocationData);
         currentPkgID = pkgNode.packageID;
@@ -117,6 +116,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         for (BIRNode.BIRDocumentableNode node : currentInvocationData.startPointNodes) {
             visitNode(node);
         }
+
+        CodeGenOptimizationReportEmitter.flipBirOptimizationTimer(pkgNode.packageID);
     }
 
     private void visitNode(BIRNode nodeToVisit) {
@@ -197,7 +198,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                     if (!rhsVar.isInSamePkg(currentPkgID)) {
                         getInvocationData(rhsVar.getPackageID())
                                 .registerNodes(usedTypeDefAnalyzer, this.pkgCache.getBirPkg(rhsVar.getPackageID()));
-                    } else if (rhsVar.type.getKind() == TypeKind.FUNCTION){
+                    } else if (rhsVar.type.getKind() == TypeKind.FUNCTION) {
                         visitNode(currentInvocationData.globalVarFPDataPool.get(rhsVar).lambdaFunction);
                     }
                 }
@@ -301,7 +302,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         localFpHolders.put(fpLoadInstruction.lhsOp.variableDcl, fpData);
-        getInvocationData(currentPkgID).FPDataPool.add(fpData);
+        getInvocationData(currentPkgID).functionPointerDataPool.add(fpData);
     }
 
     /*
@@ -388,7 +389,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             }
 
         } catch (IOException e) {
-            System.out.println("Failed to load interop-dependencies : " + e);
+            throw new RuntimeException("Failed to load interop-dependencies : ", e);
         }
     }
 
@@ -440,7 +441,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         protected final HashSet<BIRNode.BIRTypeDefinition> unusedTypeDefs = new HashSet<>();
         protected final ArrayList<BIRNode.BIRDocumentableNode> startPointNodes = new ArrayList<>();
         private final HashMap<String, BIRNode.BIRFunction> functionPool = new HashMap<>();
-        private final HashSet<FunctionPointerData> FPDataPool = new HashSet<>();
+        private final HashSet<FunctionPointerData> functionPointerDataPool = new HashSet<>();
         private final HashMap<BIRNode.BIRGlobalVariableDcl, FunctionPointerData> globalVarFPDataPool =
                 new HashMap<>();
         private final HashMap<BType, HashSet<FunctionPointerData>> recordDefTypeWiseFPDataPool = new HashMap<>();
@@ -515,7 +516,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         protected void addToUsedPool(BIRNode.BIRFunction birFunction) {
             if (this.unusedFunctions.remove(birFunction)) {
                 this.usedFunctions.add(birFunction);
-            } else if (this.testablePkgInvocationData != null){
+            } else if (this.testablePkgInvocationData != null) {
                 this.testablePkgInvocationData.unusedFunctions.remove(birFunction);
                 this.testablePkgInvocationData.usedFunctions.add(birFunction);
             }
@@ -539,56 +540,50 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         protected Collection<FunctionPointerData> getFpDataPool() {
-            return this.FPDataPool;
+            return this.functionPointerDataPool;
         }
 
-        public void emitInvocationData(File file) {
-            try {
-                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
-                out.newLine();
-                out.write("/".repeat(60));
-                out.write("/".repeat(60));
+        public void emitInvocationData(BufferedWriter out) throws IOException {
+            out.newLine();
+            out.write("/".repeat(60));
+            out.write("/".repeat(60));
 
-                out.newLine();
-                out.write("Used Functions");
-                out.newLine();
+            out.newLine();
+            out.write("Used Functions");
+            out.newLine();
 
-                for (BIRNode.BIRFunction function : usedFunctions) {
-                    out.write(function.originalName.value);
-                    out.newLine();
-                }
-
+            for (BIRNode.BIRFunction function : usedFunctions) {
+                out.write(function.originalName.value);
                 out.newLine();
-                out.write("-".repeat(60));
-                out.newLine();
-                out.write("Deleted functions");
-                for (BIRNode.BIRFunction function : unusedFunctions) {
-                    out.write(function.originalName.value);
-                    out.newLine();
-                }
-
-                out.newLine();
-                out.write("-".repeat(60));
-                out.newLine();
-                out.write("Used Type definitions");
-                for (BIRNode.BIRTypeDefinition typeDef : usedTypeDefs) {
-                    out.write(typeDef.originalName.value);
-                    out.newLine();
-                }
-
-                out.newLine();
-                out.write("-".repeat(60));
-                out.newLine();
-                out.write("Deleted Type definitions");
-                for (BIRNode.BIRTypeDefinition typeDef : unusedTypeDefs) {
-                    out.write(typeDef.originalName.value);
-                    out.newLine();
-                }
-
-                out.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
+
+            out.newLine();
+            out.write("-".repeat(60));
+            out.newLine();
+            out.write("Deleted functions");
+            for (BIRNode.BIRFunction function : unusedFunctions) {
+                out.write(function.originalName.value);
+                out.newLine();
+            }
+
+            out.newLine();
+            out.write("-".repeat(60));
+            out.newLine();
+            out.write("Used Type definitions");
+            for (BIRNode.BIRTypeDefinition typeDef : usedTypeDefs) {
+                out.write(typeDef.originalName.value);
+                out.newLine();
+            }
+
+            out.newLine();
+            out.write("-".repeat(60));
+            out.newLine();
+            out.write("Deleted Type definitions");
+            for (BIRNode.BIRTypeDefinition typeDef : unusedTypeDefs) {
+                out.write(typeDef.originalName.value);
+                out.newLine();
+            }
+
         }
     }
 
@@ -626,8 +621,9 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             }
         }
 
-        // functions with default parameters will desugar into a new lambda function that gets invoked through an FP_CALL inside the init function
-        // We need to delete those if the lambda function is not used
+        // functions with default parameters will desugar into a new lambda function that gets invoked through an
+        // FP_CALL inside the init function.
+        // We need to delete those if the lambda function is not used.
         // If the FP_LOAD instruction is not removed its references will be used for CodeGen.
         // We need to prevent this from happening to fully clean the UNUSED functions.
         protected void deleteIfUnused() {
