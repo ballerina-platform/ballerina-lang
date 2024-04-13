@@ -59,7 +59,8 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
-    public CompiledJarFile generate(BLangPackage bLangPackage, Boolean isDuplicateGeneration, boolean isRemoteMgtEnabled) {
+    public CompiledJarFile generate(BLangPackage bLangPackage, Boolean isDuplicateGeneration,
+                                    boolean isRemoteMgtEnabled) {
         // generate module
         return generate(bLangPackage.symbol, isDuplicateGeneration, isRemoteMgtEnabled);
     }
@@ -68,7 +69,8 @@ public class CodeGenerator {
         return generate(bLangTestablePackage.symbol, false, isRemoteMgtEnabled);
     }
 
-    private CompiledJarFile generate(BPackageSymbol packageSymbol, Boolean isDuplicateGeneration, boolean isRemoteMgtEnabled) {
+    private CompiledJarFile generate(BPackageSymbol packageSymbol, Boolean isDuplicateGeneration,
+                                     boolean isRemoteMgtEnabled) {
         // Desugar BIR to include the observations
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);

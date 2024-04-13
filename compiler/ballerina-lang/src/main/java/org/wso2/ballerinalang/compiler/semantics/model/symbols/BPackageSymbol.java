@@ -17,8 +17,8 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import io.ballerina.projects.UsedBIRNodeAnalyzer;
 import io.ballerina.projects.ModuleDescriptor;
+import io.ballerina.projects.UsedBIRNodeAnalyzer;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;

@@ -16,28 +16,34 @@
  *  under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeOptimizer;
+package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.signature.SignatureVisitor;
 
 import static org.objectweb.asm.Opcodes.ASM9;
 
 /**
- * A visitor class used to visit fields and collect used class types.
+ * A visitor class used to visit signatures and collect used class types.
  */
-public class FieldNodeVisitor extends FieldVisitor {
+public class SignatureNodeVisitor extends SignatureVisitor {
 
+    String signatureClassName;
     private DependencyCollector collector;
 
-    public FieldNodeVisitor(DependencyCollector collector) {
+    public SignatureNodeVisitor(DependencyCollector collector) {
         super(ASM9);
         this.collector = collector;
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        collector.addDesc(desc);
-        return new AnnotationNodeVisitor(collector);
+    public void visitClassType(String name) {
+        signatureClassName = name;
+        collector.addInternalName(name);
+    }
+
+    @Override
+    public void visitInnerClassType(String name) {
+        signatureClassName = signatureClassName + "$" + name;
+        collector.addInternalName(signatureClassName);
     }
 }
