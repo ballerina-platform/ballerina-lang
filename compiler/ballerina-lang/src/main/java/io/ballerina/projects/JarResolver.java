@@ -107,13 +107,17 @@ public class JarResolver {
                 .stream()
                 .filter(pkgDep -> pkgDep.scope() != PackageDependencyScope.TEST_ONLY)
                 .filter(pkgDep -> !pkgDep.packageInstance().descriptor().isLangLibPackage())
-                .filter(pkgDep -> !optimizeFinalExecutable || !jBalBackend.unusedPackageIds.contains(pkgDep.packageId()))
+                .filter(pkgDep -> !optimizeFinalExecutable ||
+                        !jBalBackend.unusedPackageIds.contains(pkgDep.packageId()))
                 .map(pkgDep -> pkgDep.packageInstance().packageContext())
                 .forEach(pkgContext -> {
                     // Add generated thin jar of every module in the package represented by the packageContext
                     addCodeGeneratedLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, jarFiles);
                     // All platform-specific libraries(specified in Ballerina.toml) having the default scope
-                    addPlatformLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, jarFiles, optimizeFinalExecutable);
+                    addPlatformLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, jarFiles,
+                            optimizeFinalExecutable);
+                    addPlatformLibraryPaths(pkgContext, PlatformLibraryScope.PROVIDED, jarFiles, true,
+                            optimizeFinalExecutable);
                 });
 
         // 3) Add the runtime library path
@@ -203,7 +207,8 @@ public class JarResolver {
             JarLibrary newEntry = (JarLibrary) otherJarDependency;
 
             // If there are more than one platform dependency, there could be secondary dependencies
-            if (addOnlyUsedLibraries && !isUsedDependency(newEntry, usedNativeClassPaths, otherJarDependencies.size())) {
+            if (addOnlyUsedLibraries &&
+                    !isUsedDependency(newEntry, usedNativeClassPaths, otherJarDependencies.size())) {
                 continue;
             }
             if (hasEmptyIdOrVersion(newEntry)) {
@@ -254,7 +259,7 @@ public class JarResolver {
         if (usedNativeClassPaths == null) {
             return false;
         }
-        try (JarFile jarFile = new JarFile(otherJarDependency.path().toFile())){
+        try (JarFile jarFile = new JarFile(otherJarDependency.path().toFile())) {
             for (String classPath : usedNativeClassPaths) {
                 ZipEntry usedClassEntry = jarFile.getJarEntry(classPath);
                 if (usedClassEntry != null) {
@@ -271,7 +276,8 @@ public class JarResolver {
         return pkgName.equals("ballerina/observe") || pkgName.equals("ballerinai/observe") || isDriverPkg(pkgName);
     }
 
-    // Driver pkgs are pkgs such as "ballerinax/mysql.driver". These pkgs contain only native jars without any ballerina code
+    // Driver pkgs are pkgs such as "ballerinax/mysql.driver".
+    // These pkgs contain only native jars without any source code.
     private boolean isDriverPkg(String pkgName) {
         return pkgName.startsWith("ballerinax/") && pkgName.endsWith(".driver");
     }

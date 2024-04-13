@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeOptimizer;
+package org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
@@ -28,36 +28,43 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Collects the dependent classes used by a particular class
+ * Collects the dependent classes used by a particular class.
  */
 public class DependencyCollector {
 
-    private final static Pattern pattern = Pattern.compile("([a-zA-Z]\\w+/)+(\\w|[$])+");
+    private static final Pattern pattern = getPattern();
     private final Set<String> dependencies = new HashSet<>();
 
     public DependencyCollector() {
     }
 
+    private static Pattern getPattern() {
+        return Pattern.compile("([a-zA-Z]\\w+/)+(\\w|[$])+");
+    }
+
     /**
-     * Get the class name corresponding to the Type object passed
+     * Get the class name corresponding to the Type object passed.
      */
     public void addType(Type type) {
         switch (type.getSort()) {
             case Type.ARRAY -> addType(type.getElementType());
             case Type.OBJECT -> addName(type.getInternalName());
             case Type.METHOD -> addMethodDesc(type.getDescriptor());
+            default -> {
+                // Do nothing
+            }
         }
     }
 
     /**
-     * Get the class name corresponding to a field, annotation, or variable description
+     * Get the class name corresponding to a field, annotation, or variable description.
      */
     public void addDesc(String desc) {
         addType(Type.getType(desc));
     }
 
     /**
-     * Get the types of the classes used in a class, method, field signature
+     * Get the types of the classes used in a class, method, field signature.
      */
     public void addSignature(String signature) {
         if (signature != null) {
@@ -72,7 +79,7 @@ public class DependencyCollector {
     }
 
     /**
-     * Get the class types of passed constants
+     * Get the class types of passed constants.
      */
     public void addConstant(Object constant) {
         if (constant instanceof Type) {
@@ -81,7 +88,7 @@ public class DependencyCollector {
             addInternalName(handle.getOwner());
             addMethodDesc(handle.getDesc());
         } else if (constant instanceof String s) {
-            //if the passed string matches the patters of a class name, add it as a dependency
+            //if the passed string matches the patters of a class name, add it as a dependency.
             if (checkStringConstant(s.replace('.', '/'))) {
                 addInternalName(s.replace('.', '/'));
             }
@@ -89,7 +96,7 @@ public class DependencyCollector {
     }
 
     /**
-     * Get the parameter types and return type of a method using method description
+     * Get the parameter types and return type of a method using method description.
      */
     public void addMethodDesc(String desc) {
         if (desc.length() <= 1) {
@@ -103,7 +110,7 @@ public class DependencyCollector {
     }
 
     /**
-     * Get the Type of the class represented by the given class name
+     * Get the Type of the class represented by the given class name.
      */
     public void addInternalName(String name) {
         addType(Type.getObjectType(name));

@@ -406,7 +406,8 @@ public abstract class BIRNode {
                            ChannelDetails[] workerChannels,
                            List<BIRAnnotationAttachment> annotAttachments,
                            List<BIRAnnotationAttachment> returnTypeAnnots,
-                           Set<BIRGlobalVariableDcl> dependentGlobalVars, UsedState usedState, HashSet<BIRDocumentableNode> childNodes ) {
+                           Set<BIRGlobalVariableDcl> dependentGlobalVars, UsedState usedState,
+                           HashSet<BIRDocumentableNode> childNodes) {
             super(pos);
             this.name = name;
             this.originalName = originalName;

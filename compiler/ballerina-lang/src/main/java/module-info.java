@@ -89,5 +89,5 @@ module io.ballerina.lang {
             io.ballerina.language.server.core;
     exports io.ballerina.projects.plugins.completion;
     exports io.ballerina.projects.buildtools;
-    exports org.wso2.ballerinalang.compiler.bir.codegen.bytecodeOptimizer;
+    exports org.wso2.ballerinalang.compiler.bir.codegen.bytecodeoptimizer;
 }
