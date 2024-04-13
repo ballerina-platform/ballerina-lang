@@ -138,7 +138,7 @@ public class JarResolver {
                     packageContext.packageId(), moduleContext.moduleName());
             libraryPaths.add(new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext)));
 
-            if (!duplicateJarPaths.isEmpty()) {
+            if (packageContext.project().buildOptions().optimizeCodegen()) {
                 addOptimizedLibraryPaths(packageContext, scope, libraryPaths, moduleContext, moduleId);
             }
         }
