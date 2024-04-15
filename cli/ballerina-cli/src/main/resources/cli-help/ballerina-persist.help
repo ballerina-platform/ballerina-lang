@@ -14,7 +14,7 @@ DESCRIPTION
            $ bal persist add
 
        Define the application's data model as the next step. Use the generated
-       definition file in the `persist` directory to define the data model
+       definition file in the 'persist' directory to define the data model
        with the domain-specific entities. Use the standard Ballerina record type
        definitions to represent entities and their relationships. For example:
 
@@ -31,7 +31,7 @@ DESCRIPTION
                Department department;
            |};
 
-       Then, generate the client API based on the data model. Use the `bal build` command to generate the client API.
+       Then, generate the client API based on the data model. Use the 'bal build' command to generate the client API.
        During project builds, this process updates the client API whenever modifications are made to the data model.
        Use the generated API to query and manipulate the persistent data in the application.
 
@@ -40,12 +40,12 @@ DESCRIPTION
        $ bal persist init
 
        This command initializes the package for persistence.
-       This command will create a new directory named `persist` in the project directory. The `persist` directory will
+       This command will create a new directory named 'persist' in the project directory. The 'persist' directory will
        contain empty model definition file which can be used to define the data model of the Ballerina project.
 
        $ bal persist generate --module persist --datastore mysql
 
-       This command generates the client API based on the data model defined in the `persist` directory. Usually used
+       This command generates the client API based on the data model defined in the 'persist' directory. Usually used
        for one-time generation of the client API.
 
 OPTIONS
@@ -56,10 +56,10 @@ BALLERINA COMMANDS
        The below is a list of available subcommands:
 
        add             Initialize the package for persistence and integrate the client generation to
-                       the `bal build` command.
-       init            Initialize the package for persistence and create the `persist` directory and data model file.
-       generate        Generate the client API based on the data model defined in the `persist` directory
+                       the 'bal build' command.
+       init            Initialize the package for persistence and create the 'persist' directory and data model file.
+       generate        Generate the client API based on the data model defined in the 'persist' directory
        pull            Introspect the existing database schema and generate data model
        migrate         Generate migration scripts to update the database based on the Ballerina schema changes
 
-Use `bal persist <command> --help` for more information on a specific command.
+Use 'bal persist <command> --help' for more information on a specific command.
