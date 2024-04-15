@@ -14,7 +14,7 @@ DESCRIPTION
            $ bal persist add
 
        Define the application's data model as the next step. Use the generated
-       definition file in the "persist" directory to define the data model
+       definition file in the `persist` directory to define the data model
        with the domain-specific entities. Use the standard Ballerina record type
        definitions to represent entities and their relationships. For example:
 
@@ -32,7 +32,7 @@ DESCRIPTION
            |};
 
        Then, generate the client API based on the data model. You can use the `bal build` command to generate the client.
-       This process will automatically regenerate the client whenever you modify the data model during project builds.
+       This process regenerates the client when modifying the data model during project builds.
        Use the generated API to query and manipulate the persistent data in the application.
        For example:
 
@@ -46,7 +46,7 @@ DESCRIPTION
        This command will create a new directory named 'persist' in the project directory. The 'persist' directory will
        contain empty model definition file which can be used to define the data model of the Ballerina project.
 
-       $ bal persist generate --module persist --datastore mysql
+       $ bal persist generate --module persist --datastore db
 
        This command generates the client API based on the data model defined in the "persist" directory. Usually used
        for one time generation of the client.
