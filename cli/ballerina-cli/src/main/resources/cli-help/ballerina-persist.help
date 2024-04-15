@@ -66,6 +66,6 @@ BALLERINA COMMANDS
                        in the 'persist' directory
        pull            Introspect the existing database schema and generate data model
        migrate         Generate migration scripts to update the database based 
-                       on the Ballerina schema changes
+                       on the data model changes
 
 Use 'bal persist <command> --help' for more information on a specific command.
