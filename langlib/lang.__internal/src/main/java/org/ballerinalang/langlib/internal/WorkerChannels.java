@@ -22,6 +22,8 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.scheduling.WorkerDataChannel;
 
+import java.util.Objects;
+
 /**
  * Native implementation of lang.internal:WorkerChannels.
  *
@@ -35,10 +37,11 @@ public class WorkerChannels {
      * @param channelIds channel IDs of the channels to be closed
      */
     public static void autoClose(BString[] channelIds) {
-        Strand parent = Scheduler.getStrand().parent;
+        Strand currentStrand = Scheduler.getStrand();
+        Strand channelHoldingStrand = Objects.requireNonNullElse(currentStrand.parent, currentStrand);
         for (BString channelId : channelIds) {
-            String channelName = channelId.getValue() + ":" + (parent.functionInvocation - 1);
-            WorkerDataChannel workerDataChannel = parent.wdChannels.getWorkerDataChannel(channelName);
+            String channelName = channelId.getValue() + ":" + (channelHoldingStrand.functionInvocation - 1);
+            WorkerDataChannel workerDataChannel = channelHoldingStrand.wdChannels.getWorkerDataChannel(channelName);
             workerDataChannel.autoClose();
         }
     }

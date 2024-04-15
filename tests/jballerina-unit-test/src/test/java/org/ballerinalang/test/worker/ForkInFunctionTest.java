@@ -63,4 +63,12 @@ public class ForkInFunctionTest {
         long returnInt = (long) returns;
         Assert.assertEquals(returnInt, 10);
     }
+
+    @Test(description = "Test fork within if condition")
+    public void testForkWithinIfCondition() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/fork-within-if-condition.bal");
+        Object returns = BRunUtil.invoke(result, "testForkWithinIfCondition");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(((Long) returns).intValue(), 1);
+    }
 }
