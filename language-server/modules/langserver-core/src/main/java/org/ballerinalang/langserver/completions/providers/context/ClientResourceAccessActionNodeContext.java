@@ -215,19 +215,13 @@ public class ClientResourceAccessActionNodeContext
         Optional<TypeSymbol> parameterSymbol = getParameterTypeSymbol(context);
         for (int i = 0; i < completionItems.size(); i++) {
             LSCompletionItem completionItem = completionItems.get(i);
-            if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
+            LSCompletionItem.CompletionItemType type = completionItem.getType();
+            if (type == LSCompletionItem.CompletionItemType.NAMED_ARG) {
                 sortNamedArgCompletionItem(context, completionItem);
             } else if (parameterSymbol.isEmpty()) {
-                sortParameterlessCompletionItem(context, completionItem);
-            } else if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
-                SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
-                if (symbolCompletionItem.getSymbol().isPresent() &&
-                        symbolCompletionItem.getSymbol().get().kind() == SymbolKind.RESOURCE_METHOD) {
-                    completionItem.getCompletionItem().setSortText(
-                            SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol.get()) +
-                                    SortingUtil.genSortText(i + 1));
-                }
-                sortDefaultCompletionItem(context, parameterSymbol.get(), completionItem);
+                sortParameterlessCompletionItem(context, i, completionItem);
+            } else if (type == LSCompletionItem.CompletionItemType.SYMBOL) {
+                sortSymbolCompletionItem(context, parameterSymbol.get(), i, completionItem);
             } else {
                 sortDefaultCompletionItem(context, parameterSymbol.get(), completionItem);
             }
