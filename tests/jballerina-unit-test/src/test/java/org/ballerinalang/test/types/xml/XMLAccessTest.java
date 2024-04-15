@@ -229,6 +229,11 @@ public class XMLAccessTest {
     }
 
     @Test
+    public void testXmlDescendantStepExpression() {
+        BRunUtil.invoke(navigation, "testXmlDescendantStepExpression");
+    }
+
+    @Test
     public void testInvalidXMLAccessWithIndex() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "invalid expr in assignment lhs", 4, 5);
