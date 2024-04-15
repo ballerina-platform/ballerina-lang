@@ -400,6 +400,23 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     }
 
     /**
+     * Search in each element children of the root level xml sequence matching the xml name patterns. When a match is
+     * found, include it in returned sequence and continue the search within the matched element.
+     *
+     * @param qnames Qualified names of the descendants to filter
+     * @return All the descendants that matches the given qualified names, as a sequence, in order of match
+     */
+    public XmlValue rootSequenceDescendants(List<String> qnames) {
+        List<BXml> descendants = new ArrayList<>();
+        for (BXml child : children) {
+            if (child.getNodeType() == XmlNodeType.ELEMENT) {
+                addDescendants(descendants, (XmlItem) child, qnames);
+            }
+        }
+        return new XmlSequence(descendants);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

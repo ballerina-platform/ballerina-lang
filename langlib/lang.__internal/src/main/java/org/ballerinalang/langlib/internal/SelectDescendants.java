@@ -18,9 +18,11 @@
 
 package org.ballerinalang.langlib.internal;
 
+import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.values.XmlSequence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +49,10 @@ public class SelectDescendants {
                 }
                 qnameList.add(strQname);
             }
-            return xml.descendants(qnameList);
+            if (xml.getItemType().equals(XmlNodeType.SEQUENCE.value())) {
+                return ((XmlSequence) xml).rootSequenceDescendants(qnameList);
+            }
+            return (BXml) xml.children().descendants(qnameList);
         } catch (Throwable e) {
             ErrorHelper.handleXMLException(OPERATION, e);
         }
