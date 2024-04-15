@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
@@ -41,7 +40,6 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -127,29 +125,10 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
         completionItem.getCompletionItem().setSortText(sortText);
     }
 
-    protected static void sortParameterlessCompletionItem(BallerinaCompletionContext context,
+    private static void sortParameterlessCompletionItem(BallerinaCompletionContext context,
                                                           LSCompletionItem completionItem) {
         completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(
                 SortingUtil.toRank(context, completionItem)));
-    }
-
-    protected static void sortParameterlessCompletionItem(BallerinaCompletionContext context, int i,
-                                                          LSCompletionItem completionItem) {
-        completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(
-                SortingUtil.toRank(context, completionItem)) + SortingUtil.genSortText(i + 1));
-    }
-
-    protected static void sortSymbolCompletionItem(BallerinaCompletionContext context, TypeSymbol parameterSymbol, int i,
-                                                 LSCompletionItem completionItem) {
-        SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
-        if (symbolCompletionItem.getSymbol().isPresent() &&
-                symbolCompletionItem.getSymbol().get().kind() == SymbolKind.RESOURCE_METHOD) {
-            completionItem.getCompletionItem().setSortText(
-                    SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol) +
-                            SortingUtil.genSortText(i + 1));
-            return;
-        }
-        sortDefaultCompletionItem(context, parameterSymbol, completionItem);
     }
 
     protected static void sortDefaultCompletionItem(BallerinaCompletionContext context, TypeSymbol parameterSymbol,

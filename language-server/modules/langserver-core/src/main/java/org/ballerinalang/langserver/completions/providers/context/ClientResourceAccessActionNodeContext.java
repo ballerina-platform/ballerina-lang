@@ -228,6 +228,25 @@ public class ClientResourceAccessActionNodeContext
         }
     }
 
+    private static void sortParameterlessCompletionItem(BallerinaCompletionContext context, int rank,
+                                                          LSCompletionItem completionItem) {
+        completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(
+                SortingUtil.toRank(context, completionItem)) + SortingUtil.genSortText(rank + 1));
+    }
+
+    private static void sortSymbolCompletionItem(BallerinaCompletionContext context, TypeSymbol parameterSymbol,
+                                                   int rank, LSCompletionItem completionItem) {
+        SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
+        Optional<Symbol> symbol = symbolCompletionItem.getSymbol();
+        if (symbol.isPresent() && symbol.get().kind() == SymbolKind.RESOURCE_METHOD) {
+            completionItem.getCompletionItem().setSortText(
+                    SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol) +
+                            SortingUtil.genSortText(rank + 1));
+            return;
+        }
+        sortDefaultCompletionItem(context, parameterSymbol, completionItem);
+    }
+
     private List<LSCompletionItem> getPathSegmentCompletionItems(ClientResourceAccessActionNode node,
                                                                  BallerinaCompletionContext context,
                                                                  List<ResourceMethodSymbol> resourceMethods,
