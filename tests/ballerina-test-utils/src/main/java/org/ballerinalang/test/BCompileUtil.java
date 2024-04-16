@@ -118,6 +118,18 @@ public final class BCompileUtil {
         return compileResult;
     }
 
+    public static CompileResult compileOptimized(String sourceFilePath) {
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        BuildOptions buildOptions = buildOptionsBuilder.setOptimizeCodegen(Boolean.TRUE).build();
+        Project project = loadProject(sourceFilePath, buildOptions);
+
+        Package currentPackage = project.currentPackage();
+        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
+        jBallerinaBackend.diagnosticResult().hasErrors();
+
+        return new CompileResult(currentPackage, jBallerinaBackend);
+    }
+
     public static BIRCompileResult generateBIR(String sourceFilePath) {
         Project project = loadProject(sourceFilePath);
         NullBackend nullBackend = NullBackend.from(project.currentPackage().getCompilation());

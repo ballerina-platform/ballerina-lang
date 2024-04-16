@@ -18,16 +18,26 @@
 
 package io.ballerina.projects;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DIR_NAME;
 
 /**
  * Emits time durations and optimized node details for codegen optimization.
@@ -36,9 +46,10 @@ import java.util.Map;
  */
 public class CodeGenOptimizationReportEmitter {
 
-    private static final Map<PackageID, Long> birOptimizationDurations = new HashMap<>();
+    private static final Map<PackageID, Long> birOptimizationDurations = new LinkedHashMap<>();
     private static long nativeOptimizationDuration = 0;
     private static final PrintStream out = System.out;
+    private static final String CODEGEN_OPTIMIZATION_REPORT = "codegen_optimization_report.json";
 
     protected static void flipBirOptimizationTimer(PackageID pkgId) {
         if (birOptimizationDurations.containsKey(pkgId)) {
@@ -58,8 +69,11 @@ public class CodeGenOptimizationReportEmitter {
     }
 
     protected static void emitBirOptimizationDuration() {
-        out.println("Duration for unused BIR node analysis");
-        birOptimizationDurations.forEach((key, value) -> out.printf("%8s : %dms%n", key, value));
+        long totalDuration = birOptimizationDurations.values().stream().mapToLong(Long::longValue).sum();
+
+        out.printf("Duration for unused BIR node analysis : %dms%n", totalDuration);
+        birOptimizationDurations.forEach((key, value) -> out.printf("    %s : %dms%n", key, value));
+        out.println();
     }
 
     protected static void emitNativeOptimizationDuration() {
@@ -75,51 +89,87 @@ public class CodeGenOptimizationReportEmitter {
                             (1024f * 1024f);
             System.out.printf("Optimized file size : %f MB%n", optimizedJarSize);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ProjectException("Failed to emit optimized executable size ", e);
         }
     }
 
-    protected static void emitInvocationData(BPackageSymbol pkgSymbol) {
-        out.println("/".repeat(60));
-        out.printf("%s Optimization Report : %s %s%n", "-".repeat(5), pkgSymbol.pkgID, "-".repeat(5));
-        out.println("/".repeat(60));
+    protected static void emitCodegenOptimizationReport(
+            Map<PackageID, UsedBIRNodeAnalyzer.InvocationData> invocationDataMap, Path projectDirectoryPath,
+            ProjectKind projectKind) {
 
-        out.println("Used Functions");
-        out.println();
+        Path reportParentDirectoryPath = projectDirectoryPath.resolve(TARGET_DIR_NAME).toAbsolutePath().normalize();
 
-        for (BIRNode.BIRFunction function : pkgSymbol.invocationData.usedFunctions) {
-            out.printf("%8s%n", function.originalName.value);
+        if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
+            projectDirectoryPath = projectDirectoryPath.toAbsolutePath().getParent();
+            reportParentDirectoryPath = projectDirectoryPath;
         }
 
-        out.println();
-        out.println("-".repeat(60));
-        out.println();
-
-        out.println("Deleted functions");
-        out.println();
-        for (BIRNode.BIRFunction function : pkgSymbol.invocationData.unusedFunctions) {
-            out.printf("%8s%n", function.originalName.value);
+        if (!Files.exists(reportParentDirectoryPath)) {
+            try {
+                Files.createDirectories(reportParentDirectoryPath);
+            } catch (IOException e) {
+                throw new ProjectException("Failed to create Optimization Report directory ", e);
+            }
         }
 
-        out.println();
-        out.println("-".repeat(60));
-        out.println();
+        Map<String, CodegenOptimizationReport> reports = new LinkedHashMap<>();
+        invocationDataMap.forEach((key, value) -> {
+            reports.put(key.toString(), getCodegenOptimizationReport(value));
+        });
 
-        out.println("Used Type definitions");
-        out.println();
-        for (BIRNode.BIRTypeDefinition typeDef : pkgSymbol.invocationData.usedTypeDefs) {
-            out.printf("%8s%n", typeDef.originalName.value);
+        Path jsonFilePath = reportParentDirectoryPath.resolve(CODEGEN_OPTIMIZATION_REPORT);
+        File jsonFile = new File(jsonFilePath.toString());
+
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+            String json = gson.toJson(reports);
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new ProjectException("couldn't write data to optimization report file : ", e);
+        }
+    }
+
+    private static CodegenOptimizationReport getCodegenOptimizationReport(
+            UsedBIRNodeAnalyzer.InvocationData invocationData) {
+        return new CodegenOptimizationReport(getFunctionNames(invocationData.usedFunctions),
+                getFunctionNames(invocationData.unusedFunctions), getTypeDefNames(invocationData.usedTypeDefs),
+                getTypeDefNames(invocationData.unusedTypeDefs), invocationData.usedNativeClassPaths);
+    }
+
+    private static CodegenOptimizationReport.FunctionNames getFunctionNames(HashSet<BIRNode.BIRFunction> birFunctions) {
+        CodegenOptimizationReport.FunctionNames functionNames =
+                new CodegenOptimizationReport.FunctionNames(new HashSet<>(), new HashSet<>());
+        birFunctions.forEach(birFunction -> {
+            if (birFunction.origin == SymbolOrigin.COMPILED_SOURCE) {
+                functionNames.sourceFunctions().add(getFunctionName(birFunction));
+            } else {
+                functionNames.virtualFunctions().add(getFunctionName(birFunction));
+            }
+        });
+        return functionNames;
+    }
+
+    private static String getFunctionName(BIRNode.BIRFunction birFunction) {
+        if (birFunction.receiver == null) {
+            return birFunction.name.value;
         }
 
-        out.println();
-        out.println("-".repeat(60));
-        out.println();
+        // If the function is an attached function, we have to emit the parent as well.
+        return birFunction.receiver.type.toString() + "." + birFunction.name.value;
+    }
 
-        out.println("Deleted Type definitions");
-        out.println();
-        for (BIRNode.BIRTypeDefinition typeDef : pkgSymbol.invocationData.unusedTypeDefs) {
-            out.printf("%8s%n", typeDef.originalName.value);
-        }
+    private static CodegenOptimizationReport.TypeDefinitions getTypeDefNames(
+            HashSet<BIRNode.BIRTypeDefinition> birTypeDefs) {
+        CodegenOptimizationReport.TypeDefinitions typeDefNames =
+                new CodegenOptimizationReport.TypeDefinitions(new HashSet<>(), new HashSet<>());
+        birTypeDefs.forEach(birTypeDef -> {
+            if (birTypeDef.origin == SymbolOrigin.COMPILED_SOURCE) {
+                typeDefNames.sourceTypeDefinitions().add(birTypeDef.internalName.value);
+            } else {
+                typeDefNames.virtualTypeDefinitions().add(birTypeDef.internalName.value);
+            }
+        });
+        return typeDefNames;
     }
 
 }

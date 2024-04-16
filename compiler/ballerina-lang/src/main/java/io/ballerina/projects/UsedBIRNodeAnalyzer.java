@@ -65,7 +65,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     // Variable Declarations holding an FPs are needed to be tracked to achieve that.
     private static HashMap<BIRNode.BIRVariableDcl, FunctionPointerData> localFpHolders = new HashMap<>();
     // pkgWiseInvocationData is used for debugging purposes
-    public final HashMap<PackageID, UsedBIRNodeAnalyzer.InvocationData> pkgWiseInvocationData = new HashMap<>();
+    public final Map<PackageID, UsedBIRNodeAnalyzer.InvocationData> pkgWiseInvocationData = new LinkedHashMap<>();
     protected UsedBIRNodeAnalyzer.InvocationData currentInvocationData;
     protected PackageID currentPkgID;
     private final PackageCache pkgCache;
