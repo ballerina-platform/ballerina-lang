@@ -34,6 +34,7 @@ dependencies {
     testImplementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
     testImplementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     testImplementation 'org.testng:testng'
+    testImplementation('com.google.code.gson:gson')
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     testImplementation project(':ballerina-runtime')
     testRuntimeOnly project(':ballerina-runtime')
