@@ -123,6 +123,7 @@ public final class SemTypeHelper {
             case TypeTags.TUPLE:
             case TypeTags.MAP:
             case TypeTags.RECORD:
+            case TypeTags.INVOKABLE:
                 return t.semType();
             default:
                 if (isFullSemType(t.tag)) {
