@@ -547,6 +547,9 @@ public class RunTestsTask implements Task {
             }
         }
 
+        // Add platform libs
+        moduleJarPaths.addAll(jBallerinaBackend.jarResolver().getAllPlatformLibraries().stream()
+                .map(JarLibrary::path).toList());
         return moduleJarPaths.stream().distinct().collect(Collectors.toList());
     }
 

@@ -134,6 +134,19 @@ public class JarResolver {
         addPlatformLibraryPaths(packageContext, scope, libraryPaths, false);
     }
 
+    /**
+     * Returns all the platform libraries used in the project.
+     * @return set of platform libraries
+     */
+    public HashSet<JarLibrary> getAllPlatformLibraries() {
+        HashSet<JarLibrary> allPlatformLibraries = new HashSet<>();
+        //go through all platform library scopes
+        for (PlatformLibraryScope scope : PlatformLibraryScope.values()) {
+            addPlatformLibraryPaths(rootPackageContext, scope, allPlatformLibraries);
+        }
+        return allPlatformLibraries;
+    }
+
     private void addPlatformLibraryPaths(PackageContext packageContext,
                                          PlatformLibraryScope scope,
                                          Set<JarLibrary> libraryPaths,
