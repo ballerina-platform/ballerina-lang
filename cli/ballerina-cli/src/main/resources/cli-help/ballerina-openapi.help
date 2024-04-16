@@ -13,6 +13,7 @@ SYNOPSIS
                    [--operations <operation-names>] [-n | --nullable]
                    [--license] <license-file-path> [--with-tests]
                    [--client-methods] <resource|remote> [--without-data-binding]
+                   [--with-status-code-binding]
        bal openapi [-i | --input] <ballerina-service-file-path> [--json]
                    [-s | --service] <current-service-name>
 
@@ -21,7 +22,7 @@ DESCRIPTION
        Generate a Ballerina source (either a mock service or a client stub) from
        the given OpenAPI definition file or export an OpenAPI definition from a
        Ballerina service.
-    
+
        The generated Ballerina sources will be written into the provided output
        location.
 
@@ -86,6 +87,9 @@ OPTIONS
             This option can be used in the service generation to generate a low-level service
             without any data-binding logic.
 
+        --with-status-code-binding
+            This option can be used in the client generation to generate the client methods with status code response binding.
+
 EXAMPLES
        Generate a Ballerina mock service using a `hello.yaml` OpenAPI contract.
            $ bal openapi -i hello.yaml --mode service
@@ -113,6 +117,10 @@ EXAMPLES
        Generate a Ballerina service without data binding using a `hello.yaml` OpenAPI contract.
            $ bal openapi -i hello.yaml --mode service --without-data-binding
            $ bal openapi -i hello.yaml --without-data-binding
+
+       Generate a Ballerina client with status code response binding using a `hello.yaml` OpenAPI contract.
+          $ bal openapi -i hello.yaml --mode client --with-status-code-binding
+          $ bal openapi -i hello.yaml --with-status-code-binding
 
        Generate all the record fields that are not specifically mentioned as
        `nullable:false` in the OpenAPI schema property as nullable.
