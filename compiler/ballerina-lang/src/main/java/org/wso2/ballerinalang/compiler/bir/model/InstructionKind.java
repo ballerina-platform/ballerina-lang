@@ -38,6 +38,8 @@ public enum InstructionKind {
     FIELD_LOCK((byte) 12),
     UNLOCK((byte) 13),
     WAIT_ALL((byte) 14),
+    WK_ALT_RECEIVE((byte) 15),
+    WK_MULTIPLE_RECEIVE((byte) 16),
 
     // Non-terminating instructions
     MOVE((byte) 20),

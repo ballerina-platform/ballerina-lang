@@ -120,9 +120,9 @@ public class PackageCompilation {
         return compilation;
     }
 
-    List<Diagnostic> notifyCompilationCompletion(Path filePath) {
+    List<Diagnostic> notifyCompilationCompletion(Path filePath, BalCommand balCommand) {
         CompilerLifecycleManager manager = this.compilerPluginManager.getCompilerLifecycleListenerManager();
-        List<Diagnostic> diagnostics = manager.runCodeGeneratedTasks(filePath);
+        List<Diagnostic> diagnostics = manager.runCodeGeneratedTasks(filePath, balCommand);
         this.pluginDiagnostics.addAll(diagnostics);
         return diagnostics;
     }

@@ -100,6 +100,17 @@ public function anonymousRecordWithTypeInclusion() {
     assertEquality(3, rec.x);
 }
 
+function testRecordWithDefaultsFromBindingPatternVar() {
+    final record {|readonly int y;|} r = {y: 20};
+    final var {y} = r;
+    record {
+        string name;
+        int age = y;
+    } person = {name: "Ann"};
+
+    assertEquality(20, person.age);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

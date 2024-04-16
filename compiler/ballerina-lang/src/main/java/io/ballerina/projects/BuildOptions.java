@@ -37,7 +37,8 @@ public class BuildOptions {
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
-                 Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions) {
+                 Boolean nativeImage, Boolean exportComponentModel,
+                 String graalVMBuildOptions) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;

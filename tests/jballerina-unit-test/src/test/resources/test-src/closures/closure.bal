@@ -813,6 +813,116 @@ function test30() {
     assert(y, 117);
 }
 
+type School record {|
+    string name;
+|};
+
+type Doctor record {
+    string name;
+    string category;
+    School school;
+};
+
+function testClosureWithStructuredBindingTypeParams() {
+    string[] categories = ["Orthopedic", "Dentist"];
+    string[] schools = [];
+    Doctor doctor = {name: "Dr. Smith", category: "Cardiologist", school: {name: "Medical College"}};
+    var {category, school: {name}} = doctor;
+    var f = function () {
+        categories.push(category);
+    };
+    var g = function () {
+        schools.push(name);
+    };
+    if !categories.some(existingCategory => existingCategory == category) {
+        f();
+    }
+    if !schools.some(existingSchool => existingSchool == name) {
+        g();
+    }
+    assert(categories, ["Orthopedic", "Dentist", "Cardiologist"]);
+    assert(schools, ["Medical College"]);
+}
+
+function testClosureWithTupleBindingTypeParams() {
+    [int, [string, string]] [id, [firstname, _]] = [1,["John", "Doe"]];
+    var increment = function() returns int {
+        int len = firstname.length();
+        return id + len;
+    };
+    assert(increment(), 5);
+}
+
+function testClosureWithBindingPatternDefaultValues() {
+    record {|string nt;|} r = {nt: "nt"};
+    [string] [i] = ["i"];
+    var {nt} = r;
+    var f = function(string s = i) returns string {
+        return i + nt;
+    };
+    assert(f(), "int");
+}
+
+type SampleErrorData record {|
+    int code;
+    string reason;
+|};
+
+type SampleError error<SampleErrorData>;
+
+function testClosureWithErrorBindingPatterns() {
+    SampleError e = error("Transaction Failure", error("Database Error"), code = 20,
+                                            reason = "deadlock condition");
+    var error(code = code, reason = reason) = e;
+    var formatMessage = function() returns string {
+        return code.toString() + ":" + reason;
+    };
+    assert(formatMessage(), "20:deadlock condition");
+}
+
+type R record {|
+    int a;
+    string b;
+|};
+
+function testClosureWithBindingPatternsInForEach() {
+    string[] values = ["a", "b", "c"];
+    string[] restrictedKeys = ["g", "h", "i"];
+    map<int> data = {
+        a: 1
+    };
+
+    foreach var [k, _] in data.entries() {
+        var isRestricted = function() returns boolean {
+            return restrictedKeys.indexOf(k) !is ();
+        };
+        assert(isRestricted(), false);
+        assert(values.filter(item => item == k), ["a"]);
+    }
+
+    R[] rs = [{a: 1, b: "a"}, {a: 2, b: "b"}, {a: 3, b: "c"}];
+    int[] allowedNs = [1, 2, 3];
+
+    foreach var {a: a, b: b1} in rs {
+        var isAllowed = function() returns boolean {
+            return allowedNs.indexOf(a) !is ();
+        };
+        assert(isAllowed(), true);
+        assert(values.filter(item => item == b1), [b1]);
+    }
+
+    SampleError e1 = error("Type Cast Failure", error("Type Error"), code = 21,
+                                            reason = "xml cannot be cast to json");
+    SampleError[] es = [e1];
+
+    foreach var error(code = code, reason = reason) in es {
+        var getErrorMessage = function() returns string {
+            return code.toString() + ":" + reason;
+        };
+        assert(getErrorMessage(), "21:xml cannot be cast to json");
+    }
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected == actual) {
             return;

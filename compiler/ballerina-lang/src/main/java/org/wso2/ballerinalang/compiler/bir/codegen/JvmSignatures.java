@@ -83,6 +83,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECEIVE_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_ASSERTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_ATOM_QUANTIFIER;
@@ -111,7 +112,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TOML_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIG_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRANSACTION_CONTEXT_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
@@ -263,6 +264,7 @@ public class JvmSignatures {
     public static final String GET_TYPE_REF_TYPE_IMPL = "L" + TYPE_REF_TYPE_IMPL + ";";
     public static final String GET_WD_CHANNELS = "L" + WD_CHANNELS + ";";
     public static final String GET_WORKER_DATA_CHANNEL = "(L" + STRING_VALUE + ";)L" + WORKER_DATA_CHANNEL + ";";
+    public static final String REMOVE_WORKER_DATA_CHANNEL = "(L" + STRAND_CLASS + ";L" + STRING_VALUE + ";)V";
     public static final String GET_XML = "L" + XML_VALUE + ";";
     public static final String HANDLE_CHANNEL_ERROR = "([L" + CHANNEL_DETAILS + ";L" + ERROR_VALUE + ";)V";
     public static final String HANDLE_ERROR_RETURN = "(L" + OBJECT + ";)V";
@@ -284,10 +286,11 @@ public class JvmSignatures {
     public static final String INIT_BAL_ENV_WITH_FUNC_NAME = "(L" + STRAND_CLASS + ";L" + MODULE + ";L" + STRING_VALUE
             + ";[L" + FUNCTION_PARAMETER + ";)V";
     public static final String INIT_CHANNEL_DETAILS = "(L" + STRING_VALUE + ";ZZ)V";
+    public static final String INIT_RECEIVE_FIELD = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";)V";
     public static final String INIT_CLI_SPEC = "(L" + OPTION + ";[L" + OPERAND + ";[L" + STRING_VALUE + ";)V";
     public static final String INIT_CONFIG = "([L" + STRING_VALUE + ";[L" + PATH + ";L" + STRING_VALUE + ";)V";
-    public static final String INIT_CONFIGURABLES =
-            "(L" + MODULE + ";L" + MAP + ";[L" + STRING_VALUE + ";[L" + PATH + ";L" + STRING_VALUE + ";)V";
+    public static final String INIT_CONFIGURABLES = "(L" + MODULE + ";L" + MAP + ";[L" + STRING_VALUE + ";[L"
+                                                    + PATH + ";L" + STRING_VALUE + ";)V";
     public static final String INIT_TEST_ARGS = "([L" + STRING_VALUE + ";)V";
     public static final String INIT_DECIMAL = "(L" + BIG_DECIMAL + ";)V";
     public static final String INIT_ERROR = "(L" + B_STRING_VALUE + ";)V";
@@ -498,10 +501,13 @@ public class JvmSignatures {
     public static final String CREATE_RE_QUANTIFIER = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";)L"
             + REG_EXP_QUANTIFIER + ";";
     public static final String GRACEFUL_EXIT_METHOD = "(L" + STRAND_CLASS + ";)V";
-    public static final String GET_TOML_DETAILS = "()L" + TOML_DETAILS + ";";
+    public static final String GET_CONFIG_DETAILS = "()L" + CONFIG_DETAILS + ";";
     public static final String GET_TEST_CONFIG_PATH = "(L" + MODULE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
-            ";)L" + TOML_DETAILS + ";";
+                                                      ";)L" + CONFIG_DETAILS + ";";
     public static final String SET_DEFAULT_VALUE_METHOD = "(L" + STRING_VALUE + ";L" + B_FUNCTION_POINTER + ";)V";
+    public static final String ALT_RECEIVE_CALL = "(L" + STRAND_CLASS + ";[L" + STRING_VALUE + ";)L" + OBJECT + ";";
+    public static final String MULTIPLE_RECEIVE_CALL = "(L" + STRAND_CLASS + ";[L" + RECEIVE_FIELD + ";L" + TYPE +
+            ";)L" + OBJECT + ";";
 
     private JvmSignatures() {
     }

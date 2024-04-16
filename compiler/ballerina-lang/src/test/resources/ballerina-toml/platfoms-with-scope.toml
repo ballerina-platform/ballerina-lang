@@ -20,6 +20,13 @@ version = "0.7.2"
 groupId = "swagger.io"
 scope = "testOnly"
 
+[[platform.java17.dependency]]
+path = "../dummy-jars/ibm.mq.txt"
+artifactId = "com.ibm.mq.allclient"
+version = "9.3.4.0"
+groupId = "com.ibm.mq"
+scope = "provided"
+
 [build-options]
 observabilityIncluded = false
 offline = true

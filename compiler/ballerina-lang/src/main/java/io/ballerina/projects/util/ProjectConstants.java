@@ -16,8 +16,6 @@
  *  under the License.
  */
 package io.ballerina.projects.util;
-
-
 /**
  * Defines constants related to the project directory.
  *
@@ -51,6 +49,7 @@ public class ProjectConstants {
     public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
     public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
     public static final String BUILD_FILE = "build";
+    public static final String JAVA_CLASS_EXT = ".class";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
@@ -112,7 +111,13 @@ public class ProjectConstants {
     // Test framework related constants
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
     public static final String TEST_CORE_JAR_PREFIX = "testerina-core-";
+    public static final String TEST_UBER_JAR_SUFFIX = "-testable";
+    public static final String FAT_JAR_ROOT_DIR = "/";
+    public static final String TEST_RUNTIME_MAIN_ARGS_FILE = "mainArgs.txt";
+    public static final String EXCLUDED_CLASSES_FILE = "excludedClasses.txt";
+
     public static final String TEST_SUITE = "test_suite";
+    public static final String TEST_SUITE_JSON = "test_suit.json";
 
     public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.10.jar";
     public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.10.jar";

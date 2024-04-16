@@ -1,0 +1,22 @@
+[package]
+org = "foo"
+name = "winery"
+version = "0.1.0"
+
+[[tool.dummy_tool_invalid_name.proces__s]]
+id = "main_dummy"
+filePath = "delivery.json"
+targetModule = "mod_main"
+options.processValue = "Gayal Dassanayake"
+
+ [[tool.dummy_tool_invalid_name._write]]
+ id = "write_dummy"
+ filePath = "delivery.json"
+ targetModule = "mod_write"
+ options.writeValue = "Gayal Dassanayake"
+
+ [[tool.dummy_tool_invalid_name.read_]]
+ id = "read_dummy"
+ filePath = "delivery.json"
+ targetModule = "mod_read"
+ options.readValue = "Gayal Dassanayake"

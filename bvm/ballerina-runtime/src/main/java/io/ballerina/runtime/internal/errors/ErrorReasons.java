@@ -133,6 +133,8 @@ public class ErrorReasons {
     public static final BString REGEXP_OPERATION_ERROR = getModulePrefixedReason(REGEXP_LANG_LIB,
             "RegularExpressionOperationError");
 
+    public static final BString NO_MESSAGE_ERROR = StringUtils.fromString("NoMessage");
+
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)
                                               .concat(CLOSING_CURLY_BRACE).concat(identifier));

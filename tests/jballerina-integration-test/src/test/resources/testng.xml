@@ -151,4 +151,10 @@
             <class name="org.ballerinalang.test.profiler.ProfilerTest"/>
         </classes>
     </test>
+    <test name="ballerina-runtime-api-tests">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.runtime.api.RuntimeAPITest"/>
+        </classes>
+    </test>
 </suite>

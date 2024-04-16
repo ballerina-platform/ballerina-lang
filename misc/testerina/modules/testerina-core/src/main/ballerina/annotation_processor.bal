@@ -51,8 +51,8 @@ function processConfigAnnotation(string name, function f) returns boolean {
         boolean isDataProviderIsolated = true;
         boolean isTestFunctionParamSafe = true;
         string[] reasonForSerialExecution = [];
-        boolean isSatisfiedParallelizableConditions = isTestFunctionIsolated &&
-                                                    isBeforeAfterFuncSetIsolated(config, reasonForSerialExecution);
+        boolean isSatisfiedParallelizableConditions = isBeforeAfterFuncSetIsolated(config,
+                reasonForSerialExecution) && isTestFunctionIsolated;
         DataProviderReturnType? params = ();
         error? diagnostics = ();
         if config.dataProvider != () {
@@ -83,8 +83,9 @@ function processConfigAnnotation(string name, function f) returns boolean {
 
         // If the test function is not parallelizable, then print the reason for serial execution.
         if !isSatisfiedParallelizableConditions && !(config?.serialExecution == () ? false : true)
-                                                                    && conMgr.isParallelExecutionEnabled() {
-            println(string `WARNING: Test function '${name}' cannot be parallelized, reason: ${string:'join(", ", ...reasonForSerialExecution)}`);
+                                                                    && executionManager.isParallelExecutionEnabled() {
+            println(string `WARNING: Test function '${name}' cannot be parallelized, reason: ${string:'join(", ",
+            ...reasonForSerialExecution)}`);
         }
 
         boolean enabled = config.enable && (filterGroups.length() == 0 ? true : hasGroup(config.groups, filterGroups))
@@ -95,9 +96,9 @@ function processConfigAnnotation(string name, function f) returns boolean {
         testRegistry.addFunction(name = name, executableFunction = f, before = config.before,
             after = config.after, groups = config.groups.cloneReadOnly(), diagnostics = diagnostics,
             dependsOn = config.dependsOn.cloneReadOnly(), serialExecution = ((config?.serialExecution != ())
-            || !isSatisfiedParallelizableConditions || !conMgr.isParallelExecutionEnabled()),
+            || !isSatisfiedParallelizableConditions || !executionManager.isParallelExecutionEnabled()),
             config = config.cloneReadOnly());
-        conMgr.createTestFunctionMetaData(functionName = name, dependsOnCount = config.dependsOn.length(),
+        executionManager.createTestFunctionMetaData(functionName = name, dependsOnCount = config.dependsOn.length(),
             enabled = enabled);
     }
     return false;
@@ -125,16 +126,16 @@ function isBeforeAfterFuncSetIsolated(TestConfig config, string[] reasonForSeria
             foreach TestFunction beforeGroupFunction in beforeGroupFunctions {
                 if beforeGroupFunction.executableFunction !is isolated function {
                     isBeforeAfterFunctionSetIsolated = false;
-                    reasonForSerialExecution.push("non-isolated before-group function");
+                    reasonForSerialExecution.push("non-isolated before-groups function");
                 }
             }
         }
         TestFunction[]? afterGroupFunctions = afterGroupsRegistry.getFunctions('group);
         if afterGroupFunctions !is () {
             foreach TestFunction afterGroupFunction in afterGroupFunctions {
-                if afterGroupFunction.executableFunction !is isolated function { // TODO: move exaclamation before is 
+                if afterGroupFunction.executableFunction !is isolated function {
                     isBeforeAfterFunctionSetIsolated = false;
-                    reasonForSerialExecution.push("non-isolated after-group function");
+                    reasonForSerialExecution.push("non-isolated after-groups function");
                 }
             }
         }

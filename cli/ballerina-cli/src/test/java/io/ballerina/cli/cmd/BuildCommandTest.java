@@ -365,6 +365,34 @@ public class BuildCommandTest extends BaseCommandTest {
                                   .resolve("pramodya-conflictProject-0.1.7.jar").toFile().exists());
     }
 
+    @Test(description = "Build a ballerina project with provided scope platform jars")
+    public void testBuildProjectWithProvidedJars() {
+        Path projectPath = this.testResources.resolve("projectWithProvidedScope");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("error: compilation contains errors"));
+        }
+    }
+
+    @Test(description = "Build a valid ballerina project with provided scope platform jars in dependencies")
+    public void testBuildProjectWithProvidedWarning() throws IOException {
+        BCompileUtil.compileAndCacheBala(testResources.resolve("projectWithProvidedDependency")
+                .resolve("pkg_a"), testDistCacheDirectory, projectEnvironmentBuilder);
+        Path projectPath = this.testResources.resolve("projectWithProvidedDependency").resolve("pkg_b");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("project-with-provided-warning.txt"));
+    }
+
     @Test(description = "Build a valid ballerina project with java imports")
     public void testBuildJavaBalProject() throws IOException {
         Path projectPath = this.testResources.resolve("validJavaProject");

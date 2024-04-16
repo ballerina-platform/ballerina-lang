@@ -26,7 +26,6 @@ import com.google.gson.reflect.TypeToken;
 import org.ballerinalang.langserver.AbstractLSTest;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
-import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -187,19 +186,6 @@ public abstract class CompletionTest extends AbstractLSTest {
         //This will print nice comparable text in IDE
 //        Assert.assertEquals(responseItemList.toString(), expectedItemList.toString(),
 //                "Failed Test for: " + configJsonPath);
-    }
-
-    protected void preLoadAndInit() throws InterruptedException {
-
-        ServiceTemplateGenerator serviceTemplateGenerator =
-                ServiceTemplateGenerator.getInstance(getLanguageServer().getServerContext());
-        long initTime = System.currentTimeMillis();
-        while (!serviceTemplateGenerator.initialized() && System.currentTimeMillis() < initTime + 60 * 1000) {
-            Thread.sleep(2000);
-        }
-        if (!serviceTemplateGenerator.initialized()) {
-            Assert.fail("Service template generator initialization failed!");
-        }
     }
 
     @Override

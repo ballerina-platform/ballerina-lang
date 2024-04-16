@@ -18,9 +18,11 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.projects.internal.model.BalToolDescriptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Collections;
@@ -36,6 +38,7 @@ import java.util.Optional;
 public class PackageManifest {
     private final PackageDescriptor packageDesc;
     private final CompilerPluginDescriptor compilerPluginDesc;
+    private final BalToolDescriptor balToolDesc;
     private final Map<String, Platform> platforms;
     private final List<Tool> tools;
     private final List<Dependency> dependencies;
@@ -57,12 +60,14 @@ public class PackageManifest {
 
     private PackageManifest(PackageDescriptor packageDesc,
                             CompilerPluginDescriptor compilerPluginDesc,
+                            BalToolDescriptor balToolDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
                             DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
+        this.balToolDesc = balToolDesc;
         this.platforms = Collections.unmodifiableMap(platforms);
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
@@ -81,6 +86,7 @@ public class PackageManifest {
 
     private PackageManifest(PackageDescriptor packageDesc,
                             CompilerPluginDescriptor compilerPluginDesc,
+                            BalToolDescriptor balToolDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
@@ -88,6 +94,7 @@ public class PackageManifest {
                             DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
+        this.balToolDesc = balToolDesc;
         this.platforms = Collections.unmodifiableMap(platforms);
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
@@ -106,6 +113,7 @@ public class PackageManifest {
 
     private PackageManifest(PackageDescriptor packageDesc,
                             CompilerPluginDescriptor compilerPluginDesc,
+                            BalToolDescriptor balToolDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
@@ -122,6 +130,7 @@ public class PackageManifest {
                             String icon) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
+        this.balToolDesc = balToolDesc;
         this.platforms = Collections.unmodifiableMap(platforms);
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
@@ -141,6 +150,7 @@ public class PackageManifest {
 
     private PackageManifest(PackageDescriptor packageDesc,
                             CompilerPluginDescriptor compilerPluginDesc,
+                            BalToolDescriptor balToolDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
@@ -158,6 +168,7 @@ public class PackageManifest {
                             List<Tool> tools) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
+        this.balToolDesc = balToolDesc;
         this.platforms = Collections.unmodifiableMap(platforms);
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
@@ -175,21 +186,23 @@ public class PackageManifest {
         this.tools = tools;
     }
     public static PackageManifest from(PackageDescriptor packageDesc) {
-        return new PackageManifest(packageDesc, null, Collections.emptyMap(), Collections.emptyList(),
+        return new PackageManifest(packageDesc, null, null, Collections.emptyMap(), Collections.emptyList(),
                                    Collections.emptyMap(), Collections.emptyList(),
                                     new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        CompilerPluginDescriptor compilerPluginDesc,
+                                       BalToolDescriptor balToolDesc,
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
-                                    Collections.emptyList(), new DefaultDiagnosticResult(Collections.emptyList()));
+        return new PackageManifest(packageDesc, compilerPluginDesc, balToolDesc, platforms, dependencies,
+                Collections.emptyMap(), Collections.emptyList(), new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        CompilerPluginDescriptor compilerPluginDesc,
+                                       BalToolDescriptor balToolDesc,
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies,
                                        Map<String, Object> otherEntries,
@@ -205,13 +218,14 @@ public class PackageManifest {
                                        boolean template,
                                        String icon,
                                        List<Tool> tools) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, otherEntries, diagnostics,
-                license, authors, keywords, export, include, repository, ballerinaVersion, visibility,
+        return new PackageManifest(packageDesc, compilerPluginDesc, balToolDesc, platforms, dependencies, otherEntries,
+                diagnostics, license, authors, keywords, export, include, repository, ballerinaVersion, visibility,
                 template, icon, tools);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        CompilerPluginDescriptor compilerPluginDesc,
+                                       BalToolDescriptor balToolDescriptor,
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies,
                                        List<String> license,
@@ -223,9 +237,9 @@ public class PackageManifest {
                                        String ballerinaVersion,
                                        String visibility,
                                        boolean template) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
-                new DefaultDiagnosticResult(Collections.emptyList()), license, authors, keywords,
-                export, include, repository, ballerinaVersion, visibility, template, "");
+        return new PackageManifest(packageDesc, compilerPluginDesc, balToolDescriptor, platforms, dependencies,
+                Collections.emptyMap(), new DefaultDiagnosticResult(Collections.emptyList()), license, authors,
+                keywords, export, include, repository, ballerinaVersion, visibility, template, "");
     }
 
     public PackageName name() {
@@ -246,6 +260,10 @@ public class PackageManifest {
 
     public Optional<CompilerPluginDescriptor> compilerPluginDescriptor() {
         return Optional.ofNullable(compilerPluginDesc);
+    }
+
+    public Optional<BalToolDescriptor> balToolDescriptor() {
+        return Optional.ofNullable(balToolDesc);
     }
 
     public Platform platform(String platformCode) {
@@ -421,15 +439,15 @@ public class PackageManifest {
      * @since 2201.9.0
      */
     public static class Tool {
-        private final String id;
+        private final Field id;
         private final TomlTableNode optionsTable;
-        private final String filePath;
-        private final String targetModule;
-        private final String type;
+        private final Field filePath;
+        private final Field targetModule;
+        private final Field type;
         private final Toml optionsToml;
         private final boolean hasErrorDiagnostic;
 
-        public Tool(String type, String id, String filePath, String targetModule, Toml optionsToml,
+        public Tool(Field type, Field id, Field filePath, Field targetModule, Toml optionsToml,
                     TomlTableNode optionsTable, boolean hasErrorDiagnostic) {
             this.type = type;
             this.id = id;
@@ -445,7 +463,7 @@ public class PackageManifest {
          *
          * @return the tool id.
          */
-        public String id() {
+        public Field id() {
             return id;
         }
 
@@ -454,7 +472,7 @@ public class PackageManifest {
          *
          * @return the filepath.
          */
-        public String filePath() {
+        public Field filePath() {
             return this.filePath;
         }
 
@@ -463,7 +481,7 @@ public class PackageManifest {
          *
          * @return the tool's target module.
          */
-        public String targetModule() {
+        public Field targetModule() {
             return this.targetModule;
         }
 
@@ -481,7 +499,7 @@ public class PackageManifest {
          *
          * @return the tool type.
          */
-        public String type() {
+        public Field type() {
             return type;
         }
 
@@ -501,6 +519,9 @@ public class PackageManifest {
          */
         public boolean hasErrorDiagnostic() {
             return hasErrorDiagnostic;
+        }
+
+        public record Field(String value, TomlNodeLocation location) {
         }
     }
 

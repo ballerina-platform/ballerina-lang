@@ -69,28 +69,11 @@ public class TupleValueImpl extends AbstractArrayValue {
     protected TupleType tupleType;
     protected Type type;
     Object[] refValues;
-    private int minSize;
-    private boolean hasRestElement; // cached value for ease of access
+    private final int minSize;
+    private final boolean hasRestElement; // cached value for ease of access
     private BTypedesc typedesc;
     private TypedescValueImpl inherentType;
     // ------------------------ Constructors -------------------------------------------------------------------
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        TupleValueImpl that = (TupleValueImpl) o;
-        return minSize == that.minSize &&
-                hasRestElement == that.hasRestElement &&
-                type.equals(that.type) &&
-                Arrays.equals(refValues, that.refValues);
-    }
 
     public TupleValueImpl(Object[] values, TupleType type) {
         this.refValues = values;
