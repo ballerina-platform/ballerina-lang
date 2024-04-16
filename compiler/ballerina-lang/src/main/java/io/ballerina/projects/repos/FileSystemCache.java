@@ -175,8 +175,10 @@ public class FileSystemCache extends CompilationCache {
     private Path optimizedPackageCacheDirPath() {
         Package currentPkg = project.currentPackage();
         PackageManifest pkgDescriptor = currentPkg.manifest();
-        return buildProjectCacheDirPath.resolve(pkgDescriptor.org().value())
-                .resolve(pkgDescriptor.name().value())
+        if (buildProjectCacheDirPath == null) {
+            return packageCacheDirPath();
+        }
+        return buildProjectCacheDirPath.resolve(pkgDescriptor.org().value()).resolve(pkgDescriptor.name().value())
                 .resolve(pkgDescriptor.version().toString());
     }
 

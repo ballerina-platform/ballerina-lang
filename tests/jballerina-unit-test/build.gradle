@@ -36,6 +36,7 @@ dependencies {
     testImplementation libs.wso2.transport.http
     testImplementation libs.wso2.carbon.messaging
     testImplementation libs.testng
+    testImplementation libs.gson
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     testImplementation project(':ballerina-runtime')
     testRuntimeOnly project(':ballerina-runtime')
