@@ -250,8 +250,13 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         CodeGenOptimizationReportEmitter.emitBirOptimizationDuration();
+        CodeGenOptimizationReportEmitter.emitCodegenOptimizationReport(usedBIRNodeAnalyzer.pkgWiseInvocationData,
+                getOptimizationReportPath(), packageContext.project().kind());
     }
 
+    private Path getOptimizationReportPath() {
+        return this.packageContext.project().sourceRoot;
+    }
 
     //TODO optimize the logic here
     private void markTestDependenciesForDuplicateBIRGen() {
@@ -654,7 +659,6 @@ public class JBallerinaBackend extends CompilerBackend {
                             bPackageSymbol.getName()));
         }
 
-        CodeGenOptimizationReportEmitter.emitInvocationData(bPackageSymbol);
         bPackageSymbol.imports.removeIf(pkgSymbol -> pkgSymbol != null && unusedPackageIDs.contains(pkgSymbol.pkgID));
         birPackage.importModules.removeIf(module -> unusedPackageIDs.contains(module.packageID));
         birPackage.functions.removeIf(currentFunc -> currentFunc.getUsedState() == UsedState.UNUSED);
