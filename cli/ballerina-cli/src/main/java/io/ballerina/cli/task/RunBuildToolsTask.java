@@ -88,7 +88,7 @@ public class RunBuildToolsTask implements Task {
     private final boolean exitWhenFinish;
     private ClassLoader toolClassLoader = this.getClass().getClassLoader();
     ServiceLoader<CodeGeneratorTool> toolServiceLoader = ServiceLoader.load(CodeGeneratorTool.class, toolClassLoader);
-    private final Map<String, ToolContext> toolContextMap = new HashMap<>();
+    private final Map<Tool.Field, ToolContext> toolContextMap = new HashMap<>();
 
     public RunBuildToolsTask(PrintStream out) {
         this.outStream = out;
@@ -117,7 +117,7 @@ public class RunBuildToolsTask implements Task {
         for (Tool toolEntry : toolEntries) {
             // Populate tool context
             ToolContext toolContext = ToolContext.from(toolEntry, project.currentPackage(), outStream);
-            toolContextMap.put(toolEntry.id().value(), toolContext);
+            toolContextMap.put(toolEntry.id(), toolContext);
         }
         BuildToolResolution buildToolResolution;
         try {
@@ -147,7 +147,7 @@ public class RunBuildToolsTask implements Task {
                 .toList();
         for (Tool toolEntry : resolvedToolEntries) {
             String commandName = toolEntry.type().value();
-            ToolContext toolContext = toolContextMap.get(toolEntry.id().value());
+            ToolContext toolContext = toolContextMap.get(toolEntry.id());
             Optional<CodeGeneratorTool> targetTool = BuildToolUtils.getTargetTool(commandName, toolServiceLoader);
             if (targetTool.isEmpty()) {
                 // If the tool is not found, we skip the execution and report a diagnostic
@@ -248,7 +248,7 @@ public class RunBuildToolsTask implements Task {
             return true;
         }
         this.outStream.printf("WARNING: Validation of tool options of '%s' for '%s' is skipped due to " +
-                "no tool options found%n", toolType, toolId);
+                "no tool options found%n", toolType.value(), toolId);
         return false;
     }
 
