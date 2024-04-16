@@ -49,6 +49,9 @@ public class WorkerFailTest {
                 "possible deadlocks", 74, 17);
         validateError(result, index++, receiveNotAllowedError, 79, 15);
         validateError(result, index++, receiveNotAllowedError, 81, 21);
+        validateError(result, index++, receiveNotAllowedError, 93, 13);
+        validateError(result, index++, receiveNotAllowedError, 94, 16);
+        validateError(result, index++, receiveNotAllowedError, 94, 19);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
@@ -95,9 +98,16 @@ public class WorkerFailTest {
 
     @Test
     public void invalidReceiveBeforeWorkers() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-before-workers.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "undefined worker 'w1'", 2, 11);
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-with-workers.bal");
+        int index = 0;
+        validateError(result, index++, "undefined worker 'w1'", 18, 11);
+        validateError(result, index++, "invalid worker receive statement position, can not be used after a non-error " +
+                "return", 40, 17);
+        validateError(result, index++, "invalid worker receive statement position, can not be used after a non-error " +
+                "return", 59, 20);
+        validateError(result, index++, "invalid worker receive statement position, can not be used after a non-error " +
+                "return", 59, 23);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 
     @Test
@@ -128,6 +138,16 @@ public class WorkerFailTest {
         validateError(result, index++, "incompatible types: expected 'int', found '(ErrorA|ErrorB|int)'", 71, 15);
         validateError(result, index++, "incompatible types: expected 'int', " +
                 "found '(ErrorA|ErrorB|int|ballerina/lang.error:0.0.0:NoMessage)'", 86, 15);
+        validateError(result, index++, "invalid worker receive statement position, can not be used after a non-error " +
+                "return", 99, 14);
+        validateError(result, index++, "invalid worker receive statement position, can not be used after a non-error " +
+                "return", 104, 14);
+        validateError(result, index++, "invalid worker receive statement position, can not be used after a non-error " +
+                "return", 109, 14);
+        validateError(result, index++, "invalid worker receive statement position, can not be used after a non-error " +
+                "return", 110, 14);
+        validateError(result, index++, "invalid worker receive statement position, can not be used after a non-error " +
+                "return", 111, 14);
         validateError(result, index++, "incompatible types: expected '()', found 'ErrorA?'", 119, 14);
         validateError(result, index++, "incompatible types: expected '()', found '(ErrorA|ErrorB)?'", 120, 14);
         Assert.assertEquals(result.getErrorCount(), index);
