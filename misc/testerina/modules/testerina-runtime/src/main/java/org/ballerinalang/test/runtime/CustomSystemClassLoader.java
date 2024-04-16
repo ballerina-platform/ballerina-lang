@@ -27,8 +27,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -44,12 +44,12 @@ public class CustomSystemClassLoader extends ClassLoader {
     }
 
     private void populateExcludedClasses() {
-        try(InputStream is = BTestMain.class.getResourceAsStream(ProjectConstants.FAT_JAR_ROOT_DIR +
+        try (InputStream is = BTestMain.class.getResourceAsStream(ProjectConstants.FAT_JAR_ROOT_DIR +
                 ProjectConstants.EXCLUDED_CLASSES_FILE)) {
             if (is == null) {
                 throw new RuntimeException("Error reading " + ProjectConstants.EXCLUDED_CLASSES_FILE);
             }
-            try(BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     excludedClasses.add(line);
