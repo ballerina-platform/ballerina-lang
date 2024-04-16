@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function invalidWorkReceiveBeforeWorker() {
+function invalidWorkerReceiveBeforeWorker() {
   int _ = <- w1;
   worker w1 {
     int i = 1;
