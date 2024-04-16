@@ -90,7 +90,7 @@ public class BuildToolResolution {
 
     private void resolveToolDependencies() {
         Project currentProject = packageContext.project();
-        Map<String, ToolContext> toolContextMap = currentProject.getToolContextMap();
+        Map<PackageManifest.Tool.Field, ToolContext> toolContextMap = currentProject.getToolContextMap();
         if (toolContextMap == null || toolContextMap.isEmpty()) {
             return;
         }
