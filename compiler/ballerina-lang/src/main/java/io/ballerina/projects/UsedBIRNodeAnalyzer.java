@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
@@ -41,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -57,7 +59,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     private static final HashSet<InstructionKind> ANALYZED_INSTRUCTION_KINDS = new HashSet<>(
             Arrays.asList(InstructionKind.NEW_TYPEDESC, InstructionKind.NEW_INSTANCE, InstructionKind.TYPE_CAST,
                     InstructionKind.FP_LOAD, InstructionKind.TYPE_TEST, InstructionKind.RECORD_DEFAULT_FP_LOAD,
-                    InstructionKind.NEW_TABLE, InstructionKind.NEW_ARRAY));
+                    InstructionKind.NEW_TABLE, InstructionKind.NEW_ARRAY, InstructionKind.MOVE));
     private static final HashSet<InstructionKind> ANALYZED_TERMINATOR_KINDS =
             new HashSet<>(Arrays.asList(InstructionKind.CALL, InstructionKind.FP_CALL));
     private static final String EXTERNAL_METHOD_ANNOTATION_TAG = "Method";
@@ -198,7 +200,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                     if (!rhsVar.isInSamePkg(currentPkgID)) {
                         getInvocationData(rhsVar.getPackageID())
                                 .registerNodes(usedTypeDefAnalyzer, this.pkgCache.getBirPkg(rhsVar.getPackageID()));
-                    } else if (rhsVar.type.getKind() == TypeKind.FUNCTION) {
+                    } else if (isFunctionKindType(rhsVar.type)) {
                         visitNode(currentInvocationData.globalVarFPDataPool.get(rhsVar).lambdaFunction);
                     }
                 }
@@ -272,6 +274,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             }
         } else if (fpData.lambdaFunction != null) {
             visitNode(fpData.lambdaFunction);
+            usedTypeDefAnalyzer.analyzeTypeDefWithinScope(fpData.lambdaPointerVar.type, currentParentFunction);
         }
     }
 
@@ -360,6 +363,19 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     @Override
     public void visit(BIRNonTerminator.NewTable newTable) {
         usedTypeDefAnalyzer.analyzeTypeDefWithinScope(newTable.type, currentParentFunction);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.Move move) {
+        usedTypeDefAnalyzer.analyzeTypeDefWithinScope(move.lhsOp.variableDcl.type, currentParentFunction);
+        usedTypeDefAnalyzer.analyzeTypeDefWithinScope(move.rhsOp.variableDcl.type, currentParentFunction);
+    }
+
+    private boolean isFunctionKindType(BType bType) {
+        if (bType.getKind() == TypeKind.TYPEREFDESC) {
+            return ((BTypeReferenceType) bType).referredType.getKind() == TypeKind.FUNCTION;
+        }
+        return bType.getKind() == TypeKind.FUNCTION;
     }
 
     private BIRNode.BIRFunction lookupBirFunction(PackageID pkgId, String funcName) {
