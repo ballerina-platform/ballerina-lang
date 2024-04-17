@@ -40,7 +40,7 @@ public class WorkerChannels {
         Strand currentStrand = Scheduler.getStrand();
         Strand channelHoldingStrand = Objects.requireNonNullElse(currentStrand.parent, currentStrand);
         for (BString channelId : channelIds) {
-            String channelName = channelId.getValue() + ":" + (channelHoldingStrand.functionInvocation - 1);
+            String channelName = channelId.getValue() + ":" + currentStrand.wdChannelIndex;
             WorkerDataChannel workerDataChannel = channelHoldingStrand.wdChannels.getWorkerDataChannel(channelName);
             workerDataChannel.autoClose();
         }

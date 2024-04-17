@@ -161,6 +161,7 @@ public class MethodGen {
     protected static final String FUNCTION_INVOCATION = "functionInvocation";
     private static final String INVOCATION_COUNT = "%invocationCount";
     private static final String RESUME_INDEX = "resumeIndex";
+    private static final String WD_CHANNEL_INDEX = "wdChannelIndex";
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
     private final Types types;
@@ -399,6 +400,10 @@ public class MethodGen {
         } else {
             // this means this is a function created for a worker
             mv.visitVarInsn(ILOAD, invocationCountArgVarIndex);
+
+            mv.visitVarInsn(ALOAD, localVarOffset);
+            mv.visitVarInsn(ILOAD, invocationCountArgVarIndex);
+            mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, WD_CHANNEL_INDEX, "I");
         }
         mv.visitVarInsn(ISTORE, invocationVarIndex);
     }

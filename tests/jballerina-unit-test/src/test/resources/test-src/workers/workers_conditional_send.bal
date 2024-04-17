@@ -477,3 +477,22 @@ function testSendWithEarlyReturnError() {
     test:assertEquals(mapResult["a"], false, "Invalid boolean result");
     test:assertEquals(mapResult["b"], 2, "Invalid int result");
 }
+
+public function testWorkerEarlyReturnWithinIf() {
+    worker w1 {
+        boolean b = true;
+        if b {
+            return;
+        } else {
+            30 -> w2;
+        }
+    }
+    worker w2 {
+        int|errorLib:NoMessage m = <- w1;
+        test:assertTrue(m is error);
+        error err = <error> m;
+        test:assertEquals(err.message(), "NoMessage", "Invalid error message");
+        test:assertEquals(err.detail().toString(), "{\"message\":\"no message received from worker 'w1' to worker 'w2'\"}", "Invalid error detail");
+    }
+    wait w2;
+}
