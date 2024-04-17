@@ -277,6 +277,40 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "/responses.delete(module1:TargetType2 targetType)",
+      "kind": "Function",
+      "detail": "stream<targetType, mod2:ClientError2?>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function to return a stream of objects.\n  \n**Params**  \n- `module1:TargetType2` targetType: Response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `stream<targetType, mod2:ClientError2?>`   \n- A stream of targetType and/or ClientError  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "responses|delete",
+      "insertText": "/responses.delete(${1});",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 22
+            },
+            "end": {
+              "line": 5,
+              "character": 23
+            }
+          },
+          "newText": ""
+        }
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }
