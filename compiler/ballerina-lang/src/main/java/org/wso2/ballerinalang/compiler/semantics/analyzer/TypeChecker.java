@@ -5367,6 +5367,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (leftConstituent != null && rightConstituent != null) {
                     actualType = new BXMLType(BUnionType.create(null, leftConstituent, rightConstituent), null);
                     break;
+                } else if (leftConstituent != null || rightConstituent != null) {
+                    if (leftConstituent != null && types.isAssignable(rhsType, symTable.stringType)) {
+                        actualType = new BXMLType(BUnionType.create(null, leftConstituent, symTable.xmlTextType), null);
+                        break;
+                    } else if (rightConstituent != null && types.isAssignable(lhsType, symTable.stringType)) {
+                        actualType =
+                                new BXMLType(BUnionType.create(null, symTable.xmlTextType, rightConstituent), null);
+                        break;
+                    }
                 }
                 // Fall through
             default:
