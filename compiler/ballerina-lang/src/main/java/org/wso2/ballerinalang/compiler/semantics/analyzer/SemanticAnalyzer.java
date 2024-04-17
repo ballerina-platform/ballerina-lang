@@ -1145,10 +1145,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         validateWorkerAnnAttachments(varNode.expr, data);
 
+        if (varNode.typeNode != null) {
+            analyzeNode(varNode.typeNode, data);
+        }
         handleWildCardBindingVariable(varNode, currentEnv);
 
         BType lhsType = varNode.symbol.type;
         varNode.setBType(lhsType);
+
         // Configurable variable type must be a subtype of anydata.
         if (configurable && varNode.typeNode != null && lhsType.tag != TypeTags.SEMANTIC_ERROR) {
             if (!types.isAssignable(lhsType, symTable.anydataType)) {
@@ -1165,10 +1169,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 // TODO: remove this check once runtime support all configurable types
                 checkSupportedConfigType(varNode.symbol, varNode.pos, varNode.name.value);
             }
-        }
-
-        if (varNode.typeNode != null) {
-            analyzeNode(varNode.typeNode, data);
         }
 
         // Analyze the init expression
