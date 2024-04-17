@@ -59,7 +59,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     private static final HashSet<InstructionKind> ANALYZED_INSTRUCTION_KINDS = new HashSet<>(
             Arrays.asList(InstructionKind.NEW_TYPEDESC, InstructionKind.NEW_INSTANCE, InstructionKind.TYPE_CAST,
                     InstructionKind.FP_LOAD, InstructionKind.TYPE_TEST, InstructionKind.RECORD_DEFAULT_FP_LOAD,
-                    InstructionKind.NEW_TABLE, InstructionKind.NEW_ARRAY, InstructionKind.MOVE));
+                    InstructionKind.NEW_TABLE, InstructionKind.NEW_ARRAY, InstructionKind.MOVE,
+                    InstructionKind.NEW_ERROR));
     private static final HashSet<InstructionKind> ANALYZED_TERMINATOR_KINDS =
             new HashSet<>(Arrays.asList(InstructionKind.CALL, InstructionKind.FP_CALL));
     private static final String EXTERNAL_METHOD_ANNOTATION_TAG = "Method";
@@ -325,6 +326,11 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         currentInvocationData.recordDefTypeWiseFPDataPool.putIfAbsent(recordDefaultFPLoad.enclosedType,
                 new HashSet<>());
         currentInvocationData.recordDefTypeWiseFPDataPool.get(recordDefaultFPLoad.enclosedType).add(fpData);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewError newError) {
+        usedTypeDefAnalyzer.analyzeTypeDefWithinScope(newError.type, currentParentFunction);
     }
 
     @Override
