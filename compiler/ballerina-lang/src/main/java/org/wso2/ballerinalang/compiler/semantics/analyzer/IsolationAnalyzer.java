@@ -131,6 +131,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -155,6 +156,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -292,6 +294,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean inferredIsolated = true;
     private boolean inLockStatement = false;
+    private boolean inIsolatedStartAction = false;
     private final Stack<LockInfo> copyInLockInfoStack = new Stack<>();
     private final Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
     private final Map<BSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
@@ -1103,6 +1106,21 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangAlternateWorkerReceive altWorkerReceive) {
+        for (BLangWorkerReceive workerReceive : altWorkerReceive.getWorkerReceives()) {
+            analyzeNode(workerReceive, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        for (BLangMultipleWorkerReceive.BLangReceiveField rvField : multipleWorkerReceive.getReceiveFields()) {
+            analyzeNode(rvField.getKey(), env);
+            analyzeNode(rvField.getWorkerReceive(), env);
+        }
+    }
+
+    @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
     }
 
@@ -1268,6 +1286,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     }
                 }
             }
+        }
+
+        if (this.inIsolatedStartAction
+                && !isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(symbol.owner, symbol.getType())) {
+            inferredIsolated = false;
+            return;
         }
 
         if (!recordFieldDefaultValue && !objectFieldDefaultValueRequiringIsolation && enclInvokable != null &&
@@ -2078,7 +2102,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isolatedFunctionCall) {
+            boolean prevInIsolationStartAction = this.inIsolatedStartAction;
+            this.inIsolatedStartAction = inStartAction;
             analyzeArgIsolatedness(invocationExpr, requiredArgs, restArgs, symbol, expectsIsolation);
+            this.inIsolatedStartAction = prevInIsolationStartAction;
             return;
         }
 
@@ -4124,7 +4151,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         for (BLangExpression dependsOnArg : functionIsolationInferenceInfo.dependsOnFuncCallArgExprs) {
-            if (!isIsolatedExpression(dependsOnArg)) {
+            if (!isIsolatedExpression(dependsOnArg, false, false, new ArrayList<>(), true,
+                    publiclyExposedObjectTypes, classDefinitions, moduleLevelVariables, unresolvedSymbols)) {
                 return false;
             }
         }

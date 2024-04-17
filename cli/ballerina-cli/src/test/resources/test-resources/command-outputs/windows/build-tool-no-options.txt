@@ -1,0 +1,6 @@
+
+Executing Build Tools
+WARNING: Validation of tool options of 'no_options_tool' for 'main_dummy' is skipped due to: Schema file for tool options inputStream not found: no_options_tool-options-schema.json
+	no_options_tool(main_dummy)
+		Running sample build tool: main_dummy
+

@@ -16,8 +16,8 @@
 package org.ballerinalang.formatter.core.declarations;
 
 import org.ballerinalang.formatter.core.FormatterTest;
-import org.ballerinalang.formatter.core.FormattingOptions;
-import org.ballerinalang.formatter.core.ImportFormattingOptions;
+import org.ballerinalang.formatter.core.options.FormattingOptions;
+import org.ballerinalang.formatter.core.options.ImportFormattingOptions;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -52,11 +52,18 @@ public class ImportDeclarationsTest extends FormatterTest {
     @DataProvider(name = "test-file-provider-custom")
     @Override
     public Object[][] dataProviderWithCustomTests(Method testName) {
+        String testResourceDir = this.getTestResourceDir();
         switch (testName.getName()) {
             case "test":
                 return new Object[][] {
-                        {"import_declaration_1.bal", this.getTestResourceDir()},
-                        {"import_declaration_2.bal", this.getTestResourceDir()}
+                        {"import_declaration_1.bal", testResourceDir},
+                        {"import_declaration_2.bal", testResourceDir},
+                        {"import_declaration_6.bal", testResourceDir},
+                        {"import_declaration_7.bal", testResourceDir},
+                        {"import_declaration_8.bal", testResourceDir},
+                        {"import_declaration_9.bal", testResourceDir},
+                        {"import_declaration_10.bal", testResourceDir},
+                        {"import_declaration_11.bal", testResourceDir}
                 };
             case "testWithCustomOptions":
                 FormattingOptions optionWithNoGrouping = FormattingOptions.builder()
@@ -70,9 +77,9 @@ public class ImportDeclarationsTest extends FormatterTest {
                                 ImportFormattingOptions.builder().setGroupImports(false).setSortImports(false).build())
                         .build();
                 return new Object[][] {
-                        {"import_declaration_3.bal", this.getTestResourceDir(), optionWithNoGrouping},
-                        {"import_declaration_4.bal", this.getTestResourceDir(), optionWithNoSorting},
-                        {"import_declaration_5.bal", this.getTestResourceDir(), optionWithNoGroupingAndSorting}
+                        {"import_declaration_3.bal", testResourceDir, optionWithNoGrouping},
+                        {"import_declaration_4.bal", testResourceDir, optionWithNoSorting},
+                        {"import_declaration_5.bal", testResourceDir, optionWithNoGroupingAndSorting}
                 };
         }
         return null;

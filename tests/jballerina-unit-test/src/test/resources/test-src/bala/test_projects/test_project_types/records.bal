@@ -19,3 +19,13 @@ import public_and_private_types.parser;
 public type ErrorDetail record {|
     *parser:ErrorDetail;
 |};
+
+public type Person record {|
+    string name = "John";
+    int age = 30;
+|};
+
+public type Address record {|
+    string city;
+    string country;
+|};

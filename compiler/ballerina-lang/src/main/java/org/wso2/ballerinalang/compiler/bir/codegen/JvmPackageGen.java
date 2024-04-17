@@ -148,8 +148,10 @@ public class JvmPackageGen {
     private final Set<PackageID> dependentModules;
     private final BLangDiagnosticLog dlog;
     private final Types types;
+    private final boolean isRemoteMgtEnabled;
 
-    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog, Types types) {
+    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog, Types types,
+                  boolean isRemoteMgtEnabled) {
         birFunctionMap = new HashMap<>();
         globalVarClassMap = new HashMap<>();
         dependentModules = new LinkedHashSet<>();
@@ -157,6 +159,7 @@ public class JvmPackageGen {
         this.packageCache = packageCache;
         this.dlog = dlog;
         this.types = types;
+        this.isRemoteMgtEnabled = isRemoteMgtEnabled;
         methodGen = new MethodGen(this, types);
         initMethodGen = new InitMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
@@ -387,7 +390,8 @@ public class JvmPackageGen {
                     }
                 }
 
-                MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, asyncDataCollector);
+                MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, asyncDataCollector,
+                        isRemoteMgtEnabled);
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable, isTestable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc,
                         testExecuteFunc);

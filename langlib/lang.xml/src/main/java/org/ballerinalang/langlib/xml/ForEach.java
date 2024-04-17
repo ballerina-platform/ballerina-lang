@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+import static org.ballerinalang.langlib.xml.utils.Constants.XML_VERSION;
 
 /**
  * Native implementation of lang.xml:forEach(map&lt;Type&gt;, function).

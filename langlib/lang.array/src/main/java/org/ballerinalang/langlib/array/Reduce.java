@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessFunction;
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
+import static org.ballerinalang.langlib.array.utils.Constants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:reduce(Type[], function).

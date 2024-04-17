@@ -36,17 +36,27 @@ public client class HttpClient {
         stream<AttributeDAO, Error?> attributeDAOStream = new (new DAOStreamImplementor());
         return attributeDAOStream;
     }
+
+    resource function get [string path2]/mytest(string name = "me") returns string {
+        return "test " + name;
+    }
+
+    remote function post(string name = "me") returns string {
+        return "test " + name;
+    }
 }
 
 class DAOStreamImplementor {
     private int index = 0;
 
-    private AttributeDAO[] currentEntries = [{
-        id: "xxx-yyy-zzz",
-        name: "org name",
-        description: "Org name attribute",
-        created_at: 1627639797660
-    }];
+    private AttributeDAO[] currentEntries = [
+        {
+            id: "xxx-yyy-zzz",
+            name: "org name",
+            description: "Org name attribute",
+            created_at: 1627639797660
+        }
+    ];
 
     isolated function init() {
     }

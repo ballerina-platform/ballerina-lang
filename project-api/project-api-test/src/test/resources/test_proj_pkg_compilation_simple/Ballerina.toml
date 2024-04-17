@@ -7,6 +7,13 @@ version = "0.1.0"
 path = "/user/foo/libs/toml4j.jar"
 
 [[platform.java17.dependency]]
+artifactId = "com.ibm.mq.allclient"
+version = "9.3.4.0"
+groupId = "com.ibm.mq"
+path = "/user/foo/libs/ibm.mq.jar"
+scope = "provided"
+
+[[platform.java17.dependency]]
 path = "/user/foo/libs/bazz.jar"
 scope = "testOnly"
 

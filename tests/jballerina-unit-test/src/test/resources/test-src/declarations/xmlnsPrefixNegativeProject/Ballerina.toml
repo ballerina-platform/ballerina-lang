@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "xmlnsPrefixNegativeProject"
+version = "1.0.0"

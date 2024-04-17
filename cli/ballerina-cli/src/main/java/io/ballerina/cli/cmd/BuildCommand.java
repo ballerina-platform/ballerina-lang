@@ -155,6 +155,10 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--cloud", description = "Enable cloud artifact generation")
     private String cloud;
 
+    @CommandLine.Option(names = "--remote-management", description = "enable service management tools in " +
+            "the executable JAR file(s).")
+    private Boolean remoteManagement;
+
     @CommandLine.Option(names = "--list-conflicted-classes",
             description = "list conflicted classes when generating executable")
     private Boolean listConflictedClasses;
@@ -283,7 +287,8 @@ public class BuildCommand implements BLauncherCmd {
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, false, true,
+                        isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, this.output))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
@@ -301,6 +306,7 @@ public class BuildCommand implements BLauncherCmd {
                 .setOffline(offline)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setCloud(cloud)
+                .setRemoteManagement(remoteManagement)
                 .setDumpBir(dumpBIR)
                 .setDumpBirFile(dumpBIRFile)
                 .setDumpGraph(dumpGraph)

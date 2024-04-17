@@ -40,11 +40,63 @@ type Bar record {
     decimal c;
 };
 
+type MyString string;
+
+type R1 record {
+    int a?;
+    float b?;
+    string c?;
+    boolean d?;
+    decimal e?;
+    string:Char f?;
+    MyString g?;
+};
+
+type R2 record {
+    int a;
+    R1 r1?;
+};
+
 function testOptionalFieldAccessOnRequiredRecordField() returns boolean {
     string s = "Anne";
     Employee e = { name: s, id: 100 };
     string name = e?.name;
     return name == s;
+}
+
+function testOptionalFieldRemovalBasicType() {
+    R1 r = {a: 1, b: 2.0, c: "test", d: true, e: 3.0, f:"c", g: "test"};
+    r.a = ();
+    r.b = ();
+    r.c = ();
+    r.d = ();
+    r.e = ();
+    r.f = ();
+    r.g = ();
+    assertFalse(r.hasKey("a"));
+    assertFalse(r.hasKey("b"));
+    assertFalse(r.hasKey("c"));
+    assertFalse(r.hasKey("d"));
+    assertFalse(r.hasKey("e"));
+    assertFalse(r.hasKey("f"));
+    assertFalse(r.hasKey("g"));
+}
+
+function testOptionalFieldRemovalIndirect() {
+    R2 r = {a: 1, r1: {a: 1, b: 2.0, c: "test"}};
+    r.r1.a = ();
+    r.r1.b = ();
+    r.r1.c = ();
+    R1 r1 = <R1>r.r1;
+    assertFalse(r1.hasKey("a"));
+    assertFalse(r1.hasKey("b"));
+    assertFalse(r1.hasKey("c"));
+}
+
+function testOptionalFieldRemovalComplex() {
+    R2 r = {a: 1, r1: {a: 1, b: 2.0, c: "test"}};
+    r.r1 = ();
+    assertFalse(r.hasKey("r1"));
 }
 
 function testOptionalFieldAccessOnRequiredRecordFieldInRecordUnion() returns boolean {
@@ -570,8 +622,94 @@ public function testNestedOptionalFieldAccessOnIntersectionTypes() {
     assertEquality((), v5);
 }
 
+type MyInt int;
+type Rxx record {
+    int val;
+};
+type Rxy record {
+    int val;
+    float otherVal;
+};
+type Rx record {|
+    int a?;
+    MyInt b?;
+    Rxx c?;
+|};
+
+function testSubtypeAssignment() {
+    int:Signed16 init = 2;
+    Rx r = {a:init, b:init};
+    int:Signed32 val = 5;
+    r.a = val;
+    assertEquality(val, r.a);
+    r.a = ();
+    assertFalse(r.hasKey("a"));
+    r.b = val;
+    assertEquality(val, r.b);
+    r.b = ();
+    assertFalse(r.hasKey("b"));
+    Rxy c = {val: 5, otherVal: 10.0};
+    r.c = c;
+    assertEquality(c, r.c);
+    r.c = ();
+    assertFalse(r.hasKey("b"));
+}
+
+function testNullableAssignment() {
+    Rx r = {};
+    int? val = 12;
+    r.a = val;
+    assertEquality(val, r.a);
+    int? b = ();
+    r.a = b;
+    assertFalse(r.hasKey("a"));
+    Rxy? c = {val: 5, otherVal: 10.0};
+    r.c = c;
+    assertEquality(c, r.c);
+    c = ();
+    r.c = c;
+    assertFalse(r.hasKey("c"));
+}
+
+type MyUnion int|float|string;
+type Ry record {|
+    int|float|string a?;
+    MyUnion b?;
+    int|Rxx c?;
+|};
+
+function testUnionAssignment() {
+    int init = 5;
+    Ry r = {a:init, b:init};
+    int:Signed32 val = 5;
+    r.a = val;
+    assertEquality(val, r.a);
+    int|float val2 = 10;
+    r.a = val2;
+    assertEquality(val2, r.a);
+    r.a = ();
+    assertFalse(r.hasKey("a"));
+
+    r.b = val;
+    assertEquality(val, r.b);
+    r.b = val2;
+    assertEquality(val2, r.b);
+    r.b = ();
+    assertFalse(r.hasKey("b"));
+
+    Rxx c = {val: 5};
+    r.c = c;
+    assertEquality(c, r.c);
+    r.c = ();
+    assertFalse(r.hasKey("b"));
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
+}
+
+function assertFalse(anydata actual) {
+    assertEquality(false, actual);
 }
 
 function assertEquality(anydata expected, anydata actual) {
@@ -580,4 +718,18 @@ function assertEquality(anydata expected, anydata actual) {
     }
 
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}
+
+type AllOptionalBasicTypeField record {|
+    int val?;
+|};
+
+function getOptionalField1() returns int? {
+    AllOptionalBasicTypeField r = {};
+    return r.val;
+}
+
+function getOptionalField2() returns int? {
+    AllOptionalBasicTypeField r = {val: 5};
+    return r.val;
 }

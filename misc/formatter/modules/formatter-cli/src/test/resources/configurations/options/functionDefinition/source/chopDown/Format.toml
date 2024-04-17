@@ -1,0 +1,6 @@
+[functionDefinition]
+parametersWrap = "ChopDown"
+alignMultilineParameters = true
+
+[wrapping]
+maxLineLength = 80

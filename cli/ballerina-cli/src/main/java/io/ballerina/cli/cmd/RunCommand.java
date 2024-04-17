@@ -86,6 +86,10 @@ public class RunCommand implements BLauncherCmd {
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
 
+    @CommandLine.Option(names = "--remote-management", description = "enable management service in the " +
+            "executable when run is used with a source file or a module.")
+    private Boolean remoteManagement;
+
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
@@ -113,9 +117,11 @@ public class RunCommand implements BLauncherCmd {
     private Boolean dumpBuildTime;
 
     private static final String runCmd =
-            "bal run [--debug <port>] <executable-jar> \n" +
-                    "    bal run [--offline]\n" +
-                    "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
+            """
+                    bal run [--debug <port>] <executable-jar>\s
+                        bal run [--offline]
+                                      [<ballerina-file | package-path>] [-- program-args...]
+                    \s""";
 
     public RunCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -239,7 +245,8 @@ public class RunCommand implements BLauncherCmd {
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, false, false,
+                        isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new RunExecutableTask(args, outStream, errStream))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
@@ -260,8 +267,10 @@ public class RunCommand implements BLauncherCmd {
     @Override
     public void printUsage(StringBuilder out) {
         out.append("  bal run [--debug <port>] <executable-jar>\n");
-        out.append("  bal run [--offline] [<balfile> | <project-path>]\n" +
-                "[--] [args...] \n");
+        out.append("""
+                  bal run [--offline] [<balfile> | <project-path>]
+                [--] [args...]\s
+                """);
     }
 
     @Override
@@ -277,6 +286,7 @@ public class RunCommand implements BLauncherCmd {
                 .setSkipTests(true)
                 .setTestReport(false)
                 .setObservabilityIncluded(observabilityIncluded)
+                .setRemoteManagement(remoteManagement)
                 .setSticky(sticky)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)

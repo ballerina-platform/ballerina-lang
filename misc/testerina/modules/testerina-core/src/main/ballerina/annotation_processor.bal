@@ -51,8 +51,8 @@ function processConfigAnnotation(string name, function f) returns boolean {
         boolean isDataProviderIsolated = true;
         boolean isTestFunctionParamSafe = true;
         string[] reasonForSerialExecution = [];
-        boolean isSatisfiedParallelizableConditions = isTestFunctionIsolated &&
-                                                    isBeforeAfterFuncSetIsolated(config, reasonForSerialExecution);
+        boolean isSatisfiedParallelizableConditions = isBeforeAfterFuncSetIsolated(config,
+                reasonForSerialExecution) && isTestFunctionIsolated;
         DataProviderReturnType? params = ();
         error? diagnostics = ();
         if config.dataProvider != () {

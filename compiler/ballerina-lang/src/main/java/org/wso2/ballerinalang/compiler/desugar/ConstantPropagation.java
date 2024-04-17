@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -85,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -613,6 +615,16 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
         asyncSendExpr.expr = rewrite(asyncSendExpr.expr);
         result = asyncSendExpr;
+    }
+
+    @Override
+    public void visit(BLangAlternateWorkerReceive alternateWorkerReceive) {
+        result = alternateWorkerReceive;
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        result = multipleWorkerReceive;
     }
 
     @Override

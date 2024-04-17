@@ -147,6 +147,9 @@ public class JsonToRecordMapperTests {
     private final Path sample16Json = RES_DIR.resolve(JSON_DIR)
             .resolve("sample_16.json");
 
+    private final Path sample16Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_16.bal");
+
     private final Path singleBalFile = RES_DIR.resolve(PROJECT_DIR).resolve(SOURCE_DIR)
             .resolve("singleFileProject").resolve("SingleBalFile.bal");
 
@@ -450,6 +453,15 @@ public class JsonToRecordMapperTests {
         String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample15TypeDescBal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test for JSON with optional fields")
+    public void testForJsonWithOptionalFields() throws IOException {
+        String jsonFileContent = Files.readString(sample6Json);
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null, null,
+                        true).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample16Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 

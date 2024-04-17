@@ -27,6 +27,8 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
+import org.ballerinalang.formatter.core.FormatterUtils;
+import org.ballerinalang.formatter.core.options.FormattingOptions;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -122,9 +124,11 @@ class FormatUtil {
                     Path projectPath = sourceRootPath.resolve(argList.get(0));
 
                     BuildProject project;
+                    FormattingOptions options;
 
                     try {
                         project = BuildProject.load(projectPath, constructBuildOptions());
+                        options = FormatterUtils.buildFormattingOptions(project);
                     } catch (ProjectException e) {
                         throw LauncherUtils.createLauncherException(e.getMessage());
                     }
@@ -141,7 +145,7 @@ class FormatUtil {
                                 project.currentPackage().module(FormatUtil.isModuleExist(project, moduleName));
                         try {
                             formattedFiles.addAll(iterateAndFormat(getDocumentPaths(project,
-                                    moduleToBeFormatted.moduleId()), sourceRootPath, dryRun));
+                                    moduleToBeFormatted.moduleId()), sourceRootPath, options, dryRun));
                         } catch (IOException | FormatterException e) {
                             throw LauncherUtils.createLauncherException(Messages.getException() + e);
                         }
@@ -178,7 +182,7 @@ class FormatUtil {
                         project.currentPackage().moduleIds().forEach(moduleId -> {
                             try {
                                 formattedFiles.addAll(iterateAndFormat(getDocumentPaths(project, moduleId),
-                                        sourceRootPath, dryRun));
+                                        sourceRootPath, options, dryRun));
                             } catch (IOException | FormatterException e) {
                                 throw LauncherUtils.createLauncherException(Messages.getException() + e);
                             }
@@ -188,9 +192,10 @@ class FormatUtil {
                 }
             } else {
                 BuildProject project;
-
+                FormattingOptions options;
                 try {
                     project = BuildProject.load(sourceRootPath, constructBuildOptions());
+                    options = FormatterUtils.buildFormattingOptions(project);
                 } catch (ProjectException e) {
                     throw LauncherUtils.createLauncherException(e.getMessage());
                 }
@@ -207,7 +212,7 @@ class FormatUtil {
                             project.currentPackage().module(FormatUtil.isModuleExist(project, moduleName));
                     try {
                         formattedFiles.addAll(iterateAndFormat(getDocumentPaths(project,
-                                moduleToBeFormatted.moduleId()), sourceRootPath, dryRun));
+                                moduleToBeFormatted.moduleId()), sourceRootPath, options, dryRun));
                     } catch (IOException | FormatterException e) {
                         throw LauncherUtils.createLauncherException(Messages.getException() + e);
                     }
@@ -244,7 +249,7 @@ class FormatUtil {
                     project.currentPackage().moduleIds().forEach(moduleId -> {
                         try {
                             formattedFiles.addAll(iterateAndFormat(getDocumentPaths(project, moduleId),
-                                    sourceRootPath, dryRun));
+                                    sourceRootPath, options, dryRun));
                         } catch (IOException | FormatterException e) {
                             throw LauncherUtils.createLauncherException(Messages.getException() + e);
                         }
@@ -252,8 +257,10 @@ class FormatUtil {
                     generateChangeReport(formattedFiles, dryRun);
                 }
             }
-        } catch (IOException | NullPointerException | FormatterException e) {
+        } catch (IOException | NullPointerException e) {
             throw LauncherUtils.createLauncherException(Messages.getException() + e);
+        } catch (FormatterException e) {
+            throw LauncherUtils.createLauncherException(Messages.getException() + e.getMessage());
         }
     }
 
@@ -293,12 +300,13 @@ class FormatUtil {
     }
 
     private static void formatAndWrite(Path documentPath, Path sourceRootPath,
-                               List<String> formattedFiles, boolean dryRun) throws IOException, FormatterException {
+                                       List<String> formattedFiles, FormattingOptions options, boolean dryRun)
+            throws IOException, FormatterException {
         String fileName = Paths.get(sourceRootPath.toString()).resolve("modules").resolve(documentPath).toString();
 
         String originalSource = Files.readString(Paths.get(fileName));
         // Format and get the formatted source.
-        String formattedSource = Formatter.format(originalSource);
+        String formattedSource = Formatter.format(originalSource, options);
 
         if (areChangesAvailable(originalSource, formattedSource)) {
             if (!dryRun) {
@@ -309,13 +317,14 @@ class FormatUtil {
         }
     }
 
-    private static List<String> iterateAndFormat(List<Path> documentPaths, Path sourceRootPath, boolean dryRun)
+    private static List<String> iterateAndFormat(List<Path> documentPaths, Path sourceRootPath,
+                                                 FormattingOptions options, boolean dryRun)
             throws IOException, FormatterException {
         List<String> formattedFiles = new ArrayList<>();
 
         // Iterate compilation units and format.
         for (Path path : documentPaths) {
-            formatAndWrite(path, sourceRootPath, formattedFiles, dryRun);
+            formatAndWrite(path, sourceRootPath, formattedFiles, options, dryRun);
         }
 
         return formattedFiles;
