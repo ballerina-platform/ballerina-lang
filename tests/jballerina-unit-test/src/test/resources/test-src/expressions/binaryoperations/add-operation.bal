@@ -539,6 +539,229 @@ function baz() returns int? {
     return ();
 }
 
+type S string;
+
+type P2 "s6"|"s7";
+
+function testXmlStringAddition() {
+    string s1 = "s1";
+    string:Char s2 = "s";
+    "s3" s3 = "s3";
+    "s4"|"s5" s4 = "s4";
+    S s5 = "s5";
+    P2 s6 = "s6";
+
+    xml<xml:Element> x1 = xml `<a>a</a>`;
+    xml<xml:Element|xml:Text> r1 = x1 + s1;
+    assertEquality(x1 + s1, xml `<a>a</a>s1`);
+    r1 = x1 + s2;
+    assertEquality(r1, xml `<a>a</a>s`);
+    r1 = x1 + s3;
+    assertEquality(r1, xml `<a>a</a>s3`);
+    r1 = x1 + s4;
+    assertEquality(r1, xml `<a>a</a>s4`);
+    r1 = x1 + s5;
+    assertEquality(r1, xml `<a>a</a>s5`);
+    r1 = x1 + s6;
+    assertEquality(r1, xml `<a>a</a>s6`);
+
+    xml<xml:Comment> x2 = xml `<!--comment-->`;
+    xml<xml:Comment|xml:Text> r2 = x2 + s1;
+    assertEquality(r2, xml `<!--comment-->s1`);
+    r2 = x2 + s2;
+    assertEquality(r2, xml `<!--comment-->s`);
+    r2 = x2 + s3;
+    assertEquality(r2, xml `<!--comment-->s3`);
+    r2 = x2 + s4;
+    assertEquality(r2, xml `<!--comment-->s4`);
+    r2 = x2 + s5;
+    assertEquality(r2, xml `<!--comment-->s5`);
+    r2 = x2 + s6;
+    assertEquality(r2, xml `<!--comment-->s6`);
+
+    xml<xml:ProcessingInstruction> x3 = xml `<?data?>`;
+    xml<xml:ProcessingInstruction|xml:Text> r3 = x3 + s1;
+    assertEquality(r3, xml `<?data?>s1`);
+    r3 = x3 + s2;
+    assertEquality(r3, xml `<?data?>s`);
+    r3 = x3 + s3;
+    assertEquality(r3, xml `<?data?>s3`);
+    r3 = x3 + s4;
+    assertEquality(r3, xml `<?data?>s4`);
+    r3 = x3 + s5;
+    assertEquality(r3, xml `<?data?>s5`);
+    r3 = x3 + s6;
+    assertEquality(r3, xml `<?data?>s6`);
+
+    xml:Text x4 = xml `Xml text`;
+    xml:Text r4 = x4 + s1;
+    assertEquality(r4, xml `Xml texts1`);
+    r4 = x4 + s2;
+    assertEquality(r4, xml `Xml texts`);
+    r4 = x4 + s3;
+    assertEquality(r4, xml `Xml texts3`);
+    r4 = x4 + s4;
+    assertEquality(r4, xml `Xml texts4`);
+    r4 = x4 + s5;
+    assertEquality(r4, xml `Xml texts5`);
+    r4 = x4 + s6;
+    assertEquality(r4, xml `Xml texts6`);
+
+    xml<xml:Element|xml:Comment> x5 = xml `<a>a</a><b><!--comment--></b><c>c</c>`;
+    xml<xml:Element|xml:Comment|xml:Text> r5 = x5 + s1;
+    assertEquality(r5, xml `<a>a</a><b><!--comment--></b><c>c</c>s1`);
+    r5 = x5 + s2;
+    assertEquality(r5, xml `<a>a</a><b><!--comment--></b><c>c</c>s`);
+    r5 = x5 + s3;
+    assertEquality(r5, xml `<a>a</a><b><!--comment--></b><c>c</c>s3`);
+    r5 = x5 + s4;
+    assertEquality(r5, xml `<a>a</a><b><!--comment--></b><c>c</c>s4`);
+    r5 = x5 + s5;
+    assertEquality(r5, xml `<a>a</a><b><!--comment--></b><c>c</c>s5`);
+    r5 = x5 + s6;
+    assertEquality(r5, xml `<a>a</a><b><!--comment--></b><c>c</c>s6`);
+
+    xml<xml:Element|xml:ProcessingInstruction> x6 = xml `<a>a</a><b>b</b><?pi?>`;
+    xml<xml:Element|xml:ProcessingInstruction|xml:Text> r6 = x6 + s1;
+    assertEquality(r6, xml `<a>a</a><b>b</b><?pi?>s1`);
+    r6 = x6 + s2;
+    assertEquality(r6, xml `<a>a</a><b>b</b><?pi?>s`);
+    r6 = x6 + s3;
+    assertEquality(r6, xml `<a>a</a><b>b</b><?pi?>s3`);
+    r6 = x6 + s4;
+    assertEquality(r6, xml `<a>a</a><b>b</b><?pi?>s4`);
+    r6 = x6 + s5;
+    assertEquality(r6, xml `<a>a</a><b>b</b><?pi?>s5`);
+    r6 = x6 + s6;
+    assertEquality(r6, xml `<a>a</a><b>b</b><?pi?>s6`);
+
+    xml<xml:Element|xml:Text> x7 = xml `<a>a</a><b>b</b>Xml text`;
+    xml<xml:Element|xml:Text> r7 = x7 + s1;
+    assertEquality(r7, xml `<a>a</a><b>b</b>Xml texts1`);
+    r7 = x7 + s2;
+    assertEquality(r7, xml `<a>a</a><b>b</b>Xml texts`);
+    r7 = x7 + s3;
+    assertEquality(r7, xml `<a>a</a><b>b</b>Xml texts3`);
+    r7 = x7 + s4;
+    assertEquality(r7, xml `<a>a</a><b>b</b>Xml texts4`);
+    r7 = x7 + s5;
+    assertEquality(r7, xml `<a>a</a><b>b</b>Xml texts5`);
+    r7 = x7 + s6;
+    assertEquality(r7, xml `<a>a</a><b>b</b>Xml texts6`);
+
+    xml<xml:Comment|xml:ProcessingInstruction> x8 = xml `<!--comment--><?pi?>`;
+    xml<xml:Comment|xml:ProcessingInstruction|xml:Text> r8 = x8 + s1;
+    assertEquality(r8, xml `<!--comment--><?pi?>s1`);
+    r8 = x8 + s2;
+    assertEquality(r8, xml `<!--comment--><?pi?>s`);
+    r8 = x8 + s3;
+    assertEquality(r8, xml `<!--comment--><?pi?>s3`);
+    r8 = x8 + s4;
+    assertEquality(r8, xml `<!--comment--><?pi?>s4`);
+    r8 = x8 + s5;
+    assertEquality(r8, xml `<!--comment--><?pi?>s5`);
+    r8 = x8 + s6;
+    assertEquality(r8, xml `<!--comment--><?pi?>s6`);
+
+    xml<xml:Comment|xml:Text> x9 = xml `<!--comment 2-->Xml text 2`;
+    xml<xml:Comment|xml:Text> r9 = x9 + s1;
+    assertEquality(r9, xml `<!--comment 2-->Xml text 2s1`);
+    r9 = x9 + s2;
+    assertEquality(r9, xml `<!--comment 2-->Xml text 2s`);
+    r9 = x9 + s3;
+    assertEquality(r9, xml `<!--comment 2-->Xml text 2s3`);
+    r9 = x9 + s4;
+    assertEquality(r9, xml `<!--comment 2-->Xml text 2s4`);
+    r9 = x9 + s5;
+    assertEquality(r9, xml `<!--comment 2-->Xml text 2s5`);
+    r9 = x9 + s6;
+    assertEquality(r9, xml `<!--comment 2-->Xml text 2s6`);
+
+    xml<xml:ProcessingInstruction|xml:Text> x10 = xml `<?pi?>Xml text 3`;
+    xml<xml:ProcessingInstruction|xml:Text> r10 = x10 + s1;
+    assertEquality(r10, xml `<?pi?>Xml text 3s1`);
+    r10 = x10 + s2;
+    assertEquality(r10, xml `<?pi?>Xml text 3s`);
+    r10 = x10 + s3;
+    assertEquality(r10, xml `<?pi?>Xml text 3s3`);
+    r10 = x10 + s4;
+    assertEquality(r10, xml `<?pi?>Xml text 3s4`);
+    r10 = x10 + s5;
+    assertEquality(r10, xml `<?pi?>Xml text 3s5`);
+    r10 = x10 + s6;
+    assertEquality(r10, xml `<?pi?>Xml text 3s6`);
+
+    xml<xml:Element|xml:Comment|xml:ProcessingInstruction> x11 = xml `<a>a</a><!--comment--><?pi?>`;
+    xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text> r11 = x11 + s1;
+    assertEquality(r11, xml `<a>a</a><!--comment--><?pi?>s1`);
+    r11 = x11 + s2;
+    assertEquality(r11, xml `<a>a</a><!--comment--><?pi?>s`);
+    r11 = x11 + s3;
+    assertEquality(r11, xml `<a>a</a><!--comment--><?pi?>s3`);
+    r11 = x11 + s4;
+    assertEquality(r11, xml `<a>a</a><!--comment--><?pi?>s4`);
+    r11 = x11 + s5;
+    assertEquality(r11, xml `<a>a</a><!--comment--><?pi?>s5`);
+    r11 = x11 + s6;
+    assertEquality(r11, xml `<a>a</a><!--comment--><?pi?>s6`);
+
+    xml<xml:Element|xml:Comment|xml:Text> x12 = xml `<a>a</a><!--comment-->text`;
+    xml<xml:Element|xml:Comment|xml:Text> r12 = x12 + s1;
+    assertEquality(r12, xml `<a>a</a><!--comment-->texts1`);
+    r12 = x12 + s2;
+    assertEquality(r12, xml `<a>a</a><!--comment-->texts`);
+    r12 = x12 + s3;
+    assertEquality(r12, xml `<a>a</a><!--comment-->texts3`);
+    r12 = x12 + s4;
+    assertEquality(r12, xml `<a>a</a><!--comment-->texts4`);
+    r12 = x12 + s5;
+    assertEquality(r12, xml `<a>a</a><!--comment-->texts5`);
+    r12 = x12 + s6;
+    assertEquality(r12, xml `<a>a</a><!--comment-->texts6`);
+
+    xml<xml:Element|xml:ProcessingInstruction|xml:Text> x13 = xml `text<a>a</a><?data?>`;
+    xml<xml:Element|xml:ProcessingInstruction|xml:Text> r13 = x13 + s1;
+    assertEquality(r13, xml `text<a>a</a><?data?>s1`);
+    r13 = x13 + s2;
+    assertEquality(r13, xml `text<a>a</a><?data?>s`);
+    r13 = x13 + s3;
+    assertEquality(r13, xml `text<a>a</a><?data?>s3`);
+    r13 = x13 + s4;
+    assertEquality(r13, xml `text<a>a</a><?data?>s4`);
+    r13 = x13 + s5;
+    assertEquality(r13, xml `text<a>a</a><?data?>s5`);
+    r13 = x13 + s6;
+    assertEquality(r13, xml `text<a>a</a><?data?>s6`);
+
+    xml<xml:Comment|xml:ProcessingInstruction|xml:Text> x14 = xml `<!--comment--><?pi?>text`;
+    xml<xml:Comment|xml:ProcessingInstruction|xml:Text> r14 = x14 + s1;
+    assertEquality(r14, xml `<!--comment--><?pi?>texts1`);
+    r14 = x14 + s2;
+    assertEquality(r14, xml `<!--comment--><?pi?>texts`);
+    r14 = x14 + s3;
+    assertEquality(r14, xml `<!--comment--><?pi?>texts3`);
+    r14 = x14 + s4;
+    assertEquality(r14, xml `<!--comment--><?pi?>texts4`);
+    r14 = x14 + s5;
+    assertEquality(r14, xml `<!--comment--><?pi?>texts5`);
+    r14 = x14 + s6;
+    assertEquality(r14, xml `<!--comment--><?pi?>texts6`);
+
+    xml<never> x15 = xml ``;
+    xml:Text r15 = x15 + s1;
+    assertEquality(r15, xml `s1`);
+    r15 = x15 + s2;
+    assertEquality(r15, xml `s`);
+    r15 = x15 + s3;
+    assertEquality(r15, xml `s3`);
+    r15 = x15 + s4;
+    assertEquality(r15, xml `s4`);
+    r15 = x15 + s5;
+    assertEquality(r15, xml `s5`);
+    r15 = x15 + s6;
+    assertEquality(r15, xml `s6`);
+}
+
 function assertEquality(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
