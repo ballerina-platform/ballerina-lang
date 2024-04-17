@@ -30,16 +30,16 @@ public class CodegenOptimizationReport {
     FunctionNames usedFunctionNames;
     FunctionNames unusedFunctionNames;
     TypeDefinitions usedTypeDefNames;
-    TypeDefinitions unUsedTypeDefNames;
+    TypeDefinitions unusedTypeDefNames;
     Set<String> usedNativeClassPaths;
 
     public CodegenOptimizationReport(FunctionNames usedFunctionNames, FunctionNames unusedFunctionNames,
-                                     TypeDefinitions usedTypeDefNames, TypeDefinitions unUsedTypeDefNames,
+                                     TypeDefinitions usedTypeDefNames, TypeDefinitions unusedTypeDefNames,
                                      Set<String> usedNativeClassPaths) {
         this.usedFunctionNames = usedFunctionNames;
         this.unusedFunctionNames = unusedFunctionNames;
         this.usedTypeDefNames = usedTypeDefNames;
-        this.unUsedTypeDefNames = unUsedTypeDefNames;
+        this.unusedTypeDefNames = unusedTypeDefNames;
         this.usedNativeClassPaths = usedNativeClassPaths;
     }
 
