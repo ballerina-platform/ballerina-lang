@@ -22,7 +22,6 @@ import io.ballerina.cli.diagnostics.AnnotateDiagnostics;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.CodeModifierResult;
-import io.ballerina.projects.Document;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
@@ -224,9 +223,7 @@ public class CompileTask implements Task {
 
             // HashSet to keep track of the diagnostics to avoid duplicate diagnostics
             Set<String> diagnosticSet = new HashSet<>();
-            Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(project.currentPackage());
-            int terminalWidth = AnnotateDiagnostics.getTerminalWidth();
-            boolean colorEnabled = terminalWidth != 0;
+            AnnotateDiagnostics annotateDiagnostics = new AnnotateDiagnostics(project.currentPackage());
 
             // Report package compilation and backend diagnostics
             diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
@@ -235,13 +232,7 @@ public class CompileTask implements Task {
                         ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId()) &&
                         !d.diagnosticInfo().code().startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX))) {
                     if (diagnosticSet.add(d.toString())) {
-                        Document document = documentMap.get(d.location().lineRange().fileName());
-                        if (document != null) {
-                            err.println(AnnotateDiagnostics.renderDiagnostic(d, document,
-                                    terminalWidth, colorEnabled));
-                        } else {
-                            err.println(AnnotateDiagnostics.renderDiagnostic(d, colorEnabled));
-                        }
+                        err.println(annotateDiagnostics.renderDiagnostic(d));
                     }
                 }
             });

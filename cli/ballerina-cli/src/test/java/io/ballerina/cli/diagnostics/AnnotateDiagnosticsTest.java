@@ -20,6 +20,7 @@ package io.ballerina.cli.diagnostics;
 
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
+import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BCompileUtil;
@@ -29,6 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -60,13 +62,12 @@ public class AnnotateDiagnosticsTest {
         CompileResult result = BCompileUtil.compileOffline(
                 "test-resources/diagnostics-test-files/bal-missing-error/semicolon-missing.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
-        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
         String expectedOutput = Files.readString(testResources.resolve("bal-missing-error")
                 .resolve("semicolon-missing-expected.txt"));
         Assert.assertTrue(diagnostics.length > 0);
         Diagnostic diagnostic = diagnostics[0];
-        Document document = documentMap.get(diagnostic.location().lineRange().fileName());
-        String output = AnnotateDiagnostics.renderDiagnostic(diagnostic, document, 999, false).toString();
+        AnnotateDiagnostics annotateDiagnostics = new AnnotateDiagnostics(result.project().currentPackage());
+        String output = annotateDiagnostics.renderDiagnostic(diagnostic).toString();
         Assert.assertEquals(output, expectedOutput);
     }
 
@@ -75,13 +76,12 @@ public class AnnotateDiagnosticsTest {
         CompileResult result = BCompileUtil.compileOffline(
                 "test-resources/diagnostics-test-files/bal-missing-error/missing-function-keyword.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
-        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
         String expectedOutput = Files.readString(testResources.resolve("bal-missing-error")
                 .resolve("missing-function-keyword-expected.txt"));
         Assert.assertEquals(diagnostics.length, 1);
         Diagnostic diagnostic = diagnostics[0];
-        Document document = documentMap.get(diagnostic.location().lineRange().fileName());
-        String output = AnnotateDiagnostics.renderDiagnostic(diagnostic, document, 999, false).toString();
+        AnnotateDiagnostics annotateDiagnostics = new AnnotateDiagnostics(result.project().currentPackage());
+        String output = annotateDiagnostics.renderDiagnostic(diagnostic).toString();
         Assert.assertEquals(output, expectedOutput);
     }
 
@@ -90,11 +90,10 @@ public class AnnotateDiagnosticsTest {
         CompileResult result = BCompileUtil.compileOffline(
                 "test-resources/diagnostics-test-files/bal-missing-error/missing-multiple-keywords.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
-        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
         String expectedOutput = Files.readString(testResources.resolve("bal-missing-error")
                 .resolve("missing-multiple-keywords-expected.txt"));
         Assert.assertTrue(diagnostics.length > 0);
-        String output = getAnnotatedDiagnostics(diagnostics, documentMap);
+        String output = getAnnotatedDiagnostics(diagnostics, result.project().currentPackage());
         Assert.assertEquals(output, expectedOutput);
     }
 
@@ -103,29 +102,29 @@ public class AnnotateDiagnosticsTest {
         CompileResult result = BCompileUtil.compileOffline(
                 "test-resources/diagnostics-test-files/bal-invalid-error/invalid-token.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
-        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
         String expectedOutput = Files.readString(testResources.resolve("bal-invalid-error")
                 .resolve("invalid-token-expected.txt"));
         Assert.assertEquals(diagnostics.length, 1);
         Diagnostic diagnostic = diagnostics[0];
-        Document document = documentMap.get(diagnostic.location().lineRange().fileName());
-        String output = AnnotateDiagnostics.renderDiagnostic(diagnostic, document, 999, false).toString();
+        AnnotateDiagnostics annotateDiagnostics = new AnnotateDiagnostics(result.project().currentPackage());
+        String output = annotateDiagnostics.renderDiagnostic(diagnostic).toString();
         Assert.assertEquals(output, expectedOutput);
     }
 
     @Test(description = "Test annotations when erroneous line is longer than the terminal width. Tests truncation")
-    void testLongLineAnnotation() throws IOException {
-        int[] terminalWidth = {999, 200, 150, 100, 50, 40};
+    void testLongLineAnnotation() throws IOException, NoSuchFieldException, IllegalAccessException {
+        int[] terminalWidth = {999, 200, 150, 100, 50, 40, 38};
         CompileResult result = BCompileUtil.compileOffline(
                 "test-resources/diagnostics-test-files/bal-error/long-line.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
-        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
+        AnnotateDiagnostics annotateDiagnostics = new AnnotateDiagnostics(result.project().currentPackage());
         Assert.assertEquals(diagnostics.length, 1);
         Diagnostic diagnostic = diagnostics[0];
-        Document document = documentMap.get(diagnostic.location().lineRange().fileName());
+        Field terminalWidthField = AnnotateDiagnostics.class.getDeclaredField("terminalWidth");
+        terminalWidthField.setAccessible(true);
         for (int i = 0; i < terminalWidth.length; i++) {
-            String output =
-                    AnnotateDiagnostics.renderDiagnostic(diagnostic, document, terminalWidth[i], false).toString();
+            terminalWidthField.setInt(annotateDiagnostics, terminalWidth[i]);
+            String output = annotateDiagnostics.renderDiagnostic(diagnostic).toString();
             String expectedOutput =
                     Files.readString(testResources.resolve("bal-error").resolve("long-line-expected" + i + ".txt"));
             Assert.assertEquals(output, expectedOutput);
@@ -137,8 +136,7 @@ public class AnnotateDiagnosticsTest {
         CompileResult result = BCompileUtil.compileOffline(
                 "test-resources/diagnostics-test-files/bal-project-error/project1");
         Diagnostic[] diagnostics = result.getDiagnostics();
-        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
-        String output = getAnnotatedDiagnostics(diagnostics, documentMap);
+        String output = getAnnotatedDiagnostics(diagnostics, result.project().currentPackage());
         String expectedOutput = getExpectedOutput(testResources.resolve("bal-project-error"), "project1-expected.txt");
         Assert.assertEquals(output, expectedOutput);
 
@@ -150,14 +148,13 @@ public class AnnotateDiagnosticsTest {
                 BCompileUtil.compileWithoutInitInvocation(
                         "test-resources/diagnostics-test-files/bal-project-error/project2");
         Diagnostic[] diagnostics = result.getDiagnostics();
-        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
+        AnnotateDiagnostics annotateDiagnostics = new AnnotateDiagnostics(result.project().currentPackage());
         StringBuilder output = new StringBuilder();
         for (Diagnostic diagnostic : diagnostics) {
             if (diagnostic.diagnosticInfo().severity() != DiagnosticSeverity.WARNING) {
                 continue;
             }
-            Document document = documentMap.get(diagnostic.location().lineRange().fileName());
-            output.append(AnnotateDiagnostics.renderDiagnostic(diagnostic, document, 999, false).toString());
+            output.append(annotateDiagnostics.renderDiagnostic(diagnostic).toString());
             output.append(System.lineSeparator());
         }
         String expectedOutput = getExpectedOutput(testResources.resolve("bal-project-error"), "project2-expected.txt");
@@ -169,8 +166,7 @@ public class AnnotateDiagnosticsTest {
         CompileResult result =
                 BCompileUtil.compile("test-resources/diagnostics-test-files/bal-error/two-line-error.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
-        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
-        String output = getAnnotatedDiagnostics(diagnostics, documentMap);
+        String output = getAnnotatedDiagnostics(diagnostics, result.project().currentPackage());
         String expectedOutput =
                 Files.readString(testResources.resolve("bal-error").resolve("two-line-error-expected.txt"));
         Assert.assertEquals(output, expectedOutput);
@@ -181,8 +177,7 @@ public class AnnotateDiagnosticsTest {
         CompileResult result =
                 BCompileUtil.compile("test-resources/diagnostics-test-files/bal-error/multi-line.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
-        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
-        String output = getAnnotatedDiagnostics(diagnostics, documentMap);
+        String output = getAnnotatedDiagnostics(diagnostics, result.project().currentPackage());
         String expectedOutput = Files.readString(testResources.resolve("bal-error").resolve("multi-line-expected.txt"));
         Assert.assertEquals(output, expectedOutput);
     }
@@ -191,8 +186,7 @@ public class AnnotateDiagnosticsTest {
     void testAnnotationsWithTabs() throws IOException {
         CompileResult result = BCompileUtil.compile("test-resources/diagnostics-test-files/bal-error/tabs.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
-        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
-        String output = getAnnotatedDiagnostics(diagnostics, documentMap);
+        String output = getAnnotatedDiagnostics(diagnostics, result.project().currentPackage());
         String expectedOutput = Files.readString(testResources.resolve("bal-error").resolve("tabs-expected.txt"));
         Assert.assertEquals(output, expectedOutput);
     }
@@ -202,22 +196,28 @@ public class AnnotateDiagnosticsTest {
         CompileResult result = BCompileUtil.compile(
                 "test-resources/diagnostics-test-files/bal-missing-error/missing-non-terminal.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
-        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
         String expectedOutput = Files.readString(testResources.resolve("bal-missing-error")
                 .resolve("missing-non-terminal-expected.txt"));
         Assert.assertEquals(diagnostics.length, 8);
-        String output = getAnnotatedDiagnostics(diagnostics, documentMap);
+        String output = getAnnotatedDiagnostics(diagnostics, result.project().currentPackage());
         Assert.assertEquals(output, expectedOutput);
     }
 
     @Test(description = "Test missing token annotation padding")
-    void testMissingTokenAnnotationPadding() throws IOException {
+    void testMissingTokenAnnotationPadding() throws IOException, NoSuchFieldException, IllegalAccessException {
         CompileResult result = BCompileUtil.compile(
                 "test-resources/diagnostics-test-files/bal-missing-error/missing-function-keyword.bal");
         Diagnostic[] diagnostics = result.getDiagnostics();
         Assert.assertEquals(diagnostics.length, 1);
 
-        Map<String, Document> documentMap = AnnotateDiagnostics.getDocumentMap(result.project().currentPackage());
+        AnnotateDiagnostics annotateDiagnostics = new AnnotateDiagnostics(result.project().currentPackage());
+        Field documentMapField = AnnotateDiagnostics.class.getDeclaredField("documentMap");
+        documentMapField.setAccessible(true);
+        Assert.assertTrue(documentMapField.get(annotateDiagnostics) instanceof Map<?, ?>);
+        Object value = documentMapField.get(annotateDiagnostics);
+        Assert.assertTrue(value instanceof Map);
+        Map<String, Document> documentMap = (Map<String, Document>) value;
+
         Document document = documentMap.get(diagnostics[0].location().lineRange().fileName());
         int index = diagnostics[0].location().textRange().startOffset();
 
@@ -225,19 +225,20 @@ public class AnnotateDiagnosticsTest {
                 document.textDocument().toString().substring(index);
         DocumentConfig documentConfig = DocumentConfig.from(document.documentId(), documentString, document.name());
         Document updatedDocument = Document.from(documentConfig, document.module());
+        documentMap.put(diagnostics[0].location().lineRange().fileName(), updatedDocument);
 
-        String output = AnnotateDiagnostics.renderDiagnostic(diagnostics[0], updatedDocument, 999, false).toString();
+        String output = annotateDiagnostics.renderDiagnostic(diagnostics[0]).toString();
         String expectedOutput = Files.readString(testResources.resolve("bal-missing-error")
                 .resolve("missing-token-padding-expected.txt"));
 
         Assert.assertEquals(output, expectedOutput);
     }
 
-    private static String getAnnotatedDiagnostics(Diagnostic[] diagnostics, Map<String, Document> documentMap) {
+    private static String getAnnotatedDiagnostics(Diagnostic[] diagnostics, Package currentPackage) {
         StringBuilder output = new StringBuilder();
+        AnnotateDiagnostics annotateDiagnostics = new AnnotateDiagnostics(currentPackage);
         for (Diagnostic diagnostic : diagnostics) {
-            Document document = documentMap.get(diagnostic.location().lineRange().fileName());
-            output.append(AnnotateDiagnostics.renderDiagnostic(diagnostic, document, 999, false).toString());
+            output.append(annotateDiagnostics.renderDiagnostic(diagnostic).toString());
             output.append(System.lineSeparator());
         }
         return output.toString();

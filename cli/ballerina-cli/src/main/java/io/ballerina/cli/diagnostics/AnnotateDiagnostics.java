@@ -47,7 +47,7 @@ import static io.ballerina.cli.diagnostics.DiagnosticAnnotation.getColoredString
 import static io.ballerina.cli.utils.OsUtils.isWindows;
 
 /**
- * This class is used to generate diagnostic annotations from diagnostics.
+ * This class is used to generate diagnostic annotated messages from diagnostics.
  *
  * @since 2201.9.0
  */
@@ -59,57 +59,55 @@ public class AnnotateDiagnostics {
     private static final int INVALID_TOKEN_CODE = 600;
     private static final int NO_TRUNCATE_WIDTH = 999;
 
+    private final Map<String, Document> documentMap;
+    private int terminalWidth;
+    private final boolean colorEnabled;
+
+    public AnnotateDiagnostics(Package currentPackage) {
+        this.documentMap = getDocumentMap(currentPackage);
+        this.terminalWidth = getTerminalWidth();
+        this.colorEnabled = this.terminalWidth != 0;
+    }
+
     /**
      * Returns an annotated diagnostic that is ready to be printed to the console.
      *
-     * @param diagnostic    The diagnostic to be annotated.
-     * @param document      The document that the diagnostic is associated with.
-     * @param terminalWidth The width of the terminal. This is used to truncate the diagnostic message.
-     * @param colorEnabled  Whether to enable color in the diagnostic message.
+     * @param diagnostic The diagnostic to be annotated.
      * @return The annotated diagnostic.
      */
-    public static Ansi renderDiagnostic(Diagnostic diagnostic, Document document, int terminalWidth,
-                                        boolean colorEnabled) {
+    public Ansi renderDiagnostic(Diagnostic diagnostic) {
+        Location diagnosticLocation = diagnostic.location();
+        Document document = documentMap.get(diagnosticLocation.lineRange().fileName());
+        if (document == null) {
+            return renderAnsi(diagnosticToString(diagnostic, colorEnabled));
+        }
+
         DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
         String diagnosticCode = diagnosticInfo.code();
-        terminalWidth = terminalWidth == 0 ? NO_TRUNCATE_WIDTH : terminalWidth;
+        this.terminalWidth = this.terminalWidth == 0 ? NO_TRUNCATE_WIDTH : this.terminalWidth;
         if (diagnostic instanceof PackageDiagnostic packageDiagnostic && diagnosticCode != null &&
                 diagnosticCode.startsWith(COMPILER_ERROR_PREFIX)) {
             int diagnosticCodeNumber = Integer.parseInt(diagnosticCode.substring(3));
             if (diagnosticCodeNumber < SYNTAX_ERROR_CODE_THRESHOLD) {
                 return renderAnsi(
                         diagnosticToString(diagnostic, colorEnabled) + NEW_LINE + getSyntaxDiagnosticAnnotation(
-                                document, packageDiagnostic, diagnosticCodeNumber, terminalWidth, colorEnabled));
+                                document, packageDiagnostic, diagnosticCodeNumber, this.terminalWidth, colorEnabled));
             }
         }
-        DiagnosticAnnotation diagnosticAnnotation = getDiagnosticAnnotation(
-                document, diagnostic.location(), diagnosticInfo.severity(), terminalWidth, colorEnabled);
+
+        DiagnosticAnnotation diagnosticAnnotation =
+                getDiagnosticAnnotation(document, diagnosticLocation, diagnosticInfo.severity(), this.terminalWidth,
+                        colorEnabled);
         return renderAnsi(diagnosticToString(diagnostic, colorEnabled) + NEW_LINE + diagnosticAnnotation);
 
     }
 
-    /**
-     * @return The width of the terminal.
-     */
-    public static int getTerminalWidth() {
+    private static int getTerminalWidth() {
         try {
             return TerminalBuilder.builder().dumb(true).build().getWidth();
         } catch (IOException e) {
             return NO_TRUNCATE_WIDTH;
         }
-    }
-
-    /**
-     * Returns a diagnostic without any code annotations that is ready to be printed to the console. This is for when
-     * there is no Document associated with the diagnostic, but we can still render the diagnostic in the terminal with
-     * color.
-     *
-     * @param diagnostic   The diagnostic to be rendered in the console.
-     * @param colorEnabled Whether to enable color in the diagnostic message.
-     * @return The diagnostic message.
-     */
-    public static Ansi renderDiagnostic(Diagnostic diagnostic, boolean colorEnabled) {
-        return renderAnsi(diagnosticToString(diagnostic, colorEnabled));
     }
 
     private static void processDocuments(Module module, DocumentId documentId, Map<String, Document> documentMap) {
@@ -123,7 +121,7 @@ public class AnnotateDiagnostics {
      * @param currentPackage The package to get the documents from.
      * @return A map of document paths to documents.
      */
-    public static Map<String, Document> getDocumentMap(Package currentPackage) {
+    private static Map<String, Document> getDocumentMap(Package currentPackage) {
         Map<String, Document> documentMap = new HashMap<>();
         currentPackage.moduleIds().forEach(moduleId -> {
             Module module = currentPackage.module(moduleId);
