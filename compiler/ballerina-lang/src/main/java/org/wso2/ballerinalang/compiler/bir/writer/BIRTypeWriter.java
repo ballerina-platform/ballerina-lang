@@ -715,6 +715,7 @@ public class BIRTypeWriter extends TypeVisitor {
             buff.writeByte(3);
             writeSemType(functionAtomicType.paramType());
             writeSemType(functionAtomicType.retType());
+            buff.writeBoolean(functionAtomicType.isGeneric());
         } else if (atomicType instanceof CellAtomicType cellAtomicType) {
             buff.writeByte(4);
             writeSemType(cellAtomicType.ty());

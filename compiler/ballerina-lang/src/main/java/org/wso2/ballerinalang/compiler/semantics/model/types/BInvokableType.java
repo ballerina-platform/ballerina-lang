@@ -25,7 +25,7 @@ import io.ballerina.types.definition.FunctionDefinition;
 import io.ballerina.types.definition.ListDefinition;
 import org.ballerinalang.model.types.InvokableType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -191,7 +191,7 @@ public class BInvokableType extends BType implements InvokableType {
         }
         FunctionDefinition fd = new FunctionDefinition();
         this.defn = fd;
-        List<SemType> params = paramTypes.stream().map(BInvokableType::from).toList();
+        List<SemType> params = this.paramTypes.stream().map(BInvokableType::from).toList();
         SemType rest;
         if (restType instanceof BArrayType arrayType) {
             rest = from(arrayType.eType);
@@ -201,17 +201,20 @@ public class BInvokableType extends BType implements InvokableType {
         }
         SemType returnType = retType != null ? from(retType) : PredefinedType.NIL;
         ListDefinition paramListDefinition = new ListDefinition();
-        return fd.define(env, paramListDefinition.defineListTypeWrapped(env, params, params.size(), rest,
-                CellAtomicType.CellMutability.CELL_MUT_NONE), returnType);
+        SemType paramTypes = paramListDefinition.defineListTypeWrapped(env, params, params.size(), rest,
+                CellAtomicType.CellMutability.CELL_MUT_NONE);
+        // TODO: probably we need to move this method from Types.
+        boolean isGeneric = Types.containsTypeParams(this);
+        if (isGeneric) {
+            return fd.defineGeneric(env, paramTypes, returnType);
+        }
+        return fd.define(env, paramTypes, returnType);
     }
 
     private static SemType from(BType type) {
         SemType semType = type.semType();
         if (semType == null) {
             semType = PredefinedType.NEVER;
-        }
-        if (TypeParamAnalyzer.containsTypeParam(type)) {
-            semType.setParameterized();
         }
         return semType;
     }
