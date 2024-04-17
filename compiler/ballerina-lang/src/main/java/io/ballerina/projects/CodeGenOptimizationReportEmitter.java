@@ -121,7 +121,7 @@ public class CodeGenOptimizationReportEmitter {
         File jsonFile = new File(jsonFilePath.toString());
 
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+            Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
             String json = gson.toJson(reports);
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
