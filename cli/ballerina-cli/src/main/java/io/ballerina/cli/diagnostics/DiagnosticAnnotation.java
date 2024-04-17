@@ -33,12 +33,18 @@ public class DiagnosticAnnotation {
     public static final String NEW_LINE = System.lineSeparator();
     public static final String JANSI_ANNOTATOR = "@|";
     public static final String JANSI_RESET = "|@";
+    private static final String INTERNAL_COLOR = "blue";
+    private static final String HINT_COLOR = "blue";
+    private static final String INFO_COLOR = "blue";
+    private static final String WARNING_COLOR = "yellow";
+    private static final String ERROR_COLOR = "red";
     public static final Map<DiagnosticSeverity, String> SEVERITY_COLORS;
 
     static {
         SEVERITY_COLORS =
-                Map.of(DiagnosticSeverity.INTERNAL, "blue", DiagnosticSeverity.HINT, "blue", DiagnosticSeverity.INFO,
-                        "blue", DiagnosticSeverity.WARNING, "yellow", DiagnosticSeverity.ERROR, "red");
+                Map.of(DiagnosticSeverity.INTERNAL, INTERNAL_COLOR, DiagnosticSeverity.HINT, HINT_COLOR,
+                        DiagnosticSeverity.INFO, INFO_COLOR, DiagnosticSeverity.WARNING, WARNING_COLOR,
+                        DiagnosticSeverity.ERROR, ERROR_COLOR);
     }
 
     public enum DiagnosticAnnotationType {
@@ -82,7 +88,7 @@ public class DiagnosticAnnotation {
             int maxLength = terminalWidth - digitsNum - 3;
             TruncateResult result = truncate(lines.get(0), maxLength, start, length);
             return padding + "|" + NEW_LINE
-                    + String.format("%" + digitsNum + "d ", startLineNumber) + "| " + result.line + NEW_LINE
+                    + getLineNumberString(digitsNum, startLineNumber) + "| " + result.line + NEW_LINE
                     + padding + "| " +
                     getUnderline(result.diagnosticStart, result.diagnosticLength, this.severity, this.type,
                             colorEnabled) + NEW_LINE;
@@ -111,24 +117,24 @@ public class DiagnosticAnnotation {
 
         if (lines.size() == 2) {
             return padding + "|" + NEW_LINE
-                    + String.format("%" + endDigitsNum + "d ", startLineNumber) + "| " + result1.line + NEW_LINE
+                    + getLineNumberString(endDigitsNum, startLineNumber) + "| " + result1.line + NEW_LINE
                     + padding + "| " +
                     getUnderline(result1.diagnosticStart, result1.diagnosticLength, this.severity, this.type,
                             colorEnabled) + NEW_LINE
-                    + String.format("%" + endDigitsNum + "d ", startLineNumber + 1) + "| " + result2.line + NEW_LINE
+                    + getLineNumberString(endDigitsNum, startLineNumber + 1) + "| " + result2.line + NEW_LINE
                     + padding + "| " +
                     getUnderline(0, result2.diagnosticLength, this.severity, this.type, colorEnabled) + NEW_LINE;
 
         }
         String padding2 = " ".repeat(Math.min(terminalWidth, maxLineLength) / 2);
         return padding + "|" + NEW_LINE
-                + String.format("%" + endDigitsNum + "d ", startLineNumber) + "| " + result1.line + NEW_LINE
+                + getLineNumberString(endDigitsNum, startLineNumber) + "| " + result1.line + NEW_LINE
                 + paddingWithColon + "| " +
                 getUnderline(result1.diagnosticStart, result1.diagnosticLength, this.severity, this.type,
                         colorEnabled) + NEW_LINE
                 + paddingWithColon + "| " + padding2 + ":" + NEW_LINE
                 + paddingWithColon + "| " + padding2 + ":" + NEW_LINE
-                + String.format("%" + endDigitsNum + "d ", startLineNumber + lines.size() - 1) + "| "
+                + getLineNumberString(endDigitsNum, startLineNumber + lines.size() - 1) + "| "
                 + result2.line + NEW_LINE
                 + padding + "| " + getUnderline(0, result2.diagnosticLength, this.severity, this.type, colorEnabled) +
                 NEW_LINE;
@@ -137,6 +143,10 @@ public class DiagnosticAnnotation {
 
     public static String getColoredString(String message, String color, boolean colorEnabled) {
         return colorEnabled ? JANSI_ANNOTATOR + color + " " + message + JANSI_RESET : message;
+    }
+
+    private static String getLineNumberString(int numberOfDigits, int lineNumber) {
+        return String.format("%" + numberOfDigits + "d ", lineNumber);
     }
 
     private static String getUnderline(int offset, int length, DiagnosticSeverity severity,

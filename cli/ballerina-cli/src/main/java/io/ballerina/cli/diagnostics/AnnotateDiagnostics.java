@@ -29,6 +29,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.jline.jansi.Ansi;
 import org.jline.terminal.TerminalBuilder;
@@ -39,7 +40,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import static io.ballerina.cli.diagnostics.DiagnosticAnnotation.NEW_LINE;
 import static io.ballerina.cli.diagnostics.DiagnosticAnnotation.SEVERITY_COLORS;
@@ -59,6 +59,15 @@ public class AnnotateDiagnostics {
     private static final int INVALID_TOKEN_CODE = 600;
     private static final int NO_TRUNCATE_WIDTH = 999;
 
+    /**
+     * Returns an annotated diagnostic that is ready to be printed to the console.
+     *
+     * @param diagnostic    The diagnostic to be annotated.
+     * @param document      The document that the diagnostic is associated with.
+     * @param terminalWidth The width of the terminal. This is used to truncate the diagnostic message.
+     * @param colorEnabled  Whether to enable color in the diagnostic message.
+     * @return The annotated diagnostic.
+     */
     public static Ansi renderDiagnostic(Diagnostic diagnostic, Document document, int terminalWidth,
                                         boolean colorEnabled) {
         DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
@@ -79,6 +88,9 @@ public class AnnotateDiagnostics {
 
     }
 
+    /**
+     * @return The width of the terminal.
+     */
     public static int getTerminalWidth() {
         try {
             return TerminalBuilder.builder().dumb(true).build().getWidth();
@@ -87,20 +99,36 @@ public class AnnotateDiagnostics {
         }
     }
 
+    /**
+     * Returns a diagnostic without any code annotations that is ready to be printed to the console. This is for when
+     * there is no Document associated with the diagnostic, but we can still render the diagnostic in the terminal with
+     * color.
+     *
+     * @param diagnostic   The diagnostic to be rendered in the console.
+     * @param colorEnabled Whether to enable color in the diagnostic message.
+     * @return The diagnostic message.
+     */
     public static Ansi renderDiagnostic(Diagnostic diagnostic, boolean colorEnabled) {
         return renderAnsi(diagnosticToString(diagnostic, colorEnabled));
     }
 
+    private static void processDocuments(Module module, DocumentId documentId, Map<String, Document> documentMap) {
+        Document document = module.document(documentId);
+        documentMap.put(getDocumentPath(module.moduleName(), document.name()), document);
+    }
+
+    /**
+     * Returns a map of documents in the given package.
+     *
+     * @param currentPackage The package to get the documents from.
+     * @return A map of document paths to documents.
+     */
     public static Map<String, Document> getDocumentMap(Package currentPackage) {
         Map<String, Document> documentMap = new HashMap<>();
         currentPackage.moduleIds().forEach(moduleId -> {
             Module module = currentPackage.module(moduleId);
-            Consumer<DocumentId> consumer = documentId -> {
-                Document document = module.document(documentId);
-                documentMap.put(getDocumentPath(module.moduleName(), document.name()), document);
-            };
-            module.documentIds().forEach(consumer);
-            module.testDocumentIds().forEach(consumer);
+            module.documentIds().forEach(documentId -> processDocuments(module, documentId, documentMap));
+            module.testDocumentIds().forEach(documentId -> processDocuments(module, documentId, documentMap));
         });
 
         return documentMap;
@@ -236,11 +264,9 @@ public class AnnotateDiagnostics {
     }
 
     private static LocationDetails getLocationDetails(Location location) {
-        int startLine = location.lineRange().startLine().line();
-        int startOffset = location.lineRange().startLine().offset();
-        int endLine = location.lineRange().endLine().line();
-        int endOffset = location.lineRange().endLine().offset();
-        return new LocationDetails(startLine, startOffset, endLine, endOffset);
+        LinePosition startLine = location.lineRange().startLine();
+        LinePosition endLine = location.lineRange().endLine();
+        return new LocationDetails(startLine.line(), startLine.offset(), endLine.line(), endLine.offset());
     }
 
     private static Ansi renderAnsi(String message) {
