@@ -150,7 +150,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
 
         List<TextEdit> edits = new ArrayList<>();
         List<Integer> renamePositions = new ArrayList<>();
-        List<String> types = getPossibleTypes(typeDescriptor, context);
+        List<String> types = getPossibleTypes(typeDescriptor, context, importsAcceptor);
         Position insertPos = range.getStart();
         List<Position> varRenamePositions = new ArrayList<>();
         for (String type : types) {
@@ -174,7 +174,8 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
      * @param context    CodeActionContext
      * @return {@link List<String>}
      */
-    private List<String> getPossibleTypes(TypeSymbol typeSymbol, CodeActionContext context) {
+    private List<String> getPossibleTypes(TypeSymbol typeSymbol, CodeActionContext context,
+                                          ImportsAcceptor importsAcceptor) {
         typeSymbol = getRawType(typeSymbol, context);
         Set<String> possibleTypes = new HashSet<>();
         List<TypeSymbol> errorTypes = new ArrayList<>();
@@ -190,17 +191,17 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
                                             .memberTypeDescriptors()
                                             .stream()
                                             .map(memberTSymbol -> getRawType(memberTSymbol, context))
-                                            .map(symbol -> getTypeName(symbol, context))
+                                            .map(symbol -> getTypeName(symbol, context, importsAcceptor))
                                             .collect(Collectors.toList()));
                         } else if (memberTypeSymbol.typeKind() == TypeDescKind.ERROR ||
                                 CommonUtil.getRawType(memberTypeSymbol).typeKind() == TypeDescKind.ERROR) {
                             errorTypes.add(memberTypeSymbol);
                         } else {
-                            possibleTypes.add(getTypeName(memberTypeSymbol, context));
+                            possibleTypes.add(getTypeName(memberTypeSymbol, context, importsAcceptor));
                         }
                     });
         } else {
-            String type = getTypeName(typeSymbol, context);
+            String type = getTypeName(typeSymbol, context, importsAcceptor);
             if (!"any".equals(type)) {
                 return Collections.singletonList(type);
             }
@@ -208,7 +209,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
 
         if (!errorTypes.isEmpty()) {
             String errorTypeStr = errorTypes.stream()
-                    .map(type -> getTypeName(type, context))
+                    .map(type -> getTypeName(type, context, importsAcceptor))
                     .collect(Collectors.joining("|"));
             return possibleTypes.stream()
                     .filter(type -> !"any".equals(type))
@@ -249,7 +250,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
         return actionNode.parent().kind() == SyntaxKind.ACTION_STATEMENT;
     }
 
-    private String getTypeName(TypeSymbol symbol, CodeActionContext context) {
+    private String getTypeName(TypeSymbol symbol, CodeActionContext context, ImportsAcceptor importsAcceptor) {
         Optional<ModuleSymbol> module = symbol.getModule();
         if (module.isPresent()) {
             String fqPrefix = "";
@@ -259,9 +260,9 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
             }
             String moduleQualifiedName = fqPrefix + (symbol.getName().isPresent() ? symbol.getName().get()
                     : getRawType(symbol, context).signature());
-            return FunctionGenerator.processModuleIDsInText(new ImportsAcceptor(context), moduleQualifiedName, context);
+            return FunctionGenerator.processModuleIDsInText(importsAcceptor, moduleQualifiedName, context);
         }
-        return FunctionGenerator.processModuleIDsInText(new ImportsAcceptor(context), symbol.signature(), context);
+        return FunctionGenerator.processModuleIDsInText(importsAcceptor, symbol.signature(), context);
     }
 
     private boolean isLangAnnotationModule(ModuleID moduleID) {
