@@ -18,7 +18,6 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
@@ -193,8 +192,8 @@ public class ValueUtils {
             return;
         }
         AtomicInteger callCount = new AtomicInteger(0);
-        scheduleNextFunction(recordValue, defaultValues, fields, "default", noOfIterations,
-                callCount, o -> {}, latch, Scheduler.getDaemonStrand());
+        scheduleNextFunction(recordValue, defaultValues, fields, "default", noOfIterations, callCount,
+                o -> { }, latch, Scheduler.getDaemonStrand());
     }
 
     private static void scheduleNextFunction(BMap<BString, Object> recordValue,
