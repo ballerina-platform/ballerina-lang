@@ -893,6 +893,10 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private static String getMainClassFileName(PackageContext rootPkgContext) {
+        if (rootPkgContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return "$_init";
+        }
+
         String orgName = rootPkgContext.descriptor().org().toString();
         String pkgName = rootPkgContext.descriptor().name().toString();
         return String.format("%s/%s/0/$_init", orgName, pkgName);
