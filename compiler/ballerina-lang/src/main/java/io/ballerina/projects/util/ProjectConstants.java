@@ -44,6 +44,7 @@ public class ProjectConstants {
     public static final String DEVCONTAINER = ".devcontainer.json";
     public static final String MODULE_MD_FILE_NAME = "Module.md";
     public static final String PACKAGE_MD_FILE_NAME = "Package.md";
+    public static final String README_MD_FILE_NAME = "README.md";
     public static final String PACKAGE_JSON = "package.json";
     public static final String BALA_JSON = "bala.json";
     public static final String COMPILER_PLUGIN_JSON = "compiler-plugin.json";

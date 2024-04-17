@@ -14,10 +14,14 @@ import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -245,6 +249,18 @@ public class PackCommand implements BLauncherCmd {
 
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);
+
+        // Checks if Package.md is present and issues a warning
+        Path packageMd = project.sourceRoot().resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+        if (packageMd.toFile().exists()) {
+            String warning = "The use of Package.md and Module.md is deprecated. " +
+                    "Update the package to add a README.md file.\n";
+            DiagnosticInfo diagnosticInfo = new DiagnosticInfo(ProjectDiagnosticErrorCode.
+                    DEPRECATED_DOC_FILE.diagnosticId(), warning, DiagnosticSeverity.WARNING);
+            PackageDiagnostic packageDiagnostic = new PackageDiagnostic(diagnosticInfo,
+                    project.currentPackage().packageName().toString());
+            this.outStream.println(packageDiagnostic);
+        }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
