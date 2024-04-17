@@ -281,8 +281,8 @@ class TypeEmitter {
     private static String emitBArrayType(BArrayType bType, int tabs) {
         String arrStr = emitTypeRef(bType.eType, 0);
         arrStr += "[";
-        if (bType.size > 0) {
-            arrStr += bType.size;
+        if (bType.getSize() > 0) {
+            arrStr += bType.getSize();
         }
         arrStr += "]";
         return arrStr;

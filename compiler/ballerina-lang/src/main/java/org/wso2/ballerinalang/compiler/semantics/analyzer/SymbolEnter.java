@@ -2533,7 +2533,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     BArrayType arrayType = (BArrayType) referredType;
                     tupleTypeNode = new BTupleType(symTable.typeEnv(), tupleTypes);
                     BType eType = arrayType.eType;
-                    for (int i = 0; i < arrayType.size; i++) {
+                    for (int i = 0; i < arrayType.getSize(); i++) {
                         BType type = arrayType.eType;
                         BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
                         tupleTypes.add(new BTupleMember(type, varSymbol));

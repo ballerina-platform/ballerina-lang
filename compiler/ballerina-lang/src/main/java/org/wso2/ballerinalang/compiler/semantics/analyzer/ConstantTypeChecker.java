@@ -286,8 +286,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         BType expType = Types.getImpliedType(data.expType);
         if (expType.tag == TypeTags.ARRAY && ((BArrayType) expType).state == BArrayState.INFERRED) {
-            ((BArrayType) expType).size = memberTypes.size();
-            ((BArrayType) expType).state = BArrayState.CLOSED;
+            BArrayType expArrayType = (BArrayType) expType;
+            expArrayType.setSize(memberTypes.size());
+            expArrayType.state = BArrayState.CLOSED;
         }
 
         return createNewTupleType(literalExpr.pos, memberTypes, data);
@@ -1147,7 +1148,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
                 switch (spreadOpType.tag) {
                     case TypeTags.ARRAY:
-                        int arraySize = ((BArrayType) spreadOpType).size;
+                        int arraySize = ((BArrayType) spreadOpType).getSize();
                         if (arraySize >= 0) {
                             listExprSize += arraySize;
                             continue;
@@ -1174,12 +1175,12 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         BType eType = arrayType.eType;
         if (arrayType.state == BArrayState.INFERRED) {
-            arrayType.size = listExprSize;
+            arrayType.setSize(listExprSize);
             arrayType.state = BArrayState.CLOSED;
-        } else if (arrayType.state != BArrayState.OPEN && arrayType.size != listExprSize) {
-            if (arrayType.size < listExprSize) {
-                dlog.error(listConstructor.pos, DiagnosticErrorCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size,
-                        listExprSize);
+        } else if (arrayType.state != BArrayState.OPEN && arrayType.getSize() != listExprSize) {
+            if (arrayType.getSize() < listExprSize) {
+                dlog.error(listConstructor.pos, DiagnosticErrorCode.MISMATCHING_ARRAY_LITERAL_VALUES,
+                        arrayType.getSize(), listExprSize);
                 return symTable.semanticError;
             }
 
@@ -1230,7 +1231,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         // Create new tuple type using inferred members.
         BTupleType resultTupleType = createNewTupleType(listConstructor.pos, memberTypes, data);
 
-        if (arrayType.state == BArrayState.CLOSED && arrayType.size > listExprSize) {
+        if (arrayType.state == BArrayState.CLOSED && arrayType.getSize() > listExprSize) {
             if (!fillMembers.addFillMembers(resultTupleType, arrayType, data)) {
                 return symTable.semanticError;
             }
@@ -1258,7 +1259,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
                 switch (spreadOpType.tag) {
                     case TypeTags.ARRAY:
-                        int arraySize = ((BArrayType) spreadOpType).size;
+                        int arraySize = ((BArrayType) spreadOpType).getSize();
                         if (arraySize >= 0) {
                             listExprSize += arraySize;
                             continue;
@@ -2167,7 +2168,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             int tupleMemberCount = tupleTypes.size();
             if (refType.tag == TypeTags.ARRAY) {
                 BArrayType arrayType = (BArrayType) expType;
-                int noOfFillMembers = arrayType.size - tupleMemberCount;
+                int noOfFillMembers = arrayType.getSize() - tupleMemberCount;
                 BType fillMemberType = getFillMembers(arrayType.eType, data);
                 if (fillMemberType == symTable.semanticError) {
                     return false;
@@ -2226,8 +2227,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 data.resultType = symTable.semanticError;
                 return;
             }
-            List<BType> tupleTypes = new ArrayList<>(arrayType.size);
-            for (int i = 0; i < arrayType.size; i++) {
+            List<BType> tupleTypes = new ArrayList<>(arrayType.getSize());
+            for (int i = 0; i < arrayType.getSize(); i++) {
                 tupleTypes.add(fillMemberType);
             }
             List<BTupleMember> members = new ArrayList<>();

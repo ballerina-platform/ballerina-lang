@@ -200,7 +200,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), type.size, type.state.getValue(), visit(type.eType));
+        Integer hash = hash(baseHash(type), type.getSize(), type.state.getValue(), visit(type.eType));
         return addToVisited(type, hash);
     }
 

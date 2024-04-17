@@ -198,7 +198,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         BArrayType newArrayType =
-                new BArrayType(originalType.env, newElemType, null, originalType.size, originalType.state);
+                new BArrayType(originalType.env, newElemType, null, originalType.getSize(), originalType.state);
         setFlags(newArrayType, originalType.getFlags());
         return newArrayType;
     }

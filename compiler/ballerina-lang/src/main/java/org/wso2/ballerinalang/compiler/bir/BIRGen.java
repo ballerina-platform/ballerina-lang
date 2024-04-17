@@ -2747,7 +2747,7 @@ public class BIRGen extends BLangNodeVisitor {
         BType referredType = Types.getImpliedType(listConstructorExprType);
         if (referredType.tag == TypeTags.ARRAY &&
                 ((BArrayType) referredType).state != BArrayState.OPEN) {
-            size = ((BArrayType) referredType).size;
+            size = ((BArrayType) referredType).getSize();
         } else if (referredType.tag == TypeTags.TUPLE) {
             typedescOp = this.env.targetOperand;
             size = exprs.size();

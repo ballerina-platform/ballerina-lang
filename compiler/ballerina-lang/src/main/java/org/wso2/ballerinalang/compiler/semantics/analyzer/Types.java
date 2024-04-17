@@ -1363,7 +1363,7 @@ public class Types {
     private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
                                                      Set<TypePair> unresolvedTypes) {
         if (target.state != BArrayState.OPEN
-                && (source.restType != null || source.getMembers().size() != target.size)) {
+                && (source.restType != null || source.getMembers().size() != target.getSize())) {
             return false;
         }
 
@@ -1396,7 +1396,7 @@ public class Types {
         }
 
         int targetTupleMemberSize = tupleTypes.size();
-        int sourceArraySize = source.size;
+        int sourceArraySize = source.getSize();
 
         if (targetTupleMemberSize > sourceArraySize) {
             // [int, int, int...] = int[1]
@@ -1432,7 +1432,7 @@ public class Types {
                 return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
             }
 
-            if (targetArrayType.size != source.size) {
+            if (targetArrayType.getSize() != source.getSize()) {
                 return false;
             }
 
@@ -1819,7 +1819,7 @@ public class Types {
     }
 
     public boolean checkSealedArraySizeEquality(BArrayType rhsArrayType, BArrayType lhsArrayType) {
-        return lhsArrayType.size == rhsArrayType.size;
+        return lhsArrayType.getSize() == rhsArrayType.getSize();
     }
 
     public boolean checkStructEquivalency(BType rhsType, BType lhsType) {
@@ -3796,7 +3796,7 @@ public class Types {
         if (s.tag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) s;
             if (arrayType.eType == source) {
-                return new BArrayType(typeEnv(), target, arrayType.tsymbol, arrayType.size,
+                return new BArrayType(typeEnv(), target, arrayType.tsymbol, arrayType.getSize(),
                         arrayType.state, arrayType.getFlags());
             }
         }
@@ -5122,8 +5122,8 @@ public class Types {
             return tupleType;
         }
         List<BType> tupleTypes = tupleType.getTupleTypes();
-        if (arrayType.state == BArrayState.CLOSED && tupleTypes.size() != arrayType.size) {
-            if (tupleTypes.size() > arrayType.size) {
+        if (arrayType.state == BArrayState.CLOSED && tupleTypes.size() != arrayType.getSize()) {
+            if (tupleTypes.size() > arrayType.getSize()) {
                 return symTable.semanticError;
             }
 
@@ -6050,7 +6050,7 @@ public class Types {
     }
 
     private boolean checkFillerValue(BArrayType type) {
-        if (type.size == -1) {
+        if (type.getSize() == -1) {
             return true;
         }
         return hasFillerValue(type.eType);

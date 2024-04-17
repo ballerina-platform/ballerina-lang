@@ -149,7 +149,7 @@ public class BIRTypeWriter extends TypeVisitor {
     @Override
     public void visit(BArrayType bArrayType) {
         buff.writeByte(bArrayType.state.getValue());
-        buff.writeInt(bArrayType.size);
+        buff.writeInt(bArrayType.getSize());
         writeTypeCpIndex(bArrayType.getElementType());
     }
 

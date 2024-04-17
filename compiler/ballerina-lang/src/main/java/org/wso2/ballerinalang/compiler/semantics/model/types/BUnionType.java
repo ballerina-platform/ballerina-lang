@@ -325,7 +325,7 @@ public class BUnionType extends BType implements UnionType {
             if (member instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) member;
                 if (getImpliedType(arrayType.eType) == unionType) {
-                    BArrayType newArrayType = new BArrayType(env, this, arrayType.tsymbol, arrayType.size,
+                    BArrayType newArrayType = new BArrayType(env, this, arrayType.tsymbol, arrayType.getSize(),
                             arrayType.state, arrayType.getFlags());
                     this.add(newArrayType);
                     continue;

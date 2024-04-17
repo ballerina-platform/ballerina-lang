@@ -45,7 +45,7 @@ public class BArrayType extends BType implements ArrayType {
     private static final int NO_FIXED_SIZE = -1;
     public BType eType;
 
-    public int size = NO_FIXED_SIZE;
+    private int size = NO_FIXED_SIZE;
 
     public BArrayState state = BArrayState.OPEN;
 
@@ -92,6 +92,16 @@ public class BArrayType extends BType implements ArrayType {
     @Override
     public int getSize() {
         return size;
+    }
+
+    public void setSize(int size) {
+        // TODO: if sizes are the same there is no effect on the semtype. However it is better if we remove this
+        //   relaxation as well.
+        if (ld != null && Math.abs(this.size) != size) {
+            // This is dangerous since someone have already captured the SemType and using it.
+            throw new IllegalStateException("Size cannot be set after SemType is calculated");
+        }
+        this.size = size;
     }
 
     @Override

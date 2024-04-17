@@ -6050,8 +6050,8 @@ public class Desugar extends BLangNodeVisitor {
                 spreadOpType = Types.getImpliedType(spreadOpType);
                 if (spreadOpType.tag == TypeTags.ARRAY) {
                     BArrayType spreadOpBArray = (BArrayType) spreadOpType;
-                    if (spreadOpBArray.size >= 0) {
-                        i += spreadOpBArray.size;
+                    if (spreadOpBArray.getSize() >= 0) {
+                        i += spreadOpBArray.getSize();
                         continue;
                     }
                 } else {
@@ -9528,7 +9528,7 @@ public class Desugar extends BLangNodeVisitor {
             if (refType.tag == TypeTags.ARRAY) {
                 BArrayType arrayType = (BArrayType) refType;
                 if (arrayType.state == BArrayState.CLOSED &&
-                        arrayType.size == (iExpr.requiredArgs.size() - originalRequiredArgCount)) {
+                        arrayType.getSize() == (iExpr.requiredArgs.size() - originalRequiredArgCount)) {
                     // If the array was a closed array that provided only for the non rest params, set the rest param
                     // type as the element type to satisfy code gen. The foreach will not be executed at runtime.
                     valueExpr.setBType(restParamType.eType);

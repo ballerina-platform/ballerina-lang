@@ -2452,7 +2452,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             members.add(new BTupleMember(eType, Symbols.createVarSymbolForTupleMember(eType)));
         }
 
-        if (arrayType.size > remReqArgCount) {
+        if (arrayType.getSize() > remReqArgCount) {
             return new BTupleType(symTable.typeEnv(), null, members, eType, 0);
         }
 

@@ -91,7 +91,7 @@ public class JvmArrayTypeGen {
         if (TypeTags.isSimpleBasicType(arrayType.eType.tag)) {
             // Load the element type
             jvmTypeGen.loadType(mv, arrayType.eType);
-            int arraySize = arrayType.size;
+            int arraySize = arrayType.getSize();
             mv.visitLdcInsn((long) arraySize);
             mv.visitInsn(L2I);
 
@@ -103,7 +103,7 @@ public class JvmArrayTypeGen {
 
         mv.visitLdcInsn(jvmTypeGen.typeFlag(arrayType.eType));
 
-        int arraySize = arrayType.size;
+        int arraySize = arrayType.getSize();
         mv.visitLdcInsn((long) arraySize);
         mv.visitInsn(L2I);
 

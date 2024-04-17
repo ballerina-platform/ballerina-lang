@@ -363,7 +363,8 @@ public class ImmutableTypeCloner {
             return immutableType.get();
         } else {
             Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
-                    originalType, new BArrayType(symTable.typeEnv(), null, immutableArrayTSymbol, type.size, type.state,
+                    originalType,
+                    new BArrayType(symTable.typeEnv(), null, immutableArrayTSymbol, type.getSize(), type.state,
                             type.getFlags() | Flags.READONLY), symTable));
         }
 
