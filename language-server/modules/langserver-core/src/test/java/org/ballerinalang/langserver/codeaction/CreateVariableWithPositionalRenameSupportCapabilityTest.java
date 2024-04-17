@@ -168,6 +168,12 @@ public class CreateVariableWithPositionalRenameSupportCapabilityTest extends Abs
                 {"createVariableWithCheck18.json"},
                 {"createVariableWithCheck19.json"},
                 {"createVariableWithCheck20.json"},
+
+                // Related to imported types
+                {"createVariableWithImportedType1.json"},
+                {"createVariableWithImportedType2.json"},
+                {"createVariableWithImportedType3.json"},
+                {"createVariableWithImportedType4.json"}
         };
     }
 
