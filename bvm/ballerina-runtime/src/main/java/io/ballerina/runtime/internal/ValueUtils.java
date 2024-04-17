@@ -188,32 +188,24 @@ public class ValueUtils {
     private static void populateInitialValuesWithNoStrand(BMap<BString, Object> recordValue, CountDownLatch latch,
                                                           Map<String, BFunctionPointer<Object, ?>> defaultValues) {
         String[] fields = defaultValues.keySet().toArray(new String[0]);
-        invokeFPAsyncIterativelyWithNoStrand(recordValue, defaultValues, fields, "default",
-                Scheduler.getDaemonStrand().getMetadata(), defaultValues.size(), o -> {
-        }, Scheduler.getDaemonStrand().scheduler, latch);
-    }
-
-    public static void invokeFPAsyncIterativelyWithNoStrand(BMap<BString, Object> recordValue,
-                                                            Map<String, BFunctionPointer<Object, ?>> defaultValues,
-                                                            String[] fields, String strandName, StrandMetadata metadata,
-                                                            int noOfIterations, Consumer<Object> futureResultConsumer,
-                                                            Scheduler scheduler, CountDownLatch latch) {
+        int noOfIterations = defaultValues.size();
         if (noOfIterations <= 0) {
             return;
         }
         AtomicInteger callCount = new AtomicInteger(0);
-        scheduleNextFunction(recordValue, defaultValues, fields, strandName, metadata, noOfIterations, callCount,
-                futureResultConsumer, scheduler, latch);
+        scheduleNextFunction(recordValue, defaultValues, fields, "default", noOfIterations,
+                callCount, o -> {}, latch, Scheduler.getDaemonStrand());
     }
 
     private static void scheduleNextFunction(BMap<BString, Object> recordValue,
                                              Map<String, BFunctionPointer<Object, ?>> defaultValues, String[] fields,
-                                             String strandName, StrandMetadata metadata, int noOfIterations,
-                                             AtomicInteger callCount, Consumer<Object> futureResultConsumer,
-                                             Scheduler scheduler, CountDownLatch latch) {
+                                             String strandName, int noOfIterations, AtomicInteger callCount,
+                                             Consumer<Object> futureResultConsumer, CountDownLatch latch,
+                                             Strand parent) {
         BFunctionPointer<?, ?> func = defaultValues.get(fields[callCount.get()]);
         Type retType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
-        FutureValue future = scheduler.createFuture(null, null, null, retType, strandName, metadata);
+        FutureValue future = parent.scheduler.createFuture(Scheduler.getDaemonStrand(), null, null, retType,
+                strandName, parent.getMetadata());
         AsyncFunctionCallback callback = new AsyncFunctionCallback(null) {
             @Override
             public void notifySuccess(Object result) {
@@ -222,8 +214,8 @@ public class ValueUtils {
                 int i = callCount.incrementAndGet();
                 latch.countDown();
                 if (i != noOfIterations) {
-                    scheduleNextFunction(recordValue, defaultValues, fields, strandName, metadata, noOfIterations,
-                            callCount, futureResultConsumer, scheduler, latch);
+                    scheduleNextFunction(recordValue, defaultValues, fields, strandName, noOfIterations,
+                            callCount, futureResultConsumer, latch, parent);
                 }
             }
 
@@ -232,27 +224,9 @@ public class ValueUtils {
                 errStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
             }
         };
-
-        invokeFunctionPointerAsync(func, retType, future, callback, scheduler, strandName, metadata);
-    }
-
-    private static void invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, Type returnType, FutureValue future,
-                                                   AsyncFunctionCallback callback, Scheduler scheduler,
-                                                   String strandName, StrandMetadata metadata) {
         future.callback = callback;
         callback.setFuture(future);
-        AsyncFunctionCallback childCallback = new AsyncFunctionCallback(future.strand) {
-            @Override
-            public void notifySuccess(Object result) {
-                callback.notifySuccess(result);
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                callback.notifyFailure(error);
-            }
-        };
-        scheduler.scheduleFunction(new Object[1], func, null, returnType, strandName, metadata, childCallback);
+        parent.scheduler.scheduleLocal(new Object[1], func, Scheduler.getDaemonStrand(), future);
     }
 
     /**
