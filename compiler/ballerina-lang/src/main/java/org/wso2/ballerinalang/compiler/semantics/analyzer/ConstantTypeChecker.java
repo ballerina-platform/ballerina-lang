@@ -25,6 +25,7 @@ import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import io.ballerina.types.Value;
 import io.ballerina.types.subtypedata.StringSubtype;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
@@ -1969,44 +1970,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return literal;
     }
 
-    private BFiniteType createFiniteType(BConstantSymbol constantSymbol, BLangExpression expr) {
-        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, constantSymbol.flags, Names.EMPTY,
-                constantSymbol.pkgID, null, constantSymbol.owner,
-                constantSymbol.pos, VIRTUAL);
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        finiteType.addValue(expr);
-        finiteType.tsymbol.type = finiteType;
-        return finiteType;
-    }
-
-    private BUnionType createFiniteType(BConstantSymbol constantSymbol, Object value, BUnionType type, Location pos) {
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(3);
-        for (BType memberType : type.getMemberTypes()) {
-            BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, constantSymbol.flags,
-                    Names.EMPTY, constantSymbol.pkgID, null, constantSymbol.owner, constantSymbol.pos, VIRTUAL);
-            BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-            Object memberValue;
-            switch (memberType.tag) {
-                case TypeTags.FLOAT:
-                    memberValue = value instanceof String ?
-                            Double.parseDouble((String) value) : ((Long) value).doubleValue();
-                    break;
-                case TypeTags.DECIMAL:
-                    memberValue = new BigDecimal(String.valueOf(value));
-                    break;
-                default:
-                    memberValue = value;
-            }
-            finiteType.addValue(getLiteral(memberValue, pos, memberType));
-            finiteType.tsymbol.type = finiteType;
-            memberTypes.add(finiteType);
-        }
-
-        return BUnionType.create(null, memberTypes);
-    }
-
     private boolean addFields(LinkedHashMap<String, BField> fields, BType keyValueType, String key, Location pos,
-                           BRecordTypeSymbol recordSymbol) {
+                              BRecordTypeSymbol recordSymbol) {
         Name fieldName = Names.fromString(key);
         if (fields.containsKey(key)) {
             dlog.error(pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR, TypeKind.RECORD.typeName(), key);
