@@ -66,7 +66,7 @@ public class ComplexSemType implements SemType {
             int c = basicSubtype.basicTypeCode.code;
             some |= 1 << c;
         }
-        return createComplexSemType(allBitset, some, dataList.toArray(new ProperSubtypeData[0]));
+        return createComplexSemType(allBitset, some, dataList.toArray(ProperSubtypeData[]::new));
     }
 
     @Override

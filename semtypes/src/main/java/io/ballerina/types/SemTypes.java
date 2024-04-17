@@ -17,7 +17,6 @@
  */
 package io.ballerina.types;
 
-import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
@@ -93,10 +92,6 @@ public class SemTypes {
             i = Core.intersect(i, s);
         }
         return i;
-    }
-
-    public static SemType tuple(Env env, SemType[] members) {
-        return ListDefinition.tupleTypeWrapped(env, members);
     }
 
     public static boolean isSubtype(Context context, SemType t1, SemType t2) {

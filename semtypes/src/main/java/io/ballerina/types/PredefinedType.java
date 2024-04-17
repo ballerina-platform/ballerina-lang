@@ -115,13 +115,15 @@ public class PredefinedType {
             createComplexSemType(IMPLEMENTED_INHERENTLY_IMMUTABLE, BasicSubtype.from(BT_LIST, BDD_SUBTYPE_RO));
 
     protected static final SemType INNER_READONLY = union(VAL_READONLY, UNDEF);
-    public static final CellSemType CELL_SEMTYPE_INNER =
-            (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_INNER));
+    public static final CellSemType CELL_SEMTYPE_INNER = (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_INNER));
+    public static final ListAtomicType LIST_ATOMIC_INNER =
+            ListAtomicType.from(FixedLengthArray.empty(), CELL_SEMTYPE_INNER);
     public static final CellAtomicType CELL_ATOMIC_INNER_RO =
             CellAtomicType.from(PredefinedType.INNER_READONLY, CellAtomicType.CellMutability.CELL_MUT_NONE);
     public static final TypeAtom ATOM_CELL_INNER_RO = createTypeAtom(4, CELL_ATOMIC_INNER_RO);
     public static final CellSemType CELL_SEMTYPE_INNER_RO =
             (CellSemType) basicSubtype(BT_CELL, bddAtom(ATOM_CELL_INNER_RO));
+    static final ListAtomicType LIST_ATOMIC_RO = ListAtomicType.from(FixedLengthArray.empty(), CELL_SEMTYPE_INNER_RO);
 
     public static final TypeAtom ATOM_CELL_INNER_MAPPING = createTypeAtom(3, CELL_ATOMIC_INNER_MAPPING);
 

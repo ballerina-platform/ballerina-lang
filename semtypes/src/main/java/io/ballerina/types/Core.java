@@ -320,12 +320,6 @@ public final class Core {
         return maybeRoDiff(t1, t2, cx);
     }
 
-    public static CellSemType intersectMemberSemType(Env env, CellSemType t1, CellSemType t2) {
-        CellAtomicType atom = intersectCellAtomicType(CellAtomicType.from(t1), CellAtomicType.from(t2));
-        SemType ty = atom.ty();
-        CellAtomicType.CellMutability mut = atom.mut();
-        return cellContaining(env, ty, ty.equals(UNDEF) ? CELL_MUT_NONE : mut);
-    }
 
     public static SemType maybeRoDiff(SemType t1, SemType t2, Context cx) {
         BasicTypeBitSet all1;
@@ -787,7 +781,7 @@ public final class Core {
         MappingDefinition mapDef = new MappingDefinition();
         SemType j = union(PredefinedType.SIMPLE_OR_STRING, union(listDef.getSemType(env), mapDef.getSemType(env)));
         listDef.defineListTypeWrapped(env, j);
-        MappingDefinition.defineMappingTypeWrapped(mapDef, env, new ArrayList<>(), j);
+        mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), j);
         return j;
     }
 
@@ -804,7 +798,7 @@ public final class Core {
         SemType ad = union(union(SIMPLE_OR_STRING, union(XML, tableTy)),
                 union(listDef.getSemType(env), mapDef.getSemType(env)));
         listDef.defineListTypeWrapped(env, ad);
-        MappingDefinition.defineMappingTypeWrapped(mapDef, env, new ArrayList<>(), ad);
+        mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), ad);
         context.anydataMemo = ad;
         return ad;
     }

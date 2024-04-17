@@ -79,9 +79,9 @@ public class SemTypeCoreTest {
         Env env = new Env();
         disjoint(Core.typeCheckContext(env), PredefinedType.STRING, PredefinedType.INT);
         disjoint(Core.typeCheckContext(env), PredefinedType.INT, PredefinedType.NIL);
-        SemType t1 = ListDefinition.tupleTypeWrapped(env, PredefinedType.INT, PredefinedType.INT);
+        SemType t1 = createTupleType(env, PredefinedType.INT, PredefinedType.INT);
         disjoint(Core.typeCheckContext(env), t1, PredefinedType.INT);
-        SemType t2 = ListDefinition.tupleTypeWrapped(env, PredefinedType.STRING, PredefinedType.STRING);
+        SemType t2 = createTupleType(env, PredefinedType.STRING, PredefinedType.STRING);
         disjoint(Core.typeCheckContext(env), PredefinedType.NIL, t2);
     }
 
@@ -114,11 +114,11 @@ public class SemTypeCoreTest {
     @Test
     public void test4() {
         Env env = new Env();
-        SemType isT = ListDefinition.tupleTypeWrapped(env, PredefinedType.INT, PredefinedType.STRING);
-        SemType itT = ListDefinition.tupleTypeWrapped(env, PredefinedType.INT, PredefinedType.VAL);
-        SemType tsT = ListDefinition.tupleTypeWrapped(env, PredefinedType.VAL, PredefinedType.STRING);
-        SemType iiT = ListDefinition.tupleTypeWrapped(env, PredefinedType.INT, PredefinedType.INT);
-        SemType ttT = ListDefinition.tupleTypeWrapped(env, PredefinedType.VAL, PredefinedType.VAL);
+        SemType isT = createTupleType(env, PredefinedType.INT, PredefinedType.STRING);
+        SemType itT = createTupleType(env, PredefinedType.INT, PredefinedType.VAL);
+        SemType tsT = createTupleType(env, PredefinedType.VAL, PredefinedType.STRING);
+        SemType iiT = createTupleType(env, PredefinedType.INT, PredefinedType.INT);
+        SemType ttT = createTupleType(env, PredefinedType.VAL, PredefinedType.VAL);
         Context cx = Core.typeCheckContext(env);
         Assert.assertTrue(Core.isSubtype(cx, isT, itT));
         Assert.assertTrue(Core.isSubtype(cx, isT, tsT));
@@ -162,8 +162,8 @@ public class SemTypeCoreTest {
     @Test
     public void tupleTest1() {
         Env env = new Env();
-        SemType s = ListDefinition.tupleTypeWrapped(env, PredefinedType.INT, PredefinedType.STRING, PredefinedType.NIL);
-        SemType t = ListDefinition.tupleTypeWrapped(env, PredefinedType.VAL, PredefinedType.VAL, PredefinedType.VAL);
+        SemType s = createTupleType(env, PredefinedType.INT, PredefinedType.STRING, PredefinedType.NIL);
+        SemType t = createTupleType(env, PredefinedType.VAL, PredefinedType.VAL, PredefinedType.VAL);
         Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(env), s, t));
         Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), t, s));
     }
@@ -171,8 +171,8 @@ public class SemTypeCoreTest {
     @Test
     public void tupleTest2() {
         Env env = new Env();
-        SemType s = ListDefinition.tupleTypeWrapped(env, PredefinedType.INT, PredefinedType.STRING, PredefinedType.NIL);
-        SemType t = ListDefinition.tupleTypeWrapped(env, PredefinedType.VAL, PredefinedType.VAL);
+        SemType s = createTupleType(env, PredefinedType.INT, PredefinedType.STRING, PredefinedType.NIL);
+        SemType t = createTupleType(env, PredefinedType.VAL, PredefinedType.VAL);
         Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), s, t));
         Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), t, s));
     }
@@ -180,9 +180,9 @@ public class SemTypeCoreTest {
     @Test
     public void tupleTest3() {
         Env env = new Env();
-        SemType z1 = ListDefinition.tupleTypeWrapped(env);
-        SemType z2 = ListDefinition.tupleTypeWrapped(env);
-        SemType t = ListDefinition.tupleTypeWrapped(env, PredefinedType.INT);
+        SemType z1 = createTupleType(env);
+        SemType z2 = createTupleType(env);
+        SemType t = createTupleType(env, PredefinedType.INT);
         Assert.assertTrue(!Core.isEmpty(Core.typeCheckContext(env), z1));
         Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(env), z1, z2));
         Assert.assertTrue(Core.isEmpty(Core.typeCheckContext(env), Core.diff(z1, z2)));
@@ -193,8 +193,8 @@ public class SemTypeCoreTest {
     @Test
     public void tupleTest4() {
         Env env = new Env();
-        SemType s = ListDefinition.tupleTypeWrapped(env, PredefinedType.INT, PredefinedType.INT);
-        SemType t = ListDefinition.tupleTypeWrapped(env, PredefinedType.INT, PredefinedType.INT, PredefinedType.INT);
+        SemType s = createTupleType(env, PredefinedType.INT, PredefinedType.INT);
+        SemType t = createTupleType(env, PredefinedType.INT, PredefinedType.INT, PredefinedType.INT);
         Assert.assertFalse(Core.isEmpty(Core.typeCheckContext(env), s));
         Assert.assertFalse(Core.isEmpty(Core.typeCheckContext(env), t));
         Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), s, t));
@@ -228,9 +228,9 @@ public class SemTypeCoreTest {
     @Test
     public void funcTest3() {
         Env env = new Env();
-        SemType s = func(env, ListDefinition.tupleTypeWrapped(env, Core.union(PredefinedType.NIL, PredefinedType.INT)),
+        SemType s = func(env, createTupleType(env, Core.union(PredefinedType.NIL, PredefinedType.INT)),
                 PredefinedType.INT);
-        SemType t = func(env, ListDefinition.tupleTypeWrapped(env, PredefinedType.INT), PredefinedType.INT);
+        SemType t = func(env, createTupleType(env, PredefinedType.INT), PredefinedType.INT);
         Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(env), s, t));
         Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), t, s));
     }
@@ -238,9 +238,9 @@ public class SemTypeCoreTest {
     @Test
     public void funcTest4() {
         Env env = new Env();
-        SemType s = func(env, ListDefinition.tupleTypeWrapped(env, Core.union(PredefinedType.NIL, PredefinedType.INT)),
+        SemType s = func(env, createTupleType(env, Core.union(PredefinedType.NIL, PredefinedType.INT)),
                 PredefinedType.INT);
-        SemType t = func(env, ListDefinition.tupleTypeWrapped(env, PredefinedType.INT),
+        SemType t = func(env, createTupleType(env, PredefinedType.INT),
                 Core.union(PredefinedType.NIL, PredefinedType.INT));
         Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(env), s, t));
         Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), t, s));
@@ -335,7 +335,7 @@ public class SemTypeCoreTest {
         SemType t1 = recursiveTuple(env,
                 (e, t) -> Arrays.asList(PredefinedType.INT, Core.union(t, PredefinedType.NIL)));
         SemType t2 = recursiveTuple(env, (e, t) -> Arrays.asList(PredefinedType.INT, Core.union(PredefinedType.NIL,
-                ListDefinition.tupleTypeWrapped(e, PredefinedType.INT, Core.union(PredefinedType.NIL, t)))));
+                createTupleType(e, PredefinedType.INT, Core.union(PredefinedType.NIL, t)))));
         Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(env), t1, t2));
     }
 
@@ -383,5 +383,10 @@ public class SemTypeCoreTest {
         Assert.assertEquals(StringSubtype.stringSubtypeSingleValue(intersect2.subtypeDataList[0]).get(), "abc");
         SemType intersect3 = Core.intersect(a, abc);
         Assert.assertEquals(intersect3.toString(), PredefinedType.NEVER.toString());
+    }
+
+    private static SemType createTupleType(Env env, SemType... members) {
+        ListDefinition ld = new ListDefinition();
+        return ld.tupleTypeWrapped(env, members);
     }
 }

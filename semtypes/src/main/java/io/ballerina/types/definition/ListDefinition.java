@@ -64,14 +64,12 @@ public class ListDefinition implements Definition {
         }
     }
 
-    public static SemType tupleTypeWrapped(Env env, SemType... members) {
-        ListDefinition def = new ListDefinition();
-        return def.defineListTypeWrapped(env, List.of(members), members.length);
+    public SemType tupleTypeWrapped(Env env, SemType... members) {
+        return defineListTypeWrapped(env, List.of(members), members.length);
     }
 
-    public static SemType tupleTypeWrappedRo(Env env, SemType... members) {
-        ListDefinition def = new ListDefinition();
-        return def.defineListTypeWrapped(env, List.of(members), members.length, NEVER, CELL_MUT_NONE);
+    public SemType tupleTypeWrappedRo(Env env, SemType... members) {
+        return defineListTypeWrapped(env, List.of(members), members.length, NEVER, CELL_MUT_NONE);
     }
 
 

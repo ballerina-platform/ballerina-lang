@@ -23,7 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.types.ListAtomicType.LIST_ATOMIC_RO;
+import static io.ballerina.types.PredefinedType.LIST_ATOMIC_RO;
 
 /**
  * Env node.

@@ -38,8 +38,8 @@ public record MappingAtomicType(String[] names, CellSemType[] types, CellSemType
         this.rest = rest;
     }
 
-    // TODO: we can replace these with unmodifiable lists (which don't create new lists after changing parameters to
-    //   lists)
+    // TODO: we can replace these with unmodifiable lists
+    // (which don't create new lists after changing parameters to lists)
     public String[] names() {
         return Arrays.copyOf(names, names.length);
     }

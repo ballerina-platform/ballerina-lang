@@ -56,7 +56,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.types.definition.MappingDefinition.defineMappingTypeWrapped;
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.getTypeOrClassName;
 
 /**
@@ -294,7 +293,7 @@ public class SemTypeResolver {
         td.defn = d;
 
         SemType rest = resolveTypeDesc(cx, mod, typeDefinition, depth + 1, td.constraint);
-        return defineMappingTypeWrapped(d, cx.env, Collections.emptyList(), rest == null ? PredefinedType.NEVER : rest);
+        return d.defineMappingTypeWrapped(cx.env, Collections.emptyList(), rest == null ? PredefinedType.NEVER : rest);
     }
 
     private SemType resolveXmlTypeDesc(BLangConstrainedType td, Context cx, Map<String, BLangNode> mod, int depth,
@@ -330,7 +329,7 @@ public class SemTypeResolver {
             rest = resolveTypeDesc(cx, mod, typeDefinition, depth + 1, td.restFieldType);
         }
 
-        return defineMappingTypeWrapped(d, cx.env, fields, rest == null ? PredefinedType.NEVER : rest);
+        return d.defineMappingTypeWrapped(cx.env, fields, rest == null ? PredefinedType.NEVER : rest);
     }
 
     private SemType resolveTypeDesc(Context cx, BLangUnionTypeNode td, Map<String, BLangNode> mod, int depth,

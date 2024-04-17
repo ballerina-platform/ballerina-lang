@@ -22,11 +22,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Represent a fixed length semtype member list similar to a tuple. The length of the list is `fixedLength`, the last
- * member of the `initial` is repeated to achieve this semantic. { initial: [int], fixedLength: 3, } is same as {
- * initial: [int, int, int], fixedLength: 3 } { initial: [string, int], fixedLength: 100 } means `int` is repeated 99
- * times to get a list of 100 members. `fixedLength` must be `0` when `inital` is empty and the `fixedLength` must be at
- * least `initial.length()`
+ * Represent a fixed length semtype member list similar to a tuple.
+ * The length of the list is `fixedLength`, the last member of the `initial` is repeated to achieve this semantic.
+ * { initial: [int], fixedLength: 3, } is same as { initial: [int, int, int], fixedLength: 3 }
+ * { initial: [string, int], fixedLength: 100 } means `int` is repeated 99 times to get a list of 100 members.
+ * `fixedLength` must be `0` when `inital` is empty and the `fixedLength` must be at least `initial.length()`
  *
  * @param initial     List of semtypes of the members of the fixes length array. If last member is repeated multiple
  *                    times it is included only once. For example for {@code [string, string, int, int]} initial would

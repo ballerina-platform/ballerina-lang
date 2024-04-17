@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -20,21 +20,16 @@ package io.ballerina.types;
 
 import io.ballerina.types.definition.ListDefinition;
 
-public class TypeTestUtils {
-
-    static SemType tuple(Env env, SemType ty) {
-        return SemTypes.tuple(env, new SemType[]{ty});
-    }
+enum TypeTestUtils {
+    ;
 
     static SemType tuple(Env env, SemType... ty) {
-        return SemTypes.tuple(env, ty);
-    }
-
-    static SemType roTuple(Env env, SemType ty) {
-        return ListDefinition.tupleTypeWrappedRo(env, ty);
+        ListDefinition ld = new ListDefinition();
+        return ld.tupleTypeWrapped(env, ty);
     }
 
     static SemType roTuple(Env env, SemType... ty) {
-        return ListDefinition.tupleTypeWrappedRo(env, ty);
+        ListDefinition ld = new ListDefinition();
+        return ld.tupleTypeWrappedRo(env, ty);
     }
 }

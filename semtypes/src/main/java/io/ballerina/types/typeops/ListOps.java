@@ -49,7 +49,8 @@ import static io.ballerina.types.Common.memoSubtypeIsEmpty;
 import static io.ballerina.types.Core.cellContainingInnerVal;
 import static io.ballerina.types.Core.cellInner;
 import static io.ballerina.types.Core.cellInnerVal;
-import static io.ballerina.types.Core.intersectMemberSemType;
+import static io.ballerina.types.Core.intersectMemberSemTypes;
+import static io.ballerina.types.PredefinedType.LIST_ATOMIC_INNER;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.UNDEF;
 import static io.ballerina.types.subtypedata.IntSubtype.intSubtypeContains;
@@ -73,7 +74,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         FixedLengthArray members;
         CellSemType rest;
         if (pos == null) {
-            ListAtomicType atom = ListAtomicType.LIST_ATOMIC_INNER;
+            ListAtomicType atom = LIST_ATOMIC_INNER;
             members = atom.members();
             rest = atom.rest();
         } else {
@@ -217,12 +218,12 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         int max = Integer.max(members1.fixedLength(), members2.fixedLength());
         List<CellSemType> initial =
                 IntStream.range(0, max)
-                        .mapToObj(i -> Core.intersectMemberSemType(env, listMemberAt(members1, rest1, i),
+                        .mapToObj(i -> intersectMemberSemTypes(env, listMemberAt(members1, rest1, i),
                                 listMemberAt(members2, rest2, i)))
                         .toList();
         return TwoTuple.from(FixedLengthArray.from(initial,
                         Integer.max(members1.fixedLength(), members2.fixedLength())),
-                intersectMemberSemType(env, rest1, rest2));
+                intersectMemberSemTypes(env, rest1, rest2));
     }
 
     static FixedLengthArray fixedArrayShallowCopy(FixedLengthArray array) {

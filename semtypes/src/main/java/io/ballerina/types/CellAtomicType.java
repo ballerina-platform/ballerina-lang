@@ -17,9 +17,6 @@
  */
 package io.ballerina.types;
 
-import static io.ballerina.types.Core.getComplexSubtypeData;
-import static io.ballerina.types.SemTypes.isSubtypeSimple;
-
 /**
  * CellAtomicType node.
  *
@@ -28,18 +25,6 @@ import static io.ballerina.types.SemTypes.isSubtypeSimple;
  * @since 2201.10.0
  */
 public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicType {
-
-    public static CellAtomicType from(SemType ty) {
-        if (ty instanceof BasicTypeBitSet bitSet) {
-            return bitSet.bitset == PredefinedType.CELL.bitset ? PredefinedType.CELL_ATOMIC_VAL : null;
-        }
-        assert ty instanceof ComplexSemType;
-        if (!isSubtypeSimple(ty, PredefinedType.CELL)) {
-            return null;
-        }
-        return Core.bddCellAtomicType((Bdd) getComplexSubtypeData((ComplexSemType) ty, BasicTypeCode.BT_CELL),
-                PredefinedType.CELL_ATOMIC_VAL);
-    }
 
     public static CellAtomicType from(SemType ty, CellMutability mut) {
         // TODO: return final fields where applicable
