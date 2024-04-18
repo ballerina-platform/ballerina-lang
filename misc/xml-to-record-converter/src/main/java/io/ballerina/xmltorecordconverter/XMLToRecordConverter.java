@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -237,6 +238,8 @@ public class XMLToRecordConverter {
                                                            List<DiagnosticMessage> diagnosticMessages,
                                                            String textFieldName, boolean withNameSpace) {
         List<Node> recordFields = new ArrayList<>();
+        Map<String, String> prefixMap = new HashMap<>();
+        int suffix = 1;
 
         String xmlNodeName = xmlElement.getNodeName();
         org.w3c.dom.NodeList xmlNodeList = xmlElement.getChildNodes();
@@ -259,13 +262,26 @@ public class XMLToRecordConverter {
                     if (indexOfRecordFieldNode == -1) {
                         recordFields.add(recordField);
                     } else {
-                        RecordFieldNode existingRecordField =
-                                (RecordFieldNode) recordFields.remove(indexOfRecordFieldNode);
-                        RecordFieldNode updatedRecordField = mergeRecordFields(existingRecordField, recordField);
-                        recordFields.add(indexOfRecordFieldNode, updatedRecordField);
+                        boolean isSameField = prefixMap.entrySet().stream().anyMatch(entry ->
+                                entry.getKey().equals(xmlElementNode.getPrefix()) &&
+                                        entry.getValue().equals(xmlElementNode.getLocalName()));
+                        if (withNameSpace && !isSameField && prefixMap.containsValue(xmlElementNode.getLocalName())) {
+                            recordFields.add(recordField.modify().withFieldName(
+                                    AbstractNodeFactory.createIdentifierToken(xmlElementNode.getLocalName()
+                                            + suffix)).apply());
+                            suffix++;
+                        } else {
+                            RecordFieldNode existingRecordField =
+                                    (RecordFieldNode) recordFields.remove(indexOfRecordFieldNode);
+                            RecordFieldNode updatedRecordField = mergeRecordFields(existingRecordField, recordField);
+                            recordFields.add(indexOfRecordFieldNode, updatedRecordField);
+                        }
                     }
                 } else {
                     recordFields.add(recordField);
+                }
+                if (xmlElementNode.getPrefix() != null) {
+                    prefixMap.put(xmlElementNode.getPrefix(), xmlElementNode.getLocalName());
                 }
             }
         }
