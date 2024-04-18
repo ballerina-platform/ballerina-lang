@@ -225,7 +225,7 @@ public class ValueUtils {
         };
         future.callback = callback;
         callback.setFuture(future);
-        parent.scheduler.schedule(new Object[1], func.getFunction(),future);
+        parent.scheduler.schedule(new Object[1], func.getFunction(), future);
     }
 
     /**
