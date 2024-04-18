@@ -516,8 +516,24 @@ public isolated client class ClientObj {
                                     "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
     } external;
 
-    resource isolated function get albums(Person person, string s, typedesc<any> targetType = <>) returns
+    resource isolated function get albums(Person person, anydata[] a, string s, typedesc<any> targetType = <>) returns
                                                                                     targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResource",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
+                                                                            "io.ballerina.runtime.api.values.BArray"]
+    } external;
+
+    resource isolated function get albums\-all\-2/[string version](A[] a, Person person, string? query = (), typedesc<any> targetType = <>) returns
+                                                                                        targetType|error = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResource",
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
+                                "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BArray"]
+    } external;
+
+    resource isolated function get albums\-all\-3(Person person, A[] a, string? query = (), typedesc<any> targetType = <>) returns
+                                                                                            targetType|error = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
         name: "getResource",
         paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
@@ -545,6 +561,10 @@ public function testBundleFuncArgsToBArray() returns error? {
     test:assertEquals(res, 1000);
     res = check cl->/albums/[1](new Person(29), "123");
     test:assertEquals(res, 5);
-    res = check cl->/albums(new Person(29), "123");
+    res = check cl->/albums(new Person(29), [1, "abc"], "123");
+    test:assertEquals(res, 10);
+    res = check cl->/albums\-all\-2/["2.0"]([{id: 1, name: "John"}, {id: 2, name: "Josh"}], new Person(29));
+    test:assertEquals(res, 5);
+    res = check cl->/albums\-all\-3(new Person(29), [{id: 1, name: "John"}, {id: 2, name: "Josh"}]);
     test:assertEquals(res, 10);
 }
