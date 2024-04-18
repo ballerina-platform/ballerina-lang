@@ -515,6 +515,7 @@ public class RunTestsTask implements Task {
 
         List<Path> jarList = getModuleJarPaths(jBallerinaBackend, currentPackage);
         dependencies.removeAll(jarList);
+        dependencies = dependencies.stream().filter(dep -> !dep.toString().contains("-native")).toList();
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.stream().map(Path::toString).forEach(classPath::add);
@@ -547,9 +548,6 @@ public class RunTestsTask implements Task {
             }
         }
 
-        // Add platform libs
-        moduleJarPaths.addAll(jBallerinaBackend.jarResolver().getAllPlatformLibraries().stream()
-                .map(JarLibrary::path).toList());
         return moduleJarPaths.stream().distinct().collect(Collectors.toList());
     }
 
