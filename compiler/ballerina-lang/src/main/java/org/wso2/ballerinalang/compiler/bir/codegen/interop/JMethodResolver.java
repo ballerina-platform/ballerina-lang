@@ -196,7 +196,7 @@ class JMethodResolver {
         }
         if (!isParamAssignableToBArray(paramTypes[count - 1]) || !isParamAssignableToBArray(paramTypes[count - 2])
                 || isFirstPathParamARestParam(jMethodRequest, jMethod)
-                || isFirstFunctionParamARestParam(jMethodRequest, jMethod)) {
+                || isFunctionParamARestParam(jMethodRequest, jMethod)) {
             return false;
         }
         if (count == 3) {
@@ -245,7 +245,7 @@ class JMethodResolver {
         Class<?>[] paramTypes = jMethod.getParamTypes();
         int count = paramTypes.length;
         int reducedParamCount = jMethodRequest.pathParamCount + 1;
-        int functionParamCount = jMethodRequest.bFuncParamCount - jMethodRequest.pathParamCount;
+        int functionParamCount = getBFuncParamCount(jMethodRequest, jMethod) - jMethodRequest.pathParamCount;
         // TODO: Remove 'Symbols.isFlagOn(jMethodRequest.bParamTypes[0].flags, Flags.SERVICE)' check after fixing
         //  https://github.com/ballerina-platform/ballerina-lang/issues/42456.
         if (jMethodRequest.receiverType == null || functionParamCount < 1
@@ -254,7 +254,7 @@ class JMethodResolver {
             return false;
         }
         if (!isParamAssignableToBArray(paramTypes[count - 1])
-                || isFirstFunctionParamARestParam(jMethodRequest, jMethod)) {
+                || isFunctionParamARestParam(jMethodRequest, jMethod)) {
             return false;
         }
         if (count == reducedParamCount) {
@@ -1047,10 +1047,11 @@ class JMethodResolver {
                         jMethodRequest.bParamTypes[0].tag == TypeTags.HANDLE;
     }
 
-    private boolean isFirstFunctionParamARestParam(JMethodRequest jMethodRequest, JMethod jMethod) {
-        return jMethod.isStatic() ? jMethodRequest.bParamTypes[jMethodRequest.pathParamCount].tag == TypeTags.ARRAY :
+    private boolean isFunctionParamARestParam(JMethodRequest jMethodRequest, JMethod jMethod) {
+        int funcParamCount = getBFuncParamCount(jMethodRequest, jMethod) - jMethodRequest.pathParamCount;
+        return (jMethod.isStatic() ? jMethodRequest.bParamTypes[jMethodRequest.pathParamCount].tag == TypeTags.ARRAY :
                 jMethodRequest.bParamTypes[jMethodRequest.pathParamCount + 1].tag == TypeTags.ARRAY &&
-                        jMethodRequest.bParamTypes[0].tag == TypeTags.HANDLE;
+                        jMethodRequest.bParamTypes[0].tag == TypeTags.HANDLE) && funcParamCount == 1;
     }
 
     private String getParamTypesAsString(ParamTypeConstraint[] constraints) {
