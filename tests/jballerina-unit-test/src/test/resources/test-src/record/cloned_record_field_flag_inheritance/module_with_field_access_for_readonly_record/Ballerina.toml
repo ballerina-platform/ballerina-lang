@@ -1,0 +1,10 @@
+[package]
+org = "thushara_piyasekara"
+name = "LocalPkgUsage"
+version = "0.1.0"
+
+[[dependency]]
+org = "thushara_piyasekara"
+name = "ReadonlyRecord"
+version = "0.1.0"
+repository="local"

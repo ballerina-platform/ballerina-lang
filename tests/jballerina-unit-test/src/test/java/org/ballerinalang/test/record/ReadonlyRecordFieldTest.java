@@ -40,6 +40,15 @@ public class ReadonlyRecordFieldTest {
         BRunUtil.invoke(result, testFunction);
     }
 
+    @Test
+    public void testReadonlyInheritanceForInvokableTypeRecordField() {
+        BCompileUtil.compileAndCacheBala(
+                "test-src/record/cloned_record_field_flag_inheritance/imported_module_with_readonly_records");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/record/cloned_record_field_flag_inheritance/module_with_field_access_for_readonly_record");
+        assertEquals(result.getErrorCount(), 0);
+    }
+
     @DataProvider(name = "readonlyRecordFieldTestFunctions")
     public Object[][] readonlyRecordFieldTestFunctions() {
         return new Object[][]{

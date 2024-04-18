@@ -1,0 +1,4 @@
+[package]
+org = "thushara_piyasekara"
+name = "ReadonlyRecord"
+version = "0.1.0"
