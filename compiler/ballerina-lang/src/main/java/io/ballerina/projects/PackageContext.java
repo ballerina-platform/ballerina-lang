@@ -62,6 +62,7 @@ class PackageContext {
     private Set<PackageDependency> packageDependencies;
     private DependencyGraph<ModuleDescriptor> moduleDependencyGraph;
     private PackageResolution packageResolution;
+    private BuildToolResolution buildToolResolution;
     private PackageCompilation packageCompilation;
 
     // TODO Try to reuse the unaffected compilations if possible
@@ -108,12 +109,12 @@ class PackageContext {
 
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
                           packageConfig.dependencyManifest(),
-                          packageConfig.ballerinaToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                          packageConfig.dependenciesToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                          packageConfig.cloudToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                          packageConfig.compilerPluginToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                          packageConfig.balToolToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                          packageConfig.packageMd().map(c -> MdDocumentContext.from(c)).orElse(null),
+                          packageConfig.ballerinaToml().map(TomlDocumentContext::from).orElse(null),
+                          packageConfig.dependenciesToml().map(TomlDocumentContext::from).orElse(null),
+                          packageConfig.cloudToml().map(TomlDocumentContext::from).orElse(null),
+                          packageConfig.compilerPluginToml().map(TomlDocumentContext::from).orElse(null),
+                          packageConfig.balToolToml().map(TomlDocumentContext::from).orElse(null),
+                          packageConfig.packageMd().map(MdDocumentContext::from).orElse(null),
                           compilationOptions, moduleContextMap, packageConfig.packageDescDependencyGraph());
     }
 
@@ -237,6 +238,7 @@ class PackageContext {
                 .setListConflictedClasses(this.compilationOptions.listConflictedClasses())
                 .setConfigSchemaGen(this.compilationOptions.configSchemaGen())
                 .setEnableCache(this.compilationOptions.enableCache())
+                .setRemoteManagement(this.compilationOptions.remoteManagement())
                 .build();
         CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);
         return PackageCompilation.from(this, mergedOptions);
@@ -257,6 +259,21 @@ class PackageContext {
         packageResolution = PackageResolution.from(this, compilationOptions);
         return packageResolution;
     }
+
+    PackageResolution getResolution(CompilationOptions compilationOptions, boolean isCacheEnabled) {
+        if (!isCacheEnabled || packageResolution == null) {
+                packageResolution = PackageResolution.from(this, compilationOptions);
+        }
+        return packageResolution;
+    }
+
+    BuildToolResolution getBuildToolResolution() {
+        if (buildToolResolution == null) {
+            buildToolResolution = BuildToolResolution.from(this);
+        }
+        return buildToolResolution;
+    }
+
     Collection<PackageDependency> packageDependencies() {
         return packageDependencies;
     }

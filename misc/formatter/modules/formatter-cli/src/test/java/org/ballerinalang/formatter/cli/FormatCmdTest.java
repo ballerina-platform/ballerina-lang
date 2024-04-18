@@ -20,6 +20,7 @@ package org.ballerinalang.formatter.cli;
 import io.ballerina.cli.launcher.BLauncherException;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -80,6 +81,63 @@ public class FormatCmdTest {
         } catch (IOException e) {
             Assert.fail("Failed to update the source file.");
         }
+    }
+
+    @Test(description = "Test ballerina project formatting with configurations",
+            dataProvider = "provideConfigurationProjects")
+    public void formatCLIOnBallerinaProjectWithConfigurations(String testCase, List<Path> dirs) {
+        List<String> argList = new ArrayList<>();
+        try {
+            for (Path dir : dirs) {
+                Path tempDir = dir.resolveSibling(dir.getFileName() + "Temp");
+                Path assertDir = Paths.get(dir.toString().replace("/source/", "/assert/"));
+                FormatUtil.execute(argList, false, null, null, false, dir);
+                Assert.assertEquals(Files.readString(dir.resolve("main.bal")),
+                        Files.readString(assertDir.resolve("main.bal")));
+                FileUtils.copyDirectory(tempDir.toFile(), dir.toFile());
+            }
+        } catch (IOException e) {
+            Assert.fail(testCase + " test failed to update the source file.");
+        }
+    }
+
+    @DataProvider(name = "provideConfigurationProjects")
+    private Object[][] provideConfigurationProjects() {
+        Path basePath = RES_DIR.resolve(Path.of("configurations", "options"));
+        return new Object[][]{
+                {"brace", List.of(
+                        basePath.resolve(Path.of("brace", "source", "project"))
+                )},
+                {"functionCall", List.of(
+                        basePath.resolve(Path.of("functionCall", "source", "chopDown")),
+                        basePath.resolve(Path.of("functionCall", "source", "noWrap")),
+                        basePath.resolve(Path.of("functionCall", "source", "wrap"))
+                )},
+                {"functionDefinition", List.of(
+                        basePath.resolve(Path.of("functionDefinition", "source", "chopDown")),
+                        basePath.resolve(Path.of("functionDefinition", "source", "noWrap")),
+                        basePath.resolve(Path.of("functionDefinition", "source", "wrap"))
+                )},
+                {"ifStatement", List.of(
+                        basePath.resolve(Path.of("ifStatement", "source", "ifelse"))
+                )},
+                {"imports", List.of(
+                        basePath.resolve(Path.of("imports", "source", "project"))
+                )},
+                {"indent", List.of(
+                        basePath.resolve(Path.of("indent", "source", "project"))
+                )},
+                {"query", List.of(
+                        basePath.resolve(Path.of("query", "source", "project"))
+                )}
+                ,
+                {"spacing", List.of(
+                        basePath.resolve(Path.of("spacing", "source", "project"))
+                )},
+                {"wrapping", List.of(
+                        basePath.resolve(Path.of("wrapping", "source", "project"))
+                )}
+        };
     }
 
     @Test(description = "Test ballerina project formatting with dot op",
@@ -282,4 +340,48 @@ public class FormatCmdTest {
             }
         }
     }
+
+    @Test(description = "Test formatting of a module in a ballerina project with configurations")
+    public void formatCLIOnBallerinaProjectWithModulesWithConfigurations() {
+        List<String> argList = new ArrayList<>();
+        String module = "core";
+        Path sourceDir = RES_DIR.resolve(Path.of("configurations", "module"));
+        Path projectDir = sourceDir.resolve(Path.of("source", "project"));
+        Path assertDir = sourceDir.resolve("assert");
+        Path moduleRelativePath = Path.of("modules", module, "core.bal");
+        try {
+            FormatUtil.execute(argList, false, module, null, false, projectDir);
+            Assert.assertEquals(Files.readString(projectDir.resolve("main.bal")),
+                    Files.readString(assertDir.resolve("main.bal")));
+            Assert.assertEquals(Files.readString(projectDir.resolve(moduleRelativePath)),
+                    Files.readString(assertDir.resolve(moduleRelativePath)));
+            FileUtils.copyDirectory(sourceDir.resolve(Path.of("source", "projectTemp")).toFile(), projectDir.toFile());
+        } catch (IOException e) {
+            String exception = e.getMessage();
+            Assert.assertTrue(exception.contains("error: "), "actual exception didn't match the expected.");
+        }
+    }
+
+    @Test(description = "Test formatting of a module with specified ballerina project with configurations")
+    public void formatCLIOnBallernaProjectWithModulesWithConfigurations() {
+        List<String> argList = new ArrayList<>();
+        argList.add("project");
+        String module = "mod";
+        Path sourceDir = RES_DIR.resolve(Path.of("configurations", "projectWithModule"));
+        Path projectDir = sourceDir.resolve(Path.of("source", "project"));
+        Path assertDir = sourceDir.resolve("assert");
+        Path moduleRelativePath = Path.of("modules", module, "mod.bal");
+        try {
+            FormatUtil.execute(argList, false, module, null, false, sourceDir.resolve("source"));
+            Assert.assertEquals(Files.readString(projectDir.resolve("main.bal")),
+                    Files.readString(assertDir.resolve("main.bal")));
+            Assert.assertEquals(Files.readString(projectDir.resolve(moduleRelativePath)),
+                    Files.readString(assertDir.resolve(moduleRelativePath)));
+            FileUtils.copyDirectory(sourceDir.resolve(Path.of("source", "projectTemp")).toFile(), projectDir.toFile());
+        } catch (IOException e) {
+            String exception = e.getMessage();
+            Assert.assertTrue(exception.contains("error: "), "actual exception didn't match the expected.");
+        }
+    }
+
 }

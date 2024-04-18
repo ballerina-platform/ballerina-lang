@@ -1,0 +1,10 @@
+Compiling source
+	foo/pkg_b:1.0.0
+WARNING [main.bal:(26:5,26:41)] unused variable 'msgHello'
+WARNING [main.bal:(27:5,27:53)] unused variable 'msg'
+
+Generating executable
+
+WARNING [pkg_b] Detected platform dependencies with 'provided' scope. Redistribution is discouraged due to potential license restrictions
+
+	target/bin/pkg_b.jar

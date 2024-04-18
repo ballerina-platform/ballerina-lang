@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
-import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
+import static org.ballerinalang.langlib.map.util.Constants.MAP_VERSION;
 
 /**
  * Native implementation of lang.map:filter(map&lt;Type&gt;, function).

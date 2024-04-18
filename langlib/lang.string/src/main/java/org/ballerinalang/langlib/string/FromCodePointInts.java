@@ -21,7 +21,7 @@ package org.ballerinalang.langlib.string;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
-import org.wso2.ballerinalang.compiler.util.Constants;
+import org.ballerinalang.langlib.string.utils.Constants;
 
 /**
  * Extern function lang.string:fromCodePointInts(int[]).

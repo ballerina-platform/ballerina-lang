@@ -23,6 +23,8 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -39,7 +41,8 @@ public abstract class Project {
     private BuildOptions buildOptions;
     protected ProjectEnvironment projectEnvironment;
     private final ProjectKind projectKind;
-    private Map<String, ToolContext> toolContextMap;
+    private Map<PackageManifest.Tool.Field, ToolContext> toolContextMap;
+    private List<CompilerPluginContextIml> compilerPluginContexts;
 
     protected Project(ProjectKind projectKind,
                       Path projectPath,
@@ -48,6 +51,7 @@ public abstract class Project {
         this.sourceRoot = projectPath;
         this.buildOptions = buildOptions;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
+        this.compilerPluginContexts = new ArrayList<>();
     }
 
     protected Project(ProjectKind projectKind,
@@ -57,6 +61,7 @@ public abstract class Project {
         this.sourceRoot = projectPath;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
         this.buildOptions = BuildOptions.builder().build();
+        this.compilerPluginContexts = new ArrayList<>();
     }
 
     void setBuildOptions(BuildOptions buildOptions) {
@@ -101,7 +106,7 @@ public abstract class Project {
      *
      * @return map of {@code ToolContext}
      */
-    public Map<String, ToolContext> getToolContextMap() {
+    public Map<PackageManifest.Tool.Field, ToolContext> getToolContextMap() {
         return toolContextMap;
     }
 
@@ -109,7 +114,7 @@ public abstract class Project {
      * Assigns a map of build tools.
      * @param toolContextMap map of {@code ToolContext}
      */
-    public void setToolContextMap(Map<String, ToolContext> toolContextMap) {
+    public void setToolContextMap(Map<PackageManifest.Tool.Field, ToolContext> toolContextMap) {
         this.toolContextMap = toolContextMap;
     }
 
@@ -152,4 +157,8 @@ public abstract class Project {
     public abstract Optional<Path> documentPath(DocumentId documentId);
 
     public abstract void save();
+
+    List<CompilerPluginContextIml> compilerPluginContexts() {
+        return this.compilerPluginContexts;
+    }
 }

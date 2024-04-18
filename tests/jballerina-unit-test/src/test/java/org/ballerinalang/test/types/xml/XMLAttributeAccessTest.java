@@ -104,6 +104,16 @@ public class XMLAttributeAccessTest {
         BRunUtil.invoke(compileResult, "testXMLAfterRemoveAttribute");
     }
 
+    @Test
+    public void testXMLIndexedOptionalAttributeAccess() {
+        BRunUtil.invoke(compileResult, "testXMLIndexedOptionalAttributeAccess");
+    }
+
+    @Test
+    public void testErrorsOnXMLIndexedOptionalAttributeAccess() {
+        BRunUtil.invoke(compileResult, "testErrorsOnXMLIndexedOptionalAttributeAccess");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

@@ -146,6 +146,13 @@ public abstract class BIRVisitor {
         throw new UnsupportedOperationException();
     }
 
+    public void visit(BIRTerminator.WorkerAlternateReceive altReceive) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRTerminator.WorkerMultipleReceive multipleReceive) {
+        throw new AssertionError();
+    }
 
     // Non-terminating instructions
 

@@ -1,0 +1,8 @@
+[package]
+org = "foo"
+name = "no_options_pkg"
+version = "1.4.0"
+distribution = "2201.8.4"
+
+[build-options]
+observabilityIncluded = true
