@@ -369,6 +369,84 @@ function testMappingBindingWithSingleNameFieldBinding() {
     assertEquality("bar4", b);
 }
 
+function testMappingBindingPatternAgainstOpenRecordInTupleDestructuring() {
+    [Some, Some] r1 = [{var1: "A", var2: "B"}, {var1: "C", var2: "D"}];
+    string xVar1;
+    string xVar11;
+    [{var1: xVar1}, {var1: xVar11}] = r1;
+    assertEquality("A", xVar1);
+    assertEquality("C", xVar11);
+
+    [record {int a; int b;}] r2 = [{a: 1, b: 2}];
+    int a;
+    int b;
+    [{a, b}] = r2;
+    assertEquality(1, a);
+    assertEquality(2, b);
+
+    [record {|int a; int b;|}] r3 = [{a: 3, b: 4}];
+    [{a, b}] = [...r3];
+    assertEquality(3, a);
+    assertEquality(4, b);
+
+    [record {int a; int b; stream<int> c;}] r4 = [{a: 5, b: 6, c: new}];
+    [{a, b}] = r4;
+    assertEquality(5, a);
+    assertEquality(6, b);
+
+    string fname;
+    string lname;
+    string id;
+    int age;
+    string nextId;
+    [record {string id; string fname; string lname;}, record {|string id; int age;|}] r5
+                                    = [{id: "u1001", fname: "John", lname: "doe"}, {id: "u1002", age: 10}];
+    [{id, fname, lname}, {id: nextId, age}] = r5;
+    assertEquality("u1001", id);
+    assertEquality("John", fname);
+    assertEquality("doe", lname);
+    assertEquality("u1002", nextId);
+    assertEquality(10, age);
+
+    int p1;
+    int p2;
+    int p3;
+    int p4;
+    int p5;
+    [[record {int p1; int p2;}], [[record {int p3; int p4;}], record {int p5;}]] r6
+                                    = [[{p1: 10, p2: 12}], [[{p3: 13, p4: 14}], {p5: 15}]];
+    [[{p1, p2}], [[{p3, p4}], {p5}]] = r6;
+    assertEquality(10, p1);
+    assertEquality(12, p2);
+    assertEquality(13, p3);
+    assertEquality(14, p4);
+    assertEquality(15, p5);
+
+    [record {| int a; int b; anydata...; |}] r7 = [{a: 1, b: 2}];
+    [{a, b}] = r7;
+    assertEquality(1, a);
+    assertEquality(2, b);
+
+    [record {| int a; int b; anydata...; |}] r8 = [{a: 10, b: 12}];
+    [{a, b}] = [...r8];
+    assertEquality(10, a);
+    assertEquality(12, b);
+
+    int x1;
+    int x2;
+    var getMap = function() returns record {record {int x1; int x2;} x3;} => {x3: {x1: 2, x2: 3}};
+    {x3: {x1, x2}} = getMap();
+    assertEquality(2, x1);
+    assertEquality(3, x2);
+    assertEquality({x1: 2, x2: 3}, {x1, x2});
+
+    // TODO: Uncomment after fixing #40312
+    // int d;
+    // error<record { record { int d; } x; }> err = error("Transaction Failure", x = {d: 0});
+
+    // error(x = {d}) = err;
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

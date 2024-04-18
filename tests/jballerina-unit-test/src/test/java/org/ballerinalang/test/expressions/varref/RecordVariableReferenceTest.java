@@ -190,6 +190,11 @@ public class RecordVariableReferenceTest {
     }
 
     @Test
+    public void testMappingBindingPatternsAsMemberBindingPatterns() {
+        BRunUtil.invoke(result, "testMappingBindingPatternAgainstOpenRecordInTupleDestructuring");
+    }
+
+    @Test
     public void testRecordVariablesSemanticsNegative() {
         resultSemanticsNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/record-variable-reference-semantics-negative.bal");
