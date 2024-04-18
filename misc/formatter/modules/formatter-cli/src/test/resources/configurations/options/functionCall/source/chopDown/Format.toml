@@ -1,0 +1,7 @@
+[functionCall]
+argumentsWrap = "ChopDown"
+alignMultilineArguments = true
+newLineAfterLeftParen = true
+
+[wrapping]
+maxLineLength = 80

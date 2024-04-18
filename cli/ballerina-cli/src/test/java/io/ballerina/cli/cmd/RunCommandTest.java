@@ -210,6 +210,23 @@ public class RunCommandTest extends BaseCommandTest {
         runCommand.execute();
     }
 
+    @Test(description = "Run a valid ballerina project with provided scope platform jars")
+    public void testRunProjectWithProvidedJars() throws IOException {
+        Path resourcePath = this.testResources.resolve("projectWithProvidedDependency");
+        BCompileUtil.compileAndCacheBala(resourcePath.resolve("pkg_a"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        Path projectPath = resourcePath.resolve("pkg_b");
+        System.setProperty("user.dir", projectPath.toString());
+
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        runCommand.execute();
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("run-project-with-provided-dep.txt"));
+
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+    }
+
     @Test(description = "Run a jar file")
     public void testRunJarFile() {
         Path projectPath = this.testResources.resolve("jar-file");

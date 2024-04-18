@@ -25,6 +25,7 @@ import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import io.ballerina.types.Value;
 import io.ballerina.types.subtypedata.StringSubtype;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
@@ -83,7 +84,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
@@ -320,7 +320,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
         } else {
             BSymbol symbol =
-                    getSymbolOfVarRef(varRefExpr.pos, data.env, names.fromIdNode(varRefExpr.pkgAlias), varName, data);
+                    typeResolver.getSymbolOfVarRef(varRefExpr.pos, data.env, names.fromIdNode(varRefExpr.pkgAlias),
+                            varName);
 
             if (symbol == symTable.notFoundSymbol) {
                 data.resultType = symTable.semanticError;
@@ -381,7 +382,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         if (varRefExpr.pkgSymbol != symTable.notFoundSymbol) {
             BSymbol symbol =
-                    getSymbolOfVarRef(varRefExpr.pos, data.env, names.fromIdNode(varRefExpr.pkgAlias), varName, data);
+                    typeResolver.getSymbolOfVarRef(varRefExpr.pos, data.env, names.fromIdNode(varRefExpr.pkgAlias),
+                            varName);
 
             if (symbol == symTable.notFoundSymbol) {
                 data.resultType = symTable.semanticError;
@@ -1944,26 +1946,32 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
     }
 
-    private BSymbol getSymbolOfVarRef(Location pos, SymbolEnv env, Name pkgAlias, Name varName, AnalyzerData data) {
-        if (pkgAlias == Names.EMPTY && data.modTable.containsKey(varName.value)) {
-            // modTable contains the available constants in current module.
-            BLangNode node = data.modTable.get(varName.value);
-            if (node.getKind() == NodeKind.CONSTANT) {
-                if (!typeResolver.resolvedConstants.contains((BLangConstant) node)) {
-                    typeResolver.resolveConstant(data.env, data.modTable, (BLangConstant) node);
-                }
-            } else {
-                dlog.error(pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
-                return symTable.notFoundSymbol;
-            }
+    private BLangLiteral getLiteral(Object value, Location pos, BType type) {
+        switch (type.tag) {
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+                BLangNumericLiteral numericLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+                return updateLiteral(numericLiteral, value, type, pos);
+            case TypeTags.BYTE:
+                BLangNumericLiteral byteLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+                return updateLiteral(byteLiteral, value, symTable.byteType, pos);
+            default:
+                BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+                return updateLiteral(literal, value, type, pos);
         }
+    }
 
-        // Search and get the referenced variable from different module.
-        return symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgAlias, varName);
+    private BLangLiteral updateLiteral(BLangLiteral literal, Object value, BType type, Location pos) {
+        literal.value = value;
+        literal.isConstant = true;
+        literal.setBType(type);
+        literal.pos = pos;
+        return literal;
     }
 
     private boolean addFields(LinkedHashMap<String, BField> fields, BType keyValueType, String key, Location pos,
-                           BRecordTypeSymbol recordSymbol) {
+                              BRecordTypeSymbol recordSymbol) {
         Name fieldName = Names.fromString(key);
         if (fields.containsKey(key)) {
             dlog.error(pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR, TypeKind.RECORD.typeName(), key);

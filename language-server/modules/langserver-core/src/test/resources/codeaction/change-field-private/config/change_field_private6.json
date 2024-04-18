@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 2,
+    "character": 8
+  },
+  "source": "change_field_private6.bal",
+  "description": "Change the isolated field to private for a documented type",
+  "expected": [
+    {
+      "title": "Add private qualifier",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 4
+            }
+          },
+          "newText": "private "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 19,
+    "character": 9
+  },
+  "source": "add_lock17.bal",
+  "description": "Wrap in a lock statement for a isolated object",
+  "expected": [
+    {
+      "title": "Surround with lock",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 0
+            },
+            "end": {
+              "line": 20,
+              "character": 0
+            }
+          },
+          "newText": "    lock {\n\t    _ = s2.get(0);\n    }\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

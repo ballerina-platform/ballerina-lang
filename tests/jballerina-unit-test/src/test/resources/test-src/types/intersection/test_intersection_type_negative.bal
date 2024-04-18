@@ -43,3 +43,24 @@ type Z record {
     X x;
     Y y;
 };
+
+type ReadonlyType readonly;
+type FutureType future<int>;
+type T2 FutureType & ReadonlyType;
+
+function testReadonlyIntersectionImmutability() {
+    ReadonlyType & string[] arr = ["a", "b", "c"];
+    arr.push("d");
+}
+
+type Foo record {
+    string p1;
+    int p2?;
+};
+
+function testAssigningMutableValuesToReadonlyIntersectionsWithTypeRefForReadonly() {
+    int[] numArray = [1, 2, 3, 4];
+    ReadonlyType & int[] _ = numArray;
+    Foo foo = {p1: "P1"};
+    Foo & ReadonlyType _ = foo;
+}

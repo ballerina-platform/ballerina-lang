@@ -18,8 +18,12 @@
 package org.ballerinalang.formatter.core;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+import org.ballerinalang.formatter.core.options.FormattingOptions;
+import org.ballerinalang.formatter.core.options.WrappingFormattingOptions;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -32,6 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The abstract class that is extended by all formatting test classes.
@@ -68,14 +73,34 @@ public abstract class FormatterTest {
         }
     }
 
+    public void testWithConfigurationFile(String source, String sourcePath) throws IOException, FormatterException {
+        Path sourceDir = Paths.get(resourceDirectory.toString(), sourcePath, SOURCE_DIR);
+        Path sourceFilePath = Paths.get(sourceDir.toString(), source);
+        Path assertFilePath = Paths.get(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
+        Path tomlPath = Paths.get(sourceDir.toString(), ProjectConstants.BALLERINA_TOML);
+        String content = getSourceText(sourceFilePath);
+        TextDocument textDocument = TextDocuments.from(content);
+        String tomlContent = Files.readString(tomlPath);
+        TomlDocument tomlDocument = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
+        Map<String, Object> tomlConfig = FormatterUtils.parseConfigurationToml(tomlDocument);
+        FormattingOptions formattingOptions = FormattingOptions.builder().build(sourceDir, tomlConfig.get("format"));
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
+        try {
+            SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, formattingOptions);
+            Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
+        } catch (FormatterException e) {
+            Assert.fail(e.getMessage(), e);
+        }
+    }
+
     public void testWithOptions(String source, String sourcePath) throws IOException {
         Path assertFilePath = Paths.get(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
         Path sourceFilePath = Paths.get(resourceDirectory.toString(), sourcePath, SOURCE_DIR, source);
         String content = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        FormattingOptions formattingOptions =
-                FormattingOptions.builder().setLineWrapping(true).setColumnLimit(120).build();
+        FormattingOptions formattingOptions = FormattingOptions.builder().setWrappingFormattingOptions(
+                WrappingFormattingOptions.builder().setMaxLineLength(120).setLineWrap(true).build()).build();
         try {
             SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, formattingOptions);
             Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));

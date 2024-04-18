@@ -224,6 +224,10 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return true;
         }
 
+        if (symbol.tag == SymTag.XMLNS && isDistinctXMLNSSymbol((BXMLNSSymbol) symbol, (BXMLNSSymbol) foundSym)) {
+            return true;
+        }
+
         // if a symbol is found, then check whether it is unique
         if (!isDistinctSymbol(pos, symbol, foundSym)) {
             return false;
@@ -470,11 +474,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             BSymbol symbol = entry.symbol;
             long tag = symbol.tag;
 
-            if ((tag & SymTag.XMLNS) == SymTag.XMLNS) {
+            if (isDistinctXMLNSSymbol(symbol, compUnit)) {
                 return symbol;
             }
 
-            if ((tag & SymTag.IMPORT) == SymTag.IMPORT &&
+            if (!((tag & SymTag.XMLNS) == SymTag.XMLNS) && (tag & SymTag.IMPORT) == SymTag.IMPORT &&
                     ((BPackageSymbol) symbol).compUnit.equals(compUnit)) {
                 ((BPackageSymbol) symbol).isUsed = true;
                 return symbol;
@@ -488,6 +492,14 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         return symTable.notFoundSymbol;
+    }
+
+    private boolean isDistinctXMLNSSymbol(BSymbol symbol, Name compUnit) {
+        if (symbol instanceof BXMLNSSymbol bxmlnsSymbol) {
+            Name xmlnsCompUnit = bxmlnsSymbol.compUnit;
+            return xmlnsCompUnit == null || xmlnsCompUnit.equals(compUnit);
+        }
+        return false;
     }
 
     public BSymbol resolveAnnotation(Location pos, SymbolEnv env, Name pkgAlias, Name annotationName) {
@@ -2427,11 +2439,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     public BType getPotentialIntersection(Types.IntersectionContext intersectionContext,
                                            BType lhsType, BType rhsType, SymbolEnv env) {
-        if (lhsType == symTable.readonlyType) {
+        if (Types.getImpliedType(lhsType) == symTable.readonlyType) {
             return rhsType;
         }
 
-        if (rhsType == symTable.readonlyType) {
+        if (Types.getImpliedType(rhsType) == symTable.readonlyType) {
             return lhsType;
         }
 
@@ -2628,6 +2640,19 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             default:
                 return false;
         }
+    }
+
+    private boolean isDistinctXMLNSSymbol(BXMLNSSymbol symbol, BXMLNSSymbol foundSym) {
+        Name foundSymCompUnit = foundSym.compUnit;
+        Name symbolCompUnit = symbol.compUnit;
+        boolean isFoundSymModuleXmlns = foundSymCompUnit != null;
+        boolean isSymModuleXmlns = symbolCompUnit != null;
+        if (isFoundSymModuleXmlns && isSymModuleXmlns) {
+            return !foundSymCompUnit.value.equals(symbolCompUnit.value);
+        }
+        // If only one of the symbols have a compUnit then it is a module level xmlns and the symbols are distinct.
+        // If they both don't have a compUnit then it is a redeclared prefix.
+        return isFoundSymModuleXmlns || isSymModuleXmlns;
     }
 
     /**

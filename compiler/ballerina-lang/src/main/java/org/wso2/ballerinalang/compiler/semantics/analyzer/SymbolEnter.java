@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -419,17 +420,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define type definitions.
         this.typePrecedence = 0;
 
-        // Treat constants and type definitions in the same manner, since constants can be used as
-        // types. Also, there can be references between constant and type definitions in both ways.
-        // Thus visit them according to the precedence.
-        List<BLangNode> typeAndClassDefs = new ArrayList<>();
-        pkgNode.constants.forEach(constant -> typeAndClassDefs.add(constant));
-        pkgNode.typeDefinitions.forEach(typDef -> typeAndClassDefs.add(typDef));
-        List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
-        classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
+        // Treat constants, type definitions and xmlns declarations in the same manner, since constants can be used
+        // as types and can be referred to in XMLNS declarations. Also, there can be references between constant,
+        // type definitions and xmlns declarations in both ways. Thus visit them according to the precedence.
+        List<BLangNode> moduleDefs = new ArrayList<>();
+        moduleDefs.addAll(pkgNode.constants);
+        moduleDefs.addAll(pkgNode.typeDefinitions);
+        moduleDefs.addAll(pkgNode.xmlnsList);
+        moduleDefs.addAll(getClassDefinitions(pkgNode.topLevelNodes));
 
         this.env = pkgEnv;
-        typeResolver.defineBTypes(typeAndClassDefs, pkgEnv);
+        typeResolver.defineBTypes(moduleDefs, pkgEnv);
 
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way
@@ -437,19 +438,19 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Sort type definitions with precedence, before defining their members.
         pkgNode.typeDefinitions.sort(getTypePrecedenceComparator());
-        typeAndClassDefs.sort(getTypePrecedenceComparator());
+        moduleDefs.sort(getTypePrecedenceComparator());
 
         // Define error details.
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def members (if any)
-        defineFunctions(typeAndClassDefs, pkgEnv);
+        defineFunctions(moduleDefs, pkgEnv);
 
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
         // them and set the fields and members of the relevant immutable type.
         validateIntersectionTypeDefinitions(pkgNode.typeDefinitions, pkgNode.packageID);
-        defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, typeAndClassDefs, pkgEnv);
+        defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, moduleDefs, pkgEnv);
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
@@ -1168,12 +1169,19 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
+        defineXMLNS(env, xmlnsNode);
+    }
+
+    public void defineXMLNS(SymbolEnv symEnv, BLangXMLNS xmlnsNode) {
         String nsURI = "";
         if (xmlnsNode.namespaceURI.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) xmlnsNode.namespaceURI;
             if (Symbols.isFlagOn(varRef.symbol.flags, Flags.CONSTANT)) {
-                nsURI = ((BConstantSymbol) varRef.symbol).value.toString();
-                checkInvalidNameSpaceDeclaration(xmlnsNode.pos, xmlnsNode.prefix, nsURI);
+                BLangConstantValue constantValue = ((BConstantSymbol) varRef.symbol).value;
+                if (constantValue != null) {
+                    nsURI = constantValue.toString();
+                    checkInvalidNameSpaceDeclaration(xmlnsNode.pos, xmlnsNode.prefix, nsURI);
+                }
             }
         } else {
             nsURI = (String) ((BLangLiteral) xmlnsNode.namespaceURI).value;
@@ -1187,14 +1195,16 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         Name prefix = names.fromIdNode(xmlnsNode.prefix);
         Location nsSymbolPos = prefix.value.isEmpty() ? xmlnsNode.pos : xmlnsNode.prefix.pos;
-        BXMLNSSymbol xmlnsSymbol = Symbols.createXMLNSSymbol(prefix, nsURI, env.enclPkg.symbol.pkgID, env.scope.owner,
-                                                             nsSymbolPos, getOrigin(prefix));
+        BLangIdentifier compUnit = xmlnsNode.compUnit;
+        BXMLNSSymbol xmlnsSymbol =
+                Symbols.createXMLNSSymbol(prefix, nsURI, symEnv.enclPkg.symbol.pkgID, symEnv.scope.owner, nsSymbolPos,
+                        getOrigin(prefix), compUnit != null ? names.fromIdNode(compUnit) : null);
         xmlnsNode.symbol = xmlnsSymbol;
 
         // First check for package-imports with the same alias.
         // Here we do not check for owner equality, since package import is always at the package
         // level, but the namespace declaration can be at any level.
-        BSymbol foundSym = symResolver.lookupSymbolInPrefixSpace(env, xmlnsSymbol.name);
+        BSymbol foundSym = symResolver.lookupSymbolInPrefixSpace(symEnv, xmlnsSymbol.name);
         if ((foundSym.tag & SymTag.PACKAGE) != SymTag.PACKAGE) {
             foundSym = symTable.notFoundSymbol;
         }
@@ -1548,7 +1558,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public static String getTypeOrClassName(BLangNode node) {
         if (node.getKind() == NodeKind.TYPE_DEFINITION || node.getKind() == NodeKind.CONSTANT) {
             return ((TypeDefinition) node).getName().getValue();
-        } else  {
+        } else {
             return ((BLangClassDefinition) node).getName().getValue();
         }
     }

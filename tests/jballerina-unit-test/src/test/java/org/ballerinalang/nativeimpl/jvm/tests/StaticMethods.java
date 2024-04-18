@@ -824,4 +824,20 @@ public class StaticMethods {
     public static BString testOverloadedMethods(ArrayValue obj, BString str) {
         return str;
     }
+
+    public static Object getResource(Environment env, BObject client, BArray path, BArray args) {
+        return 5;
+    }
+
+    public static Object getResourceWithBundledParams(BObject client, BArray path, BArray args) {
+        return 1;
+    }
+
+    public static Object getResource(Environment env, BObject client, BArray args) {
+        return 10;
+    }
+
+    public static Object getResourceMethod(BObject service, BArray path) {
+        return 1000;
+    }
 }

@@ -63,9 +63,9 @@ public class ToolContext {
     }
 
     public static ToolContext from(PackageManifest.Tool tool, Package currentPackage, PrintStream printStream) {
-        return new ToolContext(currentPackage, tool.id(),
-                tool.filePath(), tool.targetModule(),
-                tool.optionsTable(), tool.type(), printStream);
+        return new ToolContext(currentPackage, tool.id().value(),
+                tool.filePath().value(), tool.targetModule().value(),
+                tool.optionsTable(), tool.type().value(), printStream);
     }
 
     /**

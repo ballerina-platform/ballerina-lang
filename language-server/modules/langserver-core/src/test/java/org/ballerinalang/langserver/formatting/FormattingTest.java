@@ -77,6 +77,36 @@ public class FormattingTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "test formatting functionality on functions with configurations")
+    public void formatTestSuiteWithConfigurations() throws IOException {
+        Path inputProject = formattingDirectory.resolve("project");
+        Path expectedProject = formattingDirectory.resolve("projectExpected");
+        Path expectedFilePath = expectedProject.resolve("main.bal");
+        Path inputFilePath = inputProject.resolve("main.bal");
+
+        String expected = new String(Files.readAllBytes(expectedFilePath));
+        expected = expected.replaceAll("\\r\\n", "\n");
+        DocumentFormattingParams documentFormattingParams = new DocumentFormattingParams();
+
+        TextDocumentIdentifier textDocumentIdentifier1 = new TextDocumentIdentifier();
+        textDocumentIdentifier1.setUri(Paths.get(inputFilePath.toString()).toUri().toString());
+
+        FormattingOptions formattingOptions = new FormattingOptions();
+
+        documentFormattingParams.setOptions(formattingOptions);
+        documentFormattingParams.setTextDocument(textDocumentIdentifier1);
+
+        TestUtil.openDocument(this.serviceEndpoint, inputFilePath);
+
+        String result = TestUtil.getFormattingResponse(documentFormattingParams, this.serviceEndpoint);
+        Gson gson = new Gson();
+        ResponseMessage responseMessage = gson.fromJson(result, ResponseMessage.class);
+        String actual = (String) ((LinkedTreeMap) ((List) responseMessage.getResult()).get(0)).get("newText");
+        actual = actual.replaceAll("\\r\\n", "\n");
+        TestUtil.closeDocument(this.serviceEndpoint, inputFilePath);
+        Assert.assertEquals(actual, expected);
+    }
+
     @AfterClass
     public void shutdownLanguageServer() throws IOException {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);

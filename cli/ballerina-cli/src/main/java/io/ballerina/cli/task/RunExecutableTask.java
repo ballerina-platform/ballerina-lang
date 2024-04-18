@@ -27,6 +27,7 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
@@ -78,7 +79,11 @@ public class RunExecutableTask implements Task {
         out.println("Running executable");
         out.println();
 
-        this.runGeneratedExecutable(project.currentPackage().getDefaultModule(), project);
+        try {
+            this.runGeneratedExecutable(project.currentPackage().getDefaultModule(), project);
+        } catch (ProjectException e) {
+            throw createLauncherException(e.getMessage());
+        }
         if (project.buildOptions().dumpBuildTime()) {
             BuildTime.getInstance().runningExecutableDuration = System.currentTimeMillis() - start;
         }

@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 4,
+    "character": 20
+  },
+  "source": "add_lock12.bal",
+  "description": "Wrap in a lock statement for returning a mutable storage",
+  "expected": [
+    {
+      "title": "Surround with lock",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 0
+            },
+            "end": {
+              "line": 5,
+              "character": 0
+            }
+          },
+          "newText": "        lock {\n\t        return self.arr[0];\n        }\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
