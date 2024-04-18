@@ -28,9 +28,9 @@ public class XIDGenerator {
     private static final int DEFAULT_FORMAT = ('B' << 24) + ('A' << 16) + ('L' << 8);
 
     static XATransactionID createXID(String combinedId) {
-        String trxId = combinedId.split("_")[0];
-        final byte[] branchQualifier = trxId.split(":")[1].getBytes();
-        final byte[] globalTransactionId = trxId.split(":")[0].getBytes();
+        String[] trxId = (combinedId.split("_")[0]).split(":");
+        final byte[] branchQualifier = trxId[1].getBytes();
+        final byte[] globalTransactionId = trxId[0].getBytes();
         return new XATransactionID(DEFAULT_FORMAT, branchQualifier, globalTransactionId);
     }
 
