@@ -856,6 +856,9 @@ public class JBallerinaBackend extends CompilerBackend {
                 copyJar(outStream, library, copiedEntries, serviceEntries);
             }
 
+            // Clean optimzied JAR byte streams
+            optimizedJarStreams.clear();
+
             // Copy merged spi services.
             for (Map.Entry<String, StringBuilder> entry : serviceEntries.entrySet()) {
                 String s = entry.getKey();

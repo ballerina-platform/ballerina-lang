@@ -1,28 +1,27 @@
 {
-  "thushara_piyasekara/unusedFunctionDetection:0.1.0": {
+  ".": {
     "usedFunctionNames": {
       "sourceFunctions": [
-        "bar",
-        "foo",
         "main"
       ],
       "virtualFunctions": [
-        ".<stop>",
+        ".<init>",
         ".<start>",
-        ".<init>"
+        ".<stop>"
       ]
     },
     "unusedFunctionNames": {
-      "sourceFunctions": [
-        "baz"
-      ],
+      "sourceFunctions": [],
       "virtualFunctions": []
     },
     "usedTypeDefNames": {
-      "sourceTypeDefinitions": [],
+      "sourceTypeDefinitions": [
+        "A",
+        "B"
+      ],
       "virtualTypeDefinitions": []
     },
-    "unUsedTypeDefNames": {
+    "unusedTypeDefNames": {
       "sourceTypeDefinitions": [],
       "virtualTypeDefinitions": []
     },

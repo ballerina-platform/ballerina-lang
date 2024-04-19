@@ -1,0 +1,34 @@
+{
+  ".": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main",
+        "foo",
+        "fpEater",
+        "baz"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [
+        "bar"
+      ],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "ReturnsIntFunction"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}
