@@ -1,0 +1,40 @@
+{
+  ".": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main",
+        "foo",
+        "baz",
+        "corge"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>",
+        "$UsedRec_$rec$UsedRec$rec$name",
+        "$corge_defaultParam"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [
+        "bar"
+      ],
+      "virtualFunctions": [
+        "$UnusedRec_$rec$UnusedRec$rec$name"
+      ]
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "UsedRec"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "UnusedRec"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}

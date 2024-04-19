@@ -1,0 +1,33 @@
+{
+  ".": {
+    "usedFunctionNames": {
+      "sourceFunctions": [
+        "main",
+        "foo"
+      ],
+      "virtualFunctions": [
+        ".<init>",
+        ".<start>",
+        ".<stop>"
+      ]
+    },
+    "unusedFunctionNames": {
+      "sourceFunctions": [
+        "bar"
+      ],
+      "virtualFunctions": []
+    },
+    "usedTypeDefNames": {
+      "sourceTypeDefinitions": [
+        "FPRecord",
+        "ReturnsIntFunction"
+      ],
+      "virtualTypeDefinitions": []
+    },
+    "unusedTypeDefNames": {
+      "sourceTypeDefinitions": [],
+      "virtualTypeDefinitions": []
+    },
+    "usedNativeClassPaths": []
+  }
+}
