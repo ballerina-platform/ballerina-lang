@@ -177,6 +177,22 @@ public class CentralAPIClient {
         this.maxRetries = MAX_RETRY;
     }
 
+    public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken, boolean verboseEnabled, int maxRetries,
+                            PrintStream outStream) {
+        this.outStream = outStream;
+        this.baseUrl = baseUrl;
+        this.proxy = proxy;
+        this.accessToken = accessToken;
+        this.verboseEnabled = verboseEnabled;
+        this.proxyUsername = "";
+        this.proxyPassword = "";
+        this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+        this.readTimeout = DEFAULT_READ_TIMEOUT;
+        this.writeTimeout = DEFAULT_WRITE_TIMEOUT;
+        this.callTimeout = DEFAULT_CALL_TIMEOUT;
+        this.maxRetries = maxRetries;
+    }
+
     public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
             String accessToken, int connectionTimeout, int readTimeout, int writeTimeout,
             int callTimeout, int maxRetries) {
@@ -508,6 +524,9 @@ public class CentralAPIClient {
                 break;
             } catch (CentralClientException centralClientException) {
                 if (centralClientException.getMessage().contains(CONNECTION_RESET) && retryCount < this.maxRetries) {
+                    outStream.println("* Retrying to pull the package: " + org + "/" + name + ":" + version +
+                            " due to: " + centralClientException.getMessage() + ". Retry attempt: " + (retryCount + 1));
+                    outStream.println();
                     retryCount++;
                     continue;
                 }
@@ -679,6 +698,9 @@ public class CentralAPIClient {
                 break;
             } catch (CentralClientException centralClientException) {
                 if (centralClientException.getMessage().contains(CONNECTION_RESET) && retryCount < this.maxRetries) {
+                    outStream.println("* Retrying to pull the tool: " + toolId + ":" + version + " due to: "
+                            + centralClientException.getMessage() + ". Retry attempt: " + (retryCount + 1));
+                    outStream.println();
                     retryCount++;
                     continue;
                 }
@@ -1902,13 +1924,13 @@ public class CentralAPIClient {
 
      class CustomRetryInterceptor implements Interceptor {
         private final int maxRetries;
-        private int retryCount = 0;
         CustomRetryInterceptor(int maxRetry) {
             this.maxRetries = maxRetry;
         }
 
         @Override
         public Response intercept(Chain chain) throws IOException {
+            int retryCount = 0;
             Request request = chain.request();
             Response response = null;
             while (retryCount <= maxRetries) {
@@ -1922,17 +1944,16 @@ public class CentralAPIClient {
                 if (body.isPresent()) {
                     responseBodyString = body.get().string();
                 }
-                logRetryVerbose(response, responseBodyString, request);
+                logRetryVerbose(response, responseBodyString, request, retryCount);
                 response.close();
             }
             return response;
         }
 
-         private void logRetryVerbose(Response response, String bodyContent, Request request) {
+         private void logRetryVerbose(Response response, String bodyContent, Request request, int retryCount) {
              if (verboseEnabled) {
                  Optional<ResponseBody> body = Optional.ofNullable(response.body());
                  outStream.println("< HTTP " + response.code() + " " + response.message());
-
                  if (body.isPresent()) {
                      for (String headerName : response.headers().names()) {
                          outStream.println("> " + headerName + ": " + response.header(headerName));
