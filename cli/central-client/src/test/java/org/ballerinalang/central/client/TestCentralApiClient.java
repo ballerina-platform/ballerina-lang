@@ -966,7 +966,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                     .build();
             try (MockedStatic<Utils> utils = Mockito.mockStatic(Utils.class, CALLS_REAL_METHODS)) {
                 utils.when(() -> Utils.writeBalaFile(any(), any(), any(),
-                                anyLong(), any(), any(), any()))
+                                anyLong(), any(), any(), any(), any()))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenCallRealMethod();
@@ -1028,7 +1028,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                     .build();
             try (MockedStatic<Utils> utils = Mockito.mockStatic(Utils.class, CALLS_REAL_METHODS)) {
                 utils.when(() -> Utils.writeBalaFile(any(), any(), any(),
-                                anyLong(), any(), any(), any()))
+                                anyLong(), any(), any(), any(), any()))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
@@ -1096,7 +1096,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                     .build();
             try (MockedStatic<Utils> utils = Mockito.mockStatic(Utils.class, CALLS_REAL_METHODS)) {
                 utils.when(() -> Utils.writeBalaFile(any(), any(), any(),
-                                anyLong(), any(), any(), any()))
+                                anyLong(), any(), any(), any(), any()))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenCallRealMethod();
@@ -1162,7 +1162,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                     .build();
             try (MockedStatic<Utils> utils = Mockito.mockStatic(Utils.class, CALLS_REAL_METHODS)) {
                 utils.when(() -> Utils.writeBalaFile(any(), any(), any(),
-                                anyLong(), any(), any(), any()))
+                                anyLong(), any(), any(), any(), any()))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
