@@ -43,9 +43,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
@@ -457,10 +459,10 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
                 Arrays.asList("ballerinax/mysql:1.11.0", "ballerina/sql:1.11.1", "ballerinax/persist.sql:1.2.1"));
         private static final String BALLERINA_TEST_PKG_NAME = "ballerina/test:0.0.0";
         private static final String MOCK_FUNCTION_PREFIX = "$MOCK_";
-        protected final HashSet<BIRNode.BIRFunction> usedFunctions = new HashSet<>();
-        protected final HashSet<BIRNode.BIRFunction> unusedFunctions = new HashSet<>();
-        protected final HashSet<BIRNode.BIRTypeDefinition> usedTypeDefs = new HashSet<>();
-        protected final HashSet<BIRNode.BIRTypeDefinition> unusedTypeDefs = new HashSet<>();
+        protected final Set<BIRNode.BIRFunction> usedFunctions = new LinkedHashSet<>();
+        protected final Set<BIRNode.BIRFunction> unusedFunctions = new LinkedHashSet<>();
+        protected final Set<BIRNode.BIRTypeDefinition> usedTypeDefs = new LinkedHashSet<>();
+        protected final Set<BIRNode.BIRTypeDefinition> unusedTypeDefs = new LinkedHashSet<>();
         protected final ArrayList<BIRNode.BIRDocumentableNode> startPointNodes = new ArrayList<>();
         private final HashMap<String, BIRNode.BIRFunction> functionPool = new HashMap<>();
         private final HashSet<FunctionPointerData> functionPointerDataPool = new HashSet<>();

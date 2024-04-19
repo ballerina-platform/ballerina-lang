@@ -21,38 +21,70 @@ package org.ballerinalang.test.codegen.optimizer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 public class CodegenOptimizerTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CodegenOptimizerTest.class);
-    private static final String RES_DIR = "src/test/resources/test-src/codegen-optimizer";
-    private static final String PROJECT_DIR = RES_DIR + "/projects/unusedFunctionDetection";
-    private static final Path OPTIMIZATION_REPORT_JSON =
-            Path.of(PROJECT_DIR).toAbsolutePath().resolve("target").resolve("codegen_optimization_report.json");
-    private static final Path EXPECTED_JSON_PATH =
-            Path.of(RES_DIR).toAbsolutePath().resolve("json-files").resolve("unusedFunctionDetection.json");
-    private CompileResult compileResult;
+    private static final Path TESTS_SOURCE_PATH = Path.of("src/test/resources").toAbsolutePath().normalize();
+    private static final Path EXPECTED_JSON_DIR_PATH =
+            Path.of("src/test/resources/test-src/codegen-optimizer/json-files").toAbsolutePath().normalize();
+    private static final Path SINGLE_FILE_FUNCTION_TESTS_PATH =
+            Path.of(TESTS_SOURCE_PATH.toString(), "test-src/codegen-optimizer/single-file-projects/FunctionTests");
+    private static final Path SINGLE_FILE_TYPE_DEFINITION_TESTS_PATH =
+            Path.of(TESTS_SOURCE_PATH.toString(), "test-src/codegen-optimizer/single-file-projects/TypeDefinitions");
+    private static final String OPTIMIZATION_REPORT_JSON = "codegen_optimization_report.json";
 
-    @BeforeClass
-    public void setup() {
-        compileResult = BCompileUtil.compileOptimized("test-src/codegen-optimizer/projects/unusedFunctionDetection");
+    @Test(dataProvider = "FunctionProjectPaths")
+    public void testSingleProjectFunctionCasesWithDataProvider(Path singleFileProjectPath) {
+        BCompileUtil.compileOptimized(getProjectPathInBCompileUtilCompatibleFormat(singleFileProjectPath));
+        assertJsonReportsAreSimilar(singleFileProjectPath);
     }
 
-    @Test
-    public void testJsonOutput() {
-        JsonObject actualJsonObject = fileContentAsObject(OPTIMIZATION_REPORT_JSON.normalize());
-        JsonObject expectedJsonObject = fileContentAsObject(EXPECTED_JSON_PATH.toAbsolutePath().normalize());
+    @DataProvider(name = "FunctionProjectPaths")
+    public Object[] getSingleFileProjectPaths() {
+        File[] functionFiles = SINGLE_FILE_FUNCTION_TESTS_PATH.toFile().listFiles();
+        Assert.assertNotNull(functionFiles);
+        return Arrays.stream(functionFiles).map(file -> Path.of(file.getPath()).toAbsolutePath().normalize()).toArray();
+    }
+
+    @Test(dataProvider = "TypeDefProjectPaths")
+    public void testSingleProjectTypeDefinitionCasesWithDataProvider(Path singleFileProjectPath) {
+        BCompileUtil.compileOptimized(getProjectPathInBCompileUtilCompatibleFormat(singleFileProjectPath));
+        assertJsonReportsAreSimilar(singleFileProjectPath);
+    }
+
+    @DataProvider(name = "TypeDefProjectPaths")
+    public Object[] getTypeDefProjectPaths() {
+        File[] typeDefinitionFiles = SINGLE_FILE_TYPE_DEFINITION_TESTS_PATH.toFile().listFiles();
+        Assert.assertNotNull(typeDefinitionFiles);
+        return Arrays.stream(typeDefinitionFiles).map(file -> Path.of(file.getPath()).toAbsolutePath().normalize())
+                .toArray();
+    }
+
+
+    private void assertJsonReportsAreSimilar(Path singleFileProjectPath) {
+        String jsonFileName = singleFileProjectPath.getFileName().toString().replace(".bal", ".json");
+        Path actualJsonPath = singleFileProjectPath.getParent().resolve(OPTIMIZATION_REPORT_JSON);
+
+        JsonObject expectedJsonObject = fileContentAsObject(EXPECTED_JSON_DIR_PATH.resolve(jsonFileName));
+        JsonObject actualJsonObject = fileContentAsObject(actualJsonPath);
         Assert.assertEquals(actualJsonObject, expectedJsonObject);
+        actualJsonPath.toFile().delete();
+    }
+
+    private String getProjectPathInBCompileUtilCompatibleFormat(Path projectAbsolutePath) {
+        return projectAbsolutePath.toString().replace(TESTS_SOURCE_PATH.toString(), "").substring(1);
     }
 
     private static JsonObject fileContentAsObject(Path filePath) {

@@ -33,9 +33,10 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DIR_NAME;
 
@@ -136,9 +137,9 @@ public class CodeGenOptimizationReportEmitter {
                 getTypeDefNames(invocationData.unusedTypeDefs), invocationData.usedNativeClassPaths);
     }
 
-    private static CodegenOptimizationReport.FunctionNames getFunctionNames(HashSet<BIRNode.BIRFunction> birFunctions) {
+    private static CodegenOptimizationReport.FunctionNames getFunctionNames(Set<BIRNode.BIRFunction> birFunctions) {
         CodegenOptimizationReport.FunctionNames functionNames =
-                new CodegenOptimizationReport.FunctionNames(new HashSet<>(), new HashSet<>());
+                new CodegenOptimizationReport.FunctionNames(new LinkedHashSet<>(), new LinkedHashSet<>());
         birFunctions.forEach(birFunction -> {
             if (birFunction.origin == SymbolOrigin.COMPILED_SOURCE) {
                 functionNames.sourceFunctions().add(getFunctionName(birFunction));
@@ -159,9 +160,9 @@ public class CodeGenOptimizationReportEmitter {
     }
 
     private static CodegenOptimizationReport.TypeDefinitions getTypeDefNames(
-            HashSet<BIRNode.BIRTypeDefinition> birTypeDefs) {
+            Set<BIRNode.BIRTypeDefinition> birTypeDefs) {
         CodegenOptimizationReport.TypeDefinitions typeDefNames =
-                new CodegenOptimizationReport.TypeDefinitions(new HashSet<>(), new HashSet<>());
+                new CodegenOptimizationReport.TypeDefinitions(new LinkedHashSet<>(), new LinkedHashSet<>());
         birTypeDefs.forEach(birTypeDef -> {
             if (birTypeDef.origin == SymbolOrigin.COMPILED_SOURCE) {
                 typeDefNames.sourceTypeDefinitions().add(birTypeDef.internalName.value);
