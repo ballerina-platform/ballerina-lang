@@ -31,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
+import java.util.Locale;
 
 /**
  * Test cases to test retry logic.
@@ -38,6 +39,8 @@ import java.net.HttpURLConnection;
 
 public class TestCustomRetryInterceptor {
     public static final String BASE_PATH = "/";
+    private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
+            .contains("win");
     public static final int PORT = 57803;
     private MockWebServer mockWebServer;
     private OkHttpClient centralHttpClient;
@@ -75,6 +78,9 @@ public class TestCustomRetryInterceptor {
                 .build();
         Response response = centralHttpClient.newCall(request).execute();
         String consoleOutput = readOutput();
+        if (isWindows) {
+            consoleOutput = consoleOutput.replaceAll("127.0.0.1", "localhost");
+        }
         Assert.assertEquals(response.code(), HttpURLConnection.HTTP_INTERNAL_ERROR);
         Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 1));
         Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 2));
@@ -98,6 +104,9 @@ public class TestCustomRetryInterceptor {
                 .build();
         Response response = centralHttpClient.newCall(request).execute();
         String consoleOutput = readOutput();
+        if (isWindows) {
+            consoleOutput = consoleOutput.replaceAll("127.0.0.1", "localhost");
+        }
         Assert.assertEquals(response.code(), HttpURLConnection.HTTP_OK);
         Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 1));
         Assert.assertTrue(consoleOutput.contains(expectedOutputPrefix + 2));
